@@ -465,8 +465,8 @@ importers:
         specifier: 'catalog:'
         version: 19.3.1(react@19.3.1)
       react-virtuoso:
-        specifier: ^4.18.19
-        version: 4.18.19(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: ^4.18.20
+        version: 4.18.20(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       resend:
         specifier: ^6.34.1
         version: 6.34.1
@@ -743,8 +743,8 @@ importers:
         specifier: 'catalog:'
         version: 2.7.2(@types/react@19.3.0)(react@19.3.1)
       react-virtuoso:
-        specifier: ^4.18.19
-        version: 4.18.19(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: ^4.18.20
+        version: 4.18.20(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
@@ -7111,8 +7111,8 @@ packages:
       '@types/react':
         optional: true
 
-  react-virtuoso@4.18.19:
-    resolution: {integrity: sha512-dewyZisA5IiQTldh7eHM5KpI+qxi0nKRVYi2iM01XmPkNa5tjvVUKJKAIc6ted1hAK1/NFlXuhXpVYqGHHdcdQ==}
+  react-virtuoso@4.18.20:
+    resolution: {integrity: sha512-2G/Hdi/QHRtJtzSZOkAwJFdUzBmhNIQCAmw6gLGUZTGbjVL6+TOBIFJOCnpm6xgWGBfrrMiZV5rJNkQ9gEgAdQ==}
     peerDependencies:
       react: '>=16 || >=17 || >= 18 || >= 19'
       react-dom: '>=16 || >=17 || >= 18 || >=19'
@@ -14565,7 +14565,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  react-virtuoso@4.18.19(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
+  react-virtuoso@4.18.20(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
