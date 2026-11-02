@@ -525,6 +525,33 @@ describe("the morning report cron", () => {
     expect(await runCron(failingAgent())).toMatchObject({ built: 0 });
   });
 
+  it("reads a mailbox whose server cannot move mail, and keeps saying that it cannot", async () => {
+    server = createFakeMailServer({
+      user: "me@icloud.com",
+      password: "app-password",
+      move: false,
+      uidPlus: false,
+    });
+    server.addFolder("Archive", { specialUse: "\\Archive" });
+    server.addFolder("Newsletters");
+    server.addFolder("Sent Messages", { specialUse: "\\Sent" });
+    const mails = deliverDay();
+
+    expect(await runCron(reportAgent().model)).toMatchObject({ built: 1 });
+
+    const [report] = await db.select().from(morningReports);
+    expect(report.content).toMatchObject({
+      status: "written",
+      unreadMailboxes: [],
+    });
+    expect(seenOf("INBOX", mails.invoice)).toBe(true);
+    const [account] = await db.select().from(mailAccounts);
+    expect(account).toMatchObject({
+      status: "ok",
+      writeErrorCode: "move_unsupported",
+    });
+  });
+
   it("stores nothing and marks no mail read while the agent submits no report, and the next hour stores the report once", async () => {
     const uids = deliverDay();
     await insertTodos();

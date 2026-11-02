@@ -233,9 +233,9 @@ async function locate(
 
 /**
  * The mailbox tools of an agent run. Every guardrail lives here, not in a
- * prompt: the tools only MOVE mail and change its read and flagged state,
+ * prompt: the tools only move mail and change its read and flagged state,
  * never into Trash, Sent, Drafts or a virtual folder; nothing can delete
- * mail, expunge or send. A folder is deleted only when it is empty, and
+ * mail or send. A folder is deleted only when it is empty, and
  * INBOX and the special-use folders are never renamed or deleted. The tools
  * act only on ids this run listed, within the run's limits, and every change
  * needs a reason and goes to the action log.
@@ -817,6 +817,11 @@ export function createMailTools({
         const moved: string[] = [];
         const skipped: Skipped[] = [];
         const check = (mailbox: HeldMailbox, group: FolderGroup) => {
+          if (!mailbox.session.supportsMove()) {
+            throw new ToolRefusal(
+              `The mail server of ${mailbox.account.key} cannot move mail safely. Leave its mail where it is.`,
+            );
+          }
           const destination = mailbox.folder(input.folder);
           const refusal =
             destinationRefusal(destination) ??

@@ -99,7 +99,9 @@ export async function organiseUserMail(
   if (!settings?.enabled) return result;
   result.enabled = true;
 
-  const mailboxes = await RunMailboxes.open(db, userId, deps);
+  const mailboxes = await RunMailboxes.open(db, userId, deps, {
+    mustMove: true,
+  });
   result.failedAccounts = mailboxes.failedAccounts;
   try {
     const inboxes: InboxState[] = [];

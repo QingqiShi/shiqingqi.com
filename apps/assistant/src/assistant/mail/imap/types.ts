@@ -58,7 +58,7 @@ export interface MailSearch {
   messageId?: string;
 }
 
-/** Where a MOVE put the mail, when the server says it (UIDPLUS COPYUID). */
+/** Where a move put the mail, when the server says it (UIDPLUS COPYUID). */
 export interface MovedMessages {
   uidValidity: number;
   /** Source UID to destination UID. */
@@ -78,7 +78,7 @@ export interface MailboxSession {
   renameFolder(path: string, newPath: string): Promise<void>;
   /** Deletes a folder that holds no mail; throws when the server says it holds some. */
   deleteEmptyFolder(path: string): Promise<void>;
-  /** Whether the server has the MOVE command, which `moveMessages` needs. */
+  /** Whether `moveMessages` can work: the server has MOVE, or UIDPLUS for a UID EXPUNGE of the moved mail only. */
   supportsMove(): boolean;
   openFolder(
     path: string,
@@ -90,9 +90,13 @@ export interface MailboxSession {
   addFlags(uids: number[], flags: string[]): Promise<void>;
   removeFlags(uids: number[], flags: string[]): Promise<void>;
   /**
-   * Moves mail of the open folder with the MOVE command. It never copies and
-   * deletes: without MOVE it throws `MoveUnsupportedError`. Null when the
-   * server does not say the new UIDs.
+   * Moves mail of the open folder with MOVE, or else with copy, `\Deleted`
+   * and UID EXPUNGE of those UIDs only. It never sends a plain EXPUNGE: with
+   * neither MOVE nor UIDPLUS it throws `MoveUnsupportedError`. After a failure
+   * a copy can stay in the destination, and another move of the same mail can
+   * then leave a duplicate there: the app accepts this, because it never
+   * guesses that a mail in the destination is the copy.
+   * Null when the server does not say the new UIDs.
    */
   moveMessages(
     uids: number[],

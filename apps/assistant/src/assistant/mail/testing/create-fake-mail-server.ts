@@ -49,7 +49,8 @@ const MESSAGE_ID_HEADER = /^message-id:[ \t]*(.*)$/im;
  * An in-memory IMAP server for one mailbox. `connector` logs in with
  * `password` or `accessToken`, and fails with `failNextConnects` when it is
  * set. `uidPlus: false` makes MOVE say no new UIDs; `move: false` makes a
- * server without MOVE. `refusal` is the error message of a refused login.
+ * server without MOVE, which moves by UID EXPUNGE unless `uidPlus` is false
+ * too. `refusal` is the error message of a refused login.
  */
 export function createFakeMailServer({
   user,
@@ -226,7 +227,7 @@ export function createFakeMailServer({
         if (open?.path === path) open = null;
         return Promise.resolve();
       },
-      supportsMove: () => move,
+      supportsMove: () => move || uidPlus,
       openFolder: (path, options) => {
         if (!session.isUsable()) {
           return Promise.reject(new Error("The connection is closed"));
@@ -290,7 +291,9 @@ export function createFakeMailServer({
         return Promise.resolve();
       },
       moveMessages: (uids, destination) => {
-        if (!move) return Promise.reject(new MoveUnsupportedError());
+        if (!move && !uidPlus) {
+          return Promise.reject(new MoveUnsupportedError());
+        }
         const from = writableFolder({
           command: "move",
           path: openFolder().path,

@@ -27,6 +27,14 @@ export interface RunAccount {
   address: string;
 }
 
+interface OpenOptions {
+  /**
+   * Leaves out accounts whose server cannot move mail. An inbox there always
+   * holds mail, so a run that files mail would call the model for nothing.
+   */
+  mustMove?: boolean;
+}
+
 /** One logged-in account while a tool holds it. */
 export interface HeldMailbox {
   account: RunAccount;
@@ -44,6 +52,7 @@ interface AccountState {
   account: RunAccount;
   stored: StoredAccount;
   session: MailboxSession;
+  canMove: boolean;
   folders: MailboxFolder[];
   open: { path: string; write: boolean; uidValidity: number } | null;
   /** Each tool call waits for the one before it: an IMAP session has one open folder. */
@@ -81,13 +90,15 @@ export class RunMailboxes {
 
   /**
    * Logs in to each account and reads its folders. An account that fails
-   * gets its error recorded; one whose server has no MOVE gets
-   * `move_unsupported`. Neither takes part in the run.
+   * gets its error recorded and takes no part in the run. One whose server
+   * cannot move mail gets `move_unsupported` and takes part, unless
+   * `mustMove` is set.
    */
   static async open(
     db: AssistantDb,
     userId: string,
     deps: MailboxDeps,
+    { mustMove = false }: OpenOptions = {},
   ): Promise<RunMailboxes> {
     const now = deps.auth.now;
     const stored = await db
@@ -105,12 +116,14 @@ export class RunMailboxes {
         ),
       )
       .orderBy(sql`${mailAccounts.lastSyncedAt} asc nulls first`);
+    let failedAccounts = 0;
     const opened = await Promise.all(
       stored.map(async (account, index): Promise<AccountState | null> => {
         let session: MailboxSession | null = null;
         try {
           session = await openMailboxSession(db, userId, account, deps);
-          if (!session.supportsMove()) throw new MoveUnsupportedError();
+          const canMove = session.supportsMove();
+          if (mustMove && !canMove) throw new MoveUnsupportedError();
           const folders = await session.listFolders();
           return {
             account: {
@@ -121,6 +134,7 @@ export class RunMailboxes {
             },
             stored: account,
             session,
+            canMove,
             folders,
             open: null,
             queue: Promise.resolve(),
@@ -132,6 +146,7 @@ export class RunMailboxes {
             await recordWriteState(db, userId, account.id, error, now());
             await recordAccountOk(db, userId, account.id, now());
           } else {
+            failedAccounts += 1;
             await recordAccountError(db, userId, account.id, error, now());
           }
           return null;
@@ -139,13 +154,7 @@ export class RunMailboxes {
       }),
     );
     const states = opened.filter((state) => state !== null);
-    return new RunMailboxes(
-      db,
-      userId,
-      deps,
-      states,
-      stored.length - states.length,
-    );
+    return new RunMailboxes(db, userId, deps, states, failedAccounts);
   }
 
   get accounts(): RunAccount[] {
@@ -192,7 +201,10 @@ export class RunMailboxes {
         }
         return await task(this.#held(state));
       } catch (error) {
-        if (!(error instanceof ToolRefusal)) state.failure ??= error;
+        if (!(error instanceof ToolRefusal)) {
+          state.failure ??= error;
+          state.open = null;
+        }
         throw error;
       }
     });
@@ -239,7 +251,13 @@ export class RunMailboxes {
       await state.queue;
       const { id } = state.account;
       if (state.failure === null) {
-        await recordWriteState(this.#db, this.#userId, id, null, now());
+        await recordWriteState(
+          this.#db,
+          this.#userId,
+          id,
+          state.canMove ? null : new MoveUnsupportedError(),
+          now(),
+        );
         await recordAccountOk(this.#db, this.#userId, id, now());
       } else {
         await recordAccountError(
