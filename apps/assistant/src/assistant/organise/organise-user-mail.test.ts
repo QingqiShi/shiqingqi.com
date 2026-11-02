@@ -10,6 +10,7 @@ import {
 import {
   agentActions,
   agentRuns,
+  mailAccounts,
   userSettings,
 } from "#src/assistant/db/schema.ts";
 import {
@@ -456,6 +457,43 @@ describe("organising the inbox", () => {
     });
     expect(agent.prompts).toEqual([]);
     expect(await db.select().from(agentRuns)).toEqual([]);
+  });
+
+  it("calls no model for a server that cannot move mail, and takes a server with UIDPLUS in", async () => {
+    await setOrganise(true);
+    server = createFakeMailServer({
+      user: "me@icloud.com",
+      password: "app-password",
+      move: false,
+      uidPlus: false,
+    });
+    deliver("Card statement");
+    const agent = scriptedAgent();
+
+    expect(await organise(agent, scriptedReader())).toMatchObject({
+      accounts: 0,
+      failedAccounts: 0,
+      inboxMail: 0,
+      run: null,
+    });
+    expect(agent.prompts).toEqual([]);
+    const [account] = await db.select().from(mailAccounts);
+    expect(account).toMatchObject({
+      status: "ok",
+      writeErrorCode: "move_unsupported",
+    });
+
+    server = createFakeMailServer({
+      user: "me@icloud.com",
+      password: "app-password",
+      move: false,
+    });
+    expect(await organise(agent, scriptedReader())).toMatchObject({
+      accounts: 1,
+      failedAccounts: 0,
+    });
+    const [after] = await db.select().from(mailAccounts);
+    expect(after.writeErrorCode).toBeNull();
   });
 
   it("runs the agent: it files the mail, sends spam to Junk, cannot reach Trash or the read state, and logs each change", async () => {

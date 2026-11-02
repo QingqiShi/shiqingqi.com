@@ -13,9 +13,11 @@ import type {
   MailboxConnector,
   MailboxFolder,
   MailboxSession,
+  MovedMessages,
 } from "#src/assistant/mail/imap/types.ts";
 
 const TIMEOUT_MS = 30_000;
+const DELETED = "\\Deleted";
 
 function addressesOf(list: MessageAddressObject[] | undefined): MailAddress[] {
   return (list ?? []).map((entry) => ({
@@ -118,6 +120,63 @@ export const createImapflowConnector =
       }
     }
 
+    /**
+     * A move on a server with UIDPLUS and no MOVE: UID COPY, then \Deleted
+     * and UID EXPUNGE on the copied UIDs only. Do not use `client.messageMove`
+     * for this: without MOVE and UIDPLUS it sends a plain EXPUNGE, which
+     * removes all mail that has \Deleted. The copy is made first, so a failure
+     * never loses mail. A failed removal takes off the \Deleted that this move
+     * set and leaves flags that other clients set. The copy stays in the
+     * destination, so a later move of the same mail can make a duplicate there.
+     * The app accepts this: it never guesses that a mail in the destination is
+     * the copy, because a wrong guess removes mail.
+     */
+    async function moveByCopy(
+      uids: number[],
+      destination: string,
+    ): Promise<MovedMessages | null> {
+      const wanted = await client.fetchAll(
+        uids,
+        { uid: true, flags: true },
+        { uid: true },
+      );
+      if (wanted.length === 0) return null;
+
+      const copied = await client.messageCopy(
+        wanted.map((message) => message.uid),
+        destination,
+        { uid: true },
+      );
+      if (!copied) throw new Error("The mail server did not copy the mail");
+      const { uidMap } = copied;
+      const removing = wanted
+        .map((message) => message.uid)
+        .filter((uid) => !uidMap || uidMap.has(uid));
+      if (removing.length === 0) return null;
+
+      if (!client.capabilities.has("UIDPLUS")) throw new MoveUnsupportedError();
+      const removed = await client
+        .messageDelete(removing, { uid: true })
+        .catch(() => false);
+      if (!removed) {
+        const deletedBefore = new Set(
+          wanted
+            .filter((message) => message.flags?.has(DELETED))
+            .map((message) => message.uid),
+        );
+        await client
+          .messageFlagsRemove(
+            removing.filter((uid) => !deletedBefore.has(uid)),
+            [DELETED],
+            { uid: true },
+          )
+          .catch(() => false);
+        throw new Error("The mail server did not take the moved mail out");
+      }
+      if (!uidMap || copied.uidValidity === undefined) return null;
+      return { uidValidity: Number(copied.uidValidity), uidMap };
+    }
+
     const session: MailboxSession = {
       async listFolders() {
         const listed = await client.list();
@@ -147,7 +206,9 @@ export const createImapflowConnector =
         await client.mailboxDelete(path);
       },
       supportsMove() {
-        return client.capabilities.has("MOVE");
+        return (
+          client.capabilities.has("MOVE") || client.capabilities.has("UIDPLUS")
+        );
       },
       async openFolder(path, options) {
         const opened = await client.mailboxOpen(path, {
@@ -204,7 +265,12 @@ export const createImapflowConnector =
       },
       async moveMessages(uids, destination) {
         if (uids.length === 0) return null;
-        if (!client.capabilities.has("MOVE")) throw new MoveUnsupportedError();
+        if (!client.capabilities.has("MOVE")) {
+          if (!client.capabilities.has("UIDPLUS")) {
+            throw new MoveUnsupportedError();
+          }
+          return moveByCopy(uids, destination);
+        }
         const moved = await client.messageMove(uids, destination, {
           uid: true,
         });

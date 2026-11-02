@@ -1,10 +1,10 @@
 /**
- * The server has no MOVE command. A move by copy, `\Deleted` and EXPUNGE can
- * remove other mail that the user marked deleted, so the app does not move.
+ * The server has neither MOVE nor UIDPLUS. A plain EXPUNGE removes other mail
+ * that the user marked deleted, so the app does not move mail on this server.
  */
 export class MoveUnsupportedError extends Error {
   constructor() {
-    super("The mail server does not support the MOVE command");
+    super("The mail server has neither the MOVE command nor UIDPLUS");
     this.name = "MoveUnsupportedError";
   }
 }

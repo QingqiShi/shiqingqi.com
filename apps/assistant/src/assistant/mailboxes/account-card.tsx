@@ -73,8 +73,8 @@ function ErrorText({ code }: { code: string }) {
 function WriteErrorText({ code }: { code: string }) {
   const messages: Record<WriteErrorCode, string> = {
     move_unsupported: t({
-      en: "This mail server cannot move mail safely, so the assistant leaves all mail in the inbox, unchanged.",
-      zh: "这个邮件服务器无法安全地移动邮件，所以助手会把所有邮件原样留在收件箱。",
+      en: "This mail server cannot move mail safely. The assistant still reads this mailbox for the morning report, but leaves its mail where it is.",
+      zh: "这个邮件服务器无法安全地移动邮件。助手仍会读取这个邮箱来写晨报，但邮件会留在原来的位置。",
     }),
   };
   return (
