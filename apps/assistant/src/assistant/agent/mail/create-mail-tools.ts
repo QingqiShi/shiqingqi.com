@@ -527,7 +527,7 @@ export function createMailTools({
 
     read_mail: agentTool({
       description:
-        "Has a reader with no tools read the text of mails and describe each: its kind, a short summary, whether the owner needs to see it, and any warning. The text itself does not come back. Reading does not mark mail read.",
+        "Has a reader with no tools read the text of mails and describe each: its kind, a short summary, whether the owner needs to see it, any warning, and the events it books, moves or cancels. The text itself does not come back. Reading does not mark mail read.",
       inputSchema: z.object({ ids: mailIds(limits.readsPerCall) }),
       execute: async ({ ids }) => {
         const skipped: Skipped[] = [];

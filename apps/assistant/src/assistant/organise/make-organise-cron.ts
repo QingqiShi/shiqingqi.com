@@ -22,6 +22,7 @@ interface OrganiseTotals {
   renamedFolders: number;
   deletedFolders: number;
   flagged: number;
+  calendarChanges: number;
 }
 
 /** The 15-minute cron: runs the organise agent for every user who turned organising on. */
@@ -53,6 +54,7 @@ export function makeOrganiseCron(
         renamedFolders: 0,
         deletedFolders: 0,
         flagged: 0,
+        calendarChanges: 0,
       }),
       runUser: async ({ db, userId, totals, endsAt }) => {
         const deps = dependencies.getOrganiseDeps();
@@ -72,6 +74,8 @@ export function makeOrganiseCron(
         totals.renamedFolders += result.renamedFolders;
         totals.deletedFolders += result.deletedFolders;
         totals.flagged += result.flagged;
+        totals.calendarChanges +=
+          result.createdEvents + result.updatedEvents + result.deletedEvents;
       },
       onUserError: (_error, _userId, totals) => {
         totals.failedUsers += 1;

@@ -1,5 +1,6 @@
 import "server-only";
 import { getAgentModels } from "#src/assistant/ai/get-agent-models.ts";
+import { tsdavConnector } from "#src/assistant/calendar/caldav/tsdav-connector.ts";
 import { getMailDeps } from "#src/assistant/mail/get-mail-deps.ts";
 import type { OrganiseDeps } from "./organise-user-mail.ts";
 
@@ -8,6 +9,11 @@ export function getOrganiseDeps(): OrganiseDeps | null {
   const mail = getMailDeps();
   const models = getAgentModels();
   return mail && models
-    ? { ...mail, agent: models.agent, reader: models.reader }
+    ? {
+        ...mail,
+        calendarConnector: tsdavConnector,
+        agent: models.agent,
+        reader: models.reader,
+      }
     : null;
 }
