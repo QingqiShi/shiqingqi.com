@@ -187,7 +187,11 @@ export function TodoEditor({
   }
 
   return (
-    <li ref={sortable?.itemRef} css={[listSurface.item, sortable?.itemCss]}>
+    <li
+      ref={sortable?.itemRef}
+      data-todo-editor
+      css={[listSurface.item, sortable?.itemCss]}
+    >
       <form
         noValidate
         css={[listSurface.row, stack.item, styles.form]}

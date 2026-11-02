@@ -6,12 +6,22 @@ import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
-import { use, useState, type ReactNode, type Ref } from "react";
+import { mergeRefs } from "@tuja/ui/utils/merge-refs";
+import {
+  use,
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+  type ReactNode,
+  type Ref,
+} from "react";
 import { startsAfter } from "../report/dates-in-order.ts";
 import { localClock } from "../report/due-report-date.ts";
 import { ChecklistProgress } from "./checklist-progress.tsx";
@@ -22,6 +32,8 @@ import { RepeatLabel } from "./repeat-label.tsx";
 import { TickBox } from "./tick-box.tsx";
 import { TodoEditor, type TodoEditFocus } from "./todo-editor.tsx";
 import { TodoRowMenu, type TodoMoves } from "./todo-row-menu.tsx";
+import { useTodoSelection } from "./todo-selection-area.tsx";
+import { todoShortcutOf } from "./todo-shortcut-of.ts";
 import { useTodoStore } from "./todo-store-provider.tsx";
 import { TodosReadOnlyContext } from "./todos-read-only.tsx";
 
@@ -82,11 +94,24 @@ export function TodoItem({
 }) {
   const readOnly = use(TodosReadOnlyContext);
   const { rows, today, locale, timeZone, setDone } = useTodoStore();
+  const selection = useTodoSelection();
   const [editing, setEditing] = useState<TodoEditFocus | null>(null);
+  const rowRef = useRef<HTMLLIElement>(null);
+  const backToRowRef = useRef(false);
+
+  useEffect(() => {
+    if (editing === null && backToRowRef.current) {
+      backToRowRef.current = false;
+      rowRef.current?.focus();
+    }
+  }, [editing]);
+
   const todo = rows.find((row) => row.id === id);
   if (!todo) return fallback;
   const done = todo.doneAt !== null;
   const notStarted = startsAfter(todo, today);
+  const selecting = selection !== null && selection.selecting && !done;
+  const selected = selecting && selection.isSelected(id);
 
   if (editing && !done) {
     return (
@@ -95,23 +120,82 @@ export function TodoItem({
         focus={editing}
         sortable={sortable}
         onClose={() => {
+          backToRowRef.current = true;
           setEditing(null);
         }}
       />
     );
   }
 
+  function pickOnClick(event: MouseEvent<HTMLLIElement>) {
+    const { target, shiftKey } = event;
+    const isBox = target instanceof HTMLInputElement;
+    const picks = shiftKey || (selecting && !isBox);
+    if (
+      selection === null ||
+      done ||
+      !picks ||
+      !(target instanceof Node && event.currentTarget.contains(target))
+    ) {
+      return;
+    }
+    event.stopPropagation();
+    if (!isBox) event.preventDefault();
+    selection.pick(id, shiftKey);
+  }
+
   return (
-    <li ref={sortable?.itemRef} css={[listSurface.item, sortable?.itemCss]}>
+    <li
+      ref={mergeRefs(sortable?.itemRef, rowRef)}
+      data-todo-row={selection ? id : undefined}
+      tabIndex={selection ? -1 : undefined}
+      css={[
+        listSurface.item,
+        selection && a11y.focusRingInset,
+        selection && styles.clearOfBar,
+        selecting && styles.selectable,
+        selected && styles.selected,
+        sortable?.itemCss,
+      ]}
+      onClickCapture={pickOnClick}
+      onMouseDown={(event) => {
+        if (selection && event.shiftKey) event.preventDefault();
+      }}
+      onKeyDown={(event) => {
+        if (
+          selection &&
+          !selecting &&
+          !done &&
+          todoShortcutOf(event.nativeEvent) === "edit"
+        ) {
+          event.preventDefault();
+          setEditing("title");
+        }
+      }}
+    >
       <div css={[listSurface.row, styles.row]}>
-        <TickBox
-          label={todo.title}
-          checked={done}
-          disabled={readOnly}
-          onChange={(checked) => {
-            setDone(id, checked);
-          }}
-        />
+        {selecting ? (
+          <TickBox
+            key="select"
+            label={t({ en: "Select {title}", zh: "选择 {title}" }).replace(
+              "{title}",
+              todo.title,
+            )}
+            checked={selected}
+            onChange={() => {
+              selection.pick(id, false);
+            }}
+          />
+        ) : (
+          <TickBox
+            label={todo.title}
+            checked={done}
+            disabled={readOnly}
+            onChange={(checked) => {
+              setDone(id, checked);
+            }}
+          />
+        )}
         <div css={[stack.text, styles.main]}>
           {done ? (
             <Text as="p" css={styles.doneTitle}>
@@ -213,23 +297,35 @@ export function TodoItem({
             ) : null}
           </div>
         </div>
-        <div css={styles.actions}>
-          {todo.openHref ? <OpenMailButton href={todo.openHref} /> : null}
-          {sortable?.handle}
-          {readOnly ? null : (
-            <TodoRowMenu
-              todo={todo}
-              moves={sortable?.moves}
-              onEdit={setEditing}
-            />
-          )}
-        </div>
+        {selecting ? null : (
+          <div css={styles.actions}>
+            {todo.openHref ? <OpenMailButton href={todo.openHref} /> : null}
+            {sortable?.handle}
+            {readOnly ? null : (
+              <TodoRowMenu
+                todo={todo}
+                moves={sortable?.moves}
+                onEdit={setEditing}
+              />
+            )}
+          </div>
+        )}
       </div>
     </li>
   );
 }
 
 const styles = stylex.create({
+  clearOfBar: {
+    scrollMarginBlock: "6rem",
+  },
+  selectable: {
+    cursor: "pointer",
+    userSelect: "none",
+  },
+  selected: {
+    backgroundColor: color.bgAccentSubtle,
+  },
   row: {
     alignItems: "flex-start",
     paddingBlock: space._2,

@@ -18,6 +18,7 @@ import { OpenTodoGroups } from "../report-page/open-todo-groups.tsx";
 import { reportColumns } from "../report-page/report-columns.stylex.ts";
 import { ReportSection } from "../report-page/report-section.tsx";
 import { toTodoItemData } from "../report-page/to-todo-item-data.ts";
+import { TodoSelectionArea } from "../report-page/todo-selection-area.tsx";
 import { TodoStoreProvider } from "../report-page/todo-store-provider.tsx";
 import { NewestReportLink } from "./newest-report-link.tsx";
 import { TodayCalendar, TodayCalendarFallback } from "./today-calendar.tsx";
@@ -80,7 +81,9 @@ export async function TodayView({
             title={t({ en: "To-dos", zh: "待办" })}
           >
             <div css={stack.item}>
-              <OpenTodoGroups headingLevel={3} />
+              <TodoSelectionArea canAdd canSearch={false}>
+                <OpenTodoGroups headingLevel={3} />
+              </TodoSelectionArea>
             </div>
           </ReportSection>
           <ReportSection

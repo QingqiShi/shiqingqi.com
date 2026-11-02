@@ -35,6 +35,7 @@ export function QuickAdd({
 
   return (
     <form
+      data-todo-quick-add
       css={stack.tight}
       onSubmit={(event) => {
         event.preventDefault();
