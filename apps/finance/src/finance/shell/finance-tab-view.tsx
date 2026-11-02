@@ -3,29 +3,26 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { normalizePath } from "@tuja/i18n/normalize-path";
 import { useLocale } from "@tuja/i18n/use-locale";
 import type { TabBarLinkProps } from "@tuja/ui/components/tab-bar";
-import { TabView } from "@tuja/ui/components/tab-view";
+import { TabView, type TabLinkStatusProps } from "@tuja/ui/components/tab-view";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Link } from "#src/links/link.tsx";
+import { Link, useLinkStatus } from "#src/links/link.tsx";
 import { isCurrentDestination } from "./finance-destination-paths.ts";
-import {
-  PendingScreenMarker,
-  useShownDestination,
-  useShownFinancePath,
-} from "./finance-screen-slot.tsx";
+import { FinanceScreenSkeleton } from "./finance-screen-skeleton.tsx";
 import { useFinanceDestinations } from "./use-finance-destinations.ts";
 import { useSyncStatusSummary } from "./use-sync-status-summary.tsx";
 
-function TabLink({ children, ...props }: TabBarLinkProps) {
-  return (
-    <Link {...props} prefetchOnIntent>
-      {children}
-      <PendingScreenMarker href={props.href} />
-    </Link>
-  );
+function TabLink(props: TabBarLinkProps) {
+  return <Link {...props} prefetchOnIntent />;
+}
+
+function TabLinkStatus({ children }: TabLinkStatusProps) {
+  return children(useLinkStatus().pending);
 }
 
 interface FinanceTabViewProps {
@@ -49,8 +46,7 @@ export function FinanceTabView({
   children,
 }: FinanceTabViewProps) {
   const locale = useLocale();
-  const current = useShownFinancePath();
-  const shownDestination = useShownDestination();
+  const current = normalizePath(usePathname());
   const destinations = useFinanceDestinations();
   const { status, label, attention } = useSyncStatusSummary();
   const waiting = status.pendingCount > 0;
@@ -59,9 +55,10 @@ export function FinanceTabView({
     <TabView
       label={t({ en: "Finance", zh: "家庭账本" })}
       linkComponent={TabLink}
+      linkStatus={TabLinkStatus}
+      fallbackSkeleton={<FinanceScreenSkeleton path={current} />}
       header={header}
       footer={footer}
-      screenKey={shownDestination}
       items={destinations.map((destination) => {
         const isSettings = destination.path === "/settings";
         const dot =
@@ -75,6 +72,7 @@ export function FinanceTabView({
           label: destination.label,
           icon: destination.icon,
           current: isCurrentDestination(current, destination.path),
+          skeleton: <FinanceScreenSkeleton path={destination.path} />,
           badge:
             dot === null ? null : (
               <span css={[corner.radius_round, styles.dot, dot]} />

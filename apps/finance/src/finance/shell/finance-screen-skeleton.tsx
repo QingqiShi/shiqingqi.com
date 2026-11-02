@@ -22,17 +22,9 @@ export function FinanceScreenSkeleton({ path }: { path: string }) {
         </FinancePageColumn>
       );
     case "/reports":
-      return (
-        <FinancePageColumn accessory={<FinanceAddButton />}>
-          <ReportsSkeleton />
-        </FinancePageColumn>
-      );
+      return <ReportsSkeleton />;
     case "/settings":
-      return (
-        <FinancePageColumn accessory={<FinanceAddButton />}>
-          <SettingsSkeleton />
-        </FinancePageColumn>
-      );
+      return <SettingsSkeleton />;
     default:
       return (
         <FinancePageColumn>

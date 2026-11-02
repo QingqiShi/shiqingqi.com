@@ -10,8 +10,10 @@ import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { use, useState } from "react";
+import { useRouter } from "next/navigation";
+import { use, useEffect, useRef, useState } from "react";
 import { assistantFetch } from "../http/assistant-fetch.ts";
+import { refreshAfterSave } from "../shell/refresh-after-save.ts";
 import { daysBetween, formatShortDate } from "./format-day.ts";
 import { OpenMailButton } from "./open-mail-button.tsx";
 import { TodosReadOnlyContext } from "./todos-read-only.tsx";
@@ -65,22 +67,40 @@ export function TodoItem({
   locale: string;
 }) {
   const readOnly = use(TodosReadOnlyContext);
-  const [done, setDone] = useState(todo.done);
+  const router = useRouter();
+  const [override, setOverride] = useState<boolean | null>(null);
+  const done = override ?? todo.done;
   const [justDone, setJustDone] = useState(false);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
+  const lastSaveRef = useRef<Promise<unknown> | null>(null);
+
+  // The router keeps pages from before a tick, and a refresh clears them. The
+  // row must stay until the page loads again, so the refresh waits until the
+  // row goes away. A refresh before the save lands reads the old data, so it
+  // also waits for the save, which can land after the row has gone.
+  useEffect(
+    () => () => {
+      if (lastSaveRef.current === null) return;
+      refreshAfterSave(lastSaveRef.current, () => {
+        router.refresh();
+      });
+    },
+    [router],
+  );
 
   function save(next: boolean) {
+    const previous = override;
     setBusy(true);
     setFailed(false);
-    setDone(next);
+    setOverride(next);
     setJustDone(next);
-    assistantFetch(`/api/todos/${todo.id}`, {
+    lastSaveRef.current = assistantFetch(`/api/todos/${todo.id}`, {
       method: "PATCH",
       body: JSON.stringify({ done: next }),
     })
       .catch(() => {
-        setDone(!next);
+        setOverride(previous);
         setJustDone(false);
         setFailed(true);
       })

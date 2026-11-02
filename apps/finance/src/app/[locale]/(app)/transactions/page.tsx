@@ -5,8 +5,6 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { TransactionsScreen } from "#src/finance/transactions/transactions-screen.tsx";
 
-export const unstable_dynamicStaleTime = 300;
-
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);
   return { title: t({ en: "Transactions", zh: "交易" }) };

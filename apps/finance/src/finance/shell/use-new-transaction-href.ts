@@ -1,9 +1,7 @@
-import { getLocalePath } from "@tuja/i18n/get-locale-path";
-import { normalizePath } from "@tuja/i18n/normalize-path";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { useTabViewOpening } from "@tuja/ui/components/tab-view";
 import { usePathname, useSearchParams } from "next/navigation";
 import { financeHref } from "../navigation/finance-href.ts";
-import { useShownFinancePath } from "./finance-screen-slot.tsx";
 
 /**
  * The href of a blank expense (`?new=expense`) in a sheet over the screen
@@ -14,13 +12,12 @@ export function useNewTransactionHref() {
   const locale = useLocale();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const shownPath = useShownFinancePath();
-  const opening = shownPath !== normalizePath(pathname);
+  const opening = useTabViewOpening();
   return financeHref(
     { screen: "current", newTransaction: { kind: "expense" } },
     locale,
-    opening
-      ? { pathname: getLocalePath(shownPath, locale), search: "" }
-      : { pathname, search: searchParams.toString() },
+    opening === null
+      ? { pathname, search: searchParams.toString() }
+      : { pathname: opening, search: "" },
   );
 }

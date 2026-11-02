@@ -10,18 +10,25 @@ import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { normalizePath } from "@tuja/i18n/normalize-path";
 import { useLocale } from "@tuja/i18n/use-locale";
 import type { TabBarLinkProps } from "@tuja/ui/components/tab-bar";
-import { TabView } from "@tuja/ui/components/tab-view";
+import { TabView, type TabLinkStatusProps } from "@tuja/ui/components/tab-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { controlSize } from "@tuja/ui/tokens.stylex";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Link } from "#src/links/link.tsx";
+import { Link, useLinkStatus } from "#src/links/link.tsx";
 import { AssistantLogo } from "../pwa/assistant-logo.tsx";
+import { ReportsSkeleton } from "../report-page/reports-skeleton.tsx";
+import { SettingsSkeleton } from "../settings/settings-skeleton.tsx";
+import { ScreenSkeleton } from "./screen-skeleton.tsx";
 import { shownDestination, type DestinationPath } from "./shown-destination.ts";
 
 function TabLink(props: TabBarLinkProps) {
   return <Link {...props} prefetchOnIntent />;
+}
+
+function TabLinkStatus({ children }: TabLinkStatusProps) {
+  return children(useLinkStatus().pending);
 }
 
 /**
@@ -33,33 +40,46 @@ export function AppFrame({ children }: { children: ReactNode }) {
   const locale = useLocale();
   const shown = shownDestination(normalizePath(usePathname()));
   const appName = t({ en: "Mail Assistant", zh: "邮件助手" });
+  const todosLabel = t({ en: "To-dos", zh: "待办" });
+  const activityLabel = t({ en: "Activity", zh: "动态" });
   const destinations = [
     {
       path: "/",
       label: t({ en: "Today", zh: "今天" }),
       icon: SunIcon,
+      skeleton: <ReportsSkeleton />,
     },
     {
       path: "/todos",
-      label: t({ en: "To-dos", zh: "待办" }),
+      label: todosLabel,
       icon: CheckSquareIcon,
+      skeleton: <ScreenSkeleton title={todosLabel} />,
     },
     {
       path: "/activity",
-      label: t({ en: "Activity", zh: "动态" }),
+      label: activityLabel,
       icon: ClockCounterClockwiseIcon,
+      skeleton: <ScreenSkeleton title={activityLabel} />,
     },
     {
       path: "/settings",
       label: t({ en: "Settings", zh: "设置" }),
       icon: GearSixIcon,
+      skeleton: <SettingsSkeleton />,
     },
-  ] satisfies { path: DestinationPath; label: string; icon: unknown }[];
+  ] satisfies {
+    path: DestinationPath;
+    label: string;
+    icon: unknown;
+    skeleton: ReactNode;
+  }[];
 
   return (
     <TabView
       label={appName}
       linkComponent={TabLink}
+      linkStatus={TabLinkStatus}
+      fallbackSkeleton={<ScreenSkeleton />}
       header={
         <Link
           href={getLocalePath("/", locale)}
@@ -69,12 +89,12 @@ export function AppFrame({ children }: { children: ReactNode }) {
           <AssistantLogo css={styles.logo} />
         </Link>
       }
-      screenKey={shown ?? undefined}
       items={destinations.map((destination) => ({
         href: getLocalePath(destination.path, locale),
         label: destination.label,
         icon: destination.icon,
         current: destination.path === shown,
+        skeleton: destination.skeleton,
       }))}
     >
       {children}

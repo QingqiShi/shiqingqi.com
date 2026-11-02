@@ -1,6 +1,7 @@
 import { t } from "@tuja/i18n";
 import { Text } from "@tuja/ui/components/text";
 import { Suspense } from "react";
+import { GuideNote } from "#src/design-system/guide/guide-section.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -8,21 +9,49 @@ import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 import { TabViewDemo, TabViewDemoPlaceholder } from "./tab-view-specimens.tsx";
 
 export function TabViewShowcase() {
-  const usage = `import { TabView } from "@tuja/ui/components/tab-view";
+  const usage = `import {
+  TabView,
+  TabViewSkeleton,
+  type TabLinkStatusProps,
+} from "@tuja/ui/components/tab-view";
+import Link, { useLinkStatus } from "next/link";
+
+function TabLinkStatus({ children }: TabLinkStatusProps) {
+  return children(useLinkStatus().pending);
+}
 
 <TabView
   label={appLabel}
   linkComponent={Link}
+  linkStatus={TabLinkStatus}
   header={<AppMark />}
   footer={<SignedInMember />}
   items={[
-    { href: "/accounts", label: accounts, icon: WalletIcon, current: true },
-    { href: "/reports", label: reports, icon: ChartBarIcon },
-    { href: "/settings", label: settings, icon: GearSixIcon },
+    {
+      href: "/accounts",
+      label: accounts,
+      icon: WalletIcon,
+      skeleton: <AccountsSkeleton />,
+      current: true,
+    },
+    {
+      href: "/reports",
+      label: reports,
+      icon: ChartBarIcon,
+      skeleton: <ReportsSkeleton />,
+    },
+    {
+      href: "/settings",
+      label: settings,
+      icon: GearSixIcon,
+      skeleton: <SettingsSkeleton />,
+    },
   ]}
 >
   <Screen />
-</TabView>`;
+</TabView>
+
+export default function Loading() { return <TabViewSkeleton />; }`;
 
   return (
     <>
@@ -46,10 +75,28 @@ export function TabViewShowcase() {
         <UsageSnippet code={usage} label="tsx" />
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "items takes the same shape as TabBar's, badge and status included, and both forms show them. effect works as TabBar's, in both forms. header and footer show in the rail only: where the bar shows, give their content another place, such as a settings screen. The view picks its form from its own width with a container query, so the server paints the right one. Where the bar shows, the content goes under it, and tabViewTokens.barClearance is the strip the bar takes. Each layout in the content keeps its content, floating actions and sticky footers above it once: a Navigation split view does so for its columns.",
-            zh: "items 的形状与 TabBar 的相同，包括 badge 与 status，两种形态都会显示它们。effect 与 TabBar 的相同，两种形态都适用。header 与 footer 只在侧轨中显示：显示标签栏时，请为其内容另找位置，例如设置页面。视图用容器查询按自身宽度选择形态，因此服务器直接绘制正确的一种。显示标签栏时，内容延伸到它之下，tabViewTokens.barClearance 是标签栏所占的那一条。内容中的每种布局各自让内容、悬浮操作与粘性页脚留在它之上一次：导航分栏视图为其各栏这样做。",
+            en: "linkStatus is a component the view renders inside each link, so that a router hook can read that link's state: with Next, pass it with the matching Link, and with a plain anchor, pass null. With it, a tap makes its destination current at once, and a screen that takes more than a moment to load shows its skeleton from items until it is ready; with null, the current item follows items and no skeleton shows.",
+            zh: "linkStatus 是视图渲染在每个链接内部的组件，让路由器的 hook 能读取该链接的状态：使用 Next 时，把它和对应的 Link 一起传入；使用原生锚点时，传入 null。有了它，按下后目标页立即成为当前项，画面需要加载片刻时，会一直显示 items 中它的 skeleton，直到画面就绪；传入 null 时，当前项跟随 items，也不显示骨架屏。",
           })}
         </Text>
+        <GuideNote>
+          {t({
+            en: "items takes TabBar's shape, badge and status included, plus a skeleton for each screen; effect works as on TabBar.",
+            zh: "items 的形状与 TabBar 的相同，包括 badge 与 status，另加每个画面的 skeleton；effect 与 TabBar 的相同。",
+          })}
+        </GuideNote>
+        <GuideNote>
+          {t({
+            en: "In a route's loading fallback, TabViewSkeleton shows the skeleton of the opening destination, or fallbackSkeleton on a page outside every destination; useTabViewOpening gives that destination's href.",
+            zh: "在路由的加载回退中，TabViewSkeleton 显示正在打开的目标页的骨架屏，不属于任何目标页的页面上则显示 fallbackSkeleton；useTabViewOpening 给出该目标页的 href。",
+          })}
+        </GuideNote>
+        <GuideNote>
+          {t({
+            en: "header and footer show in the rail only. Where the bar shows, the content goes under it, so each layout keeps clear of tabViewTokens.barClearance.",
+            zh: "header 与 footer 只在侧轨中显示。显示标签栏时，内容延伸到它之下，因此内容中的每种布局都要避开 tabViewTokens.barClearance。",
+          })}
+        </GuideNote>
       </Showcase>
 
       <PropsTable component="tab-view" />

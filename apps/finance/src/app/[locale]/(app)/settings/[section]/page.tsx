@@ -6,8 +6,6 @@ import { notFound } from "next/navigation";
 import { SettingsSectionView } from "#src/finance/settings/settings-section-view.tsx";
 import { isSettingsSection } from "#src/finance/settings/settings-sections.ts";
 
-export const unstable_dynamicStaleTime = 300;
-
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);
   return { title: t({ en: "Settings", zh: "设置" }) };

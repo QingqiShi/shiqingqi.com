@@ -1,5 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { I18nContext } from "@tuja/i18n/i18n-context";
+import {
+  AppRouterContext,
+  type AppRouterInstance,
+} from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import translations from "#src/_generated/i18n/translations.en.json";
 import { morningReports, todos } from "#src/assistant/db/schema.ts";
@@ -17,6 +21,16 @@ import type {
   MorningReportContentV2,
 } from "../report/types.ts";
 import { ReportView } from "./report-view.tsx";
+
+const router: AppRouterInstance = {
+  back: () => {},
+  forward: () => {},
+  prefetch: () => {},
+  push: () => {},
+  refresh: () => {},
+  replace: () => {},
+  bfcacheId: "test",
+};
 
 let db: TestDb;
 
@@ -62,16 +76,18 @@ describe("ReportView", () => {
     if (!report) throw new Error("No report");
 
     render(
-      <I18nContext value={{ translations }}>
-        <ReportView
-          report={report}
-          today="2026-11-01"
-          openTodos={0}
-          locale="en"
-          headingLevel={1}
-          pastLink="list"
-        />
-      </I18nContext>,
+      <AppRouterContext value={router}>
+        <I18nContext value={{ translations }}>
+          <ReportView
+            report={report}
+            today="2026-11-01"
+            openTodos={0}
+            locale="en"
+            headingLevel={1}
+            pastLink="list"
+          />
+        </I18nContext>
+      </AppRouterContext>,
     );
 
     expect(
@@ -134,16 +150,18 @@ describe("ReportView", () => {
     if (!view) throw new Error("No report");
 
     render(
-      <I18nContext value={{ translations }}>
-        <ReportView
-          report={view}
-          today="2026-11-02"
-          openTodos={2}
-          locale="en"
-          headingLevel={1}
-          pastLink="list"
-        />
-      </I18nContext>,
+      <AppRouterContext value={router}>
+        <I18nContext value={{ translations }}>
+          <ReportView
+            report={view}
+            today="2026-11-02"
+            openTodos={2}
+            locale="en"
+            headingLevel={1}
+            pastLink="list"
+          />
+        </I18nContext>
+      </AppRouterContext>,
     );
 
     expect(
