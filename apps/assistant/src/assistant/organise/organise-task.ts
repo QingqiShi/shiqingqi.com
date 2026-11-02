@@ -36,15 +36,26 @@ ${notes.trim() || "(none)"}
 </rules>`;
 }
 
-/** The first message: what is waiting in each inbox. */
-function prompt(inboxes: readonly InboxState[], now: Date) {
+/** The first message: what is waiting in each inbox, and the changes the owner undid. */
+function prompt(
+  inboxes: readonly InboxState[],
+  now: Date,
+  undone: readonly string[] = [],
+) {
   const lines = inboxes.map(
     (inbox) =>
       `- ${inbox.account} (${inbox.address}): "${inbox.inbox}" holds ${String(inbox.total)} mails, ${String(inbox.unread)} unread.`,
   );
   return `It is ${now.toISOString()}. The inboxes:
 ${lines.join("\n")}
-
+${
+  undone.length > 0
+    ? `
+The owner undid these changes of yours. Leave what they touched as it is now:
+${undone.map((line) => `- ${line}`).join("\n")}
+`
+    : ""
+}
 When you are done, reply with two or three plain sentences on what you did, for the owner's activity log. The log shows your reply as typed, so write no Markdown.`;
 }
 
