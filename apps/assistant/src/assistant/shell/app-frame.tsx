@@ -11,12 +11,13 @@ import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { Link } from "#src/links/link.tsx";
 
-/** The column every signed-in page sits in, under a bar with the app name, the report, the to-dos and settings. */
+/** The column every signed-in page sits in, under a bar with the app name, the report, the to-dos, the activity and settings. */
 export function AppFrame({ children }: { children: ReactNode }) {
   const locale = getLocale();
   const links = [
     { path: "/", label: t({ en: "Report", zh: "晨报" }) },
     { path: "/todos", label: t({ en: "To-dos", zh: "待办" }) },
+    { path: "/activity", label: t({ en: "Activity", zh: "动态" }) },
     { path: "/settings", label: t({ en: "Settings", zh: "设置" }) },
   ];
   return (
