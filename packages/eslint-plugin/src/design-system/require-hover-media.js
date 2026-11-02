@@ -1,6 +1,7 @@
 "use strict";
 
-const { getStaticKey, getStaticString } = require("./get-static-key");
+const { getStaticKey } = require("./get-static-key");
+const { getWhenSelector } = require("./get-when-selector");
 const { isAppliedStyle } = require("./is-applied-style");
 
 /**
@@ -17,27 +18,6 @@ const LITERAL_HOVER_QUERY = /^@media\b.*\(\s*hover\s*:\s*hover\s*\)/;
  * above all of them, so once the hover moves into one they lose to it.
  */
 const OUTRANKS_HOVER = /^:(?:active|focus)(?![\w-])/;
-
-/**
- * Whether a key is `stylex.when.*(selector, …)` with a static selector.
- * @param {import("estree").Node} key
- * @returns {string | null} The selector.
- */
-function getWhenSelector(key) {
-  if (
-    key.type !== "CallExpression" ||
-    key.callee.type !== "MemberExpression" ||
-    key.callee.object.type !== "MemberExpression" ||
-    key.callee.object.object.type !== "Identifier" ||
-    key.callee.object.object.name !== "stylex" ||
-    key.callee.object.property.type !== "Identifier" ||
-    key.callee.object.property.name !== "when"
-  ) {
-    return null;
-  }
-  const selector = key.arguments[0];
-  return selector === undefined ? null : getStaticString(selector);
-}
 
 /**
  * @param {import("estree").Node} node

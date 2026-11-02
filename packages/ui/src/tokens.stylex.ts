@@ -111,7 +111,9 @@ const light = {
   // `opacity.disabled`, so what you see is always this tone composited with
   // whatever sits behind the control.
   bgControl: gray._100,
-  bgControlHover: gray._97,
+  // A control that is transparent at rest can land on the canvas or on any
+  // surface, so this tone must be different from all of them.
+  bgControlHover: gray._95,
   bgControlPressed: gray._92,
   bgControlSelected: gray._90,
   bgControlDisabled: gray._95,

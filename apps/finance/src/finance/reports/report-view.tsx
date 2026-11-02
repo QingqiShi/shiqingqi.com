@@ -55,7 +55,7 @@ export function ReportView({
       <header css={stack.item}>
         <ReportBackLink />
         <div css={[cluster.item, styles.titleRow]}>
-          <div css={styles.titleBlock}>
+          <div css={stack.tight}>
             <Text look="overline" tone="muted">
               {t({ en: "Weekly report", zh: "周报" })}
             </Text>
@@ -102,10 +102,6 @@ const layout = stylex.create({
 });
 
 const styles = stylex.create({
-  titleBlock: {
-    display: "flex",
-    flexDirection: "column",
-  },
   titleRow: {
     justifyContent: "space-between",
     alignItems: "end",

@@ -428,6 +428,7 @@ export default defineConfig([
     ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],
     rules: {
       "@tuja/require-hover-media": "error",
+      "@tuja/no-partial-hover-underline": "error",
     },
   },
   // A gap between siblings names its relationship. The primitives and the

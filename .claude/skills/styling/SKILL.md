@@ -11,20 +11,22 @@ The import paths below are the `@tuja/ui` package exports that `apps/web` uses. 
 
 ## Quick Decision Guide
 
-| Need                                                | Use                             | Example                                         |
-| --------------------------------------------------- | ------------------------------- | ----------------------------------------------- |
-| Flex layout, fills, truncation, resets, transitions | Design primitives               | `css={flex.row}`                                |
-| Space between siblings (a stack, a row)             | Stack primitives / `rhythm`     | `css={stack.item}`, `gap: rhythm.tight`         |
-| Text size, line height, weight, tracking            | `Text`/`Heading`, or `typeRole` | `css={[typeRole.label, styles.navItem]}`        |
-| Cap a line of prose                                 | `measure` tokens                | `maxInlineSize: measure.prose`                  |
-| Set a page's content in the centred column          | `pageColumn` primitive          | `css={[pageColumn.base, styles.hero]}`          |
-| Rounded corners                                     | Design primitives (`corner.*`)  | `css={corner.radius_3}`                         |
-| Override a primitive's default                      | Layout modifier                 | `css={[flex.row, align.end]}`                   |
-| Single-property styling (color, padding, border)    | `stylex.create` + tokens        | `color: color.fg`                               |
-| Responsive behavior                                 | `stylex.create` + breakpoints   | `{ default: "none", [breakpoints.md]: "flex" }` |
-| Pseudo-selectors (focus, active)                    | `stylex.create`                 | `{ default: val, ":focus-visible": focusVal }`  |
-| Hover                                               | `stylex.create` + `pointer`     | see [Hover](#hover)                             |
-| Icon size and colour                                | The parent's font size, `color` | see [Icons](#icons)                             |
+| Need                                                | Use                                                | Example                                                             |
+| --------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------- |
+| Flex layout, fills, truncation, resets, transitions | Design primitives                                  | `css={flex.row}`                                                    |
+| Space between siblings (a stack, a row)             | Stack primitives / `rhythm`                        | `css={stack.item}`, `gap: rhythm.tight`                             |
+| Text size, line height, weight, tracking            | `Text`/`Heading`, or `typeRole`                    | `css={[typeRole.label, styles.navItem]}`                            |
+| A small line above a title (eyebrow)                | `stack.tight`                                      | `css={stack.tight}` on the eyebrow and title                        |
+| A link or button with more than one line            | `Pager`, `AnchorButton`, `cardSurface.interactive` | hover responds across the whole target, never underlines part of it |
+| Cap a line of prose                                 | `measure` tokens                                   | `maxInlineSize: measure.prose`                                      |
+| Set a page's content in the centred column          | `pageColumn` primitive                             | `css={[pageColumn.base, styles.hero]}`                              |
+| Rounded corners                                     | Design primitives (`corner.*`)                     | `css={corner.radius_3}`                                             |
+| Override a primitive's default                      | Layout modifier                                    | `css={[flex.row, align.end]}`                                       |
+| Single-property styling (color, padding, border)    | `stylex.create` + tokens                           | `color: color.fg`                                                   |
+| Responsive behavior                                 | `stylex.create` + breakpoints                      | `{ default: "none", [breakpoints.md]: "flex" }`                     |
+| Pseudo-selectors (focus, active)                    | `stylex.create`                                    | `{ default: val, ":focus-visible": focusVal }`                      |
+| Hover                                               | `stylex.create` + `pointer`                        | see [Hover](#hover)                                                 |
+| Icon size and colour                                | The parent's font size, `color`                    | see [Icons](#icons)                                                 |
 
 ## The `css` Prop
 
@@ -261,7 +263,7 @@ Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. 
 1. **Primitives for multi-property patterns** — flex, fills, truncation, resets, transitions
 2. **Tokens for single properties** — `padding: space._3`, `color: color.fgMuted`
 3. **Text takes a type role** — `Text`/`Heading`, or `typeRole.*` composed first; never a bare `fontSize`, and figures through `typeModifier.numeric`
-4. **Gaps name the relationship** — `rhythm.inline` / `tight` / `item` / `group` / `section`, or `stack.*` / `cluster.*` / `row.*`; never a `space.*` step or a raw length for a gap or a margin between siblings; lines of text in one item (`stack.text`) and a list of rows that pad themselves, such as nav links (`stack.rows`, which also resets the list, or `NavList`), take no gap
+4. **Gaps name the relationship** — `rhythm.inline` / `tight` / `item` / `group` / `section`, or `stack.*` / `cluster.*` / `row.*`; never a `space.*` step or a raw length for a gap or a margin between siblings; lines of text in one item (`stack.text`, except a `label`, `caption` or `overline` above a heading, which takes `stack.tight`) and a list of rows that pad themselves, such as nav links (`stack.rows`, which also resets the list, or `NavList`), take no gap
 5. **Rounded corners via `corner.*`, never a bare `borderRadius`** — pair `cornerShape` locally only where the primitive can't reach
 6. **Line length from the Measure** — a `<Text>` paragraph (`as="p"` at `body`/`bodySmall`) already stops at `measure.prose`; any other prose takes `measure.prose` or `measure.short`, never a raw `ch` cap (the `@tuja/require-measure` rule refuses one). Opt a paragraph out with `css` carrying `maxInlineSize: "none"`
 7. **Page content sits in the page column** — compose `pageColumn.base` (or `pageColumn.scroller` for a row that scrolls sideways) from `@tuja/ui/primitives/page-column.stylex`; it spans its parent, so a background bleeds while the content lines up with the header controls. A gallery of cards adds `pageColumn.wide`, which keeps only the page gutter, and its page passes `wideHeader` to `HeaderFooterLayout`. Take `pageGutter` for one gutter. Never write `layout.maxInlineSize` or `env(safe-area-inset-left/right)` in an app (the `@tuja/require-page-column` rule refuses both)

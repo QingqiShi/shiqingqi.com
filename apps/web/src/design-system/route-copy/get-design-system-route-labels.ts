@@ -80,6 +80,7 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       en: "Breadcrumb",
       zh: "面包屑导航",
     }),
+    "/design-system/components/pager": t({ en: "Pager", zh: "上下页导航" }),
     "/design-system/components/tab-bar": t({ en: "Tab bar", zh: "标签栏" }),
     "/design-system/components/nav-list": t({ en: "Nav list", zh: "导航列表" }),
     "/design-system/components/text-field": t({

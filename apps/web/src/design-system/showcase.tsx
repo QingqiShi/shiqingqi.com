@@ -6,7 +6,11 @@ import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { DocSection } from "./doc-section.tsx";
-import { docPageVars, onReadingColumn } from "./reading-column.stylex.ts";
+import {
+  breakoutBox,
+  breakoutMarker,
+  onReadingColumn,
+} from "./reading-column.stylex.ts";
 
 interface ShowcaseProps {
   label?: string;
@@ -65,7 +69,7 @@ export function Showcase({
       ]}
       css={[
         !plain && [cardSurface.base, styles.card],
-        breakout && styles.breakout,
+        breakout && [styles.breakout, breakoutMarker],
       ]}
       leadsWithText={leadsWithText}
     >
@@ -115,13 +119,11 @@ const styles = stylex.create({
   card: {
     padding: space._7,
   },
-  // 50% is half the reading column, and the variable is the page. So the
-  // section overhangs the column by the same amount on each side. `boxSizing`
-  // is needed: the app sets no global border-box rule.
+  // `boxSizing` is needed: the app sets no global border-box rule.
   breakout: {
     boxSizing: "border-box",
-    inlineSize: docPageVars.inlineSize,
-    marginInlineStart: `calc(50% - ${docPageVars.inlineSize} / 2)`,
+    inlineSize: breakoutBox.inlineSize,
+    marginInlineStart: breakoutBox.marginInlineStart,
   },
   label: {
     color: color.fgMuted,

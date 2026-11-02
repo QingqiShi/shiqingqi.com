@@ -201,11 +201,11 @@ function MarkerFills({
 }
 
 /**
- * The look of the marker and of the hover fill. In light it is one step over
- * the hover of a control, so it shows on the white rail. In dark it is a
- * tint of that hover, so it stays quiet.
+ * The look of the marker and of the hover fill. In light it is the hover of a
+ * control, so it shows on the white rail. In dark it is a tint of that hover,
+ * so it stays quiet.
  */
-const LOOK = `light-dark(${color.bgSurfaceFade}, color-mix(in srgb, ${color.bgControlHover} 55%, transparent))`;
+const LOOK = `light-dark(${color.bgControlHover}, color-mix(in srgb, ${color.bgControlHover} 55%, transparent))`;
 
 const styles = stylex.create({
   // `isolate` keeps the fills under the rows and over the surface behind

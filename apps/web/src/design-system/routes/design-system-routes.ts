@@ -236,6 +236,22 @@ const ROUTES = [
   {
     section: "components",
     category: "actions",
+    path: "/design-system/components/pager",
+    keywords: [
+      "pagination",
+      "previous",
+      "next",
+      "prev next",
+      "sequence",
+      "navigation",
+      "上一页",
+      "下一页",
+      "翻页",
+    ],
+  },
+  {
+    section: "components",
+    category: "actions",
     path: "/design-system/components/tab-bar",
     keywords: [
       "tabs",

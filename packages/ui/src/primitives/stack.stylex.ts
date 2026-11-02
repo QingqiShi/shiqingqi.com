@@ -5,7 +5,9 @@ import { rhythm } from "../tokens.stylex.ts";
  * A flex column that owns the space between its children at one `rhythm`
  * step. `text` has no gap: lines of text in one item, such as an h3 and its
  * own text, are spaced by their line height alone. A heading at h2 size or
- * larger takes `tight` to its text. `rows` is a list of rows that pad
+ * larger takes `tight` to its text, and so does a small line (`label`,
+ * `caption`, `overline`) directly above a heading: their line heights are 1.3
+ * and about 1.2, so with no gap the two lines touch. `rows` is a list of rows that pad
  * themselves, such as nav links: it has no gap, because that padding spaces
  * them, and it drops the list's margin, padding and markers.
  */

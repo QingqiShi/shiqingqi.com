@@ -13,6 +13,7 @@ import { BASE_URL } from "#src/constants.ts";
 import { DesignSystemNav } from "#src/design-system/design-system-nav.tsx";
 import { DesignSystemSidebarControls } from "#src/design-system/design-system-sidebar-controls.tsx";
 import { DesignSystemSidebarHeader } from "#src/design-system/design-system-sidebar-header.tsx";
+import { PlaceholderLinkGuard } from "#src/design-system/placeholder-link-guard.tsx";
 import { getDesignSystemGroupLabels } from "#src/design-system/route-copy/get-design-system-group-labels.ts";
 import { getDesignSystemRouteLabels } from "#src/design-system/route-copy/get-design-system-route-labels.ts";
 import {
@@ -116,7 +117,7 @@ export default async function Layout({
           tabIndex={-1}
           css={[corner.radius_3, styles.page, a11y.focusRingInset]}
         >
-          {children}
+          <PlaceholderLinkGuard>{children}</PlaceholderLinkGuard>
         </div>
       </SidebarLayout>
     </>
