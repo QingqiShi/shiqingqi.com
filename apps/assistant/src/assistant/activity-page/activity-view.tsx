@@ -440,9 +440,14 @@ function ItemRow({
 }
 
 function TaskName({ run }: { run: ActivityRun }) {
-  return run.task === "report"
-    ? t({ en: "Morning report", zh: "晨报" })
-    : t({ en: "Inbox tidy", zh: "整理收件箱" });
+  switch (run.task) {
+    case "report":
+      return t({ en: "Morning report", zh: "晨报" });
+    case "report-preview":
+      return t({ en: "Morning report preview", zh: "晨报预览" });
+    case "organise":
+      return t({ en: "Inbox tidy", zh: "整理收件箱" });
+  }
 }
 
 function StatusBadge({ run }: { run: ActivityRun }) {
@@ -540,6 +545,16 @@ function RunEntry({ run, place }: { run: ActivityRun; place: Place }) {
                   {t({
                     en: "Wrote the morning report.",
                     zh: "写好了晨报。",
+                  })}
+                </Text>
+              ) : null}
+              {run.task === "report-preview" &&
+              !run.note &&
+              run.status === "done" ? (
+                <Text as="p" look="bodySmall">
+                  {t({
+                    en: "Wrote a preview of the morning report and changed nothing.",
+                    zh: "写好了晨报预览，没有做任何更改。",
                   })}
                 </Text>
               ) : null}

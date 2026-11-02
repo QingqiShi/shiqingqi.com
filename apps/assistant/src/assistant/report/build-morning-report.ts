@@ -1,6 +1,9 @@
 import { desc, eq } from "drizzle-orm";
 import { RunCalendars } from "#src/assistant/agent/calendar/run-calendars.ts";
-import { RunMailboxes } from "#src/assistant/agent/mail/run-mailboxes.ts";
+import {
+  RunMailboxes,
+  type SessionDecorator,
+} from "#src/assistant/agent/mail/run-mailboxes.ts";
 import {
   applyTodoChanges,
   readOpenTodos,
@@ -19,10 +22,19 @@ import {
   addDays,
   localDayBounds,
   reportMailWindow,
+  type TimeBounds,
 } from "./local-day-bounds.ts";
-import { readReportSettings } from "./read-report-settings.ts";
+import {
+  readReportSettings,
+  type ReportSettings,
+} from "./read-report-settings.ts";
 import { runReportAgent, type ReportAgentResult } from "./run-report-agent.ts";
 import type { MorningReportContent, MorningReportContentV2 } from "./types.ts";
+
+type ReportWindowInput = Pick<
+  Parameters<typeof runReportAgent>[1],
+  "today" | "mailWindow" | "mailStart" | "task"
+>;
 
 /**
  * From this local hour on, a run that cannot write the report stores one
@@ -57,15 +69,25 @@ export interface BuiltReport {
   markedRead: number;
 }
 
-/** The report that is due now, or null when none is. */
-async function readPlan({ db, userId }: UserScope, builtAt: Date) {
-  const accounts = await db
+export interface RecentReport {
+  localDate: string;
+  content: MorningReportContent;
+}
+
+/** The accounts a report should read. */
+export function readReportAccounts({ db, userId }: UserScope) {
+  return db
     .select({ id: mailAccounts.id, address: mailAccounts.address })
     .from(mailAccounts)
     .where(eq(mailAccounts.userId, userId));
-  if (accounts.length === 0) return null;
-  const settings = await readReportSettings({ db, userId });
-  const recentReports = await db
+}
+
+/** The user's newest reports, newest first: enough to find the mail a mailbox missed. */
+export function readRecentReports({
+  db,
+  userId,
+}: UserScope): Promise<RecentReport[]> {
+  return db
     .select({
       localDate: morningReports.localDate,
       content: morningReports.content,
@@ -74,6 +96,14 @@ async function readPlan({ db, userId }: UserScope, builtAt: Date) {
     .where(eq(morningReports.userId, userId))
     .orderBy(desc(morningReports.localDate))
     .limit(MAX_REPORTS_BACK);
+}
+
+/** The report that is due now, or null when none is. */
+async function readPlan(scope: UserScope, builtAt: Date) {
+  const accounts = await readReportAccounts(scope);
+  if (accounts.length === 0) return null;
+  const settings = await readReportSettings(scope);
+  const recentReports = await readRecentReports(scope);
   const localDate = dueReportDate({
     now: builtAt,
     timeZone: settings.timeZone,
@@ -101,6 +131,115 @@ function firstMailDay(
     since = content.mailDate;
   }
   return since;
+}
+
+/** Where a report's mail starts for each account: the window's start, or earlier when earlier reports missed the account. */
+export function reportMailStart({
+  recentReports,
+  timeZone,
+  mailWindow,
+}: {
+  recentReports: readonly { content: MorningReportContent }[];
+  timeZone: string;
+  mailWindow: TimeBounds;
+}) {
+  return (accountId: string) => {
+    const missedDay = firstMailDay(accountId, recentReports);
+    // An old report covers all of its local day, and the stored
+    // content does not show the type of report. Thus, start at local
+    // midnight. A few hours of mail can show again, but no mail is lost.
+    return missedDay
+      ? localDayBounds(missedDay, timeZone).start
+      : mailWindow.start;
+  };
+}
+
+/** Opens the user's mailboxes for a report run: one that fails to open gets more tries. */
+export function openReportMailboxes(
+  { db, userId }: UserScope,
+  deps: Pick<ReportBuildDeps, "mail" | "sleep">,
+  decorateSession?: SessionDecorator,
+) {
+  return RunMailboxes.open(db, userId, deps.mail, {
+    decorateSession,
+    loginRetries: {
+      times: LOGIN_RETRIES,
+      wait: () => deps.sleep(LOGIN_RETRY_WAIT_MS),
+    },
+  });
+}
+
+/**
+ * Runs the report agent over open mailboxes, with the calendars, the open
+ * to-dos and the catch-up for mailboxes that earlier reports missed.
+ */
+export async function runReportOverMailboxes(
+  { db, userId, endsAt }: UserScope & { endsAt: number },
+  deps: Pick<ReportBuildDeps, "mail" | "calendarConnector" | "now"> & {
+    models: AgentModels;
+  },
+  {
+    mailboxes,
+    settings,
+    ...reportWindow
+  }: ReportWindowInput & {
+    mailboxes: RunMailboxes;
+    settings: ReportSettings;
+  },
+): Promise<ReportAgentResult> {
+  return runReportAgent(
+    { db, userId, endsAt, now: deps.now },
+    {
+      ...reportWindow,
+      models: deps.models,
+      mailboxes,
+      calendars: await RunCalendars.open(db, userId, {
+        calendarConnector: deps.calendarConnector,
+        auth: deps.mail.auth,
+      }),
+      openTodos: await readOpenTodos({ db, userId }),
+      locale: settings.locale,
+      timeZone: settings.timeZone,
+    },
+  );
+}
+
+/** What a run stores or shows as the report, from what the agent did. */
+export function reportContent({
+  mailDate,
+  status,
+  agent,
+  accounts,
+  mailboxes,
+}: {
+  mailDate: string;
+  status: MorningReportContentV2["status"];
+  agent: ReportAgentResult | null;
+  /** Every account the report should read. */
+  accounts: readonly { id: string; address: string }[];
+  mailboxes: RunMailboxes;
+}): MorningReportContentV2 {
+  const report = agent?.report ?? null;
+  const opened = new Set(mailboxes.accounts.map((account) => account.id));
+  return {
+    version: 2,
+    mailDate,
+    status,
+    headline: report?.headline ?? null,
+    needsAction: report?.needsAction ?? [],
+    worthKnowing: report?.worthKnowing ?? [],
+    rest: report?.rest ?? null,
+    agenda: report?.agenda ?? null,
+    mailCount: agent?.mailCount ?? 0,
+    ranOutOfTime: agent?.run.forcedFinish ?? false,
+    unreadMailboxes: accounts
+      .filter((account) => !opened.has(account.id))
+      .map((account) => ({
+        accountId: account.id,
+        address: account.address,
+      })),
+    doneTodos: (report ? agent?.todoChanges.done : undefined) ?? [],
+  };
 }
 
 /**
@@ -140,39 +279,24 @@ export async function buildMorningReport(
     settings.digestHour,
     settings.timeZone,
   );
-  const mailboxes = await RunMailboxes.open(db, userId, deps.mail, {
-    loginRetries: {
-      times: LOGIN_RETRIES,
-      wait: () => deps.sleep(LOGIN_RETRY_WAIT_MS),
-    },
-  });
+  const mailboxes = await openReportMailboxes({ db, userId }, deps);
   try {
     let agent: ReportAgentResult | null = null;
     if (deps.models && mailboxes.accounts.length > 0) {
-      agent = await runReportAgent(
-        { db, userId, endsAt, now: deps.now },
+      agent = await runReportOverMailboxes(
+        { db, userId, endsAt },
+        { ...deps, models: deps.models },
         {
-          models: deps.models,
           mailboxes,
-          calendars: await RunCalendars.open(db, userId, {
-            calendarConnector: deps.calendarConnector,
-            auth: deps.mail.auth,
-          }),
-          openTodos: await readOpenTodos({ db, userId }),
-          locale: settings.locale,
-          timeZone: settings.timeZone,
+          settings,
           today: localDate,
-          reportHour: settings.digestHour,
           mailWindow,
-          mailStart: (accountId) => {
-            const missedDay = firstMailDay(accountId, recentReports);
-            // An old report covers all of its local day, and the stored
-            // content does not show the type of report. Thus, start at local
-            // midnight. A few hours of mail can show again, but no mail is lost.
-            return missedDay
-              ? localDayBounds(missedDay, settings.timeZone).start
-              : mailWindow.start;
-          },
+          mailStart: reportMailStart({
+            recentReports,
+            timeZone: settings.timeZone,
+            mailWindow,
+          }),
+          task: "report",
         },
       );
     }
@@ -184,27 +308,14 @@ export async function buildMorningReport(
         : "no-model";
     if (status !== "written" && !lastTry) return "retry";
 
-    const opened = new Set(mailboxes.accounts.map((account) => account.id));
     const changes = report ? agent?.todoChanges : undefined;
-    const content: MorningReportContentV2 = {
-      version: 2,
+    const content = reportContent({
       mailDate: addDays(localDate, -1),
       status,
-      headline: report?.headline ?? null,
-      needsAction: report?.needsAction ?? [],
-      worthKnowing: report?.worthKnowing ?? [],
-      rest: report?.rest ?? null,
-      agenda: report?.agenda ?? null,
-      mailCount: agent?.mailCount ?? 0,
-      ranOutOfTime: agent?.run.forcedFinish ?? false,
-      unreadMailboxes: plan.accounts
-        .filter((account) => !opened.has(account.id))
-        .map((account) => ({
-          accountId: account.id,
-          address: account.address,
-        })),
-      doneTodos: changes?.done ?? [],
-    };
+      agent,
+      accounts: plan.accounts,
+      mailboxes,
+    });
 
     const stored = await db.transaction(async (tx) => {
       const row = (

@@ -105,6 +105,31 @@ export function reportMailWindow(
   };
 }
 
+/** A window's start and end as the owner's wall clock reads them, `YYYY-MM-DD HH:mm`. */
+export interface WindowLabels {
+  start: string;
+  end: string;
+}
+
+function wallClockLabel(instant: Date, timeZone: string) {
+  const epochMs = instant.getTime();
+  return new Date(epochMs + offsetMs(epochMs, timeZone))
+    .toISOString()
+    .slice(0, 16)
+    .replace("T", " ");
+}
+
+/** The labels of any stretch of time, to the minute. */
+export function wallClockLabels(
+  { start, end }: TimeBounds,
+  timeZone: string,
+): WindowLabels {
+  return {
+    start: wallClockLabel(start, timeZone),
+    end: wallClockLabel(end, timeZone),
+  };
+}
+
 export function isInBounds(instant: Date, { start, end }: TimeBounds): boolean {
   return instant >= start && instant < end;
 }

@@ -83,7 +83,7 @@ const todoColumns = {
   sourceMessageId: todos.sourceMessageId,
 };
 
-type TodoRow = Pick<typeof todos.$inferSelect, keyof typeof todoColumns>;
+export type TodoRow = Pick<typeof todos.$inferSelect, keyof typeof todoColumns>;
 
 function toTodoView(
   row: TodoRow,
@@ -101,6 +101,73 @@ function toTodoView(
         ? { accountId: row.sourceAccountId, messageId: row.sourceMessageId }
         : null,
     ),
+  };
+}
+
+/**
+ * Turns a report into what the page shows. `created` are the to-dos the
+ * report made. `overlay` gives a stored to-do the state the report leaves it
+ * in, for a report whose changes are not stored.
+ */
+export async function toReportView(
+  scope: UserScope,
+  report: { id: string; localDate: string; content: MorningReportContent },
+  created: readonly TodoRow[],
+  overlay: (row: TodoRow) => TodoRow = (row) => row,
+): Promise<ReportView> {
+  const hrefOf = await hrefMaker(scope);
+  const { content } = report;
+  const linkedIds = content.needsAction.flatMap((item) =>
+    item.todoId ? [item.todoId] : [],
+  );
+  const linked = new Map(
+    [
+      ...(linkedIds.length === 0
+        ? []
+        : await scope.db
+            .select(todoColumns)
+            .from(todos)
+            .where(
+              and(eq(todos.userId, scope.userId), inArray(todos.id, linkedIds)),
+            )
+      ).map(overlay),
+      ...created.filter((row) => linkedIds.includes(row.id)),
+    ].map((row) => [row.id, toTodoView(row, hrefOf)]),
+  );
+  const items = (list: MorningReportContent["needsAction"]) =>
+    list.map((item) => ({
+      text: item.text,
+      openHref: hrefOf(item.source),
+      todo: item.todoId ? (linked.get(item.todoId) ?? null) : null,
+    }));
+  const closed = content.version === 2 ? content.doneTodos : [];
+  const reasons = new Map(closed.map((todo) => [todo.id, todo.reason]));
+  const closedRows =
+    closed.length === 0
+      ? []
+      : await scope.db
+          .select(todoColumns)
+          .from(todos)
+          .where(
+            and(
+              eq(todos.userId, scope.userId),
+              inArray(todos.id, [...reasons.keys()]),
+            ),
+          )
+          .orderBy(todos.title);
+  return {
+    ...report,
+    needsAction: items(content.needsAction),
+    worthKnowing: items(content.worthKnowing),
+    todos: created
+      .filter((row) => !linked.has(row.id))
+      .map((row) => toTodoView(row, hrefOf))
+      .sort((a, b) => Number(a.doneAt !== null) - Number(b.doneAt !== null)),
+    agenda: content.version === 2 ? content.agenda : null,
+    doneTodos: closedRows.map(overlay).map((row) => ({
+      ...toTodoView(row, hrefOf),
+      detail: reasons.get(row.id) ?? row.detail,
+    })),
   };
 }
 
@@ -129,64 +196,14 @@ export async function readReport(
       .limit(1)
   ).at(0);
   if (!report) return null;
-  const hrefOf = await hrefMaker(scope);
-  const rows = await scope.db
+  const created = await scope.db
     .select(todoColumns)
     .from(todos)
     .where(
       and(eq(todos.userId, scope.userId), eq(todos.createdReportId, report.id)),
     )
     .orderBy(desc(todos.createdAt), todos.title);
-  const { content } = report;
-  const linkedIds = content.needsAction.flatMap((item) =>
-    item.todoId ? [item.todoId] : [],
-  );
-  const linked = new Map(
-    (linkedIds.length === 0
-      ? []
-      : await scope.db
-          .select(todoColumns)
-          .from(todos)
-          .where(
-            and(eq(todos.userId, scope.userId), inArray(todos.id, linkedIds)),
-          )
-    ).map((row) => [row.id, toTodoView(row, hrefOf)]),
-  );
-  const items = (list: MorningReportContent["needsAction"]) =>
-    list.map((item) => ({
-      text: item.text,
-      openHref: hrefOf(item.source),
-      todo: item.todoId ? (linked.get(item.todoId) ?? null) : null,
-    }));
-  const closed = content.version === 2 ? content.doneTodos : [];
-  const reasons = new Map(closed.map((todo) => [todo.id, todo.reason]));
-  const closedRows =
-    closed.length === 0
-      ? []
-      : await scope.db
-          .select(todoColumns)
-          .from(todos)
-          .where(
-            and(
-              eq(todos.userId, scope.userId),
-              inArray(todos.id, [...reasons.keys()]),
-            ),
-          )
-          .orderBy(todos.title);
-  return {
-    ...report,
-    needsAction: items(content.needsAction),
-    worthKnowing: items(content.worthKnowing),
-    todos: rows
-      .filter((row) => !linked.has(row.id))
-      .map((row) => toTodoView(row, hrefOf))
-      .sort((a, b) => Number(a.doneAt !== null) - Number(b.doneAt !== null)),
-    agenda: content.version === 2 ? content.agenda : null,
-    doneTodos: closedRows.map((row) => ({
-      ...toTodoView(row, hrefOf),
-      detail: reasons.get(row.id) ?? row.detail,
-    })),
-  };
+  return toReportView(scope, report, created);
 }
 
 /** Every open to-do, newest first, and the latest done ones. */

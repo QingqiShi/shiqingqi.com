@@ -1,3 +1,5 @@
+import { addDays } from "./local-day-bounds.ts";
+
 /** The wall clock in a time zone: the date as `YYYY-MM-DD`, the hour 0–23, and the weekday, 0 for Sunday. */
 export interface LocalClock {
   date: string;
@@ -72,4 +74,20 @@ export function dueReportDate({
   if (clock.hour < reportHour) return null;
   if (latestReportDate !== null && latestReportDate >= clock.date) return null;
   return clock.date;
+}
+
+/**
+ * The local date of the next report: the one that is due, else today while
+ * the report hour is still to come, else tomorrow.
+ */
+export function nextReportDate(input: {
+  now: Date;
+  timeZone: string;
+  reportHour: number;
+  latestReportDate: string | null;
+}): string {
+  const due = dueReportDate(input);
+  if (due) return due;
+  const clock = localClock(input.now, input.timeZone);
+  return clock.hour < input.reportHour ? clock.date : addDays(clock.date, 1);
 }

@@ -28,6 +28,12 @@ export interface RunAccount {
   address: string;
 }
 
+/** Wraps each session of the run, also one from a login after an idle timeout. */
+export type SessionDecorator = (
+  session: MailboxSession,
+  accountId: string,
+) => MailboxSession;
+
 interface OpenOptions {
   /**
    * Leaves out accounts whose server cannot move mail. An inbox there always
@@ -40,6 +46,7 @@ interface OpenOptions {
    * not wait for it.
    */
   loginRetries?: { times: number; wait: () => Promise<void> };
+  decorateSession?: SessionDecorator;
 }
 
 /** One logged-in account while a tool holds it. */
@@ -68,6 +75,17 @@ interface AccountState {
   failure: unknown;
 }
 
+async function logIn(
+  db: AssistantDb,
+  userId: string,
+  account: StoredAccount,
+  deps: MailboxDeps,
+  decorateSession: SessionDecorator | undefined,
+) {
+  const session = await openMailboxSession(db, userId, account, deps);
+  return decorateSession ? decorateSession(session, account.id) : session;
+}
+
 /**
  * The mailboxes of one user for one agent run. It opens only the user's own
  * accounts that do not wait for a new connect, keeps each session for the
@@ -77,6 +95,7 @@ export class RunMailboxes {
   readonly #db: AssistantDb;
   readonly #userId: string;
   readonly #deps: MailboxDeps;
+  readonly #decorateSession: SessionDecorator | undefined;
   readonly #states: Map<string, AccountState>;
   /** Accounts that did not open: their errors are recorded already. */
   readonly failedAccounts: number;
@@ -85,12 +104,14 @@ export class RunMailboxes {
     db: AssistantDb,
     userId: string,
     deps: MailboxDeps,
+    decorateSession: SessionDecorator | undefined,
     states: AccountState[],
     failedAccounts: number,
   ) {
     this.#db = db;
     this.#userId = userId;
     this.#deps = deps;
+    this.#decorateSession = decorateSession;
     this.#states = new Map(states.map((state) => [state.account.key, state]));
     this.failedAccounts = failedAccounts;
   }
@@ -105,7 +126,7 @@ export class RunMailboxes {
     db: AssistantDb,
     userId: string,
     deps: MailboxDeps,
-    { mustMove = false, loginRetries }: OpenOptions = {},
+    { mustMove = false, loginRetries, decorateSession }: OpenOptions = {},
   ): Promise<RunMailboxes> {
     const now = deps.auth.now;
     const stored = await db
@@ -129,7 +150,7 @@ export class RunMailboxes {
     ): Promise<AccountState> => {
       let session: MailboxSession | null = null;
       try {
-        session = await openMailboxSession(db, userId, account, deps);
+        session = await logIn(db, userId, account, deps, decorateSession);
         const canMove = session.supportsMove();
         if (mustMove && !canMove) throw new MoveUnsupportedError();
         const folders = await session.listFolders();
@@ -195,7 +216,14 @@ export class RunMailboxes {
       }),
     );
     const states = opened.filter((state) => state !== null);
-    return new RunMailboxes(db, userId, deps, states, failedAccounts);
+    return new RunMailboxes(
+      db,
+      userId,
+      deps,
+      decorateSession,
+      states,
+      failedAccounts,
+    );
   }
 
   get accounts(): RunAccount[] {
@@ -232,11 +260,12 @@ export class RunMailboxes {
               state.account.id,
             ),
           };
-          state.session = await openMailboxSession(
+          state.session = await logIn(
             this.#db,
             this.#userId,
             state.stored,
             this.#deps,
+            this.#decorateSession,
           );
           state.open = null;
         }

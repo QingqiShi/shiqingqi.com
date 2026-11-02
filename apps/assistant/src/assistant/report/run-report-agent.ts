@@ -27,9 +27,13 @@ import {
   type TodoChanges,
 } from "#src/assistant/agent/todos/create-todo-tools.ts";
 import type { AgentModels } from "#src/assistant/ai/get-agent-models.ts";
-import type { UserLocale } from "#src/assistant/db/schema.ts";
+import type { AgentTask, UserLocale } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
-import { isInBounds, type TimeBounds } from "./local-day-bounds.ts";
+import {
+  isInBounds,
+  wallClockLabels,
+  type TimeBounds,
+} from "./local-day-bounds.ts";
 import { reportFolders } from "./report-folders.ts";
 import {
   reportTask,
@@ -158,9 +162,9 @@ export async function runReportAgent(
     locale,
     timeZone,
     today,
-    reportHour,
     mailWindow,
     mailStart,
+    task,
   }: {
     models: AgentModels;
     mailboxes: RunMailboxes;
@@ -169,10 +173,11 @@ export async function runReportAgent(
     locale: UserLocale;
     timeZone: string;
     today: string;
-    reportHour: number;
     mailWindow: TimeBounds;
     /** Where the account's mail starts: `mailWindow.start`, or earlier when an earlier report missed it. */
     mailStart: (accountId: string) => Date;
+    /** What `agent_runs` calls this run. */
+    task: Extract<AgentTask, "report" | "report-preview">;
   },
 ): Promise<ReportAgentResult> {
   const handles = new MailHandles();
@@ -326,7 +331,7 @@ export async function runReportAgent(
   const run = await runAgent(
     { db, userId, model: models.agent, endsAt, now },
     {
-      task: "report",
+      task,
       instructions: reportTask.instructions({
         locale,
         timeZone,
@@ -334,7 +339,7 @@ export async function runReportAgent(
       }),
       prompt: reportTask.prompt({
         today,
-        reportHour,
+        windowLabels: wallClockLabels(mailWindow, timeZone),
         mailWindow,
         mailboxes: mailboxList,
         openTodos,

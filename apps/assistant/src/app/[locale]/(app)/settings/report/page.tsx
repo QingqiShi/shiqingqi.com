@@ -13,5 +13,5 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default async function Page({ params }: PageProps) {
   const locale = validateLocale((await params).locale);
   const session = await requirePageSession(locale, "/settings/report");
-  return <ReportSettingsSection userId={session.userId} />;
+  return <ReportSettingsSection userId={session.userId} locale={locale} />;
 }
