@@ -28,6 +28,7 @@ interface FakeFolder {
 /** A command that changed the mailbox. */
 export type FakeMailWrite =
   | { command: "add"; path: string; uids: number[]; flags: string[] }
+  | { command: "remove"; path: string; uids: number[]; flags: string[] }
   | { command: "move"; path: string; uids: number[]; destination: string };
 
 /** What a fake mail server saw, for tests that check what the app did to the mailbox. */
@@ -38,6 +39,8 @@ export interface FakeMailServerLog {
   fetchedUids: number[];
   writes: FakeMailWrite[];
   createdFolders: string[];
+  renamedFolders: { from: string; to: string }[];
+  deletedFolders: string[];
 }
 
 const MESSAGE_ID_HEADER = /^message-id:[ \t]*(.*)$/im;
@@ -70,10 +73,14 @@ export function createFakeMailServer({
     fetchedUids: [],
     writes: [],
     createdFolders: [],
+    renamedFolders: [],
+    deletedFolders: [],
   };
   let failingCommand: FakeMailWrite["command"] | "create" | null = null;
   let failure: Error | null = null;
   let validToken = accessToken;
+  const sessions = new Set<MailboxSession>();
+  const dropped = new Set<MailboxSession>();
 
   function addFolder(
     path: string,
@@ -158,7 +165,9 @@ export function createFakeMailServer({
     log.logins += 1;
     let open: FakeFolder | null = null;
     let writable = false;
+    let closed = false;
     const openFolder = () => {
+      if (!session.isUsable()) throw new Error("The connection is closed");
       if (!open) throw new Error("No folder is open");
       return open;
     };
@@ -191,8 +200,37 @@ export function createFakeMailServer({
         if (!folders.has(path)) addFolder(path);
         return Promise.resolve();
       },
+      renameFolder: (path, newPath) => {
+        if (folders.has(newPath)) {
+          return Promise.reject(new Error(`${newPath} exists already`));
+        }
+        folderOf(path);
+        log.renamedFolders.push({ from: path, to: newPath });
+        for (const folder of [...folders.values()]) {
+          if (folder.path !== path && !folder.path.startsWith(`${path}/`)) {
+            continue;
+          }
+          folders.delete(folder.path);
+          folder.path = newPath + folder.path.slice(path.length);
+          folders.set(folder.path, folder);
+        }
+        if (open && !folders.has(open.path)) open = null;
+        return Promise.resolve();
+      },
+      deleteEmptyFolder: (path) => {
+        if (folderOf(path).messages.length > 0) {
+          return Promise.reject(new Error(`The folder ${path} is not empty`));
+        }
+        log.deletedFolders.push(path);
+        folders.delete(path);
+        if (open?.path === path) open = null;
+        return Promise.resolve();
+      },
       supportsMove: () => move,
       openFolder: (path, options) => {
+        if (!session.isUsable()) {
+          return Promise.reject(new Error("The connection is closed"));
+        }
         open = folderOf(path);
         writable = options?.write === true;
         log.opened.push({ path, write: writable });
@@ -201,19 +239,21 @@ export function createFakeMailServer({
           uidNext: open.uidNext,
         });
       },
-      listUidsAfter: (uid) =>
-        Promise.resolve(
-          openFolder()
-            .messages.map((m) => m.uid)
-            .filter((found) => found > uid),
-        ),
-      listUidsSince: (since, before) =>
+      searchUids: (criteria) =>
         Promise.resolve(
           openFolder()
             .messages.filter(
               (m) =>
-                m.internalDate >= since &&
-                (before === undefined || m.internalDate < before),
+                (criteria.since === undefined ||
+                  m.internalDate >= criteria.since) &&
+                (criteria.before === undefined ||
+                  m.internalDate < criteria.before) &&
+                (criteria.seen === undefined ||
+                  m.flags.has("\\Seen") === criteria.seen) &&
+                (criteria.messageId === undefined ||
+                  messageIdOf(m)
+                    .toLowerCase()
+                    .includes(criteria.messageId.toLowerCase())),
             )
             .map((m) => m.uid),
         ),
@@ -236,6 +276,19 @@ export function createFakeMailServer({
         }
         return Promise.resolve();
       },
+      removeFlags: (uids, flags) => {
+        const folder = writableFolder({
+          command: "remove",
+          path: openFolder().path,
+          uids,
+          flags,
+        });
+        for (const message of folder.messages) {
+          if (!uids.includes(message.uid)) continue;
+          for (const flag of flags) message.flags.delete(flag);
+        }
+        return Promise.resolve();
+      },
       moveMessages: (uids, destination) => {
         if (!move) return Promise.reject(new MoveUnsupportedError());
         const from = writableFolder({
@@ -250,8 +303,13 @@ export function createFakeMailServer({
           uidPlus ? { uidValidity: to.uidValidity, uidMap } : null,
         );
       },
-      close: () => Promise.resolve(),
+      isUsable: () => !closed && !dropped.has(session),
+      close: () => {
+        closed = true;
+        return Promise.resolve();
+      },
     };
+    sessions.add(session);
     return Promise.resolve(session);
   };
 
@@ -305,6 +363,17 @@ export function createFakeMailServer({
       return [
         ...(folderOf(path).messages.find((m) => m.uid === uid)?.flags ?? []),
       ];
+    },
+    /** Closes every open connection, as a server does to a connection that waited too long. */
+    dropConnections() {
+      for (const session of sessions) dropped.add(session);
+    },
+    /** Every mail of every folder, for tests that check that no mail was lost. */
+    countMail() {
+      return [...folders.values()].reduce(
+        (count, folder) => count + folder.messages.length,
+        0,
+      );
     },
     failNextConnects(error: Error | null) {
       failure = error;

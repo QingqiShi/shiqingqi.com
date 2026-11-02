@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { MailboxFolder } from "#src/assistant/mail/imap/types.ts";
 import {
-  candidateFolders,
+  destinationRefusal,
   findFolderNamed,
   newFolderName,
-} from "./candidate-folders.ts";
+} from "./destination-refusal.ts";
 
 function folder(
   path: string,
@@ -19,28 +19,29 @@ function folder(
   };
 }
 
-describe("candidateFolders", () => {
-  it("keeps the user's folders and the archive, and leaves out the inbox, the client's own folders and folders that only hold folders", () => {
-    const folders = [
+describe("destinationRefusal", () => {
+  it("lets mail go into the owner's folders, the inbox, the archive and Junk, and refuses Trash, Sent, Drafts, the virtual folders and folders that only hold folders", () => {
+    const open = [
       folder("INBOX"),
+      folder("Archive", { specialUse: "\\Archive" }),
+      folder("[Gmail]/Spam", { specialUse: "\\Junk" }),
+      folder("Finance"),
+      folder("Work/Projects"),
+    ];
+    const closed = [
       folder("[Gmail]", { selectable: false }),
       folder("[Gmail]/All Mail", { specialUse: "\\All" }),
       folder("[Gmail]/Sent Mail", { specialUse: "\\Sent" }),
       folder("[Gmail]/Drafts", { specialUse: "\\Drafts" }),
       folder("[Gmail]/Bin", { specialUse: "\\Trash" }),
-      folder("[Gmail]/Spam", { specialUse: "\\Junk" }),
       folder("[Gmail]/Starred", { specialUse: "\\Flagged" }),
       folder("[Gmail]/Important", { specialUse: "\\Important" }),
-      folder("Archive", { specialUse: "\\Archive" }),
-      folder("Finance"),
-      folder("Work/Projects"),
     ];
 
-    expect(candidateFolders(folders)).toEqual([
-      "Archive",
-      "Finance",
-      "Work/Projects",
-    ]);
+    expect(open.map(destinationRefusal)).toEqual(open.map(() => null));
+    for (const refused of closed) {
+      expect(destinationRefusal(refused)).not.toBeNull();
+    }
   });
 });
 
