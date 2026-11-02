@@ -1,4 +1,5 @@
-import { getReportModel } from "#src/assistant/ai/get-report-model.ts";
+import { getAgentModels } from "#src/assistant/ai/get-agent-models.ts";
+import { tsdavConnector } from "#src/assistant/calendar/caldav/tsdav-connector.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
 import { isAssistantConfigured } from "#src/assistant/db/is-assistant-configured.ts";
 import { getMailDeps } from "#src/assistant/mail/get-mail-deps.ts";
@@ -14,7 +15,12 @@ export const GET = makeMorningReportCron({
   getBuildDeps: () => {
     const mail = getMailDeps();
     return mail
-      ? { model: getReportModel(), mail, now: () => new Date() }
+      ? {
+          models: getAgentModels(),
+          mail,
+          calendarConnector: tsdavConnector,
+          now: () => new Date(),
+        }
       : null;
   },
   getPushSender,

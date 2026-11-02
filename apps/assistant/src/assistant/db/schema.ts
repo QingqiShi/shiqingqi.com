@@ -218,7 +218,7 @@ export const pushSubscriptions = pgTable(
   (t) => [unique("push_subscriptions_endpoint_key").on(t.userId, t.endpoint)],
 );
 
-export const AGENT_TASKS = ["organise"] as const;
+export const AGENT_TASKS = ["organise", "report"] as const;
 export type AgentTask = (typeof AGENT_TASKS)[number];
 
 /** `stopped`: the run reached its step or time limit before the model finished. */

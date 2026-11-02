@@ -384,6 +384,57 @@ describe("the calendar tools", () => {
     expect(errorOf(await update(fresh.Lunch))).toBeNull();
   });
 
+  it("list each time a repeating event happens at its own start, without its exceptions and with its changed instances", async () => {
+    server.putEvent(
+      work,
+      "standup.ics",
+      [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "BEGIN:VEVENT",
+        "UID:standup",
+        "DTSTART;TZID=Europe/London:20260907T093000",
+        "DTEND;TZID=Europe/London:20260907T094500",
+        "RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20261123T093000Z",
+        "EXDATE;TZID=Europe/London:20261109T093000",
+        "SUMMARY:Stand-up",
+        "END:VEVENT",
+        "BEGIN:VEVENT",
+        "UID:standup",
+        "RECURRENCE-ID;TZID=Europe/London:20261116T093000",
+        "DTSTART;TZID=Europe/London:20261116T110000",
+        "DTEND;TZID=Europe/London:20261116T111500",
+        "SUMMARY:Stand-up",
+        "END:VEVENT",
+        "END:VCALENDAR",
+        "",
+      ].join("\r\n"),
+    );
+    const call = await startRun();
+    const listed = z
+      .object({
+        events: z.array(
+          z.object({ id: z.string(), start: z.string(), end: z.string() }),
+        ),
+      })
+      .parse(
+        await call("list_events", { from: "2026-11-01", to: "2026-12-31" }),
+      );
+
+    expect(listed.events.map(({ start, end }) => [start, end])).toEqual([
+      ["2026-11-02T09:30", "2026-11-02T09:45"],
+      ["2026-11-16T11:00", "2026-11-16T11:15"],
+      ["2026-11-23T09:30", "2026-11-23T09:45"],
+    ]);
+    expect(new Set(listed.events.map((event) => event.id)).size).toBe(3);
+    expect(
+      errorOf(
+        await call("delete_event", { id: listed.events[0].id, reason: "Test" }),
+      ),
+    ).toContain("repeats");
+    expect(server.writes).toEqual([]);
+  });
+
   it("refuse writes to a calendar that the policy keeps read-only", async () => {
     const call = await startRun((calendar) => ({
       canWrite: calendar.name !== "Work",

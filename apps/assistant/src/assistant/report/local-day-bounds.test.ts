@@ -1,11 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  addDays,
-  dedupeByMessageId,
-  isInDay,
-  localDayBounds,
-  mailSearchRange,
-} from "./local-day-bounds.ts";
+import { addDays, isInDay, localDayBounds } from "./local-day-bounds.ts";
 
 describe("localDayBounds", () => {
   it("runs from local midnight to the next local midnight, in winter and in summer time", () => {
@@ -40,33 +34,9 @@ describe("localDayBounds", () => {
   });
 });
 
-describe("mailSearchRange", () => {
-  it("searches one day more on each side, so a server in any zone returns the whole day", () => {
-    expect(mailSearchRange("2026-03-01")).toEqual({
-      since: new Date("2026-02-28T00:00:00Z"),
-      before: new Date("2026-03-03T00:00:00Z"),
-    });
-  });
-});
-
 describe("addDays", () => {
   it("crosses month and year ends", () => {
     expect(addDays("2026-01-01", -1)).toBe("2025-12-31");
     expect(addDays("2028-02-28", 1)).toBe("2028-02-29");
-  });
-});
-
-describe("dedupeByMessageId", () => {
-  it("keeps the first copy of each Message-ID and the order of the rest", () => {
-    expect(
-      dedupeByMessageId([
-        { messageId: "<a@x>", folder: "INBOX" },
-        { messageId: "<b@x>", folder: "INBOX" },
-        { messageId: "<a@x>", folder: "Archive" },
-      ]),
-    ).toEqual([
-      { messageId: "<a@x>", folder: "INBOX" },
-      { messageId: "<b@x>", folder: "INBOX" },
-    ]);
   });
 });

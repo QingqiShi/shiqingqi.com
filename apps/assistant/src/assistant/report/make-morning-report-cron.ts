@@ -10,10 +10,11 @@ import {
 import { notifyReport } from "./notify-report.ts";
 
 /**
- * A run reads no new mail after this. The model call of the last user can
- * take two minutes more, and the function may run 300 s.
+ * The report agent submits by this time. Its last step can take 45 s more,
+ * then the report is stored and the mail marked read; the function may run
+ * 300 s.
  */
-export const MORNING_REPORT_BUDGET_MS = 150_000;
+export const MORNING_REPORT_BUDGET_MS = 180_000;
 
 interface MorningReportCronTotals {
   users: number;

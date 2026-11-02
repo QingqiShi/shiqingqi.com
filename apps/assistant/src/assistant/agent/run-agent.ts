@@ -44,6 +44,13 @@ export interface AgentTaskSpec {
   prompt: string;
   maxSteps: number;
   tools: (context: AgentRunContext) => AgentTools;
+  /**
+   * The tool that delivers the task's result. The run ends once `done`
+   * says the tool succeeded. At the step cap or after `endsAt`, the last
+   * step has only this tool and is told to call it, so that a long run
+   * still delivers.
+   */
+  finish?: { tool: string; done: () => boolean };
 }
 
 export interface AgentRunResult {
@@ -51,6 +58,8 @@ export interface AgentRunResult {
   status: AgentRunStatus;
   steps: number;
   text: string | null;
+  /** The step cap or the time made the last step call the finish tool. */
+  forcedFinish: boolean;
 }
 
 function cut(text: string, limit: number) {
@@ -201,6 +210,10 @@ export async function runAgent(
   let status: AgentRunStatus;
   let text: string | null = null;
   let errorMessage: string | null = null;
+  let forcedFinish = false;
+  const { finish } = spec;
+  const finished = () => finish?.done() ?? false;
+  const outOfTime = () => now().getTime() >= endsAt;
   try {
     const left = endsAt - now().getTime();
     const tools = spec.tools(context);
@@ -209,25 +222,44 @@ export async function runAgent(
       instructions: instructionsFor(spec, tools),
       messages: [{ role: "user", content: spec.prompt }],
       tools: toAiTools(tools),
-      stopWhen: [isStepCount(spec.maxSteps), () => now().getTime() >= endsAt],
+      stopWhen: [
+        isStepCount(spec.maxSteps),
+        finished,
+        () => outOfTime() && (!finish || forcedFinish),
+      ],
       reasoning: "low",
       maxOutputTokens: MAX_OUTPUT_TOKENS,
       abortSignal: Number.isFinite(left)
         ? AbortSignal.timeout(Math.max(0, left) + OVERRUN_MS)
         : undefined,
-      prepareStep: ({ initialMessages, responseMessages }) => ({
-        messages: withCacheBreakpoint([
-          ...initialMessages,
-          ...responseMessages,
-        ]),
-      }),
+      prepareStep: ({ stepNumber, initialMessages, responseMessages }) => {
+        const history = [...initialMessages, ...responseMessages];
+        if (!finish || (stepNumber < spec.maxSteps - 1 && !outOfTime())) {
+          return { messages: withCacheBreakpoint(history) };
+        }
+        forcedFinish = true;
+        // The API refuses a forced tool choice and a step with no thinking,
+        // so this step keeps only the finish tool and asks for it.
+        return {
+          messages: withCacheBreakpoint([
+            ...history,
+            {
+              role: "user",
+              content: `The time for this task is up. Call ${finish.tool} now with what you have.`,
+            },
+          ]),
+          activeTools: [finish.tool],
+          toolChoice: "auto",
+        };
+      },
       onStepEnd: (step) => {
         transcript.push(recordStep(step));
         addTokens(usage, model.id, step.usage);
       },
     });
     text = result.text.trim() ? cut(result.text.trim(), MAX_TEXT_CHARS) : null;
-    status = result.finishReason === "tool-calls" ? "stopped" : "done";
+    status =
+      result.finishReason === "tool-calls" && !finished() ? "stopped" : "done";
   } catch (error) {
     status = isAbort(error) ? "stopped" : "failed";
     errorMessage = cut(
@@ -247,5 +279,11 @@ export async function runAgent(
       errorMessage,
     })
     .where(and(eq(agentRuns.id, run.id), eq(agentRuns.userId, userId)));
-  return { runId: run.id, status, steps: transcript.length, text };
+  return {
+    runId: run.id,
+    status,
+    steps: transcript.length,
+    text,
+    forcedFinish,
+  };
 }

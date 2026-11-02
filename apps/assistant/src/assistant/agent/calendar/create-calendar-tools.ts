@@ -16,6 +16,7 @@ import {
   IcsEditError,
   type EventEdit,
 } from "#src/assistant/calendar/ics/edit-event-ics.ts";
+import { eventsInRange } from "#src/assistant/calendar/ics/events-in-range.ts";
 import {
   addDays,
   addMinutes,
@@ -319,9 +320,17 @@ function madeByAssistant(event: IcsEvent) {
   return event.uid?.endsWith(ASSISTANT_UID_DOMAIN) ?? false;
 }
 
-/** What the model sees of an event: never its notes, which can hold text from other people. */
-function eventView(id: string, calendar: RunCalendar, events: IcsEvent[]) {
-  const event = events.find((entry) => !entry.recurring) ?? events[0];
+/**
+ * What the model sees of an event, or of one occurrence of a repeating
+ * event, with what the other events of its object add: never its notes,
+ * which can hold text from other people.
+ */
+function eventView(
+  id: string,
+  calendar: RunCalendar,
+  event: IcsEvent,
+  events: IcsEvent[],
+) {
   return {
     id,
     calendar: calendar.key,
@@ -333,11 +342,16 @@ function eventView(id: string, calendar: RunCalendar, events: IcsEvent[]) {
     endTimeZone:
       event.endTimeZone !== event.timeZone ? event.endTimeZone : undefined,
     location: event.location,
-    recurring: events.length > 1 || events.some((entry) => entry.recurring),
+    recurring: repeats(events),
     withAttendees: events.some((entry) => entry.hasAttendees),
     cancelled: event.cancelled,
     madeByAssistant: madeByAssistant(event),
   };
+}
+
+/** The events of one calendar object repeat, or it holds changed instances of a repeating event. */
+function repeats(events: readonly IcsEvent[]) {
+  return events.length > 1 || events.some((event) => event.recurring);
 }
 
 function matchesText(events: IcsEvent[], text: string) {
@@ -446,7 +460,7 @@ export function createCalendarTools({
     if (events.length === 0) {
       throw new ToolRefusal(`Event ${id} has no event the tools can read.`);
     }
-    if (events.length > 1 || events.some((event) => event.recurring)) {
+    if (repeats(events)) {
       throw new ToolRefusal(
         `Event ${id} repeats. The owner changes repeating events in the Calendar app.`,
       );
@@ -477,6 +491,22 @@ export function createCalendarTools({
     });
   }
 
+  /** The id of an event, or of one occurrence of a repeating event. */
+  function register(
+    calendar: RunCalendar,
+    object: CalendarObject,
+    event: IcsEvent,
+    events: IcsEvent[],
+  ) {
+    return handles.register({
+      calendarKey: calendar.key,
+      url: object.url,
+      etag: object.etag,
+      title: event.title,
+      occurrence: repeats(events) ? event.start : undefined,
+    });
+  }
+
   /** An event in any calendar that is this one said again. */
   async function findSame(
     timing: EventTiming,
@@ -492,18 +522,17 @@ export function createCalendarTools({
       const session = await calendars.session(calendar);
       for (const object of await session.listEvents(calendar.url, range)) {
         const events = readIcsEvents(object.data, timeZone);
-        if (
-          events.some((event) =>
-            isSameEvent(timing, title, sourceMessageId, event),
-          )
-        ) {
-          const id = handles.register({
-            calendarKey: calendar.key,
-            url: object.url,
-            etag: object.etag,
-            title: events[0].title,
-          });
-          return eventView(id, calendar, events);
+        const same = eventsInRange(events, {
+          start: range.start.getTime(),
+          end: range.end.getTime(),
+        }).find((event) => isSameEvent(timing, title, sourceMessageId, event));
+        if (same) {
+          return eventView(
+            register(calendar, object, same, events),
+            calendar,
+            same,
+            events,
+          );
         }
       }
     }
@@ -544,7 +573,7 @@ export function createCalendarTools({
     }),
 
     list_events: agentTool({
-      description: `Lists the events between two days, each with an id for the other tools. text keeps only events whose title, location or notes hold it, such as a booking reference; the notes never come back. At most ${String(limits.listDays)} days per call.`,
+      description: `Lists the events between two days, each with an id for the other tools; a repeating event comes once for each time it happens. text keeps only events whose title, location or notes hold it, such as a booking reference; the notes never come back. At most ${String(limits.listDays)} days per call.`,
       inputSchema: z.object({
         calendars: z
           .array(calendarKey)
@@ -593,18 +622,18 @@ export function createCalendarTools({
           }
           for (const object of objects) {
             const events = readIcsEvents(object.data, timeZone);
-            if (events.length === 0) continue;
             if (input.text && !matchesText(events, input.text)) continue;
-            const id = handles.register({
-              calendarKey: calendar.key,
-              url: object.url,
-              etag: object.etag,
-              title: events[0].title,
-            });
-            found.push({
-              start: Math.min(...events.map((event) => event.start)),
-              view: eventView(id, calendar, events),
-            });
+            for (const event of eventsInRange(events, { start, end })) {
+              found.push({
+                start: event.start,
+                view: eventView(
+                  register(calendar, object, event, events),
+                  calendar,
+                  event,
+                  events,
+                ),
+              });
+            }
           }
         }
         found.sort((a, b) => a.start - b.start);
@@ -787,7 +816,9 @@ export function createCalendarTools({
             previous: previousOf(found.object),
           });
           const [event] = readIcsEvents(data, timeZone);
-          return { updated: eventView(input.id, found.calendar, [event]) };
+          return {
+            updated: eventView(input.id, found.calendar, event, [event]),
+          };
         }),
     }),
 

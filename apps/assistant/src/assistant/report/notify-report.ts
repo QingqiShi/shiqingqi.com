@@ -14,21 +14,18 @@ import type { BuiltReport } from "./build-morning-report.ts";
 const COPY: Record<
   UserLocale,
   {
-    noMail: string;
     notWritten: string;
     todos: (count: number) => string;
     open: string;
   }
 > = {
   en: {
-    noMail: "No new mail yesterday",
     notWritten: "Your morning report could not be written today",
     todos: (count) =>
       count === 1 ? "1 new to-do." : `${String(count)} new to-dos.`,
     open: "Open your morning report.",
   },
   zh: {
-    noMail: "昨天没有新邮件",
     notWritten: "今天的晨报没能写成",
     todos: (count) => `新增 ${String(count)} 项待办。`,
     open: "打开今天的晨报。",
@@ -38,9 +35,7 @@ const COPY: Record<
 export function reportMessage(report: BuiltReport): PushMessage {
   const copy = COPY[report.locale];
   return {
-    title:
-      report.headline ??
-      (report.status === "no-mail" ? copy.noMail : copy.notWritten),
+    title: report.headline ?? copy.notWritten,
     body: report.newTodos > 0 ? copy.todos(report.newTodos) : copy.open,
     url: getLocalePath("/", report.locale),
   };

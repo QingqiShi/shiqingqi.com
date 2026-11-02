@@ -11,6 +11,8 @@ export interface MailRef {
   messageId: string;
   subject: string;
   sender: string;
+  /** When the server got the mail: its INTERNALDATE. */
+  receivedAt: Date;
 }
 
 const HANDLE = /^m[1-9]\d*$/;
@@ -58,6 +60,11 @@ export class MailHandles {
       );
     }
     return ref;
+  }
+
+  /** Every mail of the run whose id still works, with its id. */
+  listed(): [string, MailRef][] {
+    return [...this.#refs];
   }
 
   /** Puts the mail at its new place, after a move or a new search. */
