@@ -64,7 +64,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-virtuoso": "^4.18.19",
-    "resend": "^6.34.1",
+    "resend": "^6.35.0",
     "serwist": "catalog:",
     "sharp": "^0.35.5",
     "zod": "catalog:"
