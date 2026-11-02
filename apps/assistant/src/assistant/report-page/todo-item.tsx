@@ -13,6 +13,7 @@ import { color, controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import { use, useState, type ReactNode, type Ref } from "react";
 import { startsAfter } from "../report/dates-in-order.ts";
+import { localClock } from "../report/due-report-date.ts";
 import { ChecklistProgress } from "./checklist-progress.tsx";
 import { daysBetween, formatShortDate } from "./format-day.ts";
 import { OpenMailButton } from "./open-mail-button.tsx";
@@ -67,17 +68,20 @@ export interface TodoItemSortable {
 export function TodoItem({
   id,
   showSource = false,
+  showDoneDate = false,
   fallback = null,
   sortable,
 }: {
   id: string;
   /** Say that the morning report added it. The report's own page does not need to. */
   showSource?: boolean;
+  /** Say which day it was done, where no day heading says so. */
+  showDoneDate?: boolean;
   fallback?: ReactNode;
   sortable?: TodoItemSortable;
 }) {
   const readOnly = use(TodosReadOnlyContext);
-  const { rows, today, locale, setDone } = useTodoStore();
+  const { rows, today, locale, timeZone, setDone } = useTodoStore();
   const [editing, setEditing] = useState<TodoEditFocus | null>(null);
   const todo = rows.find((row) => row.id === id);
   if (!todo) return fallback;
@@ -173,6 +177,17 @@ export function TodoItem({
                       }
                 }
               />
+            ) : null}
+            {showDoneDate && todo.doneAt !== null ? (
+              <Text look="caption" tone="muted">
+                {t({ en: "Done {date}", zh: "{date} 完成" }).replace(
+                  "{date}",
+                  formatShortDate(
+                    localClock(new Date(todo.doneAt), timeZone).date,
+                    locale,
+                  ),
+                )}
+              </Text>
             ) : null}
             {showSource && todo.createdBy === "report" ? (
               <Text look="caption" tone="muted">
