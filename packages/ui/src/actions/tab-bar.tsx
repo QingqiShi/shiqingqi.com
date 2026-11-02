@@ -82,9 +82,10 @@ interface TabBarProps {
   label: string;
   /**
    * An effect the effect layer draws on the indicator. `"liquid"`, the
-   * default, draws it as the SegmentedControl's does: solid at rest with a
-   * lit edge, and in motion liquid that pours to the tab, flows on for a
-   * moment and sets again. A press on a tab pours it there at once, and a
+   * default, draws it as the SegmentedControl's does: plain and solid at
+   * rest, with a lit top edge only while a pointer is over the bar, and in
+   * motion liquid that pours to the tab, flows on for a moment and sets
+   * again. A press on a tab pours it there at once, and a
    * drag from that press moves it with inertia across the tabs. A release
    * after a drag follows the link of the tab under it; a tap follows the
    * tab's own link, as a click does. The indicator stays on the tab it went
@@ -94,7 +95,7 @@ interface TabBarProps {
    * `EffectLayerProvider` with WebGPU; elsewhere, and under forced colours,
    * the bar looks and works as it does with `"none"`.
    *
-   * @zh 由效果层在指示块上绘制的效果。默认的 `"liquid"` 与分段控件的效果相同：静止时是边缘带光的实心指示块；运动时是液体，涌向该标签页，继续流动片刻后重新凝固。按下某个标签页时液体立即涌向该标签页，从这次按下开始拖动时它带着惯性在各标签页之间移动。拖动后松开，会打开其下方标签页的链接；轻触则与点击一样打开该标签页自身的链接。在页面加载期间，指示块停留在它去往的标签页上。减少动态效果时，它以交叉淡入淡出到位。`"none"` 保留普通的玻璃指示块，按下与拖动以同样的方式移动它。效果只在带有 WebGPU 的 `EffectLayerProvider` 之内绘制；在其它情况下以及强制颜色模式下，标签栏的外观与行为与 `"none"` 相同。
+   * @zh 由效果层在指示块上绘制的效果。默认的 `"liquid"` 与分段控件的效果相同：静止时是普通的实心指示块，只有指针停在标签栏上时上缘才带光；运动时是液体，涌向该标签页，继续流动片刻后重新凝固。按下某个标签页时液体立即涌向该标签页，从这次按下开始拖动时它带着惯性在各标签页之间移动。拖动后松开，会打开其下方标签页的链接；轻触则与点击一样打开该标签页自身的链接。在页面加载期间，指示块停留在它去往的标签页上。减少动态效果时，它以交叉淡入淡出到位。`"none"` 保留普通的玻璃指示块，按下与拖动以同样的方式移动它。效果只在带有 WebGPU 的 `EffectLayerProvider` 之内绘制；在其它情况下以及强制颜色模式下，标签栏的外观与行为与 `"none"` 相同。
    */
   effect?: "liquid" | "none";
   /**

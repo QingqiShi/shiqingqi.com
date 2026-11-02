@@ -21,7 +21,7 @@ export function isPlainClick(event: MouseEvent) {
 
 interface TabPressOptions extends Pick<
   SegmentTrackOptions<HTMLDivElement>,
-  "effect" | "surface" | "orientation" | "scrolls"
+  "effect" | "surface" | "orientation" | "scrolls" | "hoverSurface"
 > {
   /** The tab of the page the visitor is on, or -1 for none. */
   current: number;

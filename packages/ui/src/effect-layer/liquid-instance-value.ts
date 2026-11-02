@@ -92,10 +92,10 @@ export interface LiquidInstanceRecord {
   /** How much of the liquid the effect draws: 1 in motion, 0 at rest, where the control draws it. */
   readonly body: number;
   /**
-   * How much the last move lifts the glint on the lit edge, from -1 to 1:
-   * positive after a move along the track, and negative after a move back.
+   * Where the light over the lit edge is across the page, as `EdgeLight.lean`
+   * gives it.
    */
-  readonly glint: number;
+  readonly lean: number;
   /**
    * The track runs down the page, as the rail of a TabView does, and not
    * along it.
@@ -150,7 +150,7 @@ export function liquidInstanceValue(
     restX: liquid.restX,
     span: liquid.span,
     centre: [liquid.centreX, liquid.centreY],
-    glint: liquid.glint,
+    lean: liquid.lean,
     scale: liquid.scale,
     ringWidth: liquid.ring.width,
     edge: liquid.edge,

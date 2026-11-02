@@ -242,9 +242,11 @@ function RailTrack({
     surface: "flat",
     orientation: "vertical",
     scrolls,
+    hoverSurface: true,
   });
   return (
     <div {...track.props} css={[track.css, styles.track]}>
+      <span {...track.hover} css={[corner.radius_3, track.hoverCss]} />
       {track.shown >= 0 ? (
         <span
           {...track.indicator}
@@ -435,10 +437,6 @@ const styles = stylex.create({
     color: {
       default: color.fgControl,
       ":hover": { default: null, [pointer.canHover]: color.fg },
-    },
-    backgroundColor: {
-      default: "transparent",
-      ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
     },
     fontWeight: font.weight_5,
     textDecoration: "none",
