@@ -30,6 +30,12 @@ function isPointerOutside(
   );
 }
 
+function isActivationKey(event: KeyboardEvent<HTMLElement>): boolean {
+  if (event.key === "Enter") return true;
+  // A link activates on Enter only. Space scrolls the page, so it is not a press.
+  return event.key === " " && event.currentTarget.tagName !== "A";
+}
+
 interface UsePressAnimationOptions<T extends HTMLElement> {
   disabled?: boolean;
   targetRef: RefObject<T | null>;
@@ -43,8 +49,10 @@ interface UsePressAnimationReturn<T extends HTMLElement> {
     onPointerDown: (event: ReactPointerEvent<T>) => void;
     onPointerUp: (event: ReactPointerEvent<T>) => void;
     onPointerMove: (event: ReactPointerEvent<T>) => void;
+    onPointerCancel: () => void;
     onKeyDown: (event: KeyboardEvent<T>) => void;
     onKeyUp: (event: KeyboardEvent<T>) => void;
+    onBlur: () => void;
     onContextMenu: (event: MouseEvent<T>) => void;
   };
   /** Returns true if click should be allowed, false if it was released outside */
@@ -58,6 +66,7 @@ export function usePressAnimation<T extends HTMLElement>({
   const pressStartTimeRef = useRef<number>(0);
   const releaseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pointerIdRef = useRef<number | null>(null);
+  const isKeyPressRef = useRef(false);
   const isPressedRef = useRef(false);
   const releasedOutsideRef = useRef(false);
   // Element bounds captured once at press start, so pointer-move doesn't force
@@ -145,6 +154,7 @@ export function usePressAnimation<T extends HTMLElement>({
     // Capture pointer to receive pointerup even outside the element
     targetRef.current?.setPointerCapture(event.pointerId);
     pointerIdRef.current = event.pointerId;
+    isKeyPressRef.current = false;
     handlePress();
     // Snapshot the bounds now so pointer-move can reuse them instead of
     // measuring layout on every event.
@@ -187,20 +197,34 @@ export function usePressAnimation<T extends HTMLElement>({
     }
   }
 
+  // The browser sends this instead of pointerup when a touch becomes a scroll
+  // or a link starts a native drag. It releases the capture itself. No click
+  // follows, so do not set releasedOutsideRef: it would block the next click.
+  function onPointerCancel() {
+    pointerIdRef.current = null;
+    handleRelease(true);
+  }
+
+  // Do not call preventDefault on Space: it stops the click that the browser
+  // sends on keyup. A button does not scroll the page on Space without it.
   function onKeyDown(event: KeyboardEvent<T>) {
-    if (disabled) return;
-    if (event.key === "Enter" || event.key === " ") {
-      // Prevent space from scrolling the page
-      if (event.key === " ") {
-        event.preventDefault();
-      }
-      handlePress();
-    }
+    if (disabled || event.repeat || !isActivationKey(event)) return;
+    isKeyPressRef.current = true;
+    handlePress();
   }
 
   function onKeyUp(event: KeyboardEvent<T>) {
-    if (event.key === "Enter" || event.key === " ") {
+    if (isActivationKey(event)) {
+      isKeyPressRef.current = false;
       handleRelease(false);
+    }
+  }
+
+  // When focus moves during a key press, the keyup goes to a different element.
+  function onBlur() {
+    if (isKeyPressRef.current) {
+      isKeyPressRef.current = false;
+      handleRelease(true);
     }
   }
 
@@ -254,8 +278,10 @@ export function usePressAnimation<T extends HTMLElement>({
       onPointerDown,
       onPointerUp,
       onPointerMove,
+      onPointerCancel,
       onKeyDown,
       onKeyUp,
+      onBlur,
       onContextMenu,
     },
     shouldAllowClick,
