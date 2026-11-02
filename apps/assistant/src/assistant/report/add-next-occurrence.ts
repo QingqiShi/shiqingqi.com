@@ -1,5 +1,5 @@
 import { and, eq, sql } from "drizzle-orm";
-import { todos } from "#src/assistant/db/schema.ts";
+import { todoChecklistItems, todos } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
 import {
   nextOccurrenceDates,
@@ -39,11 +39,12 @@ export function reminderWrite(remindAt: Date | null, now: Date) {
 /**
  * Makes the next occurrence of a repeating to-do that this transaction closes,
  * and links the two. The new row takes over the place in the owner's order. The
- * mail stays with the occurrence that it was about. False when `nextId` is taken,
- * and nothing has changed then. A to-do that does not repeat needs nothing.
+ * mail stays with the occurrence that it was about, and the checklist comes along
+ * with no ticks. False when `nextId` is taken, and nothing has changed then. A
+ * to-do that does not repeat needs nothing.
  */
 export async function addNextOccurrence(
-  tx: Pick<AssistantDb, "insert" | "update">,
+  tx: Pick<AssistantDb, "insert" | "select" | "update">,
   {
     userId,
     closed,
@@ -89,6 +90,24 @@ export async function addNextOccurrence(
     .onConflictDoNothing({ target: todos.id })
     .returning({ id: todos.id });
   if (added.length === 0) return false;
+  const steps = await tx
+    .select({
+      id: todoChecklistItems.id,
+      text: todoChecklistItems.text,
+      position: todoChecklistItems.position,
+    })
+    .from(todoChecklistItems)
+    .where(
+      and(
+        eq(todoChecklistItems.userId, userId),
+        eq(todoChecklistItems.todoId, closed.id),
+      ),
+    );
+  if (steps.length > 0) {
+    await tx
+      .insert(todoChecklistItems)
+      .values(steps.map((step) => ({ ...step, userId, todoId: nextId })));
+  }
   await tx
     .update(todos)
     .set({

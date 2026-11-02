@@ -1,5 +1,6 @@
 import type { TodoCreator } from "#src/assistant/db/schema.ts";
 import type { RepeatRule } from "../report/next-occurrence.ts";
+import type { ChecklistItem } from "../report/own-todo.ts";
 import type { TodoView } from "../report/read-report.ts";
 
 /** What the page knows of a to-do. It changes on the page at once, before the server says yes. */
@@ -16,6 +17,7 @@ export interface TodoItemData {
   nextReminderAt: string | null;
   /** The occurrence that closing this one made. */
   nextId: string | null;
+  checklist: readonly ChecklistItem[];
   createdBy: TodoCreator;
   /** ISO time; null while open. */
   doneAt: string | null;
@@ -43,6 +45,7 @@ export function toTodoItemData(
     remindAt: todo.remindAt?.toISOString() ?? null,
     nextReminderAt: todo.nextReminderAt?.toISOString() ?? null,
     nextId: todo.nextId,
+    checklist: todo.checklist,
     createdBy: todo.createdBy,
     doneAt: todo.doneAt?.toISOString() ?? null,
     doneReason: todo.doneReason,

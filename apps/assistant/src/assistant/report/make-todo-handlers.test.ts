@@ -2,7 +2,11 @@ import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { z } from "zod";
-import { todos, userSettings } from "#src/assistant/db/schema.ts";
+import {
+  todoChecklistItems,
+  todos,
+  userSettings,
+} from "#src/assistant/db/schema.ts";
 import {
   createTestDb,
   type TestDb,
@@ -767,5 +771,199 @@ describe("a reminder", () => {
       remindAt: new Date("2026-11-03T15:00:00.000Z"),
       remindedAt: null,
     });
+  });
+});
+
+describe("the checklist of a to-do", () => {
+  async function addStep(todoId: string, text: string, ticked = false) {
+    const id = randomUUID();
+    const response = await handlers.addStep(
+      request("POST", { id, text, done: ticked }),
+      todoId,
+    );
+    expect(response.status).toBe(201);
+    return id;
+  }
+
+  async function checklist(todoId: string) {
+    const { open, done } = await listTodos({ db, userId: owner });
+    const todo = [...open, ...done].find((row) => row.id === todoId);
+    return todo?.checklist.map(({ text, done: ticked }) => [text, ticked]);
+  }
+
+  it("does not close the to-do when every step is ticked", async () => {
+    const todo = await insertTodo(owner);
+    const step = await addStep(todo.id, "Find the invoice");
+
+    await handlers.changeStep(request("PATCH", { done: true }), todo.id, step);
+
+    expect(await checklist(todo.id)).toEqual([["Find the invoice", true]]);
+    expect((await stored(todo.id)).doneAt).toBeNull();
+  });
+
+  it("lets nobody reach the steps of another user or of a deleted to-do", async () => {
+    const theirs = await insertTodo(stranger);
+    const [theirStep, otherStep] = [randomUUID(), randomUUID()];
+    await db.insert(todoChecklistItems).values([
+      { id: theirStep, userId: stranger, todoId: theirs.id, text: "A" },
+      { id: otherStep, userId: stranger, todoId: theirs.id, text: "B" },
+    ]);
+    const steps = () =>
+      db
+        .select()
+        .from(todoChecklistItems)
+        .where(eq(todoChecklistItems.todoId, theirs.id))
+        .orderBy(todoChecklistItems.position);
+    const before = await steps();
+
+    const answers = await Promise.all([
+      handlers.addStep(
+        request("POST", { id: randomUUID(), text: "Mine" }),
+        theirs.id,
+      ),
+      handlers.changeStep(
+        request("PATCH", { text: "Mine" }),
+        theirs.id,
+        theirStep,
+      ),
+      handlers.deleteStep(request("DELETE"), theirs.id, theirStep),
+    ]);
+    await handlers.reorderSteps(
+      request("PUT", { ids: [otherStep, theirStep] }),
+      theirs.id,
+    );
+
+    expect(answers.map(({ status }) => status)).toEqual([404, 404, 404]);
+    expect(await steps()).toEqual(before);
+
+    const mine = await insertTodo(owner);
+    const step = await addStep(mine.id, "Gone with it");
+    await handlers.delete(request("DELETE"), mine.id);
+    expect(
+      (
+        await handlers.changeStep(
+          request("PATCH", { done: true }),
+          mine.id,
+          step,
+        )
+      ).status,
+    ).toBe(404);
+  });
+
+  it("keeps the place of a deleted step when the undo sends it back", async () => {
+    const todo = await insertTodo(owner);
+    await addStep(todo.id, "First");
+    const middle = await addStep(todo.id, "Middle", true);
+    await addStep(todo.id, "Last");
+
+    const answer = await handlers.deleteStep(
+      request("DELETE"),
+      todo.id,
+      middle,
+    );
+    const { position } = z
+      .object({ position: z.number() })
+      .parse(await answer.json());
+    expect(await checklist(todo.id)).toEqual([
+      ["First", false],
+      ["Last", false],
+    ]);
+
+    await handlers.addStep(
+      request("POST", { id: middle, text: "Middle", done: true, position }),
+      todo.id,
+    );
+
+    expect(await checklist(todo.id)).toEqual([
+      ["First", false],
+      ["Middle", true],
+      ["Last", false],
+    ]);
+  });
+
+  it("orders the steps of one to-do and leaves the others as they are", async () => {
+    const todo = await insertTodo(owner);
+    const [a, b, c] = [
+      await addStep(todo.id, "A"),
+      await addStep(todo.id, "B"),
+      await addStep(todo.id, "C"),
+    ];
+
+    await handlers.reorderSteps(request("PUT", { ids: [c, a, b] }), todo.id);
+    await handlers.reorderSteps(request("PUT", { ids: [a, c] }), todo.id);
+
+    expect((await checklist(todo.id))?.map(([text]) => text)).toEqual([
+      "A",
+      "C",
+      "B",
+    ]);
+  });
+
+  it("gives the next occurrence the steps with no ticks, and takes them away on a reopen", async () => {
+    const [first] = await db
+      .insert(todos)
+      .values({
+        userId: owner,
+        title: "Pay rent",
+        dueDate: "2026-11-05",
+        repeat: { kind: "monthly", every: 1, day: 5 },
+      })
+      .returning();
+    await addStep(first.id, "Check the amount", true);
+    await addStep(first.id, "Send it");
+    const nextId = randomUUID();
+
+    await handlers.update(request("PATCH", { done: true, nextId }), first.id);
+
+    expect(await checklist(nextId)).toEqual([
+      ["Check the amount", false],
+      ["Send it", false],
+    ]);
+    expect(await checklist(first.id)).toEqual([
+      ["Check the amount", true],
+      ["Send it", false],
+    ]);
+
+    await handlers.update(request("PATCH", { done: false }), first.id);
+
+    expect(
+      await db.$count(
+        todoChecklistItems,
+        eq(todoChecklistItems.todoId, nextId),
+      ),
+    ).toBe(0);
+    expect(await checklist(first.id)).toEqual([
+      ["Check the amount", true],
+      ["Send it", false],
+    ]);
+  });
+
+  it("takes the ticks away on a skip, and its undo gives them back", async () => {
+    const [todo] = await db
+      .insert(todos)
+      .values({
+        userId: owner,
+        title: "Pay rent",
+        dueDate: "2026-11-05",
+        repeat: { kind: "monthly", every: 1, day: 5 },
+      })
+      .returning();
+    const ticked = await addStep(todo.id, "Check the amount", true);
+
+    await handlers.moveOccurrence(
+      request("PUT", { dueDate: "2026-12-05", startDate: null }),
+      todo.id,
+    );
+    expect(await checklist(todo.id)).toEqual([["Check the amount", false]]);
+
+    await handlers.moveOccurrence(
+      request("PUT", {
+        dueDate: "2026-11-05",
+        startDate: null,
+        ticked: [ticked],
+      }),
+      todo.id,
+    );
+    expect(await checklist(todo.id)).toEqual([["Check the amount", true]]);
   });
 });

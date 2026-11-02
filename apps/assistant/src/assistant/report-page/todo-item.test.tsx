@@ -36,6 +36,7 @@ function page(
     nextId: null,
     remindAt: null,
     nextReminderAt: null,
+    checklist: [],
     createdBy: "owner",
     doneAt: null,
     doneReason: null,

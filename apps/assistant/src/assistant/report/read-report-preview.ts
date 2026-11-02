@@ -62,6 +62,7 @@ export async function readReportPreview(
     snoozedUntil: null,
     remindedAt: null,
     nextTodoId: null,
+    checklist: [],
     createdAt: builtAt,
     createdBy: "report",
     doneAt: null,

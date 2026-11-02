@@ -1,6 +1,12 @@
+import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { morningReports, todos } from "#src/assistant/db/schema.ts";
+import { z } from "zod";
+import {
+  morningReports,
+  todoChecklistItems,
+  todos,
+} from "#src/assistant/db/schema.ts";
 import {
   createTestDb,
   type TestDb,
@@ -63,6 +69,51 @@ async function applyChanges(userId: string, changes: TodoChanges) {
 }
 
 describe("the to-do tools", () => {
+  it("show each to-do's own checklist, in the owner's order", async () => {
+    const userId = await insertUser(db);
+    const [pay, other] = await db
+      .insert(todos)
+      .values([
+        { userId, title: "Pay" },
+        { userId, title: "Renew" },
+      ])
+      .returning();
+    const [first, second] = [randomUUID(), randomUUID()];
+    await db.insert(todoChecklistItems).values([
+      { id: first, userId, todoId: pay.id, text: "Later", position: 2 },
+      {
+        id: second,
+        userId,
+        todoId: pay.id,
+        text: "Sooner",
+        done: true,
+        position: 1,
+      },
+    ]);
+    const { tools } = createTodoTools({
+      openTodos: await readOpenTodos({ db, userId }),
+      deletedTodos: [],
+      sourceOf: () => ({ accountId: "a", messageId: "<m@x>" }),
+      receivedAtOf: () => NOW,
+    });
+
+    const listed = z
+      .object({
+        todos: z.array(z.object({ title: z.string(), checklist: z.unknown() })),
+      })
+      .parse(await callAgentTool(tools.list_todos, {}));
+
+    expect(
+      listed.todos.find(({ title }) => title === "Pay")?.checklist,
+    ).toEqual([
+      { text: "Sooner", done: true },
+      { text: "Later", done: false },
+    ]);
+    expect(
+      listed.todos.find(({ title }) => title === other.title)?.checklist,
+    ).toEqual([]);
+  });
+
   it("refuse a start date after the due date, also of the dates a to-do has", async () => {
     const userId = await insertUser(db);
     await db.insert(todos).values([

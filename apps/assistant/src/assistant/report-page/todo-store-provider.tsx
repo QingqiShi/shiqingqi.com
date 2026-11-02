@@ -23,6 +23,7 @@ import {
   nextOccurrenceDates,
   nextOccurrenceReminder,
 } from "../report/next-occurrence.ts";
+import type { ChecklistItem } from "../report/own-todo.ts";
 import type { DueDateChange, OwnerTodoChange } from "../report/owner-todos.ts";
 import { rearrange } from "../report/rearrange.ts";
 import { todoLimits } from "../report/todo-limits.ts";
@@ -60,6 +61,15 @@ interface TodoStore {
   moveOverdueToToday: () => void;
   /** Puts these to-dos in this order, in the places that they hold. */
   reorder: (ids: readonly string[]) => void;
+  addStep: (todoId: string, text: string) => void;
+  changeStep: (
+    todoId: string,
+    stepId: string,
+    change: Partial<Pick<ChecklistItem, "text" | "done">>,
+  ) => void;
+  removeStep: (todoId: string, stepId: string) => void;
+  /** Puts these steps of a checklist in this order, in the places that they hold. */
+  reorderSteps: (todoId: string, ids: readonly string[]) => void;
 }
 
 const TodoStoreContext = createContext<TodoStore | null>(null);
@@ -77,6 +87,49 @@ function isOverdue(row: TodoItemData, today: string) {
 function patchRow(id: string, patch: Partial<TodoItemData>): TodoOp {
   return (rows) =>
     rows.map((row) => (row.id === id ? { ...row, ...patch } : row));
+}
+
+function patchChecklist(
+  todoId: string,
+  change: (steps: readonly ChecklistItem[]) => readonly ChecklistItem[],
+): TodoOp {
+  return (rows) =>
+    rows.map((row) =>
+      row.id === todoId ? { ...row, checklist: change(row.checklist) } : row,
+    );
+}
+
+function withTicks(
+  steps: readonly ChecklistItem[],
+  ticked: readonly string[],
+): readonly ChecklistItem[] {
+  return steps.map((step) => ({ ...step, done: ticked.includes(step.id) }));
+}
+
+function stepPath(todoId: string, stepId?: string) {
+  const checklist = `/api/todos/${todoId}/checklist`;
+  return stepId === undefined ? checklist : `${checklist}/${stepId}`;
+}
+
+/** A delete of a step, and its undo, which puts the step back where the server says it was. */
+function stepRemoval(todoId: string, step: ChecklistItem) {
+  let position: number | null = null;
+  return {
+    send: async () => {
+      const response = await assistantFetch(stepPath(todoId, step.id), {
+        method: "DELETE",
+      });
+      const body = (await response.json()) as { position: number };
+      position = body.position;
+    },
+    undo: () =>
+      position === null
+        ? Promise.resolve()
+        : assistantFetch(stepPath(todoId), {
+            method: "POST",
+            body: JSON.stringify({ ...step, position }),
+          }),
+  };
 }
 
 /** Closes a to-do, and adds its next occurrence where the row was, as the server does. */
@@ -308,6 +361,7 @@ function Store({
       zh: "已跳过。下一次在 {date}",
     }),
     deleted: t({ en: "Deleted", zh: "已删除" }),
+    stepDeleted: t({ en: "Step deleted", zh: "已删除这一步" }),
     deletedSeries: t({
       en: "Deleted, and it will not repeat",
       zh: "已删除，不会再重复",
@@ -345,17 +399,23 @@ function Store({
       TodoItemData,
       "dueDate" | "startDate" | "remindAt" | "nextReminderAt"
     >,
+    ticked: readonly string[],
   ) {
     const { dueDate, startDate, remindAt } = fields;
-    run(patchRow(id, fields), () =>
-      assistantFetch(`/api/todos/${id}/occurrence`, {
-        method: "PUT",
-        body: JSON.stringify({
-          dueDate,
-          startDate,
-          remindAt: remindAt ?? undefined,
+    const patchDates = patchRow(id, fields);
+    const patchTicks = patchChecklist(id, (steps) => withTicks(steps, ticked));
+    run(
+      (list) => patchTicks(patchDates(list)),
+      () =>
+        assistantFetch(`/api/todos/${id}/occurrence`, {
+          method: "PUT",
+          body: JSON.stringify({
+            dueDate,
+            startDate,
+            remindAt: remindAt ?? undefined,
+            ticked,
+          }),
         }),
-      }),
     );
   }
 
@@ -378,6 +438,7 @@ function Store({
         remindAt: null,
         nextReminderAt: null,
         nextId: null,
+        checklist: [],
         createdBy: "owner",
         doneAt: null,
         doneReason: null,
@@ -422,6 +483,7 @@ function Store({
               ...row,
               ...nextOccurrenceFields(row, row.repeat, today, timeZone),
               id: crypto.randomUUID(),
+              checklist: withTicks(row.checklist, []),
               createdBy: "owner" as const,
               reAdded: false,
               openHref: null,
@@ -447,7 +509,7 @@ function Store({
       const row = rows.find((entry) => entry.id === id);
       if (!row?.repeat) return;
       const moved = nextOccurrenceFields(row, row.repeat, today, timeZone);
-      sendOccurrence(id, moved);
+      sendOccurrence(id, moved, []);
       showToast({
         message: copy.skipped.replace(
           "{date}",
@@ -456,12 +518,16 @@ function Store({
         action: {
           label: copy.undo,
           onAction: () => {
-            sendOccurrence(id, {
-              dueDate: row.dueDate,
-              startDate: row.startDate,
-              remindAt: row.remindAt,
-              nextReminderAt: row.nextReminderAt,
-            });
+            sendOccurrence(
+              id,
+              {
+                dueDate: row.dueDate,
+                startDate: row.startDate,
+                remindAt: row.remindAt,
+                nextReminderAt: row.nextReminderAt,
+              },
+              row.checklist.filter((step) => step.done).map((step) => step.id),
+            );
           },
         },
       });
@@ -518,6 +584,73 @@ function Store({
         (list) => rearrange(list, ids),
         () =>
           assistantFetch("/api/todos/order", {
+            method: "PUT",
+            body: JSON.stringify({ ids }),
+          }),
+      );
+    },
+    addStep: (todoId, text) => {
+      const step = { id: crypto.randomUUID(), text, done: false };
+      run(
+        patchChecklist(todoId, (steps) =>
+          steps.some((entry) => entry.id === step.id)
+            ? steps
+            : [...steps, step],
+        ),
+        () =>
+          assistantFetch(stepPath(todoId), {
+            method: "POST",
+            body: JSON.stringify({ id: step.id, text }),
+          }),
+      );
+    },
+    changeStep: (todoId, stepId, change) => {
+      run(
+        patchChecklist(todoId, (steps) =>
+          steps.map((step) =>
+            step.id === stepId ? { ...step, ...change } : step,
+          ),
+        ),
+        () =>
+          assistantFetch(stepPath(todoId, stepId), {
+            method: "PATCH",
+            body: JSON.stringify(change),
+          }),
+      );
+    },
+    removeStep: (todoId, stepId) => {
+      const steps = rows.find((row) => row.id === todoId)?.checklist ?? [];
+      const index = steps.findIndex((step) => step.id === stepId);
+      if (index === -1) return;
+      const removal = stepRemoval(todoId, steps[index]);
+      run(
+        patchChecklist(todoId, (list) =>
+          list.filter((step) => step.id !== stepId),
+        ),
+        removal.send,
+      );
+      showToast({
+        message: copy.stepDeleted,
+        action: {
+          label: copy.undo,
+          onAction: () => {
+            run(
+              patchChecklist(todoId, (list) =>
+                list.some((step) => step.id === stepId)
+                  ? list
+                  : list.toSpliced(index, 0, steps[index]),
+              ),
+              removal.undo,
+            );
+          },
+        },
+      });
+    },
+    reorderSteps: (todoId, ids) => {
+      run(
+        patchChecklist(todoId, (steps) => rearrange(steps, ids)),
+        () =>
+          assistantFetch(`${stepPath(todoId)}order`, {
             method: "PUT",
             body: JSON.stringify({ ids }),
           }),

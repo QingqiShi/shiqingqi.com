@@ -74,8 +74,8 @@ export default function Page() {
         </Text>
         <Text>
           {t({
-            en: "Morning reports and to-dos: the words that the AI model and you wrote, which can name a sender or a subject, a to-do's due and start dates, how it repeats, when to remind you, whether it is done, why the report closed it, and which of its parts you changed. A to-do that you delete is hidden but stays stored, so that the report does not add it again. For a line that links to a message, it keeps the mailbox and the message's ID, so that the link opens the message in your mailbox.",
-            zh: "晨报和待办：AI 模型和你写下的文字（其中可能提到某个发件人或主题）、待办的到期日和开始日期、它如何重复、何时提醒你、它是否已完成、晨报关闭它的原因，以及你改过它的哪些部分。你删除的待办会被隐藏，但仍然保存，这样晨报就不会再次添加它。对于链接到某封邮件的条目，它保存所在邮箱和该邮件的 ID，以便链接能在你的邮箱中打开这封邮件。",
+            en: "Morning reports and to-dos: the words that the AI model and you wrote, which can name a sender or a subject, a to-do's due and start dates, how it repeats, when to remind you, its checklist and which steps you ticked, whether it is done, why the report closed it, and which of its parts you changed. A to-do that you delete is hidden but stays stored, so that the report does not add it again. For a line that links to a message, it keeps the mailbox and the message's ID, so that the link opens the message in your mailbox.",
+            zh: "晨报和待办：AI 模型和你写下的文字（其中可能提到某个发件人或主题）、待办的到期日和开始日期、它如何重复、何时提醒你、它的清单以及你勾选了哪些步骤、它是否已完成、晨报关闭它的原因，以及你改过它的哪些部分。你删除的待办会被隐藏，但仍然保存，这样晨报就不会再次添加它。对于链接到某封邮件的条目，它保存所在邮箱和该邮件的 ID，以便链接能在你的邮箱中打开这封邮件。",
           })}
         </Text>
         <Text>

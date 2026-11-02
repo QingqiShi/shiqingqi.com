@@ -9,6 +9,7 @@ import {
   type RequestGuardDependencies,
 } from "#src/assistant/http/guard-request.ts";
 import { datesInOrder } from "./dates-in-order.ts";
+import { ownerChecklist } from "./owner-checklist.ts";
 import { ownerTodos, type TodoRefusal } from "./owner-todos.ts";
 import { todoLimits } from "./todo-limits.ts";
 
@@ -72,6 +73,7 @@ const occurrenceBody = z
     dueDate: localDate.nullable(),
     startDate: localDate.nullable(),
     remindAt: instant.optional(),
+    ticked: z.array(z.uuid()).max(todoLimits.orderedTodos).default([]),
   })
   .refine(datesInOrder);
 const dueDatesBody = z.strictObject({
@@ -93,6 +95,16 @@ const orderBody = z.strictObject({
     .max(todoLimits.orderedTodos)
     .refine((ids) => new Set(ids).size === ids.length),
 });
+const stepText = z.string().trim().min(1).max(todoLimits.checklistItemChars);
+const addStepBody = z.strictObject({
+  id: z.uuid(),
+  text: stepText,
+  done: z.boolean().default(false),
+  position: z.int32().positive().optional(),
+});
+const changeStepBody = z
+  .strictObject({ text: stepText.optional(), done: z.boolean().optional() })
+  .refine((body) => Object.keys(body).length > 0);
 
 const invalidBody = () =>
   assistantJson({ error: "invalid-body" }, { status: 400 });
@@ -196,6 +208,47 @@ export function makeTodoHandlers(
         const body = await readBody(request, orderBody);
         if (!body.success) return invalidBody();
         await ownerTodos.reorder(scope, body.data.ids, now);
+        return assistantNoContent();
+      }),
+
+    /** Adds a step to a to-do's checklist, or brings back one that was deleted. */
+    addStep: (request: Request, todoId: string) =>
+      withSession(request, async (scope) => {
+        const body = await readBody(request, addStepBody);
+        if (!body.success) return invalidBody();
+        if (!isTodoId(todoId)) return notFound();
+        const refusal = await ownerChecklist.add(scope, todoId, body.data);
+        return refusal
+          ? refused(refusal)
+          : assistantJson({ id: body.data.id }, { status: 201 });
+      }),
+
+    /** Ticks a step of a checklist, or changes its text. */
+    changeStep: (request: Request, todoId: string, stepId: string) =>
+      withSession(request, async (scope) => {
+        const body = await readBody(request, changeStepBody);
+        if (!body.success) return invalidBody();
+        if (!isTodoId(todoId) || !isTodoId(stepId)) return notFound();
+        return saved(
+          await ownerChecklist.change(scope, todoId, stepId, body.data),
+        );
+      }),
+
+    /** Deletes a step of a checklist, and answers with its place, for an undo. */
+    deleteStep: (request: Request, todoId: string, stepId: string) =>
+      withSession(request, async (scope) => {
+        if (!isTodoId(todoId) || !isTodoId(stepId)) return notFound();
+        const position = await ownerChecklist.delete(scope, todoId, stepId);
+        return position === null ? notFound() : assistantJson({ position });
+      }),
+
+    /** Puts the steps of a checklist in the order of the request. */
+    reorderSteps: (request: Request, todoId: string) =>
+      withSession(request, async (scope) => {
+        const body = await readBody(request, orderBody);
+        if (!body.success) return invalidBody();
+        if (!isTodoId(todoId)) return notFound();
+        await ownerChecklist.reorder(scope, todoId, body.data.ids);
         return assistantNoContent();
       }),
   };
