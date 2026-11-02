@@ -268,6 +268,9 @@ importers:
       serwist:
         specifier: 'catalog:'
         version: 9.5.13(@typescript/typescript6@6.0.2)(browserslist@4.29.4)
+      tsdav:
+        specifier: 2.5.0
+        version: 2.5.0
       web-push:
         specifier: 3.6.7
         version: 3.6.7(supports-color@10.2.2)
@@ -7266,6 +7269,10 @@ packages:
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
+  sax@1.6.1:
+    resolution: {integrity: sha512-42tBVwLWnaQvW5zc4HbZrTuWccECCZfBi92FDuwtqxasH+JbPB3/FOKb1m222K42R4WxuxzzMsTswfzgtSu64Q==}
+    engines: {node: '>=11.0.0'}
+
   saxes@6.0.0:
     resolution: {integrity: sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA==}
     engines: {node: '>=v12.22.7'}
@@ -7662,6 +7669,10 @@ packages:
 
   ts-pattern@5.9.2:
     resolution: {integrity: sha512-qAf+7M7Jjk7uebZeIo9uEzyintfuRtgHdzM9dqxRKcMi2dt76Ec+FH2wW3bnU9TuGLkZIJLoLs7cCQnU7Tu8ig==}
+
+  tsdav@2.5.0:
+    resolution: {integrity: sha512-xcLbZ1Lwfr9OOlnLZGgICwkbqDHTGO9Gcn/k6ycwByt5TZf8LjEQhWFcim46M9Jq2aY19Nz4CV2tzJkWiqq2Iw==}
+    engines: {node: '>=18'}
 
   tslib@1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
@@ -8085,6 +8096,10 @@ packages:
   xdg-portable@7.3.0:
     resolution: {integrity: sha512-sqMMuL1rc0FmMBOzCpd0yuy9trqF2yTTVe+E9ogwCSWQCdDEtQUwrZPT6AxqtsFGRNxycgncbP/xmOOSPw5ZUw==}
     engines: {node: '>= 6.0'}
+
+  xml-js@1.6.11:
+    resolution: {integrity: sha512-7rVi2KMfwfWFl+GpPg6m80IVMWXLRjO+PxTq7V2CDhoGak0wzYzFgUY2m4XJ47OGdXd8eLE8EmwfAmdjw7lC1g==}
+    hasBin: true
 
   xml-name-validator@5.0.0:
     resolution: {integrity: sha512-EvGK8EJ3DhaHfbRlETOWAS5pO9MZITeauHKJyb8wyajUfQUenkIg2MvLDTZ4T/TgIcm3HU0TFBgWWboAZ30UHg==}
@@ -14768,6 +14783,8 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
+  sax@1.6.1: {}
+
   saxes@6.0.0:
     dependencies:
       xmlchars: 2.2.0
@@ -15168,6 +15185,13 @@ snapshots:
       typescript: '@typescript/typescript6@6.0.2'
 
   ts-pattern@5.9.2: {}
+
+  tsdav@2.5.0:
+    dependencies:
+      debug: 4.4.3(supports-color@10.2.2)
+      xml-js: 1.6.11
+    transitivePeerDependencies:
+      - supports-color
 
   tslib@1.14.1: {}
 
@@ -15750,6 +15774,10 @@ snapshots:
   xdg-portable@7.3.0:
     dependencies:
       os-paths: 4.4.0
+
+  xml-js@1.6.11:
+    dependencies:
+      sax: 1.6.1
 
   xml-name-validator@5.0.0: {}
 

@@ -17,11 +17,14 @@ export interface InboxState {
 function instructions({
   notes,
   locale,
+  calendar = false,
 }: {
   notes: string;
   locale: UserLocale;
+  /** The agent has the calendar tools. */
+  calendar?: boolean;
 }) {
-  return `You are the owner's personal assistant for email. Keep their mailbox organised the way a capable personal assistant would, so that they find what they look for and see what matters. You decide how. Keeping the folders tidy is as much your job as filing new mail: make, merge, rename and delete them whenever that leaves the owner a clearer mailbox, without waiting to be asked.
+  return `You are the owner's personal assistant for email. Keep their mailbox organised the way a capable personal assistant would, so that they find what they look for and see what matters. You decide how. Keeping the folders tidy is as much your job as filing new mail: make, merge, rename and delete them whenever that leaves the owner a clearer mailbox, without waiting to be asked.${calendar ? " Keep their iCloud calendar in step with the bookings, appointments and deadlines that mail makes, moves or cancels." : ""}
 
 You run unattended every 15 minutes and nobody reads your messages while you work; what you leave is there on the next run. The owner reads ${LANGUAGE_NAMES[locale]}.
 
