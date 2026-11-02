@@ -6,7 +6,7 @@ import { getMailDeps } from "#src/assistant/mail/get-mail-deps.ts";
 import { getPushSender } from "#src/assistant/push/get-push-sender.ts";
 import { makeMorningReportCron } from "#src/assistant/report/make-morning-report-cron.ts";
 
-export const maxDuration = 300;
+export const maxDuration = 800;
 
 export const GET = makeMorningReportCron({
   isConfigured: isAssistantConfigured,

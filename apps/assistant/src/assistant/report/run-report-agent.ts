@@ -39,7 +39,7 @@ import {
 import type { AgendaItem, MailSource, ReportItem } from "./types.ts";
 
 /** Enough steps to list and read a busy day; the time usually ends a run first. */
-const MAX_STEPS = 40;
+const MAX_STEPS = 100;
 const MAX_LINE_CHARS = 400;
 const MAX_ITEMS = 30;
 const SUBMIT = "submit_report";
