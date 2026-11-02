@@ -27,11 +27,13 @@ import { openMailHref } from "#src/assistant/report/open-mail-href.ts";
 import { organiseTask, type InboxState } from "./organise-task.ts";
 
 /**
- * The mail tools of the organise agent: all but mark_read, because the owner
- * wants mail to stay unread until the morning report.
+ * The mail tools of the organise agent: all but mark_read and mark_flagged,
+ * because the owner wants mail to stay unread until the morning report, and
+ * the report decides what needs them.
  */
 function organiseTools({
   mark_read: _markRead,
+  mark_flagged: _markFlagged,
   ...tools
 }: ReturnType<typeof createMailTools>["tools"]) {
   return tools;

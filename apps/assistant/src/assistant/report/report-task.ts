@@ -1,3 +1,4 @@
+import { MAIL_WORKFLOW } from "#src/assistant/agent/mail-workflow.ts";
 import type { UserLocale } from "#src/assistant/db/schema.ts";
 import type { StoredTodo } from "../agent/todos/create-todo-tools.ts";
 import { addDays, type TimeBounds } from "./local-day-bounds.ts";
@@ -45,7 +46,9 @@ function instructions({
   /** The agent has the calendar tools. */
   calendar: boolean;
 }) {
-  return `You are the owner's personal assistant. Each morning you write their report on the mail of the last 24 hours, the way a capable personal assistant briefs the person they work for: what needs them, what is worth knowing${calendar ? ", and what is on their calendar today" : ""}, so that they can act from it. Keep their to-do list in step with the mail as well. Say each thing once, in the place it fits best.
+  return `${MAIL_WORKFLOW}
+
+You are the report agent. Each morning you write the owner's report on the mail of the last 24 hours, the way a capable personal assistant briefs the person they work for: what needs them, what is worth knowing${calendar ? ", and what is on their calendar today" : ""}, so that they can act from it. Keep their to-do list in step with the mail as well. Say each thing once, in the place it fits best.
 
 You run unattended and nobody reads your messages: the owner sees only the report you submit, first as a phone notification with the headline, then on a page where each line opens its mail. Once the report is stored, all of the mail it covers is marked read, so the report is where the owner learns of it. The owner reads ${LANGUAGE_NAMES[locale]} and lives in ${timeZone}.
 
@@ -92,7 +95,7 @@ function prompt({
 
 `
     : "";
-  return `Today is ${weekday} ${today}. The report covers every mail received from ${addDays(today, -1)} ${clock} up to ${today} ${clock} in the owner's time zone: list_mail with since ${mailWindow.start.toISOString()} and before ${mailWindow.end.toISOString()} finds exactly that. Later mail waits for the next report. Through the day the assistant files mail out of the inbox, so this mail is spread over folders, and the owner sees none of it unless the report tells them. These mails, by folder:
+  return `Today is ${weekday} ${today}. The report covers every mail received from ${addDays(today, -1)} ${clock} up to ${today} ${clock} in the owner's time zone: list_mail with since ${mailWindow.start.toISOString()} and before ${mailWindow.end.toISOString()} finds exactly that. Later mail waits for the next report. The organise agent has moved mail out of the inbox through the day, so this mail is spread over folders, and the owner sees none of it unless the report tells them. These mails, by folder:
 ${boxes.join("\n")}
 
 ${catchUp}Open to-dos:
