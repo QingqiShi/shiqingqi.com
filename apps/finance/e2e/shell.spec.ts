@@ -22,6 +22,38 @@ function storedFinancePages(page: Page) {
   });
 }
 
+test.describe("switching tabs", () => {
+  // The service worker answers the data of a screen, so a route in the page
+  // does not see that request.
+  test.use({ viewport: DESKTOP, serviceWorkers: "block" });
+
+  test("a tab whose screen waits on the server is current at once and shows its skeleton", async ({
+    page,
+    session: _session,
+  }) => {
+    await openTransactions(page);
+    await page.route("**/analytics?_rsc=*", async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await route.continue();
+    });
+
+    const rail = page.getByRole("navigation", { name: "Finance" });
+    const analytics = rail.getByRole("link", { name: "Analytics" });
+    await analytics.click();
+
+    await expect(analytics).toHaveAttribute("aria-current", "page");
+    await expect(
+      page.getByRole("main").locator('[aria-busy="true"]').first(),
+    ).toBeVisible();
+    await expect(page).toHaveURL("/transactions");
+
+    await expect(page).toHaveURL("/analytics");
+    await expect(
+      page.getByRole("heading", { name: "By category" }),
+    ).toBeVisible();
+  });
+});
+
 test.describe("offline", () => {
   test.use({ viewport: DESKTOP });
 

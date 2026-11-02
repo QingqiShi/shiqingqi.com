@@ -15,6 +15,7 @@
 - `.env*` files are denied to the Read tool. `turbo.json` lists most environment variable names under `globalPassThroughEnv`; confirm a name there or in source before you use it.
 - Never mock `server-only`: Vitest aliases it to a stub.
 - For a one-off look at a page (a screenshot, the DOM, layout, a short recording), use playwright-cli against the running dev server: `open --device` emulates a phone and `cookie-set` signs in to Finance. A throwaway Playwright script costs a write-and-debug loop, and a throwaway e2e spec also costs a production build.
+- `experimental.staleTimes.dynamic` in `apps/finance` and `apps/assistant` keeps a page that the client fetched for 5 minutes, so that a switch back to a tab shows at once. Give a new app with tabs the same setting. A client change to data on such a page must call `router.refresh()`, which clears them all, or the old page comes back.
 - Parallel sessions share this machine, so every build, suite, and server slows the others. Stop the servers and databases you start before you finish. When you wait on a background job, give the wait a time limit and check that the job still runs: a wait whose condition never comes true sits until the 10-minute Bash timeout.
 
 # Tests

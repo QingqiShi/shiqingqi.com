@@ -4,10 +4,6 @@ import { InstallSheet } from "../pwa/install-sheet.tsx";
 import { DemoNotice } from "./demo-notice.tsx";
 import { FinanceRailHeader } from "./finance-rail-header.tsx";
 import { FinanceRailMember } from "./finance-rail-member.tsx";
-import {
-  FinanceScreenSlot,
-  PendingScreenProvider,
-} from "./finance-screen-slot.tsx";
 import { FinanceTabView } from "./finance-tab-view.tsx";
 import { FinanceToastProvider } from "./finance-toast-provider.tsx";
 import { NewTransactionShortcut } from "./new-transaction-shortcut.tsx";
@@ -40,22 +36,18 @@ export function FinanceShell({
 }: FinanceShellProps) {
   return (
     <FinanceToastProvider>
-      <PendingScreenProvider>
-        <FinanceTabView
-          header={<FinanceRailHeader locale={locale} />}
-          footer={
-            <FinanceRailMember
-              memberName={memberName}
-              householdName={householdName}
-            />
-          }
-        >
-          <FinanceScreenSlot>
-            <ReplicaGate>{children}</ReplicaGate>
-          </FinanceScreenSlot>
-        </FinanceTabView>
+      <FinanceTabView
+        header={<FinanceRailHeader locale={locale} />}
+        footer={
+          <FinanceRailMember
+            memberName={memberName}
+            householdName={householdName}
+          />
+        }
+      >
+        <ReplicaGate>{children}</ReplicaGate>
         <NewTransactionShortcut />
-      </PendingScreenProvider>
+      </FinanceTabView>
       <DemoNotice />
       <RejectionToasts />
       <PrecacheFinanceShells />

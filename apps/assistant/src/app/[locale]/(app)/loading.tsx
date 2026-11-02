@@ -1,10 +1,5 @@
-import { AssistantPageColumn } from "#src/assistant/shell/assistant-page-column.tsx";
-import { ScreenSkeleton } from "#src/assistant/shell/screen-skeleton.tsx";
+import { TabViewSkeleton } from "@tuja/ui/components/tab-view";
 
 export default function Loading() {
-  return (
-    <AssistantPageColumn>
-      <ScreenSkeleton />
-    </AssistantPageColumn>
-  );
+  return <TabViewSkeleton />;
 }

@@ -11,8 +11,9 @@ import { Avatar } from "@tuja/ui/components/avatar";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
 import { listSurface } from "@tuja/ui/components/list.stylex";
+import { Skeleton } from "@tuja/ui/components/skeleton";
 import type { TabBarLinkProps } from "@tuja/ui/components/tab-bar";
-import { TabView } from "@tuja/ui/components/tab-view";
+import { TabView, type TabLinkStatusProps } from "@tuja/ui/components/tab-view";
 import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -20,7 +21,7 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize, space } from "@tuja/ui/tokens.stylex";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Link } from "#src/links/link.tsx";
+import { Link, useLinkStatus } from "#src/links/link.tsx";
 import { DeviceFrame, DeviceFramePlaceholder } from "./device-frame.tsx";
 
 /** The search param the demo reads, named so it clashes with nothing else on the page. */
@@ -31,6 +32,38 @@ const FRAME_BLOCK_SIZE = "32rem";
 /** A link that keeps the page where it is, so a tab does not scroll the doc page. */
 function DemoLink(props: TabBarLinkProps) {
   return <Link {...props} scroll={false} />;
+}
+
+function DemoLinkStatus({ children }: TabLinkStatusProps) {
+  return children(useLinkStatus().pending);
+}
+
+function DemoScreenSkeleton({ title, rows }: { title: string; rows: number }) {
+  return (
+    <div css={styles.screen} aria-busy>
+      <div css={[stack.group, styles.screenContent]}>
+        <div css={stack.text}>
+          <Heading level={3} look="h3">
+            {title}
+          </Heading>
+          <Skeleton width="60%" height="1.25rem" />
+        </div>
+        <section css={stack.tight}>
+          <Skeleton width="8rem" height="1.5rem" />
+          <List>
+            {Array.from({ length: rows }, (_, index) => (
+              <li key={index} css={listSurface.item}>
+                <div css={[listSurface.row, styles.row]}>
+                  <Skeleton width="50%" height="1.5rem" delay={index * 100} />
+                  <Skeleton width="20%" height="1em" delay={index * 100} />
+                </div>
+              </li>
+            ))}
+          </List>
+        </section>
+      </div>
+    </div>
+  );
 }
 
 /**
@@ -201,6 +234,7 @@ function ReadingApp() {
       as="div"
       label={t({ en: "Demo app", zh: "演示应用" })}
       linkComponent={DemoLink}
+      linkStatus={DemoLinkStatus}
       header={
         <span css={[corner.radius_2, styles.mark]} aria-hidden>
           <SquaresFourIcon weight="fill" />
@@ -212,6 +246,12 @@ function ReadingApp() {
         label: destination.label,
         icon: destination.icon,
         current: destination === current,
+        skeleton: (
+          <DemoScreenSkeleton
+            title={destination.title}
+            rows={destination.rows.length}
+          />
+        ),
       }))}
     >
       <div css={styles.screen}>

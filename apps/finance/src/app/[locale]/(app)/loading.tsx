@@ -1,5 +1,5 @@
-import { ShownScreenSkeleton } from "#src/finance/shell/finance-screen-slot.tsx";
+import { TabViewSkeleton } from "@tuja/ui/components/tab-view";
 
 export default function Loading() {
-  return <ShownScreenSkeleton />;
+  return <TabViewSkeleton />;
 }

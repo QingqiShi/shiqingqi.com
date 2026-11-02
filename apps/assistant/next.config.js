@@ -19,6 +19,9 @@ module.exports = async (phase) => {
     // The CI `tsc` job does the type check, so `next build` does not.
     typescript: { ignoreBuildErrors: true },
     experimental: {
+      // Keep each page that a client has fetched for 5 minutes, so that a
+      // switch back to a tab shows at once. `router.refresh()` clears them.
+      staleTimes: { dynamic: 300 },
       // The workspace aliases `typescript` to `@typescript/typescript6`,
       // which has the compiler API but no `tsc` binary.
       useTypeScriptCli: false,
