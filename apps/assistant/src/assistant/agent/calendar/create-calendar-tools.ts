@@ -813,6 +813,13 @@ export function createCalendarTools({
             etag,
             uid: found.event.uid,
             title: input.title ?? found.event.title,
+            ...(timing
+              ? {
+                  start: input.start,
+                  end: input.end ?? null,
+                  allDay: input.allDay,
+                }
+              : {}),
             previous: previousOf(found.object),
           });
           const [event] = readIcsEvents(data, timeZone);
