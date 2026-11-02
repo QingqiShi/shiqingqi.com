@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { listUndoneForAgent } from "#src/assistant/activity/list-undone-for-agent.ts";
 import {
   createCalendarTools,
   type CalendarToolStats,
@@ -162,6 +163,7 @@ export async function organiseUserMail(
         prompt: organiseTask.prompt(
           inboxes.filter((inbox) => inbox.total > 0),
           deps.auth.now(),
+          await listUndoneForAgent({ db, userId }, deps.auth.now()),
         ),
         maxSteps: MAX_STEPS,
         tools: (context) => {
