@@ -85,7 +85,10 @@ test.describe("Transactions at 1440 px", () => {
       .click();
     const editor = page.getByRole("form", { name: "New transfer" });
     await expect(editor).toBeVisible();
-    await editor.getByRole("textbox", { name: "Amount sent" }).fill("250");
+    // The seed adds a £250 transfer from Alex Current on day 2 of each
+    // month. An amount that the seed does not use prevents a duplicate
+    // warning, which stops the save.
+    await editor.getByRole("textbox", { name: "Amount sent" }).fill("137.42");
     const from = editor.getByRole("combobox", { name: "From" });
     const to = editor.getByRole("combobox", { name: "To" });
     await from.selectOption(await optionValue(from, "Alex Current"));
@@ -97,7 +100,7 @@ test.describe("Transactions at 1440 px", () => {
       rowsWith(
         page,
         "Transfer",
-        "£250.00",
+        "£137.42",
         /Alex Current.*→.*Rainy Day Savings/,
       ),
     ).toHaveCount(1);
