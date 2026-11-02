@@ -266,12 +266,17 @@ export const AGENT_ACTION_KINDS = [
   "mark_unread",
   "flag",
   "unflag",
+  "create_event",
+  "update_event",
+  "delete_event",
 ] as const;
 export type AgentActionKind = (typeof AGENT_ACTION_KINDS)[number];
 
 /**
- * One change that an agent made to a mailbox, with what it takes to find the
- * mail again and undo the change: one row for each mail.
+ * One change that an agent made, with what it takes to find the mail or the
+ * event again and undo the change: one row for each mail or event. For an
+ * event, the mail columns name the mail it came from, and `detail` holds the
+ * calendar, the event's href and, before an update or a delete, its ICS.
  */
 export const agentActions = pgTable(
   "agent_actions",
@@ -281,6 +286,7 @@ export const agentActions = pgTable(
       .notNull()
       .references(() => agentRuns.id, { onDelete: "cascade" }),
     userId: userId(),
+    /** The mailbox, or the iCloud account whose calendar changed. */
     accountId: uuid("account_id").references(() => mailAccounts.id, {
       onDelete: "set null",
     }),

@@ -41,6 +41,12 @@ export default function Page() {
         </Text>
         <Text>
           {t({
+            en: "With an iCloud mailbox, the organising agent can also keep your iCloud Calendar in step with your mail: it adds, changes or deletes the events that a message books, moves or cancels, over CalDAV with the same app-specific password. It does not change repeating events or events with other attendees.",
+            zh: "如果你连接了 iCloud 邮箱，整理智能体还可以让你的 iCloud 日历与邮件保持一致：对邮件预订、改期或取消的事件，它会通过 CalDAV、使用同一个 App 专用密码添加、修改或删除日程。它不会改动重复日程或有其他参与者的日程。",
+          })}
+        </Text>
+        <Text>
+          {t({
             en: "Each morning it reads the previous day's messages from your folders, without changing them, and writes a short report and a list of to-dos. It never deletes mail and never sends mail for you.",
             zh: "每天早上，它会读取你各个文件夹里前一天的邮件（不做任何改动），写一份简短的晨报和一份待办清单。它从不删除邮件，也从不替你发送邮件。",
           })}
@@ -50,8 +56,8 @@ export default function Page() {
       <LegalSection heading={t({ en: "What it stores", zh: "保存哪些数据" })}>
         <Text>
           {t({
-            en: "It does not store the text of your mail: that stays in your mailbox and is read when a job needs it. It keeps a log of what the organising agent did: for each message it moved or flagged, the subject, the sender, the message's ID, the folders and the agent's reason; for each folder it made, renamed or deleted, the folder's names and the reason; for each run, the steps the agent took, which can quote subjects, senders and the short descriptions of messages that the second model wrote.",
-            zh: "它不保存邮件正文：正文留在你的邮箱里，只在任务需要时读取。它会保存整理智能体的操作记录：对它移动或加旗标的每封邮件，记录主题、发件人、邮件 ID、所在文件夹和智能体给出的理由；对它新建、重命名或删除的每个文件夹，记录文件夹名称和理由；对每次运行，记录智能体执行的步骤，其中可能包含主题、发件人，以及第二个模型为邮件写下的简短描述。",
+            en: "It does not store the text of your mail: that stays in your mailbox and is read when a job needs it. It keeps a log of what the organising agent did: for each message it moved or flagged, the subject, the sender, the message's ID, the folders and the agent's reason; for each folder it made, renamed or deleted, the folder's names and the reason; for each calendar event it added, changed or deleted, the message it came from, the event's title and, before a change or a delete, a full copy of the event, so that it can be undone; for each run, the steps the agent took, which can quote subjects, senders and the short descriptions of messages that the second model wrote.",
+            zh: "它不保存邮件正文：正文留在你的邮箱里，只在任务需要时读取。它会保存整理智能体的操作记录：对它移动或加旗标的每封邮件，记录主题、发件人、邮件 ID、所在文件夹和智能体给出的理由；对它新建、重命名或删除的每个文件夹，记录文件夹名称和理由；对它添加、修改或删除的每个日程，记录其来源邮件、日程标题，并在修改或删除前保存该日程的完整副本，以便撤销；对每次运行，记录智能体执行的步骤，其中可能包含主题、发件人，以及第二个模型为邮件写下的简短描述。",
           })}
         </Text>
         <Text>
@@ -91,8 +97,8 @@ export default function Page() {
         </Text>
         <Text>
           {t({
-            en: "The services that run the assistant: Vercel hosts the app and Neon hosts its database, both in London. Apple, Google and Microsoft receive the requests to your own mailbox. Your browser's push service (from Apple, Google or Mozilla) delivers the morning notification.",
-            zh: "运行邮件助手的服务：Vercel 托管应用，Neon 托管数据库，均位于伦敦。Apple、Google 和 Microsoft 接收对你自己邮箱的请求。你浏览器的推送服务（来自 Apple、Google 或 Mozilla）负责发送早间通知。",
+            en: "The services that run the assistant: Vercel hosts the app and Neon hosts its database, both in London. Apple, Google and Microsoft receive the requests to your own mailbox, and Apple those to your iCloud Calendar. Your browser's push service (from Apple, Google or Mozilla) delivers the morning notification.",
+            zh: "运行邮件助手的服务：Vercel 托管应用，Neon 托管数据库，均位于伦敦。Apple、Google 和 Microsoft 接收对你自己邮箱的请求，Apple 还接收对你 iCloud 日历的请求。你浏览器的推送服务（来自 Apple、Google 或 Mozilla）负责发送早间通知。",
           })}
         </Text>
         <Text>
