@@ -1,6 +1,6 @@
 import "server-only";
 import { getAnthropicProvider } from "./get-anthropic-provider.ts";
-import type { AssistantModel } from "./get-organise-model.ts";
+import type { AssistantModel } from "./types.ts";
 
 const REPORT_MODEL_ID = "claude-sonnet-5-5";
 

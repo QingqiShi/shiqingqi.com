@@ -25,8 +25,8 @@ export function OrganiseToggle({ initial }: { initial: boolean }) {
           <Text weight="medium">{label}</Text>
           <Text look="bodySmall" tone="muted">
             {t({
-              en: "Every 15 minutes the assistant files each inbox mail into a folder and marks it read. The first runs work through your whole existing inbox. It never deletes mail.",
-              zh: "助手每 15 分钟把收件箱里的每封邮件归入一个文件夹并标为已读。最初几次会处理你现有的整个收件箱。它从不删除邮件。",
+              en: "Every 15 minutes an AI agent goes through your inbox: it files your mail, moves spam to Junk, flags mail that needs you, and tidies your folders. It leaves mail unread. The first runs work through your whole existing inbox. It never deletes or sends mail.",
+              zh: "AI 智能体每 15 分钟处理一遍收件箱：把邮件归入文件夹，把垃圾邮件移到垃圾邮件箱，为需要你处理的邮件加旗标，并整理你的文件夹。它不会把邮件标为已读。最初几次会处理你现有的整个收件箱。它从不删除或发送邮件。",
             })}
           </Text>
         </div>

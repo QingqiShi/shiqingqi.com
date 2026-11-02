@@ -114,8 +114,8 @@ export default async function Page({
         </Heading>
         <Text as="p" tone="muted">
           {t({
-            en: "Once you turn on organising in the settings, the assistant files every inbox mail into a folder every 15 minutes and marks it read. Until then it changes nothing. It never deletes mail.",
-            zh: "在设置中开启整理后，助手每 15 分钟把收件箱里的每封邮件归入一个文件夹并标为已读。开启之前它不会改动任何邮件。它从不删除邮件。",
+            en: "Once you turn on organising in the settings, the assistant files your inbox mail into folders every 15 minutes and leaves it unread. Until then it changes nothing. It never deletes mail.",
+            zh: "在设置中开启整理后，助手每 15 分钟把收件箱里的邮件归入文件夹，并保持未读。开启之前它不会改动任何邮件。它从不删除邮件。",
           })}
         </Text>
       </div>

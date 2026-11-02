@@ -19,7 +19,7 @@ export interface MailboxDeps {
   auth: MailboxAuthDeps;
 }
 
-async function storedCredential(
+export async function storedCredential(
   db: AssistantDb,
   userId: string,
   accountId: string,

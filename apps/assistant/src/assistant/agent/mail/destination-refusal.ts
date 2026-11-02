@@ -1,15 +1,24 @@
 import type { MailboxFolder } from "#src/assistant/mail/imap/types.ts";
 
-/** Folders that hold mail of the mail client itself, never a kind of mail. `\Archive` is allowed. */
-const EXCLUDED_SPECIAL_USE = new Set([
+/**
+ * Folders an agent never moves mail into: a move to Trash is a delete, mail
+ * in Sent and Drafts is the owner's own, and the virtual folders only show
+ * mail of other folders again. Junk is allowed.
+ */
+const CLOSED_DESTINATIONS = new Set([
+  "\\Trash",
   "\\Sent",
   "\\Drafts",
-  "\\Trash",
-  "\\Junk",
   "\\All",
   "\\Flagged",
   "\\Important",
 ]);
+
+/**
+ * Virtual folders, which an agent never moves mail out of: in Gmail a move
+ * out of All Mail or Starred changes labels, not a folder.
+ */
+const VIRTUAL = new Set(["\\All", "\\Flagged", "\\Important"]);
 
 const MAX_NEW_FOLDER_CHARS = 40;
 
@@ -17,16 +26,21 @@ export function isInbox(folder: Pick<MailboxFolder, "path">) {
   return folder.path.toUpperCase() === "INBOX";
 }
 
-/** The folders that inbox mail can be filed into, by path. */
-export function candidateFolders(folders: readonly MailboxFolder[]): string[] {
-  return folders
-    .filter(
-      (folder) =>
-        folder.selectable &&
-        !isInbox(folder) &&
-        !(folder.specialUse && EXCLUDED_SPECIAL_USE.has(folder.specialUse)),
-    )
-    .map((folder) => folder.path);
+/** Why mail may not go into `folder`, or null when it may. */
+export function destinationRefusal(folder: MailboxFolder): string | null {
+  if (!folder.selectable) return `"${folder.path}" only holds other folders.`;
+  if (folder.specialUse && CLOSED_DESTINATIONS.has(folder.specialUse)) {
+    return `Mail never goes into "${folder.path}" (${folder.specialUse}).`;
+  }
+  return null;
+}
+
+/** Why mail may not leave `folder`, or null when it may. */
+export function sourceRefusal(folder: MailboxFolder): string | null {
+  if (folder.specialUse && VIRTUAL.has(folder.specialUse)) {
+    return `Mail is never moved out of the virtual folder "${folder.path}".`;
+  }
+  return null;
 }
 
 /** The hierarchy delimiter of the mailbox, such as "/" or ".". */
