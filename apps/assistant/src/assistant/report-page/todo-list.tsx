@@ -1,6 +1,4 @@
-import * as stylex from "@stylexjs/stylex";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { border, color } from "@tuja/ui/tokens.stylex";
+import { List } from "@tuja/ui/components/list";
 import type { TodoView } from "../report/read-report.ts";
 import { TodoItem, type TodoItemData } from "./todo-item.tsx";
 
@@ -29,7 +27,7 @@ export function TodoList({
   locale: string;
 }) {
   return (
-    <ul css={[stack.rows, styles.list]}>
+    <List>
       {todos.map((todo) => (
         <TodoItem
           key={todo.id}
@@ -38,14 +36,6 @@ export function TodoList({
           locale={locale}
         />
       ))}
-    </ul>
+    </List>
   );
 }
-
-const styles = stylex.create({
-  list: {
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
-  },
-});

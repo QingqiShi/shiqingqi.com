@@ -274,7 +274,9 @@ export async function undoAgentActions(
       .filter(
         (write) =>
           write.id !== row.id &&
-          write.createdAt.getTime() > row.createdAt.getTime(),
+          // The order of two writes at the same time is not known. Keep the
+          // write as later, so that the undo refuses and removes no change.
+          write.createdAt.getTime() >= row.createdAt.getTime(),
       )
       .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
     if (later.some((write) => write.undoneAt === null)) {

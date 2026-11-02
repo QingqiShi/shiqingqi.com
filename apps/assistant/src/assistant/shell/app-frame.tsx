@@ -1,90 +1,93 @@
+"use client";
+
+import { CheckSquareIcon } from "@phosphor-icons/react/dist/ssr/CheckSquare";
+import { ClockCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ClockCounterClockwise";
+import { GearSixIcon } from "@phosphor-icons/react/dist/ssr/GearSix";
+import { NewspaperIcon } from "@phosphor-icons/react/dist/ssr/Newspaper";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
-import { getLocale } from "@tuja/i18n/server-locale";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { normalizePath } from "@tuja/i18n/normalize-path";
+import { useLocale } from "@tuja/i18n/use-locale";
+import type { TabBarLinkProps } from "@tuja/ui/components/tab-bar";
+import { TabView } from "@tuja/ui/components/tab-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { controlSize } from "@tuja/ui/tokens.stylex";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { Link } from "#src/links/link.tsx";
+import { AssistantLogo } from "../pwa/assistant-logo.tsx";
+import { shownDestination, type DestinationPath } from "./shown-destination.ts";
 
-/** The column every signed-in page sits in, under a bar with the app name, the report, the to-dos, the activity and settings. */
+function TabLink(props: TabBarLinkProps) {
+  return <Link {...props} prefetchOnIntent />;
+}
+
+/**
+ * The frame of every signed-in page. At `md` and wider, the rail holds the
+ * mark and the four destinations. Below `md`, the tab bar holds the
+ * destinations.
+ */
 export function AppFrame({ children }: { children: ReactNode }) {
-  const locale = getLocale();
-  const links = [
-    { path: "/", label: t({ en: "Report", zh: "晨报" }) },
-    { path: "/todos", label: t({ en: "To-dos", zh: "待办" }) },
-    { path: "/activity", label: t({ en: "Activity", zh: "动态" }) },
-    { path: "/settings", label: t({ en: "Settings", zh: "设置" }) },
-  ];
+  const locale = useLocale();
+  const shown = shownDestination(normalizePath(usePathname()));
+  const appName = t({ en: "Mail Assistant", zh: "邮件助手" });
+  const destinations = [
+    {
+      path: "/",
+      label: t({ en: "Report", zh: "晨报" }),
+      icon: NewspaperIcon,
+    },
+    {
+      path: "/todos",
+      label: t({ en: "To-dos", zh: "待办" }),
+      icon: CheckSquareIcon,
+    },
+    {
+      path: "/activity",
+      label: t({ en: "Activity", zh: "动态" }),
+      icon: ClockCounterClockwiseIcon,
+    },
+    {
+      path: "/settings",
+      label: t({ en: "Settings", zh: "设置" }),
+      icon: GearSixIcon,
+    },
+  ] satisfies { path: DestinationPath; label: string; icon: unknown }[];
+
   return (
-    <div css={[pageColumn.base, styles.page]}>
-      <header css={styles.bar}>
+    <TabView
+      label={appName}
+      linkComponent={TabLink}
+      header={
         <Link
           href={getLocalePath("/", locale)}
-          prefetchOnIntent
-          {...stylex.props(typeRole.label, a11y.focusRing, styles.brand)}
+          aria-label={appName}
+          {...stylex.props(corner.radius_3, a11y.focusRing, styles.mark)}
         >
-          {t({ en: "Mail Assistant", zh: "邮件助手" })}
+          <AssistantLogo css={styles.logo} />
         </Link>
-        <nav css={styles.nav}>
-          {links.map(({ path, label }) => (
-            <Link
-              key={path}
-              href={getLocalePath(path, locale)}
-              prefetchOnIntent
-              {...stylex.props(
-                typeRole.label,
-                a11y.focusRing,
-                a11y.touchTarget,
-                styles.navLink,
-              )}
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
-      </header>
-      <main css={[stack.section, styles.column]}>{children}</main>
-    </div>
+      }
+      screenKey={shown ?? undefined}
+      items={destinations.map((destination) => ({
+        href: getLocalePath(destination.path, locale),
+        label: destination.label,
+        icon: destination.icon,
+        current: destination.path === shown,
+      }))}
+    >
+      {children}
+    </TabView>
   );
 }
 
 const styles = stylex.create({
-  page: {
-    minBlockSize: "100dvh",
-    paddingBlockStart: `calc(${space._5} + env(safe-area-inset-top))`,
-    paddingBlockEnd: `calc(${space._8} + env(safe-area-inset-bottom))`,
+  mark: {
+    display: "inline-flex",
   },
-  bar: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    maxInlineSize: space._15,
-    marginInline: "auto",
-    paddingBlockEnd: {
-      default: space._8,
-      [breakpoints.md]: space._10,
-    },
-  },
-  brand: {
-    color: color.fgMuted,
-    textDecoration: "none",
-  },
-  nav: {
-    display: "flex",
-    alignItems: "center",
-    gap: rhythm.item,
-  },
-  navLink: {
-    color: color.fgMuted,
-    textDecoration: "none",
-  },
-  column: {
-    maxInlineSize: space._15,
-    marginInline: "auto",
+  logo: {
+    inlineSize: controlSize._9,
+    blockSize: controlSize._9,
   },
 });

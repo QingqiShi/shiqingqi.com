@@ -1,5 +1,6 @@
 "use client";
 
+import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
@@ -19,7 +20,7 @@ export function OrganiseNotesForm({ initial }: { initial: string }) {
 
   return (
     <form
-      css={stack.item}
+      css={[stack.item, styles.form]}
       onSubmit={(event) => {
         event.preventDefault();
         setBusy(true);
@@ -75,3 +76,9 @@ export function OrganiseNotesForm({ initial }: { initial: string }) {
     </form>
   );
 }
+
+const styles = stylex.create({
+  form: {
+    maxInlineSize: "32rem",
+  },
+});

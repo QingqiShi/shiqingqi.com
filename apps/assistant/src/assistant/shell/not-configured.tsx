@@ -1,15 +1,13 @@
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
-import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { AssistantFrame } from "./assistant-frame.tsx";
 
 /** Shown where the app has no database. */
 export function NotConfigured() {
   return (
-    <main css={[pageColumn.base, styles.main]}>
+    <AssistantFrame brand={t({ en: "Mail Assistant", zh: "邮件助手" })}>
       <div css={stack.tight}>
         <Heading level={1} look="h2">
           {t({
@@ -24,12 +22,6 @@ export function NotConfigured() {
           })}
         </Text>
       </div>
-    </main>
+    </AssistantFrame>
   );
 }
-
-const styles = stylex.create({
-  main: {
-    paddingBlock: space._10,
-  },
-});

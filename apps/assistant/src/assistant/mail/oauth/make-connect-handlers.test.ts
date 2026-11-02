@@ -121,7 +121,7 @@ describe("the OAuth connect flow", () => {
     });
 
     expect(done.headers.get("Location")).toBe(
-      `${ORIGIN}/zh/accounts?connected=gmail`,
+      `${ORIGIN}/zh/settings/mailboxes?connected=gmail`,
     );
     const verifier = tokenRequests[0]?.get("code_verifier") ?? "";
     expect(createHash("sha256").update(verifier).digest("base64url")).toBe(
@@ -151,7 +151,7 @@ describe("the OAuth connect flow", () => {
       const done = await callback(makeHandlers(options), { cookie, state });
 
       expect(done.headers.get("Location")).toBe(
-        `${ORIGIN}/zh/accounts?error=state`,
+        `${ORIGIN}/zh/settings/mailboxes?error=state`,
       );
       expect(tokenRequests).toEqual([]);
       expect(await db.$count(mailAccounts)).toBe(0);

@@ -10,6 +10,7 @@ import { ActivityView } from "#src/assistant/activity-page/activity-view.tsx";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
 import { readReportSettings } from "#src/assistant/report/read-report-settings.ts";
+import { AssistantPageColumn } from "#src/assistant/shell/assistant-page-column.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);
@@ -40,33 +41,35 @@ export default async function Page({
   });
 
   return (
-    <div css={stack.section}>
-      <header css={stack.tight}>
-        <Heading level={1} look="h1">
-          {t({ en: "Activity", zh: "动态" })}
-        </Heading>
-        <Text as="p" tone="muted">
-          {t({
-            en: "What the assistant did in your mailbox and calendar, and why. Undo anything that is not what you want.",
-            zh: "助手在你的邮箱和日历里做了什么、为什么这样做。不合你意的都可以撤销。",
-          })}
-        </Text>
-      </header>
-      {activity.entries.length === 0 ? (
-        <Text as="p" tone="muted">
-          {t({
-            en: "Nothing yet. The first time the assistant tidies your inbox or writes a report, you see what it did.",
-            zh: "还没有记录。助手第一次整理收件箱或写晨报后，你会在这里看到它做了什么。",
-          })}
-        </Text>
-      ) : (
-        <ActivityView
-          entries={activity.entries}
-          earlier={activity.earlier}
-          now={now}
-          place={{ timeZone: settings.timeZone, locale }}
-        />
-      )}
-    </div>
+    <AssistantPageColumn>
+      <div css={stack.group}>
+        <header css={stack.text}>
+          <Heading level={1} look="h3">
+            {t({ en: "Activity", zh: "动态" })}
+          </Heading>
+          <Text as="p" look="bodySmall" tone="muted">
+            {t({
+              en: "What the assistant did in your mailbox and calendar, and why. Undo anything that is not what you want.",
+              zh: "助手在你的邮箱和日历里做了什么、为什么这样做。不合你意的都可以撤销。",
+            })}
+          </Text>
+        </header>
+        {activity.entries.length === 0 ? (
+          <Text as="p" tone="muted">
+            {t({
+              en: "Nothing yet. The first time the assistant tidies your inbox or writes a report, you see what it did.",
+              zh: "还没有记录。助手第一次整理收件箱或写晨报后，你会在这里看到它做了什么。",
+            })}
+          </Text>
+        ) : (
+          <ActivityView
+            entries={activity.entries}
+            earlier={activity.earlier}
+            now={now}
+            place={{ timeZone: settings.timeZone, locale }}
+          />
+        )}
+      </div>
+    </AssistantPageColumn>
   );
 }

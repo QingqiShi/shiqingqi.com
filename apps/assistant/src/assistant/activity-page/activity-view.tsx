@@ -1,3 +1,14 @@
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
+import { ArrowsMergeIcon } from "@phosphor-icons/react/dist/ssr/ArrowsMerge";
+import { CalendarDotsIcon } from "@phosphor-icons/react/dist/ssr/CalendarDots";
+import { CalendarPlusIcon } from "@phosphor-icons/react/dist/ssr/CalendarPlus";
+import { CalendarXIcon } from "@phosphor-icons/react/dist/ssr/CalendarX";
+import { EnvelopeOpenIcon } from "@phosphor-icons/react/dist/ssr/EnvelopeOpen";
+import { EnvelopeSimpleIcon } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";
+import { FlagIcon } from "@phosphor-icons/react/dist/ssr/Flag";
+import { FolderSimpleIcon } from "@phosphor-icons/react/dist/ssr/FolderSimple";
+import { FolderSimpleMinusIcon } from "@phosphor-icons/react/dist/ssr/FolderSimpleMinus";
+import { FolderSimplePlusIcon } from "@phosphor-icons/react/dist/ssr/FolderSimplePlus";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
@@ -5,11 +16,15 @@ import type { SupportedLocale } from "@tuja/i18n/types";
 import { Badge } from "@tuja/ui/components/badge";
 import { Disclosure } from "@tuja/ui/components/disclosure";
 import { Heading } from "@tuja/ui/components/heading";
+import { List } from "@tuja/ui/components/list";
+import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
+import { flex, shrink } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
-import { Anchor } from "#src/links/anchor.tsx";
+import { AnchorButton } from "#src/links/anchor-button.tsx";
 import type {
   ActivityEntry,
   ActivityItem,
@@ -18,6 +33,7 @@ import type {
 } from "../activity/read-activity.ts";
 import { localClock } from "../report/due-report-date.ts";
 import { daysBetween, formatDay } from "../report-page/format-day.ts";
+import { DayHeader } from "../shell/day-header.tsx";
 import { UndoButton } from "./undo-button.tsx";
 
 interface Place {
@@ -274,9 +290,26 @@ function EventSentence({
   }
 }
 
+const KIND_GLYPHS: Record<
+  Exclude<ActivityItem, { type: "merge" }>["kind"],
+  ReactNode
+> = {
+  move: <ArrowRightIcon weight="regular" />,
+  mark_read: <EnvelopeOpenIcon weight="regular" />,
+  mark_unread: <EnvelopeSimpleIcon weight="regular" />,
+  flag: <FlagIcon weight="regular" />,
+  unflag: <FlagIcon weight="regular" />,
+  create_folder: <FolderSimplePlusIcon weight="regular" />,
+  rename_folder: <FolderSimpleIcon weight="regular" />,
+  delete_folder: <FolderSimpleMinusIcon weight="regular" />,
+  create_event: <CalendarPlusIcon weight="regular" />,
+  update_event: <CalendarDotsIcon weight="regular" />,
+  delete_event: <CalendarXIcon weight="regular" />,
+};
+
 function UndoneBadge() {
   return (
-    <Badge size="sm" intent="neutral">
+    <Badge size="sm" intent="neutral" css={shrink._0}>
       {t({ en: "Undone", zh: "已撤销" })}
     </Badge>
   );
@@ -285,7 +318,7 @@ function UndoneBadge() {
 function MailList({ mails }: { mails: readonly ActivityMail[] }) {
   const undo = t({ en: "Undo", zh: "撤销" });
   return (
-    <ul css={[stack.rows, styles.mails]}>
+    <ul css={stack.rows}>
       {mails.map((mail) => (
         <li key={mail.actionId} css={styles.mailRow}>
           <div css={[stack.text, styles.grow]}>
@@ -334,57 +367,74 @@ function ItemRow({
   const mails = item.type === "mail" || item.type === "merge" ? item.mails : [];
   const showMails = mails.length > 1 || item.type === "merge";
   return (
-    <li css={[stack.tight, styles.item]}>
-      <div css={styles.itemHead}>
+    <li css={listSurface.item}>
+      <div css={[listSurface.row, styles.row]}>
+        <span
+          css={[typeRole.body, flex.row, shrink._0, styles.glyph]}
+          aria-hidden
+        >
+          {item.type === "merge" ? (
+            <ArrowsMergeIcon weight="regular" />
+          ) : (
+            KIND_GLYPHS[item.kind]
+          )}
+        </span>
         <div css={[stack.text, styles.grow]}>
-          <Text as="p" css={undone && styles.undone}>
-            {item.type === "mail" ? (
-              <MailSentence item={item} />
-            ) : item.type === "event" ? (
-              <EventSentence item={item} locale={locale} />
+          <div css={styles.head}>
+            <div css={[stack.text, styles.grow]}>
+              <Text as="p" css={undone && styles.undone}>
+                {item.type === "mail" ? (
+                  <MailSentence item={item} />
+                ) : item.type === "event" ? (
+                  <EventSentence item={item} locale={locale} />
+                ) : (
+                  <FolderSentence item={item} />
+                )}
+              </Text>
+              <Text as="p" look="bodySmall" tone="muted">
+                {item.reason}
+              </Text>
+              {item.type === "event" && item.sourceSubject ? (
+                <Text as="p" look="caption" tone="muted">
+                  {fill(
+                    t({
+                      en: "From the mail {subject}",
+                      zh: "来自邮件 {subject}",
+                    }),
+                    {
+                      subject: <Quoted text={item.sourceSubject} />,
+                    },
+                  )}
+                </Text>
+              ) : null}
+              {item.type === "mail" && mails.length === 1 && mails[0].sender ? (
+                <Text as="p" look="caption" tone="muted">
+                  {mails[0].sender}
+                </Text>
+              ) : null}
+            </div>
+            {undone ? (
+              <UndoneBadge />
             ) : (
-              <FolderSentence item={item} />
+              <UndoButton
+                target={{ actionIds: pending }}
+                label={t({ en: "Undo", zh: "撤销" })}
+              />
             )}
-          </Text>
-          <Text as="p" look="bodySmall" tone="muted">
-            {item.reason}
-          </Text>
-          {item.type === "event" && item.sourceSubject ? (
-            <Text as="p" look="caption" tone="muted">
-              {fill(
-                t({ en: "From the mail {subject}", zh: "来自邮件 {subject}" }),
-                {
-                  subject: <Quoted text={item.sourceSubject} />,
-                },
-              )}
-            </Text>
-          ) : null}
-          {item.type === "mail" && mails.length === 1 && mails[0].sender ? (
-            <Text as="p" look="caption" tone="muted">
-              {mails[0].sender}
-            </Text>
+          </div>
+          {showMails ? (
+            <Disclosure
+              look="plain"
+              summary={t({
+                en: "The mails ({count})",
+                zh: "相关邮件（{count}）",
+              }).replace("{count}", String(mails.length))}
+            >
+              <MailList mails={mails} />
+            </Disclosure>
           ) : null}
         </div>
-        {undone ? (
-          <UndoneBadge />
-        ) : (
-          <UndoButton
-            target={{ actionIds: pending }}
-            label={t({ en: "Undo", zh: "撤销" })}
-          />
-        )}
       </div>
-      {showMails ? (
-        <Disclosure
-          look="plain"
-          summary={t({
-            en: "The mails ({count})",
-            zh: "相关邮件（{count}）",
-          }).replace("{count}", String(mails.length))}
-        >
-          <MailList mails={mails} />
-        </Disclosure>
-      ) : null}
     </li>
   );
 }
@@ -435,79 +485,81 @@ function RunEntry({ run, place }: { run: ActivityRun; place: Place }) {
           String(run.actions),
         );
   return (
-    <article css={[stack.item, styles.run]}>
-      <header css={styles.runHead}>
-        <div css={[stack.text, styles.grow]}>
-          <div css={styles.runTitle}>
-            <Heading level={3} look="h4">
-              <TaskName run={run} />
-            </Heading>
-            <StatusBadge run={run} />
-          </div>
-          <Text look="caption" tone="muted" numeric>
-            {formatClock(run.startedAt, place)}
-            {run.actions > 0 ? ` · ${changes}` : null}
-          </Text>
-        </div>
-        {run.undoable > 1 ? (
-          <UndoButton
-            target={{ runId: run.id }}
-            label={t({ en: "Undo all", zh: "全部撤销" })}
-            confirm={t({
-              en: "Undo {count} changes",
-              zh: "撤销 {count} 项更改",
-            }).replace("{count}", String(run.undoable))}
-          />
-        ) : null}
-      </header>
-      {run.note ? (
-        <Text as="p" look="bodySmall">
-          {run.note}
-        </Text>
-      ) : null}
-      {run.status === "failed" ? (
-        <div css={stack.text}>
-          <Text as="p" look="bodySmall">
-            {t({
-              en: "The run stopped on an error. The next run tries again.",
-              zh: "这次运行因出错而停止，下一次运行会再试。",
-            })}
-          </Text>
-          {run.errorMessage ? (
-            <Text as="p" look="caption" tone="muted">
-              {run.errorMessage}
-            </Text>
-          ) : null}
-        </div>
-      ) : null}
-      {run.status === "interrupted" ? (
-        <Text as="p" look="caption" tone="muted">
-          {run.actions > 0
-            ? t({
-                en: "The run was cut off before it finished. What it changed until then is below.",
-                zh: "这次运行没有完成就被中断了。中断前做的更改列在下面。",
-              })
-            : t({
-                en: "The run was cut off before it finished. It changed nothing.",
-                zh: "这次运行没有完成就被中断了，没有做任何更改。",
-              })}
-        </Text>
-      ) : null}
-      {run.task === "report" && !run.note && run.status === "done" ? (
-        <Text as="p" look="bodySmall">
-          {t({
-            en: "Wrote the morning report.",
-            zh: "写好了晨报。",
-          })}
-        </Text>
-      ) : null}
-      {run.items.length > 0 ? (
-        <ul css={[stack.rows, styles.items]}>
-          {run.items.map((item, index) => (
-            <ItemRow key={index} item={item} locale={place.locale} />
-          ))}
-        </ul>
-      ) : null}
+    <article>
+      <List>
+        <li css={listSurface.item}>
+          <header css={[listSurface.row, styles.row]}>
+            <div css={[stack.tight, styles.grow]}>
+              <div css={stack.text}>
+                <div css={styles.runTitle}>
+                  <Heading level={3} css={[typeRole.label, styles.runName]}>
+                    <TaskName run={run} />
+                  </Heading>
+                  <StatusBadge run={run} />
+                </div>
+                <Text look="caption" tone="muted" numeric>
+                  {formatClock(run.startedAt, place)}
+                  {run.actions > 0 ? ` · ${changes}` : null}
+                </Text>
+              </div>
+              {run.note ? (
+                <Text as="p" look="bodySmall">
+                  {run.note}
+                </Text>
+              ) : null}
+              {run.status === "failed" ? (
+                <div css={stack.text}>
+                  <Text as="p" look="bodySmall">
+                    {t({
+                      en: "The run stopped on an error. The next run tries again.",
+                      zh: "这次运行因出错而停止，下一次运行会再试。",
+                    })}
+                  </Text>
+                  {run.errorMessage ? (
+                    <Text as="p" look="caption" tone="muted">
+                      {run.errorMessage}
+                    </Text>
+                  ) : null}
+                </div>
+              ) : null}
+              {run.status === "interrupted" ? (
+                <Text as="p" look="caption" tone="muted">
+                  {run.actions > 0
+                    ? t({
+                        en: "The run was cut off before it finished. What it changed until then is below.",
+                        zh: "这次运行没有完成就被中断了。中断前做的更改列在下面。",
+                      })
+                    : t({
+                        en: "The run was cut off before it finished. It changed nothing.",
+                        zh: "这次运行没有完成就被中断了，没有做任何更改。",
+                      })}
+                </Text>
+              ) : null}
+              {run.task === "report" && !run.note && run.status === "done" ? (
+                <Text as="p" look="bodySmall">
+                  {t({
+                    en: "Wrote the morning report.",
+                    zh: "写好了晨报。",
+                  })}
+                </Text>
+              ) : null}
+            </div>
+            {run.undoable > 1 ? (
+              <UndoButton
+                target={{ runId: run.id }}
+                label={t({ en: "Undo all", zh: "全部撤销" })}
+                confirm={t({
+                  en: "Undo {count} changes",
+                  zh: "撤销 {count} 项更改",
+                }).replace("{count}", String(run.undoable))}
+              />
+            ) : null}
+          </header>
+        </li>
+        {run.items.map((item, index) => (
+          <ItemRow key={index} item={item} locale={place.locale} />
+        ))}
+      </List>
     </article>
   );
 }
@@ -530,7 +582,7 @@ function QuietLine({
           zh: "{first} 到 {last} 检查了 {count} 次，没有更改",
         });
   return (
-    <Text as="p" look="caption" tone="muted" numeric css={styles.quiet}>
+    <Text as="p" look="caption" tone="muted" numeric>
       {text
         .replace("{count}", String(entry.count))
         .replace("{first}", formatClock(entry.first, place))
@@ -580,13 +632,13 @@ export function ActivityView({
     else days.push({ date, entries: [entry] });
   }
   return (
-    <div css={stack.section}>
+    <div css={stack.group}>
       {days.map((day) => (
-        <section key={day.date} css={stack.group}>
-          <Heading level={2} look="h3">
+        <section key={day.date} css={stack.tight}>
+          <DayHeader level={2}>
             <DayName date={day.date} today={today} locale={place.locale} />
-          </Heading>
-          <div css={stack.group}>
+          </DayHeader>
+          <div css={stack.item}>
             {day.entries.map((entry) =>
               entry.type === "run" ? (
                 <RunEntry key={entry.id} run={entry} place={place} />
@@ -602,27 +654,37 @@ export function ActivityView({
         </section>
       ))}
       {earlier ? (
-        <Anchor
-          href={`${getLocalePath("/activity", place.locale)}?before=${encodeURIComponent(earlier.toISOString())}`}
-        >
-          {t({ en: "Earlier", zh: "更早" })}
-        </Anchor>
+        <div>
+          <AnchorButton
+            href={`${getLocalePath("/activity", place.locale)}?before=${encodeURIComponent(earlier.toISOString())}`}
+            look="ghost"
+            size="sm"
+          >
+            {t({ en: "Earlier", zh: "更早" })}
+          </AnchorButton>
+        </div>
       ) : null}
     </div>
   );
 }
 
 const styles = stylex.create({
-  run: {
-    paddingBlockStart: space._4,
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
+  row: {
+    alignItems: "flex-start",
+    paddingBlock: space._2,
   },
-  runHead: {
+  head: {
     display: "flex",
     alignItems: "flex-start",
     gap: rhythm.inline,
+  },
+  grow: {
+    flexGrow: 1,
+    minInlineSize: 0,
+  },
+  glyph: {
+    blockSize: "1lh",
+    color: color.fgMuted,
   },
   runTitle: {
     display: "flex",
@@ -630,34 +692,14 @@ const styles = stylex.create({
     alignItems: "center",
     gap: rhythm.inline,
   },
-  grow: {
-    flexGrow: 1,
-    minInlineSize: 0,
-  },
-  items: {
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
-  },
-  item: {
-    paddingBlock: space._3,
-    borderBlockEndWidth: border.size_1,
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: color.border,
-  },
-  itemHead: {
-    display: "flex",
-    alignItems: "flex-start",
-    gap: rhythm.inline,
-  },
-  mails: {
-    paddingInlineStart: space._3,
+  runName: {
+    fontWeight: font.weight_6,
   },
   mailRow: {
     display: "flex",
     alignItems: "center",
     gap: rhythm.inline,
-    paddingBlock: space._2,
+    paddingBlock: space._1,
   },
   quoted: {
     color: color.fg,
@@ -666,11 +708,9 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
   },
   undone: {
+    [color.fg]: color.fgMuted,
     color: color.fgMuted,
     textDecorationLine: "line-through",
     textDecorationColor: color.border,
-  },
-  quiet: {
-    paddingBlock: space._2,
   },
 });
