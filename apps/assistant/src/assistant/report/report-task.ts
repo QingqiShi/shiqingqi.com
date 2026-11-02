@@ -9,14 +9,16 @@ const LANGUAGE_NAMES: Record<UserLocale, string> = {
 
 export interface ReportFolder {
   path: string;
-  /** The mails of the report's window in the folder; null when it could not be listed. */
+  /** The mails the report covers in the folder; null when it could not be listed. */
   count: { total: number; unread: number } | null;
 }
 
 export interface ReportMailbox {
   account: string;
   address: string;
-  /** The folders that can hold the window's mail. */
+  /** The ISO time this mailbox's mail starts at when an earlier report missed it; null when it is only the report's window. */
+  since: string | null;
+  /** The folders that can hold the mail the report covers. */
   folders: ReportFolder[];
 }
 
@@ -28,7 +30,8 @@ function folderLine(box: ReportMailbox) {
       `"${path}" holds ${String(count.total)}, ${String(count.unread)} unread`,
     ];
   });
-  return `- ${box.account} (${box.address}): ${parts.length > 0 ? parts.join("; ") : "none"}`;
+  const since = box.since ? `, since ${box.since}` : "";
+  return `- ${box.account} (${box.address})${since}: ${parts.length > 0 ? parts.join("; ") : "none"}`;
 }
 
 /** The instructions of the report agent: its goal and the facts it cannot see. */
@@ -84,10 +87,15 @@ function prompt({
     todoLine(`t${String(index + 1)}`, todo),
   );
   const clock = `${String(reportHour).padStart(2, "0")}:00`;
+  const catchUp = mailboxes.some((box) => box.since)
+    ? `An earlier report could not read a mailbox with a since time, so this report also covers its mail from that time on: its counts above include that mail, and that mail is marked read too. list_mail with that since and before ${mailWindow.end.toISOString()} finds it.
+
+`
+    : "";
   return `Today is ${weekday} ${today}. The report covers every mail received from ${addDays(today, -1)} ${clock} up to ${today} ${clock} in the owner's time zone: list_mail with since ${mailWindow.start.toISOString()} and before ${mailWindow.end.toISOString()} finds exactly that. Later mail waits for the next report. Through the day the assistant files mail out of the inbox, so this mail is spread over folders, and the owner sees none of it unless the report tells them. These mails, by folder:
 ${boxes.join("\n")}
 
-Open to-dos:
+${catchUp}Open to-dos:
 ${todos.length > 0 ? todos.join("\n") : "(none)"}
 
 You have about ${String(minutes)} minutes before the report has to be submitted.`;

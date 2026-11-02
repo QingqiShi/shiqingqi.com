@@ -5,6 +5,7 @@ import {
   recordAccountError,
   recordAccountOk,
 } from "#src/assistant/mail/accounts/check-account.ts";
+import { describeSyncError } from "#src/assistant/mail/accounts/describe-sync-error.ts";
 import {
   openMailboxSession,
   storedCredential,
@@ -33,6 +34,12 @@ interface OpenOptions {
    * holds mail, so a run that files mail would call the model for nothing.
    */
   mustMove?: boolean;
+  /**
+   * Gives an account that fails to open `times` more tries, each after
+   * `wait`, unless only a new connect can fix the failure. Other accounts do
+   * not wait for it.
+   */
+  loginRetries?: { times: number; wait: () => Promise<void> };
 }
 
 /** One logged-in account while a tool holds it. */
@@ -89,16 +96,16 @@ export class RunMailboxes {
   }
 
   /**
-   * Logs in to each account and reads its folders. An account that fails
-   * gets its error recorded and takes no part in the run. One whose server
-   * cannot move mail gets `move_unsupported` and takes part, unless
-   * `mustMove` is set.
+   * Logs in to each account and reads its folders. An account that still
+   * fails after its `loginRetries` gets its error recorded and takes no part
+   * in the run. One whose server cannot move mail gets `move_unsupported` and
+   * takes part, unless `mustMove` is set.
    */
   static async open(
     db: AssistantDb,
     userId: string,
     deps: MailboxDeps,
-    { mustMove = false }: OpenOptions = {},
+    { mustMove = false, loginRetries }: OpenOptions = {},
   ): Promise<RunMailboxes> {
     const now = deps.auth.now;
     const stored = await db
@@ -116,41 +123,75 @@ export class RunMailboxes {
         ),
       )
       .orderBy(sql`${mailAccounts.lastSyncedAt} asc nulls first`);
+    const openAccount = async (
+      account: StoredAccount,
+      key: string,
+    ): Promise<AccountState> => {
+      let session: MailboxSession | null = null;
+      try {
+        session = await openMailboxSession(db, userId, account, deps);
+        const canMove = session.supportsMove();
+        if (mustMove && !canMove) throw new MoveUnsupportedError();
+        const folders = await session.listFolders();
+        return {
+          account: {
+            key,
+            id: account.id,
+            provider: account.provider,
+            address: account.address,
+          },
+          stored: account,
+          session,
+          canMove,
+          folders,
+          open: null,
+          queue: Promise.resolve(),
+          failure: null,
+        };
+      } catch (error) {
+        await session?.close().catch(() => undefined);
+        throw error;
+      }
+    };
     let failedAccounts = 0;
     const opened = await Promise.all(
       stored.map(async (account, index): Promise<AccountState | null> => {
-        let session: MailboxSession | null = null;
-        try {
-          session = await openMailboxSession(db, userId, account, deps);
-          const canMove = session.supportsMove();
-          if (mustMove && !canMove) throw new MoveUnsupportedError();
-          const folders = await session.listFolders();
-          return {
-            account: {
-              key: `a${String(index + 1)}`,
-              id: account.id,
-              provider: account.provider,
-              address: account.address,
-            },
-            stored: account,
-            session,
-            canMove,
-            folders,
-            open: null,
-            queue: Promise.resolve(),
-            failure: null,
-          };
-        } catch (error) {
-          await session?.close().catch(() => undefined);
-          if (error instanceof MoveUnsupportedError) {
-            await recordWriteState(db, userId, account.id, error, now());
-            await recordAccountOk(db, userId, account.id, now());
-          } else {
-            failedAccounts += 1;
-            await recordAccountError(db, userId, account.id, error, now());
+        const key = `a${String(index + 1)}`;
+        let latest = account;
+        let failure: unknown;
+        for (
+          let attempt = 0;
+          attempt <= (loginRetries?.times ?? 0);
+          attempt += 1
+        ) {
+          try {
+            if (attempt > 0) {
+              await loginRetries?.wait();
+              // A failed login can store a new refresh token. Read it again.
+              latest = {
+                ...latest,
+                credential: await storedCredential(db, userId, account.id),
+              };
+            }
+            return await openAccount(latest, key);
+          } catch (error) {
+            failure = error;
+            if (
+              error instanceof MoveUnsupportedError ||
+              describeSyncError(error).status !== "error"
+            ) {
+              break;
+            }
           }
-          return null;
         }
+        if (failure instanceof MoveUnsupportedError) {
+          await recordWriteState(db, userId, account.id, failure, now());
+          await recordAccountOk(db, userId, account.id, now());
+        } else {
+          failedAccounts += 1;
+          await recordAccountError(db, userId, account.id, failure, now());
+        }
+        return null;
       }),
     );
     const states = opened.filter((state) => state !== null);
