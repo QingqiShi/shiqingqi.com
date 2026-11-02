@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
 import {
   mailAccounts,
   morningReports,
@@ -6,7 +6,12 @@ import {
 } from "#src/assistant/db/schema.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
 import { openMailHref } from "./open-mail-href.ts";
-import type { AgendaItem, MailSource, MorningReportContent } from "./types.ts";
+import type {
+  AgendaItem,
+  MailSource,
+  MorningReportContent,
+  ReportStatus,
+} from "./types.ts";
 
 /** How many done to-dos the to-do page lists. */
 const DONE_LIMIT = 50;
@@ -209,18 +214,17 @@ export async function listReports({ db, userId }: UserScope) {
   const rows = await db
     .select({
       localDate: morningReports.localDate,
-      content: morningReports.content,
+      status: sql<ReportStatus>`${morningReports.content}->>'status'`,
+      headline: sql<string | null>`${morningReports.content}->>'headline'`,
+      needsAction: sql<number>`jsonb_array_length(${morningReports.content}->'needsAction')`,
     })
     .from(morningReports)
     .where(eq(morningReports.userId, userId))
     .orderBy(desc(morningReports.localDate));
-  return rows.map((row) => ({
-    localDate: row.localDate,
-    status: row.content.status,
-    headline: row.content.headline,
-    needsAction: row.content.needsAction.length,
-  }));
+  return rows;
 }
+
+export type ReportListItem = Awaited<ReturnType<typeof listReports>>[number];
 
 export async function countOpenTodos({ db, userId }: UserScope) {
   return db.$count(todos, and(eq(todos.userId, userId), isNull(todos.doneAt)));

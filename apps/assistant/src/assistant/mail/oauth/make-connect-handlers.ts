@@ -52,12 +52,12 @@ function redirect(location: string, cookie?: string) {
   return new Response(null, { status: 303, headers });
 }
 
-function accountsUrl(
+function mailboxesUrl(
   origin: string,
   locale: SupportedLocale,
   query: Record<string, string>,
 ) {
-  const url = new URL(getLocalePath("/accounts", locale), origin);
+  const url = new URL(getLocalePath("/settings/mailboxes", locale), origin);
   for (const [name, value] of Object.entries(query)) {
     url.searchParams.set(name, value);
   }
@@ -86,14 +86,14 @@ export function makeConnectHandlers(deps: ConnectHandlerDeps) {
       const session = await deps.getSession(request);
       if (!session) {
         return redirect(
-          new URL(signInPath(locale, "/accounts"), origin).toString(),
+          new URL(signInPath(locale, "/settings/mailboxes"), origin).toString(),
         );
       }
       const client = deps.oauthClient(provider);
       const secret = deps.authSecret();
       if (!client || !secret || !deps.getMailDeps()) {
         return redirect(
-          accountsUrl(origin, locale, { error: "not-configured" }),
+          mailboxesUrl(origin, locale, { error: "not-configured" }),
         );
       }
       const state = randomBytes(24).toString("base64url");
@@ -139,7 +139,7 @@ export function makeConnectHandlers(deps: ConnectHandlerDeps) {
           : null;
       const locale = payload?.locale ?? "en";
       const fail = (error: ConnectErrorCode) =>
-        redirect(accountsUrl(origin, locale, { error }), clear);
+        redirect(mailboxesUrl(origin, locale, { error }), clear);
 
       const session = deps.isConfigured()
         ? await deps.getSession(request)
@@ -216,7 +216,7 @@ export function makeConnectHandlers(deps: ConnectHandlerDeps) {
       );
       deps.runAfter(() => checkAccount(db, userId, accountId, mail));
       return redirect(
-        accountsUrl(origin, locale, { connected: provider }),
+        mailboxesUrl(origin, locale, { connected: provider }),
         clear,
       );
     },

@@ -5,8 +5,9 @@ import { t } from "@tuja/i18n";
 import { Switch } from "@tuja/ui/components/switch";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { assistantFetch } from "../http/assistant-fetch.ts";
 
 type PushState =
@@ -81,6 +82,8 @@ async function turnOff() {
  */
 export function PushToggle({ publicKey }: { publicKey: string | null }) {
   const [state, setState] = useState<PushState>("checking");
+  const switchId = useId();
+  const descriptionId = useId();
 
   useEffect(() => {
     let active = true;
@@ -96,7 +99,6 @@ export function PushToggle({ publicKey }: { publicKey: string | null }) {
     };
   }, [publicKey]);
 
-  const label = t({ en: "Morning notification", zh: "早间通知" });
   const messages: Partial<Record<PushState, string>> = {
     unsupported: t({
       en: "This browser cannot show notifications from the app.",
@@ -114,11 +116,13 @@ export function PushToggle({ publicKey }: { publicKey: string | null }) {
   const message = messages[state];
 
   return (
-    <div css={stack.tight}>
+    <div css={[stack.tight, styles.toggle]}>
       <div css={styles.row}>
         <div css={stack.text}>
-          <Text weight="medium">{label}</Text>
-          <Text look="bodySmall" tone="muted">
+          <label htmlFor={switchId} css={typeRole.label}>
+            {t({ en: "Morning notification", zh: "早间通知" })}
+          </label>
+          <Text id={descriptionId} look="bodySmall" tone="muted">
             {t({
               en: "When the morning report is ready, this device gets a notification.",
               zh: "晨报写好后，这台设备会收到一条通知。",
@@ -126,7 +130,8 @@ export function PushToggle({ publicKey }: { publicKey: string | null }) {
           </Text>
         </div>
         <Switch
-          aria-label={label}
+          id={switchId}
+          aria-describedby={descriptionId}
           value={state === "on" ? "on" : "off"}
           disabled={
             state === "checking" ||
@@ -166,6 +171,9 @@ export function PushToggle({ publicKey }: { publicKey: string | null }) {
 }
 
 const styles = stylex.create({
+  toggle: {
+    maxInlineSize: "32rem",
+  },
   row: {
     display: "flex",
     alignItems: "center",

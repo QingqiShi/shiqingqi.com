@@ -42,6 +42,16 @@ let mail: FakeMailServer;
 let calendar: FakeCalendarServer;
 let home: string;
 let open: RunMailboxes[];
+let clock: number;
+let clockStep: number;
+
+// The fake servers reply immediately and the PGlite clock has millisecond
+// steps, so the default created_at can give two writes the same time. A real
+// write has a server round trip before it.
+function nextInstant() {
+  clock += clockStep;
+  return new Date(clock);
+}
 
 const noReader = {
   id: "no-reader",
@@ -66,6 +76,8 @@ beforeEach(async () => {
   });
   home = calendar.addCalendar("Home", { isDefault: true });
   open = [];
+  clock = NOW.getTime();
+  clockStep = 1000;
 });
 
 afterEach(async () => {
@@ -99,9 +111,12 @@ async function startRun(user = userId) {
     .returning({ id: agentRuns.id });
   const context: AgentRunContext = {
     logAction: async (action) => {
-      await db
-        .insert(agentActions)
-        .values({ ...action, runId: run.id, userId: user });
+      await db.insert(agentActions).values({
+        ...action,
+        runId: run.id,
+        userId: user,
+        createdAt: nextInstant(),
+      });
     },
     addUsage: () => undefined,
   };
@@ -150,7 +165,11 @@ function undo(
   target: { runId: string } | { actionIds: string[] },
   user = userId,
 ) {
-  return undoAgentActions({ db, userId: user, now: () => NOW }, deps(), target);
+  return undoAgentActions(
+    { db, userId: user, now: nextInstant },
+    deps(),
+    target,
+  );
 }
 
 function actionsOf(runId: string) {
@@ -397,29 +416,36 @@ describe("undoing what an agent did", () => {
     expect(calendar.events(home)[0].data).toBe(flight);
   });
 
-  it("leaves an event the owner put back after the agent deleted it", async () => {
-    const { runId, call } = await startRun();
-    const created = z.object({ id: z.string() }).parse(
-      await call("create_event", {
-        title: "Dentist",
-        start: "2026-12-03T09:00",
-        allDay: false,
-        fromMail: "m1",
-        reason: "Booking mail",
-      }),
-    );
-    const [made] = calendar.events(home);
-    await call("delete_event", { id: created.id, reason: "Cancelled" });
-    const restored = made.data.replace("Dentist", "Dentist (kept by me)");
-    calendar.putEvent(home, made.url.split("/").at(-1) ?? "", restored);
+  it.each([
+    { writes: "seconds apart", step: 1000 },
+    { writes: "at the same instant", step: 0 },
+  ])(
+    "leaves an event the owner put back after the agent deleted it, with writes $writes",
+    async ({ step }) => {
+      clockStep = step;
+      const { runId, call } = await startRun();
+      const created = z.object({ id: z.string() }).parse(
+        await call("create_event", {
+          title: "Dentist",
+          start: "2026-12-03T09:00",
+          allDay: false,
+          fromMail: "m1",
+          reason: "Booking mail",
+        }),
+      );
+      const [made] = calendar.events(home);
+      await call("delete_event", { id: created.id, reason: "Cancelled" });
+      const restored = made.data.replace("Dentist", "Dentist (kept by me)");
+      calendar.putEvent(home, made.url.split("/").at(-1) ?? "", restored);
 
-    const outcomes = await undo({ runId });
+      const outcomes = await undo({ runId });
 
-    expect(outcomes?.every((outcome) => !outcome.undone)).toBe(true);
-    expect(calendar.events(home).map((event) => event.data)).toEqual([
-      restored,
-    ]);
-  });
+      expect(outcomes?.every((outcome) => !outcome.undone)).toBe(true);
+      expect(calendar.events(home).map((event) => event.data)).toEqual([
+        restored,
+      ]);
+    },
+  );
 
   it("leaves an event the owner changed since, and says so", async () => {
     const { runId, call } = await startRun();

@@ -1,24 +1,19 @@
 "use client";
 
-import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { AnchorButton } from "@tuja/ui/components/anchor-button";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Checkbox } from "@tuja/ui/components/checkbox";
+import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
-import {
-  border,
-  color,
-  controlSize,
-  rhythm,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { assistantFetch } from "../http/assistant-fetch.ts";
 import { daysBetween, formatShortDate } from "./format-day.ts";
+import { OpenMailButton } from "./open-mail-button.tsx";
 
 export interface TodoItemData {
   id: string;
@@ -72,7 +67,6 @@ export function TodoItem({
   const [justDone, setJustDone] = useState(false);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
-  const isWeb = todo.openHref?.startsWith("https:") ?? false;
 
   function save(next: boolean) {
     setBusy(true);
@@ -93,101 +87,109 @@ export function TodoItem({
       });
   }
 
-  const hasMeta =
-    todo.openHref !== null ||
-    (todo.dueDate !== null && !done) ||
-    justDone ||
-    failed;
-
   return (
-    <li css={[stack.tight, styles.item]}>
-      <Checkbox
-        label={todo.title}
-        checked={done}
-        disabled={busy}
-        onChange={(event) => {
-          save(event.target.checked);
-        }}
-        css={done && styles.done}
-      />
-      {todo.detail || hasMeta ? (
-        <div css={[stack.tight, styles.indent]}>
+    <li css={listSurface.item}>
+      <div
+        css={[
+          listSurface.row,
+          styles.row,
+          todo.openHref !== null && styles.rowWithMail,
+        ]}
+      >
+        <div css={[stack.text, styles.main]}>
+          <Checkbox
+            label={todo.title}
+            checked={done}
+            disabled={busy}
+            onChange={(event) => {
+              save(event.target.checked);
+            }}
+            css={done && styles.done}
+          />
           {todo.detail ? (
-            <Text as="p" look="bodySmall" tone="muted">
+            <Text as="p" look="bodySmall" tone="muted" css={styles.indent}>
               {todo.detail}
             </Text>
           ) : null}
-          {hasMeta ? (
-            <div css={styles.meta}>
-              {todo.dueDate !== null && !done ? (
-                <DueBadge
-                  dueDate={todo.dueDate}
-                  today={today}
-                  locale={locale}
-                />
+          <div css={[cluster.inline, styles.indent]}>
+            {justDone ? (
+              <Button
+                size="sm"
+                look="ghost"
+                disabled={busy}
+                onClick={() => {
+                  save(false);
+                }}
+              >
+                {t({ en: "Undo", zh: "撤销" })}
+              </Button>
+            ) : null}
+            <span role="status">
+              {failed ? (
+                <Text look="caption" css={styles.failed}>
+                  {t({
+                    en: "That did not save. Try again.",
+                    zh: "没有保存成功，请重试。",
+                  })}
+                </Text>
               ) : null}
-              {todo.openHref ? (
-                <AnchorButton
-                  href={todo.openHref}
-                  size="sm"
-                  look="ghost"
-                  icon={<ArrowSquareOutIcon weight="bold" />}
-                  {...(isWeb ? { target: "_blank", rel: "noreferrer" } : {})}
-                >
-                  {t({ en: "Open mail", zh: "打开原邮件" })}
-                </AnchorButton>
-              ) : null}
-              {justDone ? (
-                <Button
-                  size="sm"
-                  look="ghost"
-                  disabled={busy}
-                  onClick={() => {
-                    save(false);
-                  }}
-                >
-                  {t({ en: "Undo", zh: "撤销" })}
-                </Button>
-              ) : null}
-              <span role="status">
-                {failed ? (
-                  <Text look="caption" css={styles.failed}>
-                    {t({
-                      en: "That did not save. Try again.",
-                      zh: "没有保存成功，请重试。",
-                    })}
-                  </Text>
-                ) : null}
-              </span>
-            </div>
-          ) : null}
+            </span>
+          </div>
         </div>
-      ) : null}
+        {todo.dueDate !== null && !done ? (
+          <div css={styles.due}>
+            <DueBadge dueDate={todo.dueDate} today={today} locale={locale} />
+          </div>
+        ) : null}
+        {todo.openHref ? (
+          <div css={styles.open}>
+            <OpenMailButton href={todo.openHref} />
+          </div>
+        ) : null}
+      </div>
     </li>
   );
 }
 
+const INDENT = `calc(${controlSize._5} + ${controlSize._2})`;
+
 const styles = stylex.create({
-  item: {
-    paddingBlock: space._3,
-    borderBlockEndWidth: border.size_1,
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: color.border,
+  // Below `md`, the due date goes under the detail. From `md`, it goes at the
+  // end of the row, before the button that opens the mail.
+  row: {
+    display: "grid",
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      [breakpoints.md]: "minmax(0, 1fr) auto",
+    },
+    rowGap: rhythm.inline,
+    paddingBlock: space._2,
+  },
+  rowWithMail: {
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr) auto",
+      [breakpoints.md]: "minmax(0, 1fr) auto auto",
+    },
+  },
+  main: {
+    gridColumn: 1,
+    gridRow: 1,
+  },
+  due: {
+    gridColumn: { default: 1, [breakpoints.md]: 2 },
+    gridRow: { default: 2, [breakpoints.md]: 1 },
+    paddingInlineStart: { default: INDENT, [breakpoints.md]: 0 },
+  },
+  open: {
+    gridColumn: { default: 2, [breakpoints.md]: 3 },
+    gridRow: { default: "1 / span 2", [breakpoints.md]: 1 },
   },
   done: {
-    color: color.fgMuted,
+    [color.fg]: color.fgMuted,
     textDecorationLine: "line-through",
-    textDecorationColor: color.border,
   },
   indent: {
-    paddingInlineStart: `calc(${controlSize._5} + ${controlSize._2})`,
-  },
-  meta: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    columnGap: rhythm.inline,
-    rowGap: rhythm.inline,
+    paddingInlineStart: INDENT,
   },
   failed: {
     color: color.fgDanger,

@@ -1,35 +1,29 @@
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
-import type { PageProps } from "@tuja/i18n/types";
-import { validateLocale } from "@tuja/i18n/validate-locale";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { eq } from "drizzle-orm";
-import type { Metadata } from "next";
-import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
 import { mailAccounts } from "#src/assistant/db/schema.ts";
-import { localClock } from "#src/assistant/report/due-report-date.ts";
-import { readReportSettings } from "#src/assistant/report/read-report-settings.ts";
-import {
-  countOpenTodos,
-  readReport,
-} from "#src/assistant/report/read-report.ts";
-import { ReportView } from "#src/assistant/report-page/report-view.tsx";
+import type { UserScope } from "#src/assistant/db/types.ts";
 import { AnchorButton } from "#src/links/anchor-button.tsx";
+import { localClock } from "../report/due-report-date.ts";
+import { readReportSettings } from "../report/read-report-settings.ts";
+import { countOpenTodos, readReport } from "../report/read-report.ts";
+import { ReportView } from "./report-view.tsx";
 
-export async function generateMetadata(props: PageProps): Promise<Metadata> {
-  validateLocale((await props.params).locale);
-  return { title: t({ en: "Morning report", zh: "晨报" }) };
-}
-
-export default async function Page({ params }: PageProps) {
-  const locale = validateLocale((await params).locale);
-  const session = await requirePageSession(locale, "/");
-  const scope = { db: getAssistantDb(), userId: session.userId };
-  const [accounts, report, settings, openTodos] = await Promise.all([
-    scope.db.$count(mailAccounts, eq(mailAccounts.userId, scope.userId)),
+/** The newest report, or what to expect while there is none. */
+export async function LatestReport({
+  scope,
+  locale,
+  headingLevel,
+}: {
+  scope: UserScope;
+  locale: SupportedLocale;
+  headingLevel: 1 | 2;
+}) {
+  const [report, settings, openTodos] = await Promise.all([
     readReport(scope, null),
     readReportSettings(scope),
     countOpenTodos(scope),
@@ -42,18 +36,27 @@ export default async function Page({ params }: PageProps) {
         today={clock.date}
         openTodos={openTodos}
         locale={locale}
+        headingLevel={headingLevel}
+        pastLink="list"
       />
     );
   }
 
+  const accounts = await scope.db.$count(
+    mailAccounts,
+    eq(mailAccounts.userId, scope.userId),
+  );
   const hour = `${String(settings.digestHour).padStart(2, "0")}:00`;
   return (
-    <div css={stack.group}>
-      <div css={stack.tight}>
-        <Heading level={1} look="h1">
+    <div css={stack.item}>
+      <Heading level={headingLevel} look="h3">
+        {t({ en: "Morning report", zh: "晨报" })}
+      </Heading>
+      <div css={stack.text}>
+        <Text as="p" look="body">
           {t({ en: "No report yet", zh: "还没有晨报" })}
-        </Heading>
-        <Text as="p" tone="muted">
+        </Text>
+        <Text as="p" look="bodySmall" tone="muted">
           {accounts === 0
             ? t({
                 en: "Connect a mailbox. Each morning at {hour}, the assistant reads the mail of the day before and writes down what needs you.",
@@ -73,8 +76,9 @@ export default async function Page({ params }: PageProps) {
       {accounts === 0 ? (
         <div>
           <AnchorButton
-            href={getLocalePath("/accounts", locale)}
+            href={getLocalePath("/settings/mailboxes", locale)}
             look="primary"
+            size="sm"
           >
             {t({ en: "Connect a mailbox", zh: "连接邮箱" })}
           </AnchorButton>

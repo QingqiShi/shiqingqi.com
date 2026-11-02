@@ -1,11 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
+import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
-import { Card } from "@tuja/ui/components/card";
+import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { rhythm } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { PROVIDER_NAMES } from "#src/assistant/mailboxes/provider-names.ts";
 import type { SyncErrorCode } from "../mail/accounts/describe-sync-error.ts";
 import type { AccountSummary } from "../mail/accounts/list-accounts.ts";
@@ -87,7 +88,10 @@ function WriteErrorText({ code }: { code: string }) {
   );
 }
 
-/** One connected mailbox: its last check, the last error, and what to do about it. */
+/**
+ * One connected mailbox, a row of a `List`: its last check, the last error,
+ * and what to do about it.
+ */
 export function AccountCard({
   account,
   formatDate,
@@ -99,72 +103,95 @@ export function AccountCard({
   reconnectHref: string | null;
 }) {
   return (
-    <Card css={styles.card}>
-      <div css={stack.item}>
-        <div css={stack.text}>
-          <div css={styles.title}>
-            <Text weight="semibold">{account.address}</Text>
-            <StatusBadge status={account.status} />
-          </div>
-          <Text look="bodySmall" tone="muted">
-            {PROVIDER_NAMES[account.provider]}
-            {" · "}
-            {account.lastSyncedAt
-              ? t({ en: "Last checked {date}", zh: "上次检查 {date}" }).replace(
-                  "{date}",
-                  formatDate(account.lastSyncedAt),
-                )
-              : t({ en: "Not checked yet", zh: "尚未检查" })}
-          </Text>
-        </div>
-        {account.lastErrorCode ? (
+    <li css={listSurface.item}>
+      <div css={[listSurface.row, styles.row]}>
+        <Avatar
+          name={PROVIDER_NAMES[account.provider]}
+          shape="square"
+          aria-hidden
+          css={styles.avatar}
+        />
+        <div css={[stack.tight, styles.main]}>
           <div css={stack.text}>
-            <ErrorText code={account.lastErrorCode} />
-            {account.lastErrorMessage ? (
-              <Text look="caption" tone="muted">
-                {account.lastErrorAt
-                  ? `${formatDate(account.lastErrorAt)} · `
-                  : null}
-                {account.lastErrorMessage}
+            <div css={styles.title}>
+              <Text weight="medium" css={styles.address}>
+                {account.address}
               </Text>
-            ) : null}
+              <StatusBadge status={account.status} />
+            </div>
+            <Text look="bodySmall" tone="muted">
+              {PROVIDER_NAMES[account.provider]}
+              {" · "}
+              {account.lastSyncedAt
+                ? t({
+                    en: "Last checked {date}",
+                    zh: "上次检查 {date}",
+                  }).replace("{date}", formatDate(account.lastSyncedAt))
+                : t({ en: "Not checked yet", zh: "尚未检查" })}
+            </Text>
           </div>
-        ) : null}
-        {account.writeErrorCode ? (
-          <div css={stack.text}>
-            <WriteErrorText code={account.writeErrorCode} />
-            {account.writeErrorMessage ? (
-              <Text look="caption" tone="muted">
-                {account.writeErrorAt
-                  ? `${formatDate(account.writeErrorAt)} · `
-                  : null}
-                {account.writeErrorMessage}
-              </Text>
-            ) : null}
-          </div>
-        ) : null}
-        <div css={styles.actions}>
-          {account.status === "reconnect" && reconnectHref ? (
-            <AnchorButton href={reconnectHref} size="sm" look="primary">
-              {t({ en: "Connect again", zh: "重新连接" })}
-            </AnchorButton>
+          {account.lastErrorCode ? (
+            <div css={stack.text}>
+              <ErrorText code={account.lastErrorCode} />
+              {account.lastErrorMessage ? (
+                <Text look="caption" tone="muted">
+                  {account.lastErrorAt
+                    ? `${formatDate(account.lastErrorAt)} · `
+                    : null}
+                  {account.lastErrorMessage}
+                </Text>
+              ) : null}
+            </div>
           ) : null}
-          <AccountActions accountId={account.id} />
+          {account.writeErrorCode ? (
+            <div css={stack.text}>
+              <WriteErrorText code={account.writeErrorCode} />
+              {account.writeErrorMessage ? (
+                <Text look="caption" tone="muted">
+                  {account.writeErrorAt
+                    ? `${formatDate(account.writeErrorAt)} · `
+                    : null}
+                  {account.writeErrorMessage}
+                </Text>
+              ) : null}
+            </div>
+          ) : null}
+          <div css={styles.actions}>
+            {account.status === "reconnect" && reconnectHref ? (
+              <AnchorButton href={reconnectHref} size="sm" look="primary">
+                {t({ en: "Connect again", zh: "重新连接" })}
+              </AnchorButton>
+            ) : null}
+            <AccountActions accountId={account.id} />
+          </div>
         </div>
       </div>
-    </Card>
+    </li>
   );
 }
 
 const styles = stylex.create({
-  card: {
-    inlineSize: "100%",
+  row: {
+    alignItems: "flex-start",
+    paddingBlock: space._3,
+  },
+  avatar: {
+    flexShrink: 0,
+  },
+  main: {
+    flexGrow: 1,
+    minInlineSize: 0,
   },
   title: {
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    gap: rhythm.tight,
+    justifyContent: "space-between",
+    columnGap: rhythm.item,
+    rowGap: rhythm.inline,
+  },
+  address: {
+    minInlineSize: 0,
   },
   actions: {
     display: "flex",

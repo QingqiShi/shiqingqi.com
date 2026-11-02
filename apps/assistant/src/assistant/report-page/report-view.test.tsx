@@ -68,6 +68,8 @@ describe("ReportView", () => {
           today="2026-11-01"
           openTodos={0}
           locale="en"
+          headingLevel={1}
+          pastLink="list"
         />
       </I18nContext>,
     );
@@ -138,6 +140,8 @@ describe("ReportView", () => {
           today="2026-11-02"
           openTodos={2}
           locale="en"
+          headingLevel={1}
+          pastLink="list"
         />
       </I18nContext>,
     );

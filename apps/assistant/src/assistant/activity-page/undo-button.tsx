@@ -141,7 +141,7 @@ export function UndoButton({
       : null;
 
   return (
-    <div css={[stack.tight, styles.wrap]}>
+    <div css={[stack.text, styles.wrap]}>
       <div css={styles.buttons}>
         {asking ? (
           <>
@@ -174,7 +174,7 @@ export function UndoButton({
           </Button>
         )}
       </div>
-      <div role="status" css={stack.text}>
+      <div role="status" css={[stack.text, styles.status]}>
         {partly ? (
           <Text look="caption" css={styles.problem}>
             {partly}
@@ -199,12 +199,18 @@ export function UndoButton({
 const styles = stylex.create({
   wrap: {
     alignItems: "flex-end",
+    flexShrink: 0,
+    maxInlineSize: "50%",
   },
   buttons: {
     display: "flex",
     flexWrap: "wrap",
     justifyContent: "flex-end",
     gap: rhythm.inline,
+    whiteSpace: "nowrap",
+  },
+  status: {
+    marginBlockStart: { default: 0, ":not(:empty)": rhythm.tight },
   },
   problem: {
     color: color.fgDanger,

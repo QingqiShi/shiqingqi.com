@@ -47,6 +47,8 @@ export default async function Page({ params }: Props) {
       today={localClock(new Date(), settings.timeZone).date}
       openTodos={openTodos}
       locale={locale}
+      headingLevel={1}
+      pastLink="back"
     />
   );
 }
