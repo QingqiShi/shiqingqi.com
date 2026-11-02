@@ -46,6 +46,18 @@ export interface FetchedMessage {
   source: Uint8Array;
 }
 
+/** What `searchUids` matches in the open folder. Every criterion that is set must match; none matches all mail. */
+export interface MailSearch {
+  /** Received on or after the date of this time. IMAP compares dates only, in the server's time zone. */
+  since?: Date;
+  /** Received before the date of this time. */
+  before?: Date;
+  /** True for read mail only, false for unread mail only. */
+  seen?: boolean;
+  /** The Message-ID header, in angle brackets. */
+  messageId?: string;
+}
+
 /** Where a MOVE put the mail, when the server says it (UIDPLUS COPYUID). */
 export interface MovedMessages {
   uidValidity: number;
@@ -62,22 +74,21 @@ export interface MailboxSession {
   listFolders(): Promise<MailboxFolder[]>;
   /** Makes a folder and subscribes to it; a folder that is already there is kept as it is. */
   createFolder(path: string): Promise<void>;
+  /** Renames a folder, with the folders inside it, and subscribes to the new path. */
+  renameFolder(path: string, newPath: string): Promise<void>;
+  /** Deletes a folder that holds no mail; throws when the server says it holds some. */
+  deleteEmptyFolder(path: string): Promise<void>;
   /** Whether the server has the MOVE command, which `moveMessages` needs. */
   supportsMove(): boolean;
   openFolder(
     path: string,
     options?: { write?: boolean },
   ): Promise<OpenedFolder>;
-  /** The UIDs above `uid` in the open folder, in ascending order. */
-  listUidsAfter(uid: number): Promise<number[]>;
-  /**
-   * The UIDs of mail the open folder received on or after the date of
-   * `since`, and before the date of `before` when it is set, ascending.
-   * IMAP compares dates only, in the server's time zone.
-   */
-  listUidsSince(since: Date, before?: Date): Promise<number[]>;
+  /** The UIDs of the mail in the open folder that matches, ascending. */
+  searchUids(criteria: MailSearch): Promise<number[]>;
   fetchMessages(uids: number[], maxBytes: number): Promise<FetchedMessage[]>;
   addFlags(uids: number[], flags: string[]): Promise<void>;
+  removeFlags(uids: number[], flags: string[]): Promise<void>;
   /**
    * Moves mail of the open folder with the MOVE command. It never copies and
    * deletes: without MOVE it throws `MoveUnsupportedError`. Null when the
@@ -87,6 +98,8 @@ export interface MailboxSession {
     uids: number[],
     destination: string,
   ): Promise<MovedMessages | null>;
+  /** False once the connection has closed, for example after the server timed out an idle connection. */
+  isUsable(): boolean;
   close(): Promise<void>;
 }
 

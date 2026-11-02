@@ -59,10 +59,7 @@ async function readFolder(
   },
 ) {
   await session.openFolder(path);
-  const uids = await session.listUidsSince(
-    context.range.since,
-    context.range.before,
-  );
+  const uids = await session.searchUids(context.range);
   const mails: DayMail[] = [];
   for (let start = 0; start < uids.length; start += BATCH_SIZE) {
     if (context.now().getTime() >= context.endsAt) {

@@ -1,5 +1,5 @@
 import { and, asc, desc, eq, isNull } from "drizzle-orm";
-import type { AssistantModel } from "#src/assistant/ai/get-organise-model.ts";
+import type { AssistantModel } from "#src/assistant/ai/types.ts";
 import {
   mailAccounts,
   morningReports,

@@ -9,7 +9,7 @@ import { rhythm } from "@tuja/ui/tokens.stylex";
 import { PROVIDER_NAMES } from "#src/assistant/mailboxes/provider-names.ts";
 import type { SyncErrorCode } from "../mail/accounts/describe-sync-error.ts";
 import type { AccountSummary } from "../mail/accounts/list-accounts.ts";
-import type { WriteErrorCode } from "../organise/organise-account.ts";
+import type { WriteErrorCode } from "../mail/accounts/record-write-state.ts";
 import { AccountActions } from "./account-actions.tsx";
 
 function StatusBadge({ status }: { status: AccountSummary["status"] }) {

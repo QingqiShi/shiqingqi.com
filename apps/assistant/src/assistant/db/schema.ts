@@ -14,6 +14,7 @@ import {
   unique,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { AgentStepRecord, AgentUsage } from "../agent/types.ts";
 import type { MorningReportContent } from "../report/types.ts";
 
 const bytea = customType<{ data: Uint8Array; driverData: Uint8Array }>({
@@ -95,9 +96,9 @@ export const userSettings = pgTable(
     digestHour: smallint("digest_hour").notNull().default(DEFAULT_DIGEST_HOUR),
     /** The language of the pages and of the reports the model writes. */
     locale: text("locale", { enum: USER_LOCALES }).notNull().default("en"),
-    /** Off until the user turns it on: then a cron files every inbox mail into a folder and marks it read. */
+    /** Off until the user turns it on: then a cron runs an agent that files the inbox mail. */
     organiseEnabled: boolean("organise_enabled").notNull().default(false),
-    /** The user's own words on where mail goes, for the model that picks a folder. */
+    /** The user's own rules for the organise agent. */
     organiseNotes: text("organise_notes").notNull().default(""),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -217,6 +218,93 @@ export const pushSubscriptions = pgTable(
   (t) => [unique("push_subscriptions_endpoint_key").on(t.userId, t.endpoint)],
 );
 
+export const AGENT_TASKS = ["organise"] as const;
+export type AgentTask = (typeof AGENT_TASKS)[number];
+
+/** `stopped`: the run reached its step or time limit before the model finished. */
+export const AGENT_RUN_STATUSES = [
+  "running",
+  "done",
+  "stopped",
+  "failed",
+] as const;
+export type AgentRunStatus = (typeof AGENT_RUN_STATUSES)[number];
+
+/** One run of an agent for a user: what the model did and said, step by step. */
+export const agentRuns = pgTable(
+  "agent_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userId(),
+    task: text("task", { enum: AGENT_TASKS }).notNull(),
+    status: text("status", { enum: AGENT_RUN_STATUSES })
+      .notNull()
+      .default("running"),
+    modelId: text("model_id").notNull(),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull(),
+    endedAt: timestamp("ended_at", { withTimezone: true }),
+    /** The model's last words: what it says it did. */
+    finalText: text("final_text"),
+    /** The steps, with each text, tool input and tool output cut short. */
+    transcript: jsonb("transcript")
+      .$type<AgentStepRecord[]>()
+      .notNull()
+      .default(sql`'[]'::jsonb`),
+    usage: jsonb("usage").$type<AgentUsage>(),
+    errorMessage: text("error_message"),
+    createdAt: createdAt(),
+  },
+  (t) => [index("agent_runs_user_idx").on(t.userId, t.startedAt)],
+);
+
+export const AGENT_ACTION_KINDS = [
+  "create_folder",
+  "rename_folder",
+  "delete_folder",
+  "move",
+  "mark_read",
+  "mark_unread",
+  "flag",
+  "unflag",
+] as const;
+export type AgentActionKind = (typeof AGENT_ACTION_KINDS)[number];
+
+/**
+ * One change that an agent made to a mailbox, with what it takes to find the
+ * mail again and undo the change: one row for each mail.
+ */
+export const agentActions = pgTable(
+  "agent_actions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    runId: uuid("run_id")
+      .notNull()
+      .references(() => agentRuns.id, { onDelete: "cascade" }),
+    userId: userId(),
+    accountId: uuid("account_id").references(() => mailAccounts.id, {
+      onDelete: "set null",
+    }),
+    kind: text("kind", { enum: AGENT_ACTION_KINDS }).notNull(),
+    /** The Message-ID header of the mail, in angle brackets; null for a folder. */
+    messageId: text("message_id"),
+    subject: text("subject"),
+    sender: text("sender"),
+    /** The folder the mail was in; for a move, the folder it left; for a renamed or deleted folder, its old path. */
+    fromFolder: text("from_folder"),
+    /** For a move, the folder the mail went to; for a new or renamed folder, its path. */
+    toFolder: text("to_folder"),
+    detail: jsonb("detail").$type<Record<string, unknown>>(),
+    /** Why the agent did it, in its own words. */
+    reason: text("reason").notNull(),
+    createdAt: createdAt(),
+    undoneAt: timestamp("undone_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("agent_actions_user_idx").on(t.userId, t.createdAt),
+    index("agent_actions_run_idx").on(t.runId),
+  ],
+);
+
 export const schema = {
   users,
   passkeys,
@@ -226,4 +314,6 @@ export const schema = {
   pushSubscriptions,
   morningReports,
   todos,
+  agentRuns,
+  agentActions,
 };

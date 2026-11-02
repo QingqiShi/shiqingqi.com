@@ -1,7 +1,7 @@
 import { MockLanguageModelV3 } from "ai/test";
 import { asc, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { AssistantModel } from "#src/assistant/ai/get-organise-model.ts";
+import type { AssistantModel } from "#src/assistant/ai/types.ts";
 import {
   mailAccounts,
   morningReports,

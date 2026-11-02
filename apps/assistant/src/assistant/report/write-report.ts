@@ -1,5 +1,5 @@
 import { generateText, Output } from "ai";
-import type { AssistantModel } from "#src/assistant/ai/get-organise-model.ts";
+import type { AssistantModel } from "#src/assistant/ai/types.ts";
 import type { UserLocale } from "#src/assistant/db/schema.ts";
 import type { DayMail } from "./read-day-mail.ts";
 import {

@@ -42,8 +42,8 @@ export function OrganiseNotesForm({ initial }: { initial: string }) {
       <Textarea
         label={t({ en: "Where mail goes", zh: "邮件归到哪里" })}
         description={t({
-          en: "Tell the assistant how you like your mail filed, for example: “Bank and card mail goes to Finance.” It picks one of your folders for each mail, and makes a new folder only for a new, lasting kind of mail.",
-          zh: "告诉助手你希望邮件怎样归档，例如：“银行和信用卡邮件放进‘财务’。”它会为每封邮件选一个现有文件夹，只有遇到新的、会持续出现的一类邮件时才新建文件夹。",
+          en: "Tell the assistant your rules, for example: “Bank and card mail goes to Finance.” Your rules come before its own judgement.",
+          zh: "告诉助手你的规则，例如：“银行和信用卡邮件放进‘财务’。”你的规则优先于它自己的判断。",
         })}
         rows={4}
         autoGrow
