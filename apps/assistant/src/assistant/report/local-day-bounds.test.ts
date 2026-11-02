@@ -4,6 +4,7 @@ import {
   isInBounds,
   localDayBounds,
   reportMailWindow,
+  wallClockLabels,
 } from "./local-day-bounds.ts";
 
 describe("localDayBounds", () => {
@@ -79,5 +80,19 @@ describe("addDays", () => {
   it("crosses month and year ends", () => {
     expect(addDays("2026-01-01", -1)).toBe("2025-12-31");
     expect(addDays("2028-02-28", 1)).toBe("2028-02-29");
+  });
+});
+
+describe("window labels", () => {
+  it("read any window to the minute on the zone's wall clock", () => {
+    expect(
+      wallClockLabels(
+        {
+          start: new Date("2026-06-30T23:42:10Z"),
+          end: new Date("2026-07-01T23:42:10Z"),
+        },
+        "Asia/Shanghai",
+      ),
+    ).toEqual({ start: "2026-07-01 07:42", end: "2026-07-02 07:42" });
   });
 });

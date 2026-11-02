@@ -9,6 +9,8 @@ export function shownDestination(current: string): DestinationPath | null {
   if (current === "/" || isInside(current, "/reports")) return "/";
   if (isInside(current, "/todos")) return "/todos";
   if (isInside(current, "/activity")) return "/activity";
-  if (isInside(current, "/settings")) return "/settings";
+  if (isInside(current, "/settings") || isInside(current, "/report-preview")) {
+    return "/settings";
+  }
   return null;
 }

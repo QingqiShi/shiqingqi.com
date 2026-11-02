@@ -28,7 +28,9 @@ interface NewTodo {
   source: MailSource | null;
 }
 
-type TodoEdit = Partial<Pick<StoredTodo, "title" | "detail" | "dueDate">>;
+export type TodoEdit = Partial<
+  Pick<StoredTodo, "title" | "detail" | "dueDate">
+>;
 
 /** What a run wants to change in the to-do list: nothing is written until the report is stored. */
 export interface TodoChanges {

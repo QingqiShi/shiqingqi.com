@@ -434,6 +434,9 @@ describe("the morning report cron", () => {
     });
 
     expect(agent.seen.prompt).toContain(
+      "The report covers every mail received from 2026-10-31 08:00 up to 2026-11-01 08:00 in the owner's time zone: list_mail with since 2026-10-31T08:00:00.000Z and before 2026-11-01T08:00:00.000Z finds exactly that.",
+    );
+    expect(agent.seen.prompt).toContain(
       '"INBOX" holds 2, 2 unread; "Archive" holds 1, 1 unread; "Newsletters" holds 1, 1 unread',
     );
     expect(agent.seen.prompt).not.toContain("Sent Messages");

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dueReportDate } from "./due-report-date.ts";
+import { dueReportDate, nextReportDate } from "./due-report-date.ts";
 
 const london = (now: string, latestReportDate: string | null = null) =>
   dueReportDate({
@@ -43,5 +43,21 @@ describe("dueReportDate", () => {
         latestReportDate: "2026-10-31",
       }),
     ).toBe("2026-11-01");
+  });
+});
+
+describe("nextReportDate", () => {
+  const next = (now: string, latestReportDate: string | null) =>
+    nextReportDate({
+      now: new Date(now),
+      timeZone: "Europe/London",
+      reportHour: 8,
+      latestReportDate,
+    });
+
+  it("is the report that is due, else today before the report hour, else tomorrow", () => {
+    expect(next("2026-12-01T09:00:00Z", "2026-11-30")).toBe("2026-12-01");
+    expect(next("2026-12-01T07:00:00Z", "2026-11-30")).toBe("2026-12-01");
+    expect(next("2026-12-01T09:00:00Z", "2026-12-01")).toBe("2026-12-02");
   });
 });

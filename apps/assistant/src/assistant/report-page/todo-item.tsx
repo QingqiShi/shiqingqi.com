@@ -10,10 +10,11 @@ import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { useState } from "react";
+import { use, useState } from "react";
 import { assistantFetch } from "../http/assistant-fetch.ts";
 import { daysBetween, formatShortDate } from "./format-day.ts";
 import { OpenMailButton } from "./open-mail-button.tsx";
+import { TodosReadOnlyContext } from "./todos-read-only.tsx";
 
 export interface TodoItemData {
   id: string;
@@ -63,6 +64,7 @@ export function TodoItem({
   today: string;
   locale: string;
 }) {
+  const readOnly = use(TodosReadOnlyContext);
   const [done, setDone] = useState(todo.done);
   const [justDone, setJustDone] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -100,7 +102,7 @@ export function TodoItem({
           <Checkbox
             label={todo.title}
             checked={done}
-            disabled={busy}
+            disabled={busy || readOnly}
             onChange={(event) => {
               save(event.target.checked);
             }}

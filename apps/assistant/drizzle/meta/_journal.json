@@ -15,6 +15,13 @@
       "when": 1793584336228,
       "tag": "0001_agent_runs",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793647976548,
+      "tag": "0002_report_previews",
+      "breakpoints": true
     }
   ]
 }

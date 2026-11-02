@@ -169,8 +169,8 @@ export function ReportView({
   openTodos: number;
   locale: SupportedLocale;
   headingLevel: 1 | 2;
-  /** `back` where the list opened this report. */
-  pastLink: "back" | "list";
+  /** `back` where the list opened this report; null where no link to the list fits. */
+  pastLink: "back" | "list" | null;
 }) {
   const { content } = report;
   const sectionLevel = headingLevel === 1 ? 2 : 3;
@@ -237,7 +237,7 @@ export function ReportView({
   return (
     <article css={[stack.group, styles.report]}>
       <header css={stack.item}>
-        <ReportPastLink kind={pastLink} locale={locale} />
+        {pastLink ? <ReportPastLink kind={pastLink} locale={locale} /> : null}
         <div css={stack.tight}>
           <Text look="overline" tone="muted">
             {formatDay(report.localDate, locale)}

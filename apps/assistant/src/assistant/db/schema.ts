@@ -14,8 +14,12 @@ import {
   unique,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { TodoChanges } from "../agent/todos/create-todo-tools.ts";
 import type { AgentStepRecord, AgentUsage } from "../agent/types.ts";
-import type { MorningReportContent } from "../report/types.ts";
+import type {
+  MorningReportContent,
+  MorningReportContentV2,
+} from "../report/types.ts";
 
 const bytea = customType<{ data: Uint8Array; driverData: Uint8Array }>({
   dataType: () => "bytea",
@@ -218,7 +222,38 @@ export const pushSubscriptions = pgTable(
   (t) => [unique("push_subscriptions_endpoint_key").on(t.userId, t.endpoint)],
 );
 
-export const AGENT_TASKS = ["organise", "report"] as const;
+export const REPORT_PREVIEW_STATUSES = ["running", "done", "failed"] as const;
+
+/**
+ * Why a preview has no result. `no-report`: the agent submitted nothing.
+ * `error`: the run stopped on an error.
+ */
+export const REPORT_PREVIEW_ERRORS = [
+  "no-model",
+  "no-mailbox",
+  "no-report",
+  "error",
+] as const;
+export type ReportPreviewError = (typeof REPORT_PREVIEW_ERRORS)[number];
+
+/**
+ * The latest preview of the user's next morning report, overwritten by each
+ * new one. It is the only thing a preview stores besides its `agent_runs` row:
+ * what the report would say and the to-do changes it would make, never the mail.
+ */
+export const morningReportPreviews = pgTable("morning_report_previews", {
+  userId: userId().primaryKey(),
+  status: text("status", { enum: REPORT_PREVIEW_STATUSES }).notNull(),
+  /** The day of the report it previews in the user's time zone, `YYYY-MM-DD`. */
+  localDate: date("local_date", { mode: "string" }).notNull(),
+  content: jsonb("content").$type<MorningReportContentV2>(),
+  todoChanges: jsonb("todo_changes").$type<TodoChanges>(),
+  error: text("error", { enum: REPORT_PREVIEW_ERRORS }),
+  startedAt: timestamp("started_at", { withTimezone: true }).notNull(),
+  builtAt: timestamp("built_at", { withTimezone: true }),
+});
+
+export const AGENT_TASKS = ["organise", "report", "report-preview"] as const;
 export type AgentTask = (typeof AGENT_TASKS)[number];
 
 /** `stopped`: the run reached its step or time limit before the model finished. */
@@ -319,6 +354,7 @@ export const schema = {
   mailAccounts,
   pushSubscriptions,
   morningReports,
+  morningReportPreviews,
   todos,
   agentRuns,
   agentActions,
