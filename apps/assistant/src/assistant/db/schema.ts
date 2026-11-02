@@ -14,6 +14,7 @@ import {
   unique,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { AgentRunProgress } from "../agent/agent-activity.ts";
 import type { TodoChanges } from "../agent/todos/create-todo-tools.ts";
 import type { AgentStepRecord, AgentUsage } from "../agent/types.ts";
 import type {
@@ -168,6 +169,8 @@ export const morningReports = pgTable(
     modelId: text("model_id"),
     builtAt: timestamp("built_at", { withTimezone: true }).notNull(),
     notifiedAt: timestamp("notified_at", { withTimezone: true }),
+    /** When the owner first opened the report on the home page. */
+    seenAt: timestamp("seen_at", { withTimezone: true }),
     createdAt: createdAt(),
   },
   (t) => [unique("morning_reports_date_key").on(t.userId, t.localDate)],
@@ -287,6 +290,8 @@ export const agentRuns = pgTable(
       .default(sql`'[]'::jsonb`),
     usage: jsonb("usage").$type<AgentUsage>(),
     errorMessage: text("error_message"),
+    /** What the run is doing while it runs; null before its first tool call and after its end. */
+    progress: jsonb("progress").$type<AgentRunProgress>(),
     createdAt: createdAt(),
   },
   (t) => [index("agent_runs_user_idx").on(t.userId, t.startedAt)],

@@ -30,7 +30,7 @@ export function ReportsFrame({ reports, today, children }: ReportsFrameProps) {
   const isOnList = segments.length === 1;
   const openDate = segments.at(1) ?? null;
   const latestDate = reports.at(0)?.localDate ?? null;
-  const currentDate = openDate ?? (isOnList && !isWide ? null : latestDate);
+  const currentDate = openDate ?? (isOnList && isWide ? latestDate : null);
 
   return (
     <AssistantIslands>

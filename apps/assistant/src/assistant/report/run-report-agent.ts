@@ -29,6 +29,7 @@ import {
 import type { AgentModels } from "#src/assistant/ai/get-agent-models.ts";
 import type { AgentTask, UserLocale } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
+import { agendaItems } from "./agenda-items.ts";
 import {
   isInBounds,
   wallClockLabels,
@@ -132,10 +133,6 @@ async function countWindowMail(
 /** The tool with `loadUpFront` set as the report wants it. */
 function upFront(tool: AgentTool, loadUpFront: boolean): AgentTool {
   return { ...tool, loadUpFront };
-}
-
-function timeOfDay(event: Pick<AgendaItem, "allDay" | "start">) {
-  return event.allDay ? "" : event.start.slice(11);
 }
 
 /**
@@ -276,6 +273,7 @@ export async function runReportAgent(
           "One line on the rest of the mail; empty when there is none.",
         ),
     }),
+    describe: () => ({ kind: "write_report" }),
     execute: (input) => {
       const items = (list: typeof input.worthKnowing) =>
         list.map((entry) => ({
@@ -283,30 +281,14 @@ export async function runReportAgent(
           source: sourceOrNull(entry.mail),
         }));
       const agenda = calendars.hasAccounts
-        ? (input.agenda ?? []).flatMap(({ event, note }): AgendaItem[] => {
-            const found = events.get(event);
-            if (!found || found.cancelled) return [];
-            return [
-              {
-                title: found.title,
-                allDay: found.allDay,
-                start: found.start,
-                end: found.endTimeZone ? null : found.end,
-                timeZone:
-                  found.timeZone && found.timeZone !== timeZone
-                    ? found.timeZone
-                    : null,
-                location: found.location,
-                note: note ?? null,
-              },
-            ];
-          })
+        ? agendaItems(
+            (input.agenda ?? []).flatMap(({ event, note }) => {
+              const found = events.get(event);
+              return found && !found.cancelled ? [{ ...found, note }] : [];
+            }),
+            timeZone,
+          )
         : null;
-      agenda?.sort(
-        (a, b) =>
-          Number(b.allDay) - Number(a.allDay) ||
-          timeOfDay(a).localeCompare(timeOfDay(b)),
-      );
       submitted = {
         headline: input.headline,
         needsAction: input.needsAction.map((entry) => {

@@ -34,6 +34,9 @@ import type {
 import { localClock } from "../report/due-report-date.ts";
 import { daysBetween, formatDay } from "../report-page/format-day.ts";
 import { DayHeader } from "../shell/day-header.tsx";
+import { fillTemplate } from "../shell/fill-template.tsx";
+import { Folder } from "../shell/folder.tsx";
+import { Quoted } from "../shell/quoted.tsx";
 import { UndoButton } from "./undo-button.tsx";
 
 interface Place {
@@ -65,33 +68,6 @@ function formatEventStart(
   }).format(date);
 }
 
-/** A quoted subject, or a stand-in when the mail has none. */
-function Quoted({ text }: { text: string }) {
-  const shown = text.trim() || t({ en: "(no subject)", zh: "（无主题）" });
-  return <span css={styles.quoted}>“{shown}”</span>;
-}
-
-function Folder({ path }: { path: string }) {
-  const inbox = t({ en: "Inbox", zh: "收件箱" });
-  return (
-    <span css={styles.folder}>
-      {path.toUpperCase() === "INBOX" ? inbox : path}
-    </span>
-  );
-}
-
-/** Puts the parts of a sentence into a template such as "Moved {mail} to {to}". */
-function fill(template: string, parts: Record<string, ReactNode>) {
-  return template.split(/(\{\w+\})/).map((piece, index) => {
-    const name = /^\{(\w+)\}$/.exec(piece)?.[1];
-    return name && name in parts ? (
-      <span key={index}>{parts[name]}</span>
-    ) : (
-      piece
-    );
-  });
-}
-
 function MailSentence({
   item,
 }: {
@@ -109,7 +85,7 @@ function MailSentence({
   };
   switch (item.kind) {
     case "move":
-      return fill(
+      return fillTemplate(
         one
           ? t({
               en: "Moved {mail} from {from} to {to}",
@@ -122,7 +98,7 @@ function MailSentence({
         parts,
       );
     case "mark_read":
-      return fill(
+      return fillTemplate(
         one
           ? t({ en: "Marked {mail} read", zh: "把 {mail} 标为已读" })
           : t({
@@ -132,7 +108,7 @@ function MailSentence({
         parts,
       );
     case "mark_unread":
-      return fill(
+      return fillTemplate(
         one
           ? t({ en: "Marked {mail} unread", zh: "把 {mail} 标为未读" })
           : t({
@@ -142,7 +118,7 @@ function MailSentence({
         parts,
       );
     case "flag":
-      return fill(
+      return fillTemplate(
         one
           ? t({ en: "Flagged {mail}", zh: "给 {mail} 加了旗标" })
           : t({
@@ -152,7 +128,7 @@ function MailSentence({
         parts,
       );
     case "unflag":
-      return fill(
+      return fillTemplate(
         one
           ? t({ en: "Took the flag off {mail}", zh: "取消了 {mail} 的旗标" })
           : t({
@@ -175,7 +151,7 @@ function FolderSentence({
     count: item.type === "merge" ? String(item.mails.length) : "",
   };
   if (item.type === "merge") {
-    return fill(
+    return fillTemplate(
       item.mails.length === 1
         ? t({
             en: "Merged the folder {from} into {to}, with 1 mail",
@@ -190,12 +166,12 @@ function FolderSentence({
   }
   switch (item.kind) {
     case "create_folder":
-      return fill(
+      return fillTemplate(
         t({ en: "Made the folder {to}", zh: "新建了文件夹 {to}" }),
         parts,
       );
     case "rename_folder":
-      return fill(
+      return fillTemplate(
         t({
           en: "Renamed the folder {from} to {to}",
           zh: "把文件夹 {from} 改名为 {to}",
@@ -203,7 +179,7 @@ function FolderSentence({
         parts,
       );
     case "delete_folder":
-      return fill(
+      return fillTemplate(
         t({
           en: "Deleted the empty folder {from}",
           zh: "删除了空文件夹 {from}",
@@ -242,7 +218,7 @@ function EventSentence({
   };
   switch (item.kind) {
     case "create_event":
-      return fill(
+      return fillTemplate(
         item.start
           ? t({
               en: "Added {title} to {calendar} for {start}",
@@ -256,7 +232,7 @@ function EventSentence({
       );
     case "update_event":
       if (item.start && item.previousStart) {
-        return fill(
+        return fillTemplate(
           t({
             en: "Moved {title} from {oldTime} to {newTime}",
             zh: "把 {title} 从 {oldTime} 改到了 {newTime}",
@@ -265,7 +241,7 @@ function EventSentence({
         );
       }
       if (item.start) {
-        return fill(
+        return fillTemplate(
           t({
             en: "Moved {title} to {newTime}",
             zh: "把 {title} 改到了 {newTime}",
@@ -273,9 +249,12 @@ function EventSentence({
           parts,
         );
       }
-      return fill(t({ en: "Changed {title}", zh: "修改了 {title}" }), parts);
+      return fillTemplate(
+        t({ en: "Changed {title}", zh: "修改了 {title}" }),
+        parts,
+      );
     case "delete_event":
-      return fill(
+      return fillTemplate(
         item.previousStart
           ? t({
               en: "Deleted {title} on {when} from {calendar}",
@@ -396,7 +375,7 @@ function ItemRow({
               </Text>
               {item.type === "event" && item.sourceSubject ? (
                 <Text as="p" look="caption" tone="muted">
-                  {fill(
+                  {fillTemplate(
                     t({
                       en: "From the mail {subject}",
                       zh: "来自邮件 {subject}",
@@ -715,12 +694,6 @@ const styles = stylex.create({
     alignItems: "center",
     gap: rhythm.inline,
     paddingBlock: space._1,
-  },
-  quoted: {
-    color: color.fg,
-  },
-  folder: {
-    fontWeight: font.weight_6,
   },
   undone: {
     [color.fg]: color.fgMuted,

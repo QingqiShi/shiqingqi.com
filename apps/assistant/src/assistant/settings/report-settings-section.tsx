@@ -21,9 +21,16 @@ export async function ReportSettingsSection({
   userId: string;
   locale: SupportedLocale;
 }) {
-  const settings = await readReportSettings({ db: getAssistantDb(), userId });
+  const {
+    timeZone,
+    digestHour,
+    locale: reportLocale,
+  } = await readReportSettings({
+    db: getAssistantDb(),
+    userId,
+  });
   const timeZones = Intl.supportedValuesOf("timeZone");
-  if (!timeZones.includes(settings.timeZone)) timeZones.push(settings.timeZone);
+  if (!timeZones.includes(timeZone)) timeZones.push(timeZone);
 
   return (
     <SettingsSection
@@ -35,7 +42,10 @@ export async function ReportSettingsSection({
           level={3}
           title={t({ en: "Morning report", zh: "晨报" })}
         >
-          <SettingsForm initial={settings} timeZones={timeZones} />
+          <SettingsForm
+            initial={{ timeZone, digestHour, locale: reportLocale }}
+            timeZones={timeZones}
+          />
           <div css={styles.preview}>
             <List>
               <ListRow

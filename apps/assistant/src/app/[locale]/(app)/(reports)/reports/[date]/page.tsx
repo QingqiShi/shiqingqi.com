@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { MarkReportSeen } from "#src/assistant/home-page/mark-report-seen.tsx";
 import { localClock } from "#src/assistant/report/due-report-date.ts";
 import { readReportSettings } from "#src/assistant/report/read-report-settings.ts";
 import {
@@ -42,13 +43,16 @@ export default async function Page({ params }: Props) {
   ]);
   if (!report) notFound();
   return (
-    <ReportView
-      report={report}
-      today={localClock(new Date(), settings.timeZone).date}
-      openTodos={openTodos}
-      locale={locale}
-      headingLevel={1}
-      pastLink="back"
-    />
+    <>
+      <ReportView
+        report={report}
+        today={localClock(new Date(), settings.timeZone).date}
+        openTodos={openTodos}
+        locale={locale}
+        headingLevel={1}
+        pastLink="back"
+      />
+      {report.seenAt === null ? <MarkReportSeen reportId={report.id} /> : null}
+    </>
   );
 }

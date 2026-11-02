@@ -9,47 +9,36 @@ import { mailAccounts } from "#src/assistant/db/schema.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
 import { AnchorButton } from "#src/links/anchor-button.tsx";
 import { localClock } from "../report/due-report-date.ts";
-import { readReportSettings } from "../report/read-report-settings.ts";
+import {
+  readReportSettings,
+  type ReportSettings,
+} from "../report/read-report-settings.ts";
 import { countOpenTodos, readReport } from "../report/read-report.ts";
 import { ReportView } from "./report-view.tsx";
 
-/** The newest report, or what to expect while there is none. */
-export async function LatestReport({
+/** What to expect while there is no report. */
+export async function NoReportYet({
   scope,
+  settings,
   locale,
   headingLevel,
+  headingLook = "h3",
 }: {
   scope: UserScope;
+  settings: ReportSettings;
   locale: SupportedLocale;
   headingLevel: 1 | 2;
+  headingLook?: "h3" | "h4";
 }) {
-  const [report, settings, openTodos] = await Promise.all([
-    readReport(scope, null),
-    readReportSettings(scope),
-    countOpenTodos(scope),
-  ]);
-  const clock = localClock(new Date(), settings.timeZone);
-  if (report) {
-    return (
-      <ReportView
-        report={report}
-        today={clock.date}
-        openTodos={openTodos}
-        locale={locale}
-        headingLevel={headingLevel}
-        pastLink="list"
-      />
-    );
-  }
-
   const accounts = await scope.db.$count(
     mailAccounts,
     eq(mailAccounts.userId, scope.userId),
   );
+  const clock = localClock(new Date(), settings.timeZone);
   const hour = `${String(settings.digestHour).padStart(2, "0")}:00`;
   return (
     <div css={stack.item}>
-      <Heading level={headingLevel} look="h3">
+      <Heading level={headingLevel} look={headingLook}>
         {t({ en: "Morning report", zh: "晨报" })}
       </Heading>
       <div css={stack.text}>
@@ -85,5 +74,42 @@ export async function LatestReport({
         </div>
       ) : null}
     </div>
+  );
+}
+
+/** The newest report, or what to expect while there is none. */
+export async function LatestReport({
+  scope,
+  locale,
+  headingLevel,
+}: {
+  scope: UserScope;
+  locale: SupportedLocale;
+  headingLevel: 1 | 2;
+}) {
+  const [report, settings, openTodos] = await Promise.all([
+    readReport(scope, null),
+    readReportSettings(scope),
+    countOpenTodos(scope),
+  ]);
+  if (!report) {
+    return (
+      <NoReportYet
+        scope={scope}
+        settings={settings}
+        locale={locale}
+        headingLevel={headingLevel}
+      />
+    );
+  }
+  return (
+    <ReportView
+      report={report}
+      today={localClock(new Date(), settings.timeZone).date}
+      openTodos={openTodos}
+      locale={locale}
+      headingLevel={headingLevel}
+      pastLink="list"
+    />
   );
 }

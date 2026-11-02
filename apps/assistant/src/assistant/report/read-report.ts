@@ -175,12 +175,13 @@ export async function toReportView(
 export async function readReport(
   scope: UserScope,
   localDate: string | null,
-): Promise<ReportView | null> {
+): Promise<(ReportView & { seenAt: Date | null }) | null> {
   const report = (
     await scope.db
       .select({
         id: morningReports.id,
         localDate: morningReports.localDate,
+        seenAt: morningReports.seenAt,
         content: morningReports.content,
       })
       .from(morningReports)
@@ -203,17 +204,33 @@ export async function readReport(
       and(eq(todos.userId, scope.userId), eq(todos.createdReportId, report.id)),
     )
     .orderBy(desc(todos.createdAt), todos.title);
-  return toReportView(scope, report, created);
+  return {
+    ...(await toReportView(scope, report, created)),
+    seenAt: report.seenAt,
+  };
+}
+
+async function readOpenTodos(
+  { db, userId }: UserScope,
+  hrefOf: (source: MailSource | null) => string | null,
+) {
+  const rows = await db
+    .select(todoColumns)
+    .from(todos)
+    .where(and(eq(todos.userId, userId), isNull(todos.doneAt)))
+    .orderBy(desc(todos.createdAt), todos.title);
+  return rows.map((row) => toTodoView(row, hrefOf));
+}
+
+/** Every open to-do, newest first. */
+export async function listOpenTodos(scope: UserScope) {
+  return readOpenTodos(scope, await hrefMaker(scope));
 }
 
 /** Every open to-do, newest first, and the latest done ones. */
 export async function listTodos(scope: UserScope) {
   const hrefOf = await hrefMaker(scope);
-  const open = await scope.db
-    .select(todoColumns)
-    .from(todos)
-    .where(and(eq(todos.userId, scope.userId), isNull(todos.doneAt)))
-    .orderBy(desc(todos.createdAt), todos.title);
+  const open = await readOpenTodos(scope, hrefOf);
   const done = await scope.db
     .select(todoColumns)
     .from(todos)
@@ -221,14 +238,13 @@ export async function listTodos(scope: UserScope) {
     .orderBy(desc(todos.doneAt))
     .limit(DONE_LIMIT);
   return {
-    open: open.map((row) => toTodoView(row, hrefOf)),
+    open,
     done: done.map((row) => toTodoView(row, hrefOf)),
   };
 }
 
-/** The past reports, newest first: their date and headline. */
-export async function listReports({ db, userId }: UserScope) {
-  const rows = await db
+function selectReportItems({ db, userId }: UserScope) {
+  return db
     .select({
       localDate: morningReports.localDate,
       status: sql<ReportStatus>`${morningReports.content}->>'status'`,
@@ -238,13 +254,41 @@ export async function listReports({ db, userId }: UserScope) {
     .from(morningReports)
     .where(eq(morningReports.userId, userId))
     .orderBy(desc(morningReports.localDate));
-  return rows;
+}
+
+/** The past reports, newest first: their date and headline. */
+export async function listReports(scope: UserScope) {
+  return selectReportItems(scope);
+}
+
+/** The date and headline of the newest report; null when there is none. */
+export async function readNewestReportItem(scope: UserScope) {
+  return (await selectReportItems(scope).limit(1)).at(0) ?? null;
 }
 
 export type ReportListItem = Awaited<ReturnType<typeof listReports>>[number];
 
 export async function countOpenTodos({ db, userId }: UserScope) {
   return db.$count(todos, and(eq(todos.userId, userId), isNull(todos.doneAt)));
+}
+
+/** Marks a report seen, the first time only. False when the user has no such report. */
+export async function markReportSeen(
+  { db, userId }: UserScope,
+  reportId: string,
+  now: Date,
+): Promise<boolean> {
+  const own = and(
+    eq(morningReports.userId, userId),
+    eq(morningReports.id, reportId),
+  );
+  const updated = await db
+    .update(morningReports)
+    .set({ seenAt: now })
+    .where(and(own, isNull(morningReports.seenAt)))
+    .returning({ id: morningReports.id });
+  if (updated.length > 0) return true;
+  return (await db.$count(morningReports, own)) > 0;
 }
 
 /** Marks a to-do done or open again. False when the user has no such to-do. */

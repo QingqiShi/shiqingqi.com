@@ -16,6 +16,7 @@ import {
 } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
 import { TOOL_SEARCH, toAiTools, type AgentTools } from "./agent-tool.ts";
+import { trackRunProgress } from "./track-run-progress.ts";
 import type { AgentStepRecord, AgentUsage, ModelTokens } from "./types.ts";
 
 /** How long a model call that started before `endsAt` may go on after it. */
@@ -207,6 +208,20 @@ export async function runAgent(
     },
   };
 
+  const progress = trackRunProgress(async (snapshot) => {
+    await db
+      .update(agentRuns)
+      .set({ progress: snapshot })
+      .where(
+        and(
+          eq(agentRuns.id, run.id),
+          eq(agentRuns.userId, userId),
+          // A write that is late for the final update changes no row.
+          eq(agentRuns.status, "running"),
+        ),
+      );
+  });
+
   let status: AgentRunStatus;
   let text: string | null = null;
   let errorMessage: string | null = null;
@@ -221,7 +236,7 @@ export async function runAgent(
       model: model.model,
       instructions: instructionsFor(spec, tools),
       messages: [{ role: "user", content: spec.prompt }],
-      tools: toAiTools(tools),
+      tools: toAiTools(tools, progress.observe),
       stopWhen: [
         isStepCount(spec.maxSteps),
         finished,
@@ -268,6 +283,7 @@ export async function runAgent(
     );
     console.error("Agent run ended early", spec.task, errorMessage);
   }
+  await progress.settle();
   await db
     .update(agentRuns)
     .set({
@@ -277,6 +293,7 @@ export async function runAgent(
       transcript,
       usage,
       errorMessage,
+      progress: null,
     })
     .where(and(eq(agentRuns.id, run.id), eq(agentRuns.userId, userId)));
   return {

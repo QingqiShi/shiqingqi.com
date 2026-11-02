@@ -556,6 +556,7 @@ export function createCalendarTools({
       description:
         "The owner's iCloud calendars, each with the key the other tools take. canWrite is false for a calendar you may only read.",
       inputSchema: z.object({}),
+      describe: () => ({ kind: "list_calendars" }),
       execute: async () => {
         const loaded = await calendars.load();
         return {
@@ -584,6 +585,7 @@ export function createCalendarTools({
         to: z.iso.date().describe("The last day, YYYY-MM-DD."),
         text: z.string().trim().min(2).max(100).optional(),
       }),
+      describe: ({ from, to }) => ({ kind: "list_events", from, to }),
       execute: async (input) => {
         const start = instantOf(parseLocalTime(input.from), timeZone);
         const end = instantOf(addDays(parseLocalTime(input.to), 1), timeZone);
@@ -657,6 +659,7 @@ export function createCalendarTools({
           .describe('The id of the mail the event comes from, such as "m12".'),
         reason,
       }),
+      describe: ({ title }) => ({ kind: "create_event", title }),
       execute: (input) =>
         counted("createdEvents", limits.creates, () =>
           oneCreateAtATime(async () => {
@@ -747,6 +750,10 @@ export function createCalendarTools({
         fromMail,
         reason,
       }),
+      describe: ({ id, title }) => {
+        const known = handles.get(id);
+        return { kind: "update_event", title: title ?? known.title };
+      },
       execute: (input) =>
         counted("updatedEvents", limits.updates, async () => {
           let timing: EventTiming | undefined;
@@ -832,6 +839,10 @@ export function createCalendarTools({
     delete_event: agentTool({
       description: `Deletes an event, such as a cancelled booking. Repeating events and events with attendees cannot be deleted. At most ${String(limits.deletes)} per run.`,
       inputSchema: z.object({ id: eventId, fromMail, reason }),
+      describe: ({ id }) => ({
+        kind: "delete_event",
+        title: handles.get(id).title,
+      }),
       execute: (input) =>
         counted("deletedEvents", limits.deletes, async () => {
           const mail = source(input.fromMail);
