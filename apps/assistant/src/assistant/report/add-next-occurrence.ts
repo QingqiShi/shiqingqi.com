@@ -1,7 +1,10 @@
 import { and, eq, sql } from "drizzle-orm";
 import { todos } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
-import { nextOccurrenceDates } from "./next-occurrence.ts";
+import {
+  nextOccurrenceDates,
+  nextOccurrenceReminder,
+} from "./next-occurrence.ts";
 
 /** What a closed to-do gives its next occurrence. */
 export const occurrenceColumns = {
@@ -11,6 +14,7 @@ export const occurrenceColumns = {
   dueDate: todos.dueDate,
   startDate: todos.startDate,
   repeat: todos.repeat,
+  remindAt: todos.remindAt,
   position: todos.position,
   ownerEditedFields: todos.ownerEditedFields,
 };
@@ -19,6 +23,18 @@ type ClosedTodo = Pick<
   typeof todos.$inferSelect,
   keyof typeof occurrenceColumns
 >;
+
+/**
+ * The columns of a reminder that is set or moved. A time that has passed counts
+ * as sent, because a reminder that a repeat or an undo moved must not fire at once.
+ */
+export function reminderWrite(remindAt: Date | null, now: Date) {
+  return {
+    remindAt,
+    snoozedUntil: null,
+    remindedAt: remindAt !== null && remindAt <= now ? now : null,
+  };
+}
 
 /**
  * Makes the next occurrence of a repeating to-do that this transaction closes,
@@ -33,16 +49,19 @@ export async function addNextOccurrence(
     closed,
     nextId,
     doneOn,
+    timeZone,
     now,
   }: {
     userId: string;
     closed: ClosedTodo;
     nextId: string;
     doneOn: string;
+    timeZone: string;
     now: Date;
   },
 ): Promise<boolean> {
   if (!closed.repeat) return true;
+  const dates = nextOccurrenceDates(closed.repeat, closed, doneOn);
   const added = await tx
     .insert(todos)
     .values({
@@ -50,7 +69,16 @@ export async function addNextOccurrence(
       userId,
       title: closed.title,
       detail: closed.detail,
-      ...nextOccurrenceDates(closed.repeat, closed, doneOn),
+      ...dates,
+      ...reminderWrite(
+        closed.remindAt &&
+          nextOccurrenceReminder(closed.remindAt, {
+            dueDate: closed.dueDate,
+            nextDueDate: dates.dueDate,
+            timeZone,
+          }),
+        now,
+      ),
       repeat: closed.repeat,
       position: closed.position,
       createdBy: "owner",

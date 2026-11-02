@@ -209,6 +209,12 @@ export const todos = pgTable(
     position: integer("position").notNull().generatedByDefaultAsIdentity(),
     /** How it comes back when it is done. Only the owner sets this. */
     repeat: jsonb("repeat").$type<RepeatRule>(),
+    /** The time that the owner asked to be reminded. Only the owner sets this. */
+    remindAt: timestamp("remind_at", { withTimezone: true }),
+    /** A later time for the same reminder, which does not move the time of the next occurrence. */
+    snoozedUntil: timestamp("snoozed_until", { withTimezone: true }),
+    /** When the reminder cron took this reminder. It sends each one once. */
+    remindedAt: timestamp("reminded_at", { withTimezone: true }),
     /** The occurrence that closing this one made. */
     nextTodoId: uuid("next_todo_id").references((): AnyPgColumn => todos.id, {
       onDelete: "set null",
@@ -251,11 +257,16 @@ export const todos = pgTable(
       .on(t.userId, t.createdAt)
       .where(sql`${t.doneAt} is null`),
     index("todos_report_idx").on(t.createdReportId),
+    index("todos_reminder_idx")
+      .on(t.userId)
+      .where(
+        sql`${t.remindAt} is not null and ${t.remindedAt} is null and ${t.doneAt} is null and ${t.deletedAt} is null`,
+      ),
     check("todos_start_not_after_due", sql`${t.startDate} <= ${t.dueDate}`),
   ],
 );
 
-/** One device that gets the morning report notification. */
+/** One device that gets the morning report notification and to-do reminders. */
 export const pushSubscriptions = pgTable(
   "push_subscriptions",
   {

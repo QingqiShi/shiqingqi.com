@@ -18,7 +18,11 @@ import {
 } from "react";
 import { assistantFetch } from "../http/assistant-fetch.ts";
 import { datesInOrder } from "../report/dates-in-order.ts";
-import { nextOccurrenceDates } from "../report/next-occurrence.ts";
+import type { RepeatRule } from "../report/next-occurrence.ts";
+import {
+  nextOccurrenceDates,
+  nextOccurrenceReminder,
+} from "../report/next-occurrence.ts";
 import type { DueDateChange, OwnerTodoChange } from "../report/owner-todos.ts";
 import { rearrange } from "../report/rearrange.ts";
 import { todoLimits } from "../report/todo-limits.ts";
@@ -43,6 +47,8 @@ interface TodoStore {
   /** The user's local date, `YYYY-MM-DD`. */
   today: string;
   locale: string;
+  /** The owner's time zone, which a reminder's time is read in. */
+  timeZone: string;
   /** Every open to-do of the user, also those not on this page. */
   openCount: number;
   add: (todo: { title: string; dueDate: string | null }) => void;
@@ -109,6 +115,36 @@ function reopenRow(id: string): TodoOp {
             ? { ...reopened, repeat: next ? null : row.repeat }
             : entry,
         );
+  };
+}
+
+/** The reminder of a row after a change of its time. A time that has passed goes out no more, as on the server. */
+function reminderFields(remindAt: string | null) {
+  return {
+    remindAt,
+    nextReminderAt:
+      remindAt !== null && Date.parse(remindAt) > Date.now() ? remindAt : null,
+  };
+}
+
+/** The dates and the reminder of the occurrence after this one. */
+function nextOccurrenceFields(
+  row: TodoItemData,
+  rule: RepeatRule,
+  today: string,
+  timeZone: string,
+) {
+  const dates = nextOccurrenceDates(rule, row, today);
+  return {
+    ...dates,
+    ...reminderFields(
+      row.remindAt &&
+        nextOccurrenceReminder(new Date(row.remindAt), {
+          dueDate: row.dueDate,
+          nextDueDate: dates.dueDate,
+          timeZone,
+        }).toISOString(),
+    ),
   };
 }
 
@@ -200,6 +236,7 @@ function Store({
   todos,
   today,
   locale,
+  timeZone,
   openCount,
   renderedAt,
   refreshesOnLeave,
@@ -208,6 +245,7 @@ function Store({
   todos: TodoRows;
   today: string;
   locale: string;
+  timeZone: string;
   openCount: number;
   renderedAt: number;
   refreshesOnLeave: boolean;
@@ -303,12 +341,20 @@ function Store({
 
   function sendOccurrence(
     id: string,
-    dates: Pick<TodoItemData, "dueDate" | "startDate">,
+    fields: Pick<
+      TodoItemData,
+      "dueDate" | "startDate" | "remindAt" | "nextReminderAt"
+    >,
   ) {
-    run(patchRow(id, dates), () =>
+    const { dueDate, startDate, remindAt } = fields;
+    run(patchRow(id, fields), () =>
       assistantFetch(`/api/todos/${id}/occurrence`, {
         method: "PUT",
-        body: JSON.stringify(dates),
+        body: JSON.stringify({
+          dueDate,
+          startDate,
+          remindAt: remindAt ?? undefined,
+        }),
       }),
     );
   }
@@ -317,6 +363,7 @@ function Store({
     rows,
     today,
     locale,
+    timeZone,
     openCount:
       openCount + rows.filter(isOpen).length - todos.filter(isOpen).length,
     add: ({ title, dueDate }) => {
@@ -328,6 +375,8 @@ function Store({
         dueDate,
         startDate: null,
         repeat: null,
+        remindAt: null,
+        nextReminderAt: null,
         nextId: null,
         createdBy: "owner",
         doneAt: null,
@@ -350,7 +399,16 @@ function Store({
         rows.find((row) => row.id === id),
         edit,
       );
-      sendTodoChange(id, patchRow(id, change), change);
+      sendTodoChange(
+        id,
+        patchRow(id, {
+          ...change,
+          ...(change.remindAt === undefined
+            ? {}
+            : reminderFields(change.remindAt)),
+        }),
+        change,
+      );
     },
     setDone: (id, done) => {
       if (!done) {
@@ -362,7 +420,7 @@ function Store({
         row?.repeat && isOpen(row)
           ? {
               ...row,
-              ...nextOccurrenceDates(row.repeat, row, today),
+              ...nextOccurrenceFields(row, row.repeat, today, timeZone),
               id: crypto.randomUUID(),
               createdBy: "owner" as const,
               reAdded: false,
@@ -388,7 +446,7 @@ function Store({
     skipOccurrence: (id) => {
       const row = rows.find((entry) => entry.id === id);
       if (!row?.repeat) return;
-      const moved = nextOccurrenceDates(row.repeat, row, today);
+      const moved = nextOccurrenceFields(row, row.repeat, today, timeZone);
       sendOccurrence(id, moved);
       showToast({
         message: copy.skipped.replace(
@@ -401,6 +459,8 @@ function Store({
             sendOccurrence(id, {
               dueDate: row.dueDate,
               startDate: row.startDate,
+              remindAt: row.remindAt,
+              nextReminderAt: row.nextReminderAt,
             });
           },
         },
@@ -476,6 +536,7 @@ export function TodoStoreProvider({
   todos,
   today,
   locale,
+  timeZone,
   openCount,
   renderedAt,
   refreshesOnLeave = false,
@@ -484,6 +545,7 @@ export function TodoStoreProvider({
   todos: readonly TodoItemData[];
   today: string;
   locale: string;
+  timeZone: string;
   openCount: number;
   /** When the server began this render, in milliseconds. */
   renderedAt: number;
@@ -500,6 +562,7 @@ export function TodoStoreProvider({
         todos={todos}
         today={today}
         locale={locale}
+        timeZone={timeZone}
         openCount={openCount}
         renderedAt={renderedAt}
         refreshesOnLeave={refreshesOnLeave}

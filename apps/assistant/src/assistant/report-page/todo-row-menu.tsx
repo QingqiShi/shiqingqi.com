@@ -20,7 +20,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { datesInOrder } from "../report/dates-in-order.ts";
 import { addDays } from "../report/local-day-bounds.ts";
 import { nextOccurrenceDates } from "../report/next-occurrence.ts";
-import { formatListDay } from "./format-day.ts";
+import { formatListDay, formatReminderTime } from "./format-day.ts";
 import { viewOfTodo } from "./group-open-todos.ts";
 import { nextWeekStart } from "./parse-todo-date.ts";
 import { isOpen, type TodoItemData } from "./to-todo-item-data.ts";
@@ -94,7 +94,8 @@ function TodoRowActions({
   close: () => void;
   onEdit: (field: TodoEditFocus) => void;
 }) {
-  const { edit, remove, skipOccurrence, today, locale } = useTodoStore();
+  const { edit, remove, skipOccurrence, today, locale, timeZone } =
+    useTodoStore();
   const showToast = useToast();
   const closeThen = (action: () => void) => () => {
     close();
@@ -217,6 +218,22 @@ function TodoRowActions({
               ) : null}
             </>
           ) : null}
+          <MenuAction
+            trailing={
+              todo.nextReminderAt
+                ? formatReminderTime(todo.nextReminderAt, {
+                    today,
+                    locale,
+                    timeZone,
+                  })
+                : undefined
+            }
+            onClick={closeThen(() => {
+              onEdit("remindAt");
+            })}
+          >
+            {t({ en: "Remind me…", zh: "提醒我…" })}
+          </MenuAction>
           <MenuAction
             onClick={closeThen(() => {
               onEdit("repeat");

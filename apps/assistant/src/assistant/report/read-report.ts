@@ -27,6 +27,10 @@ export interface TodoView {
   dueDate: string | null;
   startDate: string | null;
   repeat: RepeatRule | null;
+  /** The time that the owner asked to be reminded. */
+  remindAt: Date | null;
+  /** When the next reminder goes out; null when none will. */
+  nextReminderAt: Date | null;
   /** The occurrence that closing this one made. */
   nextId: string | null;
   createdAt: Date;
@@ -92,6 +96,9 @@ const todoColumns = {
   dueDate: todos.dueDate,
   startDate: todos.startDate,
   repeat: todos.repeat,
+  remindAt: todos.remindAt,
+  snoozedUntil: todos.snoozedUntil,
+  remindedAt: todos.remindedAt,
   nextTodoId: todos.nextTodoId,
   createdAt: todos.createdAt,
   createdBy: todos.createdBy,
@@ -115,6 +122,8 @@ function toTodoView(
     dueDate: row.dueDate,
     startDate: row.startDate,
     repeat: row.repeat,
+    remindAt: row.remindAt,
+    nextReminderAt: row.remindedAt ? null : (row.snoozedUntil ?? row.remindAt),
     nextId: row.nextTodoId,
     createdAt: row.createdAt,
     createdBy: row.createdBy,

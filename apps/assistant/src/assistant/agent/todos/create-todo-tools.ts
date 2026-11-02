@@ -474,6 +474,7 @@ export async function applyTodoChanges(
     reportId,
     now,
     today,
+    timeZone,
     changes,
   }: {
     userId: string;
@@ -481,6 +482,7 @@ export async function applyTodoChanges(
     now: Date;
     /** The owner's local date, `YYYY-MM-DD`. */
     today: string;
+    timeZone: string;
     changes: TodoChanges;
   },
 ) {
@@ -565,6 +567,7 @@ export async function applyTodoChanges(
         closed: row,
         nextId: randomUUID(),
         doneOn: today,
+        timeZone,
         now,
       });
     }

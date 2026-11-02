@@ -107,6 +107,7 @@ export async function LatestReport({
     <ReportView
       report={report}
       today={localClock(new Date(), settings.timeZone).date}
+      timeZone={settings.timeZone}
       openTodos={openTodos}
       locale={locale}
       headingLevel={headingLevel}

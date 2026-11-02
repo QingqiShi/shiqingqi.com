@@ -81,6 +81,7 @@ describe("ReportView", () => {
           <ReportView
             report={report}
             today="2026-11-01"
+            timeZone="UTC"
             openTodos={0}
             locale="en"
             headingLevel={1}
@@ -156,6 +157,7 @@ describe("ReportView", () => {
           <ReportView
             report={view}
             today="2026-11-02"
+            timeZone="UTC"
             openTodos={2}
             locale="en"
             headingLevel={1}
@@ -233,6 +235,7 @@ describe("ReportView", () => {
           <ReportView
             report={view}
             today="2026-11-02"
+            timeZone="UTC"
             openTodos={0}
             locale="en"
             headingLevel={1}

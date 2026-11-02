@@ -17,6 +17,7 @@ import { use, useState, type ReactNode, type Ref } from "react";
 import { startsAfter } from "../report/dates-in-order.ts";
 import { daysBetween, formatShortDate } from "./format-day.ts";
 import { OpenMailButton } from "./open-mail-button.tsx";
+import { ReminderLabel } from "./reminder-label.tsx";
 import { RepeatLabel } from "./repeat-label.tsx";
 import { TodoEditor, type TodoEditFocus } from "./todo-editor.tsx";
 import { TodoRowMenu, type TodoMoves } from "./todo-row-menu.tsx";
@@ -169,6 +170,9 @@ export function TodoItem({
             ) : null}
             {todo.repeat && !done ? (
               <RepeatLabel rule={todo.repeat} locale={locale} />
+            ) : null}
+            {todo.nextReminderAt && !done ? (
+              <ReminderLabel time={todo.nextReminderAt} />
             ) : null}
             {showSource && todo.createdBy === "report" ? (
               <Text look="caption" tone="muted">

@@ -169,6 +169,7 @@ function Notes({
 export function ReportView({
   report,
   today,
+  timeZone,
   openTodos,
   locale,
   headingLevel,
@@ -179,6 +180,8 @@ export function ReportView({
   report: Report;
   /** The user's local date, for the due dates. */
   today: string;
+  /** The owner's time zone. */
+  timeZone: string;
   /** Every open to-do of the user, of any report, when the page loaded. */
   openTodos: number;
   locale: SupportedLocale;
@@ -260,6 +263,7 @@ export function ReportView({
     <TodoStoreProvider
       todos={todosOnPage(report)}
       today={today}
+      timeZone={timeZone}
       locale={locale}
       openCount={openTodos}
       renderedAt={renderedAt}

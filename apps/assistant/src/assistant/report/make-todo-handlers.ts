@@ -19,6 +19,7 @@ const detail = z
   .max(todoLimits.detailChars)
   .transform((text) => text || null);
 const localDate = z.iso.date();
+const instant = z.iso.datetime({ offset: true });
 
 const interval = z.int().min(1).max(todoLimits.repeatInterval);
 const repeatRule = z.discriminatedUnion("kind", [
@@ -62,6 +63,7 @@ const changeBody = z
     dueDate: localDate.nullable().optional(),
     startDate: localDate.nullable().optional(),
     repeat: repeatRule.nullable().optional(),
+    remindAt: instant.nullable().optional(),
     nextId: z.uuid().optional(),
   })
   .refine((body) => Object.keys(body).length > 0);
@@ -69,6 +71,7 @@ const occurrenceBody = z
   .strictObject({
     dueDate: localDate.nullable(),
     startDate: localDate.nullable(),
+    remindAt: instant.optional(),
   })
   .refine(datesInOrder);
 const dueDatesBody = z.strictObject({
@@ -164,6 +167,9 @@ export function makeTodoHandlers(
           await ownerTodos.moveOccurrence(scope, todoId, body.data, now),
         );
       }),
+
+    /** Asks for a to-do's reminder again later. */
+    snoozeReminder: onTodo(ownerTodos.snoozeReminder),
 
     delete: onTodo(ownerTodos.delete),
 

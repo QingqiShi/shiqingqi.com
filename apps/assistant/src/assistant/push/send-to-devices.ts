@@ -4,7 +4,7 @@ import { pushDevices } from "./push-devices.ts";
 
 /**
  * Sends one message to each of the user's devices. A device the push
- * service no longer knows is removed; a failed send is not retried.
+ * service no longer knows is removed; a failed send is not retried here.
  * `onSent` runs in the same transaction when at least one device got it.
  */
 export async function sendToDevices(
@@ -19,9 +19,9 @@ export async function sendToDevices(
     now: () => Date;
     onSent?: (scope: UserScope) => Promise<unknown>;
   },
-): Promise<{ sent: number; removed: number }> {
+): Promise<{ sent: number; removed: number; failed: number }> {
   const devices = await pushDevices.list({ db, userId });
-  if (devices.length === 0) return { sent: 0, removed: 0 };
+  if (devices.length === 0) return { sent: 0, removed: 0, failed: 0 };
   const outcomes = await Promise.all(
     devices.map(async (device) => ({
       endpoint: device.endpoint,
@@ -40,5 +40,9 @@ export async function sendToDevices(
     await pushDevices.markSent(scope, sent, now());
     if (sent.length > 0) await onSent?.(scope);
   });
-  return { sent: sent.length, removed: gone.length };
+  return {
+    sent: sent.length,
+    removed: gone.length,
+    failed: endpointsOf("failed").length,
+  };
 }
