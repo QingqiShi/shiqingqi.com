@@ -74,33 +74,6 @@ export function localDayBounds(localDate: string, timeZone: string): DayBounds {
   };
 }
 
-/**
- * The IMAP SINCE and BEFORE dates that hold every mail of `localDate` in
- * any time zone. IMAP compares dates only, in the server's own zone, so
- * the range has one day of margin at each end.
- */
-export function mailSearchRange(localDate: string): {
-  since: Date;
-  before: Date;
-} {
-  return {
-    since: new Date(utcMidnight(addDays(localDate, -1))),
-    before: new Date(utcMidnight(addDays(localDate, 2))),
-  };
-}
-
 export function isInDay(instant: Date, { start, end }: DayBounds): boolean {
   return instant >= start && instant < end;
-}
-
-/** The first of each Message-ID, in the order given: a mail can be in more than one folder. */
-export function dedupeByMessageId<T extends { messageId: string }>(
-  mails: readonly T[],
-): T[] {
-  const seen = new Set<string>();
-  return mails.filter((mail) => {
-    if (seen.has(mail.messageId)) return false;
-    seen.add(mail.messageId);
-    return true;
-  });
 }
