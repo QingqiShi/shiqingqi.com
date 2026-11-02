@@ -1,6 +1,7 @@
 import { anthropic } from "@ai-sdk/anthropic";
 import { tool, type ToolSet } from "ai";
 import { z } from "zod";
+import { OTHER_ACTIVITY, type AgentActivity } from "./agent-activity.ts";
 
 /** A guardrail said no. The model gets the message, and the run goes on. */
 export class ToolRefusal extends Error {
@@ -23,6 +24,8 @@ export interface AgentTool {
    * not pay for the schemas of tools it does not use.
    */
   loadUpFront: boolean;
+  /** What a call with this input is doing. It never throws, also for an input that the tool will refuse. */
+  describe: (input: unknown) => AgentActivity;
   /** Checks the input again with `inputSchema`, so that no caller can skip the check. */
   execute: (input: unknown) => Promise<unknown>;
 }
@@ -33,12 +36,23 @@ export function agentTool<Schema extends z.ZodType>(definition: {
   description: string;
   inputSchema: Schema;
   loadUpFront?: boolean;
+  /** May throw when the input names something unknown: the call is then `other`. */
+  describe: (input: z.output<Schema>) => AgentActivity;
   execute: (input: z.output<Schema>) => Promise<unknown>;
 }): AgentTool {
   return {
     description: definition.description,
     inputSchema: definition.inputSchema,
     loadUpFront: definition.loadUpFront ?? false,
+    describe: (input) => {
+      const parsed = definition.inputSchema.safeParse(input);
+      if (!parsed.success) return OTHER_ACTIVITY;
+      try {
+        return definition.describe(parsed.data);
+      } catch {
+        return OTHER_ACTIVITY;
+      }
+    },
     execute: (input) => definition.execute(definition.inputSchema.parse(input)),
   };
 }
@@ -50,6 +64,9 @@ interface ToolErrorResult {
   error: string;
 }
 
+/** Told when a tool call starts; the function it returns is called when the call ends. */
+export type ToolCallObserver = (activity: AgentActivity) => () => void;
+
 /**
  * Runs a tool and turns every error into a result for the model, so that a
  * refusal or a failed server command never stops the run.
@@ -57,7 +74,9 @@ interface ToolErrorResult {
 export async function callAgentTool(
   agentTool: AgentTool,
   input: unknown,
+  observe?: ToolCallObserver,
 ): Promise<unknown> {
+  const ended = observe?.(agentTool.describe(input));
   try {
     return await agentTool.execute(input);
   } catch (error) {
@@ -77,6 +96,8 @@ export async function callAgentTool(
     return {
       error: `The call failed: ${message}`.slice(0, MAX_ERROR_CHARS),
     } satisfies ToolErrorResult;
+  } finally {
+    ended?.();
   }
 }
 
@@ -88,7 +109,10 @@ export const TOOL_SEARCH = "tool_search";
  * and Anthropic's BM25 tool search, which loads at once, finds it for the
  * model. The API needs at least one tool that loads up front.
  */
-export function toAiTools(tools: AgentTools): ToolSet {
+export function toAiTools(
+  tools: AgentTools,
+  observe?: ToolCallObserver,
+): ToolSet {
   const entries = Object.entries(tools);
   if (
     entries.length > 0 &&
@@ -102,7 +126,7 @@ export function toAiTools(tools: AgentTools): ToolSet {
       tool({
         description: agentTool.description,
         inputSchema: agentTool.inputSchema,
-        execute: (input) => callAgentTool(agentTool, input),
+        execute: (input) => callAgentTool(agentTool, input, observe),
         providerOptions: agentTool.loadUpFront
           ? undefined
           : { anthropic: { deferLoading: true } },

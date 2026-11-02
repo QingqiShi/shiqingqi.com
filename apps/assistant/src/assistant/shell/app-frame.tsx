@@ -3,7 +3,7 @@
 import { CheckSquareIcon } from "@phosphor-icons/react/dist/ssr/CheckSquare";
 import { ClockCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ClockCounterClockwise";
 import { GearSixIcon } from "@phosphor-icons/react/dist/ssr/GearSix";
-import { NewspaperIcon } from "@phosphor-icons/react/dist/ssr/Newspaper";
+import { SunIcon } from "@phosphor-icons/react/dist/ssr/Sun";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
@@ -36,8 +36,8 @@ export function AppFrame({ children }: { children: ReactNode }) {
   const destinations = [
     {
       path: "/",
-      label: t({ en: "Report", zh: "晨报" }),
-      icon: NewspaperIcon,
+      label: t({ en: "Today", zh: "今天" }),
+      icon: SunIcon,
     },
     {
       path: "/todos",

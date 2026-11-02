@@ -11,13 +11,9 @@ import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
 import { localClock } from "#src/assistant/report/due-report-date.ts";
 import { readReportSettings } from "#src/assistant/report/read-report-settings.ts";
 import { listTodos } from "#src/assistant/report/read-report.ts";
-import {
-  groupOpenTodos,
-  type TodoGroupKey,
-} from "#src/assistant/report-page/group-open-todos.ts";
+import { OpenTodoGroups } from "#src/assistant/report-page/open-todo-groups.tsx";
 import { TodoList } from "#src/assistant/report-page/todo-list.tsx";
 import { AssistantPageColumn } from "#src/assistant/shell/assistant-page-column.tsx";
-import { DayHeader } from "#src/assistant/shell/day-header.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);
@@ -33,12 +29,6 @@ export default async function Page({ params }: PageProps) {
     readReportSettings(scope),
   ]);
   const today = localClock(new Date(), settings.timeZone).date;
-  const groupTitles: Record<TodoGroupKey, string> = {
-    overdue: t({ en: "Overdue", zh: "已过期" }),
-    today: t({ en: "Today", zh: "今天" }),
-    upcoming: t({ en: "Upcoming", zh: "接下来" }),
-    "no-date": t({ en: "No date", zh: "没有日期" }),
-  };
 
   return (
     <AssistantPageColumn>
@@ -59,12 +49,12 @@ export default async function Page({ params }: PageProps) {
                 )}
           </Text>
         </header>
-        {groupOpenTodos(todos.open, today).map((group) => (
-          <section key={group.key} css={stack.tight}>
-            <DayHeader level={2}>{groupTitles[group.key]}</DayHeader>
-            <TodoList todos={group.todos} today={today} locale={locale} />
-          </section>
-        ))}
+        <OpenTodoGroups
+          todos={todos.open}
+          today={today}
+          locale={locale}
+          headingLevel={2}
+        />
         {todos.done.length > 0 ? (
           <Disclosure
             look="plain"

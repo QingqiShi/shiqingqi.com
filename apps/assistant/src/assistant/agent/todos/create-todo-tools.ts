@@ -140,6 +140,7 @@ export function createTodoTools({
     list_todos: agentTool({
       description: "The owner's open to-dos.",
       inputSchema: z.object({}),
+      describe: () => ({ kind: "list_todos" }),
       execute: () =>
         Promise.resolve({
           todos: [...entries]
@@ -161,6 +162,7 @@ export function createTodoTools({
           .optional()
           .describe('The id of the mail it comes from, such as "m12".'),
       }),
+      describe: ({ title }) => ({ kind: "add_todo", title }),
       execute: (input) => {
         if (changes.added.length >= limits.adds) {
           throw new ToolRefusal(
@@ -206,6 +208,10 @@ export function createTodoTools({
           .optional()
           .describe('The id of the mail that shows it, such as "m12".'),
       }),
+      describe: ({ todo: key }) => ({
+        kind: "complete_todo",
+        title: open(key).todo.title,
+      }),
       execute: ({ todo: key, reason, mail }) => {
         const entry = open(key);
         const source = mail === undefined ? null : sourceOf(mail);
@@ -234,6 +240,10 @@ export function createTodoTools({
         detail: detail.nullable().optional(),
         dueDate: dueDate.nullable().optional(),
       }),
+      describe: ({ todo: key, title: newTitle }) => {
+        const { title: oldTitle } = open(key).todo;
+        return { kind: "update_todo", title: newTitle ?? oldTitle };
+      },
       execute: ({ todo: key, ...input }) => {
         const entry = open(key);
         const edit: TodoEdit = {};

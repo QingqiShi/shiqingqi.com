@@ -518,11 +518,18 @@ export function createMailTools({
     return { changed: done, skipped };
   }
 
+  /** The count and the first mail of a call on several mails; a refusal for an unknown first id. */
+  function mailsOf(ids: readonly string[]) {
+    const { subject, sender } = handles.get(ids[0]);
+    return { count: new Set(ids).size, subject, sender };
+  }
+
   const tools = {
     list_accounts: agentTool({
       description:
         "The owner's mailboxes in this run, each with the key the other tools take.",
       inputSchema: z.object({}),
+      describe: () => ({ kind: "list_accounts" }),
       execute: () =>
         Promise.resolve({
           accounts: mailboxes.accounts.map((account) => ({
@@ -538,6 +545,7 @@ export function createMailTools({
         "The folders of one mailbox. canMoveHere is false for folders that mail never goes into.",
       loadUpFront: true,
       inputSchema: z.object({ account: accountKey }),
+      describe: () => ({ kind: "list_folders" }),
       execute: ({ account }) =>
         mailboxes.use(account, (mailbox) =>
           Promise.resolve({
@@ -575,6 +583,7 @@ export function createMailTools({
           .optional()
           .describe("The nextCursor of the page before, for the next page."),
       }),
+      describe: ({ folder }) => ({ kind: "list_mail", folder }),
       execute: (input) => listMail({ mailboxes, handles, timeZone }, input),
     }),
 
@@ -582,6 +591,7 @@ export function createMailTools({
       description:
         "Has a reader with no tools read the text of mails and describe each: its kind, a short summary, whether the owner needs to see it, any warning, and the events it books, moves or cancels. The text itself does not come back. Reading does not mark mail read.",
       inputSchema: z.object({ ids: mailIds(limits.readsPerCall) }),
+      describe: ({ ids }) => ({ kind: "read_mail", ...mailsOf(ids) }),
       execute: async ({ ids }) => {
         const skipped: Skipped[] = [];
         const toRead: { id: string; mail: ParsedMail }[] = [];
@@ -634,6 +644,7 @@ export function createMailTools({
           .describe("The path of an existing folder to make it in."),
         reason,
       }),
+      describe: ({ name }) => ({ kind: "create_folder", folder: name }),
       execute: (input) =>
         mailboxes.use(input.account, async (mailbox) => {
           const delimiter = delimiterOf(mailbox.folders);
@@ -691,6 +702,11 @@ export function createMailTools({
             "The path of the folder to put it in; null for the top level. Leave it out to keep the parent it has.",
           ),
         reason,
+      }),
+      describe: ({ folder, name }) => ({
+        kind: "rename_folder",
+        folder,
+        newName: name,
       }),
       execute: (input) =>
         mailboxes.use(input.account, async (mailbox) => {
@@ -766,6 +782,7 @@ export function createMailTools({
         folder: z.string().describe("The path of the folder to delete."),
         reason,
       }),
+      describe: ({ folder }) => ({ kind: "delete_folder", folder }),
       execute: (input) =>
         mailboxes.use(input.account, async (mailbox) => {
           const folder = mailbox.folder(input.folder);
@@ -808,6 +825,11 @@ export function createMailTools({
           .string()
           .describe("The path of the folder to move them into."),
         reason,
+      }),
+      describe: ({ ids, folder }) => ({
+        kind: "move_mail",
+        ...mailsOf(ids),
+        toFolder: folder,
       }),
       execute: async (input) => {
         if (byAccount(handles, input.ids).size > 1) {
@@ -892,6 +914,11 @@ export function createMailTools({
         read: z.boolean(),
         reason,
       }),
+      describe: ({ ids, read }) => ({
+        kind: "mark_read",
+        ...mailsOf(ids),
+        read,
+      }),
       execute: (input) => setFlag(input.ids, SEEN, input.read, input.reason),
     }),
 
@@ -902,6 +929,11 @@ export function createMailTools({
         ids: mailIds(limits.idsPerCall),
         flagged: z.boolean(),
         reason,
+      }),
+      describe: ({ ids, flagged }) => ({
+        kind: "mark_flagged",
+        ...mailsOf(ids),
+        flagged,
       }),
       execute: (input) =>
         setFlag(input.ids, FLAGGED, input.flagged, input.reason),

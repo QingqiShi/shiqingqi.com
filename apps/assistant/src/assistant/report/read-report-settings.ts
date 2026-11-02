@@ -13,6 +13,7 @@ export interface ReportSettings {
   /** The local hour from which the morning report is built. */
   digestHour: number;
   locale: UserLocale;
+  organiseEnabled: boolean;
 }
 
 export async function readReportSettings({
@@ -25,6 +26,7 @@ export async function readReportSettings({
         timeZone: userSettings.timeZone,
         digestHour: userSettings.digestHour,
         locale: userSettings.locale,
+        organiseEnabled: userSettings.organiseEnabled,
       })
       .from(userSettings)
       .where(eq(userSettings.userId, userId))
@@ -34,5 +36,6 @@ export async function readReportSettings({
       row && isTimeZone(row.timeZone) ? row.timeZone : DEFAULT_TIME_ZONE,
     digestHour: row?.digestHour ?? DEFAULT_DIGEST_HOUR,
     locale: row?.locale ?? "en",
+    organiseEnabled: row?.organiseEnabled ?? false,
   };
 }
