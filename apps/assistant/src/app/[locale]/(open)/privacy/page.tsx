@@ -74,8 +74,8 @@ export default function Page() {
         </Text>
         <Text>
           {t({
-            en: "Morning reports and to-dos: the words that the AI model wrote, which can name a sender or a subject, and whether you ticked a to-do off. For a line that links to a message, it keeps the mailbox and the message's ID, so that the link opens the message in your mailbox.",
-            zh: "晨报和待办：AI 模型写下的文字（其中可能提到某个发件人或主题），以及你是否已勾选完成某条待办。对于链接到某封邮件的条目，它保存所在邮箱和该邮件的 ID，以便链接能在你的邮箱中打开这封邮件。",
+            en: "Morning reports and to-dos: the words that the AI model and you wrote, which can name a sender or a subject, whether a to-do is done, why the report closed it, and which of its parts you changed. A to-do that you delete is hidden but stays stored, so that the report does not add it again. For a line that links to a message, it keeps the mailbox and the message's ID, so that the link opens the message in your mailbox.",
+            zh: "晨报和待办：AI 模型和你写下的文字（其中可能提到某个发件人或主题）、某条待办是否已完成、晨报关闭它的原因，以及你改过它的哪些部分。你删除的待办会被隐藏，但仍然保存，这样晨报就不会再次添加它。对于链接到某封邮件的条目，它保存所在邮箱和该邮件的 ID，以便链接能在你的邮箱中打开这封邮件。",
           })}
         </Text>
         <Text>
@@ -91,8 +91,8 @@ export default function Page() {
       >
         <Text>
           {t({
-            en: "Anthropic: to organise your inbox, the assistant sends the sender, recipients, subject and date of its messages, with your folder names and your notes, to Anthropic's Claude API, and for the messages the agent needs to understand, up to about 6,000 characters of their text. To write the morning report, it sends the sender, recipients, subject, date and the start of the text of the last 24 hours' messages with your open to-dos. Anthropic's commercial terms say that it does not train its models on this data.",
-            zh: "Anthropic：为了整理收件箱，邮件助手会把邮件的发件人、收件人、主题和日期，连同你的文件夹名称和归类说明，发送到 Anthropic 的 Claude API；对智能体需要了解内容的邮件，还会发送最多约 6,000 个字符的正文。为了撰写晨报，它会把过去 24 小时邮件的发件人、收件人、主题、日期和正文开头，连同你未完成的待办一起发送过去。Anthropic 的商业条款规定，它不会用这些数据训练模型。",
+            en: "Anthropic: to organise your inbox, the assistant sends the sender, recipients, subject and date of its messages, with your folder names and your notes, to Anthropic's Claude API, and for the messages the agent needs to understand, up to about 6,000 characters of their text. To write the morning report, it sends the sender, recipients, subject, date and the start of the text of the last 24 hours' messages with your open to-dos and the titles of the to-dos you deleted in the last 30 days. Anthropic's commercial terms say that it does not train its models on this data.",
+            zh: "Anthropic：为了整理收件箱，邮件助手会把邮件的发件人、收件人、主题和日期，连同你的文件夹名称和归类说明，发送到 Anthropic 的 Claude API；对智能体需要了解内容的邮件，还会发送最多约 6,000 个字符的正文。为了撰写晨报，它会把过去 24 小时邮件的发件人、收件人、主题、日期和正文开头，连同你未完成的待办和你在过去 30 天内删除的待办的标题一起发送过去。Anthropic 的商业条款规定，它不会用这些数据训练模型。",
           })}
         </Text>
         <Text>

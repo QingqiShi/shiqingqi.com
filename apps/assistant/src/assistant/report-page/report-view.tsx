@@ -21,45 +21,57 @@ import { reportColumns } from "./report-columns.stylex.ts";
 import { ReportFigures } from "./report-figures.tsx";
 import { ReportPastLink } from "./report-past-link.tsx";
 import { ReportSection } from "./report-section.tsx";
+import { ReportTodoSection } from "./report-todo-section.tsx";
+import { toTodoItemData, type TodoItemData } from "./to-todo-item-data.ts";
 import { TodoItem } from "./todo-item.tsx";
-import { TodoList, toTodoItemData } from "./todo-list.tsx";
+import { TodoStoreProvider } from "./todo-store-provider.tsx";
+
+function ItemLine({ item }: { item: ReportItemView }) {
+  return (
+    <li css={listSurface.item}>
+      <div css={[listSurface.row, styles.line]}>
+        <Text as="p" css={styles.lineText}>
+          {item.text}
+        </Text>
+        {item.openHref ? <OpenMailButton href={item.openHref} /> : null}
+      </div>
+    </li>
+  );
+}
 
 /**
  * The lines of a section. A line with a to-do shows as that to-do, with
- * a box to tick it off, so that the page says it once.
+ * a box to tick it off, so that the page says it once. Once the owner deletes
+ * that to-do, the line shows its own words.
  */
-function ItemList({
-  items,
-  today,
-  locale,
-}: {
-  items: readonly ReportItemView[];
-  today: string;
-  locale: string;
-}) {
+function ItemList({ items }: { items: readonly ReportItemView[] }) {
   return (
     <List>
       {items.map((item, index) =>
         item.todo ? (
           <TodoItem
             key={item.todo.id}
-            todo={toTodoItemData(item.todo, item.openHref)}
-            today={today}
-            locale={locale}
+            id={item.todo.id}
+            fallback={<ItemLine item={item} />}
           />
         ) : (
-          <li key={index} css={listSurface.item}>
-            <div css={[listSurface.row, styles.line]}>
-              <Text as="p" css={styles.lineText}>
-                {item.text}
-              </Text>
-              {item.openHref ? <OpenMailButton href={item.openHref} /> : null}
-            </div>
-          </li>
+          <ItemLine key={index} item={item} />
         ),
       )}
     </List>
   );
+}
+
+/** Every to-do that the page shows, each once. */
+function todosOnPage(report: Report): TodoItemData[] {
+  const rows = new Map<string, TodoItemData>();
+  for (const { todo, openHref } of report.needsAction) {
+    if (todo) rows.set(todo.id, toTodoItemData(todo, openHref));
+  }
+  for (const todo of [...report.todos, ...report.doneTodos]) {
+    if (!rows.has(todo.id)) rows.set(todo.id, toTodoItemData(todo));
+  }
+  return [...rows.values()];
 }
 
 function headlineOf(report: Report) {
@@ -161,21 +173,29 @@ export function ReportView({
   locale,
   headingLevel,
   pastLink,
+  renderedAt,
+  refreshesOnLeave,
 }: {
   report: Report;
   /** The user's local date, for the due dates. */
   today: string;
-  /** Every open to-do of the user, of any report. */
+  /** Every open to-do of the user, of any report, when the page loaded. */
   openTodos: number;
   locale: SupportedLocale;
   headingLevel: 1 | 2;
   /** `back` where the list opened this report; null where no link to the list fits. */
   pastLink: "back" | "list" | null;
+  /** When the server began this render, in milliseconds. */
+  renderedAt: number;
+  /** See `TodoStoreProvider`. */
+  refreshesOnLeave?: boolean;
 }) {
   const { content } = report;
   const sectionLevel = headingLevel === 1 ? 2 : 3;
   const ownTodos = report.todos.filter((todo) => todo.doneAt === null);
   const doneTitle = t({ en: "Done, says the mail", zh: "邮件显示已完成" });
+  const idsOf = (list: readonly { id: string }[]) =>
+    list.map((todo) => todo.id);
 
   const asks = [
     report.needsAction.length > 0 ? (
@@ -184,22 +204,24 @@ export function ReportView({
         headingLevel={sectionLevel}
         title={t({ en: "Needs you", zh: "需要你处理" })}
       >
-        <ItemList items={report.needsAction} today={today} locale={locale} />
+        <ItemList items={report.needsAction} />
       </ReportSection>
     ) : null,
     ownTodos.length > 0 ? (
-      <ReportSection
+      <ReportTodoSection
         key="todos"
         headingLevel={sectionLevel}
         title={t({ en: "To-dos", zh: "待办" })}
-      >
-        <TodoList todos={ownTodos} today={today} locale={locale} />
-      </ReportSection>
+        ids={idsOf(ownTodos)}
+      />
     ) : null,
     report.doneTodos.length > 0 ? (
-      <ReportSection key="done" headingLevel={sectionLevel} title={doneTitle}>
-        <TodoList todos={report.doneTodos} today={today} locale={locale} />
-      </ReportSection>
+      <ReportTodoSection
+        key="done"
+        headingLevel={sectionLevel}
+        title={doneTitle}
+        ids={idsOf(report.doneTodos)}
+      />
     ) : null,
   ].filter((section) => section !== null);
   const tells = [
@@ -218,7 +240,7 @@ export function ReportView({
         headingLevel={sectionLevel}
         title={t({ en: "Good to know", zh: "知道就好" })}
       >
-        <ItemList items={report.worthKnowing} today={today} locale={locale} />
+        <ItemList items={report.worthKnowing} />
       </ReportSection>
     ) : null,
     content.rest ? (
@@ -235,29 +257,44 @@ export function ReportView({
   ].filter((section) => section !== null);
 
   return (
-    <article css={[stack.group, styles.report]}>
-      <header css={stack.item}>
-        {pastLink ? <ReportPastLink kind={pastLink} locale={locale} /> : null}
-        <div css={stack.tight}>
-          <Text look="overline" tone="muted">
-            {formatDay(report.localDate, locale)}
-          </Text>
-          <Heading level={headingLevel} look="h2">
-            {headlineOf(report)}
-          </Heading>
-        </div>
-        <ReportFigures report={report} openTodos={openTodos} locale={locale} />
-      </header>
-      <Notes report={report} locale={locale} />
-      {asks.length > 0 && tells.length > 0 ? (
-        <div css={[reportColumns.base, styles.columns]}>
-          <div css={styles.column}>{asks}</div>
-          <div css={styles.column}>{tells}</div>
-        </div>
-      ) : (
-        <div css={styles.column}>{asks.length > 0 ? asks : tells}</div>
-      )}
-    </article>
+    <TodoStoreProvider
+      todos={todosOnPage(report)}
+      today={today}
+      locale={locale}
+      openCount={openTodos}
+      renderedAt={renderedAt}
+      refreshesOnLeave={refreshesOnLeave}
+    >
+      <article css={[stack.group, styles.report]}>
+        <header css={stack.item}>
+          {pastLink ? <ReportPastLink kind={pastLink} locale={locale} /> : null}
+          <div css={stack.tight}>
+            <Text look="overline" tone="muted">
+              {formatDay(report.localDate, locale)}
+            </Text>
+            <Heading level={headingLevel} look="h2">
+              {headlineOf(report)}
+            </Heading>
+          </div>
+          <ReportFigures
+            needsYou={report.needsAction.length}
+            agendaCount={report.agenda?.length ?? 0}
+            mailCount={content.mailCount}
+            mailDate={content.mailDate}
+            locale={locale}
+          />
+        </header>
+        <Notes report={report} locale={locale} />
+        {asks.length > 0 && tells.length > 0 ? (
+          <div css={[reportColumns.base, styles.columns]}>
+            <div css={styles.column}>{asks}</div>
+            <div css={styles.column}>{tells}</div>
+          </div>
+        ) : (
+          <div css={styles.column}>{asks.length > 0 ? asks : tells}</div>
+        )}
+      </article>
+    </TodoStoreProvider>
   );
 }
 

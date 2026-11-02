@@ -1,3 +1,5 @@
+"use client";
+
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
@@ -8,29 +10,31 @@ import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { Link } from "#src/links/link.tsx";
-import type { ReportView } from "../report/read-report.ts";
 import { formatWeekday } from "./format-day.ts";
+import { useTodoStore } from "./todo-store-provider.tsx";
 
 /** The counts of a report, each above zero: a large figure, then its muted label. */
 export function ReportFigures({
-  report,
-  openTodos,
+  needsYou,
+  agendaCount,
+  mailCount,
+  mailDate,
   locale,
 }: {
-  report: ReportView;
-  /** Every open to-do of the user, of any report. */
-  openTodos: number;
+  needsYou: number;
+  agendaCount: number;
+  mailCount: number;
+  mailDate: string;
   locale: SupportedLocale;
 }) {
-  const mailDay = formatWeekday(report.content.mailDate, locale);
-  const { mailCount } = report.content;
-  const agendaCount = report.agenda?.length ?? 0;
+  const { openCount: openTodos } = useTodoStore();
+  const mailDay = formatWeekday(mailDate, locale);
   const figures = [
     {
       key: "needs-you",
-      count: report.needsAction.length,
+      count: needsYou,
       label:
-        report.needsAction.length === 1
+        needsYou === 1
           ? t({ en: "needs you", zh: "需要处理" })
           : t({ en: "need you", zh: "需要处理" }),
     },

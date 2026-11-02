@@ -36,6 +36,7 @@ export default async function Page({ params }: Props) {
   if (!LOCAL_DATE.test(date)) notFound();
   const session = await requirePageSession(locale, `/reports/${date}`);
   const scope = { db: getAssistantDb(), userId: session.userId };
+  const renderedAt = new Date().getTime();
   const [report, settings, openTodos] = await Promise.all([
     readReport(scope, date),
     readReportSettings(scope),
@@ -51,6 +52,7 @@ export default async function Page({ params }: Props) {
         locale={locale}
         headingLevel={1}
         pastLink="back"
+        renderedAt={renderedAt}
       />
       {report.seenAt === null ? <MarkReportSeen reportId={report.id} /> : null}
     </>

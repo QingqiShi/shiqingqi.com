@@ -47,6 +47,8 @@ export async function HomeReport({
         locale={locale}
         headingLevel={1}
         pastLink="list"
+        renderedAt={now.getTime()}
+        refreshesOnLeave
       />
       <MarkReportSeen key={report.id} reportId={report.id} />
       <div>

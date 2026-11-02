@@ -47,8 +47,8 @@ export default function Page() {
       >
         <Text>
           {t({
-            en: "An AI model files your mail into folders and writes the morning report and the to-dos, and it makes mistakes: it can file an important message where you do not look for it, or leave a deadline out of the report. Keep checking the mail and dates that matter to you. The assistant never deletes mail, so a message it filed is still in one of your folders.",
-            zh: "AI 模型把你的邮件归入文件夹，并撰写晨报和待办，它会出错：可能把重要邮件放到你想不到的文件夹，或在晨报中漏掉截止日期。请继续自己核对重要的邮件和日期。邮件助手从不删除邮件，所以它整理过的邮件仍在你的某个文件夹中。",
+            en: "An AI model files your mail into folders, writes the morning report and adds to-dos, and it makes mistakes: it can file an important message where you do not look for it, or leave a deadline out of the report. Keep checking the mail and dates that matter to you. The assistant never deletes mail, so a message it filed is still in one of your folders.",
+            zh: "AI 模型把你的邮件归入文件夹，撰写晨报并添加待办，它会出错：可能把重要邮件放到你想不到的文件夹，或在晨报中漏掉截止日期。请继续自己核对重要的邮件和日期。邮件助手从不删除邮件，所以它整理过的邮件仍在你的某个文件夹中。",
           })}
         </Text>
       </LegalSection>

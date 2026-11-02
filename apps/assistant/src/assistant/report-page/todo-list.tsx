@@ -1,40 +1,18 @@
 import { List } from "@tuja/ui/components/list";
-import type { TodoView } from "../report/read-report.ts";
-import { TodoItem, type TodoItemData } from "./todo-item.tsx";
-
-/** What a row shows of a to-do; `openHref` stands in when the to-do names no mail. */
-export function toTodoItemData(
-  todo: TodoView,
-  openHref: string | null = null,
-): TodoItemData {
-  return {
-    id: todo.id,
-    title: todo.title,
-    detail: todo.detail,
-    dueDate: todo.dueDate,
-    done: todo.doneAt !== null,
-    openHref: todo.openHref ?? openHref,
-  };
-}
+import { TodoItem } from "./todo-item.tsx";
 
 export function TodoList({
-  todos,
-  today,
-  locale,
+  ids,
+  showSource = false,
 }: {
-  todos: readonly TodoView[];
-  today: string;
-  locale: string;
+  ids: readonly string[];
+  /** Say on each row that the morning report added it. */
+  showSource?: boolean;
 }) {
   return (
     <List>
-      {todos.map((todo) => (
-        <TodoItem
-          key={todo.id}
-          todo={toTodoItemData(todo)}
-          today={today}
-          locale={locale}
-        />
+      {ids.map((id) => (
+        <TodoItem key={id} id={id} showSource={showSource} />
       ))}
     </List>
   );

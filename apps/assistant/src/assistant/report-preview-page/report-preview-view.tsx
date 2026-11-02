@@ -134,6 +134,7 @@ export function ReportPreviewView({
               locale={locale}
               headingLevel={2}
               pastLink={null}
+              renderedAt={preview.builtAt.getTime()}
             />
           </TodosReadOnly>
         </div>

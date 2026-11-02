@@ -6,6 +6,7 @@ import {
 } from "#src/assistant/agent/mail/run-mailboxes.ts";
 import {
   applyTodoChanges,
+  readDeletedTodos,
   readOpenTodos,
 } from "#src/assistant/agent/todos/create-todo-tools.ts";
 import type { AgentModels } from "#src/assistant/ai/get-agent-models.ts";
@@ -198,6 +199,7 @@ export async function runReportOverMailboxes(
         auth: deps.mail.auth,
       }),
       openTodos: await readOpenTodos({ db, userId }),
+      deletedTodos: await readDeletedTodos({ db, userId }, deps.now()),
       locale: settings.locale,
       timeZone: settings.timeZone,
     },

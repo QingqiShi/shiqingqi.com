@@ -3,9 +3,11 @@ import {
   mailAccounts,
   morningReports,
   todos,
+  type TodoCreator,
 } from "#src/assistant/db/schema.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
 import { openMailHref } from "./open-mail-href.ts";
+import { ownTodo, todoSource } from "./own-todo.ts";
 import type {
   AgendaItem,
   MailSource,
@@ -22,7 +24,12 @@ export interface TodoView {
   detail: string | null;
   dueDate: string | null;
   createdAt: Date;
+  createdBy: TodoCreator;
   doneAt: Date | null;
+  /** Why the report agent closed it. */
+  doneReason: string | null;
+  /** The owner deleted this to-do before, and a new mail brought it back. */
+  reAdded: boolean;
   openHref: string | null;
 }
 
@@ -43,7 +50,7 @@ export interface ReportView {
   todos: TodoView[];
   /** Today's events; null when the report has no agenda. */
   agenda: AgendaItem[] | null;
-  /** The to-dos this report closed, with the reason as their detail. */
+  /** The to-dos this report closed that are still closed. */
   doneTodos: TodoView[];
 }
 
@@ -78,7 +85,10 @@ const todoColumns = {
   detail: todos.detail,
   dueDate: todos.dueDate,
   createdAt: todos.createdAt,
+  createdBy: todos.createdBy,
   doneAt: todos.doneAt,
+  doneReason: todos.doneReason,
+  reAddsTodoId: todos.reAddsTodoId,
   sourceAccountId: todos.sourceAccountId,
   sourceMessageId: todos.sourceMessageId,
 };
@@ -95,12 +105,11 @@ function toTodoView(
     detail: row.detail,
     dueDate: row.dueDate,
     createdAt: row.createdAt,
+    createdBy: row.createdBy,
     doneAt: row.doneAt,
-    openHref: hrefOf(
-      row.sourceAccountId && row.sourceMessageId
-        ? { accountId: row.sourceAccountId, messageId: row.sourceMessageId }
-        : null,
-    ),
+    doneReason: row.doneReason,
+    reAdded: Boolean(row.reAddsTodoId),
+    openHref: hrefOf(todoSource(row)),
   };
 }
 
@@ -127,9 +136,7 @@ export async function toReportView(
         : await scope.db
             .select(todoColumns)
             .from(todos)
-            .where(
-              and(eq(todos.userId, scope.userId), inArray(todos.id, linkedIds)),
-            )
+            .where(and(ownTodo(scope), inArray(todos.id, linkedIds)))
       ).map(overlay),
       ...created.filter((row) => linkedIds.includes(row.id)),
     ].map((row) => [row.id, toTodoView(row, hrefOf)]),
@@ -140,34 +147,34 @@ export async function toReportView(
       openHref: hrefOf(item.source),
       todo: item.todoId ? (linked.get(item.todoId) ?? null) : null,
     }));
-  const closed = content.version === 2 ? content.doneTodos : [];
-  const reasons = new Map(closed.map((todo) => [todo.id, todo.reason]));
-  const closedRows =
-    closed.length === 0
+  const closedIds =
+    content.version === 2 ? content.doneTodos.map((todo) => todo.id) : [];
+  const closedRows = (
+    closedIds.length === 0
       ? []
       : await scope.db
           .select(todoColumns)
           .from(todos)
-          .where(
-            and(
-              eq(todos.userId, scope.userId),
-              inArray(todos.id, [...reasons.keys()]),
-            ),
-          )
-          .orderBy(todos.title);
+          .where(and(ownTodo(scope), inArray(todos.id, closedIds)))
+          .orderBy(todos.title)
+  ).map(overlay);
+  const reopened = closedRows.filter(
+    (row) =>
+      row.doneAt === null &&
+      !linked.has(row.id) &&
+      !created.some((own) => own.id === row.id),
+  );
   return {
     ...report,
     needsAction: items(content.needsAction),
     worthKnowing: items(content.worthKnowing),
-    todos: created
-      .filter((row) => !linked.has(row.id))
+    todos: [...created.filter((row) => !linked.has(row.id)), ...reopened]
       .map((row) => toTodoView(row, hrefOf))
       .sort((a, b) => Number(a.doneAt !== null) - Number(b.doneAt !== null)),
     agenda: content.version === 2 ? content.agenda : null,
-    doneTodos: closedRows.map(overlay).map((row) => ({
-      ...toTodoView(row, hrefOf),
-      detail: reasons.get(row.id) ?? row.detail,
-    })),
+    doneTodos: closedRows
+      .filter((row) => row.doneAt !== null)
+      .map((row) => toTodoView(row, hrefOf)),
   };
 }
 
@@ -200,9 +207,7 @@ export async function readReport(
   const created = await scope.db
     .select(todoColumns)
     .from(todos)
-    .where(
-      and(eq(todos.userId, scope.userId), eq(todos.createdReportId, report.id)),
-    )
+    .where(and(ownTodo(scope), eq(todos.createdReportId, report.id)))
     .orderBy(desc(todos.createdAt), todos.title);
   return {
     ...(await toReportView(scope, report, created)),
@@ -211,13 +216,13 @@ export async function readReport(
 }
 
 async function readOpenTodos(
-  { db, userId }: UserScope,
+  scope: UserScope,
   hrefOf: (source: MailSource | null) => string | null,
 ) {
-  const rows = await db
+  const rows = await scope.db
     .select(todoColumns)
     .from(todos)
-    .where(and(eq(todos.userId, userId), isNull(todos.doneAt)))
+    .where(and(ownTodo(scope), isNull(todos.doneAt)))
     .orderBy(desc(todos.createdAt), todos.title);
   return rows.map((row) => toTodoView(row, hrefOf));
 }
@@ -234,7 +239,7 @@ export async function listTodos(scope: UserScope) {
   const done = await scope.db
     .select(todoColumns)
     .from(todos)
-    .where(and(eq(todos.userId, scope.userId), isNotNull(todos.doneAt)))
+    .where(and(ownTodo(scope), isNotNull(todos.doneAt)))
     .orderBy(desc(todos.doneAt))
     .limit(DONE_LIMIT);
   return {
@@ -268,8 +273,8 @@ export async function readNewestReportItem(scope: UserScope) {
 
 export type ReportListItem = Awaited<ReturnType<typeof listReports>>[number];
 
-export async function countOpenTodos({ db, userId }: UserScope) {
-  return db.$count(todos, and(eq(todos.userId, userId), isNull(todos.doneAt)));
+export async function countOpenTodos(scope: UserScope) {
+  return scope.db.$count(todos, and(ownTodo(scope), isNull(todos.doneAt)));
 }
 
 /** Marks a report seen, the first time only. False when the user has no such report. */
@@ -289,31 +294,4 @@ export async function markReportSeen(
     .returning({ id: morningReports.id });
   if (updated.length > 0) return true;
   return (await db.$count(morningReports, own)) > 0;
-}
-
-/** Marks a to-do done or open again. False when the user has no such to-do. */
-export async function setTodoDone(
-  { db, userId }: UserScope,
-  todoId: string,
-  done: boolean,
-  now: Date,
-): Promise<boolean> {
-  const updated = await db
-    .update(todos)
-    .set({ doneAt: done ? now : null })
-    .where(
-      and(
-        eq(todos.userId, userId),
-        eq(todos.id, todoId),
-        done ? isNull(todos.doneAt) : isNotNull(todos.doneAt),
-      ),
-    )
-    .returning({ id: todos.id });
-  if (updated.length > 0) return true;
-  return (
-    (await db.$count(
-      todos,
-      and(eq(todos.userId, userId), eq(todos.id, todoId)),
-    )) > 0
-  );
 }

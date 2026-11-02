@@ -2,30 +2,23 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Checkbox } from "@tuja/ui/components/checkbox";
 import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { useRouter } from "next/navigation";
-import { use, useEffect, useRef, useState } from "react";
-import { assistantFetch } from "../http/assistant-fetch.ts";
-import { refreshAfterSave } from "../shell/refresh-after-save.ts";
+import { use, useState, type ReactNode } from "react";
 import { daysBetween, formatShortDate } from "./format-day.ts";
 import { OpenMailButton } from "./open-mail-button.tsx";
+import { TodoEditor, type TodoEditFocus } from "./todo-editor.tsx";
+import { TodoRowMenu } from "./todo-row-menu.tsx";
+import { useTodoStore } from "./todo-store-provider.tsx";
 import { TodosReadOnlyContext } from "./todos-read-only.tsx";
-
-export interface TodoItemData {
-  id: string;
-  title: string;
-  detail: string | null;
-  dueDate: string | null;
-  done: boolean;
-  openHref: string | null;
-}
 
 function DueBadge({
   dueDate,
@@ -53,168 +46,166 @@ function DueBadge({
 }
 
 /**
- * One to-do with a box to tick it off. The row stays where it is once
- * ticked, with an undo, until the page loads again.
+ * One to-do: a box to tick it off, its title, which opens its editor in place,
+ * and a menu for all else. It shows `fallback` once the to-do is deleted.
  */
 export function TodoItem({
-  todo,
-  today,
-  locale,
+  id,
+  showSource = false,
+  fallback = null,
 }: {
-  todo: TodoItemData;
-  /** The user's local date, `YYYY-MM-DD`, for the due date. */
-  today: string;
-  locale: string;
+  id: string;
+  /** Say that the morning report added it. The report's own page does not need to. */
+  showSource?: boolean;
+  fallback?: ReactNode;
 }) {
   const readOnly = use(TodosReadOnlyContext);
-  const router = useRouter();
-  const [override, setOverride] = useState<boolean | null>(null);
-  const done = override ?? todo.done;
-  const [justDone, setJustDone] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [failed, setFailed] = useState(false);
-  const lastSaveRef = useRef<Promise<unknown> | null>(null);
+  const { rows, today, locale, setDone } = useTodoStore();
+  const [editing, setEditing] = useState<TodoEditFocus | null>(null);
+  const todo = rows.find((row) => row.id === id);
+  if (!todo) return fallback;
+  const done = todo.doneAt !== null;
 
-  // The router keeps pages from before a tick, and a refresh clears them. The
-  // row must stay until the page loads again, so the refresh waits until the
-  // row goes away. A refresh before the save lands reads the old data, so it
-  // also waits for the save, which can land after the row has gone.
-  useEffect(
-    () => () => {
-      if (lastSaveRef.current === null) return;
-      refreshAfterSave(lastSaveRef.current, () => {
-        router.refresh();
-      });
-    },
-    [router],
-  );
-
-  function save(next: boolean) {
-    const previous = override;
-    setBusy(true);
-    setFailed(false);
-    setOverride(next);
-    setJustDone(next);
-    lastSaveRef.current = assistantFetch(`/api/todos/${todo.id}`, {
-      method: "PATCH",
-      body: JSON.stringify({ done: next }),
-    })
-      .catch(() => {
-        setOverride(previous);
-        setJustDone(false);
-        setFailed(true);
-      })
-      .finally(() => {
-        setBusy(false);
-      });
+  if (editing && !done) {
+    return (
+      <TodoEditor
+        todo={todo}
+        focus={editing}
+        onClose={() => {
+          setEditing(null);
+        }}
+      />
+    );
   }
 
   return (
     <li css={listSurface.item}>
-      <div
-        css={[
-          listSurface.row,
-          styles.row,
-          todo.openHref !== null && styles.rowWithMail,
-        ]}
-      >
-        <div css={[stack.text, styles.main]}>
+      <div css={[listSurface.row, styles.row]}>
+        {/* A tap around the box counts as a tap on the box, because a hidden
+            label leaves it too small for a finger. */}
+        <div
+          css={[a11y.touchTarget, styles.box]}
+          onClick={(event) => {
+            if (event.target === event.currentTarget && !readOnly) {
+              setDone(id, !done);
+            }
+          }}
+        >
           <Checkbox
             label={todo.title}
+            labelHidden
             checked={done}
-            disabled={busy || readOnly}
+            disabled={readOnly}
             onChange={(event) => {
-              save(event.target.checked);
+              setDone(id, event.target.checked);
             }}
-            css={done && styles.done}
           />
+        </div>
+        <div css={[stack.text, styles.main]}>
+          {done ? (
+            <Text as="p" css={styles.doneTitle}>
+              {todo.title}
+            </Text>
+          ) : readOnly ? (
+            <Text as="p">{todo.title}</Text>
+          ) : (
+            <button
+              type="button"
+              css={[buttonReset.base, typeRole.control, styles.title]}
+              onClick={() => {
+                setEditing("title");
+              }}
+            >
+              {todo.title}
+            </button>
+          )}
           {todo.detail ? (
-            <Text as="p" look="bodySmall" tone="muted" css={styles.indent}>
+            <Text as="p" look="bodySmall" tone="muted">
               {todo.detail}
             </Text>
           ) : null}
-          <div css={[cluster.inline, styles.indent]}>
-            {justDone ? (
+          {done && todo.doneReason ? (
+            <Text as="p" look="bodySmall" tone="muted">
+              {t({
+                en: "The morning report closed this: {reason}",
+                zh: "晨报关闭了这项：{reason}",
+              }).replace("{reason}", todo.doneReason)}
+            </Text>
+          ) : null}
+          <div css={[cluster.inline, styles.meta]}>
+            {todo.dueDate !== null && !done ? (
+              <DueBadge dueDate={todo.dueDate} today={today} locale={locale} />
+            ) : null}
+            {showSource && todo.createdBy === "report" ? (
+              <Text look="caption" tone="muted">
+                {t({ en: "From the morning report", zh: "来自晨报" })}
+              </Text>
+            ) : null}
+            {todo.reAdded ? (
+              <Text look="caption" tone="muted">
+                {t({ en: "You deleted this before", zh: "你之前删过" })}
+              </Text>
+            ) : null}
+            {done && !readOnly ? (
               <Button
                 size="sm"
                 look="ghost"
-                disabled={busy}
+                css={styles.reopen}
                 onClick={() => {
-                  save(false);
+                  setDone(id, false);
                 }}
               >
-                {t({ en: "Undo", zh: "撤销" })}
+                {t({ en: "Reopen", zh: "重新打开" })}
               </Button>
             ) : null}
-            <span role="status">
-              {failed ? (
-                <Text look="caption" css={styles.failed}>
-                  {t({
-                    en: "That did not save. Try again.",
-                    zh: "没有保存成功，请重试。",
-                  })}
-                </Text>
-              ) : null}
-            </span>
           </div>
         </div>
-        {todo.dueDate !== null && !done ? (
-          <div css={styles.due}>
-            <DueBadge dueDate={todo.dueDate} today={today} locale={locale} />
-          </div>
-        ) : null}
-        {todo.openHref ? (
-          <div css={styles.open}>
-            <OpenMailButton href={todo.openHref} />
-          </div>
-        ) : null}
+        <div css={styles.actions}>
+          {todo.openHref ? <OpenMailButton href={todo.openHref} /> : null}
+          {readOnly ? null : <TodoRowMenu todo={todo} onEdit={setEditing} />}
+        </div>
       </div>
     </li>
   );
 }
 
-const INDENT = `calc(${controlSize._5} + ${controlSize._2})`;
-
 const styles = stylex.create({
-  // Below `md`, the due date goes under the detail. From `md`, it goes at the
-  // end of the row, before the button that opens the mail.
   row: {
-    display: "grid",
-    gridTemplateColumns: {
-      default: "minmax(0, 1fr)",
-      [breakpoints.md]: "minmax(0, 1fr) auto",
-    },
-    rowGap: rhythm.inline,
+    alignItems: "flex-start",
     paddingBlock: space._2,
   },
-  rowWithMail: {
-    gridTemplateColumns: {
-      default: "minmax(0, 1fr) auto",
-      [breakpoints.md]: "minmax(0, 1fr) auto auto",
-    },
+  box: {
+    display: "flex",
+    flexShrink: 0,
   },
   main: {
-    gridColumn: 1,
-    gridRow: 1,
+    flexGrow: 1,
+    minInlineSize: 0,
   },
-  due: {
-    gridColumn: { default: 1, [breakpoints.md]: 2 },
-    gridRow: { default: 2, [breakpoints.md]: 1 },
-    paddingInlineStart: { default: INDENT, [breakpoints.md]: 0 },
+  title: {
+    color: color.fg,
+    textAlign: "start",
   },
-  open: {
-    gridColumn: { default: 2, [breakpoints.md]: 3 },
-    gridRow: { default: "1 / span 2", [breakpoints.md]: 1 },
-  },
-  done: {
-    [color.fg]: color.fgMuted,
+  doneTitle: {
+    color: color.fgMuted,
     textDecorationLine: "line-through",
   },
-  indent: {
-    paddingInlineStart: INDENT,
+  meta: {
+    marginBlockStart: {
+      default: 0,
+      ":not(:empty)": rhythm.inline,
+    },
   },
-  failed: {
-    color: color.fgDanger,
-    paddingInline: rhythm.tight,
+  // Alone on its line, the label starts under the title, not its button's padding.
+  reopen: {
+    marginInlineStart: {
+      default: 0,
+      ":first-child": `calc(-1 * ${controlSize._2})`,
+    },
+  },
+  actions: {
+    display: "flex",
+    alignItems: "center",
+    flexShrink: 0,
   },
 });
