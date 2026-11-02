@@ -24,6 +24,7 @@ import {
 import {
   createTodoTools,
   type DeletedTodo,
+  type RejectedTodo,
   type StoredTodo,
   type TodoChanges,
 } from "#src/assistant/agent/todos/create-todo-tools.ts";
@@ -158,6 +159,7 @@ export async function runReportAgent(
     calendars,
     openTodos,
     deletedTodos,
+    rejectedTodos,
     locale,
     timeZone,
     today,
@@ -170,6 +172,7 @@ export async function runReportAgent(
     calendars: RunCalendars;
     openTodos: readonly StoredTodo[];
     deletedTodos: readonly DeletedTodo[];
+    rejectedTodos: readonly RejectedTodo[];
     locale: UserLocale;
     timeZone: string;
     today: string;
@@ -205,6 +208,7 @@ export async function runReportAgent(
   const todo = createTodoTools({
     openTodos,
     deletedTodos,
+    rejectedTodos,
     sourceOf,
     receivedAtOf: (id) => handles.get(id).receivedAt,
   });
@@ -334,6 +338,7 @@ export async function runReportAgent(
         mailboxes: mailboxList,
         openTodos,
         deletedTodos,
+        rejectedTodos,
         minutes: Math.max(1, Math.floor((endsAt - now().getTime()) / 60_000)),
       }),
       maxSteps: MAX_STEPS,

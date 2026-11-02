@@ -262,6 +262,10 @@ export const todos = pgTable(
     doneReason: text("done_reason"),
     /** When the owner deleted it; the row stays so that the agent does not add it again. */
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    /** When the owner said that the report should not have added it. Only a deleted row has this. */
+    rejectedAt: timestamp("rejected_at", { withTimezone: true }),
+    /** Why, in the owner's words. */
+    rejectionNote: text("rejection_note"),
   },
   (t) => [
     index("todos_open_idx")
@@ -281,6 +285,14 @@ export const todos = pgTable(
     check(
       "todos_waiting_has_since",
       sql`(${t.waitingOn} is null) = (${t.waitingSince} is null)`,
+    ),
+    check(
+      "todos_rejected_is_deleted",
+      sql`${t.rejectedAt} is null or ${t.deletedAt} is not null`,
+    ),
+    check(
+      "todos_rejection_note_needs_rejected",
+      sql`${t.rejectionNote} is null or ${t.rejectedAt} is not null`,
     ),
   ],
 );

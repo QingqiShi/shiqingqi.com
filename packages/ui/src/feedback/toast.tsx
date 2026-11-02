@@ -202,7 +202,9 @@ const styles = stylex.create({
   surface: {
     position: "relative",
     display: "flex",
+    flexWrap: "wrap",
     alignItems: "center",
+    justifyContent: "flex-end",
     gap: controlSize._2,
     boxSizing: "border-box",
     minBlockSize: LINE_HEIGHT,
@@ -234,8 +236,11 @@ const styles = stylex.create({
   withButtons: {
     paddingInlineEnd: INSET,
   },
+  // When its longest word and the actions do not fit on a line, the message
+  // takes a line of its own, above the actions.
   message: {
     flexGrow: 1,
+    flexBasis: "min-content",
     minInlineSize: 0,
     paddingBlock: controlSize._1,
   },
@@ -243,6 +248,7 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     flexShrink: 0,
+    maxInlineSize: "100%",
     gap: controlSize._2,
   },
 });

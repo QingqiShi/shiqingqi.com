@@ -17,6 +17,7 @@ import {
   applyTodoChanges,
   createTodoTools,
   readDeletedTodos,
+  readRejectedTodos,
   readOpenTodos,
   type TodoChanges,
 } from "./create-todo-tools.ts";
@@ -93,6 +94,7 @@ describe("the to-do tools", () => {
     const { tools } = createTodoTools({
       openTodos: await readOpenTodos({ db, userId }),
       deletedTodos: [],
+      rejectedTodos: [],
       sourceOf: () => ({ accountId: "a", messageId: "<m@x>" }),
       receivedAtOf: () => NOW,
     });
@@ -132,6 +134,7 @@ describe("the to-do tools", () => {
     const { tools, changes } = createTodoTools({
       openTodos,
       deletedTodos: [],
+      rejectedTodos: [],
       sourceOf: () => ({ accountId: "a", messageId: "<m@x>" }),
       receivedAtOf: () => NOW,
     });
@@ -243,6 +246,7 @@ describe("the to-do tools", () => {
     const { tools, changes } = createTodoTools({
       openTodos,
       deletedTodos: [],
+      rejectedTodos: [],
       sourceOf: () => ({ accountId: "a", messageId: "<m@x>" }),
       receivedAtOf: () => NOW,
     });
@@ -305,6 +309,7 @@ describe("the to-do tools", () => {
     const { tools, changes, idOf } = createTodoTools({
       openTodos,
       deletedTodos: [],
+      rejectedTodos: [],
       sourceOf: () => ({ accountId: "a", messageId: "<m@x>" }),
       receivedAtOf: () => NOW,
     });
@@ -364,6 +369,7 @@ describe("the to-do tools", () => {
     const { tools, changes } = createTodoTools({
       openTodos: await readOpenTodos({ db, userId: owner }),
       deletedTodos: [],
+      rejectedTodos: [],
       sourceOf: () => ({ accountId: "a", messageId: "<m@x>" }),
       receivedAtOf: () => NOW,
     });
@@ -399,6 +405,7 @@ describe("the to-do tools", () => {
     const { tools, changes } = createTodoTools({
       openTodos: await readOpenTodos({ db, userId }),
       deletedTodos: [],
+      rejectedTodos: [],
       sourceOf: () => ({ accountId: "a", messageId: "<m@x>" }),
       receivedAtOf: () => NOW,
     });
@@ -452,6 +459,7 @@ describe("the to-do tools", () => {
     const { tools, changes } = createTodoTools({
       openTodos: await readOpenTodos({ db, userId }),
       deletedTodos: [],
+      rejectedTodos: [],
       sourceOf: () => ({ accountId: "a", messageId: "<m@x>" }),
       receivedAtOf: () => NOW,
     });
@@ -472,6 +480,7 @@ describe("the to-do tools", () => {
       return createTodoTools({
         openTodos: await readOpenTodos({ db, userId }),
         deletedTodos: [],
+        rejectedTodos: [],
         sourceOf: () => ({ accountId: "a", messageId: "<m@x>" }),
         receivedAtOf,
       });
@@ -728,6 +737,7 @@ describe("the to-do tools", () => {
       };
       return createTodoTools({
         openTodos: [],
+        rejectedTodos: [],
         deletedTodos: [
           {
             id: "00000000-0000-4000-8000-000000000001",
@@ -811,6 +821,95 @@ describe("the to-do tools", () => {
       expect(
         (await readOpenTodos({ db, userId: owner })).map((todo) => todo.title),
       ).toEqual(["Open"]);
+    });
+  });
+
+  describe("rejected to-dos", () => {
+    const REJECTED_MAIL = {
+      accountId: "00000000-0000-4000-8000-00000000000a",
+      messageId: "<rejected@example.com>",
+    };
+    const OTHER_MAIL = {
+      accountId: "00000000-0000-4000-8000-00000000000a",
+      messageId: "<other@example.com>",
+    };
+
+    async function add(input: Record<string, string>) {
+      const run = createTodoTools({
+        openTodos: [],
+        deletedTodos: [],
+        rejectedTodos: [
+          {
+            id: "00000000-0000-4000-8000-000000000002",
+            title: "Read the  newsletter",
+            note: "Newsletters never need a to-do",
+            source: REJECTED_MAIL,
+          },
+        ],
+        sourceOf: (id) => (id === "m1" ? REJECTED_MAIL : OTHER_MAIL),
+        receivedAtOf: () => NOW,
+      });
+      const output = JSON.stringify(
+        await callAgentTool(run.tools.add_todo, input),
+      );
+      return { output, added: run.changes.added };
+    }
+
+    it("refuses the title and the mail of a rejected to-do, and takes others", async () => {
+      expect(
+        (await add({ title: "read the newsletter", mail: "m2" })).output,
+      ).toContain("should not have been added");
+      expect(
+        (await add({ title: "Something else", mail: "m1" })).added,
+      ).toEqual([]);
+      expect(
+        (await add({ title: "Something else", mail: "m2" })).added,
+      ).toHaveLength(1);
+    });
+
+    it("reads the user's rejections of the last 90 days, apart from the deleted to-dos", async () => {
+      const owner = await insertUser(db);
+      const stranger = await insertUser(db);
+      const DELETED_AT = new Date("2026-10-30T09:00:00Z");
+      const recent = new Date(NOW.getTime() - 89 * 86_400_000);
+      await db.insert(todos).values([
+        {
+          userId: owner,
+          title: "Rejected",
+          deletedAt: recent,
+          rejectedAt: recent,
+          rejectionNote: "Not this kind",
+        },
+        {
+          userId: owner,
+          title: "Long ago",
+          deletedAt: new Date(NOW.getTime() - 91 * 86_400_000),
+          rejectedAt: new Date(NOW.getTime() - 91 * 86_400_000),
+        },
+        {
+          userId: stranger,
+          title: "Theirs",
+          deletedAt: recent,
+          rejectedAt: recent,
+        },
+        { userId: owner, title: "Only deleted", deletedAt: DELETED_AT },
+        {
+          userId: owner,
+          title: "Rejected today",
+          deletedAt: DELETED_AT,
+          rejectedAt: DELETED_AT,
+        },
+      ]);
+
+      const scope = { db, userId: owner };
+
+      expect(await readRejectedTodos(scope, NOW)).toMatchObject([
+        { title: "Rejected today", note: null },
+        { title: "Rejected", note: "Not this kind" },
+      ]);
+      expect(
+        (await readDeletedTodos(scope, NOW)).map((todo) => todo.title),
+      ).toEqual(["Only deleted"]);
     });
   });
 });

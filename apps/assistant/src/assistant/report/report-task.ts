@@ -2,6 +2,7 @@ import { MAIL_WORKFLOW } from "#src/assistant/agent/mail-workflow.ts";
 import type { UserLocale } from "#src/assistant/db/schema.ts";
 import type {
   DeletedTodo,
+  RejectedTodo,
   StoredTodo,
 } from "../agent/todos/create-todo-tools.ts";
 import type { TimeBounds, WindowLabels } from "./local-day-bounds.ts";
@@ -79,7 +80,7 @@ function todoLine(key: string, todo: StoredTodo) {
   return `- ${key}: ${todo.title}${extra.length > 0 ? ` (${extra.join("; ")})` : ""}`;
 }
 
-/** The first message: the mail it covers, where that mail is, the open and deleted to-dos and the time there is. */
+/** The first message: the mail it covers, where that mail is, the open, deleted and rejected to-dos and the time there is. */
 function prompt({
   today,
   windowLabels,
@@ -87,6 +88,7 @@ function prompt({
   mailboxes,
   openTodos,
   deletedTodos,
+  rejectedTodos,
   minutes,
 }: {
   today: string;
@@ -96,6 +98,7 @@ function prompt({
   mailboxes: readonly ReportMailbox[];
   openTodos: readonly StoredTodo[];
   deletedTodos: readonly DeletedTodo[];
+  rejectedTodos: readonly RejectedTodo[];
   /** About how long the run may take. */
   minutes: number;
 }) {
@@ -114,6 +117,13 @@ function prompt({
 The owner deleted these to-dos. A new mail about one may add it again only if it matters more now, naming it in deletedTodo:
 ${deletedTodos.map((todo, index) => `- d${String(index + 1)}: ${todo.title}`).join("\n")}`
       : "";
+  const rejected =
+    rejectedTodos.length > 0
+      ? `
+
+The owner said that these to-dos should not have been added. Do not add to-dos of the same kind:
+${rejectedTodos.map(({ title, note }) => `- ${title}${note ? ` (the owner's words: ${note})` : ""}`).join("\n")}`
+      : "";
   const catchUp = mailboxes.some((box) => box.since)
     ? `An earlier report could not read a mailbox with a since time, so this report also covers its mail from that time on: its counts above include that mail, and that mail is marked read too. list_mail with that since and before ${mailWindow.end.toISOString()} finds it.
 
@@ -123,7 +133,7 @@ ${deletedTodos.map((todo, index) => `- d${String(index + 1)}: ${todo.title}`).jo
 ${boxes.join("\n")}
 
 ${catchUp}Open to-dos:
-${todos.length > 0 ? todos.join("\n") : "(none)"}${deleted}
+${todos.length > 0 ? todos.join("\n") : "(none)"}${deleted}${rejected}
 
 You have about ${String(minutes)} minutes before the report has to be submitted.`;
 }

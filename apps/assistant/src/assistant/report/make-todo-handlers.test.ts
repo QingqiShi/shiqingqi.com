@@ -529,6 +529,90 @@ describe("the owner's to-do requests", () => {
     });
   });
 
+  describe("a rejection", () => {
+    async function insertDeleted(
+      userId: string,
+      createdBy: "report" | "owner" = "report",
+    ) {
+      const [row] = await db
+        .insert(todos)
+        .values({ userId, title: "Read it", createdBy, deletedAt: NOW })
+        .returning();
+      return row.id;
+    }
+
+    function reject(ids: string[], note = "") {
+      return handlers.bulk(request("POST", { action: "reject", ids, note }));
+    }
+
+    it("stores the note on each deleted to-do of the report's", async () => {
+      const first = await insertDeleted(owner);
+      const second = await insertDeleted(owner);
+
+      expect((await reject([first, second], " Not this kind ")).status).toBe(
+        204,
+      );
+
+      expect(await stored(second)).toMatchObject({
+        rejectedAt: NOW,
+        rejectionNote: "Not this kind",
+      });
+    });
+
+    it("refuses all when one is the owner's, open or someone else's", async () => {
+      const good = await insertDeleted(owner);
+      const others = [
+        await insertDeleted(owner, "owner"),
+        (await insertTodo(owner)).id,
+        await insertDeleted(stranger),
+      ];
+
+      for (const other of others) {
+        expect((await reject([good, other])).status).toBe(404);
+      }
+
+      expect(await stored(good)).toMatchObject({ rejectedAt: null });
+    });
+
+    it("goes when the to-do comes back, and does not return with a later delete", async () => {
+      const one = await insertDeleted(owner);
+      const many = await insertDeleted(owner);
+      await reject([one, many], "Not this kind");
+
+      await handlers.restore(request("POST"), one);
+      await handlers.bulk(request("POST", { action: "restore", ids: [many] }));
+      await handlers.delete(request("DELETE"), one);
+
+      expect(await stored(one)).toMatchObject({
+        rejectedAt: null,
+        rejectionNote: null,
+      });
+      expect(await stored(many)).toMatchObject({ rejectedAt: null });
+    });
+
+    it("can be taken away, only by its user, and the to-do stays deleted", async () => {
+      const id = await insertDeleted(owner);
+      const theirs = await insertDeleted(stranger);
+      await db
+        .update(todos)
+        .set({ rejectedAt: NOW })
+        .where(eq(todos.id, theirs));
+      await reject([id], "Not this kind");
+
+      const removed = await handlers.removeRejection(request("DELETE"), id);
+      const refused = await handlers.removeRejection(request("DELETE"), theirs);
+
+      expect(removed.status).toBe(204);
+      expect(refused.status).toBe(404);
+      expect(await stored(id)).toMatchObject({
+        rejectedAt: null,
+        rejectionNote: null,
+        deletedAt: NOW,
+      });
+      expect(await stored(theirs)).toMatchObject({ rejectedAt: NOW });
+    });
+  });
+
   describe("order", () => {
     async function insertOpen(userId: string, ...titles: string[]) {
       const rows = [];

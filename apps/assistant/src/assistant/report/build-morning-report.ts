@@ -8,6 +8,7 @@ import {
   applyTodoChanges,
   readDeletedTodos,
   readOpenTodos,
+  readRejectedTodos,
 } from "#src/assistant/agent/todos/create-todo-tools.ts";
 import type { AgentModels } from "#src/assistant/ai/get-agent-models.ts";
 import type { CalendarConnector } from "#src/assistant/calendar/caldav/types.ts";
@@ -200,6 +201,7 @@ export async function runReportOverMailboxes(
       }),
       openTodos: await readOpenTodos({ db, userId }),
       deletedTodos: await readDeletedTodos({ db, userId }, deps.now()),
+      rejectedTodos: await readRejectedTodos({ db, userId }, deps.now()),
       locale: settings.locale,
       timeZone: settings.timeZone,
     },

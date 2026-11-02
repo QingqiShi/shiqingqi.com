@@ -7,9 +7,11 @@ import { ListRow } from "@tuja/ui/components/list-row";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { measure } from "@tuja/ui/tokens.stylex";
 import { Link } from "#src/links/link.tsx";
+import { readRejectedTodos } from "../agent/todos/create-todo-tools.ts";
 import { getAssistantDb } from "../db/get-assistant-db.ts";
 import { readReportSettings } from "../report/read-report-settings.ts";
 import { PushToggle } from "./push-toggle.tsx";
+import { RejectedTodoList } from "./rejected-todo-list.tsx";
 import { SettingsForm } from "./settings-form.tsx";
 import { SettingsSection } from "./settings-section.tsx";
 
@@ -21,14 +23,12 @@ export async function ReportSettingsSection({
   userId: string;
   locale: SupportedLocale;
 }) {
-  const {
-    timeZone,
-    digestHour,
-    locale: reportLocale,
-  } = await readReportSettings({
-    db: getAssistantDb(),
-    userId,
-  });
+  const scope = { db: getAssistantDb(), userId };
+  const [{ timeZone, digestHour, locale: reportLocale }, rejectedTodos] =
+    await Promise.all([
+      readReportSettings(scope),
+      readRejectedTodos(scope, new Date()),
+    ]);
   const timeZones = Intl.supportedValuesOf("timeZone");
   if (!timeZones.includes(timeZone)) timeZones.push(timeZone);
 
@@ -60,6 +60,25 @@ export async function ReportSettingsSection({
               </ListRow>
             </List>
           </div>
+        </SettingsSection>
+        <SettingsSection
+          level={3}
+          title={t({
+            en: "To-dos the report should not add",
+            zh: "晨报不该添加的待办",
+          })}
+          description={t({
+            en: "The report reads these before it adds a to-do. Each one counts for 90 days.",
+            zh: "晨报添加待办前会先看这些。每一条在 90 天内有效。",
+          })}
+        >
+          <RejectedTodoList
+            todos={rejectedTodos.map(({ id, title, note }) => ({
+              id,
+              title,
+              note,
+            }))}
+          />
         </SettingsSection>
         <SettingsSection
           level={3}
