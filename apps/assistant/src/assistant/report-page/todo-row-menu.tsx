@@ -121,7 +121,7 @@ function TodoRowActions({
   close: () => void;
   onEdit: (field: TodoEditFocus) => void;
 }) {
-  const { edit, remove, skipOccurrence, today, locale, timeZone } =
+  const { edit, remove, setWaiting, skipOccurrence, today, locale, timeZone } =
     useTodoStore();
   const showToast = useToast();
   const closeThen = (action: () => void) => () => {
@@ -141,9 +141,12 @@ function TodoRowActions({
     tomorrow,
     nextWeek,
   ];
-  const startDates = [tomorrow, nextWeek].filter(({ date }) =>
-    datesInOrder({ startDate: date, dueDate: todo.dueDate }),
-  );
+  const waiting = todo.waitingOn !== null;
+  const startDates = waiting
+    ? []
+    : [tomorrow, nextWeek].filter(({ date }) =>
+        datesInOrder({ startDate: date, dueDate: todo.dueDate }),
+      );
   const shownFrom = t({
     en: "Shows in Today from {date}",
     zh: "{date} 起显示在“今天”",
@@ -193,7 +196,7 @@ function TodoRowActions({
               {t({ en: "No date", zh: "不设日期" })}
             </MenuAction>
           ) : null}
-          {todo.repeat ? (
+          {todo.repeat && !waiting ? (
             <MenuAction
               trailing={formatListDay(
                 nextOccurrenceDates(todo.repeat, todo, today).dueDate,
@@ -244,6 +247,23 @@ function TodoRowActions({
                 </MenuAction>
               ) : null}
             </>
+          ) : null}
+          <MenuAction
+            trailing={todo.waitingOn ?? undefined}
+            onClick={closeThen(() => {
+              onEdit("waitingOn");
+            })}
+          >
+            {t({ en: "Waiting on…", zh: "等待…" })}
+          </MenuAction>
+          {waiting ? (
+            <MenuAction
+              onClick={closeThen(() => {
+                setWaiting(todo.id, { waitingOn: null, followUpDate: null });
+              })}
+            >
+              {t({ en: "Stop waiting", zh: "不再等待" })}
+            </MenuAction>
           ) : null}
           <MenuAction
             trailing={

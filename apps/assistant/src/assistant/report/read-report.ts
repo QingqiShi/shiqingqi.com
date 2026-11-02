@@ -18,7 +18,7 @@ import {
   type TodoCreator,
 } from "#src/assistant/db/schema.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
-import { startsAfter } from "./dates-in-order.ts";
+import { startsAfter, waitsAfter } from "./dates-in-order.ts";
 import type { RepeatRule } from "./next-occurrence.ts";
 import { openMailHref } from "./open-mail-href.ts";
 import {
@@ -54,6 +54,11 @@ export interface TodoView {
   nextReminderAt: Date | null;
   /** The occurrence that closing this one made. */
   nextId: string | null;
+  /** Who or what it waits on. */
+  waitingOn: string | null;
+  followUpDate: string | null;
+  /** Why the report agent made it wait or ended the wait. */
+  waitingNote: string | null;
   checklist: readonly ChecklistItem[];
   createdAt: Date;
   createdBy: TodoCreator;
@@ -84,6 +89,10 @@ export interface ReportView {
   agenda: AgendaItem[] | null;
   /** The to-dos this report closed that are still closed. */
   doneTodos: TodoView[];
+  /** The to-dos this report made wait that still wait, and that no line of `needsAction` shows. */
+  waitingTodos: TodoView[];
+  /** The to-dos this report moved back to open because the reply came, and that no line of `needsAction` shows. */
+  repliedTodos: TodoView[];
 }
 
 async function hrefMaker({ db, userId }: UserScope) {
@@ -122,6 +131,9 @@ const todoColumns = {
   snoozedUntil: todos.snoozedUntil,
   remindedAt: todos.remindedAt,
   nextTodoId: todos.nextTodoId,
+  waitingOn: todos.waitingOn,
+  followUpDate: todos.followUpDate,
+  waitingNote: todos.waitingNote,
   checklist: checklistOfTodo,
   createdAt: todos.createdAt,
   createdBy: todos.createdBy,
@@ -151,6 +163,9 @@ function toTodoView(
     remindAt: row.remindAt,
     nextReminderAt: row.remindedAt ? null : (row.snoozedUntil ?? row.remindAt),
     nextId: row.nextTodoId,
+    waitingOn: row.waitingOn,
+    followUpDate: row.followUpDate,
+    waitingNote: row.waitingNote,
     checklist: row.checklist,
     createdAt: row.createdAt,
     createdBy: row.createdBy,
@@ -165,8 +180,8 @@ function toTodoView(
  * Turns a report into what the page shows. `created` are the to-dos the
  * report made. `overlay` gives a stored to-do the state the report leaves it
  * in, for a report whose changes are not stored. A line whose to-do starts
- * after the report's day does not need the owner yet, so that to-do shows with
- * the report's other to-dos.
+ * after the report's day or still waits does not need the owner yet, so that
+ * to-do shows with the report's other to-dos.
  */
 export async function toReportView(
   scope: UserScope,
@@ -198,26 +213,32 @@ export async function toReportView(
       todo: item.todoId ? (linked.get(item.todoId) ?? null) : null,
     }));
   const lines = items(content.needsAction);
-  const waits = (todo: TodoView | null) =>
+  const notYet = (todo: TodoView | null) =>
     todo !== null &&
     todo.doneAt === null &&
-    startsAfter(todo, report.localDate);
-  const waiting = lines.flatMap(({ todo, openHref }) =>
-    todo && waits(todo)
+    (startsAfter(todo, report.localDate) || waitsAfter(todo, report.localDate));
+  const later = lines.flatMap(({ todo, openHref }) =>
+    todo && notYet(todo)
       ? [{ ...todo, openHref: todo.openHref ?? openHref }]
       : [],
   );
-  const closedIds =
-    content.version === 2 ? content.doneTodos.map((todo) => todo.id) : [];
-  const closedRows = (
-    closedIds.length === 0
+  const rowsOf = async (ids: readonly string[]) =>
+    (ids.length === 0
       ? []
       : await scope.db
           .select(todoColumns)
           .from(todos)
-          .where(and(ownTodo(scope), inArray(todos.id, closedIds)))
+          .where(and(ownTodo(scope), inArray(todos.id, [...ids])))
           .orderBy(todos.title)
-  ).map(overlay);
+    ).map(overlay);
+  const closedRows = await rowsOf(
+    content.version === 2 ? content.doneTodos.map((todo) => todo.id) : [],
+  );
+  const madeToWait = content.version === 2 ? content.waitingTodoIds : undefined;
+  const replied = content.version === 2 ? content.repliedTodoIds : undefined;
+  const shownLines = lines.filter(({ todo }) => !notYet(todo));
+  const unshown = (row: TodoRow) =>
+    !shownLines.some(({ todo }) => todo?.id === row.id);
   const reopened = closedRows.filter(
     (row) =>
       row.doneAt === null &&
@@ -226,17 +247,29 @@ export async function toReportView(
   );
   return {
     ...report,
-    needsAction: lines.filter(({ todo }) => !waits(todo)),
+    needsAction: shownLines,
     worthKnowing: items(content.worthKnowing),
     todos: [
       ...[...created.filter((row) => !linked.has(row.id)), ...reopened].map(
         (row) => toTodoView(row, hrefOf),
       ),
-      ...waiting,
+      ...later.filter(
+        (todo) => !madeToWait?.includes(todo.id) && !replied?.includes(todo.id),
+      ),
     ].sort((a, b) => Number(a.doneAt !== null) - Number(b.doneAt !== null)),
     agenda: content.version === 2 ? content.agenda : null,
     doneTodos: closedRows
       .filter((row) => row.doneAt !== null)
+      .map((row) => toTodoView(row, hrefOf)),
+    waitingTodos: (await rowsOf(madeToWait ?? []))
+      .filter(
+        (row) => row.doneAt === null && row.waitingOn !== null && unshown(row),
+      )
+      .map((row) => toTodoView(row, hrefOf)),
+    repliedTodos: (await rowsOf(replied ?? []))
+      .filter(
+        (row) => row.doneAt === null && row.waitingOn === null && unshown(row),
+      )
       .map((row) => toTodoView(row, hrefOf)),
   };
 }

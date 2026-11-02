@@ -85,6 +85,13 @@
       "when": 1793657114148,
       "tag": "0011_todo_checklist",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793661991449,
+      "tag": "0012_todo_waiting",
+      "breakpoints": true
     }
   ]
 }

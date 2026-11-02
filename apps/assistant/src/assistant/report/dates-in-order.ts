@@ -16,3 +16,15 @@ export function startsAfter(
 ) {
   return startDate !== null && startDate > day;
 }
+
+/** Whether a to-do waits past `day`: it stays off that day's list until its follow-up date, which it may not have. */
+export function waitsAfter(
+  {
+    waitingOn,
+    followUpDate,
+  }: { waitingOn?: string | null; followUpDate?: string | null },
+  day: string,
+) {
+  if (!waitingOn) return false;
+  return !followUpDate || followUpDate > day;
+}

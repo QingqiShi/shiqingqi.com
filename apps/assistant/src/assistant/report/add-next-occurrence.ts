@@ -39,8 +39,8 @@ export function reminderWrite(remindAt: Date | null, now: Date) {
 /**
  * Makes the next occurrence of a repeating to-do that this transaction closes,
  * and links the two. The new row takes over the place in the owner's order. The
- * mail stays with the occurrence that it was about, and the checklist comes along
- * with no ticks. False when `nextId` is taken, and nothing has changed then. A
+ * mail and the wait stay with the occurrence that they were about, and the
+ * checklist comes along with no ticks. False when `nextId` is taken, and nothing has changed then. A
  * to-do that does not repeat needs nothing.
  */
 export async function addNextOccurrence(
@@ -83,7 +83,9 @@ export async function addNextOccurrence(
       repeat: closed.repeat,
       position: closed.position,
       createdBy: "owner",
-      ownerEditedFields: closed.ownerEditedFields,
+      ownerEditedFields: closed.ownerEditedFields.filter(
+        (field) => field !== "waitingOn" && field !== "followUpDate",
+      ),
       createdAt: now,
       updatedAt: now,
     })

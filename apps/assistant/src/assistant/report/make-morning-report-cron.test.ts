@@ -497,6 +497,8 @@ describe("the morning report cron", () => {
           reason: "The passport office sent the new one.",
         },
       ],
+      waitingTodoIds: [],
+      repliedTodoIds: [],
     });
     expect(pushed).toEqual([
       {

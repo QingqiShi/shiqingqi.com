@@ -7,6 +7,7 @@ import { Button } from "@tuja/ui/components/button";
 import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -60,6 +61,28 @@ function DueBadge({
         : days === 0
           ? t({ en: "Due today", zh: "今天到期" })
           : t({ en: "Due {date}", zh: "{date} 到期" }).replace("{date}", date)}
+    </Badge>
+  );
+}
+
+function FollowUpBadge({
+  date,
+  today,
+  locale,
+}: {
+  date: string;
+  today: string;
+  locale: string;
+}) {
+  const days = daysBetween(today, date);
+  return (
+    <Badge size="sm" intent={days <= 0 ? "warning" : "neutral"}>
+      {days === 0
+        ? t({ en: "Follow up today", zh: "今天跟进" })
+        : t({ en: "Follow up {date}", zh: "{date} 跟进" }).replace(
+            "{date}",
+            formatShortDate(date, locale),
+          )}
     </Badge>
   );
 }
@@ -227,7 +250,38 @@ export function TodoItem({
               }).replace("{reason}", todo.doneReason)}
             </Text>
           ) : null}
+          {!done && todo.waitingNote ? (
+            <Text as="p" look="bodySmall" tone="muted">
+              {(todo.waitingOn === null
+                ? t({
+                    en: "The reply came: {reason}",
+                    zh: "回复已到：{reason}",
+                  })
+                : t({
+                    en: "The morning report says: {reason}",
+                    zh: "晨报说：{reason}",
+                  })
+              ).replace("{reason}", todo.waitingNote)}
+            </Text>
+          ) : null}
           <div css={[cluster.inline, styles.meta]}>
+            {todo.waitingOn !== null && !done ? (
+              <Badge size="sm" intent="info" css={styles.waitingOn}>
+                <span css={truncate.base}>
+                  {t({ en: "Waiting on {who}", zh: "在等 {who}" }).replace(
+                    "{who}",
+                    todo.waitingOn,
+                  )}
+                </span>
+              </Badge>
+            ) : null}
+            {todo.waitingOn !== null && todo.followUpDate !== null && !done ? (
+              <FollowUpBadge
+                date={todo.followUpDate}
+                today={today}
+                locale={locale}
+              />
+            ) : null}
             {todo.dueDate !== null && !done ? (
               <DueBadge
                 dueDate={todo.dueDate}
@@ -347,6 +401,9 @@ const styles = stylex.create({
       default: 0,
       ":not(:empty)": rhythm.inline,
     },
+  },
+  waitingOn: {
+    maxInlineSize: "100%",
   },
   // Alone on its line, the label starts under the title, not its button's padding.
   reopen: {

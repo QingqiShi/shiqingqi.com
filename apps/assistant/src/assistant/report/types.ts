@@ -85,6 +85,10 @@ export interface MorningReportContentV2 {
   unreadMailboxes: { accountId: string; address: string }[];
   /** Open to-dos the agent closed because the mail shows they are done. */
   doneTodos: { id: string; title: string; reason: string }[];
+  /** Open to-dos the agent made wait. Older reports do not have this. */
+  waitingTodoIds?: string[];
+  /** To-dos the agent moved back to open because the reply came. Older reports do not have this. */
+  repliedTodoIds?: string[];
 }
 
 /** What a morning report stores: the model's words and counts, never the mail. */

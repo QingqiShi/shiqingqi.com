@@ -356,6 +356,8 @@ export async function runReportAgent(
           add_todo: upFront(todo.tools.add_todo, true),
           complete_todo: upFront(todo.tools.complete_todo, true),
           update_todo: upFront(todo.tools.update_todo, false),
+          mark_waiting: upFront(todo.tools.mark_waiting, false),
+          reply_came: upFront(todo.tools.reply_came, false),
           [SUBMIT]: submit,
         };
         if (!calendars.hasAccounts) return tools;

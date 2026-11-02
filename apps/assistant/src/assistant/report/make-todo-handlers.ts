@@ -76,6 +76,31 @@ const occurrenceBody = z
     ticked: z.array(z.uuid()).max(todoLimits.orderedTodos).default([]),
   })
   .refine(datesInOrder);
+const waitingOn = z.string().trim().min(1).max(todoLimits.waitingOnChars);
+const followUpDate = localDate.nullable();
+const waitingBody = z.union([
+  z
+    .strictObject({ waitingOn: waitingOn.nullable(), followUpDate })
+    .refine((body) => body.waitingOn !== null || body.followUpDate === null),
+  z.strictObject({
+    restore: z
+      .strictObject({
+        waitingOn: waitingOn.nullable(),
+        followUpDate,
+        waitingSince: instant.nullable(),
+        waitingNote: z.string().nullable(),
+        ownerSet: z.strictObject({
+          waitingOn: z.boolean(),
+          followUpDate: z.boolean(),
+        }),
+      })
+      .refine(
+        (body) =>
+          (body.waitingOn === null) === (body.waitingSince === null) &&
+          (body.waitingOn !== null || body.followUpDate === null),
+      ),
+  }),
+]);
 const dueDatesBody = z.strictObject({
   changes: z
     .array(
@@ -204,6 +229,31 @@ export function makeTodoHandlers(
         return saved(
           await ownerTodos.moveOccurrence(scope, todoId, body.data, now),
         );
+      }),
+
+    /** Makes a to-do wait, changes its wait or ends it, and answers with what it was. Or puts that back. */
+    changeWaiting: (request: Request, todoId: string) =>
+      withSession(request, async (scope, now) => {
+        const body = await readBody(request, waitingBody);
+        if (!body.success) return invalidBody();
+        if (!isTodoId(todoId)) return notFound();
+        if ("restore" in body.data) {
+          return saved(
+            await ownerTodos.restoreWaiting(
+              scope,
+              todoId,
+              body.data.restore,
+              now,
+            ),
+          );
+        }
+        const earlier = await ownerTodos.changeWaiting(
+          scope,
+          todoId,
+          body.data,
+          now,
+        );
+        return earlier ? assistantJson({ earlier }) : notFound();
       }),
 
     /** Asks for a to-do's reminder again later. */

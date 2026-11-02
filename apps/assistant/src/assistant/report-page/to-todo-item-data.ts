@@ -17,6 +17,11 @@ export interface TodoItemData {
   nextReminderAt: string | null;
   /** The occurrence that closing this one made. */
   nextId: string | null;
+  /** Who or what it waits on. */
+  waitingOn: string | null;
+  followUpDate: string | null;
+  /** Why the report agent made it wait or ended the wait. */
+  waitingNote: string | null;
   checklist: readonly ChecklistItem[];
   createdBy: TodoCreator;
   /** ISO time; null while open. */
@@ -45,6 +50,9 @@ export function toTodoItemData(
     remindAt: todo.remindAt?.toISOString() ?? null,
     nextReminderAt: todo.nextReminderAt?.toISOString() ?? null,
     nextId: todo.nextId,
+    waitingOn: todo.waitingOn,
+    followUpDate: todo.followUpDate,
+    waitingNote: todo.waitingNote,
     checklist: todo.checklist,
     createdBy: todo.createdBy,
     doneAt: todo.doneAt?.toISOString() ?? null,

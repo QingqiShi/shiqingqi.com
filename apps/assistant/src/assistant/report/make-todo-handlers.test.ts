@@ -1156,4 +1156,121 @@ describe("the checklist of a to-do", () => {
     );
     expect(await checklist(todo.id)).toEqual([["Check the amount", true]]);
   });
+
+  describe("waiting", () => {
+    const put = (todoId: string, body: unknown) =>
+      handlers.changeWaiting(request("PUT", body), todoId);
+
+    it("makes the wait the owner's, from now on, and ends it the same way", async () => {
+      const { id } = await insertTodo(owner);
+
+      const marked = await put(id, {
+        waitingOn: " Alice ",
+        followUpDate: "2026-11-05",
+      });
+
+      expect(marked.status).toBe(200);
+      const row = await stored(id);
+      expect(row).toMatchObject({
+        waitingOn: "Alice",
+        followUpDate: "2026-11-05",
+        waitingSince: NOW,
+      });
+      expect(row.ownerEditedFields.toSorted()).toEqual([
+        "followUpDate",
+        "waitingOn",
+      ]);
+
+      await put(id, { waitingOn: null, followUpDate: null });
+
+      expect(await stored(id)).toMatchObject({
+        waitingOn: null,
+        followUpDate: null,
+        waitingSince: null,
+      });
+    });
+
+    it("keeps when a wait began when only its follow-up date changes", async () => {
+      const since = new Date("2026-10-30T09:00:00Z");
+      const { id } = await insertTodo(owner);
+      await db
+        .update(todos)
+        .set({
+          waitingOn: "Alice",
+          waitingSince: since,
+          waitingNote: "She said so.",
+        })
+        .where(eq(todos.id, id));
+
+      await put(id, { waitingOn: "Alice", followUpDate: "2026-11-05" });
+
+      const row = await stored(id);
+      expect(row).toMatchObject({
+        followUpDate: "2026-11-05",
+        waitingSince: since,
+        waitingNote: "She said so.",
+      });
+      expect(row.ownerEditedFields).toEqual(["followUpDate"]);
+    });
+
+    it("undoes a change to exactly what the wait was, also whose it was", async () => {
+      const since = new Date("2026-10-30T09:00:00Z");
+      const { id } = await insertTodo(owner);
+      await db
+        .update(todos)
+        .set({
+          waitingOn: "Alice",
+          followUpDate: "2026-11-05",
+          waitingSince: since,
+          waitingNote: "She said so.",
+          ownerEditedFields: ["title"],
+        })
+        .where(eq(todos.id, id));
+
+      const response = await put(id, { waitingOn: null, followUpDate: null });
+      const { earlier } = z
+        .object({ earlier: z.object({}).loose() })
+        .parse(await response.json());
+      await put(id, { restore: earlier });
+
+      expect(await stored(id)).toMatchObject({
+        waitingOn: "Alice",
+        followUpDate: "2026-11-05",
+        waitingSince: since,
+        waitingNote: "She said so.",
+        ownerEditedFields: ["title"],
+      });
+    });
+
+    it("reaches only the user's own to-dos, and needs someone to follow up on", async () => {
+      const theirs = await insertTodo(stranger);
+      const mine = await insertTodo(owner);
+
+      const strangers = await put(theirs.id, {
+        waitingOn: "Alice",
+        followUpDate: null,
+      });
+      const noOne = await put(mine.id, {
+        waitingOn: null,
+        followUpDate: "2026-11-05",
+      });
+
+      expect(strangers.status).toBe(404);
+      expect((await stored(theirs.id)).waitingOn).toBeNull();
+      expect(noOne.status).toBe(400);
+    });
+
+    it("comes back with the to-do when the owner undoes a close of many", async () => {
+      const { id } = await insertTodo(owner);
+      await put(id, { waitingOn: "Alice", followUpDate: null });
+
+      await handlers.bulk(request("POST", { action: "done", todos: [{ id }] }));
+      await handlers.bulk(request("POST", { action: "reopen", ids: [id] }));
+
+      expect(await stored(id)).toMatchObject({
+        doneAt: null,
+        waitingOn: "Alice",
+      });
+    });
+  });
 });
