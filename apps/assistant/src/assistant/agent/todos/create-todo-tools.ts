@@ -12,6 +12,7 @@ import {
 import { z } from "zod";
 import { todos, type TodoEditableField } from "#src/assistant/db/schema.ts";
 import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
+import { datesInOrder } from "#src/assistant/report/dates-in-order.ts";
 import { ownTodo, todoSource } from "#src/assistant/report/own-todo.ts";
 import type { MailSource } from "#src/assistant/report/types.ts";
 import { agentTool, ToolRefusal, type AgentTools } from "../agent-tool.ts";
@@ -29,6 +30,7 @@ export interface StoredTodo {
   title: string;
   detail: string | null;
   dueDate: string | null;
+  startDate: string | null;
   /** The fields that the owner set, which the agent may not change. */
   ownerEditedFields: readonly TodoEditableField[];
 }
@@ -47,13 +49,14 @@ interface NewTodo {
   title: string;
   detail: string | null;
   dueDate: string | null;
+  startDate: string | null;
   source: MailSource | null;
   /** The deleted to-do that this one brings back. */
   reAddsTodoId: string | null;
 }
 
 export type TodoEdit = Partial<
-  Pick<StoredTodo, "title" | "detail" | "dueDate">
+  Pick<StoredTodo, "title" | "detail" | "dueDate" | "startDate">
 >;
 
 /** What a run wants to change in the to-do list: nothing is written until the report is stored. */
@@ -71,6 +74,7 @@ export function readOpenTodos(scope: UserScope): Promise<StoredTodo[]> {
       title: todos.title,
       detail: todos.detail,
       dueDate: todos.dueDate,
+      startDate: todos.startDate,
       ownerEditedFields: todos.ownerEditedFields,
     })
     .from(todos)
@@ -123,6 +127,11 @@ const todoKey = z
 const title = z.string().trim().min(1).max(MAX_TITLE_CHARS);
 const detail = z.string().trim().max(MAX_TEXT_CHARS);
 const dueDate = z.iso.date().describe("YYYY-MM-DD.");
+const startDate = z.iso
+  .date()
+  .describe(
+    "YYYY-MM-DD, not after dueDate. The day the to-do joins the owner's list for today, for when a mail says when to act.",
+  );
 
 /**
  * Refuses a to-do that the owner deleted, and gives the id of the deleted
@@ -247,6 +256,7 @@ export function createTodoTools({
       title: entry.todo.title,
       detail: entry.todo.detail,
       dueDate: entry.todo.dueDate,
+      startDate: entry.todo.startDate,
       ownerSet: ownerSet(entry),
     };
   }
@@ -273,6 +283,7 @@ export function createTodoTools({
           .optional()
           .describe("One line of context: who asked, an amount, a reference."),
         dueDate: dueDate.optional(),
+        startDate: startDate.optional(),
         mail: z
           .string()
           .optional()
@@ -290,6 +301,14 @@ export function createTodoTools({
           throw new ToolRefusal(
             `This run has added ${String(limits.adds)} to-dos, the most it may.`,
           );
+        }
+        if (
+          !datesInOrder({
+            startDate: input.startDate ?? null,
+            dueDate: input.dueDate ?? null,
+          })
+        ) {
+          throw new ToolRefusal("startDate cannot be after dueDate.");
         }
         const same = [...entries].find(
           ([, entry]) =>
@@ -313,6 +332,7 @@ export function createTodoTools({
           title: input.title,
           detail: input.detail || null,
           dueDate: input.dueDate ?? null,
+          startDate: input.startDate ?? null,
           source: mail?.source ?? null,
           reAddsTodoId,
         };
@@ -364,12 +384,13 @@ export function createTodoTools({
 
     update_todo: agentTool({
       description:
-        "Changes an open to-do when mail changes it, such as a new due date. null clears detail or dueDate. The fields the owner set cannot change.",
+        "Changes an open to-do when mail changes it, such as a new due date. null clears detail, dueDate or startDate. The fields the owner set cannot change.",
       inputSchema: z.object({
         todo: todoKey,
         title: title.optional(),
         detail: detail.nullable().optional(),
         dueDate: dueDate.nullable().optional(),
+        startDate: startDate.nullable().optional(),
       }),
       describe: ({ todo: key, title: newTitle }) => {
         const { title: oldTitle } = open(key).todo;
@@ -381,6 +402,7 @@ export function createTodoTools({
         if (input.title !== undefined) edit.title = input.title;
         if (input.detail !== undefined) edit.detail = input.detail || null;
         if (input.dueDate !== undefined) edit.dueDate = input.dueDate;
+        if (input.startDate !== undefined) edit.startDate = input.startDate;
         if (Object.keys(edit).length === 0) {
           throw new ToolRefusal("Give at least one field to change.");
         }
@@ -388,6 +410,11 @@ export function createTodoTools({
         if (refused.length > 0) {
           throw new ToolRefusal(
             `The owner set ${refused.join(" and ")} of to-do ${key}, so leave it as it is. If the mail conflicts with it, say so in the report instead.`,
+          );
+        }
+        if (!datesInOrder({ ...entry.todo, ...edit })) {
+          throw new ToolRefusal(
+            `That would start to-do ${key} after its due date. Change both dates, or if the owner set one and the mail conflicts with it, say so in the report instead.`,
           );
         }
         takeChange();
@@ -415,7 +442,8 @@ export function createTodoTools({
  * Every write names the user, and a change reaches only a to-do that is still
  * open and not deleted, so one the owner closed or deleted during the run stays
  * as it is. The row is read again under a lock, so a field that the owner set
- * during the run stays as the owner set it.
+ * during the run stays as the owner set it, and dates that no longer fit the
+ * owner's stay as they are.
  */
 export async function applyTodoChanges(
   tx: Pick<AssistantDb, "insert" | "select" | "update">,
@@ -434,6 +462,7 @@ export async function applyTodoChanges(
         title: todo.title,
         detail: todo.detail,
         dueDate: todo.dueDate,
+        startDate: todo.startDate,
         sourceAccountId: todo.source?.accountId ?? null,
         sourceMessageId: todo.source?.messageId ?? null,
         createdBy: "report" as const,
@@ -452,6 +481,8 @@ export async function applyTodoChanges(
           .select({
             id: todos.id,
             ownerEditedFields: todos.ownerEditedFields,
+            dueDate: todos.dueDate,
+            startDate: todos.startDate,
           })
           .from(todos)
           .where(
@@ -464,13 +495,12 @@ export async function applyTodoChanges(
             ),
           )
           .for("update");
-  const ownerSetOf = new Map(
-    locked.map((row) => [row.id, row.ownerEditedFields]),
-  );
+  const stored = new Map(locked.map((row) => [row.id, row]));
   for (const { id, edit } of changes.updated) {
-    const ownerSet = ownerSetOf.get(id);
-    if (!ownerSet) continue;
-    const free = (field: TodoEditableField) => !ownerSet.includes(field);
+    const row = stored.get(id);
+    if (!row) continue;
+    const free = (field: TodoEditableField) =>
+      !row.ownerEditedFields.includes(field);
     const allowed: TodoEdit = {};
     if (edit.title !== undefined && free("title")) allowed.title = edit.title;
     if (edit.detail !== undefined && free("detail")) {
@@ -479,7 +509,15 @@ export async function applyTodoChanges(
     if (edit.dueDate !== undefined && free("dueDate")) {
       allowed.dueDate = edit.dueDate;
     }
+    if (edit.startDate !== undefined && free("startDate")) {
+      allowed.startDate = edit.startDate;
+    }
+    if (!datesInOrder({ ...row, ...allowed })) {
+      delete allowed.dueDate;
+      delete allowed.startDate;
+    }
     if (Object.keys(allowed).length === 0) continue;
+    stored.set(id, { ...row, ...allowed });
     await tx
       .update(todos)
       .set({ ...allowed, updatedAt: now })

@@ -180,7 +180,12 @@ export const morningReports = pgTable(
 const TODO_CREATORS = ["owner", "report"] as const;
 export type TodoCreator = (typeof TODO_CREATORS)[number];
 
-export const TODO_EDITABLE_FIELDS = ["title", "detail", "dueDate"] as const;
+export const TODO_EDITABLE_FIELDS = [
+  "title",
+  "detail",
+  "dueDate",
+  "startDate",
+] as const;
 export type TodoEditableField = (typeof TODO_EDITABLE_FIELDS)[number];
 
 /**
@@ -196,6 +201,8 @@ export const todos = pgTable(
     title: text("title").notNull(),
     detail: text("detail"),
     dueDate: date("due_date", { mode: "string" }),
+    /** The day it joins the owner's list for today, before its due date does. */
+    startDate: date("start_date", { mode: "string" }),
     sourceAccountId: uuid("source_account_id").references(
       () => mailAccounts.id,
       { onDelete: "set null" },
@@ -234,6 +241,7 @@ export const todos = pgTable(
       .on(t.userId, t.createdAt)
       .where(sql`${t.doneAt} is null`),
     index("todos_report_idx").on(t.createdReportId),
+    check("todos_start_not_after_due", sql`${t.startDate} <= ${t.dueDate}`),
   ],
 );
 

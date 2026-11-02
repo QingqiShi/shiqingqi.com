@@ -31,6 +31,7 @@ function page(
     title: "Pay the invoice",
     detail: null,
     dueDate: null,
+    startDate: null,
     createdBy: "owner",
     doneAt: null,
     doneReason: null,

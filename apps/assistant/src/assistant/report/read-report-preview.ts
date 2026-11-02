@@ -56,6 +56,7 @@ export async function readReportPreview(
     title: todo.title,
     detail: todo.detail,
     dueDate: todo.dueDate,
+    startDate: todo.startDate,
     createdAt: builtAt,
     createdBy: "report",
     doneAt: null,

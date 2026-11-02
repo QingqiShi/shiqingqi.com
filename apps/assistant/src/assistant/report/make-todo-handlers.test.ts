@@ -124,6 +124,84 @@ describe("the owner's to-do requests", () => {
     ]);
   });
 
+  it("note a start date as the owner's, and refuse one after the due date", async () => {
+    const { id } = await insertTodo(owner);
+    await db
+      .update(todos)
+      .set({ dueDate: "2026-11-05" })
+      .where(eq(todos.id, id));
+
+    const after = await handlers.update(
+      request("PATCH", { startDate: "2026-11-06" }),
+      id,
+    );
+    expect(after.status).toBe(409);
+    expect(await after.json()).toEqual({ error: "start-after-due" });
+    expect((await stored(id)).startDate).toBeNull();
+    expect((await stored(id)).ownerEditedFields).toEqual([]);
+
+    expect(
+      (await handlers.update(request("PATCH", { startDate: "2026-11-05" }), id))
+        .status,
+    ).toBe(204);
+    expect(await stored(id)).toMatchObject({
+      startDate: "2026-11-05",
+      ownerEditedFields: ["startDate"],
+    });
+    expect(
+      (await handlers.update(request("PATCH", { dueDate: "2026-11-04" }), id))
+        .status,
+    ).toBe(409);
+    expect(
+      (
+        await handlers.update(
+          request("PATCH", { dueDate: "2026-11-04", startDate: null }),
+          id,
+        )
+      ).status,
+    ).toBe(204);
+    expect(await stored(id)).toMatchObject({
+      dueDate: "2026-11-04",
+      startDate: null,
+    });
+  });
+
+  it("refuse a new to-do that starts after it is due", async () => {
+    const response = await handlers.add(
+      request("POST", {
+        id: randomUUID(),
+        title: "Pay",
+        dueDate: "2026-11-05",
+        startDate: "2026-11-06",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(await db.select().from(todos)).toEqual([]);
+  });
+
+  it("move no due date at all when one would come before its start date", async () => {
+    const free = await insertTodo(owner);
+    const starting = await insertTodo(owner);
+    await db
+      .update(todos)
+      .set({ dueDate: "2026-11-09", startDate: "2026-11-08" })
+      .where(eq(todos.id, starting.id));
+
+    const response = await handlers.changeDueDates(
+      request("PATCH", {
+        changes: [
+          { id: free.id, dueDate: "2026-11-02", ownerSet: true },
+          { id: starting.id, dueDate: "2026-11-02", ownerSet: true },
+        ],
+      }),
+    );
+
+    expect(response.status).toBe(409);
+    expect((await stored(free.id)).dueDate).toBeNull();
+    expect((await stored(starting.id)).dueDate).toBe("2026-11-09");
+  });
+
   it("clear the agent's reason when the owner opens a to-do again", async () => {
     const { id } = await insertTodo(owner);
     await db
