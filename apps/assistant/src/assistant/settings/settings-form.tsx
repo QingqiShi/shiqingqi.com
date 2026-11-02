@@ -66,8 +66,8 @@ export function SettingsForm({
       <Select
         label={t({ en: "Time zone", zh: "时区" })}
         description={t({
-          en: "The report follows the clock of this zone, summer time included. It covers the mail of the day before in this zone.",
-          zh: "晨报按这个时区的时间送达，包括夏令时，并以这个时区的“前一天”来读取邮件。",
+          en: "The report follows the clock of this zone, summer time included. It covers the 24 hours before the report time in this zone.",
+          zh: "晨报按这个时区的时间送达，包括夏令时，并读取这个时区里晨报时间之前 24 小时的邮件。",
         })}
         value={values.timeZone}
         options={timeZones.map((zone) => ({

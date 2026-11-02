@@ -107,6 +107,39 @@ async function listInbox(call: Awaited<ReturnType<typeof startRun>>) {
 }
 
 describe("the mail tools", () => {
+  it("list mail between days or exact times, an end not included", async () => {
+    const deliverAt = (subject: string, internalDate: string) =>
+      server.deliver(
+        "INBOX",
+        rawMail({ messageId: `<${subject}@example.com>`, subject }),
+        { internalDate: new Date(internalDate) },
+      );
+    deliverAt("before", "2026-10-31T07:59:59Z");
+    deliverAt("first", "2026-10-31T08:00:00Z");
+    deliverAt("last", "2026-11-01T07:59:59Z");
+    deliverAt("end", "2026-11-01T08:00:00Z");
+    const call = await startRun();
+    const subjects = async (since: string, before: string) =>
+      listedSchema
+        .parse(
+          await call("list_mail", {
+            account: "a1",
+            folder: "INBOX",
+            since,
+            before,
+          }),
+        )
+        .mails.map((mail) => mail.subject);
+
+    expect(
+      await subjects("2026-10-31T08:00:00Z", "2026-11-01T08:00:00+00:00"),
+    ).toEqual(["first", "last"]);
+    expect(await subjects("2026-10-31", "2026-11-01")).toEqual([
+      "before",
+      "first",
+    ]);
+  });
+
   it("move mail into Junk and the owner's folders, refuse Trash, Sent, Drafts and virtual folders, and never delete", async () => {
     const statement = deliver("Card statement");
     const prize = deliver("You won a prize");
