@@ -304,6 +304,8 @@ export const measure = stylex.defineConsts({
    * characters, around 50 Latin, so it reads as one compact unit.
    */
   short: "24em",
+  /** A column of form fields, so that their edges line up. */
+  form: "32em",
 });
 
 export const color = stylex.defineVars({
