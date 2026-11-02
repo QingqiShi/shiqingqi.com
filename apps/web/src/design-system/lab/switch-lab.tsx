@@ -9,8 +9,7 @@ import type { LabConfig } from "./types.ts";
 
 type SwitchLabProps = ComponentProps<typeof Switch>;
 
-// Switch needs no `label` prop of its own — an `aria-label` names it, so every
-// Variant carries one.
+// A bare Switch takes an `aria-label`, so each bare Variant carries one.
 const ARIA_LABEL = "Notifications";
 
 /**
@@ -59,6 +58,15 @@ const config: LabConfig<SwitchLabProps> = {
       id: "no-effect",
       label: { en: "No effect", zh: "无效果" },
       props: { value: "off", effect: "none", "aria-label": ARIA_LABEL },
+    },
+    {
+      id: "labelled",
+      label: { en: "With a label", zh: "带标签" },
+      props: {
+        value: "on",
+        label: "Notifications",
+        description: "Get a message when your report is ready.",
+      },
     },
   ],
   controls: ["size", "value", "effect", { prop: "disabled", kind: "boolean" }],

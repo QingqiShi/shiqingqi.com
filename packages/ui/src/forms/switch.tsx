@@ -8,25 +8,35 @@ import { useLiquid } from "../effect-layer/use-liquid.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { corner } from "../primitives/corner.stylex.ts";
+import { justify } from "../primitives/flex.stylex.ts";
 import {
   duration,
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
+import { row, stack } from "../primitives/stack.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
 import {
   border,
   color,
   controlHeight,
+  controlSize,
   layer,
   opacity,
   ratio,
   shadow,
 } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
+import {
+  fieldSizeInline,
+  fieldStyles,
+  fieldVars,
+} from "./field-shared.stylex.ts";
 import { DRAG_THRESHOLD, indexAt } from "./index-at.ts";
 import { selectedSurface } from "./segment-track.stylex.ts";
 import { switchTokens } from "./switch.stylex.ts";
+import { useFieldAria } from "./use-field-aria.ts";
 
 export type SwitchState = "off" | "on" | "indeterminate";
 
@@ -41,6 +51,21 @@ interface SwitchProps extends Omit<
   React.ComponentProps<"input">,
   "checked" | "onChange" | "size" | "className" | "style"
 > {
+  /**
+   * The setting's name. The name and the switch share one row, which looks
+   * like the box of a `Select` or a `TextField`, with the switch at its end.
+   * Without a `label`, the switch renders alone and takes an `aria-label`.
+   *
+   * @zh 设置项的名称。名称与开关同处一行，这一行的外观与 `Select`、`TextField` 的方框一致，开关位于行尾。没有 `label` 时只渲染开关本身，并需要 `aria-label`。
+   */
+  label?: string;
+  /**
+   * Supporting copy under the row, wired via `aria-describedby`. Shows only
+   * with a `label`.
+   *
+   * @zh 这一行下方的说明文字，通过 `aria-describedby` 关联。仅在有 `label` 时显示。
+   */
+  description?: string;
   /**
    * Controlled state — the parent owns it and must update it via `onChange`.
    * Omit for an uncontrolled switch.
@@ -63,11 +88,11 @@ interface SwitchProps extends Omit<
   /**
    * Track-height scale via `controlHeight`; the width and thumb scale with
    * it. Every size, `md` included, grows below the `md` breakpoint like the
-   * `controlHeight` scale.
+   * `controlHeight` scale. Defaults to `"xs"` with a `label`, else `"md"`.
    *
-   * @zh 基于 `controlHeight` 的轨道高度阶梯；宽度与滑块随之缩放。
+   * @zh 基于 `controlHeight` 的轨道高度阶梯；宽度与滑块随之缩放。有 `label` 时默认为 `"xs"`，否则为 `"md"`。
    */
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
   /**
    * An effect the effect layer draws on the thumb. `"liquid"`, the default,
    * keeps the solid thumb at rest and lights its edge from above, leaning
@@ -88,10 +113,10 @@ interface SwitchProps extends Omit<
    */
   effect?: "liquid" | "none";
   /**
-   * StyleX styles merged over the switch's own — the config-layer escape
-   * hatch.
+   * StyleX styles merged over the root's own, which is the field with a
+   * `label` and the switch without one — the config-layer escape hatch.
    *
-   * @zh 合并在开关自身样式之上的 StyleX 样式——配置层的逃生舱口。
+   * @zh 合并在根元素自身样式之上的 StyleX 样式（有 `label` 时根元素是整个字段，否则是开关本身）——配置层的逃生舱口。
    */
   css?: StyleProp;
 }
@@ -101,18 +126,30 @@ interface SwitchProps extends Omit<
  * drag, keyboard, and click activation, controlled or uncontrolled.
  *
  * Renders as `<input role="switch">`, so it needs an accessible name: pass
- * `aria-label`, or associate a `<label>` so clicking it toggles the switch.
+ * `label`, which also lays out the setting, or `aria-label` where the words
+ * around it already say what it does.
  */
 export function Switch({
+  label,
+  description,
   value: valueProp,
   defaultValue,
   onChange,
-  size = "md",
+  size: sizeProp,
   effect = "liquid",
   css,
+  id,
+  "aria-describedby": ariaDescribedBy,
   ref: forwardedRef,
   ...rest
 }: SwitchProps) {
+  const bare = label === undefined;
+  const { fieldId, descriptionId, hasDescription, describedBy } = useFieldAria({
+    id,
+    ariaDescribedBy,
+    description: bare ? undefined : description,
+  });
+  const size = sizeProp ?? (bare ? "md" : "xs");
   const elRef = useRef<HTMLInputElement>(null);
   const hasSetInitialRenderedRef = useRef(false);
   // Set once a pointer release or Space keypress toggles state, so the
@@ -177,10 +214,12 @@ export function Switch({
     markInitialRendered,
   );
 
-  return (
+  const input = (
     <input
       ref={setInputRef}
       {...rest}
+      id={fieldId}
+      aria-describedby={describedBy}
       css={[
         buttonReset.base,
         corner.radius_round,
@@ -189,7 +228,7 @@ export function Switch({
         initialRendered && styles.animate,
         drag !== null && styles.dragging(drag),
         effect === "liquid" && styles.otherFill,
-        css,
+        bare && css,
       ]}
       role="switch"
       type="checkbox"
@@ -212,23 +251,64 @@ export function Switch({
           setControlledValue(value === "on" ? "off" : "on");
         }
       }}
-      onChange={(e) => {
-        e.preventDefault();
-      }}
       onClick={(e) => {
-        e.preventDefault();
         if (toggleHandledRef.current) {
+          e.preventDefault();
           toggleHandledRef.current = false;
           return;
         }
         // With no preceding toggle, this click came from an associated
-        // `<label>`; toggle so label activation still works.
+        // `<label>`. Do not cancel the click: the browser would restore the
+        // old `checked` after the layout effect set the new one. Put the DOM
+        // back to the current state instead, because a parent can update the
+        // state later or not at all.
         if (rest.disabled) {
+          e.preventDefault();
           return;
         }
+        e.currentTarget.checked = value === "on";
+        e.currentTarget.indeterminate = value === "indeterminate";
         setControlledValue(value === "on" ? "off" : "on");
       }}
     />
+  );
+
+  if (bare) {
+    return input;
+  }
+
+  return (
+    <div css={[stack.tight, fieldStyles.root, css]}>
+      <div
+        css={[
+          row.item,
+          justify.between,
+          fieldStyles.box,
+          fieldSizeInline.md,
+          styles.row,
+        ]}
+      >
+        <label
+          htmlFor={fieldId}
+          css={[
+            typeRole.control,
+            styles.label,
+            rest.disabled && styles.labelDisabled,
+          ]}
+        >
+          {label}
+        </label>
+        {input}
+      </div>
+      {hasDescription ? (
+        <span
+          id={descriptionId}
+          css={[typeRole.caption, fieldStyles.description]}
+        >
+          {description}
+        </span>
+      ) : null}
+    </div>
   );
 }
 
@@ -350,8 +430,21 @@ function useSwitchDrag({
 const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
 
 const styles = stylex.create({
+  row: {
+    minBlockSize: controlHeight.md,
+    paddingBlock: controlSize._1,
+    paddingInline: fieldVars.paddingInline,
+  },
+  label: {
+    color: color.fg,
+    cursor: "pointer",
+  },
+  labelDisabled: {
+    cursor: "not-allowed",
+  },
   switch: {
     margin: 0,
+    flexShrink: 0,
     aspectRatio: ratio.double,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: 1, ":disabled": opacity.disabled },
@@ -452,6 +545,7 @@ const styles = stylex.create({
 // Each size sets the `switchTokens.trackHeight` knob; `styles.switch` derives
 // height, width, thumb size, and travel from it.
 const sizeStyles = stylex.create({
+  xs: { [switchTokens.trackHeight]: controlHeight.xs },
   sm: { [switchTokens.trackHeight]: controlHeight.sm },
   md: { [switchTokens.trackHeight]: controlHeight.md },
   lg: { [switchTokens.trackHeight]: controlHeight.lg },

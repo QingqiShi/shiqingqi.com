@@ -403,5 +403,6 @@ These are `stylex.defineConsts`, not theme-aware vars.
 - `layout.maxInlineSize` — `1140px`, the widest the page column grows, its gutters included. Only `@tuja/ui` reads it: a page takes the `pageColumn` Primitive, and the `@tuja/require-page-column` lint rule refuses it elsewhere
 - `measure.prose` — `41em`, the Measure for running prose: 41 Chinese characters at any size, around 88 Latin. A `<Text>` paragraph (`as="p"` at `body` or `bodySmall`) already takes it, and moves its box with `align`; a span, a div, a caption and an overline stay uncapped
 - `measure.short` — `24em`, the Measure for a short block that stands alone: a lede, an empty state, a hint, a popover's text
+- `measure.form` — `32em`, the width of a column of form fields, so that their edges line up
 
 The Measure caps a line; `layout.maxInlineSize` caps the page. A raw `ch` value on `maxInlineSize` or `maxWidth` is refused by the `@tuja/require-measure` lint rule.

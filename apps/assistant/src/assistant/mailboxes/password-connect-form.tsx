@@ -6,6 +6,7 @@ import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { TextField } from "@tuja/ui/components/text-field";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { measure } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toAssistantApiError } from "../http/assistant-api-error.ts";
@@ -129,6 +130,6 @@ export function PasswordConnectForm({
 
 const styles = stylex.create({
   form: {
-    maxInlineSize: "32rem",
+    maxInlineSize: measure.form,
   },
 });

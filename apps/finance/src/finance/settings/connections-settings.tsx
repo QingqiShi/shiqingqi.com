@@ -550,8 +550,6 @@ function ProviderAccountCard({
 }: ProviderAccountCardProps) {
   const locale = useLocale();
   const bankLinks = useReplica(liveRowSelectors.bankLinks);
-  const switchId = useId();
-  const hintId = useId();
   const moreId = useId();
   const [moreOpen, setMoreOpen] = useState(() => choiceOf(account).flipped);
   const replicaLink = account.link
@@ -675,29 +673,20 @@ function ProviderAccountCard({
           </div>
           {moreOpen ? (
             <div id={moreId} css={stack.tight}>
-              <div css={row.tight}>
-                <Switch
-                  id={switchId}
-                  size="sm"
-                  aria-describedby={hintId}
-                  value={choice.flipped ? "on" : "off"}
-                  onChange={(state) => {
-                    onChange({ ...choice, flipped: state === "on" });
-                  }}
-                />
-                <label htmlFor={switchId} css={typeRole.bodySmall}>
-                  {t({
-                    en: "Spending arrives as a positive amount",
-                    zh: "银行把支出显示为正数",
-                  })}
-                </label>
-              </div>
-              <span id={hintId} css={[typeRole.caption, styles.muted]}>
-                {t({
+              <Switch
+                label={t({
+                  en: "Spending arrives as a positive amount",
+                  zh: "银行把支出显示为正数",
+                })}
+                description={t({
                   en: "Turn on only if this account's purchases arrive as money in. Most banks and cards show purchases as negative.",
                   zh: "仅当此账户的消费显示为入账时才打开。大多数银行和信用卡把消费显示为负数。",
                 })}
-              </span>
+                value={choice.flipped ? "on" : "off"}
+                onChange={(state) => {
+                  onChange({ ...choice, flipped: state === "on" });
+                }}
+              />
             </div>
           ) : null}
         </div>

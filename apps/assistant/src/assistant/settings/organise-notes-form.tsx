@@ -6,6 +6,7 @@ import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Textarea } from "@tuja/ui/components/textarea";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { measure } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { assistantFetch } from "../http/assistant-fetch.ts";
@@ -79,6 +80,6 @@ export function OrganiseNotesForm({ initial }: { initial: string }) {
 
 const styles = stylex.create({
   form: {
-    maxInlineSize: "32rem",
+    maxInlineSize: measure.form,
   },
 });

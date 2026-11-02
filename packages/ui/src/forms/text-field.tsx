@@ -167,6 +167,7 @@ export function TextField({
           aria-describedby={describedBy}
           css={[
             typeRole.control,
+            fieldStyles.box,
             fieldStyles.control,
             fieldSizeLine[size],
             transition.colors,

@@ -173,6 +173,7 @@ export function Select({
           aria-describedby={describedBy}
           css={[
             typeRole.control,
+            fieldStyles.box,
             fieldStyles.control,
             fieldSizeLine[size],
             fieldStyles.hasTrailingAffix,

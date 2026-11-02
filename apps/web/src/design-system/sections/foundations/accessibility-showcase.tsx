@@ -74,8 +74,8 @@ export function AccessibilityShowcase() {
         </Stage>
         <GuideNote>
           {t({
-            en: "Switch has no label prop: give it aria-label, or wrap it in a <label>.",
-            zh: "Switch 没有 label 属性：请为它加上 aria-label，或用 <label> 包住它。",
+            en: "A Switch needs a name: give it a label, or an aria-label where the words around it already say what it does.",
+            zh: "Switch 需要名称：请为它加上 label，或在周围文字已说明用途时加上 aria-label。",
           })}
         </GuideNote>
         <GuideNote>

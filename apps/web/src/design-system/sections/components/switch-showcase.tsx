@@ -1,8 +1,6 @@
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Switch } from "@tuja/ui/components/switch";
 import { Text } from "@tuja/ui/components/text";
-import { rhythm } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -40,8 +38,37 @@ export function SwitchShowcase() {
         </SpecimenGrid>
       </Showcase>
 
+      <Showcase
+        label={t({ en: "Label and description", zh: "标签与说明" })}
+        leadsWithText
+      >
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "With a `label`, the name and the switch share a row in the look of a `Select` box, and the description sits beneath it.",
+            zh: "有 `label` 时，名称与开关同处一行，外观与 `Select` 的方框一致，说明文字位于其下方。",
+          })}
+        </Text>
+        <Specimen caption="label, description">
+          <Switch
+            defaultValue="on"
+            label={t({ en: "Show subtitles", zh: "显示字幕" })}
+            description={t({
+              en: "Captions appear at the bottom of the screen while a video plays.",
+              zh: "播放视频时，字幕会显示在屏幕底部。",
+            })}
+          />
+        </Specimen>
+      </Showcase>
+
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
         <SpecimenGrid>
+          <Specimen caption="xs">
+            <Switch
+              size="xs"
+              defaultValue="on"
+              aria-label={t({ en: "Extra small", zh: "特小" })}
+            />
+          </Specimen>
           <Specimen caption="sm">
             <Switch
               size="sm"
@@ -106,35 +133,18 @@ export function SwitchShowcase() {
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont
-          do={
-            <label css={styles.switchField}>
-              <Text as="span" look="bodySmall">
-                {switchLabel}
-              </Text>
-              <Switch defaultValue="on" aria-label={switchLabel} />
-            </label>
-          }
+          do={<Switch defaultValue="on" label={switchLabel} />}
           doCaption={t({
-            en: "Give every switch a name — an aria-label or an associated <label> — so it announces its purpose.",
-            zh: "为每个开关命名——aria-label 或关联的 <label>——以便宣读其用途。",
+            en: "Give every switch a name, a `label`, or an `aria-label` where the words around it already say what it does.",
+            zh: "为每个开关命名：用 `label`，或在周围文字已说明用途时用 `aria-label`。",
           })}
           dont={<Switch defaultValue="off" />}
           dontCaption={t({
-            en: "Don't ship a switch unlabeled or use it to commit an action like submitting a form — that's a Button's job.",
-            zh: "不要让开关缺少标签，也不要用它来提交表单等执行动作——那是按钮的职责。",
+            en: "Don't ship a switch unlabeled or use it to commit an action like submitting a form. That is a Button's job.",
+            zh: "不要让开关缺少标签，也不要用它来提交表单等执行动作，那是按钮的职责。",
           })}
         />
       </Showcase>
     </>
   );
 }
-
-const styles = stylex.create({
-  switchField: {
-    display: "inline-flex",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: rhythm.tight,
-    cursor: "pointer",
-  },
-});

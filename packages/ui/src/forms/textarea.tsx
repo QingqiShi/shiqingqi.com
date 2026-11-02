@@ -179,6 +179,7 @@ export function Textarea({
         }}
         css={[
           typeRole.control,
+          fieldStyles.box,
           fieldStyles.control,
           fieldStyles.multiline,
           fieldSizeInline[size],

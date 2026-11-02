@@ -61,6 +61,7 @@ export function DateChips({ value, today, onChange, mark }: DateChipsProps) {
           }}
           css={[
             typeRole.controlCaption,
+            fieldStyles.box,
             fieldStyles.control,
             corner.radius_round,
             a11y.focusRing,

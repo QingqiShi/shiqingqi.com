@@ -5,9 +5,8 @@ import { t } from "@tuja/i18n";
 import { Switch } from "@tuja/ui/components/switch";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { rhythm } from "@tuja/ui/tokens.stylex";
-import { useEffect, useId, useState } from "react";
+import { measure } from "@tuja/ui/tokens.stylex";
+import { useEffect, useState } from "react";
 import { assistantFetch } from "../http/assistant-fetch.ts";
 
 type PushState =
@@ -82,8 +81,6 @@ async function turnOff() {
  */
 export function PushToggle({ publicKey }: { publicKey: string | null }) {
   const [state, setState] = useState<PushState>("checking");
-  const switchId = useId();
-  const descriptionId = useId();
 
   useEffect(() => {
     let active = true;
@@ -117,42 +114,32 @@ export function PushToggle({ publicKey }: { publicKey: string | null }) {
 
   return (
     <div css={[stack.tight, styles.toggle]}>
-      <div css={styles.row}>
-        <div css={stack.text}>
-          <label htmlFor={switchId} css={typeRole.label}>
-            {t({ en: "Morning notification", zh: "早间通知" })}
-          </label>
-          <Text id={descriptionId} look="bodySmall" tone="muted">
-            {t({
-              en: "When the morning report is ready, this device gets a notification.",
-              zh: "晨报写好后，这台设备会收到一条通知。",
-            })}
-          </Text>
-        </div>
-        <Switch
-          id={switchId}
-          aria-describedby={descriptionId}
-          value={state === "on" ? "on" : "off"}
-          disabled={
-            state === "checking" ||
-            state === "busy" ||
-            state === "unsupported" ||
-            state === "denied"
-          }
-          onChange={(next) => {
-            if (!publicKey) return;
-            setState("busy");
-            (next === "on"
-              ? turnOn(publicKey)
-              : turnOff().then(() => "off" as const)
-            )
-              .then(setState)
-              .catch(() => {
-                setState("failed");
-              });
-          }}
-        />
-      </div>
+      <Switch
+        label={t({ en: "Morning notification", zh: "早间通知" })}
+        description={t({
+          en: "When the morning report is ready, this device gets a notification. On iPhone and iPad, notifications work only in the app on the Home Screen: in Safari, tap Share, then Add to Home Screen, open the app from there and turn this on.",
+          zh: "晨报写好后，这台设备会收到一条通知。在 iPhone 和 iPad 上，只有添加到主屏幕的应用才能收到通知：在 Safari 中点“分享”，再点“添加到主屏幕”，然后从主屏幕打开应用并在这里开启。",
+        })}
+        value={state === "on" ? "on" : "off"}
+        disabled={
+          state === "checking" ||
+          state === "busy" ||
+          state === "unsupported" ||
+          state === "denied"
+        }
+        onChange={(next) => {
+          if (!publicKey) return;
+          setState("busy");
+          (next === "on"
+            ? turnOn(publicKey)
+            : turnOff().then(() => "off" as const)
+          )
+            .then(setState)
+            .catch(() => {
+              setState("failed");
+            });
+        }}
+      />
       <div role="status">
         {message ? (
           <Text as="p" look="bodySmall">
@@ -160,24 +147,10 @@ export function PushToggle({ publicKey }: { publicKey: string | null }) {
           </Text>
         ) : null}
       </div>
-      <Text as="p" look="bodySmall" tone="muted">
-        {t({
-          en: "On iPhone and iPad, notifications work only in the app on the Home Screen: in Safari, tap Share, then Add to Home Screen, open the app from there and turn this on.",
-          zh: "在 iPhone 和 iPad 上，只有添加到主屏幕的应用才能收到通知：在 Safari 中点“分享”，再点“添加到主屏幕”，然后从主屏幕打开应用并在这里开启。",
-        })}
-      </Text>
     </div>
   );
 }
 
 const styles = stylex.create({
-  toggle: {
-    maxInlineSize: "32rem",
-  },
-  row: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: rhythm.item,
-  },
+  toggle: { maxInlineSize: measure.form },
 });

@@ -3,11 +3,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Switch } from "@tuja/ui/components/switch";
-import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, measure, rhythm } from "@tuja/ui/tokens.stylex";
-import { useId, useState } from "react";
+import { measure } from "@tuja/ui/tokens.stylex";
+import { useState } from "react";
 import { MovieDetailScreen } from "./movie-detail-screen.tsx";
 
 /**
@@ -21,65 +19,26 @@ import { MovieDetailScreen } from "./movie-detail-screen.tsx";
  */
 export function MovieDetailExemplar() {
   const [annotated, setAnnotated] = useState(false);
-  const switchId = useId();
-  const helperId = useId();
 
   return (
     <div css={stack.item}>
-      <div css={[stack.tight, styles.toggle]}>
-        <div css={styles.toggleControl}>
-          {/*
-            A real `<label>` bound by `htmlFor`, so the caption is a hit target as
-            well as a name — `Switch` renders the input and takes native
-            attributes, but it ships no label of its own.
-          */}
-          <label css={[typeRole.label, styles.toggleLabel]} htmlFor={switchId}>
-            {t({ en: "Annotate the composition", zh: "标注组成结构" })}
-          </label>
-          <Switch
-            id={switchId}
-            aria-describedby={helperId}
-            value={annotated ? "on" : "off"}
-            onChange={(next) => {
-              setAnnotated(next === "on");
-            }}
-          />
-        </div>
-        <Text
-          id={helperId}
-          look="caption"
-          tone="muted"
-          css={styles.toggleHelper}
-        >
-          {t({
-            en: "Outlines each region and names the @tuja/ui entry points it composes.",
-            zh: "为每个区域勾出轮廓，并列出它所组合的 @tuja/ui 入口。",
-          })}
-        </Text>
-      </div>
+      <Switch
+        css={styles.toggle}
+        label={t({ en: "Annotate the composition", zh: "标注组成结构" })}
+        description={t({
+          en: "Outlines each region and names the @tuja/ui entry points it composes.",
+          zh: "为每个区域勾出轮廓，并列出它所组合的 @tuja/ui 入口。",
+        })}
+        value={annotated ? "on" : "off"}
+        onChange={(next) => {
+          setAnnotated(next === "on");
+        }}
+      />
       <MovieDetailScreen annotated={annotated} />
     </div>
   );
 }
 
 const styles = stylex.create({
-  toggle: {
-    alignItems: "flex-start",
-  },
-  // The switch sits next to its label rather than at the far end of the column.
-  // A settings row pushes the control to the trailing edge because every row in
-  // the list shares that edge; one lone switch out there is a thousand pixels
-  // from the words that name it.
-  toggleControl: {
-    display: "flex",
-    alignItems: "center",
-    gap: rhythm.tight,
-  },
-  toggleLabel: {
-    color: color.fg,
-    cursor: "pointer",
-  },
-  toggleHelper: {
-    maxInlineSize: measure.prose,
-  },
+  toggle: { maxInlineSize: measure.form },
 });

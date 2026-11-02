@@ -44,6 +44,39 @@ describe("Switch", () => {
     expect(handleChange).toHaveBeenCalledWith("on");
   });
 
+  it("names and describes the switch from `label` and `description`, and toggles when the label is clicked", async () => {
+    const user = userEvent.setup();
+    const handleChange = vi.fn();
+    render(
+      <Switch
+        label="Notifications"
+        description="Get a message when your report is ready."
+        onChange={handleChange}
+      />,
+    );
+
+    expect(
+      screen.getByRole("switch", {
+        name: "Notifications",
+        description: "Get a message when your report is ready.",
+      }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByText("Notifications"));
+
+    expect(handleChange).toHaveBeenCalledExactlyOnceWith("on");
+    expect(screen.getByRole("switch")).toBeChecked();
+  });
+
+  it("keeps showing the parent's value after a label click the parent does not apply", async () => {
+    const user = userEvent.setup();
+    render(<Switch label="Notifications" value="off" onChange={vi.fn()} />);
+
+    await user.click(screen.getByText("Notifications"));
+
+    expect(screen.getByRole("switch")).not.toBeChecked();
+  });
+
   it("toggles when Space or Enter is pressed", async () => {
     const user = userEvent.setup();
     const handleChange = vi.fn();
