@@ -10,6 +10,10 @@ import {
   parseMailSafely,
   type ParsedMail,
 } from "#src/assistant/mail/parse/parse-mail.ts";
+import {
+  addDays,
+  localDayBounds,
+} from "#src/assistant/report/local-day-bounds.ts";
 import { agentTool, ToolRefusal, type AgentTools } from "../agent-tool.ts";
 import type { AgentRunContext } from "../run-agent.ts";
 import {
@@ -80,6 +84,8 @@ export interface MailToolsInput {
   handles: MailHandles;
   reader: AssistantModel;
   run: AgentRunContext;
+  /** The owner's zone, for the days of list_mail. Default UTC. */
+  timeZone?: string;
 }
 
 const accountKey = z
@@ -234,12 +240,122 @@ async function locate(
  * act only on ids this run listed, within the run's limits, and every change
  * needs a reason and goes to the action log.
  */
+export interface ListMailInput {
+  account: string;
+  folder: string;
+  unreadOnly?: boolean;
+  since?: string;
+  before?: string;
+  order?: "oldest" | "newest";
+  limit?: number;
+  cursor?: string;
+}
+
+/**
+ * One page of the mail of a folder, by its headers; gives each mail an id
+ * in `handles`. What `list_mail` returns, and what code that lists mail
+ * outside the model calls.
+ */
+export function listMail(
+  {
+    mailboxes,
+    handles,
+    timeZone,
+  }: { mailboxes: RunMailboxes; handles: MailHandles; timeZone: string },
+  input: ListMailInput,
+) {
+  return mailboxes.use(input.account, async (mailbox) => {
+    const folder = mailbox.folder(input.folder);
+    if (!folder.selectable) {
+      throw new ToolRefusal(`"${folder.path}" only holds other folders.`);
+    }
+    const uidValidity = await mailbox.select(folder.path, false);
+    let after: number | null = null;
+    if (input.cursor) {
+      const [validity, uid] = input.cursor.split(":").map(Number);
+      if (validity !== uidValidity || !Number.isInteger(uid)) {
+        throw new ToolRefusal(
+          "The cursor is out of date. List the folder again from the start.",
+        );
+      }
+      after = uid;
+    }
+    const newest = input.order === "newest";
+    const from = input.since
+      ? localDayBounds(input.since, timeZone).start
+      : null;
+    const until = input.before
+      ? localDayBounds(input.before, timeZone).start
+      : null;
+    const all = await mailbox.session.searchUids({
+      since: input.since
+        ? new Date(`${addDays(input.since, -1)}T00:00:00Z`)
+        : undefined,
+      before: input.before
+        ? new Date(`${addDays(input.before, 1)}T00:00:00Z`)
+        : undefined,
+      seen: input.unreadOnly ? false : undefined,
+    });
+    const inRange = (mail: ParsedMail) =>
+      (from === null || mail.receivedAt >= from) &&
+      (until === null || mail.receivedAt < until);
+    const ordered = newest ? [...all].reverse() : all;
+    const rest =
+      after === null
+        ? ordered
+        : ordered.filter((uid) => (newest ? uid < after : uid > after));
+    const limit = input.limit ?? 25;
+    const page = rest.slice(0, limit);
+    const fetched = await mailbox.session.fetchMessages(page, HEADER_BYTES);
+    const mails = await Promise.all(fetched.map(parseMailSafely));
+    const byUid = new Map(mails.map((mail) => [mail.uid, mail]));
+    const listed = page.flatMap((uid) => {
+      const mail = byUid.get(uid);
+      if (!mail || !inRange(mail)) return [];
+      const id = handles.register({
+        accountKey: mailbox.account.key,
+        folder: folder.path,
+        uidValidity,
+        uid,
+        messageId: mail.messageId,
+        subject: mail.subject,
+        sender: senderOf(mail),
+        receivedAt: mail.receivedAt,
+      });
+      return [
+        {
+          id,
+          date: (mail.sentAt ?? mail.receivedAt).toISOString(),
+          from: senderOf(mail),
+          to: mail.toAddresses.slice(0, 3),
+          subject: mail.subject,
+          unread: !mail.flags.includes(SEEN),
+          flagged: mail.flags.includes(FLAGGED),
+          bulk: isBulk(mail),
+        },
+      ];
+    });
+    const last = page.at(-1);
+    return {
+      // IMAP searches by date in the server's zone, so with days the
+      // search holds a day more at each end and the count is not exact.
+      total: from === null && until === null ? all.length : undefined,
+      mails: listed,
+      nextCursor:
+        rest.length > page.length && last !== undefined
+          ? `${String(uidValidity)}:${String(last)}`
+          : null,
+    };
+  });
+}
+
 export function createMailTools({
   limits = MAIL_TOOL_LIMITS,
   mailboxes,
   handles,
   reader,
   run,
+  timeZone = "UTC",
 }: MailToolsInput) {
   const stats: MailToolStats = {
     createdFolders: 0,
@@ -424,7 +540,7 @@ export function createMailTools({
 
     list_mail: agentTool({
       description:
-        "Lists mail of one folder by its headers, a page at a time, and gives each mail an id for the other tools. bulk is true for mailing lists and automatic mail.",
+        "Lists mail of one folder by its headers, a page at a time, and gives each mail an id for the other tools. bulk is true for mailing lists and automatic mail. With since or before, a page can hold fewer mails than the limit: follow nextCursor until it is null.",
       loadUpFront: true,
       inputSchema: z.object({
         account: accountKey,
@@ -433,11 +549,15 @@ export function createMailTools({
         since: z.iso
           .date()
           .optional()
-          .describe("Only mail received on or after this date, YYYY-MM-DD."),
+          .describe(
+            "Only mail received on or after this day in the owner's time zone, YYYY-MM-DD.",
+          ),
         before: z.iso
           .date()
           .optional()
-          .describe("Only mail received before this date, YYYY-MM-DD."),
+          .describe(
+            "Only mail received before this day in the owner's time zone, YYYY-MM-DD.",
+          ),
         order: z
           .enum(["oldest", "newest"])
           .optional()
@@ -448,81 +568,7 @@ export function createMailTools({
           .optional()
           .describe("The nextCursor of the page before, for the next page."),
       }),
-      execute: (input) =>
-        mailboxes.use(input.account, async (mailbox) => {
-          const folder = mailbox.folder(input.folder);
-          if (!folder.selectable) {
-            throw new ToolRefusal(`"${folder.path}" only holds other folders.`);
-          }
-          const uidValidity = await mailbox.select(folder.path, false);
-          let after: number | null = null;
-          if (input.cursor) {
-            const [validity, uid] = input.cursor.split(":").map(Number);
-            if (validity !== uidValidity || !Number.isInteger(uid)) {
-              throw new ToolRefusal(
-                "The cursor is out of date. List the folder again from the start.",
-              );
-            }
-            after = uid;
-          }
-          const newest = input.order === "newest";
-          const all = await mailbox.session.searchUids({
-            since: input.since
-              ? new Date(`${input.since}T00:00:00Z`)
-              : undefined,
-            before: input.before
-              ? new Date(`${input.before}T00:00:00Z`)
-              : undefined,
-            seen: input.unreadOnly ? false : undefined,
-          });
-          const ordered = newest ? [...all].reverse() : all;
-          const rest =
-            after === null
-              ? ordered
-              : ordered.filter((uid) => (newest ? uid < after : uid > after));
-          const limit = input.limit ?? 25;
-          const page = rest.slice(0, limit);
-          const fetched = await mailbox.session.fetchMessages(
-            page,
-            HEADER_BYTES,
-          );
-          const mails = await Promise.all(fetched.map(parseMailSafely));
-          const byUid = new Map(mails.map((mail) => [mail.uid, mail]));
-          const listed = page.flatMap((uid) => {
-            const mail = byUid.get(uid);
-            if (!mail) return [];
-            const id = handles.register({
-              accountKey: mailbox.account.key,
-              folder: folder.path,
-              uidValidity,
-              uid,
-              messageId: mail.messageId,
-              subject: mail.subject,
-              sender: senderOf(mail),
-            });
-            return [
-              {
-                id,
-                date: (mail.sentAt ?? mail.receivedAt).toISOString(),
-                from: senderOf(mail),
-                to: mail.toAddresses.slice(0, 3),
-                subject: mail.subject,
-                unread: !mail.flags.includes(SEEN),
-                flagged: mail.flags.includes(FLAGGED),
-                bulk: isBulk(mail),
-              },
-            ];
-          });
-          const last = page.at(-1);
-          return {
-            total: all.length,
-            mails: listed,
-            nextCursor:
-              rest.length > page.length && last !== undefined
-                ? `${String(uidValidity)}:${String(last)}`
-                : null,
-          };
-        }),
+      execute: (input) => listMail({ mailboxes, handles, timeZone }, input),
     }),
 
     read_mail: agentTool({

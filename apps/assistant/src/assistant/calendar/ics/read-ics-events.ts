@@ -16,6 +16,19 @@ import {
 
 const SECOND = 1000;
 
+/** How an event repeats: its rule and dates, and the wall-clock start they count from. */
+export interface IcsRepeat {
+  /** The RRULE value; null when only RDATEs repeat it. */
+  rule: string | null;
+  /** RDATE starts, epoch milliseconds. */
+  dates: number[];
+  /** EXDATE starts, epoch milliseconds. */
+  exceptions: number[];
+  /** The DTSTART as a wall-clock time in `zone`: the rule counts in it. */
+  local: LocalTime;
+  zone: string;
+}
+
 /** A VEVENT as the tools show it. */
 export interface IcsEvent {
   uid: string | null;
@@ -36,6 +49,10 @@ export interface IcsEvent {
   endTimeZone: string | null;
   /** It has a rule that repeats it, or it is one changed instance of such an event. */
   recurring: boolean;
+  /** Null when it does not repeat. */
+  repeat: IcsRepeat | null;
+  /** For one changed instance of a repeating event: the start it replaces. */
+  recurrenceId: number | null;
   /** It names attendees: a meeting with other people. */
   hasAttendees: boolean;
   cancelled: boolean;
@@ -113,11 +130,47 @@ function durationMs(value: string) {
   return sign === "-" ? -total : total;
 }
 
+/** The times of a property that can list several, such as EXDATE. */
+function readTimes(
+  props: readonly IcsProperty[],
+  name: string,
+  fallbackZone: string,
+) {
+  return props
+    .filter((prop) => prop.name === name)
+    .flatMap((prop) =>
+      prop.value
+        .split(",")
+        .map((value) => readTime({ ...prop, value }, fallbackZone)),
+    )
+    .flatMap((time) => (time ? [time.instant] : []));
+}
+
+function repeatOf(
+  props: readonly IcsProperty[],
+  start: ReadTime,
+  startProp: IcsProperty,
+  fallbackZone: string,
+): IcsRepeat | null {
+  const rule = props.find((prop) => prop.name === "RRULE")?.value.trim();
+  const dates = readTimes(props, "RDATE", fallbackZone);
+  if (!rule && dates.length === 0) return null;
+  const utc = !start.allDay && startProp.value.trim().endsWith("Z");
+  return {
+    rule: rule ?? null,
+    dates,
+    exceptions: readTimes(props, "EXDATE", fallbackZone),
+    local: utc ? localTimeAt(start.instant, "UTC") : start.local,
+    zone: utc ? "UTC" : start.zone,
+  };
+}
+
 function toEvent(props: IcsProperty[], fallbackZone: string): IcsEvent | null {
   const find = (name: string) => props.find((prop) => prop.name === name);
   const has = (name: string) => props.some((prop) => prop.name === name);
   const startProp = find("DTSTART");
-  const start = startProp ? readTime(startProp, fallbackZone) : null;
+  if (!startProp) return null;
+  const start = readTime(startProp, fallbackZone);
   if (!start) return null;
   const endProp = find("DTEND");
   let end = endProp ? readTime(endProp, fallbackZone) : null;
@@ -141,6 +194,11 @@ function toEvent(props: IcsProperty[], fallbackZone: string): IcsEvent | null {
     return prop ? unescapeIcsText(prop.value) : null;
   };
   const uid = find("UID");
+  const recurrenceIdProp = find("RECURRENCE-ID");
+  const recurrenceId = recurrenceIdProp
+    ? (readTime(recurrenceIdProp, fallbackZone)?.instant ?? null)
+    : null;
+  const repeat = repeatOf(props, start, startProp, fallbackZone);
   return {
     uid: uid ? uid.value.trim() : null,
     title: text("SUMMARY") ?? "",
@@ -158,7 +216,9 @@ function toEvent(props: IcsProperty[], fallbackZone: string): IcsEvent | null {
       : null,
     timeZone: start.allDay ? null : start.zone,
     endTimeZone: start.allDay || !end ? null : end.zone,
-    recurring: has("RRULE") || has("RDATE") || has("RECURRENCE-ID"),
+    recurring: repeat !== null || recurrenceIdProp !== undefined,
+    repeat,
+    recurrenceId,
     hasAttendees: has("ATTENDEE"),
     cancelled: find("STATUS")?.value.trim().toUpperCase() === "CANCELLED",
     sourceMessageId: text(SOURCE_MESSAGE_ID_PROPERTY),

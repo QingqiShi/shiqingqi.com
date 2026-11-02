@@ -6,40 +6,64 @@ import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
 import { Section } from "@tuja/ui/components/section";
 import { Text } from "@tuja/ui/components/text";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, space } from "@tuja/ui/tokens.stylex";
 import { Anchor } from "#src/links/anchor.tsx";
 import type {
   ReportItemView,
   ReportView as Report,
 } from "../report/read-report.ts";
+import { AgendaList } from "./agenda-list.tsx";
 import { formatDay } from "./format-day.ts";
-import { TodoList } from "./todo-list.tsx";
+import { TodoItem } from "./todo-item.tsx";
+import { TodoList, toTodoItemData } from "./todo-list.tsx";
 
-function ItemList({ items }: { items: readonly ReportItemView[] }) {
+/**
+ * The lines of a section. A line with a to-do shows as that to-do, with
+ * a box to tick it off, so that the page says it once.
+ */
+function ItemList({
+  items,
+  today,
+  locale,
+}: {
+  items: readonly ReportItemView[];
+  today: string;
+  locale: string;
+}) {
   const open = t({ en: "Open mail", zh: "打开原邮件" });
   return (
     <ul css={[stack.rows, styles.list]}>
-      {items.map((item, index) => (
-        <li key={index} css={styles.item}>
-          <Text as="p">
-            {item.text}
-            {item.openHref ? (
-              <>
-                {" "}
-                <Anchor
-                  href={item.openHref}
-                  {...(item.openHref.startsWith("https:")
-                    ? { target: "_blank", rel: "noreferrer" }
-                    : {})}
-                >
-                  {open}
-                </Anchor>
-              </>
-            ) : null}
-          </Text>
-        </li>
-      ))}
+      {items.map((item, index) =>
+        item.todo ? (
+          <TodoItem
+            key={item.todo.id}
+            todo={toTodoItemData(item.todo, item.openHref)}
+            today={today}
+            locale={locale}
+          />
+        ) : (
+          <li key={index} css={styles.item}>
+            <Text as="p">
+              {item.text}
+              {item.openHref ? (
+                <>
+                  {" "}
+                  <Anchor
+                    href={item.openHref}
+                    {...(item.openHref.startsWith("https:")
+                      ? { target: "_blank", rel: "noreferrer" }
+                      : {})}
+                  >
+                    {open}
+                  </Anchor>
+                </>
+              ) : null}
+            </Text>
+          </li>
+        ),
+      )}
     </ul>
   );
 }
@@ -76,7 +100,7 @@ function Notes({
       }),
     );
   }
-  if (content.leftOut > 0) {
+  if (content.version === 1 && content.leftOut > 0) {
     notes.push(
       t({
         en: "{count} mails were too many to include, mostly newsletters and notifications.",
@@ -84,7 +108,7 @@ function Notes({
       }).replace("{count}", String(content.leftOut)),
     );
   }
-  if (content.notRead > 0) {
+  if (content.version === 1 && content.notRead > 0) {
     notes.push(
       t({
         en: "Up to {count} mails could not be read in time.",
@@ -130,7 +154,11 @@ function Notes({
   );
 }
 
-/** One morning report: the headline, what needs the owner, its to-dos, what is worth knowing and a line on the rest. */
+/**
+ * One morning report: the headline, what needs the owner (a line with a
+ * to-do shows as that to-do), its other to-dos, today's agenda, what is
+ * worth knowing and a line on the rest.
+ */
 export function ReportView({
   report,
   today,
@@ -146,6 +174,7 @@ export function ReportView({
 }) {
   const { content } = report;
   const ownTodos = report.todos.filter((todo) => todo.doneAt === null);
+  const doneTitle = t({ en: "Done, says the mail", zh: "邮件显示已完成" });
   const read =
     content.mailCount === 1
       ? t({ en: "From 1 mail on {day}.", zh: "根据{day}的 1 封邮件。" })
@@ -176,39 +205,38 @@ export function ReportView({
       <Notes report={report} locale={locale} />
       {report.needsAction.length > 0 ? (
         <Section level={2} title={t({ en: "Needs you", zh: "需要你处理" })}>
-          <ItemList items={report.needsAction} />
+          <ItemList items={report.needsAction} today={today} locale={locale} />
         </Section>
       ) : null}
-      {ownTodos.length > 0 || openTodos > 0 ? (
-        <Section
-          level={2}
-          title={t({ en: "To-dos", zh: "待办" })}
-          actions={
-            openTodos > ownTodos.length ? (
-              <Anchor href={getLocalePath("/todos", locale)}>
-                {t({
-                  en: "All open ({count})",
-                  zh: "全部未完成（{count}）",
-                }).replace("{count}", String(openTodos))}
-              </Anchor>
-            ) : null
-          }
-        >
-          {ownTodos.length > 0 ? (
-            <TodoList todos={ownTodos} today={today} locale={locale} />
-          ) : (
-            <Text as="p" tone="muted">
-              {t({
-                en: "No new to-dos from this mail.",
-                zh: "这些邮件没有新的待办。",
-              })}
-            </Text>
-          )}
+      {ownTodos.length > 0 ? (
+        <Section level={2} title={t({ en: "To-dos", zh: "待办" })}>
+          <TodoList todos={ownTodos} today={today} locale={locale} />
+          {report.doneTodos.length > 0 ? (
+            <div css={stack.tight}>
+              <Text look="overline" tone="muted">
+                {doneTitle}
+              </Text>
+              <TodoList
+                todos={report.doneTodos}
+                today={today}
+                locale={locale}
+              />
+            </div>
+          ) : null}
+        </Section>
+      ) : report.doneTodos.length > 0 ? (
+        <Section level={2} title={doneTitle}>
+          <TodoList todos={report.doneTodos} today={today} locale={locale} />
+        </Section>
+      ) : null}
+      {report.agenda && report.agenda.length > 0 ? (
+        <Section level={2} title={t({ en: "Today", zh: "今天的日程" })}>
+          <AgendaList items={report.agenda} />
         </Section>
       ) : null}
       {report.worthKnowing.length > 0 ? (
         <Section level={2} title={t({ en: "Good to know", zh: "知道就好" })}>
-          <ItemList items={report.worthKnowing} />
+          <ItemList items={report.worthKnowing} today={today} locale={locale} />
         </Section>
       ) : null}
       {content.rest ? (
@@ -218,11 +246,19 @@ export function ReportView({
           </Text>
         </Section>
       ) : null}
-      <Text as="p" look="bodySmall">
+      <div css={[typeRole.bodySmall, cluster.item]}>
+        {openTodos > 0 ? (
+          <Anchor href={getLocalePath("/todos", locale)}>
+            {t({
+              en: "All open to-dos ({count})",
+              zh: "全部未完成待办（{count}）",
+            }).replace("{count}", String(openTodos))}
+          </Anchor>
+        ) : null}
         <Anchor href={getLocalePath("/reports", locale)}>
           {t({ en: "Past reports", zh: "往期晨报" })}
         </Anchor>
-      </Text>
+      </div>
     </div>
   );
 }

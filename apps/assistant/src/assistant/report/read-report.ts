@@ -1,4 +1,4 @@
-import { and, desc, eq, isNotNull, isNull } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import {
   mailAccounts,
   morningReports,
@@ -6,7 +6,7 @@ import {
 } from "#src/assistant/db/schema.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
 import { openMailHref } from "./open-mail-href.ts";
-import type { MailSource, MorningReportContent } from "./types.ts";
+import type { AgendaItem, MailSource, MorningReportContent } from "./types.ts";
 
 /** How many done to-dos the to-do page lists. */
 const DONE_LIMIT = 50;
@@ -24,6 +24,8 @@ export interface TodoView {
 export interface ReportItemView {
   text: string;
   openHref: string | null;
+  /** The to-do for this line, which the page shows in its place; null when there is none. */
+  todo: TodoView | null;
 }
 
 export interface ReportView {
@@ -32,8 +34,12 @@ export interface ReportView {
   content: MorningReportContent;
   needsAction: ReportItemView[];
   worthKnowing: ReportItemView[];
-  /** The to-dos this report made, open first. */
+  /** The to-dos this report made that no line of `needsAction` shows, open first. */
   todos: TodoView[];
+  /** Today's events; null when the report has no agenda. */
+  agenda: AgendaItem[] | null;
+  /** The to-dos this report closed, with the reason as their detail. */
+  doneTodos: TodoView[];
 }
 
 async function hrefMaker({ db, userId }: UserScope) {
@@ -126,15 +132,55 @@ export async function readReport(
       and(eq(todos.userId, scope.userId), eq(todos.createdReportId, report.id)),
     )
     .orderBy(desc(todos.createdAt), todos.title);
+  const { content } = report;
+  const linkedIds = content.needsAction.flatMap((item) =>
+    item.todoId ? [item.todoId] : [],
+  );
+  const linked = new Map(
+    (linkedIds.length === 0
+      ? []
+      : await scope.db
+          .select(todoColumns)
+          .from(todos)
+          .where(
+            and(eq(todos.userId, scope.userId), inArray(todos.id, linkedIds)),
+          )
+    ).map((row) => [row.id, toTodoView(row, hrefOf)]),
+  );
   const items = (list: MorningReportContent["needsAction"]) =>
-    list.map((item) => ({ text: item.text, openHref: hrefOf(item.source) }));
+    list.map((item) => ({
+      text: item.text,
+      openHref: hrefOf(item.source),
+      todo: item.todoId ? (linked.get(item.todoId) ?? null) : null,
+    }));
+  const closed = content.version === 2 ? content.doneTodos : [];
+  const reasons = new Map(closed.map((todo) => [todo.id, todo.reason]));
+  const closedRows =
+    closed.length === 0
+      ? []
+      : await scope.db
+          .select(todoColumns)
+          .from(todos)
+          .where(
+            and(
+              eq(todos.userId, scope.userId),
+              inArray(todos.id, [...reasons.keys()]),
+            ),
+          )
+          .orderBy(todos.title);
   return {
     ...report,
-    needsAction: items(report.content.needsAction),
-    worthKnowing: items(report.content.worthKnowing),
+    needsAction: items(content.needsAction),
+    worthKnowing: items(content.worthKnowing),
     todos: rows
+      .filter((row) => !linked.has(row.id))
       .map((row) => toTodoView(row, hrefOf))
       .sort((a, b) => Number(a.doneAt !== null) - Number(b.doneAt !== null)),
+    agenda: content.version === 2 ? content.agenda : null,
+    doneTodos: closedRows.map((row) => ({
+      ...toTodoView(row, hrefOf),
+      detail: reasons.get(row.id) ?? row.detail,
+    })),
   };
 }
 

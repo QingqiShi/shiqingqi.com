@@ -1,6 +1,7 @@
 import { CalendarAuthError } from "../caldav/calendar-auth-error.ts";
 import { CalendarRequestError } from "../caldav/calendar-request-error.ts";
 import type { CalendarConnector, CalendarObject } from "../caldav/types.ts";
+import { eventsInRange } from "../ics/events-in-range.ts";
 import { readIcsEvents } from "../ics/read-ics-events.ts";
 
 interface FakeCalendar {
@@ -21,7 +22,9 @@ const HOME = "https://caldav.example/home/";
 
 /**
  * An in-memory CalDAV account. `connector` logs in with `password`; set
- * `failNextWrites` to make the next writes fail with a 500.
+ * `failNextWrites` to make the next writes fail with a 500. Like a CalDAV
+ * time-range query, `listEvents` finds a repeating event when one of its
+ * occurrences is in the range.
  */
 export function createFakeCalendarServer({
   user,
@@ -97,13 +100,11 @@ export function createFakeCalendarServer({
         if (!calendar) throw new CalendarRequestError("REPORT", 404);
         const found: CalendarObject[] = [];
         for (const [url, object] of calendar.objects) {
-          const overlaps = readIcsEvents(object.data, "UTC").some((event) => {
-            const end = event.end ?? event.start + 1;
-            return (
-              event.start < range.end.getTime() && end > range.start.getTime()
-            );
+          const overlapping = eventsInRange(readIcsEvents(object.data, "UTC"), {
+            start: range.start.getTime(),
+            end: range.end.getTime(),
           });
-          if (overlaps) found.push({ url, ...object });
+          if (overlapping.length > 0) found.push({ url, ...object });
         }
         return Promise.resolve(found);
       },
