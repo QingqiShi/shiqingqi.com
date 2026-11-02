@@ -371,6 +371,16 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/breadcrumb" />
   </url>
   <url>
+    <loc>https://qingqi.dev/design-system/components/pager</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/pager" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/pager" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/pager</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/pager" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/pager" />
+  </url>
+  <url>
     <loc>https://qingqi.dev/design-system/components/tab-bar</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/tab-bar" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/tab-bar" />

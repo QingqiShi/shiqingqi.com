@@ -103,6 +103,10 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "A trail of links back up the hierarchy, ending on the page you are reading.",
       zh: "沿层级向上回溯的链接路径，终点是当前所在页面。",
     }),
+    "/design-system/components/pager": t({
+      en: "The previous and next links at the end of a page in a sequence.",
+      zh: "连续页面末尾的上一页与下一页链接。",
+    }),
     "/design-system/components/tab-bar": t({
       en: "An app's top-level destinations in a pill of Glass, one tap or one drag apart.",
       zh: "把应用的顶层目标页收进一枚玻璃胶囊，轻触或拖动即可切换。",

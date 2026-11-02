@@ -38,6 +38,7 @@ Fit a page into a reader's attention span: one to two screens, about 1,000–2,0
 ## Code and preview
 
 - Where the code is the lesson, use `Example`: one card, the live preview on top and the code that makes it below, so the two read as cause and effect. It takes no `code` prop; the specimen-source Babel plugin builds the code from its children, so it cannot drift from the preview. `Specimen` works the same way, with the code behind a disclosure.
+- A link in a preview that goes nowhere uses `href="#"`, and the shown code keeps it. The layout's `PlaceholderLinkGuard` holds that click, so the page does not jump; never add a guard or `preventDefault` to a specimen.
 - Use `UsageSnippet` only for code with no visual result, such as imports or `stylex.create`.
 - Never hide the styles that carry the lesson: put them in the shown code.
 - Under `/zh`, every code panel must match its preview. The plugin writes `t()` text in `Example` and `Specimen` code in the page's locale. Text you write by hand in a `UsageSnippet` does not localise: localise it yourself, or move the example into an `Example`.

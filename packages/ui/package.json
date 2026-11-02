@@ -156,6 +156,7 @@
     "./components/option-card": "./src/forms/option-card.tsx",
     "./components/option-card-group": "./src/forms/option-card-group.tsx",
     "./components/option-card.stylex": "./src/forms/option-card.stylex.ts",
+    "./components/pager": "./src/actions/pager.tsx",
     "./components/popover": "./src/surfaces/popover.tsx",
     "./components/popover-surface.stylex": "./src/surfaces/popover-surface.stylex.ts",
     "./components/portal-target-provider": "./src/surfaces/portal-target-provider.tsx",

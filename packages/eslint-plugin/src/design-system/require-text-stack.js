@@ -43,6 +43,29 @@ const SIZED_BY_CONTAINER_ROLES = new Set(["cardTitle"]);
 const LARGE_LOOKS = new Set(["display", "h1", "h2"]);
 
 /**
+ * Roles and `Text` looks of a small line above a title. Their line height is
+ * 1.3, so the letters of two such lines in a row would almost touch.
+ */
+const EYEBROW_ROLES = new Set(["label", "caption", "overline"]);
+
+/** Type roles of a heading of any size. */
+const HEADING_ROLES = new Set([
+  "display",
+  "subDisplay",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "fluidDisplay",
+  "fluidH1",
+  "fluidH2",
+  "fluidH3",
+  "cardTitle",
+]);
+
+const HEADING_TAGS = new Set(["h1", "h2", "h3", "h4", "h5", "h6"]);
+
+/**
  * The style expressions an element applies: the `css` prop, or the arguments
  * of a spread `stylex.props(...)`.
  * @param {import("estree-jsx").JSXOpeningElement} opening
@@ -167,6 +190,59 @@ function getLineSize(element) {
 }
 
 /**
+ * The type role of a line, from its styles or from the `look` of a `Text`.
+ * @param {import("estree-jsx").JSXElement} element
+ * @returns {string | null}
+ */
+function getRole(element) {
+  const opening = element.openingElement;
+  const roles = getAppliedStyles(opening)
+    .map((style) => getStyleKey(style, "typeRole"))
+    .filter((role) => role !== null);
+  if (roles.length > 0) return roles.at(-1);
+  if (opening.name.type === "JSXIdentifier" && opening.name.name === "Text") {
+    const look = getLiteralAttribute(opening, "look");
+    return typeof look === "string" ? look : null;
+  }
+  return null;
+}
+
+/**
+ * Whether a line is a small line above a title: `label`, `caption` or
+ * `overline`.
+ * @param {import("estree-jsx").JSXElement} element
+ */
+function isEyebrow(element) {
+  const role = getRole(element);
+  return role !== null && EYEBROW_ROLES.has(role);
+}
+
+/**
+ * Whether a line is a heading of any size: a heading role, `Heading` with any
+ * look, or a heading tag that takes no other type role.
+ * @param {import("estree-jsx").JSXElement} element
+ */
+function isHeading(element) {
+  const opening = element.openingElement;
+  const name = opening.name.type === "JSXIdentifier" ? opening.name.name : "";
+  const role = getRole(element);
+  if (role !== null && name !== "Text") return HEADING_ROLES.has(role);
+  if (role !== null) return false;
+  return name === "Heading" || HEADING_TAGS.has(name);
+}
+
+/**
+ * Whether a small line comes directly before a heading.
+ * @param {import("estree-jsx").JSXElement[]} lines
+ */
+function hasEyebrowPair(lines) {
+  return lines.some(
+    (line, index) =>
+      index > 0 && isHeading(line) && isEyebrow(lines[index - 1]),
+  );
+}
+
+/**
  * The text lines a child can render: the text element, or each branch of a
  * condition that renders a text element or nothing. Returns `null` for any
  * other child, because its content is not known.
@@ -200,11 +276,13 @@ const requireTextStack = {
     type: "suggestion",
     docs: {
       description:
-        "Require lines of text in one item to take `stack.text`, and a heading at h2 size or larger to take a gap to its text",
+        "Require lines of text in one item to take `stack.text`, a heading at h2 size or larger to take a gap to its text, and a small line (`label`, `caption`, `overline`) directly above a heading to take `stack.tight`",
     },
     messages: {
       textStack:
         "`stack.tight` puts a gap between lines of text in one item. A line box already holds space above and below its letters, so the lines look as far apart as two items. Compose `stack.text`. Two paragraphs are two items, so they take `stack.item`.",
+      eyebrowStack:
+        "A `label`, `caption` or `overline` line has a line height of 1.3 and a heading about 1.2, so with no gap the small line touches the heading under it. Compose `stack.tight`. This is the one case of small lines that takes a gap.",
       headingStack:
         "A heading at h2 size or larger fills its line box with its letters, so with no gap it touches its text. Compose `stack.tight`, or `stack.item` for a display heading.",
     },
@@ -231,10 +309,12 @@ const requireTextStack = {
         if (getStyleKey(stack, "stack") === "text") {
           if (sizes.includes("large")) {
             context.report({ node: stack, messageId: "headingStack" });
+          } else if (hasEyebrowPair(lines)) {
+            context.report({ node: stack, messageId: "eyebrowStack" });
           }
           return;
         }
-        if (sizes.every((size) => size === "small")) {
+        if (sizes.every((size) => size === "small") && !hasEyebrowPair(lines)) {
           context.report({ node: stack, messageId: "textStack" });
         }
       },

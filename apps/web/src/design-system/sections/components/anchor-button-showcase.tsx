@@ -19,9 +19,6 @@ import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
 import { AnchorButton as RouterAnchorButton } from "#src/links/anchor-button.tsx";
 
-/** A placeholder destination: the specimens illustrate, they don't navigate. */
-const HREF = "#";
-
 export function AnchorButtonShowcase() {
   const locale = getLocale();
   const homeLabel = t({ en: "Home", zh: "首页" });
@@ -32,32 +29,32 @@ export function AnchorButtonShowcase() {
       <Showcase label={t({ en: "Looks", zh: "外观" })}>
         <SpecimenGrid>
           <Specimen caption="default">
-            <AnchorButton href={HREF}>
+            <AnchorButton href="#">
               {t({ en: "Default", zh: "默认" })}
             </AnchorButton>
           </Specimen>
           <Specimen caption="primary">
-            <AnchorButton href={HREF} look="primary">
+            <AnchorButton href="#" look="primary">
               {t({ en: "Primary", zh: "主要" })}
             </AnchorButton>
           </Specimen>
           <Specimen caption="outline">
-            <AnchorButton href={HREF} look="outline">
+            <AnchorButton href="#" look="outline">
               {t({ en: "Outline", zh: "描边" })}
             </AnchorButton>
           </Specimen>
           <Specimen caption="ghost">
-            <AnchorButton href={HREF} look="ghost">
+            <AnchorButton href="#" look="ghost">
               {t({ en: "Ghost", zh: "无框" })}
             </AnchorButton>
           </Specimen>
           <Specimen caption="isActive">
-            <AnchorButton href={HREF} isActive>
+            <AnchorButton href="#" isActive>
               {t({ en: "Current", zh: "当前" })}
             </AnchorButton>
           </Specimen>
           <Specimen caption="bright">
-            <AnchorButton href={HREF} bright>
+            <AnchorButton href="#" bright>
               {t({ en: "Bright", zh: "明亮" })}
             </AnchorButton>
           </Specimen>
@@ -74,7 +71,7 @@ export function AnchorButtonShowcase() {
         <SpecimenGrid>
           <Specimen caption="sm">
             <div css={cluster.tight}>
-              <AnchorButton href={HREF} size="sm">
+              <AnchorButton href="#" size="sm">
                 {t({ en: "Link", zh: "链接" })}
               </AnchorButton>
               <Button size="sm">{t({ en: "Button", zh: "按钮" })}</Button>
@@ -82,7 +79,7 @@ export function AnchorButtonShowcase() {
           </Specimen>
           <Specimen caption="md">
             <div css={cluster.tight}>
-              <AnchorButton href={HREF} size="md">
+              <AnchorButton href="#" size="md">
                 {t({ en: "Link", zh: "链接" })}
               </AnchorButton>
               <Button size="md">{t({ en: "Button", zh: "按钮" })}</Button>
@@ -90,7 +87,7 @@ export function AnchorButtonShowcase() {
           </Specimen>
           <Specimen caption="lg">
             <div css={cluster.tight}>
-              <AnchorButton href={HREF} size="lg">
+              <AnchorButton href="#" size="lg">
                 {t({ en: "Link", zh: "链接" })}
               </AnchorButton>
               <Button size="lg">{t({ en: "Button", zh: "按钮" })}</Button>
@@ -108,13 +105,13 @@ export function AnchorButtonShowcase() {
       <Showcase label={t({ en: "With icon", zh: "带图标" })}>
         <SpecimenGrid>
           <Specimen caption="leading icon">
-            <AnchorButton href={HREF} icon={<CaretLeftIcon weight="bold" />}>
+            <AnchorButton href="#" icon={<CaretLeftIcon weight="bold" />}>
               {backLabel}
             </AnchorButton>
           </Specimen>
           <Specimen caption="primary + icon">
             <AnchorButton
-              href={HREF}
+              href="#"
               look="primary"
               icon={<ArrowRightIcon weight="bold" />}
             >
@@ -123,7 +120,7 @@ export function AnchorButtonShowcase() {
           </Specimen>
           <Specimen caption="icon-only">
             <AnchorButton
-              href={HREF}
+              href="#"
               icon={<HouseIcon weight="bold" />}
               aria-label={homeLabel}
             />
@@ -162,7 +159,7 @@ export function AnchorButtonShowcase() {
       >
         <DoDont
           do={
-            <AnchorButton href={HREF} icon={<CaretLeftIcon weight="bold" />}>
+            <AnchorButton href="#" icon={<CaretLeftIcon weight="bold" />}>
               {t({ en: "Back to films", zh: "返回影片" })}
             </AnchorButton>
           }

@@ -20,6 +20,7 @@ import { MenuButtonSpecimen } from "./menu-button-specimen.tsx";
 import { MovieDetailSpecimen } from "./movie-detail-specimen.tsx";
 import { NavigationSplitViewSpecimen } from "./navigation-split-view-specimen.tsx";
 import { OptionCardSpecimen } from "./option-card-specimen.tsx";
+import { PagerSpecimen } from "./pager-specimen.tsx";
 import { PopoverSpecimen } from "./popover-specimen.tsx";
 import { ProgressSpecimen } from "./progress-specimen.tsx";
 import { ProgressiveBlurSpecimen } from "./progressive-blur-specimen.tsx";
@@ -89,6 +90,7 @@ const COMPONENT_SPECIMENS: Partial<
   "/design-system/components/menu-button": { element: <MenuButtonSpecimen /> },
   "/design-system/components/chip": { element: <ChipSpecimen /> },
   "/design-system/components/breadcrumb": { element: <BreadcrumbSpecimen /> },
+  "/design-system/components/pager": { element: <PagerSpecimen /> },
   "/design-system/components/tab-bar": { element: <TabBarSpecimen /> },
   "/design-system/components/badge": { element: <BadgeSpecimen /> },
   "/design-system/components/avatar": { element: <AvatarSpecimen /> },

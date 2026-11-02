@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { hasDesignSystemLab } from "#src/design-system/routes/has-design-system-lab.ts";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
 import { DocArticle } from "./doc-article.tsx";
+import { DocPager } from "./doc-pager.tsx";
 import { docPageVars, readingColumn } from "./reading-column.stylex.ts";
 
 interface DocPageProps {
@@ -25,14 +26,16 @@ interface DocPageProps {
 /**
  * The documentation view of a single design-system entry — one foundation,
  * component, or composed example per route. Sets the description and the body
- * on the reading column, under the header; a breakout Showcase inside the body
- * spans the Shell's content width instead.
+ * on the reading column, under the header, and ends it with the pager; a
+ * breakout Showcase inside the body spans the Shell's content width instead,
+ * and the pager with it when it comes last.
  */
 export function DocPage({ path, description, children }: DocPageProps) {
   const view = (
     <div css={styles.page}>
       <div data-prose css={[stack.section, styles.readingColumn]}>
         {children}
+        <DocPager path={path} />
       </div>
     </div>
   );
