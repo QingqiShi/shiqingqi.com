@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupOpenTodos, viewOfTodo } from "./group-open-todos.ts";
+import { groupOpenTodos, orderRuns, viewOfTodo } from "./group-open-todos.ts";
 
 const TODAY = "2026-11-02";
 
@@ -33,7 +33,7 @@ describe("groupOpenTodos", () => {
 
     expect(today).toEqual([
       { key: "overdue", todos: [overdue] },
-      { key: "today", todos: [dueToday, started, startedWithoutDue] },
+      { key: "today", todos: [startedWithoutDue, started, dueToday] },
     ]);
     expect(upcoming).toEqual([
       { key: "upcoming", todos: [onlyDue, notStarted] },
@@ -58,11 +58,39 @@ describe("groupOpenTodos", () => {
     ]);
   });
 
+  it("keeps the order it gets among to-dos of one date", () => {
+    const first = dated("2026-11-05");
+    const second = dated("2026-11-20", "2026-11-05");
+    const earlier = dated("2026-11-04");
+
+    const { upcoming } = groupOpenTodos([first, second, earlier], TODAY);
+
+    expect(upcoming[0].todos).toEqual([earlier, first, second]);
+  });
+
   it("leaves out an empty group", () => {
     expect(groupOpenTodos([dated(null)], TODAY)).toEqual({
       today: [],
       upcoming: [{ key: "no-date", todos: [dated(null)] }],
     });
+  });
+});
+
+describe("orderRuns", () => {
+  it("splits only the upcoming group, by date", () => {
+    const first = dated("2026-11-05");
+    const second = dated("2026-11-20", "2026-11-05");
+    const later = dated("2026-11-06");
+
+    expect(
+      orderRuns({ key: "upcoming", todos: [first, second, later] }),
+    ).toEqual([
+      { key: "2026-11-05", todos: [first, second] },
+      { key: "2026-11-06", todos: [later] },
+    ]);
+    expect(orderRuns({ key: "today", todos: [first, later] })).toEqual([
+      { key: "today", todos: [first, later] },
+    ]);
   });
 });
 

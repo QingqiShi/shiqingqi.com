@@ -50,6 +50,20 @@
       "when": 1793653930621,
       "tag": "0006_todo_start_date",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793653959680,
+      "tag": "0007_todo_position",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793653960183,
+      "tag": "0008_todo_position_backfill",
+      "breakpoints": true
     }
   ]
 }

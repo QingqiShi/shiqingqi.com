@@ -50,6 +50,13 @@ const dueDatesBody = z.strictObject({
     .min(1)
     .max(todoLimits.dueDateChanges),
 });
+const orderBody = z.strictObject({
+  ids: z
+    .array(z.uuid())
+    .min(2)
+    .max(todoLimits.orderedTodos)
+    .refine((ids) => new Set(ids).size === ids.length),
+});
 
 const invalidBody = () =>
   assistantJson({ error: "invalid-body" }, { status: 400 });
@@ -131,6 +138,15 @@ export function makeTodoHandlers(
         return typeof earlier === "string"
           ? refused(earlier)
           : assistantJson({ earlier });
+      }),
+
+    /** Puts to-dos in the order of the request. Other to-dos keep their places. */
+    reorder: (request: Request) =>
+      withSession(request, async (scope, now) => {
+        const body = await readBody(request, orderBody);
+        if (!body.success) return invalidBody();
+        await ownerTodos.reorder(scope, body.data.ids, now);
+        return assistantNoContent();
       }),
   };
 }

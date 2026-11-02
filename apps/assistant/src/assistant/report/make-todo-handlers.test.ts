@@ -334,4 +334,60 @@ describe("the owner's to-do requests", () => {
     expect(owners.dueDate).toBe("2026-10-02");
     expect(owners.ownerEditedFields.toSorted()).toEqual(["dueDate", "title"]);
   });
+
+  describe("order", () => {
+    async function insertOpen(userId: string, ...titles: string[]) {
+      const rows = [];
+      for (const title of titles) rows.push(await insertTodo(userId, title));
+      return rows;
+    }
+
+    const openTitles = async (userId: string) =>
+      (await listTodos({ db, userId })).open.map((todo) => todo.title);
+
+    it("puts a new to-do last", async () => {
+      await insertOpen(owner, "First", "Second");
+
+      await handlers.add(request("POST", { id: randomUUID(), title: "New" }));
+
+      expect(await openTitles(owner)).toEqual(["First", "Second", "New"]);
+    });
+
+    it("swaps only the listed to-dos, so that others keep their places", async () => {
+      const [a, , c, d] = await insertOpen(owner, "A", "B", "C", "D");
+
+      const response = await handlers.reorder(
+        request("PUT", { ids: [d.id, a.id, c.id] }),
+      );
+
+      expect(response.status).toBe(204);
+      expect(await openTitles(owner)).toEqual(["D", "B", "A", "C"]);
+    });
+
+    it("ignores a to-do that is another user's or deleted, and leaves it", async () => {
+      const [a, b, c] = await insertOpen(owner, "A", "B", "C");
+      const [theirs] = await insertOpen(stranger, "Theirs");
+      await handlers.delete(request("DELETE"), b.id);
+
+      const response = await handlers.reorder(
+        request("PUT", { ids: [theirs.id, c.id, b.id, a.id] }),
+      );
+
+      expect(response.status).toBe(204);
+      expect(await openTitles(owner)).toEqual(["C", "A"]);
+      expect((await stored(theirs.id)).position).toBe(theirs.position);
+      expect((await stored(b.id)).position).toBe(b.position);
+    });
+
+    it("refuses a list with an id twice", async () => {
+      const [a, b] = await insertOpen(owner, "A", "B");
+
+      const response = await handlers.reorder(
+        request("PUT", { ids: [b.id, a.id, b.id] }),
+      );
+
+      expect(response.status).toBe(400);
+      expect(await openTitles(owner)).toEqual(["A", "B"]);
+    });
+  });
 });

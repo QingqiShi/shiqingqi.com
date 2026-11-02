@@ -19,6 +19,7 @@ import {
 import { assistantFetch } from "../http/assistant-fetch.ts";
 import { datesInOrder } from "../report/dates-in-order.ts";
 import type { DueDateChange, OwnerTodoChange } from "../report/owner-todos.ts";
+import { rearrange } from "../report/rearrange.ts";
 import { todoLimits } from "../report/todo-limits.ts";
 import { refreshAfterSave } from "../shell/refresh-after-save.ts";
 import { isOpen, type TodoItemData } from "./to-todo-item-data.ts";
@@ -47,6 +48,8 @@ interface TodoStore {
   setDone: (id: string, done: boolean) => void;
   remove: (id: string) => void;
   moveOverdueToToday: () => void;
+  /** Puts these to-dos in this order, in the places that they hold. */
+  reorder: (ids: readonly string[]) => void;
 }
 
 const TodoStoreContext = createContext<TodoStore | null>(null);
@@ -268,7 +271,7 @@ function Store({
       };
       run(
         (list) =>
-          list.some((entry) => entry.id === id) ? list : [row, ...list],
+          list.some((entry) => entry.id === id) ? list : [...list, row],
         () =>
           assistantFetch("/api/todos", {
             method: "POST",
@@ -348,6 +351,16 @@ function Store({
           },
         },
       });
+    },
+    reorder: (ids) => {
+      run(
+        (list) => rearrange(list, ids),
+        () =>
+          assistantFetch("/api/todos/order", {
+            method: "PUT",
+            body: JSON.stringify({ ids }),
+          }),
+      );
     },
   };
 

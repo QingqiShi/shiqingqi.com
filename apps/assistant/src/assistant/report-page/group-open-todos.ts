@@ -7,8 +7,6 @@ const VIEW_GROUPS: Record<TodoBoardView, readonly TodoGroupKey[]> = {
   upcoming: ["upcoming", "no-date"],
 };
 
-const AFTER_EVERY_DATE = "9999-12-31";
-
 interface TodoDates {
   dueDate: string | null;
   startDate: string | null;
@@ -28,17 +26,16 @@ export function viewOfTodo(todo: TodoDates, today: string): TodoBoardView {
     : "upcoming";
 }
 
-/** The day that orders a to-do in its group: the next day it asks for attention. */
-function orderDate(todo: TodoDates, group: TodoGroupKey) {
-  const day = group === "upcoming" ? todo.startDate : null;
-  return day ?? todo.dueDate ?? AFTER_EVERY_DATE;
+/** The next day that a to-do of the `upcoming` group asks for attention. */
+function nextDate(todo: TodoDates) {
+  return todo.startDate ?? todo.dueDate ?? "";
 }
 
 /**
- * The open to-dos of each view by group, with no empty group. Today holds what
- * is overdue, due today or started by today; Upcoming holds everything else. In
- * a group, the soonest date comes first, and to-dos of one date keep their
- * order.
+ * The open to-dos of each view by group, with no empty group, in the order they
+ * come in. Today holds what is overdue, due today or started by today; Upcoming
+ * holds everything else. Only the `upcoming` group sorts, by date, and to-dos of
+ * one date keep their order.
  */
 export function groupOpenTodos<T extends TodoDates>(
   todos: readonly T[],
@@ -46,14 +43,33 @@ export function groupOpenTodos<T extends TodoDates>(
 ) {
   const groupsOf = (view: TodoBoardView) =>
     VIEW_GROUPS[view]
-      .map((key) => ({
-        key,
-        todos: todos
-          .filter((todo) => groupOf(todo, today) === key)
-          .toSorted((a, b) =>
-            orderDate(a, key).localeCompare(orderDate(b, key)),
-          ),
-      }))
+      .map((key) => {
+        const inGroup = todos.filter((todo) => groupOf(todo, today) === key);
+        return {
+          key,
+          todos:
+            key === "upcoming"
+              ? inGroup.toSorted((a, b) =>
+                  nextDate(a).localeCompare(nextDate(b)),
+                )
+              : inGroup,
+        };
+      })
       .filter((group) => group.todos.length > 0);
   return { today: groupsOf("today"), upcoming: groupsOf("upcoming") };
+}
+
+/**
+ * The parts of a group in which the owner can order to-dos by hand. The
+ * `upcoming` group has one part per date, and every other group is one part.
+ */
+export function orderRuns<T extends TodoDates>(group: {
+  key: TodoGroupKey;
+  todos: readonly T[];
+}): { key: string; todos: readonly T[] }[] {
+  if (group.key !== "upcoming") return [group];
+  return [...Map.groupBy(group.todos, nextDate)].map(([key, todos]) => ({
+    key,
+    todos,
+  }));
 }
