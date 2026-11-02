@@ -35,8 +35,8 @@ export default function Page() {
       >
         <Text>
           {t({
-            en: "It connects to your iCloud, Gmail or Outlook mailbox over IMAP. When you turn on organising in the settings (it is off at first), an AI agent goes through your inbox every 15 minutes. It reads the headers of each message, and a second model, which cannot change your mailbox, reads the text of the messages the agent needs to understand. The agent then moves each message into one of your folders, a new folder or the Junk folder, and can flag it. It can also rename your folders, merge them, and delete a folder once it is empty. It cannot delete or send mail, and it never moves mail into the Trash.",
-            zh: "它通过 IMAP 连接你的 iCloud、Gmail 或 Outlook 邮箱。如果你在设置中开启整理（默认关闭），AI 智能体每 15 分钟处理一遍收件箱：它读取每封邮件的邮件头；需要了解内容的邮件，由另一个无法改动你邮箱的模型读取正文。然后智能体把每封邮件移到你的某个文件夹、一个新文件夹或垃圾邮件箱，也可以给它加旗标。它还可以重命名、合并你的文件夹，并删除已经清空的文件夹。它无法删除或发送邮件，也从不把邮件移到废纸篓。",
+            en: "It connects to your iCloud, Gmail or Outlook mailbox over IMAP. When you turn on organising in the settings (it is off at first), an AI agent goes through your inbox every 15 minutes. It reads the headers of each message, and a second model, which cannot change your mailbox, reads the text of the messages the agent needs to understand. The agent then moves each message into one of your folders, a new folder or the Junk folder. It can also rename your folders, merge them, and delete a folder once it is empty. It cannot delete or send mail, and it never moves mail into the Trash.",
+            zh: "它通过 IMAP 连接你的 iCloud、Gmail 或 Outlook 邮箱。如果你在设置中开启整理（默认关闭），AI 智能体每 15 分钟处理一遍收件箱：它读取每封邮件的邮件头；需要了解内容的邮件，由另一个无法改动你邮箱的模型读取正文。然后智能体把每封邮件移到你的某个文件夹、一个新文件夹或垃圾邮件箱。它还可以重命名、合并你的文件夹，并删除已经清空的文件夹。它无法删除或发送邮件，也从不把邮件移到废纸篓。",
           })}
         </Text>
         <Text>
@@ -56,8 +56,8 @@ export default function Page() {
       <LegalSection heading={t({ en: "What it stores", zh: "保存哪些数据" })}>
         <Text>
           {t({
-            en: "It does not store the text of your mail: that stays in your mailbox and is read when a job needs it. It keeps a log of what the organising agent did: for each message it moved or flagged, the subject, the sender, the message's ID, the folders and the agent's reason; for each folder it made, renamed or deleted, the folder's names and the reason; for each calendar event it added, changed or deleted, the message it came from, the event's title and, before a change or a delete, a full copy of the event, so that it can be undone; for each run, the steps the agent took, which can quote subjects, senders and the short descriptions of messages that the second model wrote.",
-            zh: "它不保存邮件正文：正文留在你的邮箱里，只在任务需要时读取。它会保存整理智能体的操作记录：对它移动或加旗标的每封邮件，记录主题、发件人、邮件 ID、所在文件夹和智能体给出的理由；对它新建、重命名或删除的每个文件夹，记录文件夹名称和理由；对它添加、修改或删除的每个日程，记录其来源邮件、日程标题，并在修改或删除前保存该日程的完整副本，以便撤销；对每次运行，记录智能体执行的步骤，其中可能包含主题、发件人，以及第二个模型为邮件写下的简短描述。",
+            en: "It does not store the text of your mail: that stays in your mailbox and is read when a job needs it. It keeps a log of what the organising agent did: for each message it moved, the subject, the sender, the message's ID, the folders and the agent's reason; for each folder it made, renamed or deleted, the folder's names and the reason; for each calendar event it added, changed or deleted, the message it came from, the event's title and, before a change or a delete, a full copy of the event, so that it can be undone; for each run, the steps the agent took, which can quote subjects, senders and the short descriptions of messages that the second model wrote.",
+            zh: "它不保存邮件正文：正文留在你的邮箱里，只在任务需要时读取。它会保存整理智能体的操作记录：对它移动的每封邮件，记录主题、发件人、邮件 ID、所在文件夹和智能体给出的理由；对它新建、重命名或删除的每个文件夹，记录文件夹名称和理由；对它添加、修改或删除的每个日程，记录其来源邮件、日程标题，并在修改或删除前保存该日程的完整副本，以便撤销；对每次运行，记录智能体执行的步骤，其中可能包含主题、发件人，以及第二个模型为邮件写下的简短描述。",
           })}
         </Text>
         <Text>

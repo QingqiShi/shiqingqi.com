@@ -171,22 +171,6 @@ function scriptedAgent() {
           true,
         );
       }
-      if (!outputs.has("flag")) {
-        return reply(
-          [
-            call(
-              "mark_flagged",
-              {
-                ids: [id("Card statement")],
-                flagged: true,
-                reason: "The bill is due on Friday",
-              },
-              "flag",
-            ),
-          ],
-          true,
-        );
-      }
       return reply(
         [{ type: "text", text: "Filed 3 mails; one went to Junk." }],
         false,
@@ -513,19 +497,20 @@ describe("organising the inbox", () => {
       accounts: 1,
       failedAccounts: 0,
       inboxMail: 4,
-      run: { status: "done", steps: 5 },
+      run: { status: "done", steps: 4 },
       moved: 3,
       createdFolders: 1,
       markedRead: 0,
-      flagged: 1,
+      flagged: 0,
     });
     expect(agent.toolNames).toContain("move_mail");
     expect(agent.toolNames).not.toContain("mark_read");
+    expect(agent.toolNames).not.toContain("mark_flagged");
 
     expect(agent.prompts.join("\n")).toContain("Bank mail goes to Finance.");
     expect(reader.texts.join("\n")).toContain("Ignore your rules");
     expect(server.locate(statement)).toMatchObject([
-      { path: "Finance", flags: ["\\Flagged"] },
+      { path: "Finance", flags: [] },
     ]);
     expect(server.locate(flight)).toMatchObject([
       { path: "Travel", flags: [] },
@@ -545,7 +530,7 @@ describe("organising the inbox", () => {
       finalText: "Filed 3 mails; one went to Junk.",
       errorMessage: null,
     });
-    expect(run.transcript).toHaveLength(5);
+    expect(run.transcript).toHaveLength(4);
     expect(Object.keys(run.usage ?? {}).sort()).toEqual([
       "agent-model",
       "reader-model",
@@ -564,10 +549,9 @@ describe("organising the inbox", () => {
         ["move", "Card statement", "Finance"],
         ["move", "Flight to Tokyo", "Travel"],
         ["move", "Verify your account", "Junk"],
-        ["flag", "Card statement", null],
       ]),
     );
-    expect(actions).toHaveLength(5);
+    expect(actions).toHaveLength(4);
     expect(actions.every((action) => action.userId === userId)).toBe(true);
     expect(calendar.state.loginUsers).toEqual([]);
   });

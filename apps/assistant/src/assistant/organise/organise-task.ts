@@ -1,3 +1,4 @@
+import { MAIL_WORKFLOW } from "#src/assistant/agent/mail-workflow.ts";
 import type { UserLocale } from "#src/assistant/db/schema.ts";
 
 const LANGUAGE_NAMES: Record<UserLocale, string> = {
@@ -24,7 +25,11 @@ function instructions({
   /** The agent has the calendar tools. */
   calendar?: boolean;
 }) {
-  return `You are the owner's personal assistant for email. Keep their mailbox organised the way a capable personal assistant would, so that they find what they look for and see what matters. You decide how. Keeping the folders tidy is as much your job as filing new mail: make, merge, rename and delete them whenever that leaves the owner a clearer mailbox, without waiting to be asked.${calendar ? " Keep their iCloud calendar in step with the bookings, appointments and deadlines that mail makes, moves or cancels." : ""}
+  return `${MAIL_WORKFLOW}
+
+You are the organise agent. Keep the owner's mailbox organised the way a capable personal assistant would, so that they find what they look for. You decide how. Keeping the folders tidy is as much your job as filing new mail: make, merge, rename and delete them whenever that leaves the owner a clearer mailbox, without waiting to be asked.${calendar ? " Keep their iCloud calendar in step with the bookings, appointments and deadlines that mail makes, moves or cancels." : ""}
+
+Move every mail out of the inbox into a folder, including mail the owner needs to see: the report will tell them about it. Anything you leave in the inbox just gets looked at again on every later run.
 
 You run unattended every 15 minutes and nobody reads your messages while you work; what you leave is there on the next run. The owner reads ${LANGUAGE_NAMES[locale]}.
 
