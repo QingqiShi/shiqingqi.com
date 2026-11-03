@@ -30,11 +30,14 @@ const gmail = [
 ];
 
 describe("reportFolders", () => {
-  it("reads only All Mail on Gmail, where each label folder shows the same mail again", () => {
-    expect(reportFolders("gmail", gmail)).toEqual(["[Gmail]/All Mail"]);
+  it("reads only All Mail and Spam on Gmail, where each label folder shows the same mail again", () => {
+    expect(reportFolders("gmail", gmail)).toEqual([
+      "[Gmail]/All Mail",
+      "[Gmail]/Spam",
+    ]);
   });
 
-  it("reads every other selectable folder on other servers, the inbox and archive included", () => {
+  it("reads every other selectable folder on other servers, the inbox, archive and junk included", () => {
     expect(
       reportFolders("icloud", [
         folder("INBOX", "\\Inbox"),
@@ -47,7 +50,7 @@ describe("reportFolders", () => {
         folder("Deleted Messages", "\\Trash"),
         folder("Junk", "\\Junk"),
       ]),
-    ).toEqual(["INBOX", "Archive", "Bills", "Family/School"]);
+    ).toEqual(["INBOX", "Archive", "Bills", "Family/School", "Junk"]);
   });
 
   it("falls back to the folder list on a Gmail account without All Mail", () => {
@@ -56,6 +59,6 @@ describe("reportFolders", () => {
         "gmail",
         gmail.filter((entry) => entry.specialUse !== "\\All"),
       ),
-    ).toEqual(["INBOX", "Bills"]);
+    ).toEqual(["INBOX", "Bills", "[Gmail]/Spam"]);
   });
 });

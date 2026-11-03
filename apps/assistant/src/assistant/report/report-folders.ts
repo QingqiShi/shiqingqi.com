@@ -6,7 +6,6 @@ const SKIPPED_SPECIAL_USES = new Set([
   "\\Sent",
   "\\Drafts",
   "\\Trash",
-  "\\Junk",
   "\\All",
   "\\Flagged",
   "\\Important",
@@ -14,9 +13,9 @@ const SKIPPED_SPECIAL_USES = new Set([
 
 /**
  * The folders the morning report reads. Gmail keeps each mail once in All
- * Mail and shows it again in a folder for each label, so only All Mail is
- * read there. Other servers keep each mail in one folder, so every
- * selectable folder is read except the ones above, the inbox included.
+ * Mail, or in Spam, and shows it again in a folder for each label, so only
+ * those two are read there. Other servers keep each mail in one folder, so
+ * every selectable folder is read except the ones above, the inbox included.
  */
 export function reportFolders(
   provider: MailProvider,
@@ -25,7 +24,12 @@ export function reportFolders(
   const selectable = folders.filter((folder) => folder.selectable);
   if (provider === "gmail") {
     const allMail = selectable.find((folder) => folder.specialUse === "\\All");
-    if (allMail) return [allMail.path];
+    if (allMail) {
+      const spam = selectable.filter(
+        (folder) => folder.specialUse === "\\Junk",
+      );
+      return [allMail.path, ...spam.map((folder) => folder.path)];
+    }
   }
   return selectable
     .filter(

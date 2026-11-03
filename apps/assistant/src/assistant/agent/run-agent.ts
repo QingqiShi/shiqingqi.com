@@ -44,6 +44,8 @@ export interface AgentTaskSpec {
   instructions: string;
   prompt: string;
   maxSteps: number;
+  /** How much effort the model spends on the task. */
+  reasoning: "medium" | "high";
   tools: (context: AgentRunContext) => AgentTools;
   /**
    * The tool that delivers the task's result. The run ends once `done`
@@ -101,6 +103,9 @@ function recordStep(step: StepResult<ToolSet>): AgentStepRecord {
   }
   return {
     text: step.text ? cut(step.text, MAX_TEXT_CHARS) : null,
+    reasoning: step.reasoningText
+      ? cut(step.reasoningText, MAX_TEXT_CHARS)
+      : null,
     calls,
     results,
     finishReason: step.finishReason,
@@ -242,7 +247,7 @@ export async function runAgent(
         finished,
         () => outOfTime() && (!finish || forcedFinish),
       ],
-      reasoning: "low",
+      reasoning: spec.reasoning,
       maxOutputTokens: MAX_OUTPUT_TOKENS,
       abortSignal: Number.isFinite(left)
         ? AbortSignal.timeout(Math.max(0, left) + OVERRUN_MS)
