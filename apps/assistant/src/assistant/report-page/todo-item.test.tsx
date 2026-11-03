@@ -34,6 +34,8 @@ function page(
     startDate: null,
     repeat: null,
     nextId: null,
+    remindAt: null,
+    nextReminderAt: null,
     createdBy: "owner",
     doneAt: null,
     doneReason: null,
@@ -46,6 +48,7 @@ function page(
         <TodoStoreProvider
           todos={[row]}
           today="2026-11-02"
+          timeZone="UTC"
           locale="en"
           openCount={1}
           renderedAt={renderedAt}

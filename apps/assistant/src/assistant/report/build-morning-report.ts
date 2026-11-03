@@ -345,6 +345,7 @@ export async function buildMorningReport(
           reportId: row.id,
           now: builtAt,
           today: localDate,
+          timeZone: settings.timeZone,
           changes,
         });
       }

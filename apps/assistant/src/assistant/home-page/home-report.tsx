@@ -43,6 +43,7 @@ export async function HomeReport({
       <ReportView
         report={report}
         today={localClock(now, settings.timeZone).date}
+        timeZone={settings.timeZone}
         openTodos={openTodos}
         locale={locale}
         headingLevel={1}

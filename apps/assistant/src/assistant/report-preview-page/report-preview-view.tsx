@@ -130,6 +130,7 @@ export function ReportPreviewView({
             <ReportView
               report={preview.report}
               today={today}
+              timeZone={timeZone}
               openTodos={preview.openTodos}
               locale={locale}
               headingLevel={2}

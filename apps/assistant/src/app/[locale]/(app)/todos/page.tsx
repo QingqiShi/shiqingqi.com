@@ -35,6 +35,7 @@ export default async function Page({ params }: PageProps) {
         )}
         today={localClock(new Date(), settings.timeZone).date}
         locale={locale}
+        timeZone={settings.timeZone}
         openCount={todos.open.length}
         renderedAt={renderedAt}
       >

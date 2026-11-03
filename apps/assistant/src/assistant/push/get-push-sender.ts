@@ -4,7 +4,7 @@ import { isPushServiceEndpoint } from "./is-push-service-endpoint.ts";
 import type { DevicePushSubscription } from "./push-devices.ts";
 
 const VAPID_SUBJECT = "https://assistant.qingqi.dev";
-/** A push that waits longer than this at the push service is dropped: the next report replaces it. */
+/** A push that waits longer than this at the push service is dropped: it is old news by then. */
 const TIME_TO_LIVE_SECONDS = 12 * 60 * 60;
 
 /** What the service worker shows. */
@@ -13,6 +13,20 @@ export interface PushMessage {
   body: string;
   /** The same-origin path the notification opens. */
   url: string;
+  /** A new notification replaces one that shows with the same tag. */
+  tag?: string;
+  /** Buttons for a to-do's reminder, in the owner's language. */
+  reminder?: ReminderActions;
+  /** `high` wakes a phone that saves its battery, for a message that must arrive on time. */
+  urgency?: "normal" | "high";
+}
+
+export interface ReminderActions {
+  todoId: string;
+  done: string;
+  snooze: string;
+  /** What the notification says when a button's request fails. */
+  failed: string;
 }
 
 /** `gone`: the push service no longer knows the device, so its subscription is removed. */
@@ -31,13 +45,13 @@ export function getPushSender(): PushSender | null {
   const publicKey = process.env.NEXT_PUBLIC_ASSISTANT_VAPID_PUBLIC_KEY;
   const privateKey = process.env.ASSISTANT_VAPID_PRIVATE_KEY;
   if (!publicKey || !privateKey) return null;
-  return async (subscription, message) => {
+  return async (subscription, { urgency = "normal", ...shown }) => {
     if (!isPushServiceEndpoint(subscription.endpoint)) return "gone";
     try {
-      await webPush.sendNotification(subscription, JSON.stringify(message), {
+      await webPush.sendNotification(subscription, JSON.stringify(shown), {
         vapidDetails: { subject: VAPID_SUBJECT, publicKey, privateKey },
         TTL: TIME_TO_LIVE_SECONDS,
-        urgency: "normal",
+        urgency,
       });
       return "sent";
     } catch (error) {

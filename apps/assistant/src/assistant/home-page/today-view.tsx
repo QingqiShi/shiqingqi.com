@@ -49,6 +49,7 @@ export async function TodayView({
     <TodoStoreProvider
       todos={open.map((todo) => toTodoItemData(todo))}
       today={today}
+      timeZone={settings.timeZone}
       locale={locale}
       openCount={open.length}
       renderedAt={now.getTime()}

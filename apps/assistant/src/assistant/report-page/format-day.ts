@@ -1,3 +1,5 @@
+import { formatLocalTime, localTimeAt } from "../calendar/ics/instant-of.ts";
+
 /** A `YYYY-MM-DD` as the date it names, at noon UTC, so that formatting it in UTC never changes the day. */
 export function dateOfLocalDate(localDate: string): Date {
   return new Date(`${localDate.slice(0, 10)}T12:00:00Z`);
@@ -55,6 +57,27 @@ export function formatShortWeekday(weekday: number, locale: string): string {
     weekday: "short",
     timeZone: "UTC",
   }).format(dateOfLocalDate(`2024-01-0${String(weekday)}`));
+}
+
+/** A time in the owner's zone for a reminder: "15:00" today, else "4 Nov, 15:00". */
+export function formatReminderTime(
+  time: string,
+  {
+    today,
+    locale,
+    timeZone,
+  }: { today: string; locale: string; timeZone: string },
+): string {
+  const instant = new Date(time);
+  const isToday =
+    formatLocalTime(localTimeAt(instant.getTime(), timeZone), false) === today;
+  return new Intl.DateTimeFormat(locale, {
+    ...(isToday ? {} : { month: "short", day: "numeric" }),
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    timeZone,
+  }).format(instant);
 }
 
 /** Whole days from one `YYYY-MM-DD` to another. */

@@ -6,7 +6,11 @@ import {
   type TodoEditableField,
 } from "#src/assistant/db/schema.ts";
 import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
-import { addNextOccurrence, occurrenceColumns } from "./add-next-occurrence.ts";
+import {
+  addNextOccurrence,
+  occurrenceColumns,
+  reminderWrite,
+} from "./add-next-occurrence.ts";
 import { datesInOrder } from "./dates-in-order.ts";
 import { localClock } from "./due-report-date.ts";
 import type { RepeatRule } from "./next-occurrence.ts";
@@ -30,12 +34,23 @@ export interface OwnerTodoChange {
   dueDate?: string | null;
   startDate?: string | null;
   repeat?: RepeatRule | null;
+  /** An ISO time. */
+  remindAt?: string | null;
   /** The id of the next occurrence when this closes a repeating to-do. The page makes it, as it does for a new to-do. */
   nextId?: string;
 }
 
 /** Why a change of an existing to-do did not happen. */
 export type TodoRefusal = "not-found" | "start-after-due" | "id-taken";
+
+const SNOOZE_MS = 60 * 60 * 1000;
+
+/** The columns of a `remindAt` that a request sent; none when it sent none. */
+function sentReminder(remindAt: string | null | undefined, now: Date) {
+  return remindAt === undefined
+    ? {}
+    : reminderWrite(remindAt === null ? null : new Date(remindAt), now);
+}
 
 /** The date of one to-do, for a change of many in one request. */
 export interface DueDateChange {
@@ -127,12 +142,11 @@ async function changeTodo(
   change: OwnerTodoChange,
   now: Date,
 ): Promise<TodoRefusal | null> {
-  const { done, nextId, ...edit } = change;
+  const { done, nextId, remindAt, ...fieldEdit } = change;
+  const edit = { ...fieldEdit, ...sentReminder(remindAt, now) };
   const fields = fieldsOwnerSets(change);
-  const doneOn =
-    done === true
-      ? localClock(now, (await readReportSettings(scope)).timeZone).date
-      : null;
+  const timeZone =
+    done === true ? (await readReportSettings(scope)).timeZone : null;
   return scope.db.transaction(async (tx) => {
     const row = (
       await tx
@@ -148,12 +162,13 @@ async function changeTodo(
     if (!row) return "not-found";
     const { startDate = row.startDate, dueDate = row.dueDate } = edit;
     if (!datesInOrder({ startDate, dueDate })) return "start-after-due";
-    if (doneOn !== null && row.doneAt === null) {
+    if (timeZone !== null && row.doneAt === null) {
       const added = await addNextOccurrence(tx, {
         userId: scope.userId,
         closed: { ...row, ...edit },
         nextId: nextId ?? randomUUID(),
-        doneOn,
+        doneOn: localClock(now, timeZone).date,
+        timeZone,
         now,
       });
       if (!added) return "id-taken";
@@ -194,12 +209,15 @@ async function changeTodo(
 async function moveOccurrence(
   scope: UserScope,
   todoId: string,
-  dates: { dueDate: string | null; startDate: string | null },
+  {
+    remindAt,
+    ...dates
+  }: { dueDate: string | null; startDate: string | null; remindAt?: string },
   now: Date,
 ): Promise<boolean> {
   const moved = await scope.db
     .update(todos)
-    .set({ ...dates, updatedAt: now })
+    .set({ ...dates, ...sentReminder(remindAt, now), updatedAt: now })
     .where(
       and(
         liveTodo(scope, todoId),
@@ -209,6 +227,33 @@ async function moveOccurrence(
     )
     .returning({ id: todos.id });
   return moved.length > 0;
+}
+
+/**
+ * Asks for the reminder of an open to-do again in an hour. False when the user
+ * has no such to-do, or it has no reminder.
+ */
+async function snoozeReminder(
+  scope: UserScope,
+  todoId: string,
+  now: Date,
+): Promise<boolean> {
+  const snoozed = await scope.db
+    .update(todos)
+    .set({
+      snoozedUntil: new Date(now.getTime() + SNOOZE_MS),
+      remindedAt: null,
+      updatedAt: now,
+    })
+    .where(
+      and(
+        liveTodo(scope, todoId),
+        isNull(todos.doneAt),
+        isNotNull(todos.remindAt),
+      ),
+    )
+    .returning({ id: todos.id });
+  return snoozed.length > 0;
 }
 
 /** Hides a to-do of the owner's. False when the user has no such to-do. */
@@ -338,6 +383,7 @@ export const ownerTodos = {
   add: addTodo,
   change: changeTodo,
   moveOccurrence,
+  snoozeReminder,
   delete: deleteTodo,
   restore: restoreTodo,
   changeDueDates,

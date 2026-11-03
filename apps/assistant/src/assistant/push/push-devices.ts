@@ -70,5 +70,5 @@ async function markSent(
     .where(ownEndpoints(userId, endpoints));
 }
 
-/** The devices of a user that get the morning report notification. */
+/** The devices of a user that get notifications. */
 export const pushDevices = { save, remove, list, markSent };
