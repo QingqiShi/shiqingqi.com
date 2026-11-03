@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   bigint,
   boolean,
   check,
@@ -176,9 +177,16 @@ export const morningReports = pgTable(
   (t) => [unique("morning_reports_date_key").on(t.userId, t.localDate)],
 );
 
+const TODO_CREATORS = ["owner", "report"] as const;
+export type TodoCreator = (typeof TODO_CREATORS)[number];
+
+export const TODO_EDITABLE_FIELDS = ["title", "detail", "dueDate"] as const;
+export type TodoEditableField = (typeof TODO_EDITABLE_FIELDS)[number];
+
 /**
- * A to-do that a morning report found in the mail. Of the mail it keeps
- * only the account and the Message-ID, so that the page can open it.
+ * A to-do that the owner wrote or that a morning report found in the mail. Of
+ * the mail it keeps only the account and the Message-ID, so that the page can
+ * open it.
  */
 export const todos = pgTable(
   "todos",
@@ -198,8 +206,28 @@ export const todos = pgTable(
       () => morningReports.id,
       { onDelete: "set null" },
     ),
+    createdBy: text("created_by", { enum: TODO_CREATORS })
+      .notNull()
+      .default("report"),
+    /** The fields that the owner set: the report agent leaves them as they are. */
+    ownerEditedFields: text("owner_edited_fields", {
+      enum: TODO_EDITABLE_FIELDS,
+    })
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
+    /** The deleted to-do of the same matter that a new mail brought back. */
+    reAddsTodoId: uuid("re_adds_todo_id").references(
+      (): AnyPgColumn => todos.id,
+      { onDelete: "set null" },
+    ),
     createdAt: createdAt(),
+    updatedAt: updatedAt(),
     doneAt: timestamp("done_at", { withTimezone: true }),
+    /** Why the report agent closed it; null when the owner did, or it is open. */
+    doneReason: text("done_reason"),
+    /** When the owner deleted it; the row stays so that the agent does not add it again. */
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [
     index("todos_open_idx")

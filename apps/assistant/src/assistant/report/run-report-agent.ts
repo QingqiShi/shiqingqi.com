@@ -23,6 +23,7 @@ import {
 } from "#src/assistant/agent/run-agent.ts";
 import {
   createTodoTools,
+  type DeletedTodo,
   type StoredTodo,
   type TodoChanges,
 } from "#src/assistant/agent/todos/create-todo-tools.ts";
@@ -156,6 +157,7 @@ export async function runReportAgent(
     mailboxes,
     calendars,
     openTodos,
+    deletedTodos,
     locale,
     timeZone,
     today,
@@ -167,6 +169,7 @@ export async function runReportAgent(
     mailboxes: RunMailboxes;
     calendars: RunCalendars;
     openTodos: readonly StoredTodo[];
+    deletedTodos: readonly DeletedTodo[];
     locale: UserLocale;
     timeZone: string;
     today: string;
@@ -199,7 +202,12 @@ export async function runReportAgent(
       throw error;
     }
   };
-  const todo = createTodoTools({ openTodos, sourceOf });
+  const todo = createTodoTools({
+    openTodos,
+    deletedTodos,
+    sourceOf,
+    receivedAtOf: (id) => handles.get(id).receivedAt,
+  });
 
   const list = (input: ListMailInput) =>
     listMail({ mailboxes, handles, timeZone }, input);
@@ -325,6 +333,7 @@ export async function runReportAgent(
         mailWindow,
         mailboxes: mailboxList,
         openTodos,
+        deletedTodos,
         minutes: Math.max(1, Math.floor((endsAt - now().getTime()) / 60_000)),
       }),
       maxSteps: MAX_STEPS,

@@ -57,7 +57,10 @@ export async function readReportPreview(
     detail: todo.detail,
     dueDate: todo.dueDate,
     createdAt: builtAt,
+    createdBy: "report",
     doneAt: null,
+    doneReason: null,
+    reAddsTodoId: todo.reAddsTodoId,
     sourceAccountId: todo.source?.accountId ?? null,
     sourceMessageId: todo.source?.messageId ?? null,
   }));
@@ -65,7 +68,7 @@ export async function readReportPreview(
   for (const { id, edit } of changes.updated) {
     edits.set(id, { ...edits.get(id), ...edit });
   }
-  const closed = new Set(changes.done.map(({ id }) => id));
+  const closed = new Map(changes.done.map(({ id, reason }) => [id, reason]));
   const [report, openNow] = await Promise.all([
     toReportView(
       scope,
@@ -75,6 +78,7 @@ export async function readReportPreview(
         ...todo,
         ...edits.get(todo.id),
         doneAt: closed.has(todo.id) ? builtAt : todo.doneAt,
+        doneReason: closed.get(todo.id) ?? todo.doneReason,
       }),
     ),
     countOpenTodos(scope),

@@ -17,6 +17,8 @@ import { NoReportYet } from "../report-page/latest-report.tsx";
 import { OpenTodoGroups } from "../report-page/open-todo-groups.tsx";
 import { reportColumns } from "../report-page/report-columns.stylex.ts";
 import { ReportSection } from "../report-page/report-section.tsx";
+import { toTodoItemData } from "../report-page/to-todo-item-data.ts";
+import { TodoStoreProvider } from "../report-page/todo-store-provider.tsx";
 import { NewestReportLink } from "./newest-report-link.tsx";
 import { TodayCalendar, TodayCalendarFallback } from "./today-calendar.tsx";
 
@@ -44,56 +46,53 @@ export async function TodayView({
   ]);
   const today = localClock(now, settings.timeZone).date;
   return (
-    <div css={[stack.group, styles.today]}>
-      <header css={stack.text}>
-        <Heading level={1} look="h3">
-          {t({ en: "Today", zh: "今天" })}
-        </Heading>
-        <Text as="p" look="bodySmall" tone="muted">
-          {formatDay(today, locale)}
-        </Text>
-      </header>
-      {newest ? (
-        <NewestReportLink report={newest} />
-      ) : (
-        <NoReportYet
-          scope={scope}
-          settings={settings}
-          locale={locale}
-          headingLevel={2}
-          headingLook="h4"
-        />
-      )}
-      <div css={[reportColumns.base, styles.columns]}>
-        <ReportSection headingLevel={2} title={t({ en: "To-dos", zh: "待办" })}>
-          {open.length === 0 ? (
-            <Text as="p" look="bodySmall" tone="muted">
-              {t({
-                en: "Nothing open. The morning report adds what your mail asks of you.",
-                zh: "没有未完成的待办。晨报会把邮件里需要你做的事加到这里。",
-              })}
-            </Text>
-          ) : (
+    <TodoStoreProvider
+      todos={open.map((todo) => toTodoItemData(todo))}
+      today={today}
+      locale={locale}
+      openCount={open.length}
+      renderedAt={now.getTime()}
+    >
+      <div css={[stack.group, styles.today]}>
+        <header css={stack.text}>
+          <Heading level={1} look="h3">
+            {t({ en: "Today", zh: "今天" })}
+          </Heading>
+          <Text as="p" look="bodySmall" tone="muted">
+            {formatDay(today, locale)}
+          </Text>
+        </header>
+        {newest ? (
+          <NewestReportLink report={newest} />
+        ) : (
+          <NoReportYet
+            scope={scope}
+            settings={settings}
+            locale={locale}
+            headingLevel={2}
+            headingLook="h4"
+          />
+        )}
+        <div css={[reportColumns.base, styles.columns]}>
+          <ReportSection
+            headingLevel={2}
+            title={t({ en: "To-dos", zh: "待办" })}
+          >
             <div css={stack.item}>
-              <OpenTodoGroups
-                todos={open}
-                today={today}
-                locale={locale}
-                headingLevel={3}
-              />
+              <OpenTodoGroups headingLevel={3} />
             </div>
-          )}
-        </ReportSection>
-        <ReportSection
-          headingLevel={2}
-          title={t({ en: "Calendar", zh: "日程" })}
-        >
-          <Suspense fallback={<TodayCalendarFallback />}>
-            <TodayCalendar agenda={agenda} />
-          </Suspense>
-        </ReportSection>
+          </ReportSection>
+          <ReportSection
+            headingLevel={2}
+            title={t({ en: "Calendar", zh: "日程" })}
+          >
+            <Suspense fallback={<TodayCalendarFallback />}>
+              <TodayCalendar agenda={agenda} />
+            </Suspense>
+          </ReportSection>
+        </div>
       </div>
-    </div>
+    </TodoStoreProvider>
   );
 }
 

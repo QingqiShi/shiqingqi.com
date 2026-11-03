@@ -85,6 +85,7 @@ describe("ReportView", () => {
             locale="en"
             headingLevel={1}
             pastLink="list"
+            renderedAt={0}
           />
         </I18nContext>
       </AppRouterContext>,
@@ -159,6 +160,7 @@ describe("ReportView", () => {
             locale="en"
             headingLevel={1}
             pastLink="list"
+            renderedAt={0}
           />
         </I18nContext>
       </AppRouterContext>,
@@ -174,5 +176,77 @@ describe("ReportView", () => {
       screen.queryByText("Sign the lease renewal by Wednesday."),
     ).toBeNull();
     expect(screen.getByText(/clinic appointment/)).toBeInTheDocument();
+  });
+
+  it("shows the words of a line whose to-do the owner deleted, and hides that to-do", async () => {
+    const userId = await insertUser(db);
+    const todoId = "00000000-0000-4000-8000-000000000002";
+    const [report] = await db
+      .insert(morningReports)
+      .values({
+        userId,
+        localDate: "2026-11-02",
+        content: {
+          version: 2,
+          mailDate: "2026-11-01",
+          status: "written",
+          headline: "A day.",
+          needsAction: [
+            {
+              text: "Sign the lease renewal by Wednesday.",
+              source: null,
+              todoId,
+            },
+          ],
+          worthKnowing: [],
+          rest: null,
+          agenda: null,
+          mailCount: 1,
+          ranOutOfTime: false,
+          unreadMailboxes: [],
+          doneTodos: [],
+        } satisfies MorningReportContentV2,
+        builtAt: new Date("2026-11-02T09:00:00Z"),
+      })
+      .returning();
+    await db.insert(todos).values([
+      {
+        id: todoId,
+        userId,
+        title: "Sign the lease renewal",
+        createdReportId: report.id,
+        deletedAt: new Date("2026-11-02T10:00:00Z"),
+      },
+      {
+        userId,
+        title: "Pay the water bill",
+        createdReportId: report.id,
+        deletedAt: new Date("2026-11-02T10:00:00Z"),
+      },
+    ]);
+    const view = await readReport({ db, userId }, null);
+    if (!view) throw new Error("No report");
+
+    render(
+      <AppRouterContext value={router}>
+        <I18nContext value={{ translations }}>
+          <ReportView
+            report={view}
+            today="2026-11-02"
+            openTodos={0}
+            locale="en"
+            headingLevel={1}
+            pastLink="list"
+            renderedAt={0}
+          />
+        </I18nContext>
+      </AppRouterContext>,
+    );
+
+    expect(
+      screen.getByText("Sign the lease renewal by Wednesday."),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("checkbox")).toBeNull();
+    expect(screen.queryByText("Pay the water bill")).toBeNull();
   });
 });

@@ -87,6 +87,7 @@ export async function LatestReport({
   locale: SupportedLocale;
   headingLevel: 1 | 2;
 }) {
+  const renderedAt = new Date().getTime();
   const [report, settings, openTodos] = await Promise.all([
     readReport(scope, null),
     readReportSettings(scope),
@@ -110,6 +111,7 @@ export async function LatestReport({
       locale={locale}
       headingLevel={headingLevel}
       pastLink="list"
+      renderedAt={renderedAt}
     />
   );
 }
