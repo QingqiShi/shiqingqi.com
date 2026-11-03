@@ -20,6 +20,7 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
+import { AssistantApiError } from "../http/assistant-api-error.ts";
 import { assistantFetch } from "../http/assistant-fetch.ts";
 import { datesInOrder } from "../report/dates-in-order.ts";
 import type { RepeatRule } from "../report/next-occurrence.ts";
@@ -35,12 +36,18 @@ import type {
   WaitingChange,
 } from "../report/owner-todos.ts";
 import { rearrange } from "../report/rearrange.ts";
+import type { SlotOutcome } from "../report/todo-calendar-slots.ts";
 import { todoLimits } from "../report/todo-limits.ts";
 import { refreshAfterSave } from "../shell/refresh-after-save.ts";
-import { formatListDay } from "./format-day.ts";
+import { formatListDay, formatSlotTime } from "./format-day.ts";
 import { groupOf, viewOfTodo } from "./group-open-todos.ts";
 import { RejectTodosSheet } from "./reject-todos-sheet.tsx";
-import { isOpen, type TodoItemData } from "./to-todo-item-data.ts";
+import {
+  isOpen,
+  slotIsAhead,
+  type CalendarSlot,
+  type TodoItemData,
+} from "./to-todo-item-data.ts";
 
 export type TodoEdit = Omit<OwnerTodoChange, "done" | "nextId">;
 
@@ -63,6 +70,10 @@ interface TodoStore {
   timeZone: string;
   /** Every open to-do of the user, also those not on this page. */
   openCount: number;
+  /** The owner has a calendar to put a to-do on. */
+  hasCalendar: boolean;
+  /** When the server began this render, in milliseconds. */
+  renderedAt: number;
   add: (todo: { title: string; dueDate: string | null }) => void;
   edit: (id: string, edit: TodoEdit) => void;
   setDone: (id: string, done: boolean) => void;
@@ -89,6 +100,9 @@ interface TodoStore {
   removeStep: (todoId: string, stepId: string) => void;
   /** Puts these steps of a checklist in this order, in the places that they hold. */
   reorderSteps: (todoId: string, ids: readonly string[]) => void;
+  /** Puts time for a to-do on the calendar, or moves the time it holds. */
+  setSlot: (id: string, slot: CalendarSlot) => void;
+  removeSlot: (id: string) => void;
 }
 
 const TodoStoreContext = createContext<TodoStore | null>(null);
@@ -161,7 +175,14 @@ function closeRow(
     const shown = rows.some((row) => row.id === next?.id);
     return rows.flatMap((row) => {
       if (row.id !== id) return [row];
-      const closed = { ...row, doneAt, nextId: next?.id ?? row.nextId };
+      const closed = {
+        ...row,
+        doneAt,
+        nextId: next?.id ?? row.nextId,
+        calendarSlot: slotIsAhead(row.calendarSlot, Date.parse(doneAt))
+          ? null
+          : row.calendarSlot,
+      };
       return next && !shown ? [next, closed] : [closed];
     });
   };
@@ -170,7 +191,8 @@ function closeRow(
 /**
  * Opens a to-do again, as the server does: it takes the place of its next
  * occurrence that is still open, and it does not repeat when that one is done.
- * A next occurrence that this page does not hold says nothing.
+ * A next occurrence that this page does not hold says nothing. It also takes
+ * the time that its next occurrence held on the calendar.
  */
 function reopenRow(id: string): TodoOp {
   return (rows) => {
@@ -181,7 +203,14 @@ function reopenRow(id: string): TodoOp {
     return next && isOpen(next)
       ? rows
           .filter((entry) => entry.id !== id)
-          .map((entry) => (entry.id === next.id ? reopened : entry))
+          .map((entry) =>
+            entry.id === next.id
+              ? {
+                  ...reopened,
+                  calendarSlot: next.calendarSlot ?? row.calendarSlot,
+                }
+              : entry,
+          )
       : rows.map((entry) =>
           entry.id === id
             ? { ...reopened, repeat: next ? null : row.repeat }
@@ -276,6 +305,34 @@ function waitingMove(id: string, change: WaitingChange) {
   };
 }
 
+/** What became of the time that a change's to-dos held, when the change ended them. */
+interface FreedSlot {
+  id: string;
+  outcome: SlotOutcome;
+}
+
+type WordedToast = ToastOptions & { message: string };
+
+async function freedSlotsIn(response: Response) {
+  if (response.status === 204) return [];
+  const body = (await response.json()) as { calendar?: FreedSlot[] };
+  return body.calendar ?? [];
+}
+
+function slotPath(id: string) {
+  return `/api/todos/${id}/calendar`;
+}
+
+/** A request that puts time on the calendar. A retry sends the same name, so that it makes no second event. */
+function slotAdd(id: string, time: CalendarSlot) {
+  const name = crypto.randomUUID();
+  return () =>
+    assistantFetch(slotPath(id), {
+      method: "POST",
+      body: JSON.stringify({ name, time }),
+    });
+}
+
 function inOrder(ops: readonly TodoOp[]): TodoOp {
   return (rows) => ops.reduce((list, op) => op(list), rows);
 }
@@ -324,7 +381,7 @@ function createOpRunner(
     op: TodoOp,
     request: () => Promise<unknown>,
     onSent: (save: Promise<unknown>) => void,
-    onRefused: (retry: () => void) => void,
+    onRefused: (error: unknown, retry: () => void) => void,
   ) {
     const key = nextKey;
     nextKey += 1;
@@ -338,9 +395,9 @@ function createOpRunner(
         setConfirmed((rows) => op(rows));
         settle();
       },
-      () => {
+      (error: unknown) => {
         settle();
-        onRefused(() => {
+        onRefused(error, () => {
           runOp(op, request, onSent, onRefused);
         });
       },
@@ -356,6 +413,7 @@ function Store({
   locale,
   timeZone,
   openCount,
+  hasCalendar,
   renderedAt,
   refreshesOnLeave,
   children,
@@ -365,6 +423,7 @@ function Store({
   locale: string;
   timeZone: string;
   openCount: number;
+  hasCalendar: boolean;
   renderedAt: number;
   refreshesOnLeave: boolean;
   children: ReactNode;
@@ -468,22 +527,263 @@ function Store({
       en: "Took the date off {count}",
       zh: "已取消 {count} 项的日期",
     }),
+    slotAdded: t({
+      en: "On your calendar: {time}",
+      zh: "已加入日历：{time}",
+    }),
+    slotAddedTo: t({
+      en: "On “{calendar}”: {time}",
+      zh: "已加入“{calendar}”：{time}",
+    }),
+    slotMoved: t({
+      en: "Moved on your calendar: {time}",
+      zh: "已在日历上改到：{time}",
+    }),
+    slotRemoved: t({
+      en: "Took {time} off your calendar",
+      zh: "已从日历上移除 {time}",
+    }),
+    slotAdopted: t({
+      en: "This now shows what your calendar holds",
+      zh: "这里现在显示日历上的内容",
+    }),
+    slotChanged: t({
+      en: "It changed in your calendar, so nothing was overwritten",
+      zh: "它在日历里被改过，所以没有覆盖",
+    }),
+    useCalendarTime: t({ en: "Use the calendar's", zh: "以日历为准" }),
+    slotGone: t({
+      en: "That event is no longer on your calendar",
+      zh: "这个日程已经不在日历上了",
+    }),
+    calendarSilent: t({
+      en: "Your calendar did not answer, so nothing changed",
+      zh: "日历没有响应，所以没有任何更改",
+    }),
+    noCalendar: t({
+      en: "There is no calendar to add it to",
+      zh: "没有可以添加到的日历",
+    }),
+    slotOver: t({ en: "That time has passed", zh: "这个时间已经过去了" }),
+    afterFreed: t({ en: "{change}. {calendar}", zh: "{change}。{calendar}" }),
+    slotFreed: t({
+      en: "{time} is free on your calendar",
+      zh: "日历上的 {time} 已空出",
+    }),
+    slotsFreed: t({
+      en: "{count} times are free on your calendar",
+      zh: "日历上的 {count} 段时间已空出",
+    }),
+    slotStays: t({
+      en: "Your calendar did not answer, so {time} stays there until it does",
+      zh: "日历没有响应，{time} 暂时还在日历上，稍后会再试",
+    }),
+    slotsStay: t({
+      en: "Your calendar did not answer, so {count} times stay there until it does",
+      zh: "日历没有响应，{count} 段时间暂时还在日历上，稍后会再试",
+    }),
+    slotKept: t({
+      en: "{time} changed in your calendar, so it stays there as it is",
+      zh: "{time} 在日历里被改过，所以保留原样",
+    }),
+    slotsKept: t({
+      en: "{count} times changed in your calendar, so they stay there as they are",
+      zh: "{count} 段时间在日历里被改过，所以保留原样",
+    }),
   };
 
-  function run(op: TodoOp, request: () => Promise<unknown>) {
-    runOp(op, request, clearCachedPagesAfter, (retry) => {
+  function run(
+    op: TodoOp,
+    request: () => Promise<unknown>,
+    refusalToast?: (error: unknown, retry: () => void) => ToastOptions,
+  ) {
+    runOp(op, request, clearCachedPagesAfter, (error, retry) => {
+      showToast(
+        refusalToast?.(error, retry) ?? {
+          message: copy.failed,
+          action: { label: copy.retry, onAction: retry },
+        },
+      );
+    });
+  }
+
+  const slotText = (slot: CalendarSlot) =>
+    formatSlotTime(slot, { today, locale, timeZone });
+
+  function calendarRefusalToast(
+    error: unknown,
+    retry: () => void,
+    takeCalendarTime?: () => void,
+  ): ToastOptions {
+    switch (error instanceof AssistantApiError ? error.code : null) {
+      case "calendar-changed":
+        return {
+          message: copy.slotChanged,
+          action: takeCalendarTime && {
+            label: copy.useCalendarTime,
+            onAction: takeCalendarTime,
+          },
+        };
+      case "calendar-gone":
+        return { message: copy.slotGone };
+      case "no-calendar":
+        return { message: copy.noCalendar };
+      case "slot-over":
+        return { message: copy.slotOver };
+      case "calendar-unreachable":
+        return {
+          message: copy.calendarSilent,
+          action: { label: copy.retry, onAction: retry },
+        };
+      default:
+        return {
+          message: copy.failed,
+          action: { label: copy.retry, onAction: retry },
+        };
+    }
+  }
+
+  function takeCalendarTime(id: string) {
+    run(
+      (list) => list,
+      async () => {
+        await assistantFetch(slotPath(id), { method: "PATCH" });
+        showToast({ message: copy.slotAdopted });
+      },
+      calendarRefusalToast,
+    );
+  }
+
+  /** Puts time on the calendar when there is no `earlier`, moves `earlier` to it, or takes `earlier` off with no `slot`. */
+  function writeSlot(
+    id: string,
+    slot: CalendarSlot | null,
+    earlier: CalendarSlot | null,
+    onSaved?: (response: Response) => Promise<void>,
+  ) {
+    const send = slot
+      ? earlier
+        ? () =>
+            assistantFetch(slotPath(id), {
+              method: "PUT",
+              body: JSON.stringify(slot),
+            })
+        : slotAdd(id, slot)
+      : () => assistantFetch(slotPath(id), { method: "DELETE" });
+    run(
+      patchRow(id, { calendarSlot: slot }),
+      async () => {
+        await onSaved?.(await send());
+      },
+      (error, retry) =>
+        calendarRefusalToast(error, retry, () => {
+          takeCalendarTime(id);
+        }),
+    );
+  }
+
+  /** `writeSlot` that then says what it did, with an Undo while the earlier state can come back. */
+  function changeSlot(
+    id: string,
+    slot: CalendarSlot | null,
+    earlier: CalendarSlot | null,
+  ) {
+    writeSlot(id, slot, earlier, async (response) => {
+      let message = slot
+        ? copy.slotMoved.replace("{time}", slotText(slot))
+        : earlier
+          ? copy.slotRemoved.replace("{time}", slotText(earlier))
+          : "";
+      if (slot && !earlier) {
+        const { calendar } = (await response.json()) as {
+          calendar: string | null;
+        };
+        message = calendar
+          ? copy.slotAddedTo
+              .replace("{calendar}", calendar)
+              .replace("{time}", slotText(slot))
+          : copy.slotAdded.replace("{time}", slotText(slot));
+      }
       showToast({
-        message: copy.failed,
-        action: { label: copy.retry, onAction: retry },
+        message,
+        action:
+          earlier === null || slotIsAhead(earlier, Date.now())
+            ? {
+                label: copy.undo,
+                onAction: () => {
+                  writeSlot(id, earlier, slot);
+                },
+              }
+            : undefined,
       });
     });
+  }
+
+  /**
+   * The time on the calendar of to-dos that a change ends. The server frees it
+   * after it stores the change. `tell` says what became of it, in place of the
+   * change's toast, and `addBack` puts back what was freed, for the Undo.
+   */
+  function slotRelease(held: TodoRows) {
+    const ahead = held.flatMap(({ id, calendarSlot }) =>
+      calendarSlot && slotIsAhead(calendarSlot, Date.now())
+        ? [{ id, slot: calendarSlot }]
+        : [],
+    );
+    let freed: readonly FreedSlot[] = [];
+    let undone = false;
+    const slotsWith = (outcome: SlotOutcome) =>
+      ahead.filter(({ id }) =>
+        freed.some((entry) => entry.id === id && entry.outcome === outcome),
+      );
+    return {
+      tell: async (response: Response, change: WordedToast) => {
+        freed = await freedSlotsIn(response);
+        if (undone || freed.length === 0) return;
+        const silent = slotsWith("unreachable");
+        const kept = slotsWith("changed");
+        const [slots, one, many] =
+          silent.length > 0
+            ? [silent, copy.slotStays, copy.slotsStay]
+            : kept.length > 0
+              ? [kept, copy.slotKept, copy.slotsKept]
+              : [slotsWith("freed"), copy.slotFreed, copy.slotsFreed];
+        if (slots.length === 0) return;
+        const calendar =
+          slots.length === 1
+            ? one.replace("{time}", slotText(slots[0].slot))
+            : many.replace("{count}", String(slots.length));
+        showToast({
+          ...change,
+          message: copy.afterFreed
+            .replace("{change}", change.message)
+            .replace("{calendar}", calendar),
+        });
+      },
+      addBack: () => {
+        undone = true;
+        for (const { id, slot } of ahead) {
+          const send = slotAdd(id, slot);
+          run(
+            patchRow(id, { calendarSlot: slot }),
+            () =>
+              freed.some(
+                (entry) => entry.id === id && entry.outcome === "freed",
+              )
+                ? send()
+                : Promise.resolve(),
+            calendarRefusalToast,
+          );
+        }
+      },
+    };
   }
 
   const rows = pending.reduce<TodoRows>((list, { op }) => op(list), confirmed);
 
   function showDeleted(removed: TodoRows, message: string, undo: () => void) {
     const fromReport = removed.filter((row) => row.createdBy === "report");
-    const deletedToast: ToastOptions = {
+    const deletedToast: WordedToast = {
       message,
       action: { label: copy.undo, onAction: undo },
       secondAction:
@@ -497,15 +797,22 @@ function Store({
             },
     };
     showToast(deletedToast);
+    return deletedToast;
   }
 
-  function sendTodoChange(id: string, op: TodoOp, change: OwnerTodoChange) {
-    run(op, () =>
-      assistantFetch(`/api/todos/${id}`, {
+  function sendTodoChange(
+    id: string,
+    op: TodoOp,
+    change: OwnerTodoChange,
+    onAnswer?: (response: Response) => Promise<void>,
+  ) {
+    run(op, async () => {
+      const response = await assistantFetch(`/api/todos/${id}`, {
         method: "PATCH",
         body: JSON.stringify(change),
-      }),
-    );
+      });
+      await onAnswer?.(response);
+    });
   }
 
   function reopen(id: string) {
@@ -516,17 +823,18 @@ function Store({
     id: string,
     fields: Pick<
       TodoItemData,
-      "dueDate" | "startDate" | "remindAt" | "nextReminderAt"
+      "dueDate" | "startDate" | "remindAt" | "nextReminderAt" | "calendarSlot"
     >,
     ticked: readonly string[],
+    onAnswer?: (response: Response) => Promise<void>,
   ) {
     const { dueDate, startDate, remindAt } = fields;
     const patchDates = patchRow(id, fields);
     const patchTicks = patchChecklist(id, (steps) => withTicks(steps, ticked));
     run(
       (list) => patchTicks(patchDates(list)),
-      () =>
-        assistantFetch(`/api/todos/${id}/occurrence`, {
+      async () => {
+        const response = await assistantFetch(`/api/todos/${id}/occurrence`, {
           method: "PUT",
           body: JSON.stringify({
             dueDate,
@@ -534,7 +842,9 @@ function Store({
             remindAt: remindAt ?? undefined,
             ticked,
           }),
-        }),
+        });
+        await onAnswer?.(response);
+      },
     );
   }
 
@@ -546,6 +856,7 @@ function Store({
           ...row,
           ...nextOccurrenceFields(row, row.repeat, today, timeZone),
           id: crypto.randomUUID(),
+          calendarSlot: null,
           checklist: withTicks(row.checklist, []),
           waitingOn: null,
           followUpDate: null,
@@ -564,6 +875,8 @@ function Store({
     timeZone,
     openCount:
       openCount + rows.filter(isOpen).length - todos.filter(isOpen).length,
+    hasCalendar,
+    renderedAt,
     add: ({ title, dueDate }) => {
       const id = crypto.randomUUID();
       const row: TodoItemData = {
@@ -575,6 +888,7 @@ function Store({
         repeat: null,
         remindAt: null,
         nextReminderAt: null,
+        calendarSlot: null,
         nextId: null,
         waitingOn: null,
         followUpDate: null,
@@ -620,11 +934,8 @@ function Store({
       }
       const row = rows.find((entry) => entry.id === id);
       const next = row ? nextRowOf(row) : null;
-      sendTodoChange(id, closeRow(id, next, new Date().toISOString()), {
-        done: true,
-        nextId: next?.id,
-      });
-      showToast({
+      const release = slotRelease(row ? [row] : []);
+      const closedToast: WordedToast = {
         message: next
           ? copy.doneNext.replace("{date}", formatListDay(next.dueDate, locale))
           : copy.done,
@@ -632,16 +943,24 @@ function Store({
           label: copy.undo,
           onAction: () => {
             reopen(id);
+            release.addBack();
           },
         },
-      });
+      };
+      sendTodoChange(
+        id,
+        closeRow(id, next, new Date().toISOString()),
+        { done: true, nextId: next?.id },
+        (response) => release.tell(response, closedToast),
+      );
+      showToast(closedToast);
     },
     skipOccurrence: (id) => {
       const row = rows.find((entry) => entry.id === id);
       if (!row?.repeat) return;
       const moved = nextOccurrenceFields(row, row.repeat, today, timeZone);
-      sendOccurrence(id, moved, []);
-      showToast({
+      const release = slotRelease([row]);
+      const skippedToast: WordedToast = {
         message: copy.skipped.replace(
           "{date}",
           formatListDay(moved.dueDate, locale),
@@ -656,22 +975,25 @@ function Store({
                 startDate: row.startDate,
                 remindAt: row.remindAt,
                 nextReminderAt: row.nextReminderAt,
+                calendarSlot: null,
               },
               row.checklist.filter((step) => step.done).map((step) => step.id),
             );
+            release.addBack();
           },
         },
-      });
+      };
+      sendOccurrence(id, { ...moved, calendarSlot: null }, [], (response) =>
+        release.tell(response, skippedToast),
+      );
+      showToast(skippedToast);
     },
     remove: (id) => {
       const row = rows.find((entry) => entry.id === id);
       if (!row) return;
       const index = rows.indexOf(row);
-      run(
-        (list) => list.filter((entry) => entry.id !== id),
-        () => assistantFetch(`/api/todos/${id}`, { method: "DELETE" }),
-      );
-      showDeleted(
+      const release = slotRelease([row]);
+      const deletedToast = showDeleted(
         [row],
         row.repeat && isOpen(row) ? copy.deletedSeries : copy.deleted,
         () => {
@@ -683,6 +1005,16 @@ function Store({
             () =>
               assistantFetch(`/api/todos/${id}/restore`, { method: "POST" }),
           );
+          release.addBack();
+        },
+      );
+      run(
+        (list) => list.filter((entry) => entry.id !== id),
+        async () => {
+          const response = await assistantFetch(`/api/todos/${id}`, {
+            method: "DELETE",
+          });
+          await release.tell(response, deletedToast);
         },
       );
     },
@@ -747,18 +1079,10 @@ function Store({
       if (closing.length === 0) return;
       const doneAt = new Date().toISOString();
       let closed: readonly string[] = [];
-      run(
-        inOrder(closing.map(({ id, next }) => closeRow(id, next, doneAt))),
-        async () => {
-          const response = await sendBulk({
-            action: "done",
-            todos: closing.map(({ id, next }) => ({ id, nextId: next?.id })),
-          });
-          const body = (await response.json()) as { closed: string[] };
-          closed = body.closed;
-        },
+      const release = slotRelease(
+        rows.filter((row) => ids.includes(row.id) && isOpen(row)),
       );
-      showToast({
+      const closedToast: WordedToast = {
         message: copy.doneMany.replace("{count}", String(closing.length)),
         action: {
           label: copy.undo,
@@ -768,9 +1092,23 @@ function Store({
                 ? Promise.resolve()
                 : sendBulk({ action: "reopen", ids: closed }),
             );
+            release.addBack();
           },
         },
-      });
+      };
+      run(
+        inOrder(closing.map(({ id, next }) => closeRow(id, next, doneAt))),
+        async () => {
+          const response = await sendBulk({
+            action: "done",
+            todos: closing.map(({ id, next }) => ({ id, nextId: next?.id })),
+          });
+          const body = (await response.clone().json()) as { closed: string[] };
+          closed = body.closed;
+          await release.tell(response, closedToast);
+        },
+      );
+      showToast(closedToast);
     },
     removeMany: (ids) => {
       const removing = rows.flatMap((row, index) =>
@@ -778,11 +1116,8 @@ function Store({
       );
       if (removing.length === 0) return;
       const removedIds = removing.map(({ row }) => row.id);
-      run(
-        (list) => list.filter((entry) => !removedIds.includes(entry.id)),
-        () => sendBulk({ action: "delete", ids: removedIds }),
-      );
-      showDeleted(
+      const release = slotRelease(removing.map(({ row }) => row));
+      const deletedToast = showDeleted(
         removing.map(({ row }) => row),
         (removing.some(({ row }) => row.repeat && isOpen(row))
           ? copy.deletedManySeries
@@ -800,6 +1135,17 @@ function Store({
               ),
             () => sendBulk({ action: "restore", ids: removedIds }),
           );
+          release.addBack();
+        },
+      );
+      run(
+        (list) => list.filter((entry) => !removedIds.includes(entry.id)),
+        async () => {
+          const response = await sendBulk({
+            action: "delete",
+            ids: removedIds,
+          });
+          await release.tell(response, deletedToast);
         },
       );
     },
@@ -920,6 +1266,29 @@ function Store({
           }),
       );
     },
+    setSlot: (id, slot) => {
+      changeSlot(
+        id,
+        slot,
+        rows.find((row) => row.id === id)?.calendarSlot ?? null,
+      );
+    },
+    removeSlot: (id) => {
+      const row = rows.find((entry) => entry.id === id);
+      if (!row?.calendarSlot) return;
+      if (isOpen(row)) {
+        changeSlot(id, null, row.calendarSlot);
+        return;
+      }
+      const message = copy.slotRemoved.replace(
+        "{time}",
+        slotText(row.calendarSlot),
+      );
+      writeSlot(id, null, row.calendarSlot, () => {
+        showToast({ message });
+        return Promise.resolve();
+      });
+    },
   };
 
   return (
@@ -960,6 +1329,7 @@ export function TodoStoreProvider({
   locale,
   timeZone,
   openCount,
+  hasCalendar = false,
   renderedAt,
   refreshesOnLeave = false,
   children,
@@ -969,6 +1339,8 @@ export function TodoStoreProvider({
   locale: string;
   timeZone: string;
   openCount: number;
+  /** The owner has a calendar to put a to-do on. */
+  hasCalendar?: boolean;
   /** When the server began this render, in milliseconds. */
   renderedAt: number;
   /** A refresh would replace what the page shows, so it waits until the owner leaves. */
@@ -986,6 +1358,7 @@ export function TodoStoreProvider({
         locale={locale}
         timeZone={timeZone}
         openCount={openCount}
+        hasCalendar={hasCalendar}
         renderedAt={renderedAt}
         refreshesOnLeave={refreshesOnLeave}
       >

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { CalendarDeps } from "#src/assistant/agent/calendar/run-calendars.ts";
 import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
 import {
   assistantJson,
@@ -11,6 +12,12 @@ import {
 import { datesInOrder } from "./dates-in-order.ts";
 import { ownerChecklist } from "./owner-checklist.ts";
 import { ownerTodos, type TodoRefusal } from "./owner-todos.ts";
+import {
+  freeSlotOfSkippedTodo,
+  freeSlotsOfClosedTodos,
+  todoCalendarSlots,
+  type SlotRefusal,
+} from "./todo-calendar-slots.ts";
 import { todoLimits } from "./todo-limits.ts";
 
 const title = z.string().trim().min(1).max(todoLimits.titleChars);
@@ -166,6 +173,19 @@ const changeStepBody = z
   .strictObject({ text: stepText.optional(), done: z.boolean().optional() })
   .refine((body) => Object.keys(body).length > 0);
 
+const slotTime = z
+  .strictObject({ start: instant, end: instant })
+  .refine(
+    ({ start, end }) =>
+      Date.parse(end) > Date.parse(start) &&
+      Date.parse(end) - Date.parse(start) <= todoLimits.slotMs,
+  );
+const addSlotBody = z.strictObject({ name: z.uuid(), time: slotTime });
+
+function timesOf({ start, end }: { start: string; end: string }) {
+  return { start: new Date(start), end: new Date(end) };
+}
+
 const invalidBody = () =>
   assistantJson({ error: "invalid-body" }, { status: 400 });
 const notFound = () => assistantJson({ error: "not-found" }, { status: 404 });
@@ -174,6 +194,16 @@ const refused = (refusal: TodoRefusal) =>
   refusal === "not-found"
     ? notFound()
     : assistantJson({ error: refusal }, { status: 409 });
+
+const refusedSlot = (refusal: SlotRefusal) => {
+  if (refusal === "not-found") return notFound();
+  return assistantJson(
+    { error: refusal },
+    { status: refusal === "calendar-unreachable" ? 502 : 409 },
+  );
+};
+const slotSaved = (refusal: SlotRefusal | null) =>
+  refusal ? refusedSlot(refusal) : assistantNoContent();
 
 const isTodoId = (todoId: string) => z.uuid().safeParse(todoId).success;
 
@@ -187,6 +217,7 @@ async function readBody<Schema extends z.ZodType>(
 export function makeTodoHandlers(
   deps: RequestGuardDependencies & {
     getDb: () => AssistantDb;
+    getCalendarDeps: () => CalendarDeps | null;
     now: () => Date;
   },
 ) {
@@ -209,6 +240,15 @@ export function makeTodoHandlers(
         isTodoId(todoId) ? saved(await write(scope, todoId, now)) : notFound(),
       );
 
+  /** The answer to a write that can end a to-do: what became of the time it held, when it held any. */
+  const calendarAnswer = (
+    calendar: readonly unknown[],
+    body: Record<string, unknown> = {},
+  ) =>
+    calendar.length === 0 && Object.keys(body).length === 0
+      ? assistantNoContent()
+      : assistantJson(calendar.length === 0 ? body : { ...body, calendar });
+
   return {
     add: (request: Request) =>
       withSession(request, async (scope, now) => {
@@ -226,7 +266,14 @@ export function makeTodoHandlers(
         if (!body.success) return invalidBody();
         if (!isTodoId(todoId)) return notFound();
         const refusal = await ownerTodos.change(scope, todoId, body.data, now);
-        return refusal ? refused(refusal) : assistantNoContent();
+        if (refusal) return refused(refusal);
+        return body.data.done === true
+          ? calendarAnswer(
+              await freeSlotsOfClosedTodos(scope, deps.getCalendarDeps(), now, [
+                todoId,
+              ]),
+            )
+          : assistantNoContent();
       }),
 
     /** Skips an occurrence of a repeating to-do, or undoes that. */
@@ -235,8 +282,16 @@ export function makeTodoHandlers(
         const body = await readBody(request, occurrenceBody);
         if (!body.success) return invalidBody();
         if (!isTodoId(todoId)) return notFound();
-        return saved(
-          await ownerTodos.moveOccurrence(scope, todoId, body.data, now),
+        if (!(await ownerTodos.moveOccurrence(scope, todoId, body.data, now))) {
+          return notFound();
+        }
+        return calendarAnswer(
+          await freeSlotOfSkippedTodo(
+            scope,
+            deps.getCalendarDeps(),
+            todoId,
+            now,
+          ),
         );
       }),
 
@@ -268,7 +323,16 @@ export function makeTodoHandlers(
     /** Asks for a to-do's reminder again later. */
     snoozeReminder: onTodo(ownerTodos.snoozeReminder),
 
-    delete: onTodo(ownerTodos.delete),
+    delete: (request: Request, todoId: string) =>
+      withSession(request, async (scope, now) => {
+        if (!isTodoId(todoId)) return notFound();
+        if (!(await ownerTodos.delete(scope, todoId, now))) return notFound();
+        return calendarAnswer(
+          await freeSlotsOfClosedTodos(scope, deps.getCalendarDeps(), now, [
+            todoId,
+          ]),
+        );
+      }),
 
     restore: onTodo(ownerTodos.restore),
 
@@ -300,12 +364,30 @@ export function makeTodoHandlers(
             const closed = await ownerTodos.closeMany(scope, data.todos, now);
             return typeof closed === "string"
               ? refused(closed)
-              : assistantJson({ closed });
+              : calendarAnswer(
+                  await freeSlotsOfClosedTodos(
+                    scope,
+                    deps.getCalendarDeps(),
+                    now,
+                    closed,
+                  ),
+                  { closed },
+                );
           }
           case "reopen":
             return saved(await ownerTodos.reopenMany(scope, data.ids, now));
           case "delete":
-            return saved(await ownerTodos.deleteMany(scope, data.ids, now));
+            if (!(await ownerTodos.deleteMany(scope, data.ids, now))) {
+              return notFound();
+            }
+            return calendarAnswer(
+              await freeSlotsOfClosedTodos(
+                scope,
+                deps.getCalendarDeps(),
+                now,
+                data.ids,
+              ),
+            );
           case "restore":
             return saved(await ownerTodos.restoreMany(scope, data.ids, now));
           case "reject":
@@ -322,6 +404,64 @@ export function makeTodoHandlers(
         if (!body.success) return invalidBody();
         await ownerTodos.reorder(scope, body.data.ids, now);
         return assistantNoContent();
+      }),
+
+    /** Puts time for a to-do on the default calendar, and names that calendar. */
+    addSlot: (request: Request, todoId: string) =>
+      withSession(request, async (scope, now) => {
+        const body = await readBody(request, addSlotBody);
+        if (!body.success) return invalidBody();
+        if (!isTodoId(todoId)) return notFound();
+        const added = await todoCalendarSlots.add(
+          scope,
+          deps.getCalendarDeps(),
+          todoId,
+          { name: body.data.name, ...timesOf(body.data.time) },
+          now,
+        );
+        return typeof added === "string"
+          ? refusedSlot(added)
+          : assistantJson(added, { status: 201 });
+      }),
+
+    /** Moves the time that a to-do holds on the calendar. */
+    moveSlot: (request: Request, todoId: string) =>
+      withSession(request, async (scope, now) => {
+        const body = await readBody(request, slotTime);
+        if (!body.success) return invalidBody();
+        if (!isTodoId(todoId)) return notFound();
+        return slotSaved(
+          await todoCalendarSlots.move(
+            scope,
+            deps.getCalendarDeps(),
+            todoId,
+            timesOf(body.data),
+            now,
+          ),
+        );
+      }),
+
+    /** Takes the time that a to-do holds off the calendar. */
+    removeSlot: (request: Request, todoId: string) =>
+      withSession(request, async (scope) => {
+        if (!isTodoId(todoId)) return notFound();
+        return slotSaved(
+          await todoCalendarSlots.remove(scope, deps.getCalendarDeps(), todoId),
+        );
+      }),
+
+    /** Takes the time from the calendar, after a write found that the event changed. */
+    adoptSlot: (request: Request, todoId: string) =>
+      withSession(request, async (scope, now) => {
+        if (!isTodoId(todoId)) return notFound();
+        return slotSaved(
+          await todoCalendarSlots.adopt(
+            scope,
+            deps.getCalendarDeps(),
+            todoId,
+            now,
+          ),
+        );
       }),
 
     /** Adds a step to a to-do's checklist, or brings back one that was deleted. */

@@ -41,8 +41,8 @@ export default function Page() {
         </Text>
         <Text>
           {t({
-            en: "With an iCloud mailbox, the organising agent can also keep your iCloud Calendar in step with your mail: it adds, changes or deletes the events that a message books, moves or cancels, over CalDAV with the same app-specific password. It does not change repeating events or events with other attendees.",
-            zh: "如果你连接了 iCloud 邮箱，整理智能体还可以让你的 iCloud 日历与邮件保持一致：对邮件预订、改期或取消的事件，它会通过 CalDAV、使用同一个 App 专用密码添加、修改或删除日程。它不会改动重复日程或有其他参与者的日程。",
+            en: "With an iCloud mailbox, the organising agent can also keep your iCloud Calendar in step with your mail: it adds, changes or deletes the events that a message books, moves or cancels, over CalDAV with the same app-specific password. It does not change repeating events or events with other attendees. When you put a to-do on your calendar, it adds that event in the same way, and moves or removes it when you ask, or frees the time when you finish or delete the to-do before then.",
+            zh: "如果你连接了 iCloud 邮箱，整理智能体还可以让你的 iCloud 日历与邮件保持一致：对邮件预订、改期或取消的事件，它会通过 CalDAV、使用同一个 App 专用密码添加、修改或删除日程。它不会改动重复日程或有其他参与者的日程。当你把待办加入日历时，它也用同样的方式添加日程，并在你要求时改时间或移除；如果你提前完成或删除这项待办，它会空出这段时间。",
           })}
         </Text>
         <Text>
@@ -74,8 +74,8 @@ export default function Page() {
         </Text>
         <Text>
           {t({
-            en: "Morning reports and to-dos: the words that the AI model and you wrote, which can name a sender or a subject, a to-do's due and start dates, how it repeats, when to remind you, its checklist and which steps you ticked, who or what it waits on and when to follow up, whether it is done, why the report closed it or changed its wait, and which of its parts you changed. A to-do that you delete is hidden but stays stored, so that the report does not add it again, with your note if you said that it should not have been added. For a line that links to a message, it keeps the mailbox and the message's ID, so that the link opens the message in your mailbox.",
-            zh: "晨报和待办：AI 模型和你写下的文字（其中可能提到某个发件人或主题）、待办的到期日和开始日期、它如何重复、何时提醒你、它的清单以及你勾选了哪些步骤、它在等谁或等什么以及何时跟进、它是否已完成、晨报关闭它或改变其等待状态的原因，以及你改过它的哪些部分。你删除的待办会被隐藏，但仍然保存，这样晨报就不会再次添加它；如果你说明它不该被添加，也会保存你写的说明。对于链接到某封邮件的条目，它保存所在邮箱和该邮件的 ID，以便链接能在你的邮箱中打开这封邮件。",
+            en: "Morning reports and to-dos: the words that the AI model and you wrote, which can name a sender or a subject, a to-do's due and start dates, how it repeats, when to remind you, its checklist and which steps you ticked, who or what it waits on and when to follow up, the time it holds on your calendar and where that event is, whether it is done, why the report closed it or changed its wait, and which of its parts you changed. A to-do that you delete is hidden but stays stored, so that the report does not add it again, with your note if you said that it should not have been added. For a line that links to a message, it keeps the mailbox and the message's ID, so that the link opens the message in your mailbox.",
+            zh: "晨报和待办：AI 模型和你写下的文字（其中可能提到某个发件人或主题）、待办的到期日和开始日期、它如何重复、何时提醒你、它的清单以及你勾选了哪些步骤、它在等谁或等什么以及何时跟进、它在你日历上占用的时间和该日程的位置、它是否已完成、晨报关闭它或改变其等待状态的原因，以及你改过它的哪些部分。你删除的待办会被隐藏，但仍然保存，这样晨报就不会再次添加它；如果你说明它不该被添加，也会保存你写的说明。对于链接到某封邮件的条目，它保存所在邮箱和该邮件的 ID，以便链接能在你的邮箱中打开这封邮件。",
           })}
         </Text>
         <Text>

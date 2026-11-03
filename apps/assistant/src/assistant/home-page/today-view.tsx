@@ -12,6 +12,7 @@ import { readTodayAgenda } from "../home/read-today-agenda.ts";
 import { localClock } from "../report/due-report-date.ts";
 import type { ReportSettings } from "../report/read-report-settings.ts";
 import { listOpenTodos, readNewestReportItem } from "../report/read-report.ts";
+import { hasCalendarAccount } from "../report/todo-calendar-slots.ts";
 import { formatDay } from "../report-page/format-day.ts";
 import { NoReportYet } from "../report-page/latest-report.tsx";
 import { OpenTodoGroups } from "../report-page/open-todo-groups.tsx";
@@ -41,9 +42,10 @@ export async function TodayView({
     getCalendarDeps(),
     settings.timeZone,
   );
-  const [open, newest] = await Promise.all([
+  const [open, newest, hasCalendar] = await Promise.all([
     listOpenTodos(scope),
     readNewestReportItem(scope),
+    hasCalendarAccount(scope),
   ]);
   const today = localClock(now, settings.timeZone).date;
   return (
@@ -53,6 +55,7 @@ export async function TodayView({
       timeZone={settings.timeZone}
       locale={locale}
       openCount={open.length}
+      hasCalendar={hasCalendar}
       renderedAt={now.getTime()}
     >
       <div css={[stack.group, styles.today]}>

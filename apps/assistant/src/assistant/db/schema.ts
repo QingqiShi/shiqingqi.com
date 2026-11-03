@@ -226,6 +226,18 @@ export const todos = pgTable(
     snoozedUntil: timestamp("snoozed_until", { withTimezone: true }),
     /** When the reminder cron took this reminder. It sends each one once. */
     remindedAt: timestamp("reminded_at", { withTimezone: true }),
+    /** The login of the event that holds time for it. It is set while it has one. */
+    calendarAccountId: uuid("calendar_account_id").references(
+      () => mailAccounts.id,
+      { onDelete: "set null" },
+    ),
+    /** The calendar of that event. */
+    calendarUrl: text("calendar_url"),
+    calendarHref: text("calendar_href"),
+    /** The etag of the app's last write: a later write that sees another one changes nothing. */
+    calendarEtag: text("calendar_etag"),
+    calendarStart: timestamp("calendar_start", { withTimezone: true }),
+    calendarEnd: timestamp("calendar_end", { withTimezone: true }),
     /** The occurrence that closing this one made. */
     nextTodoId: uuid("next_todo_id").references((): AnyPgColumn => todos.id, {
       onDelete: "set null",
@@ -279,7 +291,16 @@ export const todos = pgTable(
       .where(
         sql`${t.remindAt} is not null and ${t.remindedAt} is null and ${t.doneAt} is null and ${t.deletedAt} is null`,
       ),
+    index("todos_calendar_over_idx")
+      .on(t.userId, t.calendarStart)
+      .where(
+        sql`${t.calendarAccountId} is not null and (${t.doneAt} is not null or ${t.deletedAt} is not null)`,
+      ),
     check("todos_start_not_after_due", sql`${t.startDate} <= ${t.dueDate}`),
+    check(
+      "todos_calendar_slot_whole",
+      sql`(${t.calendarHref} is null) = (${t.calendarUrl} is null) and (${t.calendarHref} is null) = (${t.calendarStart} is null) and (${t.calendarHref} is null) = (${t.calendarEnd} is null) and (${t.calendarHref} is not null or ${t.calendarAccountId} is null)`,
+    ),
     check(
       "todos_follow_up_needs_waiting",
       sql`${t.followUpDate} is null or ${t.waitingOn} is not null`,

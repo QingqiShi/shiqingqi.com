@@ -123,7 +123,8 @@ export async function addNextOccurrence(
 /**
  * Opens the way for a closed occurrence to open again. When its next occurrence is
  * still open, the row goes, with no trace for the agent, because the owner did not
- * delete it, and this one takes its place. When the series has moved on or ended,
+ * delete it, and this one takes its place, with the time that it held on the
+ * calendar, so that its event does not stay with no to-do. When the series has moved on or ended,
  * this one stays as a to-do that does not repeat, so that the series does not run
  * twice. It gives the columns to write on the row that opens.
  */
@@ -138,6 +139,12 @@ export async function takeBackNextOccurrence(
         position: todos.position,
         doneAt: todos.doneAt,
         deletedAt: todos.deletedAt,
+        calendarAccountId: todos.calendarAccountId,
+        calendarUrl: todos.calendarUrl,
+        calendarHref: todos.calendarHref,
+        calendarEtag: todos.calendarEtag,
+        calendarStart: todos.calendarStart,
+        calendarEnd: todos.calendarEnd,
       })
       .from(todos)
       .where(and(eq(todos.userId, userId), eq(todos.id, nextId)))
@@ -147,5 +154,6 @@ export async function takeBackNextOccurrence(
   await tx
     .delete(todos)
     .where(and(eq(todos.userId, userId), eq(todos.id, nextId)));
-  return { position: next.position };
+  const { position, doneAt: _, deletedAt: __, ...slot } = next;
+  return { position, ...(slot.calendarAccountId ? slot : {}) };
 }

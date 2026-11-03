@@ -21,6 +21,7 @@ import {
 } from "#src/assistant/db/testing/create-test-db.ts";
 import { createFakeMailServer } from "#src/assistant/mail/testing/create-fake-mail-server.ts";
 import {
+  insertAccount,
   insertUser,
   mailDeps,
 } from "#src/assistant/mail/testing/insert-account.ts";
@@ -165,6 +166,27 @@ describe("undo of an add", () => {
       .from(agentActions)
       .where(isNotNull(agentActions.undoneAt));
     expect(undone).toEqual([]);
+  });
+
+  it("leaves a to-do that holds time on the owner's calendar", async () => {
+    const added = newTodo("Sign the form");
+    const runId = await applyChanges({ added: [added] });
+    await db
+      .update(todos)
+      .set({
+        calendarAccountId: await insertAccount(db, userId),
+        calendarUrl: "https://caldav.example/home/calendar-1/",
+        calendarHref: "https://caldav.example/home/calendar-1/a.ics",
+        calendarStart: LATER,
+        calendarEnd: LATER,
+      })
+      .where(eq(todos.id, added.id));
+
+    expect((await undo(runId))?.at(0)).toMatchObject({
+      undone: false,
+      refusal: "todo-changed",
+    });
+    expect((await readTodo(added.id))?.deletedAt).toBeNull();
   });
 
   it("keeps the owner's delete as the owner's", async () => {

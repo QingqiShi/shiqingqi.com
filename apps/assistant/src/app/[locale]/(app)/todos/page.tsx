@@ -17,6 +17,7 @@ import {
   listTodos,
   searchTodos,
 } from "#src/assistant/report/read-report.ts";
+import { hasCalendarAccount } from "#src/assistant/report/todo-calendar-slots.ts";
 import { todoLimits } from "#src/assistant/report/todo-limits.ts";
 import { toTodoItemData } from "#src/assistant/report-page/to-todo-item-data.ts";
 import { TodoBoard } from "#src/assistant/report-page/todo-board.tsx";
@@ -53,11 +54,13 @@ export default async function Page({
   const scope = { db: getAssistantDb(), userId: session.userId };
   const query = queryOf((await searchParams).q);
   const renderedAt = new Date().getTime();
-  const [{ todos, hasMore }, settings, openCount] = await Promise.all([
-    readRows(scope, query),
-    readReportSettings(scope),
-    countOpenTodos(scope),
-  ]);
+  const [{ todos, hasMore }, settings, openCount, hasCalendar] =
+    await Promise.all([
+      readRows(scope, query),
+      readReportSettings(scope),
+      countOpenTodos(scope),
+      hasCalendarAccount(scope),
+    ]);
 
   return (
     <AssistantPageColumn>
@@ -80,6 +83,7 @@ export default async function Page({
           locale={locale}
           timeZone={settings.timeZone}
           openCount={openCount}
+          hasCalendar={hasCalendar}
           renderedAt={renderedAt}
         >
           {query === "" ? <TodoBoard /> : <TodoSearchResults />}

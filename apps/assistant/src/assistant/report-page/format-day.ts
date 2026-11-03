@@ -80,6 +80,26 @@ export function formatReminderTime(
   }).format(instant);
 }
 
+/** The time that a to-do holds on the calendar: "15:00–16:00" today, else "4 Nov, 15:00–16:00". */
+export function formatSlotTime(
+  { start, end }: { start: string; end: string },
+  place: { today: string; locale: string; timeZone: string },
+): string {
+  const { locale, timeZone } = place;
+  const dayOf = (time: string) =>
+    formatLocalTime(localTimeAt(Date.parse(time), timeZone), false);
+  const ending =
+    dayOf(start) === dayOf(end)
+      ? new Intl.DateTimeFormat(locale, {
+          hour: "2-digit",
+          minute: "2-digit",
+          hourCycle: "h23",
+          timeZone,
+        }).format(new Date(end))
+      : formatReminderTime(end, place);
+  return `${formatReminderTime(start, place)}–${ending}`;
+}
+
 /** Whole days from one `YYYY-MM-DD` to another. */
 export function daysBetween(from: string, to: string): number {
   return Math.round(
