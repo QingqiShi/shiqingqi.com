@@ -58,7 +58,7 @@ export const LiquidInstance = d.struct({
   restX: d.f32,
   span: d.f32,
   centre: d.vec2f,
-  glint: d.f32,
+  lean: d.f32,
   scale: d.f32,
   ringWidth: d.f32,
   edge: d.vec4f,

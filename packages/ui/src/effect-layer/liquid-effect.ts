@@ -35,7 +35,11 @@ import { markEffectDrawn } from "./mark-effect-drawn.ts";
 import type { EffectColor } from "./parse-css-color.ts";
 import { srgbToOklab } from "./ripple-color.ts";
 import { dispatch } from "./set-bind-group.ts";
-import { stepGlint } from "./step-glint.ts";
+import {
+  NO_EDGE_LIGHT,
+  stepEdgeLight,
+  type EdgeLight,
+} from "./step-edge-light.ts";
 import {
   beadRadius,
   finiteParticles,
@@ -54,6 +58,7 @@ import type {
   EffectElementRecord,
   EffectFrame,
   EffectInput,
+  EffectPointer,
   EffectSetup,
 } from "./types.ts";
 import { readLiquidSlot, writeLiquidSlot } from "./write-liquid-slot.ts";
@@ -112,6 +117,24 @@ const dim = (color: readonly [number, number, number], light: number) =>
 const THAWED_LIGHT = 0.55;
 
 /**
+ * Where `pointerAt` is across the page against the rest shape of the pill of
+ * `target` and `span`, as `EdgeLight.lean` gives it. A vertical track has its
+ * pill down the page, so across the page the shape is only as wide as a thumb.
+ */
+function leanTowards(
+  pointerAt: number,
+  { originX, radius, vertical }: LiquidControl,
+  target: number,
+  span: number,
+) {
+  const [centre, half] =
+    vertical === true
+      ? [originX, radius]
+      : [originX + target * radius, (span + 1) * radius];
+  return clamp((pointerAt - centre) / half, -1, 1);
+}
+
+/**
  * The liquid of one control between frames.
  *
  * @internal
@@ -135,8 +158,8 @@ export interface LiquidState {
   readonly active: boolean;
   /** When the effect started to hand the surface back, or `null`. */
   readonly handFrom: number | null;
-  /** How much the last move lifts the glint on the lit edge, as `stepGlint` gives it. */
-  readonly glint: number;
+  /** The light on the lit edge, as `stepEdgeLight` gives it. */
+  readonly light: EdgeLight;
   /** Seconds on the liquid's clock that the GPU has been given to simulate. */
   readonly simulated: number;
   /** The time on that clock that the body's particles are from. */
@@ -223,13 +246,13 @@ function paletteOf(control: LiquidControl, under: EffectColor) {
 /**
  * Steps one control's liquid and lays it out on the page. It rests in the
  * pill of the stop at `position`, or where a drag holds it, and there the
- * control draws its own solid surface, with a lit edge from the effect over
- * it. A new position pours the liquid there: it melts into water, pours
- * over, lands on the wall ahead, the far end of that stop's pill, and
- * sloshes against it. It flows on for about 0.8 s after it arrives, and
- * sets into the control's solid surface as it settles. As the lit edge
- * comes back, the glint on it is brighter after a faster move, and it fades
- * to its rest look.
+ * control draws its own solid surface. While a pointer is over the control
+ * or presses it, `pointerAt` says where, and the effect draws a lit edge over
+ * that surface, as `stepEdgeLight` moves it. A new position pours the liquid
+ * there: it melts into water, pours over, lands on the wall ahead, the far
+ * end of that stop's pill, and sloshes against it. It flows on for about
+ * 0.8 s after it arrives, and sets into the control's solid surface as it
+ * settles.
  * Once it is solid and still, the effect hands the surface back to the
  * control. Under reduced motion it pours nothing: the solid surface fades
  * out of the old pill as it fades into the new one, in `HAND_SECONDS`.
@@ -255,6 +278,7 @@ export function layoutLiquid(
   slot: number,
   state: LiquidState | undefined,
   frame: Pick<EffectFrame, "time" | "delta" | "reducedMotion">,
+  pointerAt: number | null,
   backdrop: EffectColor,
   moved: LiquidSnapshot | null,
   beads: EffectInput<typeof LiquidBeadSchema>[],
@@ -425,11 +449,18 @@ export function layoutLiquid(
 
   const vertical = control.vertical === true;
   const centreX = mean(body.x);
-  const glint = stepGlint(state?.glint ?? 0, body, delta, reduced);
+  const { light, settled: lightSettled } = stepEdgeLight(
+    state?.light ?? NO_EDGE_LIGHT,
+    pointerAt === null ? null : leanTowards(pointerAt, control, target, span),
+    delta,
+    reduced,
+  );
   // The lit edge is the solid surface's, so it shows only as the liquid sets
   // past the core it keeps while it lingers.
   const edgeLit =
-    clamp((body.set - LINGER_SET) / (1 - LINGER_SET), 0, 1) * fadeIn;
+    clamp((body.set - LINGER_SET) / (1 - LINGER_SET), 0, 1) *
+    fadeIn *
+    light.amount;
 
   const firstBead = beads.length;
   for (const bead of body.beads) {
@@ -453,7 +484,7 @@ export function layoutLiquid(
       heading,
       active,
       handFrom,
-      glint,
+      light,
       simulated,
       particlesAt,
       fade,
@@ -465,7 +496,7 @@ export function layoutLiquid(
     animating:
       !body.settled ||
       rise.level !== riseGoal ||
-      (glint !== 0 && edgeLit > 0) ||
+      !lightSettled ||
       handFrom !== null,
     instance: {
       elementIndex,
@@ -504,7 +535,7 @@ export function layoutLiquid(
       corner: control.corner,
       backdrop: rgb(backdrop),
       body: handAlpha(control, active, handFrom, frame.time) * fadeIn,
-      glint,
+      lean: light.lean,
       vertical,
       edge: control.edge,
       edgeLit,
@@ -514,6 +545,30 @@ export function layoutLiquid(
           : [fade.target * radius, fade.span * radius, 1 - fadeIn],
     },
   };
+}
+
+/** A finger leaves `:hover` set after a tap, so only a mouse or a pen hovers. */
+function isHovered(element: Element, pointer: EffectPointer) {
+  return (
+    pointer.present &&
+    pointer.pointerType !== "touch" &&
+    element.matches(":hover")
+  );
+}
+
+/**
+ * How far the pointer is across the page from the left of the control's box,
+ * in CSS px, or `null` when it neither is over the control nor presses it.
+ * A control can be on any carrier, so its place comes from the browser.
+ */
+function pointerFromLeft(
+  { element, settings }: EffectElementRecord,
+  { pointer, viewport }: EffectFrame,
+) {
+  const pressed = settings.liquid?.pressed === true && pointer.present;
+  return pressed || isHovered(element, pointer)
+    ? pointer.x - viewport.x - element.getBoundingClientRect().left
+    : null;
 }
 
 /** A copy of the simulation buffer on its way back to the CPU. */
@@ -537,8 +592,9 @@ interface Stepped {
  * draws itself, as `useLiquid` describes. On a Switch it also covers the
  * track with the fill that rises or sinks under it. It marks the control
  * with `markEffectDrawn` while it draws the surface, so the control hides
- * its own only then. At rest it draws only a lit edge over the control's
- * own surface. It asks for frames only while something moves.
+ * its own only then. At rest it draws nothing over the control's own surface,
+ * unless a pointer is over the control or presses it: then it draws a lit
+ * edge. It asks for frames only while something moves.
  *
  * The particles live on the GPU, in a slot of the simulation buffer for
  * each control, where a compute pass moves them each frame the liquid
@@ -696,8 +752,13 @@ export const liquidEffect: Effect = {
     const states = new Map<number, LiquidState>();
     const drawn = new Set<Element>();
     let instances: readonly LiquidInstanceRecord[] = [];
+    let liquidElements: readonly Element[] = [];
+    let pointerWasOver = false;
 
     return {
+      followsPointer: (pointer) =>
+        pointerWasOver ||
+        liquidElements.some((element) => isHovered(element, pointer)),
       update(encoder, frame) {
         const controls = frame.elements.flatMap((record, index) => {
           if ((record.roles & LIQUID) === 0) {
@@ -708,6 +769,8 @@ export const liquidEffect: Effect = {
             ? []
             : [{ index, record, control, slot: slotOf(record.id) }];
         });
+        liquidElements = controls.map(({ record }) => record.element);
+        pointerWasOver = false;
         ensureSlotCapacity(slots.size);
         const nextInstances: LiquidInstanceRecord[] = [];
         const beads: EffectInput<typeof LiquidBeadSchema>[] = [];
@@ -719,6 +782,8 @@ export const liquidEffect: Effect = {
         let fading = false;
         for (const { index, record, control, slot } of controls) {
           const { id } = record;
+          const pointerAt = pointerFromLeft(record, frame);
+          pointerWasOver ||= pointerAt !== null;
           const laid = layoutLiquid(
             control,
             record,
@@ -726,6 +791,7 @@ export const liquidEffect: Effect = {
             slot,
             states.get(id),
             frame,
+            pointerAt,
             frame.scopes[record.scopeIndex].backdrop,
             latest.get(id) ?? null,
             beads,

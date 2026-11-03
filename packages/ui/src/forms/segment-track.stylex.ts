@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "../breakpoints.stylex.ts";
 import { handBack } from "../effect-layer/hand-back.stylex.ts";
 import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import {
@@ -77,7 +78,9 @@ export const segmentSurfaces = stylex.create({
  * segment: `indicator` on the indicator, `shown` on the segment that looks
  * selected and `track` on the track, so only its own segments can be the
  * anchor. Where there is no anchor positioning, the indicator does not show,
- * so the shown segment paints the surface itself there.
+ * so the shown segment paints the surface itself there. A track can also have
+ * one hover fill under its indicator, on the motion of `createSegmentHover`:
+ * `hover` on the fill, and `hoverFill` on each segment until the motion starts.
  *
  * @internal
  */
@@ -103,12 +106,38 @@ export const segmentTrack = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     // It keeps its box, its colours and its corners while the effect draws
-    // in its place, so the effect can read them from it. The effect draws
-    // only while the indicator moves or is pressed: it hides at once when
-    // the effect takes over, and fades back in as the effect hands it back.
+    // in its place, so the effect can read them from it. The effect draws the
+    // surface only while the indicator moves or is pressed: it hides at once
+    // when the effect takes over, and fades back in as the effect hands it
+    // back. At rest this box is the whole surface.
     opacity: {
       default: null,
       [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]: 0,
+    },
+  },
+  // Under the indicator, so a pointer that crosses the selected segment takes
+  // the fill under the selected surface.
+  hover: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    zIndex: -2,
+    pointerEvents: "none",
+    filter: "opacity(0)",
+    backgroundColor: color.bgControlHoverBesideRaised,
+    opacity: {
+      default: 1,
+      [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]: 0,
+    },
+    transition: `opacity ${duration._150} ${easing.ease}`,
+  },
+  hoverFill: {
+    backgroundColor: {
+      default: "transparent",
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHoverBesideRaised,
+      },
     },
   },
   // A press holds the indicator off its anchor, along the track. Its sides

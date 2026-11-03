@@ -1,15 +1,24 @@
 import { EXTRACTOR_FAN_FALLOFF } from "../effect-layer/dust-element-value.ts";
-import { bind, type Binding } from "../motion/bind.ts";
-import type { MotionEngine } from "../motion/create-motion-engine.ts";
 import {
-  createMotionValue,
-  type MotionValue,
-} from "../motion/create-motion-value.ts";
+  boxIn,
+  CAN_HOVER_QUERY,
+  createFill,
+  FADED,
+  follow,
+  glideTo,
+  HOVER_SPRING,
+  placeAt,
+  setShown,
+  showTo,
+  springTo,
+  type Box,
+  type Fill,
+} from "../motion/create-fill.ts";
+import type { MotionEngine } from "../motion/create-motion-engine.ts";
+import type { MotionValue } from "../motion/create-motion-value.ts";
 import { cssTween } from "../motion/css-tween.ts";
-import { mix, unit } from "../motion/mix.ts";
-import { MIN_MOVE } from "../motion/play-layout.ts";
-import { px } from "../motion/px.ts";
-import { springOf, springRoles, type Spring } from "../motion/spring-roles.ts";
+import { unit } from "../motion/mix.ts";
+import { springOf, springRoles } from "../motion/spring-roles.ts";
 import { duration, easing } from "../primitives/motion.stylex.ts";
 
 /**
@@ -29,13 +38,6 @@ export const NAV_PRESSED = "data-pressed";
 
 const CURRENT = "[aria-current=page]";
 const MARKER_SPRING = springOf(springRoles.move);
-const HOVER_SPRING = springOf(springRoles.surface);
-/** The scale a fill grows in from, where it has no row to come from. */
-const GROW_FROM = 0.92;
-/** The scale of the hover fill while a press holds it. */
-const PRESSED_SCALE = 0.97;
-/** A fill this faint or fainter has no place to glide from. */
-const FADED = 0.05;
 /**
  * How fast the old marker fades out where it sheds its dust, and the scale
  * it shrinks to as it loses the dust.
@@ -81,25 +83,12 @@ export function markerTargetOf(current: Element): Element {
   return target;
 }
 
-interface Box {
-  readonly x: number;
-  readonly y: number;
-  readonly width: number;
-  readonly height: number;
-}
-
 /** How far the farthest point of `from` is outside the box `to`. */
 function farGap(from: Box, to: Box) {
   return Math.hypot(
     Math.max(0, to.x - from.x, from.x + from.width - to.x - to.width),
     Math.max(0, to.y - from.y, from.y + from.height - to.y - to.height),
   );
-}
-
-/** The box of `element` against the box of `origin`. */
-function boxIn(element: Element, origin: DOMRect): Box {
-  const { left, top, width, height } = element.getBoundingClientRect();
-  return { x: left - origin.left, y: top - origin.top, width, height };
 }
 
 /**
@@ -131,94 +120,6 @@ function isSeen(from: Element, origin: DOMRect, box: Box) {
   top = Math.max(top, 0);
   bottom = Math.min(bottom, window.innerHeight);
   return bottom - top >= box.height / 2;
-}
-
-/**
- * A fill that springs from row to row: the current-page marker, the old
- * marker that sheds dust, or the hover fill.
- */
-interface Fill {
-  readonly element: HTMLElement;
-  readonly box: readonly [MotionValue, MotionValue, MotionValue, MotionValue];
-  readonly shown: MotionValue;
-  readonly size: MotionValue;
-  readonly pressed: MotionValue;
-  readonly binding: Binding;
-  readonly spring: Spring;
-}
-
-/**
- * The fill hides through a filter, not through `opacity`. The effect layer
- * measures no element at `opacity: 0`, and a fill that sheds dust or pulls
- * it in must stay measured.
- */
-function createFill(
-  engine: MotionEngine,
-  element: HTMLElement,
-  spring: Spring,
-): Fill {
-  const length = () =>
-    createMotionValue(engine, 0, { spring, precision: MIN_MOVE });
-  const box = [length(), length(), length(), length()] as const;
-  const shown = createMotionValue(engine, 0, { spring });
-  const size = createMotionValue(engine, GROW_FROM, { spring });
-  const pressed = createMotionValue(engine, 0, { spring });
-  const binding = bind(element, [...box, shown, size, pressed], {
-    pose: (x, y, width, height, at, scale, press) => ({
-      translate: `${px(x)} ${px(y)}`,
-      width: px(Math.max(0, width)),
-      height: px(Math.max(0, height)),
-      filter: `opacity(${unit(at).toFixed(3)})`,
-      scale: (scale * mix(1, PRESSED_SCALE, press)).toFixed(4),
-    }),
-  });
-  return { element, box, shown, size, pressed, binding, spring };
-}
-
-/** Puts a fill at `at` shown, at once. It is smaller while it is faint. */
-function setShown(fill: Fill, at: number) {
-  fill.shown.set(at);
-  fill.size.set(mix(GROW_FROM, 1, at));
-}
-
-/** Shows a fill, or hides it, and grows it or shrinks it with the fade. */
-function showTo(fill: Fill, isShown: boolean) {
-  fill.shown.to(isShown ? 1 : 0);
-  fill.size.to(isShown ? 1 : GROW_FROM);
-}
-
-function placeAt(fill: Fill, box: Box) {
-  const [x, y, width, height] = fill.box;
-  x.set(box.x);
-  y.set(box.y);
-  width.set(box.width);
-  height.set(box.height);
-}
-
-function springTo(fill: Fill, box: Box) {
-  const [x, y, width, height] = fill.box;
-  const { spring } = fill;
-  x.to(box.x, { spring });
-  y.to(box.y, { spring });
-  width.to(box.width, { spring });
-  height.to(box.height, { spring });
-}
-
-/** Keeps a fill on its row while the layout moves the row. */
-function follow(fill: Fill, box: Box) {
-  const values = fill.box;
-  const targets = [box.x, box.y, box.width, box.height];
-  if (values.some((value) => value.isMoving)) {
-    if (
-      values.some(
-        (value, index) => Math.abs(value.target - targets[index]) >= MIN_MOVE,
-      )
-    ) {
-      springTo(fill, box);
-    }
-    return;
-  }
-  placeAt(fill, box);
 }
 
 /** Puts `into` where `out` is, at its speed, and sends it to `target`. */
@@ -456,7 +357,7 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
         marker,
         shed,
         hover,
-        canHover: window.matchMedia("(hover: hover) and (pointer: fine)"),
+        canHover: window.matchMedia(CAN_HOVER_QUERY),
         onPull,
         canShed,
       };
@@ -507,13 +408,7 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
       const to = boxIn(row, box.getBoundingClientRect());
       // From the marker's row, the fill grows in at the new row. A fill
       // that glides out of the marker looks like the marker comes off.
-      if (wasOnMarker || hover.shown.get() <= FADED) {
-        placeAt(hover, to);
-        setShown(hover, 0);
-      } else {
-        springTo(hover, to);
-      }
-      showTo(hover, true);
+      glideTo(hover, to, wasOnMarker);
       return;
     },
     hoverOut() {

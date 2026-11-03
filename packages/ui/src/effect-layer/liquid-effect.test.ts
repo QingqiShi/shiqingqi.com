@@ -64,6 +64,7 @@ function createRun(control: LiquidControl, reducedMotion = false) {
       SLOT,
       state,
       { time, delta: 1 / 60, reducedMotion },
+      null,
       BACKDROP,
       latest,
       beads,

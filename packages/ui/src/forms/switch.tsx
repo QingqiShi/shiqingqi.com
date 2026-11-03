@@ -95,21 +95,23 @@ interface SwitchProps extends Omit<
   size?: "xs" | "sm" | "md" | "lg";
   /**
    * An effect the effect layer draws on the thumb. `"liquid"`, the default,
-   * keeps the solid thumb at rest and lights its edge from above, leaning
-   * the light towards a pointer over the switch. When the switch is pressed
-   * or toggled, the effect draws the thumb as liquid: it melts into water,
-   * which pours across the track, sheds drops on its way and sloshes
+   * keeps the plain solid thumb at rest. While a pointer is over the switch,
+   * a light comes in above the thumb and lights its top edge, leaning towards
+   * the pointer, and it goes when the pointer leaves. When the switch is
+   * pressed or toggled, the effect draws the thumb as liquid: it melts into
+   * water, which pours across the track, sheds drops on its way and sloshes
    * against the far end. It flows on for a moment while the drops catch up
    * and merge into it, then sets into the solid thumb again.
    * Turning on, the on fill rises through the track, ahead under the thumb;
    * turning off, it sinks away. A drag moves the liquid with inertia, and
    * the fill follows how far it has gone. Under reduced motion the thumb
-   * crossfades to its place and the fill changes at once. `"none"` keeps
-   * the plain thumb and track. The effect draws only inside an
+   * crossfades to its place, the fill changes at once, and the light shows at
+   * once and does not follow the pointer. `"none"` keeps the plain thumb and
+   * track. The effect draws only inside an
    * `EffectLayerProvider` with WebGPU; elsewhere, and under forced colours,
    * the switch looks and works as it does with `"none"`.
    *
-   * @zh 由效果层在滑块上绘制的效果。默认的 `"liquid"` 在静止时保留实心滑块，并从上方照亮它的边缘；指针停在开关上时，光会偏向指针。按下或切换开关时，由效果把滑块绘制成液体：它融化成水，涌过轨道，途中甩出水珠，在远端来回晃动。它继续流动片刻，水珠追上并融入其中，然后重新凝固成实心滑块。打开时，开启的填充色在整条轨道上升起，在滑块下方领先一步；关闭时，它渐渐退去。拖动时液体带着惯性跟随，填充色随它走过的距离变化。减少动态效果时，滑块以交叉淡入淡出到位，填充色立即切换。`"none"` 保留普通的滑块与轨道。效果只在带有 WebGPU 的 `EffectLayerProvider` 之内绘制；在其它情况下以及强制颜色模式下，开关的外观与行为与 `"none"` 相同。
+   * @zh 由效果层在滑块上绘制的效果。默认的 `"liquid"` 在静止时保留普通的实心滑块。指针停在开关上时，光从滑块上方照亮它的上缘，并偏向指针；指针离开后光随之消失。按下或切换开关时，由效果把滑块绘制成液体：它融化成水，涌过轨道，途中甩出水珠，在远端来回晃动。它继续流动片刻，水珠追上并融入其中，然后重新凝固成实心滑块。打开时，开启的填充色在整条轨道上升起，在滑块下方领先一步；关闭时，它渐渐退去。拖动时液体带着惯性跟随，填充色随它走过的距离变化。减少动态效果时，滑块以交叉淡入淡出到位，填充色立即切换，光立即出现，也不跟随指针。`"none"` 保留普通的滑块与轨道。效果只在带有 WebGPU 的 `EffectLayerProvider` 之内绘制；在其它情况下以及强制颜色模式下，开关的外观与行为与 `"none"` 相同。
    */
   effect?: "liquid" | "none";
   /**

@@ -109,9 +109,10 @@ interface SegmentedControlBaseProps<TValue extends string> extends Omit<
   hideLabels?: boolean;
   /**
    * An effect the effect layer draws on the indicator. `"liquid"`, the
-   * default, keeps the solid indicator at rest and lights its edge from
-   * above, leaning the light towards a pointer over the control. When a
-   * segment is selected, by a click, a tap or an arrow key, the effect
+   * default, keeps the plain solid indicator at rest. While a pointer is over
+   * the control, a light comes in above the indicator and lights its top
+   * edge, leaning towards the pointer, and it goes when the pointer leaves.
+   * When a segment is selected, by a click, a tap or an arrow key, the effect
    * draws the indicator as liquid: it melts into water, which pours to the
    * segment, sheds drops on its way and sloshes against the far end. It
    * flows on for a moment while the drops catch up and merge into it, then
@@ -119,12 +120,13 @@ interface SegmentedControlBaseProps<TValue extends string> extends Omit<
    * segment pours it there at once, and a drag from that press moves it
    * with inertia, as wide as the segment under it; on release it pours to
    * the segment under it in the same way. The labels read through the
-   * indicator. Under reduced motion the indicator crossfades to its place.
+   * indicator. Under reduced motion the indicator crossfades to its place,
+   * and the light shows at once and does not follow the pointer.
    * `"none"` keeps the plain Glass indicator. The effect draws only inside
    * an `EffectLayerProvider` with WebGPU; elsewhere, and under forced
    * colours, the control looks and works as it does with `"none"`.
    *
-   * @zh 由效果层在指示块上绘制的效果。默认的 `"liquid"` 在静止时保留实心指示块，并从上方照亮它的边缘；指针停在控件上时，光会偏向指针。通过点击、轻触或方向键选中分段时，由效果把指示块绘制成液体：它融化成水，涌向该分段，途中甩出水珠，在远端来回晃动。它继续流动片刻，水珠追上并融入其中，然后按该分段的形状重新凝固成实心指示块。按下某个分段时液体立即涌向该分段，从这次按下开始拖动时它带着惯性跟随，宽度随其下方的分段变化；松开后以同样的方式涌向其下方的分段。标签透过指示块显示。减少动态效果时，指示块以交叉淡入淡出到位。`"none"` 保留普通的玻璃指示块。效果只在带有 WebGPU 的 `EffectLayerProvider` 之内绘制；在其它情况下以及强制颜色模式下，控件的外观与行为与 `"none"` 相同。
+   * @zh 由效果层在指示块上绘制的效果。默认的 `"liquid"` 在静止时保留普通的实心指示块。指针停在控件上时，光从指示块上方照亮它的上缘，并偏向指针；指针离开后光随之消失。通过点击、轻触或方向键选中分段时，由效果把指示块绘制成液体：它融化成水，涌向该分段，途中甩出水珠，在远端来回晃动。它继续流动片刻，水珠追上并融入其中，然后按该分段的形状重新凝固成实心指示块。按下某个分段时液体立即涌向该分段，从这次按下开始拖动时它带着惯性跟随，宽度随其下方的分段变化；松开后以同样的方式涌向其下方的分段。标签透过指示块显示。减少动态效果时，指示块以交叉淡入淡出到位，光立即出现，也不跟随指针。`"none"` 保留普通的玻璃指示块。效果只在带有 WebGPU 的 `EffectLayerProvider` 之内绘制；在其它情况下以及强制颜色模式下，控件的外观与行为与 `"none"` 相同。
    */
   effect?: "liquid" | "none";
   /**
@@ -200,6 +202,7 @@ export function SegmentedControl<TValue extends string>({
     selected,
     effect,
     surface: "solid",
+    hoverSurface: true,
     ref,
     handlers: restProps,
     onDrop(drop) {
@@ -234,6 +237,10 @@ export function SegmentedControl<TValue extends string>({
         }
       }}
     >
+      <span
+        {...track.hover}
+        css={[corner.squircle_round, segmentSizeStyles[size], track.hoverCss]}
+      />
       {/* A drifted value selects no option, so nothing carries the anchor.
           An unanchored indicator falls back to its static position and
           paints a small box at the start of the track, so it is not
@@ -340,13 +347,6 @@ const styles = stylex.create({
     color: {
       default: color.fgControl,
       ":hover": { default: null, [pointer.canHover]: color.fg },
-    },
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
     },
   },
   // A non-wrapping label's min-content width blocks an even flex split, even

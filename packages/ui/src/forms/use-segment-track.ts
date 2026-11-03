@@ -11,6 +11,8 @@ import {
 } from "../effect-layer/liquid-indicator.ts";
 import { useLiquid } from "../effect-layer/use-liquid.ts";
 import { mergeRefs } from "../merge-refs.ts";
+import { useMotionEngine } from "../motion/use-motion-engine.ts";
+import { createSegmentHover } from "./create-segment-hover.ts";
 import { DRAG_THRESHOLD, indexAt } from "./index-at.ts";
 import {
   segmentSurfaces,
@@ -228,6 +230,12 @@ export interface SegmentTrackOptions<T extends HTMLElement> {
    * reaches each segment.
    */
   scrolls?: boolean | undefined;
+  /**
+   * One hover fill glides under the indicator to the segment under the
+   * pointer, as in a `NavList`, in place of a hover fill on each segment. The
+   * track renders it with `hover` and `hoverCss` as a direct child.
+   */
+  hoverSurface?: boolean | undefined;
   /** A ref for the track, merged with the effect's. */
   ref?: Ref<T> | undefined;
   /** The caller's own handlers. Its pointer handlers run before the track's. */
@@ -244,7 +252,8 @@ export interface SegmentTrackOptions<T extends HTMLElement> {
  * `indicator` and `indicatorCss` as the first child of the track, and give
  * each segment `segment(index)` and `segmentCss(index)`. `shown` is the
  * segment that looks selected: the selected one, or while a press is on,
- * the one under the indicator.
+ * the one under the indicator. With `hoverSurface`, render a hover fill with
+ * `hover` and `hoverCss` before the indicator.
  *
  * @internal
  */
@@ -254,6 +263,7 @@ export function useSegmentTrack<T extends HTMLElement>({
   surface,
   orientation = "horizontal",
   scrolls = false,
+  hoverSurface = false,
   ref,
   handlers = {},
   onDrop,
@@ -261,6 +271,13 @@ export function useSegmentTrack<T extends HTMLElement>({
   const vertical = orientation === "vertical";
   const [pressed, setPressed] = useState(false);
   const drag = useSegmentDrag(orientation);
+  const engine = useMotionEngine();
+  const [isHoverDrawn, setIsHoverDrawn] = useState(false);
+  const [hover] = useState(() =>
+    createSegmentHover(engine, () => {
+      setIsHoverDrawn(true);
+    }),
+  );
   const liquidRef = useLiquid({
     position: drag.pressed ?? selected,
     drag: drag.index,
@@ -279,11 +296,21 @@ export function useSegmentTrack<T extends HTMLElement>({
         if (event.pointerType !== "mouse" || event.button === 0) {
           setPressed(true);
           drag.start(event);
+          hover.hide();
         }
       },
       onPointerMove: (event: PointerEvent<T>) => {
         handlers.onPointerMove?.(event);
         drag.move(event);
+        if (drag.pressed === null) {
+          hover.over(event.target, event.pointerType);
+        }
+      },
+      onPointerOver: (event: PointerEvent<T>) => {
+        handlers.onPointerOver?.(event);
+        if (drag.pressed === null) {
+          hover.over(event.target, event.pointerType);
+        }
       },
       onPointerUp: (event: PointerEvent<T>) => {
         handlers.onPointerUp?.(event);
@@ -300,6 +327,7 @@ export function useSegmentTrack<T extends HTMLElement>({
       },
       onPointerLeave: (event: PointerEvent<T>) => {
         handlers.onPointerLeave?.(event);
+        hover.hide();
         if (drag.index === null) {
           setPressed(false);
           drag.cancel();
@@ -321,8 +349,11 @@ export function useSegmentTrack<T extends HTMLElement>({
           : segmentTrack.at(inset.start, inset.end)),
       drag.index !== null && segmentTrack.dragged,
     ],
+    hover: { "aria-hidden": "true", ref: hover.ref } as const,
+    hoverCss: segmentTrack.hover,
     segment: (_index: number) => SEGMENT,
     segmentCss: (index: number) => [
+      hoverSurface && !isHoverDrawn && segmentTrack.hoverFill,
       drag.pressed !== null && segmentTrack.held,
       index === shown && segmentTrack.shown,
     ],

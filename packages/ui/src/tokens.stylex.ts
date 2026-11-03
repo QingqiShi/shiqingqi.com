@@ -121,6 +121,10 @@ const light = {
   // SegmentedControl, and the selected item raised on it.
   bgControlSunken: gray._92,
   bgControlRaised: gray._100,
+  // An unselected item under the pointer, next to a selected item that is
+  // `bgControlRaised`, on the track or on the canvas. `bgControlHover` would
+  // equal the raised fill in dark.
+  bgControlHoverBesideRaised: gray._95,
   // A neutral fill for an unselected control when the fill is its only sign,
   // such as an off switch. Selected, it takes `bgControlStrongSelected`. Its
   // foreground is `fgOnControlStrong` in both states.
@@ -227,6 +231,7 @@ const dark: { [key in keyof typeof light]: string } = {
   bgControlDisabled: gray._5,
   bgControlSunken: gray._7,
   bgControlRaised: gray._13,
+  bgControlHoverBesideRaised: gray._9,
   bgControlStrong: gray._30,
   bgControlStrongSelected: purple._40,
   borderControlStrong: gray._35,
@@ -337,6 +342,7 @@ export const color = stylex.defineVars({
   bgControlDisabled: `light-dark(${light.bgControlDisabled}, ${dark.bgControlDisabled})`,
   bgControlSunken: `light-dark(${light.bgControlSunken}, ${dark.bgControlSunken})`,
   bgControlRaised: `light-dark(${light.bgControlRaised}, ${dark.bgControlRaised})`,
+  bgControlHoverBesideRaised: `light-dark(${light.bgControlHoverBesideRaised}, ${dark.bgControlHoverBesideRaised})`,
   bgControlStrong: `light-dark(${light.bgControlStrong}, ${dark.bgControlStrong})`,
   bgControlStrongSelected: `light-dark(${light.bgControlStrongSelected}, ${dark.bgControlStrongSelected})`,
   borderControlStrong: `light-dark(${light.borderControlStrong}, ${dark.borderControlStrong})`,

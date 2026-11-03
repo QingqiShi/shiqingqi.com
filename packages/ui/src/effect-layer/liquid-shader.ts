@@ -82,20 +82,14 @@ const EDGE_SHADE = 0.3;
 /**
  * The lit edge: how bright its hairline is where the edge faces the light,
  * and how fast it dims as the edge turns away. Then how bright its glint is
- * where the rim faces the light, and where it faces straight away, and how
- * small the glint is.
+ * where the rim faces the light, and how small the glint is. The light is
+ * this far above the body, as a share of the radius.
  */
 const HAIRLINE = 0.12;
 const HAIRLINE_SHINE = 1.5;
-const GLINT = 0.7;
-const COUNTER_GLINT = 0.22;
+const GLINT = 0.6;
 const GLINT_SHINE = 40;
-/**
- * At its full lift, the glint is this much brighter, and it slides this far
- * along the rim, in radians.
- */
-const GLINT_LIFT = 1;
-const GLINT_SLIDE = 0.5;
+const LIGHT_HEIGHT = 1.5;
 /**
  * The glint's halo on the track: how bright it starts and how far it
  * reaches, in CSS px.
@@ -110,7 +104,7 @@ const BLOOM_REACH = 0.8;
 const RING_CLEAR = 0.75;
 const SHEEN_REACH = 2;
 const SHEEN_HAIRLINE = 2.5;
-const SHEEN_GLINT = 0.9;
+const SHEEN_GLINT = 1.6;
 const TO_LIGHT = std.normalize(d.vec3f(-0.42, -0.66, 0.62));
 const TO_LIGHT_FLAT = std.normalize(TO_LIGHT.xy);
 const HALFWAY = std.normalize(TO_LIGHT.add(d.vec3f(0, 0, 1)));
@@ -456,8 +450,9 @@ const solidBody = (liquid: Liquid, distance: number, above: number) => {
   if (liquid.edge.w <= 0) {
     return d.vec3f(liquid.thumb);
   }
-  const ring = liquid.edge.w * std.saturate(1 + distance);
-  const top = 0.6 * liquid.edge.w * std.saturate(above + 0.5);
+  const pixel = targetLayout.$.effectTarget.pixelScale.x;
+  const ring = liquid.edge.w * std.saturate(0.5 + (1 + distance) * pixel);
+  const top = 0.6 * liquid.edge.w * std.saturate(0.5 + above * pixel);
   return std.mix(liquid.thumb, d.vec3f(1), std.saturate(ring + top));
 };
 
@@ -548,42 +543,39 @@ const restShadow = (
   return 1 - (1 - ring) * (1 - near) * (1 - far);
 };
 
-/** A direction turned by an angle, in radians. */
-const turned = (direction: d.v2f, angle: number) => {
+/**
+ * The light over the body: above its top on the page, and across the page
+ * as far as `lean` says, between the sides of the body. It never comes down
+ * past the top, so no part of the rim under the body's middle faces it.
+ */
+const lightOver = (liquid: Liquid) => {
   "use gpu";
-  const c = std.cos(angle);
-  const s = std.sin(angle);
-  return d.vec2f(
-    c * direction.x - s * direction.y,
-    s * direction.x + c * direction.y,
-  );
+  const half = d.vec2f(liquid.span + liquid.radius, liquid.radius);
+  const right = frameDir(liquid, d.vec3f(1, 0, 0)).xy;
+  const up = pageUp(liquid);
+  return liquid.origin
+    .add(d.vec2f(liquid.restX, 0))
+    .add(right.mul(std.dot(right, half) * liquid.lean))
+    .sub(up.mul(std.dot(up, half) + LIGHT_HEIGHT * liquid.radius));
 };
 
 /**
- * A glass bevel in the fixed light: a quiet hairline on the sides that face
- * the light, which spills a little onto the track, a small glint where the
- * rim turns to face it, a faint glint where the rim faces straight away, and
- * a faint inner shade on the far side. The last move lifts both glints, and
- * slides them along the rim against the way the liquid moved, but only round
- * their own end of the body: a pill's long sides are straight, and a glint
- * that turned to one would light all along it. On a light surface a white
- * hairline would hide the ring round it, so there the light is only a soft
- * sheen on the track, outside the ring.
+ * A glass bevel under a light above it: a quiet hairline on the sides that
+ * face the light, which spills a little onto the track, a small glint where
+ * the rim faces it, and a faint inner shade on the far side. On a light
+ * surface a white hairline would hide the ring round it, so there the light
+ * is only a soft sheen on the track, outside the ring.
  */
 const litEdge = (
   acc: d.v4f,
+  page: d.v2f,
   distance: number,
   outward: d.v2f,
   liquid: Liquid,
   extras: number,
 ) => {
   "use gpu";
-  const toLight = frameDir(liquid, d.vec3f(TO_LIGHT_FLAT, 0)).xy;
-  const facing = std.dot(outward, toLight);
-  const slide = GLINT_SLIDE * liquid.glint;
-  const near = std.dot(outward, turned(toLight, -std.max(slide, 0)));
-  const far = -std.dot(outward, turned(toLight, std.min(slide, 0)));
-  const lift = 1 + GLINT_LIFT * std.abs(liquid.glint);
+  const facing = std.dot(outward, std.normalize(lightOver(liquid).sub(page)));
   const inner = std.saturate(1 + distance / 1.25) * std.step(distance, 0);
   const edgeBand = std.select(
     std.saturate(1 - distance / 0.75),
@@ -596,14 +588,11 @@ const litEdge = (
     distance > 0,
   );
   const hairline = HAIRLINE * std.pow(std.saturate(facing), HAIRLINE_SHINE);
-  const glint =
-    (GLINT * std.pow(std.saturate(near), GLINT_SHINE) +
-      COUNTER_GLINT * std.pow(std.saturate(far), GLINT_SHINE)) *
-    lift;
+  const glint = GLINT * std.pow(std.saturate(facing), GLINT_SHINE);
   const shade = std.pow(std.saturate(-facing), 1.5) * inner;
   const lightBody = (liquid.flags & FLAG_LIGHT_BODY) !== 0;
-  const dark = std.select(0.32, 0.16, lightBody) * shade * extras;
-  let shine = hairline * edgeBand + glint * (edgeBand + bloom);
+  const dark = std.select(0.32, 0.06, lightBody) * shade * extras;
+  let shine = hairline * edgeBand + glint * (inner + bloom);
   if (lightBody) {
     const sheen =
       std.smoothstep(RING_CLEAR, RING_CLEAR + 1, distance) *
@@ -726,7 +715,7 @@ const drawBody = (
   }
 
   if (edgeLit > 0 && distance < 4) {
-    acc = litEdge(acc, distance, surface.outward, liquid, edgeLit);
+    acc = litEdge(acc, page, distance, surface.outward, liquid, edgeLit);
   }
   return acc;
 };
@@ -742,9 +731,9 @@ const drawBody = (
  * highlight and a caustic. As far as the body has set it is the control's
  * own solid surface, with its edge and its shadows, so that it settles into
  * the look the control has at rest. At rest the control draws its own
- * surface, and the shader adds only a lit edge to it. Under reduced motion
- * it fades the solid surface out of its old place as it fades it into the
- * new one.
+ * surface, and the shader adds to it only the lit edge that a pointer over
+ * the control asks for. Under reduced motion it fades the solid surface out
+ * of its old place as it fades it into the new one.
  */
 const liquidFragment = tgpu.fragmentFn({
   in: instancedQuadVarying,
