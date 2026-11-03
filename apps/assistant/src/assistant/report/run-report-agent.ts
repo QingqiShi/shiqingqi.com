@@ -248,11 +248,11 @@ export async function runReportAgent(
 
   const submit = agentTool({
     description:
-      "Delivers the morning report and ends the run. A line about a mail names its id, so that the owner can open the mail.",
+      "Submits the morning report and ends the run. Give the id of the mail a line is about, so that the owner can open it.",
     loadUpFront: true,
     inputSchema: z.object({
       headline: line.describe(
-        "The one thing the owner should know first, in one sentence: the push notification shows it.",
+        "The most important thing for the owner to know, in one sentence. The push notification shows it.",
       ),
       needsAction: z
         .array(actionItem)
@@ -262,7 +262,7 @@ export async function runReportAgent(
         .array(item)
         .max(MAX_ITEMS)
         .describe(
-          "What else the owner should know: not what the agenda, needsAction or a to-do, open or closed, says already.",
+          "Other things the owner should know. Leave out anything already in the agenda, needsAction or a to-do.",
         ),
       agenda: z
         .array(
@@ -273,7 +273,7 @@ export async function runReportAgent(
             note: line
               .optional()
               .describe(
-                "Only what the mail changes or adds to the event; the report says it here alone.",
+                "What a mail changes or adds to this event, if anything.",
               ),
           }),
         )
@@ -285,7 +285,7 @@ export async function runReportAgent(
         .trim()
         .max(MAX_LINE_CHARS)
         .describe(
-          "One line on the rest of the mail; empty when there is none.",
+          "A one-line summary of the other mail you read, which the owner does not need to act on. Empty if there is none.",
         ),
     }),
     describe: () => ({ kind: "write_report" }),
@@ -329,6 +329,7 @@ export async function runReportAgent(
     { db, userId, model: models.agent, endsAt, now },
     {
       task,
+      reasoning: "high",
       instructions: reportTask.instructions({
         locale,
         timeZone,

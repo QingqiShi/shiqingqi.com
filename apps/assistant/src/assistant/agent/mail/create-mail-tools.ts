@@ -589,7 +589,7 @@ export function createMailTools({
 
     read_mail: agentTool({
       description:
-        "Has a reader with no tools read the text of mails and describe each: its kind, a short summary, whether the owner needs to see it, any warning, and the events it books, moves or cancels. The text itself does not come back. Reading does not mark mail read.",
+        "Reads mails for you. A separate model reads the text of each mail and returns its kind, a short summary, whether the owner needs to see it, any warning, and the events it books, moves or cancels. You do not get the text itself. This does not mark mail read.",
       inputSchema: z.object({ ids: mailIds(limits.readsPerCall) }),
       describe: ({ ids }) => ({ kind: "read_mail", ...mailsOf(ids) }),
       execute: async ({ ids }) => {

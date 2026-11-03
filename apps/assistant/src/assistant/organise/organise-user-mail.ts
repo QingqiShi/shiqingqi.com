@@ -160,6 +160,7 @@ export async function organiseUserMail(
       { db, userId, model: deps.agent, endsAt, now: deps.auth.now },
       {
         task: "organise",
+        reasoning: "medium",
         instructions: organiseTask.instructions({
           ...settings,
           calendar: calendars.hasAccounts,

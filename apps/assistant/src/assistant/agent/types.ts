@@ -1,6 +1,8 @@
 /** One step of an agent run as `agent_runs.transcript` keeps it: each value cut short. */
 export interface AgentStepRecord {
   text: string | null;
+  /** The summary of the model's thinking; absent from runs before it was kept. */
+  reasoning?: string | null;
   calls: { id: string; tool: string; input: string }[];
   results: { id: string; tool: string; output: string }[];
   finishReason: string;
