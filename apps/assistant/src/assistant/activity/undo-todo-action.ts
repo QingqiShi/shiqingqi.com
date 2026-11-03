@@ -92,6 +92,7 @@ async function undoAdd(scope: Scope, todoId: string): Promise<Result> {
     row.doneAt ||
     row.repeat ||
     row.remindAt ||
+    row.calendarAccountId ||
     steps.length > 0
   ) {
     return { refusal: "todo-changed" };

@@ -14,6 +14,7 @@ import {
   type ReportSettings,
 } from "../report/read-report-settings.ts";
 import { countOpenTodos, readReport } from "../report/read-report.ts";
+import { hasCalendarAccount } from "../report/todo-calendar-slots.ts";
 import { ReportView } from "./report-view.tsx";
 
 /** What to expect while there is no report. */
@@ -88,10 +89,11 @@ export async function LatestReport({
   headingLevel: 1 | 2;
 }) {
   const renderedAt = new Date().getTime();
-  const [report, settings, openTodos] = await Promise.all([
+  const [report, settings, openTodos, hasCalendar] = await Promise.all([
     readReport(scope, null),
     readReportSettings(scope),
     countOpenTodos(scope),
+    hasCalendarAccount(scope),
   ]);
   if (!report) {
     return (
@@ -113,6 +115,7 @@ export async function LatestReport({
       headingLevel={headingLevel}
       pastLink="list"
       renderedAt={renderedAt}
+      hasCalendar={hasCalendar}
     />
   );
 }

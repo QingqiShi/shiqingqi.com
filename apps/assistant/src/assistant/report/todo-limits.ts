@@ -12,4 +12,6 @@ export const todoLimits = {
   waitingOnChars: 200,
   rejectionNoteChars: 200,
   searchChars: 200,
+  /** The longest time that a to-do can hold on the calendar. */
+  slotMs: 24 * 60 * 60 * 1000,
 };

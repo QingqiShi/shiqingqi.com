@@ -25,12 +25,14 @@ import {
 } from "react";
 import { startsAfter } from "../report/dates-in-order.ts";
 import { localClock } from "../report/due-report-date.ts";
+import { CalendarSlotLabel } from "./calendar-slot-label.tsx";
 import { ChecklistProgress } from "./checklist-progress.tsx";
 import { daysBetween, formatShortDate } from "./format-day.ts";
 import { OpenMailButton } from "./open-mail-button.tsx";
 import { ReminderLabel } from "./reminder-label.tsx";
 import { RepeatLabel } from "./repeat-label.tsx";
 import { TickBox } from "./tick-box.tsx";
+import { slotIsAhead } from "./to-todo-item-data.ts";
 import { TodoEditor, type TodoEditFocus } from "./todo-editor.tsx";
 import { TodoRowMenu, type TodoMoves } from "./todo-row-menu.tsx";
 import { useTodoSelection } from "./todo-selection-area.tsx";
@@ -116,7 +118,7 @@ export function TodoItem({
   sortable?: TodoItemSortable;
 }) {
   const readOnly = use(TodosReadOnlyContext);
-  const { rows, today, locale, timeZone, setDone } = useTodoStore();
+  const { rows, today, locale, timeZone, renderedAt, setDone } = useTodoStore();
   const selection = useTodoSelection();
   const [editing, setEditing] = useState<TodoEditFocus | null>(null);
   const rowRef = useRef<HTMLLIElement>(null);
@@ -303,6 +305,10 @@ export function TodoItem({
             ) : null}
             {todo.nextReminderAt && !done ? (
               <ReminderLabel time={todo.nextReminderAt} />
+            ) : null}
+            {todo.calendarSlot &&
+            (!done || slotIsAhead(todo.calendarSlot, renderedAt)) ? (
+              <CalendarSlotLabel slot={todo.calendarSlot} stillHeld={done} />
             ) : null}
             {todo.checklist.length > 0 && !done ? (
               <ChecklistProgress

@@ -36,6 +36,7 @@ function page(
     nextId: null,
     remindAt: null,
     nextReminderAt: null,
+    calendarSlot: null,
     checklist: [],
     waitingOn: null,
     followUpDate: null,

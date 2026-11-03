@@ -20,11 +20,16 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { datesInOrder } from "../report/dates-in-order.ts";
 import { addDays } from "../report/local-day-bounds.ts";
 import { nextOccurrenceDates } from "../report/next-occurrence.ts";
+import { CalendarSlotSheet } from "./calendar-slot-sheet.tsx";
 import { checklistProgress } from "./checklist-progress.tsx";
-import { formatListDay, formatReminderTime } from "./format-day.ts";
+import {
+  formatListDay,
+  formatReminderTime,
+  formatSlotTime,
+} from "./format-day.ts";
 import { viewOfTodo } from "./group-open-todos.ts";
 import { nextWeekStart } from "./parse-todo-date.ts";
-import { isOpen, type TodoItemData } from "./to-todo-item-data.ts";
+import { isOpen, slotIsAhead, type TodoItemData } from "./to-todo-item-data.ts";
 import type { TodoEditFocus } from "./todo-editor.tsx";
 import { useTodoStore } from "./todo-store-provider.tsx";
 
@@ -114,15 +119,27 @@ function TodoRowActions({
   down,
   close,
   onEdit,
+  onPickSlot,
 }: {
   todo: TodoItemData;
   up: (() => void) | null;
   down: (() => void) | null;
   close: () => void;
   onEdit: (field: TodoEditFocus) => void;
+  onPickSlot: () => void;
 }) {
-  const { edit, remove, setWaiting, skipOccurrence, today, locale, timeZone } =
-    useTodoStore();
+  const {
+    edit,
+    remove,
+    removeSlot,
+    setWaiting,
+    skipOccurrence,
+    today,
+    locale,
+    timeZone,
+    hasCalendar,
+    renderedAt,
+  } = useTodoStore();
   const showToast = useToast();
   const closeThen = (action: () => void) => () => {
     close();
@@ -281,6 +298,22 @@ function TodoRowActions({
           >
             {t({ en: "Remind me…", zh: "提醒我…" })}
           </MenuAction>
+          {todo.calendarSlot ? (
+            <MenuAction
+              trailing={formatSlotTime(todo.calendarSlot, {
+                today,
+                locale,
+                timeZone,
+              })}
+              onClick={closeThen(onPickSlot)}
+            >
+              {t({ en: "Move on calendar…", zh: "在日历上改时间…" })}
+            </MenuAction>
+          ) : hasCalendar ? (
+            <MenuAction onClick={closeThen(onPickSlot)}>
+              {t({ en: "Add to calendar…", zh: "加入日历…" })}
+            </MenuAction>
+          ) : null}
           <MenuAction
             onClick={closeThen(() => {
               onEdit("repeat");
@@ -304,6 +337,19 @@ function TodoRowActions({
             {t({ en: "Edit", zh: "编辑" })}
           </MenuAction>
         </>
+      ) : null}
+      {(
+        isOpen(todo)
+          ? todo.calendarSlot
+          : slotIsAhead(todo.calendarSlot, renderedAt)
+      ) ? (
+        <MenuAction
+          onClick={closeThen(() => {
+            removeSlot(todo.id);
+          })}
+        >
+          {t({ en: "Remove from calendar", zh: "从日历上移除" })}
+        </MenuAction>
       ) : null}
       <MenuAction
         danger
@@ -329,36 +375,49 @@ export function TodoRowMenu({
   onEdit: (field: TodoEditFocus) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [pickingSlot, setPickingSlot] = useState(false);
   const { triggerRef, noteMove } = useFocusAfterMove(open);
   const moreActions = t({ en: "More actions", zh: "更多操作" });
 
   return (
-    <Popover
-      open={open}
-      onOpenChange={setOpen}
-      placement="bottom-end"
-      aria-label={t({ en: "To-do actions", zh: "待办操作" })}
-      trigger={(triggerProps) => (
-        <Button
-          {...triggerProps}
-          ref={mergeRefs(triggerProps.ref, triggerRef)}
-          size="sm"
-          look="ghost"
-          icon={<DotsThreeIcon weight="bold" />}
-          aria-label={moreActions}
+    <>
+      <Popover
+        open={open}
+        onOpenChange={setOpen}
+        placement="bottom-end"
+        aria-label={t({ en: "To-do actions", zh: "待办操作" })}
+        trigger={(triggerProps) => (
+          <Button
+            {...triggerProps}
+            ref={mergeRefs(triggerProps.ref, triggerRef)}
+            size="sm"
+            look="ghost"
+            icon={<DotsThreeIcon weight="bold" />}
+            aria-label={moreActions}
+          />
+        )}
+      >
+        <TodoRowActions
+          todo={todo}
+          up={noteMove(moves?.up)}
+          down={noteMove(moves?.down)}
+          close={() => {
+            setOpen(false);
+          }}
+          onEdit={onEdit}
+          onPickSlot={() => {
+            setPickingSlot(true);
+          }}
         />
-      )}
-    >
-      <TodoRowActions
+      </Popover>
+      <CalendarSlotSheet
         todo={todo}
-        up={noteMove(moves?.up)}
-        down={noteMove(moves?.down)}
-        close={() => {
-          setOpen(false);
+        isOpen={pickingSlot}
+        onClose={() => {
+          setPickingSlot(false);
         }}
-        onEdit={onEdit}
       />
-    </Popover>
+    </>
   );
 }
 

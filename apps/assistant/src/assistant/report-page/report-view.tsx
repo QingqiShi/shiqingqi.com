@@ -181,6 +181,7 @@ export function ReportView({
   pastLink,
   renderedAt,
   refreshesOnLeave,
+  hasCalendar,
 }: {
   report: Report;
   /** The user's local date, for the due dates. */
@@ -197,6 +198,8 @@ export function ReportView({
   renderedAt: number;
   /** See `TodoStoreProvider`. */
   refreshesOnLeave?: boolean;
+  /** See `TodoStoreProvider`. */
+  hasCalendar?: boolean;
 }) {
   const { content } = report;
   const sectionLevel = headingLevel === 1 ? 2 : 3;
@@ -289,6 +292,7 @@ export function ReportView({
       openCount={openTodos}
       renderedAt={renderedAt}
       refreshesOnLeave={refreshesOnLeave}
+      hasCalendar={hasCalendar}
     >
       <article css={[stack.group, styles.report]}>
         <header css={stack.item}>

@@ -30,6 +30,7 @@ beforeEach(async () => {
   handlers = makeTodoHandlers({
     isConfigured: () => true,
     getDb: () => db,
+    getCalendarDeps: () => null,
     getSession: () =>
       Promise.resolve({ sessionId: randomUUID(), userId: owner }),
     now: () => NOW,
@@ -746,6 +747,7 @@ describe("a repeating to-do", () => {
     const shanghai = makeTodoHandlers({
       isConfigured: () => true,
       getDb: () => db,
+      getCalendarDeps: () => null,
       getSession: () =>
         Promise.resolve({ sessionId: randomUUID(), userId: owner }),
       now: () => late,

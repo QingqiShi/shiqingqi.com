@@ -8,6 +8,7 @@ import { AnchorButton } from "#src/links/anchor-button.tsx";
 import { localClock } from "../report/due-report-date.ts";
 import type { ReportSettings } from "../report/read-report-settings.ts";
 import { countOpenTodos, readReport } from "../report/read-report.ts";
+import { hasCalendarAccount } from "../report/todo-calendar-slots.ts";
 import { NoReportYet } from "../report-page/latest-report.tsx";
 import { ReportView } from "../report-page/report-view.tsx";
 import { MarkReportSeen } from "./mark-report-seen.tsx";
@@ -24,9 +25,10 @@ export async function HomeReport({
   now: Date;
   settings: ReportSettings;
 }) {
-  const [report, openTodos] = await Promise.all([
+  const [report, openTodos, hasCalendar] = await Promise.all([
     readReport(scope, null),
     countOpenTodos(scope),
+    hasCalendarAccount(scope),
   ]);
   if (!report) {
     return (
@@ -50,6 +52,7 @@ export async function HomeReport({
         pastLink="list"
         renderedAt={now.getTime()}
         refreshesOnLeave
+        hasCalendar={hasCalendar}
       />
       <MarkReportSeen key={report.id} reportId={report.id} />
       <div>

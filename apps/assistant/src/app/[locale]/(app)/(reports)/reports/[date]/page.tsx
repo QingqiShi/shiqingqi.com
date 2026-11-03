@@ -11,6 +11,7 @@ import {
   countOpenTodos,
   readReport,
 } from "#src/assistant/report/read-report.ts";
+import { hasCalendarAccount } from "#src/assistant/report/todo-calendar-slots.ts";
 import { formatDay } from "#src/assistant/report-page/format-day.ts";
 import { ReportView } from "#src/assistant/report-page/report-view.tsx";
 
@@ -37,10 +38,11 @@ export default async function Page({ params }: Props) {
   const session = await requirePageSession(locale, `/reports/${date}`);
   const scope = { db: getAssistantDb(), userId: session.userId };
   const renderedAt = new Date().getTime();
-  const [report, settings, openTodos] = await Promise.all([
+  const [report, settings, openTodos, hasCalendar] = await Promise.all([
     readReport(scope, date),
     readReportSettings(scope),
     countOpenTodos(scope),
+    hasCalendarAccount(scope),
   ]);
   if (!report) notFound();
   return (
@@ -54,6 +56,7 @@ export default async function Page({ params }: Props) {
         headingLevel={1}
         pastLink="back"
         renderedAt={renderedAt}
+        hasCalendar={hasCalendar}
       />
       {report.seenAt === null ? <MarkReportSeen reportId={report.id} /> : null}
     </>
