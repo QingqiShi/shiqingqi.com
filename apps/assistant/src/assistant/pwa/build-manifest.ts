@@ -31,6 +31,12 @@ export function buildManifest(locale: SupportedLocale): MetadataRoute.Manifest {
     // A narrower scope opens the other language outside the app.
     scope: "/",
     display: "standalone",
+    share_target: {
+      action: getLocalePath("/todos", locale),
+      method: "GET",
+      enctype: "application/x-www-form-urlencoded",
+      params: { title: "title", text: "text", url: "url" },
+    },
     background_color: CANVAS_COLORS.light,
     theme_color: CANVAS_COLORS.light,
     icons: [

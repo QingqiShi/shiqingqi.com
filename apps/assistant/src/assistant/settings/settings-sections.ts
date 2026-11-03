@@ -1,5 +1,10 @@
 /** The Settings sections, in the order the menu lists them. */
-export const SETTINGS_SECTIONS = ["report", "organise", "mailboxes"] as const;
+export const SETTINGS_SECTIONS = [
+  "report",
+  "organise",
+  "mailboxes",
+  "capture",
+] as const;
 
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
 

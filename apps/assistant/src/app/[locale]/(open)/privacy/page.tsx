@@ -62,8 +62,8 @@ export default function Page() {
         </Text>
         <Text>
           {t({
-            en: "Your account: your name, the public keys of your passkeys, and your sign-in sessions. There is no password.",
-            zh: "你的账户：你的名字、通行密钥的公钥，以及你的登录会话。没有密码。",
+            en: "Your account: your name, the public keys of your passkeys, your sign-in sessions, and for each token that you make to add to-dos from a Shortcut, a hash of it, when it was last used, and a count of its recent requests. There is no password.",
+            zh: "你的账户：你的名字、通行密钥的公钥、你的登录会话，以及你为从快捷指令添加待办而创建的每个令牌的哈希值、最后使用时间和近期请求次数。没有密码。",
           })}
         </Text>
         <Text>

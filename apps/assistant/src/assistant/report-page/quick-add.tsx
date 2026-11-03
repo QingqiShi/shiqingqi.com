@@ -9,7 +9,7 @@ import { Chip } from "@tuja/ui/components/chip";
 import { TextField } from "@tuja/ui/components/text-field";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { todoLimits } from "../report/todo-limits.ts";
 import { formatListDay } from "./format-day.ts";
 import { parseTodoDate } from "./parse-todo-date.ts";
@@ -18,20 +18,31 @@ import { useTodoStore } from "./todo-store-provider.tsx";
 /**
  * The input at the top of the to-dos. Enter adds a to-do and keeps the focus
  * here for the next one. A date in the text shows as a chip while typing, and
- * dropping the chip keeps the text as it is.
+ * dropping the chip keeps the text as it is. What another app shared starts in
+ * it, and goes from the address so that a reload does not bring it back.
  */
 export function QuickAdd({
+  sharedText = "",
   onAdded,
 }: {
+  sharedText?: string;
   onAdded: (todo: { dueDate: string | null; startDate: null }) => void;
 }) {
   const { add, today, locale } = useTodoStore();
-  const [text, setText] = useState("");
+  const [text, setText] = useState(sharedText);
   const [droppedWords, setDroppedWords] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const parsed = parseTodoDate(text, today);
   const dueDate = parsed.matched === droppedWords ? null : parsed.dueDate;
   const label = t({ en: "Add a to-do", zh: "添加待办" });
+
+  useEffect(() => {
+    if (sharedText === "") return;
+    window.history.replaceState(null, "", window.location.pathname);
+    const input = inputRef.current;
+    input?.focus();
+    input?.setSelectionRange(sharedText.length, sharedText.length);
+  }, [sharedText]);
 
   return (
     <form
