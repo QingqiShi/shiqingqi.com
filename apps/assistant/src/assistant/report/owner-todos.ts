@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { and, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
 import {
   TODO_EDITABLE_FIELDS,
+  todoChecklistItems,
   todos,
   type TodoEditableField,
 } from "#src/assistant/db/schema.ts";
@@ -16,7 +17,7 @@ import { localClock } from "./due-report-date.ts";
 import type { RepeatRule } from "./next-occurrence.ts";
 import { ownTodo } from "./own-todo.ts";
 import { readReportSettings } from "./read-report-settings.ts";
-import { rearrange } from "./rearrange.ts";
+import { placesInOrder } from "./rearrange.ts";
 
 interface NewOwnerTodo {
   /** Made by the page, so that it can show the row and change it before the row is stored. */
@@ -204,29 +205,48 @@ async function changeTodo(
 /**
  * Moves an open repeating to-do to other dates of its series, to skip an
  * occurrence or to undo that. The rule moved the dates, not the owner, so
- * `owner_edited_fields` stays as it is.
+ * `owner_edited_fields` stays as it is. The steps in `ticked` are ticked and the
+ * others are not, because each occurrence has its own ticks.
  */
 async function moveOccurrence(
   scope: UserScope,
   todoId: string,
   {
     remindAt,
+    ticked,
     ...dates
-  }: { dueDate: string | null; startDate: string | null; remindAt?: string },
+  }: {
+    dueDate: string | null;
+    startDate: string | null;
+    remindAt?: string;
+    ticked: readonly string[];
+  },
   now: Date,
 ): Promise<boolean> {
-  const moved = await scope.db
-    .update(todos)
-    .set({ ...dates, ...sentReminder(remindAt, now), updatedAt: now })
-    .where(
-      and(
-        liveTodo(scope, todoId),
-        isNull(todos.doneAt),
-        isNotNull(todos.repeat),
-      ),
-    )
-    .returning({ id: todos.id });
-  return moved.length > 0;
+  return scope.db.transaction(async (tx) => {
+    const moved = await tx
+      .update(todos)
+      .set({ ...dates, ...sentReminder(remindAt, now), updatedAt: now })
+      .where(
+        and(
+          liveTodo(scope, todoId),
+          isNull(todos.doneAt),
+          isNotNull(todos.repeat),
+        ),
+      )
+      .returning({ id: todos.id });
+    if (moved.length === 0) return false;
+    await tx
+      .update(todoChecklistItems)
+      .set({ done: inArray(todoChecklistItems.id, [...ticked]) })
+      .where(
+        and(
+          eq(todoChecklistItems.userId, scope.userId),
+          eq(todoChecklistItems.todoId, todoId),
+        ),
+      );
+    return true;
+  });
 }
 
 /**
@@ -363,12 +383,8 @@ async function reorderTodos(
       .where(and(ownTodo(scope), inArray(todos.id, [...ids])))
       .for("update");
     if (rows.length < 2) return;
-    // A row that waited for its lock can have a new position, and the order of
-    // the query does not show this. Thus sort after the lock.
-    const byPosition = rows.toSorted((a, b) => a.position - b.position);
-    const places = rearrange(byPosition, ids).map(
-      ({ id }, index) =>
-        sql`(${id}::uuid, ${byPosition[index].position}::integer)`,
+    const places = placesInOrder(rows, ids).map(
+      ({ id, position }) => sql`(${id}::uuid, ${position}::integer)`,
     );
     await tx
       .update(todos)

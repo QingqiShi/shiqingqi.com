@@ -65,6 +65,9 @@ function todoLine(key: string, todo: StoredTodo) {
     todo.dueDate ? `due ${todo.dueDate}` : null,
     todo.startDate ? `starts ${todo.startDate}` : null,
     todo.repeat ? `repeats ${repeatRuleText(todo.repeat)}` : null,
+    todo.checklist.length > 0
+      ? `checklist ${String(todo.checklist.filter((item) => item.done).length)}/${String(todo.checklist.length)} ticked`
+      : null,
     todo.ownerEditedFields.length > 0
       ? `the owner set ${todo.ownerEditedFields.join(", ")}`
       : null,

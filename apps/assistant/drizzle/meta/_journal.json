@@ -78,6 +78,13 @@
       "when": 1793656118244,
       "tag": "0010_todo_reminders",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793657114148,
+      "tag": "0011_todo_checklist",
+      "breakpoints": true
     }
   ]
 }

@@ -20,6 +20,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { datesInOrder } from "../report/dates-in-order.ts";
 import { addDays } from "../report/local-day-bounds.ts";
 import { nextOccurrenceDates } from "../report/next-occurrence.ts";
+import { checklistProgress } from "./checklist-progress.tsx";
 import { formatListDay, formatReminderTime } from "./format-day.ts";
 import { viewOfTodo } from "./group-open-todos.ts";
 import { nextWeekStart } from "./parse-todo-date.ts";
@@ -27,7 +28,7 @@ import { isOpen, type TodoItemData } from "./to-todo-item-data.ts";
 import type { TodoEditFocus } from "./todo-editor.tsx";
 import { useTodoStore } from "./todo-store-provider.tsx";
 
-function MenuAction({
+export function MenuAction({
   children,
   trailing,
   current = false,
@@ -78,6 +79,32 @@ function MenuCaption({ children }: { children: string }) {
 export interface TodoMoves {
   up: (() => void) | null;
   down: (() => void) | null;
+}
+
+/**
+ * The popover gives focus back to its button. Then React can move the row in the
+ * DOM, and a moved element loses focus. Thus give focus again after the move.
+ */
+export function useFocusAfterMove(open: boolean) {
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const movedRef = useRef(false);
+
+  useEffect(() => {
+    if (!open && movedRef.current) {
+      movedRef.current = false;
+      triggerRef.current?.focus();
+    }
+  }, [open]);
+
+  const noteMove = (move: (() => void) | null | undefined) =>
+    move
+      ? () => {
+          movedRef.current = true;
+          move();
+        }
+      : null;
+
+  return { triggerRef, noteMove };
 }
 
 /** The actions of an open menu. A closed menu does not format its dates. */
@@ -242,6 +269,14 @@ function TodoRowActions({
             {t({ en: "Repeat…", zh: "重复…" })}
           </MenuAction>
           <MenuAction
+            trailing={checklistProgress(todo.checklist)}
+            onClick={closeThen(() => {
+              onEdit("checklist");
+            })}
+          >
+            {t({ en: "Checklist…", zh: "清单…" })}
+          </MenuAction>
+          <MenuAction
             onClick={closeThen(() => {
               onEdit("title");
             })}
@@ -274,26 +309,8 @@ export function TodoRowMenu({
   onEdit: (field: TodoEditFocus) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const movedRef = useRef(false);
+  const { triggerRef, noteMove } = useFocusAfterMove(open);
   const moreActions = t({ en: "More actions", zh: "更多操作" });
-
-  // The popover gives focus back to its button. Then React can move the row in
-  // the DOM, and a moved element loses focus. Thus give focus again after the move.
-  useEffect(() => {
-    if (!open && movedRef.current) {
-      movedRef.current = false;
-      triggerRef.current?.focus();
-    }
-  }, [open]);
-
-  const noteMove = (move: (() => void) | null | undefined) =>
-    move
-      ? () => {
-          movedRef.current = true;
-          move();
-        }
-      : null;
 
   return (
     <Popover

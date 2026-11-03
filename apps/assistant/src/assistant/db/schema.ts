@@ -10,6 +10,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   smallint,
   text,
   timestamp,
@@ -266,6 +267,27 @@ export const todos = pgTable(
   ],
 );
 
+/**
+ * One step of a to-do's checklist. Only the owner writes these. A next occurrence
+ * keeps the ids of the steps that it copies, so an id is unique only in its to-do.
+ */
+export const todoChecklistItems = pgTable(
+  "todo_checklist_items",
+  {
+    id: uuid("id").notNull(),
+    userId: userId(),
+    todoId: uuid("todo_id")
+      .notNull()
+      .references(() => todos.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    done: boolean("done").notNull().default(false),
+    /** Where the owner put it in the checklist. A new row takes the next value, so it goes last. */
+    position: integer("position").notNull().generatedByDefaultAsIdentity(),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.todoId, t.id] })],
+);
+
 /** One device that gets the morning report notification and to-do reminders. */
 export const pushSubscriptions = pgTable(
   "push_subscriptions",
@@ -418,6 +440,7 @@ export const schema = {
   morningReports,
   morningReportPreviews,
   todos,
+  todoChecklistItems,
   agentRuns,
   agentActions,
 };

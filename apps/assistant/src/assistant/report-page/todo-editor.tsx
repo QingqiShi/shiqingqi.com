@@ -27,11 +27,12 @@ import {
   withYearDate,
 } from "./repeat-field.tsx";
 import type { TodoItemData } from "./to-todo-item-data.ts";
+import { TodoChecklist } from "./todo-checklist.tsx";
 import type { TodoItemSortable } from "./todo-item.tsx";
 import { useTodoStore, type TodoEdit } from "./todo-store-provider.tsx";
 
 export type TodoEditFocus =
-  "title" | "dueDate" | "startDate" | "remindAt" | "repeat";
+  "title" | "checklist" | "dueDate" | "startDate" | "remindAt" | "repeat";
 
 function openDatePicker(field: HTMLInputElement) {
   try {
@@ -113,7 +114,7 @@ export function TodoEditor({
   sortable?: TodoItemSortable;
   onClose: () => void;
 }) {
-  const { edit, remove, today, locale, timeZone } = useTodoStore();
+  const { edit, remove, addStep, today, locale, timeZone } = useTodoStore();
   const savedRemindAt = todo.remindAt
     ? formatLocalTime(localTimeAt(Date.parse(todo.remindAt), timeZone), true)
     : "";
@@ -125,6 +126,7 @@ export function TodoEditor({
   const [repeat, setRepeat] = useState(() =>
     repeatDraftOf(todo.repeat, todo.dueDate ?? today),
   );
+  const [newStep, setNewStep] = useState("");
   const [titleError, setTitleError] = useState("");
   const [repeatError, setRepeatError] = useState("");
   const [startError, setStartError] = useState("");
@@ -180,6 +182,7 @@ export function TodoEditor({
     if (nextStartDate !== todo.startDate) change.startDate = nextStartDate;
     if (!sameRepeatRule(nextRepeat, todo.repeat)) change.repeat = nextRepeat;
     if (Object.keys(change).length > 0) edit(todo.id, change);
+    if (newStep.trim()) addStep(todo.id, newStep.trim());
     onClose();
   }
 
@@ -219,6 +222,13 @@ export function TodoEditor({
           onChange={(event) => {
             setDetail(event.target.value);
           }}
+        />
+        <TodoChecklist
+          todoId={todo.id}
+          steps={todo.checklist}
+          takeFocus={focus === "checklist"}
+          newStep={newStep}
+          onNewStepChange={setNewStep}
         />
         <DateField
           label={t({ en: "Due date", zh: "到期日" })}

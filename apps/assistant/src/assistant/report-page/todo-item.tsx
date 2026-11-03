@@ -4,10 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
-import { Checkbox } from "@tuja/ui/components/checkbox";
 import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -15,10 +13,12 @@ import { color, controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import { use, useState, type ReactNode, type Ref } from "react";
 import { startsAfter } from "../report/dates-in-order.ts";
+import { ChecklistProgress } from "./checklist-progress.tsx";
 import { daysBetween, formatShortDate } from "./format-day.ts";
 import { OpenMailButton } from "./open-mail-button.tsx";
 import { ReminderLabel } from "./reminder-label.tsx";
 import { RepeatLabel } from "./repeat-label.tsx";
+import { TickBox } from "./tick-box.tsx";
 import { TodoEditor, type TodoEditFocus } from "./todo-editor.tsx";
 import { TodoRowMenu, type TodoMoves } from "./todo-row-menu.tsx";
 import { useTodoStore } from "./todo-store-provider.tsx";
@@ -100,26 +100,14 @@ export function TodoItem({
   return (
     <li ref={sortable?.itemRef} css={[listSurface.item, sortable?.itemCss]}>
       <div css={[listSurface.row, styles.row]}>
-        {/* A tap around the box counts as a tap on the box, because a hidden
-            label leaves it too small for a finger. */}
-        <div
-          css={[a11y.touchTarget, styles.box]}
-          onClick={(event) => {
-            if (event.target === event.currentTarget && !readOnly) {
-              setDone(id, !done);
-            }
+        <TickBox
+          label={todo.title}
+          checked={done}
+          disabled={readOnly}
+          onChange={(checked) => {
+            setDone(id, checked);
           }}
-        >
-          <Checkbox
-            label={todo.title}
-            labelHidden
-            checked={done}
-            disabled={readOnly}
-            onChange={(event) => {
-              setDone(id, event.target.checked);
-            }}
-          />
-        </div>
+        />
         <div css={[stack.text, styles.main]}>
           {done ? (
             <Text as="p" css={styles.doneTitle}>
@@ -174,6 +162,18 @@ export function TodoItem({
             {todo.nextReminderAt && !done ? (
               <ReminderLabel time={todo.nextReminderAt} />
             ) : null}
+            {todo.checklist.length > 0 && !done ? (
+              <ChecklistProgress
+                steps={todo.checklist}
+                onOpen={
+                  readOnly
+                    ? undefined
+                    : () => {
+                        setEditing("checklist");
+                      }
+                }
+              />
+            ) : null}
             {showSource && todo.createdBy === "report" ? (
               <Text look="caption" tone="muted">
                 {t({ en: "From the morning report", zh: "来自晨报" })}
@@ -218,10 +218,6 @@ const styles = stylex.create({
   row: {
     alignItems: "flex-start",
     paddingBlock: space._2,
-  },
-  box: {
-    display: "flex",
-    flexShrink: 0,
   },
   main: {
     flexGrow: 1,

@@ -21,7 +21,12 @@ import {
   repeatRuleText,
   type RepeatRule,
 } from "#src/assistant/report/next-occurrence.ts";
-import { ownTodo, todoSource } from "#src/assistant/report/own-todo.ts";
+import {
+  checklistOfTodo,
+  ownTodo,
+  todoSource,
+  type ChecklistItem,
+} from "#src/assistant/report/own-todo.ts";
 import type { MailSource } from "#src/assistant/report/types.ts";
 import { agentTool, ToolRefusal, type AgentTools } from "../agent-tool.ts";
 
@@ -41,6 +46,8 @@ export interface StoredTodo {
   startDate: string | null;
   /** How it comes back, which only the owner decides. */
   repeat: RepeatRule | null;
+  /** The owner's steps, which the agent can read and not change. */
+  checklist: readonly ChecklistItem[];
   /** The fields that the owner set, which the agent may not change. */
   ownerEditedFields: readonly TodoEditableField[];
 }
@@ -86,6 +93,7 @@ export function readOpenTodos(scope: UserScope): Promise<StoredTodo[]> {
       dueDate: todos.dueDate,
       startDate: todos.startDate,
       repeat: todos.repeat,
+      checklist: checklistOfTodo,
       ownerEditedFields: todos.ownerEditedFields,
     })
     .from(todos)
@@ -274,6 +282,10 @@ export function createTodoTools({
       dueDate: entry.todo.dueDate,
       startDate: entry.todo.startDate,
       repeats: repeat && repeatRuleText(repeat),
+      checklist:
+        entry.kind === "stored"
+          ? entry.todo.checklist.map(({ text, done }) => ({ text, done }))
+          : [],
       ownerSet: ownerSet(entry),
     };
   }
@@ -281,7 +293,7 @@ export function createTodoTools({
   const tools: AgentTools = {
     list_todos: agentTool({
       description:
-        "The owner's open to-dos. ownerSet names the fields the owner set, which you cannot change. repeats says how a to-do comes back when it is closed, which only the owner decides.",
+        "The owner's open to-dos. ownerSet names the fields the owner set, which you cannot change. repeats says how a to-do comes back when it is closed, which only the owner decides. checklist is the owner's steps and which are ticked, which you cannot change. Ticking every step does not close a to-do.",
       inputSchema: z.object({}),
       describe: () => ({ kind: "list_todos" }),
       execute: () =>

@@ -9,7 +9,12 @@ import type { UserScope } from "#src/assistant/db/types.ts";
 import { startsAfter } from "./dates-in-order.ts";
 import type { RepeatRule } from "./next-occurrence.ts";
 import { openMailHref } from "./open-mail-href.ts";
-import { ownTodo, todoSource } from "./own-todo.ts";
+import {
+  checklistOfTodo,
+  ownTodo,
+  todoSource,
+  type ChecklistItem,
+} from "./own-todo.ts";
 import type {
   AgendaItem,
   MailSource,
@@ -33,6 +38,7 @@ export interface TodoView {
   nextReminderAt: Date | null;
   /** The occurrence that closing this one made. */
   nextId: string | null;
+  checklist: readonly ChecklistItem[];
   createdAt: Date;
   createdBy: TodoCreator;
   doneAt: Date | null;
@@ -100,6 +106,7 @@ const todoColumns = {
   snoozedUntil: todos.snoozedUntil,
   remindedAt: todos.remindedAt,
   nextTodoId: todos.nextTodoId,
+  checklist: checklistOfTodo,
   createdAt: todos.createdAt,
   createdBy: todos.createdBy,
   doneAt: todos.doneAt,
@@ -109,7 +116,10 @@ const todoColumns = {
   sourceMessageId: todos.sourceMessageId,
 };
 
-export type TodoRow = Pick<typeof todos.$inferSelect, keyof typeof todoColumns>;
+export type TodoRow = Pick<
+  typeof todos.$inferSelect,
+  Exclude<keyof typeof todoColumns, "checklist">
+> & { checklist: readonly ChecklistItem[] };
 
 function toTodoView(
   row: TodoRow,
@@ -125,6 +135,7 @@ function toTodoView(
     remindAt: row.remindAt,
     nextReminderAt: row.remindedAt ? null : (row.snoozedUntil ?? row.remindAt),
     nextId: row.nextTodoId,
+    checklist: row.checklist,
     createdAt: row.createdAt,
     createdBy: row.createdBy,
     doneAt: row.doneAt,
