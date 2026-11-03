@@ -3,6 +3,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
+import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -14,7 +15,6 @@ import {
   rhythm,
   space,
 } from "@tuja/ui/tokens.stylex";
-import { Link } from "#src/links/link.tsx";
 
 /**
  * Title region of the design-system sidebar: a tile with the design-system
@@ -26,7 +26,7 @@ export function DesignSystemSidebarHeader({
   locale: SupportedLocale;
 }) {
   return (
-    <Link
+    <SplitViewLink
       href={getLocalePath("/design-system", locale)}
       {...stylex.props(flex.row, corner.radius_2, styles.block, a11y.focusRing)}
     >
@@ -36,7 +36,7 @@ export function DesignSystemSidebarHeader({
       <span css={[typeRole.body, styles.title]}>
         {t({ en: "Design system", zh: "设计系统" })}
       </span>
-    </Link>
+    </SplitViewLink>
   );
 }
 

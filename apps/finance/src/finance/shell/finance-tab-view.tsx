@@ -5,24 +5,19 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { normalizePath } from "@tuja/i18n/normalize-path";
 import { useLocale } from "@tuja/i18n/use-locale";
-import type { TabBarLinkProps } from "@tuja/ui/components/tab-bar";
-import { TabView, type TabLinkStatusProps } from "@tuja/ui/components/tab-view";
+import { TabView, type TabViewLinkProps } from "@tuja/ui/components/tab-view";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Link, useLinkStatus } from "#src/links/link.tsx";
+import { Link, LinkStatus } from "#src/links/link.tsx";
 import { isCurrentDestination } from "./finance-destination-paths.ts";
 import { FinanceScreenSkeleton } from "./finance-screen-skeleton.tsx";
 import { useFinanceDestinations } from "./use-finance-destinations.ts";
 import { useSyncStatusSummary } from "./use-sync-status-summary.tsx";
 
-function TabLink(props: TabBarLinkProps) {
+function TabLink(props: TabViewLinkProps) {
   return <Link {...props} prefetchOnIntent />;
-}
-
-function TabLinkStatus({ children }: TabLinkStatusProps) {
-  return children(useLinkStatus().pending);
 }
 
 interface FinanceTabViewProps {
@@ -55,7 +50,7 @@ export function FinanceTabView({
     <TabView
       label={t({ en: "Finance", zh: "家庭账本" })}
       linkComponent={TabLink}
-      linkStatus={TabLinkStatus}
+      linkStatus={LinkStatus}
       fallbackSkeleton={<FinanceScreenSkeleton path={current} />}
       header={header}
       footer={footer}

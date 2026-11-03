@@ -12,7 +12,7 @@ export interface DesignSystemGroupLabels {
 }
 
 /**
- * The headings for both levels of the route map, so the rail reads as a table of
+ * The headings for both levels of the route map, so the sidebar reads as a table of
  * contents for the overview page rather than a second, differently-worded index.
  *
  * Called from a server component, which is render scope the

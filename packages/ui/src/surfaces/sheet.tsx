@@ -209,6 +209,16 @@ const SheetBoundaryContext = createContext<HTMLElement | null | undefined>(
   undefined,
 );
 
+/**
+ * Whether a `SheetBoundary` is around the caller, so that it does not fill the
+ * screen.
+ *
+ * @internal
+ */
+export function useIsInSheetBoundary() {
+  return use(SheetBoundaryContext) !== undefined;
+}
+
 interface SheetBoundaryProps {
   /**
    * The content. Each `Sheet` in it opens over the boundary and not over the

@@ -12,6 +12,10 @@ import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
 import { listSurface } from "@tuja/ui/components/list.stylex";
+import {
+  SplitViewLink,
+  useSplitViewColumn,
+} from "@tuja/ui/components/navigation-split-view";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -19,10 +23,8 @@ import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { Link } from "#src/links/link.tsx";
 import { useHouseholdToday } from "../accounts/use-household-today.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
-import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { formatReportWeek } from "./format-report-week.ts";
 import { groupReportsByYear } from "./group-reports-by-year.ts";
 import { lastCompleteWeekEnd } from "./last-complete-week-end.ts";
@@ -50,13 +52,13 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
   );
   const { regenerate, pending } = useRegenerateReport();
   const { readOnly } = useFinanceRuntime();
-  const isWide = useIsWideLayout();
+  const isPage = useSplitViewColumn()?.presentation === "page";
   const currentRef = useRef<HTMLElement>(null);
   const lastWeekLabel = t({ en: "Last week", zh: "上周" });
 
   useEffect(() => {
-    currentRef.current?.scrollIntoView({ block: "nearest" });
-  }, [currentId]);
+    if (!isPage) currentRef.current?.scrollIntoView({ block: "nearest" });
+  }, [currentId, isPage]);
 
   async function generateLastWeek() {
     const id = await regenerate();
@@ -160,9 +162,8 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
                       key={report.id}
                       ref={isCurrent ? currentRef : undefined}
                       href={getLocalePath(`/reports/${report.id}`, locale)}
-                      linkComponent={Link}
+                      linkComponent={SplitViewLink}
                       aria-current={isCurrent ? "page" : undefined}
-                      caret={!isWide}
                       trailing={
                         report.periodEnd === lastWeekEnd ? (
                           <Badge intent="neutral" size="sm">

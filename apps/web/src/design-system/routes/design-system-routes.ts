@@ -252,20 +252,6 @@ const ROUTES = [
   {
     section: "components",
     category: "actions",
-    path: "/design-system/components/tab-bar",
-    keywords: [
-      "tabs",
-      "bottom navigation",
-      "navigation bar",
-      "tab bar",
-      "mobile nav",
-      "dock",
-      "liquid",
-    ],
-  },
-  {
-    section: "components",
-    category: "actions",
     path: "/design-system/components/nav-list",
     keywords: [
       "navigation",
@@ -481,14 +467,9 @@ const ROUTES = [
     path: "/design-system/components/divider",
     keywords: ["separator", "rule", "hr", "line"],
   },
-  // The Shells. Every page gets exactly one of the first two, or a Tab view
-  // for an app with a few top-level destinations.
-  {
-    section: "components",
-    category: "shells",
-    path: "/design-system/components/sidebar-layout",
-    keywords: ["shell", "rail", "drawer", "navigation", "app"],
-  },
+  // The Shells. A Tab view holds an app's few top-level destinations, a
+  // Navigation split view each screen in it and any page with a sidebar, and a
+  // Header & footer layout a reading page with no sidebar.
   {
     section: "components",
     category: "shells",
@@ -504,6 +485,11 @@ const ROUTES = [
       "tabs",
       "navigation rail",
       "tab bar",
+      "bottom navigation",
+      "navigation bar",
+      "mobile nav",
+      "dock",
+      "liquid",
       "app",
       "TabView",
       "SwiftUI",
@@ -519,6 +505,7 @@ const ROUTES = [
       "columns",
       "split view",
       "sidebar",
+      "drawer",
       "stack",
       "NavigationSplitView",
       "SwiftUI",

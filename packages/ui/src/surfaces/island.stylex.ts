@@ -12,6 +12,8 @@ const GAP = rhythm.tight;
  * safe area, because a rail beside the frame, such as the one of a
  * `TabView`, takes it. Where one island fills the screen, as on a phone,
  * set every token to `0px`.
+ *
+ * @internal
  */
 export const islandTokens = stylex.defineVars({
   radius: border.radius_3,
@@ -33,7 +35,9 @@ export const islandTokens = stylex.defineVars({
  *
  * A card in an island takes `cardSurface`: a fill one step lighter than
  * the island and a hairline edge, so that it reads as a card, not as another
- * island.
+ * island. A screen takes its islands from `NavigationSplitView`.
+ *
+ * @internal
  */
 export const islandSurface = stylex.create({
   frame: {
@@ -48,7 +52,9 @@ export const islandSurface = stylex.create({
   base: {
     backgroundColor: color.bgSurfaceSunken,
     borderRadius: islandTokens.radius,
-    cornerShape: "squircle",
+    // Chromium ignores the mask of a backdrop filter in a box that a squircle
+    // corner clips. Thus a progressive blur in an island needs a round corner.
+    cornerShape: "round",
     overflow: "clip",
   },
 });

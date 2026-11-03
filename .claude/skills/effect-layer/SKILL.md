@@ -1,6 +1,6 @@
 ---
 name: effect-layer
-description: How elements join the @tuja/ui WebGPU effect layer. Consult before you add or move an effect hook (useRipple, useLiquid, useRingLight, useDust, useLightBeam, useBlackHole, useExtractorFan, useEffectBoundary, useEffectContainer, useEffectCover, useEffectSticky, useScrollRegion), before you make a fixed, sticky or scrolling surface that can hold controls with effects (Switch, SegmentedControl, TabBar, Toast), and before you add a <canvas> element anywhere in packages/ui.
+description: How elements join the @tuja/ui WebGPU effect layer. Consult before you add or move an effect hook (useRipple, useLiquid, useRingLight, useDust, useLightBeam, useBlackHole, useExtractorFan, useEffectBoundary, useEffectContainer, useEffectCover, useEffectSticky, useScrollRegion), before you make a fixed, sticky or scrolling surface that can hold controls with effects (Switch, SegmentedControl, TabView, Toast), and before you add a <canvas> element anywhere in packages/ui.
 ---
 
 # Effect layer
@@ -52,7 +52,7 @@ does not choose the `<canvas>` element.
   `carrier: "viewport"`. Do not declare a carrier for this, and do not put
   a clear box over the element.
 - `Portal` already puts its children on the viewport. `HeaderControls`,
-  `SidebarLayout`, `Drawer`, `StickyControls`, a vertical `ScrollMask`, a
+  the drawer of `NavigationSplitView`, `StickyControls`, a vertical `ScrollMask`, a
   `Table` with `stickyHeader`, `TableHead` and the sheet of `MenuButton`
   declare their own carriers.
 - The layer puts the two `<canvas>` elements of a Scroll region at the end of

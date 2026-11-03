@@ -26,8 +26,8 @@ export function GlassShowcase() {
         zh: "浮起的表面，用玻璃。",
       })}
       lead={t({
-        en: "Glass blurs what lies beneath a floating surface, so people see where they are without the detail. Toast and TabBar already use it.",
-        zh: "玻璃把浮动表面下方的内容虚化，用户看得出自己在哪里，又不被细节分心。Toast 与 TabBar 已经用上了它。",
+        en: "Glass blurs what lies beneath a floating surface, so people see where they are without the detail. Toast and the tab bar of a Tab view already use it.",
+        zh: "玻璃把浮动表面下方的内容虚化，用户看得出自己在哪里，又不被细节分心。Toast 与标签视图的标签栏已经用上了它。",
       })}
     >
       <Example>

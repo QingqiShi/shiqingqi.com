@@ -11,7 +11,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return { title: t({ en: "Past reports", zh: "往期晨报" }) };
 }
 
-/** The list is in the layout. This is the pane beside it, at `lg` and wider. */
+/** The list is in the layout. This is the column beside it, where both fit. */
 export default async function Page({ params }: PageProps) {
   const locale = validateLocale((await params).locale);
   const session = await requirePageSession(locale, "/reports");

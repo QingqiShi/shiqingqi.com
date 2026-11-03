@@ -25,8 +25,8 @@ export function NewTransactionLink(props: AnchorButtonLinkProps) {
  * expense (`?new=expense`) in a sheet over the screen it is on, which hosts
  * the sheet of `useTransactionTask`; where the rail shows, `FinanceRailAdd`
  * holds the action instead. A screen floats it over its content: the
- * `accessory` of a column of a `NavigationSplitView`, or of a
- * `FinancePageColumn`. In the skeleton of a screen that still opens, it opens that screen.
+ * `accessory` of a column of a `NavigationSplitView`. In the skeleton of a
+ * screen that still opens, it opens that screen.
  */
 export function FinanceAddButton() {
   const href = useNewTransactionHref();

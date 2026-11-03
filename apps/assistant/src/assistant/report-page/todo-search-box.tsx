@@ -5,12 +5,34 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { TextField } from "@tuja/ui/components/text-field";
-import type { StyleProp } from "@tuja/ui/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { todoLimits } from "../report/todo-limits.ts";
 
 const TYPING_PAUSE_MS = 250;
+
+function searchFieldProps() {
+  return {
+    type: "search",
+    label: t({ en: "Search to-dos", zh: "搜索待办" }),
+    labelHidden: true,
+    placeholder: t({ en: "Search all", zh: "搜索全部待办" }),
+    leading: <MagnifyingGlassIcon weight="bold" />,
+  };
+}
+
+/**
+ * The search box before the page shows. The heading beside it aligns to the
+ * baseline of the text in the field. A skeleton block has no text, and the
+ * heading then moves when the page shows.
+ */
+export function TodoSearchBoxSkeleton() {
+  return (
+    <div inert>
+      <TextField {...searchFieldProps()} />
+    </div>
+  );
+}
 
 /**
  * The search of the to-dos. The text goes in the address, and the server gives
@@ -21,13 +43,11 @@ export function TodoSearchBox({
   query,
   found,
   hasMore,
-  css,
 }: {
   /** The text that the shown rows are for. */
   query: string;
   found: number;
   hasMore: boolean;
-  css?: StyleProp;
 }) {
   const locale = useLocale();
   const router = useRouter();
@@ -83,20 +103,15 @@ export function TodoSearchBox({
   return (
     <form
       role="search"
-      css={css}
       onSubmit={(event) => {
         event.preventDefault();
         send(text);
       }}
     >
       <TextField
-        type="search"
+        {...searchFieldProps()}
         enterKeyHint="search"
         autoComplete="off"
-        label={t({ en: "Search to-dos", zh: "搜索待办" })}
-        labelHidden
-        placeholder={t({ en: "Search all", zh: "搜索全部待办" })}
-        leading={<MagnifyingGlassIcon weight="bold" />}
         maxLength={todoLimits.searchChars}
         value={text}
         status={

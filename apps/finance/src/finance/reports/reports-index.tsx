@@ -1,16 +1,25 @@
 "use client";
 
 import { t } from "@tuja/i18n";
+import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
 import { Text } from "@tuja/ui/components/text";
-import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
+import { ReportBodySkeleton } from "./report-body-skeleton.tsx";
 import { ReportScreen } from "./report-screen.tsx";
 import { useReportList } from "./use-report-list.ts";
 
-/** The pane beside the list at `lg` and wider: the newest Report. Below `lg` the list is the whole page. */
+/**
+ * The content of `/reports`, beside the list where both fit: the newest Report.
+ * Where the list covers it, as on a phone, it reads no Report.
+ */
 export function ReportsIndex() {
-  const isWide = useIsWideLayout();
+  const isShown = useSplitViewColumn()?.isShown ?? true;
   const list = useReportList();
-  if (!isWide || list.data === undefined) return null;
+  if (!isShown) return <ReportBodySkeleton />;
+  if (list.data === undefined) {
+    return list.status === "pending" && list.fetchStatus !== "paused" ? (
+      <ReportBodySkeleton />
+    ) : null;
+  }
   const newestId = list.data.at(0)?.id ?? null;
   if (newestId === null) {
     return (

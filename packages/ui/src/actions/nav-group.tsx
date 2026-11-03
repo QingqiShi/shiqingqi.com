@@ -27,11 +27,18 @@ import { quietSurface } from "../primitives/quiet-surface.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { border, color, controlSize, font, rhythm } from "../tokens.stylex.ts";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  rhythm,
+  space,
+} from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { NAV_ROW } from "./create-nav-list-motion.ts";
 import { NavListContext, navListStyles } from "./nav-list-context.tsx";
-import { navListTokens } from "./nav-list.stylex.ts";
+import { navListQueries, navListTokens } from "./nav-list.stylex.ts";
 
 interface NavGroupProps {
   /**
@@ -268,7 +275,12 @@ const styles = stylex.create({
   // takes no space below it there.
   section: {
     display: "block",
-    paddingBlockEnd: { default: rhythm.inline, [pointer.coarse]: 0 },
+    paddingBlockStart: { default: 0, [navListQueries.sidebarPage]: space._3 },
+    paddingBlockEnd: {
+      default: rhythm.inline,
+      [pointer.coarse]: 0,
+      [navListQueries.sidebarPage]: space._1,
+    },
     fontWeight: font.weight_5,
     color: color.fgMuted,
   },

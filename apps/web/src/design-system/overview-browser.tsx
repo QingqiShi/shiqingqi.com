@@ -307,7 +307,7 @@ const styles = stylex.create({
     color: color.fg,
   },
   // A rank below the section title and read as one: uppercase and tracked out,
-  // the same move the rail makes to separate its two levels.
+  // the same move the sidebar makes to separate its two levels.
   categoryTitle: {
     margin: 0,
     color: color.fgMuted,

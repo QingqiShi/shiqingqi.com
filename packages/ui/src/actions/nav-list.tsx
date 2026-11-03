@@ -20,7 +20,7 @@ import { useMotionEngine } from "../motion/use-motion-engine.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
-import { color, rhythm } from "../tokens.stylex.ts";
+import { border, color, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { createNavListMotion } from "./create-nav-list-motion.ts";
 import {
@@ -28,7 +28,7 @@ import {
   PlainAnchor,
   type NavListLinkProps,
 } from "./nav-list-context.tsx";
-import { navListTokens } from "./nav-list.stylex.ts";
+import { navListQueries, navListTokens } from "./nav-list.stylex.ts";
 
 /** The dust particles the old marker sheds every 100 px of its edge. */
 const SHED_BURST = 6;
@@ -82,7 +82,8 @@ interface NavListProps {
  * row to row under the pointer and fades out when the pointer leaves the
  * list. It does not show on the marker's row, where a press shows on the
  * marker. Under reduced motion, the marker and the fill move at once, with
- * no dust.
+ * no dust. Where the list is a page of a `NavigationSplitView`, it has no current
+ * row, and it shows as a `List`: one surface of rows, each with a caret.
  */
 export function NavList({
   children,
@@ -202,9 +203,9 @@ function MarkerFills({
 }
 
 /**
- * The look of the marker and of the hover fill. In light it is the hover of a
- * control, so it shows on the white rail. In dark it is a tint of that hover,
- * so it stays quiet.
+ * The look of the marker, of the hover fill, and of the current row until the
+ * marker draws it. In light it is the hover of a control, so it shows on the
+ * white rail. In dark it is a tint of that hover, so it stays quiet.
  */
 const LOOK = `light-dark(${color.bgControlHover}, color-mix(in srgb, ${color.bgControlHover} 55%, transparent))`;
 
@@ -214,10 +215,30 @@ const styles = stylex.create({
   box: {
     position: "relative",
     isolation: "isolate",
+    borderWidth: { default: 0, [navListQueries.sidebarPage]: border.size_1 },
+    borderStyle: "solid",
+    borderColor: color.border,
+    borderRadius: { default: 0, [navListQueries.sidebarPage]: border.radius_3 },
+    cornerShape: "squircle",
+    backgroundColor: {
+      default: "transparent",
+      [navListQueries.sidebarPage]: color.bgSurface,
+    },
+    overflow: { default: "visible", [navListQueries.sidebarPage]: "clip" },
   },
   list: {
-    [navListTokens.step]: rhythm.item,
-    [color.bgControlSelected]: LOOK,
+    [navListTokens.rowInset]: {
+      default: null,
+      [navListQueries.sidebarPage]: space._3,
+    },
+    [navListTokens.step]: {
+      default: null,
+      [navListQueries.sidebarPage]: "0px",
+    },
+    [color.bgControlSelected]: {
+      default: LOOK,
+      [navListQueries.sidebarPage]: "transparent",
+    },
   },
   fill: {
     position: "absolute",

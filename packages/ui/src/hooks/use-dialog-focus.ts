@@ -5,7 +5,8 @@ import { getTabbableElements } from "../focus/get-tabbable-elements.ts";
  * Manages focus lifecycle for modal dialogs:
  * - Saves the element that triggered the dialog
  * - Moves focus into the dialog once it renders
- * - Traps Tab/Shift+Tab within the dialog
+ * - Traps Tab/Shift+Tab within the dialog, also where the browser's Tab skips
+ *   the first or the last element of the dialog, as Safari's does
  * - Closes on Escape
  * - Restores focus to the trigger element on cleanup
  *
@@ -14,17 +15,22 @@ import { getTabbableElements } from "../focus/get-tabbable-elements.ts";
  * @param onClose - Called when the user presses Escape.
  * @param initialFocusRef - Optional ref to the element that should receive focus when
  *   the dialog opens. Falls back to the first tabbable element inside the dialog.
+ * @param returnFocusRef - Optional ref to the element that gets focus on cleanup
+ *   when no element had focus before the dialog opened. A press on a button does
+ *   not give it focus in Safari.
  */
 export function useDialogFocus({
   isOpen,
   dialogRef,
   onClose,
   initialFocusRef,
+  returnFocusRef,
 }: {
   isOpen: boolean;
   dialogRef: RefObject<HTMLElement | null>;
   onClose: () => void;
   initialFocusRef?: RefObject<HTMLElement | null>;
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }) {
   const triggerRef = useRef<HTMLElement | null>(null);
 
@@ -55,6 +61,7 @@ export function useDialogFocus({
       document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null;
+    const returnFocusTarget = returnFocusRef?.current;
 
     // Move focus into the dialog once the portal renders. A dialog can start
     // out of view, such as a sheet that slides in from below the screen, and
@@ -63,7 +70,10 @@ export function useDialogFocus({
       resolveInitialFocus()?.focus({ preventScroll: true });
     });
 
+    let tabOut: "forward" | "backward" | null = null;
+
     function handleKeyDown(event: KeyboardEvent) {
+      tabOut = null;
       if (event.key === "Escape") {
         handleEscape();
         return;
@@ -76,6 +86,13 @@ export function useDialogFocus({
 
         const first = tabbableElements[0];
         const last = tabbableElements[tabbableElements.length - 1];
+        const { activeElement } = document;
+        if (
+          activeElement === document.body ||
+          dialogRef.current.contains(activeElement)
+        ) {
+          tabOut = event.shiftKey ? "backward" : "forward";
+        }
 
         if (event.shiftKey && document.activeElement === first) {
           event.preventDefault();
@@ -87,13 +104,29 @@ export function useDialogFocus({
       }
     }
 
+    // Safari's Tab skips links, and buttons too with its default setting. So a
+    // Tab can leave from an element that is not the last one that the keydown
+    // sees, and only the focus that lands outside tells.
+    function handleFocusIn({ target }: FocusEvent) {
+      const dialog = dialogRef.current;
+      if (tabOut === null || dialog === null) return;
+      if (target instanceof Node && dialog.contains(target)) return;
+      const tabbableElements = getTabbableElements(dialog);
+      const wrapTo = tabOut === "forward" ? 0 : tabbableElements.length - 1;
+      tabbableElements[wrapTo]?.focus();
+    }
+
     document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("focusin", handleFocusIn);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("focusin", handleFocusIn);
       // Restore focus to the element that opened the dialog. The dialog can
       // still move back into that element, such as a sheet that shrinks into
       // the row that opened it, so the page must not scroll to it.
-      triggerRef.current?.focus({ preventScroll: true });
+      const trigger = triggerRef.current;
+      const target = trigger === document.body ? returnFocusTarget : trigger;
+      target?.focus({ preventScroll: true });
     };
-  }, [isOpen, dialogRef]);
+  }, [isOpen, dialogRef, returnFocusRef]);
 }

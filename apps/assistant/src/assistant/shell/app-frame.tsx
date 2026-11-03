@@ -9,26 +9,27 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { normalizePath } from "@tuja/i18n/normalize-path";
 import { useLocale } from "@tuja/i18n/use-locale";
-import type { TabBarLinkProps } from "@tuja/ui/components/tab-bar";
-import { TabView, type TabLinkStatusProps } from "@tuja/ui/components/tab-view";
+import {
+  TabView,
+  TabViewLink,
+  type TabViewLinkProps,
+} from "@tuja/ui/components/tab-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { controlSize } from "@tuja/ui/tokens.stylex";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Link, useLinkStatus } from "#src/links/link.tsx";
+import { Link, LinkStatus } from "#src/links/link.tsx";
 import { AssistantLogo } from "../pwa/assistant-logo.tsx";
 import { ReportsSkeleton } from "../report-page/reports-skeleton.tsx";
+import { TodosSkeleton } from "../report-page/todos-skeleton.tsx";
 import { SettingsSkeleton } from "../settings/settings-skeleton.tsx";
 import { ScreenSkeleton } from "./screen-skeleton.tsx";
 import { shownDestination, type DestinationPath } from "./shown-destination.ts";
 
-function TabLink(props: TabBarLinkProps) {
+function TabLink(props: TabViewLinkProps) {
   return <Link {...props} prefetchOnIntent />;
-}
-
-function TabLinkStatus({ children }: TabLinkStatusProps) {
-  return children(useLinkStatus().pending);
 }
 
 /**
@@ -53,7 +54,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
       path: "/todos",
       label: todosLabel,
       icon: CheckSquareIcon,
-      skeleton: <ScreenSkeleton title={todosLabel} />,
+      skeleton: <TodosSkeleton title={todosLabel} />,
     },
     {
       path: "/activity",
@@ -78,16 +79,17 @@ export function AppFrame({ children }: { children: ReactNode }) {
     <TabView
       label={appName}
       linkComponent={TabLink}
-      linkStatus={TabLinkStatus}
+      linkStatus={LinkStatus}
       fallbackSkeleton={<ScreenSkeleton />}
+      css={pageColumn.list}
       header={
-        <Link
+        <TabViewLink
           href={getLocalePath("/", locale)}
           aria-label={appName}
           {...stylex.props(corner.radius_3, a11y.focusRing, styles.mark)}
         >
           <AssistantLogo css={styles.logo} />
-        </Link>
+        </TabViewLink>
       }
       items={destinations.map((destination) => ({
         href: getLocalePath(destination.path, locale),

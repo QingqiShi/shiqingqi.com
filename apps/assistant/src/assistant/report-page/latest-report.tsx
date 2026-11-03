@@ -113,7 +113,7 @@ export async function LatestReport({
       openTodos={openTodos}
       locale={locale}
       headingLevel={headingLevel}
-      pastLink="list"
+      pastLink
       renderedAt={renderedAt}
       hasCalendar={hasCalendar}
     />

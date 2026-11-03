@@ -6,6 +6,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
+import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, controlSize, space } from "@tuja/ui/tokens.stylex";
@@ -13,7 +14,6 @@ import type { ReactNode } from "react";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { useSyncStatus } from "../replica/use-sync-status.ts";
-import { FinancePageColumn } from "./finance-page-column.tsx";
 import { ReloadButton } from "./reload-button.tsx";
 
 /** Failed downloads in a row before the screen stops waiting and says so. */
@@ -93,34 +93,36 @@ export function ReplicaGate({ children }: { children: ReactNode }) {
   }
 
   return (
-    <FinancePageColumn>
-      <section
-        css={[stack.item, styles.notice]}
-        aria-labelledby="finance-download-heading"
-      >
-        <span
-          css={[
-            styles.icon,
-            offline || serverBehind ? styles.muted : styles.danger,
-          ]}
-        >
-          {offline ? (
-            <CloudSlashIcon weight="bold" role="presentation" />
-          ) : (
-            <WarningCircleIcon weight="bold" role="presentation" />
-          )}
-        </span>
-        <div css={stack.text}>
-          <Heading level={1} look="h3" id="finance-download-heading">
-            {heading}
-          </Heading>
-          <Text as="p" tone="muted">
-            {message}
-          </Text>
-        </div>
-        {action ? <div>{action}</div> : null}
-      </section>
-    </FinancePageColumn>
+    <NavigationSplitView
+      content={{
+        label: heading,
+        node: (
+          <div css={[stack.item, styles.notice]}>
+            <span
+              css={[
+                styles.icon,
+                offline || serverBehind ? styles.muted : styles.danger,
+              ]}
+            >
+              {offline ? (
+                <CloudSlashIcon weight="bold" role="presentation" />
+              ) : (
+                <WarningCircleIcon weight="bold" role="presentation" />
+              )}
+            </span>
+            <div css={stack.text}>
+              <Heading level={1} look="h3">
+                {heading}
+              </Heading>
+              <Text as="p" tone="muted">
+                {message}
+              </Text>
+            </div>
+            {action ? <div>{action}</div> : null}
+          </div>
+        ),
+      }}
+    />
   );
 }
 

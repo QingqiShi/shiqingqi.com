@@ -3,12 +3,10 @@ import { t } from "@tuja/i18n";
 import { Chip } from "@tuja/ui/components/chip";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { layer, shadow, space } from "@tuja/ui/tokens.stylex";
-
-/** Fragment target the skip link jumps to. The shell owns the matching markup. */
-export const DESIGN_SYSTEM_CONTENT_ID = "design-system-content";
+import { DESIGN_SYSTEM_CONTENT_ID } from "#src/design-system/design-system-content-id.ts";
 
 /**
- * Bypass block (WCAG 2.4.1) for the design-system shell. The navigation rail
+ * Bypass block (WCAG 2.4.1) for the design-system shell. The sidebar
  * lists every route in the showcase, so without this a keyboard visitor tabs
  * past ~30 links before reaching the page they asked for.
  *

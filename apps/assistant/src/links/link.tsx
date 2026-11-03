@@ -1,10 +1,22 @@
 "use client";
 
-import NextLink from "next/link";
+import NextLink, { useLinkStatus } from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type ComponentProps, type MouseEvent } from "react";
+import {
+  useState,
+  type ComponentProps,
+  type MouseEvent,
+  type ReactNode,
+} from "react";
 
-export { useLinkStatus } from "next/link";
+/** Tells a view of `@tuja/ui` whether the navigation to the `Link` around it is pending. */
+export function LinkStatus({
+  children,
+}: {
+  children: (pending: boolean) => ReactNode;
+}) {
+  return children(useLinkStatus().pending);
+}
 
 type LinkProps = Omit<ComponentProps<typeof NextLink>, "prefetch"> & {
   /**

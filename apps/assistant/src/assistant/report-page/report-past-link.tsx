@@ -1,45 +1,33 @@
-import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
+"use client";
+
 import { ListBulletsIcon } from "@phosphor-icons/react/dist/ssr/ListBullets";
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { AnchorButton } from "#src/links/anchor-button.tsx";
+import { AnchorButton } from "@tuja/ui/components/anchor-button";
+import {
+  SplitViewLink,
+  StackedOnly,
+} from "@tuja/ui/components/navigation-split-view";
 
 /**
- * The way to the list of reports, below `lg` only: wider screens show the
- * list beside the report. `back` is for a report that the list opened.
+ * The way to the list of reports, only where the list does not show beside the
+ * report.
  */
-export function ReportPastLink({
-  kind,
-  locale,
-}: {
-  kind: "back" | "list";
-  locale: SupportedLocale;
-}) {
+export function ReportPastLink({ locale }: { locale: SupportedLocale }) {
   return (
-    <div css={styles.link}>
-      <AnchorButton
-        href={getLocalePath("/reports", locale)}
-        look="ghost"
-        size="sm"
-        icon={
-          kind === "back" ? (
-            <ArrowLeftIcon weight="bold" />
-          ) : (
-            <ListBulletsIcon weight="bold" />
-          )
-        }
-      >
-        {t({ en: "Past reports", zh: "往期晨报" })}
-      </AnchorButton>
-    </div>
+    <StackedOnly>
+      <div>
+        <AnchorButton
+          href={getLocalePath("/reports", locale)}
+          linkComponent={SplitViewLink}
+          look="ghost"
+          size="sm"
+          icon={<ListBulletsIcon weight="bold" />}
+        >
+          {t({ en: "Past reports", zh: "往期晨报" })}
+        </AnchorButton>
+      </div>
+    </StackedOnly>
   );
 }
-
-const styles = stylex.create({
-  link: {
-    display: { default: "block", [breakpoints.lg]: "none" },
-  },
-});

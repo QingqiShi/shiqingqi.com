@@ -178,7 +178,7 @@ export function ReportView({
   openTodos,
   locale,
   headingLevel,
-  pastLink,
+  pastLink = false,
   renderedAt,
   refreshesOnLeave,
   hasCalendar,
@@ -192,8 +192,8 @@ export function ReportView({
   openTodos: number;
   locale: SupportedLocale;
   headingLevel: 1 | 2;
-  /** `back` where the list opened this report; null where no link to the list fits. */
-  pastLink: "back" | "list" | null;
+  /** Whether the report shows the way to the list of reports, where the list does not show beside it. */
+  pastLink?: boolean;
   /** When the server began this render, in milliseconds. */
   renderedAt: number;
   /** See `TodoStoreProvider`. */
@@ -296,7 +296,7 @@ export function ReportView({
     >
       <article css={[stack.group, styles.report]}>
         <header css={stack.item}>
-          {pastLink ? <ReportPastLink kind={pastLink} locale={locale} /> : null}
+          {pastLink ? <ReportPastLink locale={locale} /> : null}
           <div css={stack.tight}>
             <Text look="overline" tone="muted">
               {formatDay(report.localDate, locale)}

@@ -1,15 +1,21 @@
 "use client";
 
+import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { createElement, use, useLayoutEffect, type ReactNode } from "react";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { quietSurface } from "../primitives/quiet-surface.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { font } from "../tokens.stylex.ts";
+import { color, font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { NAV_ROW } from "./create-nav-list-motion.ts";
-import { NavListContext, navListStyles } from "./nav-list-context.tsx";
+import {
+  NavListContext,
+  navListStyles,
+  useShownCurrent,
+} from "./nav-list-context.tsx";
+import { navListQueries } from "./nav-list.stylex.ts";
 
 interface NavLinkProps {
   /**
@@ -53,7 +59,8 @@ interface NavLinkProps {
  * it. A hovered row takes the list's lighter hover fill. The fill is the box of the row: it starts on the box edge of
  * the list, and the content starts on the text edge, `navListTokens.rowInset`
  * after it. Under a fine pointer the row is the height of a `sm` control.
- * Under a coarse pointer it is at least 44px tall.
+ * Under a coarse pointer it is at least 44px tall. Where its list is a page of
+ * a `NavigationSplitView`, the row shows as a `ListRow`, with a caret.
  */
 export function NavLink({
   href,
@@ -63,9 +70,10 @@ export function NavLink({
   css,
 }: NavLinkProps) {
   const { linkComponent, motion } = use(NavListContext);
+  const isCurrent = useShownCurrent(href, current);
   useLayoutEffect(() => {
     motion?.refresh();
-  }, [current, motion]);
+  }, [isCurrent, motion]);
   // The link component comes from the context and does not change between
   // renders. In JSX, the static-components rule cannot see this, so use
   // createElement.
@@ -75,7 +83,7 @@ export function NavLink({
         linkComponent,
         {
           href,
-          "aria-current": current ? "page" : undefined,
+          "aria-current": isCurrent ? "page" : undefined,
           ...{ [NAV_ROW]: "" },
           ...stylex.props(
             typeRole.label,
@@ -92,6 +100,9 @@ export function NavLink({
           <span css={navListStyles.icon}>{icon}</span>
         ),
         children,
+        <span key="caret" aria-hidden css={styles.caret}>
+          <CaretRightIcon weight="bold" />
+        </span>,
       )}
     </li>
   );
@@ -99,9 +110,22 @@ export function NavLink({
 
 const styles = stylex.create({
   link: {
+    [font.uiBodySmall]: {
+      default: null,
+      [navListQueries.sidebarPage]: font.uiBody,
+    },
     fontWeight: {
       default: font.weight_4,
-      ":is([aria-current=page])": font.weight_6,
+      ":is([aria-current=page])": {
+        default: font.weight_6,
+        [navListQueries.sidebarPage]: font.weight_4,
+      },
     },
+  },
+  caret: {
+    display: { default: "none", [navListQueries.sidebarPage]: "inline-flex" },
+    flexShrink: 0,
+    marginInlineStart: "auto",
+    color: color.fgMuted,
   },
 });

@@ -115,15 +115,19 @@ import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 
 **Import**: `@tuja/ui/primitives/page-column.stylex`
 
-The page column is where a page's content sits: centred, `layout.maxInlineSize` wide with its gutters, and never closer to the screen edge than the page gutter (`space._3` past the safe area). It is padding, not a capped box, so the box spans its parent and its background bleeds to the edges. `HeaderFooterLayout` with `pageColumn` sets its content and its footer on it, so everything lines up with the header controls. Never write `layout.maxInlineSize` or `env(safe-area-inset-left/right)` outside `packages/ui`: the `@tuja/require-page-column` lint rule refuses both.
+The page column is where a page's content sits: centred, `layout.maxInlineSize` wide with its gutters, and never closer to the screen edge than the page gutter (`space._3` past the safe area). It is padding, not a capped box, so the box spans its parent and its background bleeds to the edges. `HeaderFooterLayout` with `pageColumn` sets its content and its footer on it, so everything lines up with the header controls. Never write `layout.maxInlineSize` or `env(safe-area-inset-left/right)` outside `packages/ui`, and never set `pageColumnTokens.inlineSize` there: the `@tuja/require-page-column` lint rule refuses all three.
 
 | Export                         | Use                                                                                     |
 | ------------------------------ | --------------------------------------------------------------------------------------- |
 | `pageColumn.base`              | A box that spans its parent and sets its content in the page column                     |
 | `pageColumn.scroller`          | A horizontal scroller: its end items rest on the column, the rest scroll to the edges   |
 | `pageColumn.wide`              | With `base` or `scroller`: the wide page column, only the page gutter from the edges    |
+| `pageColumn.regular`           | The default width by name, for a screen in a view that starts from another width        |
+| `pageColumn.list`              | A screen of rows                                                                        |
+| `pageColumn.settings`          | A settings section                                                                      |
+| `pageColumn.report`            | A report                                                                                |
 | `pageGutter.inlineStart`/`End` | One gutter: for a box that steps out of the column by a gutter, or a fixed edge control |
-| `pageColumnTokens.inlineSize`  | The dial for a narrower column, its gutters included                                    |
+| `pageColumnTokens.inlineSize`  | The dial behind these, its gutters included. An app reads it and does not set it        |
 
 ```tsx
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
@@ -134,6 +138,8 @@ import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 ```
 
 A gallery of cards, such as a poster grid, takes the wide page column so that a wide screen fits more columns; prose stays in the page column. Pass `wideHeader` to `HeaderFooterLayout` on such a page, so the header controls share the gallery's edges.
+
+A named width composes with `base` or `scroller`, or goes in the `css` of a view. The content of every `NavigationSplitView` sits in the page column: `css={pageColumn.settings}` sets its width. Without a name, a view with a sidebar spans its column (the detail and the sidebar always do), and a view of one pane takes the width around it, so a `TabView` with `css={pageColumn.list}` sets its screens of one pane and not a screen with a sidebar.
 
 ---
 

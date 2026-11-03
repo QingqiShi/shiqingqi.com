@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import type { ComponentProps } from "react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import type { ComponentProps, ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   NavigationSplitView,
@@ -26,10 +26,15 @@ function stayingLink(followed: string[]) {
 type ViewProps = ComponentProps<typeof NavigationSplitView>;
 
 /** An account list, a ledger of three rows, and the second row open. */
-function ledgerView(overrides: Partial<ViewProps> = {}): ViewProps {
+function ledgerView(
+  overrides: Pick<ViewProps, "replace" | "linkComponent"> & {
+    detail?: null;
+  } = {},
+): ViewProps {
   return {
-    closeLabel: "Close",
+    linkStatus: null,
     sidebar: {
+      stacked: "hidden",
       label: "Accounts",
       node: (
         <>
@@ -59,6 +64,7 @@ function ledgerView(overrides: Partial<ViewProps> = {}): ViewProps {
     detail: {
       label: "Transaction",
       key: "2",
+      closeLabel: "Close",
       back: { href: "/?account=a", label: "Everyday" },
       node: <button type="button">Save</button>,
     },
@@ -133,6 +139,76 @@ describe("NavigationSplitView keys", () => {
     trains.focus();
     fireEvent.keyDown(trains, { key: "ArrowRight" });
     expect(followed).toEqual(["/?account=a&tx=2"]);
+  });
+});
+
+describe("NavigationSplitView under the router", () => {
+  function PendingStatus({
+    children,
+  }: {
+    children: (pending: boolean) => ReactNode;
+  }) {
+    return children(true);
+  }
+
+  function routedView(key: string, node: ReactNode) {
+    return {
+      linkStatus: PendingStatus,
+      skeleton: <p>Loading</p>,
+      content: { label: key, key, node },
+    };
+  }
+
+  const pageOf = (role: string) =>
+    document.querySelector(
+      `[data-split-view-column="content"] [data-split-view-page="${role}"]`,
+    );
+
+  it("never shows the content of the new URL in a page that leaves, as the router gives one element for all URLs", () => {
+    const hiddenSidebar = {
+      sidebar: {
+        stacked: "hidden" as const,
+        label: "List",
+        node: <p>List</p>,
+      },
+    };
+    for (const sidebar of [{}, hiddenSidebar]) {
+      const { rerender, unmount } = render(
+        <NavigationSplitView
+          {...routedView("a", <p>Old</p>)}
+          {...sidebar}
+          linkStatus={() => null}
+        />,
+      );
+      rerender(
+        <NavigationSplitView
+          {...routedView("b", <p>New</p>)}
+          {...sidebar}
+          linkStatus={() => null}
+        />,
+      );
+      expect(pageOf("current")?.textContent).toContain("New");
+      expect(pageOf("under")).toBeNull();
+      expect(pageOf("leaving")?.textContent).not.toContain("New");
+      unmount();
+    }
+  });
+
+  it("stops the wait when the pending link goes with the page that holds it", () => {
+    vi.useFakeTimers();
+    const { rerender } = render(
+      <NavigationSplitView
+        {...routedView("a", <SplitViewLink href="/b">Open</SplitViewLink>)}
+      />,
+    );
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
+    expect(pageOf("current")?.textContent).toContain("Loading");
+    rerender(<NavigationSplitView {...routedView("b", <p>New</p>)} />);
+    vi.useRealTimers();
+    expect(pageOf("current")?.textContent).toContain("New");
+    expect(pageOf("current")?.textContent).not.toContain("Loading");
   });
 });
 

@@ -69,6 +69,14 @@ module.exports = async (phase) => {
       const moved = [
         ["/component-library", "/design-system"],
         [
+          "/design-system/components/tab-bar",
+          "/design-system/components/tab-view",
+        ],
+        [
+          "/design-system/components/sidebar-layout",
+          "/design-system/components/navigation-split-view",
+        ],
+        [
           "/design-system/foundations/spacing",
           "/design-system/foundations/layout",
         ],

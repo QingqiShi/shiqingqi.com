@@ -112,6 +112,60 @@ describe("useDialogFocus", () => {
     expect(button3).toHaveFocus();
   });
 
+  it("wraps focus when a Tab from inside lands outside the dialog, as Safari's Tab does where it skips the last element", () => {
+    const outside = document.createElement("button");
+    document.body.append(outside);
+    const { dialog, button1, button2 } = createFocusableDialog();
+    const dialogRef = { current: dialog };
+
+    renderHook(() => {
+      useDialogFocus({ isOpen: true, dialogRef, onClose: vi.fn() });
+    });
+
+    button2.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    outside.focus();
+    expect(button1).toHaveFocus();
+  });
+
+  it("leaves focus outside the dialog alone when a Tab starts in a dialog over it", () => {
+    const top = document.createElement("button");
+    document.body.append(top);
+    const { dialog } = createFocusableDialog();
+    const dialogRef = { current: dialog };
+
+    renderHook(() => {
+      useDialogFocus({ isOpen: true, dialogRef, onClose: vi.fn() });
+    });
+
+    top.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    const other = document.createElement("button");
+    document.body.append(other);
+    other.focus();
+    expect(other).toHaveFocus();
+  });
+
+  it("returns focus to returnFocusRef when no element had focus at open, as after a press on a button in Safari", () => {
+    const menuButton = document.createElement("button");
+    document.body.append(menuButton);
+    const { dialog } = createFocusableDialog();
+    const dialogRef = { current: dialog };
+    const returnFocusRef = { current: menuButton };
+
+    const { unmount } = renderHook(() => {
+      useDialogFocus({
+        isOpen: true,
+        dialogRef,
+        onClose: vi.fn(),
+        returnFocusRef,
+      });
+    });
+
+    unmount();
+    expect(menuButton).toHaveFocus();
+  });
+
   it("does not steal focus or overwrite triggerRef when the caller re-renders with a new onClose identity", () => {
     const trigger = document.createElement("button");
     trigger.textContent = "Trigger";

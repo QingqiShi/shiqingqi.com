@@ -14,7 +14,6 @@ import { FinanceApiError } from "../http/finance-api-error.ts";
 import { reportQuery } from "../queries/report-query.ts";
 import { adjacentReports } from "./adjacent-reports.ts";
 import { formatReportWeek } from "./format-report-week.ts";
-import { ReportBackLink } from "./report-back-link.tsx";
 import { ReportView } from "./report-view.tsx";
 import { useReportList } from "./use-report-list.ts";
 
@@ -62,53 +61,47 @@ export function ReportScreen({ id, headingLevel }: ReportScreenProps) {
     const notFound =
       query.error instanceof FinanceApiError && query.error.status === 404;
     return (
-      <div css={stack.group}>
-        <ReportBackLink />
-        <div css={stack.item}>
-          <Heading level={headingLevel} look="h3">
-            {title}
-          </Heading>
-          <Text as="p" look="body">
-            {notFound
-              ? t({
-                  en: "This report does not exist, or it belongs to another household.",
-                  zh: "这份周报不存在，或属于另一个家庭。",
-                })
-              : t({
-                  en: "The report could not load. Reports come from the server, so check you are online, then try again.",
-                  zh: "周报未能加载。周报需从服务器读取，请确认已联网后重试。",
-                })}
-          </Text>
-          {notFound ? null : (
-            <div>
-              <Button
-                size="sm"
-                icon={<ArrowClockwiseIcon weight="bold" />}
-                loading={query.isFetching}
-                onClick={() => {
-                  void query.refetch();
-                }}
-              >
-                {t({ en: "Try again", zh: "重试" })}
-              </Button>
-            </div>
-          )}
-        </div>
+      <div css={stack.item}>
+        <Heading level={headingLevel} look="h3">
+          {title}
+        </Heading>
+        <Text as="p" look="body">
+          {notFound
+            ? t({
+                en: "This report does not exist, or it belongs to another household.",
+                zh: "这份周报不存在，或属于另一个家庭。",
+              })
+            : t({
+                en: "The report could not load. Reports come from the server, so check you are online, then try again.",
+                zh: "周报未能加载。周报需从服务器读取，请确认已联网后重试。",
+              })}
+        </Text>
+        {notFound ? null : (
+          <div>
+            <Button
+              size="sm"
+              icon={<ArrowClockwiseIcon weight="bold" />}
+              loading={query.isFetching}
+              onClick={() => {
+                void query.refetch();
+              }}
+            >
+              {t({ en: "Try again", zh: "重试" })}
+            </Button>
+          </div>
+        )}
       </div>
     );
   }
 
   return (
-    <div css={stack.group} aria-busy>
-      <ReportBackLink />
-      <div css={stack.item}>
-        <Heading level={headingLevel} look="h3">
-          {title}
-        </Heading>
-        <Skeleton width="60%" height="3rem" />
-        <Skeleton width="100%" height="14rem" delay={100} />
-        <Skeleton width="100%" height="20rem" delay={200} />
-      </div>
+    <div css={stack.item} aria-busy>
+      <Heading level={headingLevel} look="h3">
+        {title}
+      </Heading>
+      <Skeleton width="60%" height="3rem" />
+      <Skeleton width="100%" height="14rem" delay={100} />
+      <Skeleton width="100%" height="20rem" delay={200} />
     </div>
   );
 }

@@ -49,7 +49,7 @@ export async function HomeReport({
         openTodos={openTodos}
         locale={locale}
         headingLevel={1}
-        pastLink="list"
+        pastLink
         renderedAt={now.getTime()}
         refreshesOnLeave
         hasCalendar={hasCalendar}

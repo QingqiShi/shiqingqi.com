@@ -16,21 +16,29 @@ const OVERSHOOT_ROOM = 0.1;
 const NEAR = 0.15;
 
 /**
- * Springs the page on the system spring until `target` is at the top of the
- * screen, less its scroll margin, or until the page ends. Under reduced
- * motion, it jumps. `finished` is true when the page comes to rest there,
- * and false when the visitor scrolls, presses or types first, or `stop` is
- * called. `onNear` runs once, when the page has gone most of the way, or
- * when it jumps there.
+ * Springs `scroller`, or the page where it is null, on the system spring until
+ * `target` is at the top of the scroller, less its scroll margin, or until the
+ * scroller ends. Under reduced motion, it jumps. `finished` is true when it comes
+ * to rest there, and false when the visitor scrolls, presses or types first, or
+ * `stop` is called. `onNear` runs once, when it has gone most of the way, or when
+ * it jumps there.
  */
-export function springScrollTo(target: Element, onNear?: () => void) {
+export function springScrollTo(
+  target: Element,
+  scroller: HTMLElement | null,
+  onNear?: () => void,
+) {
   const root = document.documentElement;
-  const from = window.scrollY;
-  const end = root.scrollHeight - window.innerHeight;
+  const from = scroller?.scrollTop ?? window.scrollY;
+  const end =
+    scroller === null
+      ? root.scrollHeight - window.innerHeight
+      : scroller.scrollHeight - scroller.clientHeight;
+  const edge = scroller?.getBoundingClientRect().top ?? 0;
   const margin = parseFloat(getComputedStyle(target).scrollMarginBlockStart);
   const to = Math.min(
     end,
-    Math.max(0, target.getBoundingClientRect().top + from - margin),
+    Math.max(0, target.getBoundingClientRect().top - edge + from - margin),
   );
 
   const engine = createMotionEngine();
@@ -47,14 +55,18 @@ export function springScrollTo(target: Element, onNear?: () => void) {
   };
   const near = Math.abs(to - from) * NEAR;
   const unsubscribe = scroll.subscribe((top) => {
-    window.scrollTo({ top, behavior: "instant" });
+    (scroller ?? window).scrollTo({ top, behavior: "instant" });
     if (Math.abs(to - top) <= near) reachNear();
   });
 
-  // The page cannot scroll past its end, so the spring would stop hard there.
-  // Give the page room below its end while the spring moves, as a rubber band.
-  // Put the room in `main`, so that the sticky rail beside it stays stuck.
-  const roomBox = target.closest("main");
+  // A scroller cannot scroll past its end, so the spring would stop hard there.
+  // Give it room below its end while the spring moves, as a rubber band.
+  const roomBox =
+    scroller === null
+      ? target.closest("main")
+      : scroller.firstElementChild instanceof HTMLElement
+        ? scroller.firstElementChild
+        : null;
   const hasRoom =
     roomBox !== null && to === end && to > from && !prefersReducedMotion();
   if (hasRoom) {

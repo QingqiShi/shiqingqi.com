@@ -175,7 +175,7 @@ function HorizontalRegion() {
 }
 
 /**
- * The composition `SidebarLayout` uses for its rail: the action bar rides in
+ * The composition the drawer sidebar of `NavigationSplitView` uses: the bar rides in
  * the `endChrome` slot, so the content bleeds under it to the region's own
  * edge and blurs out across the bar's whole height — the bar needs no surface
  * of its own, because the blur is what separates it.

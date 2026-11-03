@@ -1,7 +1,5 @@
 "use client";
 
-import { Skeleton } from "@tuja/ui/components/skeleton";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useReplica } from "../replica/use-replica.ts";
 import { AiSettings } from "./ai-settings.tsx";
 import { CategoriesSettings } from "./categories-settings.tsx";
@@ -14,6 +12,7 @@ import { MembersSettings } from "./members-settings.tsx";
 import { PayeesSettings } from "./payees-settings.tsx";
 import { PreferencesSettings } from "./preferences-settings.tsx";
 import { RulesSettings } from "./rules-settings.tsx";
+import { SettingsSectionSkeleton } from "./settings-section-skeleton.tsx";
 import type { SettingsSection } from "./settings-sections.ts";
 import { TagsSettings } from "./tags-settings.tsx";
 
@@ -35,14 +34,7 @@ const VIEWS: Record<SettingsSection, () => React.ReactNode> = {
 /** One Settings section, once the Replica has loaded. */
 export function SettingsSectionView({ section }: { section: SettingsSection }) {
   const bootstrapped = useReplica((snapshot) => snapshot.bootstrapped);
-  if (!bootstrapped) {
-    return (
-      <div css={stack.item} aria-busy>
-        <Skeleton width="10rem" height="1.5rem" />
-        <Skeleton width="100%" height="10rem" />
-      </div>
-    );
-  }
+  if (!bootstrapped) return <SettingsSectionSkeleton />;
   const View = VIEWS[section];
   return <View />;
 }

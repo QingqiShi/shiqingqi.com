@@ -1,7 +1,7 @@
 /**
  * The counterpart to `../routes/`: those modules own the structure of the
  * design-system route map, this one owns the words. Every place a route is
- * named — the nav rail, the overview grid, the page `h1`, the breadcrumb and
+ * named — the sidebar, the overview grid, the page `h1`, the breadcrumb and
  * the page metadata — reads its name from here, so renaming a route is one
  * edit.
  *
@@ -81,7 +81,6 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       zh: "面包屑导航",
     }),
     "/design-system/components/pager": t({ en: "Pager", zh: "上下页导航" }),
-    "/design-system/components/tab-bar": t({ en: "Tab bar", zh: "标签栏" }),
     "/design-system/components/nav-list": t({ en: "Nav list", zh: "导航列表" }),
     "/design-system/components/text-field": t({
       en: "Text field",
@@ -133,10 +132,6 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       zh: "粘性控件",
     }),
     "/design-system/components/divider": t({ en: "Divider", zh: "分隔线" }),
-    "/design-system/components/sidebar-layout": t({
-      en: "Sidebar layout",
-      zh: "侧边栏布局",
-    }),
     "/design-system/components/header-footer-layout": t({
       en: "Header & footer layout",
       zh: "页头页脚布局",

@@ -8,6 +8,7 @@ import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
+import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlHeight, rhythm } from "@tuja/ui/tokens.stylex";
 import { FinanceAddButton } from "../shell/finance-add-button.tsx";
@@ -37,7 +38,7 @@ export function TransactionsSkeleton() {
   return (
     <div aria-busy>
       <NavigationSplitView
-        closeLabel={t({ en: "Close", zh: "关闭" })}
+        css={pageColumn.list}
         content={{
           label: t({ en: "Transactions", zh: "交易" }),
           accessory: <FinanceAddButton />,
@@ -50,7 +51,7 @@ export function TransactionsSkeleton() {
 
 function ListSkeleton() {
   return (
-    <div css={[stack.group, styles.master]}>
+    <div css={stack.group}>
       <div css={stack.item}>
         <div css={styles.titleRow}>
           <div css={stack.tight}>
@@ -107,11 +108,6 @@ function ListSkeleton() {
 }
 
 const styles = stylex.create({
-  master: {
-    inlineSize: "100%",
-    maxInlineSize: "52rem",
-    marginInline: "auto",
-  },
   titleRow: {
     display: "flex",
     justifyContent: "space-between",

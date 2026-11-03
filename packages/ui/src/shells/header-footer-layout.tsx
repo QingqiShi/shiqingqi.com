@@ -12,26 +12,26 @@ import { HeaderControls } from "./header-controls.tsx";
 
 interface HeaderFooterLayoutProps {
   /**
-   * Start (leading) floating group at the top of the page — typically a back
-   * or home affordance. Only the controls accept pointer events, so the group
-   * never blocks the content scrolling beneath it.
+   * Start (leading) floating group at the top of the page, typically a back
+   * or home link. Only the controls accept pointer events, so the group never
+   * blocks the content scrolling beneath it.
    *
-   * @zh 页面顶部起始（前置）的悬浮控件组——通常是返回或首页入口。只有控件本身接收指针事件，因此该组不会阻挡下方内容的滚动。
+   * @zh 页面顶部起始（前置）的悬浮控件组，通常是返回或首页链接。只有控件本身接收指针事件，因此该组不会阻挡下方内容的滚动。
    */
   headerStart?: ReactNode;
   /**
-   * End (trailing) floating group at the top of the page — typically utility
+   * End (trailing) floating group at the top of the page, typically utility
    * controls such as a theme toggle or language picker.
    *
-   * @zh 页面顶部的结尾悬浮控件组——通常是主题切换、语言选择等实用控件。
+   * @zh 页面顶部的结尾悬浮控件组，通常是主题切换、语言选择等实用控件。
    */
   headerEnd?: ReactNode;
   /**
-   * Full-bleed decoration behind the content and beneath the header controls
-   * — gradients, glows, texture. Pointer-transparent and clipped to the
+   * Full-bleed decoration behind the content and beneath the header controls,
+   * such as gradients, glows or texture. Pointer-transparent and clipped to the
    * shell; pass positioned elements, since the slot fills the whole shell.
    *
-   * @zh 内容与页头控件下方的满幅装饰——渐变、光晕、纹理。不接收指针事件，并裁剪至骨架范围；由于该插槽铺满整个骨架，请传入自带定位的元素。
+   * @zh 内容与页头控件下方的满幅装饰，例如渐变、光晕或纹理。不接收指针事件，并裁剪至骨架范围；由于该插槽铺满整个骨架，请传入自带定位的元素。
    */
   background?: ReactNode;
   /**
@@ -89,9 +89,9 @@ interface HeaderFooterLayoutProps {
  * of the site's centered measure, an optional full-bleed background, content
  * that flows under the header, and an optional footer at the end of the page.
  *
- * This is the shell behind the site's header/footer pages; reach for
- * `SidebarLayout` instead for dense, app-like pages with their own
- * navigation — a page uses one shell or the other, never both.
+ * This is the shell of a reading page with no sidebar. A page with a sidebar
+ * takes a `NavigationSplitView`, and a page uses one shell or the other, never
+ * both.
  */
 export function HeaderFooterLayout({
   headerStart,

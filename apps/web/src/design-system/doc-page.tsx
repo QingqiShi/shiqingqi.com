@@ -11,8 +11,8 @@ import { docPageVars, readingColumn } from "./reading-column.stylex.ts";
 interface DocPageProps {
   /**
    * The route this page is registered at. The title and the breadcrumb's
-   * section both come from it, so a page cannot name itself something the nav
-   * rail disagrees with.
+   * section both come from it, so a page cannot name itself something the sidebar
+   * disagrees with.
    */
   path: DesignSystemPath;
   /**

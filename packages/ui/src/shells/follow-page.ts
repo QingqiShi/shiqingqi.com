@@ -10,6 +10,11 @@ export interface SplitViewPage<Column> {
   /** Whether the page has a way back to a page under it. */
   readonly deep: boolean;
   readonly motion: number;
+  /**
+   * What the page showed when it left, where that was not its content: the
+   * skeleton of a wait, or nothing yet.
+   */
+  readonly leftAs?: "skeleton" | "blank";
 }
 
 /**
@@ -67,6 +72,26 @@ export function followPage<Column>(
       leaving: left,
     },
     change: "swap",
+  };
+}
+
+/**
+ * The pages after the column shows `next`, where the router owns the content:
+ * the column keeps no page under the new one, as that page would show the new
+ * content. The page that goes leaves with `motion`, and `leftAs` tells what it
+ * showed where that was not its content.
+ *
+ * @internal
+ */
+export function replacePage<Column>(
+  { current }: SplitViewPages<Column>,
+  next: SplitViewPage<Column>,
+  leftAs?: "skeleton" | "blank",
+): SplitViewPages<Column> {
+  return {
+    under: null,
+    current: next,
+    leaving: { ...current, motion: next.motion, leftAs },
   };
 }
 

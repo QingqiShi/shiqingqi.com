@@ -27,6 +27,8 @@ import { useTabPress } from "./use-tab-press.ts";
  * reach the rendered anchor: `href` and `children`, `className` and `style`
  * (which carry the whole look), and the attributes in the rest — the
  * `aria-current` that names the current destination among them.
+ *
+ * @internal
  */
 export interface TabBarLinkProps extends ComponentProps<"a"> {
   href: string;
@@ -37,7 +39,11 @@ export function PlainAnchor(props: TabBarLinkProps) {
   return <a {...props} />;
 }
 
-/** One destination in the bar. */
+/**
+ * One destination in the bar.
+ *
+ * @internal
+ */
 export interface TabBarItem {
   /** Where the tab goes. Unique within the bar. */
   href: string;
@@ -126,7 +132,10 @@ interface TabBarProps {
  * current tab, and a press can drag it to another, as on a SegmentedControl.
  * The tabs are links: Tab and Enter reach and follow them, and the current
  * one carries `aria-current="page"`. The bar does not place itself; pass
- * `css` to float it over the bottom of the screen.
+ * `css` to float it over the bottom of the screen. An app takes its tab bar
+ * from `TabView`.
+ *
+ * @internal
  */
 export function TabBar({
   items,

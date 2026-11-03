@@ -25,15 +25,18 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { NavGroup } from "@tuja/ui/components/nav-group";
 import { NavLink } from "@tuja/ui/components/nav-link";
 import { NavList } from "@tuja/ui/components/nav-list";
+import {
+  SplitViewLink,
+  useSplitViewColumn,
+} from "@tuja/ui/components/navigation-split-view";
 import { usePathname } from "next/navigation";
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import type { DesignSystemGroupLabels } from "#src/design-system/route-copy/get-design-system-group-labels.ts";
 import { getDesignSystemRouteSections } from "#src/design-system/routes/get-design-system-route-sections.ts";
 import type {
   DesignSystemCategoryId,
   DesignSystemPath,
 } from "#src/design-system/routes/types.ts";
-import { Link } from "#src/links/link.tsx";
 
 const CATEGORY_ICONS: Record<DesignSystemCategoryId, Icon> = {
   basics: BookOpenIcon,
@@ -62,24 +65,19 @@ interface DesignSystemNavProps {
   /** Every route's name. Resolved on the server — see `route-copy/`. */
   routeLabels: Record<DesignSystemPath, string>;
   groupLabels: DesignSystemGroupLabels;
-  /**
-   * Overrides the nav landmark's accessible name — needed when a second
-   * instance renders on the same page (e.g. inside a showcase specimen) so the
-   * two landmarks stay distinguishable.
-   */
-  ariaLabel?: string;
 }
 
 export function DesignSystemNav({
   routeLabels,
   groupLabels,
-  ariaLabel,
 }: DesignSystemNavProps) {
   const locale = useLocale();
   const current = normalizePath(usePathname());
   const sections = getDesignSystemRouteSections();
 
   const { sections: sectionLabels, categories: categoryLabels } = groupLabels;
+
+  useCurrentRowInView();
 
   const links = (paths: readonly DesignSystemPath[], withIcons: boolean) =>
     paths.map((path) => {
@@ -99,13 +97,13 @@ export function DesignSystemNav({
   return (
     <nav
       css={styles.nav}
-      aria-label={ariaLabel ?? t({ en: "Design system", zh: "设计系统" })}
+      aria-label={t({ en: "Design system", zh: "设计系统" })}
     >
       {/* Two levels: what kind of thing a link is, then what job it does. The
           sections are labelled groups and the categories are toggle buttons,
           not headings, so the structure reaches assistive tech without adding
           a second outline beside the page's own headings. */}
-      <NavList linkComponent={Link}>
+      <NavList linkComponent={SplitViewLink}>
         {sections.map((section) => (
           <NavGroup
             key={section.section}
@@ -138,8 +136,22 @@ export function DesignSystemNav({
   );
 }
 
+function useCurrentRowInView() {
+  const scroller = useSplitViewColumn()?.scroller;
+  useEffect(() => {
+    const row = scroller?.querySelector('[aria-current="page"]');
+    if (!scroller || !row) return;
+    const rowBox = row.getBoundingClientRect();
+    const box = scroller.getBoundingClientRect();
+    if (rowBox.top >= box.top && rowBox.bottom <= box.bottom) return;
+    scroller.scrollBy({
+      top: rowBox.top - box.top - (box.height - rowBox.height) / 2,
+    });
+  }, [scroller]);
+}
+
 const styles = stylex.create({
-  // A plain vertical list on every viewport — the shell's rail and drawer own
+  // A plain vertical list on every viewport — the sidebar of the view owns
   // the surface chrome and the scrolling.
   nav: {
     minInlineSize: 0,

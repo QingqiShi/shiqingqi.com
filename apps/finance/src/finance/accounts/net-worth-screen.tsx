@@ -19,7 +19,6 @@ import {
 import { ColumnLink, useColumnReplace } from "../navigation/column-link.tsx";
 import { useReplica } from "../replica/use-replica.ts";
 import { FinanceAddButton } from "../shell/finance-add-button.tsx";
-import { FinancePageColumn } from "../shell/finance-page-column.tsx";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import { AccountDetail } from "./account-detail.tsx";
 import { AccountEditorSheet } from "./account-editor-sheet.tsx";
@@ -60,15 +59,22 @@ export function NetWorthScreen() {
   let body: ReactNode;
   if (url.mode === "update") {
     body = (
-      <FinancePageColumn>
-        <UpdateValuesForm />
-      </FinancePageColumn>
+      <NavigationSplitView
+        content={{
+          label: t({ en: "Update balances", zh: "更新余额" }),
+          node: <UpdateValuesForm />,
+        }}
+      />
     );
   } else if (isReorder) {
     body = (
-      <FinancePageColumn accessory={<FinanceAddButton />}>
-        <ReorderScreen url={url} />
-      </FinancePageColumn>
+      <NavigationSplitView
+        content={{
+          label: t({ en: "Reorder accounts", zh: "调整账户顺序" }),
+          accessory: <FinanceAddButton />,
+          node: <ReorderScreen url={url} />,
+        }}
+      />
     );
   } else {
     body = (
@@ -115,10 +121,12 @@ function NetWorthColumns({
     <>
       <NavigationSplitView
         linkComponent={ColumnLink}
+        linkStatus={null}
         replace={replace}
-        closeLabel={t({ en: "Close", zh: "关闭" })}
         sidebar={{
+          stacked: "hidden",
           label: netWorthLabel,
+          collapsed: <AccountStrip sheet={sheet} url={url} />,
           node: (
             <NetWorthSidebar
               sheet={sheet}
@@ -129,7 +137,6 @@ function NetWorthColumns({
             />
           ),
         }}
-        collapsedSidebar={<AccountStrip sheet={sheet} url={url} />}
         content={{
           label: account ? accountName(account) : householdLabel,
           key: url.account ?? "household",
@@ -169,6 +176,7 @@ function NetWorthColumns({
             ? {
                 label: t({ en: "Transaction", zh: "交易" }),
                 key: url.tx,
+                closeLabel: t({ en: "Close", zh: "关闭" }),
                 back: {
                   href: url.hrefOf({ account: url.account }),
                   label: account ? accountName(account) : "",

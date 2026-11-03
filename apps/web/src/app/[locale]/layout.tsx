@@ -6,7 +6,6 @@ import { PortalTargetProvider } from "@tuja/ui/components/portal-target-provider
 import { root } from "@tuja/ui/primitives/root.stylex";
 import type { Viewport } from "next";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { PostHogInit } from "#src/analytics/posthog-init.tsx";
 import { htmlLang } from "#src/i18n/i18n-config.ts";
 import { SerwistProvider } from "#src/pwa/serwist-provider.tsx";
@@ -82,9 +81,7 @@ export default async function RootLayout({
             <ThemeApplier />
             <EffectLayerProvider>
               <PortalTargetProvider>
-                <BackOverrideProvider>
-                  <Suspense fallback={null}>{children}</Suspense>
-                </BackOverrideProvider>
+                <BackOverrideProvider>{children}</BackOverrideProvider>
               </PortalTargetProvider>
             </EffectLayerProvider>
             <PostHogInit />

@@ -5,11 +5,11 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { TabViewLink } from "@tuja/ui/components/tab-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
-import { Link } from "#src/links/link.tsx";
 import { formatWeekday } from "./format-day.ts";
 import { useTodoStore } from "./todo-store-provider.tsx";
 
@@ -72,9 +72,12 @@ export function ReportFigures({
         <div key={key} css={[typeRole.bodySmall, styles.figure]}>
           <dt css={styles.label}>
             {href ? (
-              <Link href={href} {...stylex.props(a11y.focusRing, styles.link)}>
+              <TabViewLink
+                href={href}
+                {...stylex.props(a11y.focusRing, styles.link)}
+              >
                 {label}
-              </Link>
+              </TabViewLink>
             ) : (
               label
             )}

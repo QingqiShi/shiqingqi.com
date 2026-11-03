@@ -9,8 +9,7 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
 import { useReplica } from "../replica/use-replica.ts";
-import { FinanceAddButton } from "../shell/finance-add-button.tsx";
-import { FinancePageColumn } from "../shell/finance-page-column.tsx";
+import { FinanceScreenFrame } from "../shell/finance-screen-frame.tsx";
 import { NewTransactionSheet } from "../shell/new-transaction-sheet.tsx";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { AnalyticsControls } from "./analytics-controls.tsx";
@@ -118,20 +117,21 @@ function AnalyticsContent() {
  */
 export function AnalyticsScreen() {
   const bootstrapped = useReplica((snapshot) => snapshot.bootstrapped);
+  const title = t({ en: "Analytics", zh: "分析" });
   return (
     <>
-      <FinancePageColumn accessory={<FinanceAddButton />}>
+      <FinanceScreenFrame label={title}>
         {bootstrapped ? (
           <div css={stack.group}>
             <Heading level={1} look="h3" css={styles.title}>
-              {t({ en: "Analytics", zh: "分析" })}
+              {title}
             </Heading>
             <AnalyticsContent />
           </div>
         ) : (
           <AnalyticsSkeleton />
         )}
-      </FinancePageColumn>
+      </FinanceScreenFrame>
       <NewTransactionSheet />
     </>
   );
