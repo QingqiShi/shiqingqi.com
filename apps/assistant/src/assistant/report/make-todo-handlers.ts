@@ -83,11 +83,37 @@ const dueDatesBody = z.strictObject({
         id: z.uuid(),
         dueDate: localDate.nullable(),
         ownerSet: z.boolean(),
+        start: z
+          .strictObject({
+            date: localDate.nullable(),
+            ownerSet: z.boolean(),
+          })
+          .optional(),
       }),
     )
     .min(1)
-    .max(todoLimits.dueDateChanges),
+    .max(todoLimits.bulkTodos),
 });
+const bulkIds = z
+  .array(z.uuid())
+  .min(1)
+  .max(todoLimits.bulkTodos)
+  .refine((ids) => new Set(ids).size === ids.length);
+const bulkBody = z.discriminatedUnion("action", [
+  z.strictObject({
+    action: z.literal("done"),
+    todos: z
+      .array(z.strictObject({ id: z.uuid(), nextId: z.uuid().optional() }))
+      .min(1)
+      .max(todoLimits.bulkTodos)
+      .refine(
+        (todos) => new Set(todos.map(({ id }) => id)).size === todos.length,
+      ),
+  }),
+  z.strictObject({ action: z.literal("reopen"), ids: bulkIds }),
+  z.strictObject({ action: z.literal("delete"), ids: bulkIds }),
+  z.strictObject({ action: z.literal("restore"), ids: bulkIds }),
+]);
 const orderBody = z.strictObject({
   ids: z
     .array(z.uuid())
@@ -200,6 +226,28 @@ export function makeTodoHandlers(
         return typeof earlier === "string"
           ? refused(earlier)
           : assistantJson({ earlier });
+      }),
+
+    /** Closes or deletes many to-dos, or undoes that, in one transaction. */
+    bulk: (request: Request) =>
+      withSession(request, async (scope, now) => {
+        const body = await readBody(request, bulkBody);
+        if (!body.success) return invalidBody();
+        const { data } = body;
+        switch (data.action) {
+          case "done": {
+            const closed = await ownerTodos.closeMany(scope, data.todos, now);
+            return typeof closed === "string"
+              ? refused(closed)
+              : assistantJson({ closed });
+          }
+          case "reopen":
+            return saved(await ownerTodos.reopenMany(scope, data.ids, now));
+          case "delete":
+            return saved(await ownerTodos.deleteMany(scope, data.ids, now));
+          case "restore":
+            return saved(await ownerTodos.restoreMany(scope, data.ids, now));
+        }
       }),
 
     /** Puts to-dos in the order of the request. Other to-dos keep their places. */

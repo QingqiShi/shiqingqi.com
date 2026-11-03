@@ -6,6 +6,7 @@ import { Button } from "@tuja/ui/components/button";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Text } from "@tuja/ui/components/text";
 import { useToast } from "@tuja/ui/components/toast-provider";
+import { flex, grow } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm } from "@tuja/ui/tokens.stylex";
@@ -21,13 +22,19 @@ import {
 import { QuickAdd } from "./quick-add.tsx";
 import { SortableTodoList } from "./sortable-todo-list.tsx";
 import { isOpen } from "./to-todo-item-data.ts";
+import { TodoListTools, useTodoSelection } from "./todo-selection-area.tsx";
 import { useTodoStore } from "./todo-store-provider.tsx";
 
 /** The input and the open to-dos of the store: a view of them, by when they matter. */
 export function OpenTodoGroups({ headingLevel }: { headingLevel: 2 | 3 }) {
   const { rows, today, moveOverdueToToday } = useTodoStore();
   const showToast = useToast();
+  const selection = useTodoSelection();
   const [view, setView] = useState<TodoBoardView>("today");
+  const showView = (next: TodoBoardView) => {
+    selection?.stop();
+    setView(next);
+  };
   const open = rows.filter(isOpen);
   const views = groupOpenTodos(open, today);
   const groupTitles: Record<TodoGroupKey, string> = {
@@ -70,29 +77,33 @@ export function OpenTodoGroups({ headingLevel }: { headingLevel: 2 | 3 }) {
               action: {
                 label: show,
                 onAction: () => {
-                  setView(landed);
+                  showView(landed);
                 },
               },
             });
           }
         }}
       />
-      <SegmentedControl
-        aria-label={t({ en: "Which to-dos to show", zh: "显示哪些待办" })}
-        fullWidth
-        options={[
-          {
-            value: "today",
-            label: viewLabel(t({ en: "Today", zh: "今天" }), "today"),
-          },
-          {
-            value: "upcoming",
-            label: viewLabel(t({ en: "Upcoming", zh: "接下来" }), "upcoming"),
-          },
-        ]}
-        value={view}
-        onChange={setView}
-      />
+      <div css={[flex.row, styles.viewLine]}>
+        <SegmentedControl
+          aria-label={t({ en: "Which to-dos to show", zh: "显示哪些待办" })}
+          fullWidth
+          options={[
+            {
+              value: "today",
+              label: viewLabel(t({ en: "Today", zh: "今天" }), "today"),
+            },
+            {
+              value: "upcoming",
+              label: viewLabel(t({ en: "Upcoming", zh: "接下来" }), "upcoming"),
+            },
+          ]}
+          value={view}
+          onChange={showView}
+          css={grow._1}
+        />
+        <TodoListTools />
+      </div>
       {views[view].length === 0 && open.length > 0 ? (
         <Text as="p" tone="muted">
           {view === "today"
@@ -122,6 +133,9 @@ export function OpenTodoGroups({ headingLevel }: { headingLevel: 2 | 3 }) {
 }
 
 const styles = stylex.create({
+  viewLine: {
+    gap: rhythm.tight,
+  },
   count: {
     color: color.fgMuted,
     marginInlineStart: rhythm.inline,

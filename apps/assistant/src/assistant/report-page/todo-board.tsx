@@ -9,6 +9,7 @@ import { DayHeader } from "../shell/day-header.tsx";
 import { OpenTodoGroups } from "./open-todo-groups.tsx";
 import { isOpen } from "./to-todo-item-data.ts";
 import { TodoList } from "./todo-list.tsx";
+import { TodoSelectionArea } from "./todo-selection-area.tsx";
 import { useTodoStore } from "./todo-store-provider.tsx";
 
 /** The input, the open to-dos of a view by when they matter, the last ones done, and the way to the rest. */
@@ -20,7 +21,7 @@ export function TodoBoard() {
     .toSorted((a, b) => (b.doneAt ?? "").localeCompare(a.doneAt ?? ""));
 
   return (
-    <>
+    <TodoSelectionArea canAdd canSearch>
       <OpenTodoGroups headingLevel={2} />
       {done.length > 0 ? (
         <section css={stack.tight}>
@@ -41,6 +42,6 @@ export function TodoBoard() {
           <TodoList ids={done.map((todo) => todo.id)} showSource showDoneDate />
         </section>
       ) : null}
-    </>
+    </TodoSelectionArea>
   );
 }

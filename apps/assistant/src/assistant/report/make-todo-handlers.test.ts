@@ -339,6 +339,196 @@ describe("the owner's to-do requests", () => {
     expect(owners.ownerEditedFields.toSorted()).toEqual(["dueDate", "title"]);
   });
 
+  describe("bulk", () => {
+    async function insertRepeating(userId: string) {
+      const [row] = await db
+        .insert(todos)
+        .values({
+          userId,
+          title: "Pay rent",
+          dueDate: "2026-11-01",
+          repeat: { kind: "monthly", every: 1, day: 1 },
+        })
+        .returning();
+      return row;
+    }
+
+    it("closes all with their next occurrences, and one undo restores every row", async () => {
+      const plain = await insertTodo(owner);
+      const repeating = await insertRepeating(owner);
+      const nextId = randomUUID();
+
+      const closed = await handlers.bulk(
+        request("POST", {
+          action: "done",
+          todos: [{ id: plain.id }, { id: repeating.id, nextId }],
+        }),
+      );
+
+      expect(closed.status).toBe(200);
+      expect(await stored(plain.id)).toMatchObject({ doneAt: NOW });
+      expect(await stored(repeating.id)).toMatchObject({
+        doneAt: NOW,
+        nextTodoId: nextId,
+      });
+      expect(await stored(nextId)).toMatchObject({
+        dueDate: "2026-12-01",
+        position: repeating.position,
+      });
+
+      const { closed: ids } = z
+        .object({ closed: z.array(z.string()) })
+        .parse(await closed.json());
+      const undone = await handlers.bulk(
+        request("POST", { action: "reopen", ids }),
+      );
+
+      expect(undone.status).toBe(204);
+      expect(await stored(plain.id)).toMatchObject({ doneAt: null });
+      expect(await stored(repeating.id)).toMatchObject({
+        doneAt: null,
+        nextTodoId: null,
+        position: repeating.position,
+        dueDate: "2026-11-01",
+        repeat: repeating.repeat,
+      });
+      expect(await stored(nextId)).toBeUndefined();
+    });
+
+    it("does not count a to-do that was done already, so an undo leaves it done", async () => {
+      const open = await insertTodo(owner);
+      const earlier = new Date("2026-10-01T09:00:00Z");
+      const { id: doneId } = await insertTodo(owner);
+      await db
+        .update(todos)
+        .set({ doneAt: earlier })
+        .where(eq(todos.id, doneId));
+
+      const closed = await handlers.bulk(
+        request("POST", {
+          action: "done",
+          todos: [{ id: open.id }, { id: doneId }],
+        }),
+      );
+
+      expect(await closed.json()).toEqual({ closed: [open.id] });
+      expect(await stored(doneId)).toMatchObject({ doneAt: earlier });
+    });
+
+    it("changes nothing when one of the rows is another user's", async () => {
+      const mine = await insertTodo(owner);
+      const theirs = await insertTodo(stranger);
+      const ids = [mine.id, theirs.id];
+
+      const closed = await handlers.bulk(
+        request("POST", {
+          action: "done",
+          todos: ids.map((id) => ({ id })),
+        }),
+      );
+      const deleted = await handlers.bulk(
+        request("POST", { action: "delete", ids }),
+      );
+
+      expect(closed.status).toBe(404);
+      expect(deleted.status).toBe(404);
+      for (const id of ids) {
+        expect(await stored(id)).toMatchObject({
+          doneAt: null,
+          deletedAt: null,
+        });
+      }
+    });
+
+    it("closes none when a next id is taken", async () => {
+      const plain = await insertTodo(owner);
+      const repeating = await insertRepeating(owner);
+      const theirs = await insertTodo(stranger);
+
+      const closed = await handlers.bulk(
+        request("POST", {
+          action: "done",
+          todos: [{ id: plain.id }, { id: repeating.id, nextId: theirs.id }],
+        }),
+      );
+
+      expect(closed.status).toBe(409);
+      expect(await stored(plain.id)).toMatchObject({ doneAt: null });
+      expect(await stored(repeating.id)).toMatchObject({
+        doneAt: null,
+        nextTodoId: null,
+      });
+    });
+
+    it("deletes all, and restores only the user's own", async () => {
+      const first = await insertTodo(owner);
+      const second = await insertTodo(owner);
+      const ids = [first.id, second.id];
+      const theirs = await insertTodo(stranger);
+      await db
+        .update(todos)
+        .set({ deletedAt: NOW })
+        .where(eq(todos.id, theirs.id));
+
+      await handlers.bulk(request("POST", { action: "delete", ids }));
+      expect(await stored(first.id)).toMatchObject({ deletedAt: NOW });
+      expect(await stored(second.id)).toMatchObject({ deletedAt: NOW });
+
+      await handlers.bulk(
+        request("POST", { action: "restore", ids: [...ids, theirs.id] }),
+      );
+
+      expect(await stored(first.id)).toMatchObject({ deletedAt: null });
+      expect(await stored(second.id)).toMatchObject({ deletedAt: null });
+      expect(await stored(theirs.id)).toMatchObject({ deletedAt: NOW });
+    });
+
+    it("moves a due date before the start date with the start date, and an undo restores both", async () => {
+      const { id } = await insertTodo(owner);
+      await db
+        .update(todos)
+        .set({
+          dueDate: "2026-11-20",
+          startDate: "2026-11-15",
+          ownerEditedFields: ["title"],
+        })
+        .where(eq(todos.id, id));
+
+      const moved = await handlers.changeDueDates(
+        request("PATCH", {
+          changes: [
+            {
+              id,
+              dueDate: "2026-11-05",
+              ownerSet: true,
+              start: { date: null, ownerSet: true },
+            },
+          ],
+        }),
+      );
+
+      expect(moved.status).toBe(200);
+      const after = await stored(id);
+      expect(after).toMatchObject({ dueDate: "2026-11-05", startDate: null });
+      expect(after.ownerEditedFields.toSorted()).toEqual([
+        "dueDate",
+        "startDate",
+        "title",
+      ]);
+
+      const { earlier } = z
+        .object({ earlier: z.array(z.unknown()) })
+        .parse(await moved.json());
+      await handlers.changeDueDates(request("PATCH", { changes: earlier }));
+
+      expect(await stored(id)).toMatchObject({
+        dueDate: "2026-11-20",
+        startDate: "2026-11-15",
+        ownerEditedFields: ["title"],
+      });
+    });
+  });
+
   describe("order", () => {
     async function insertOpen(userId: string, ...titles: string[]) {
       const rows = [];

@@ -59,6 +59,12 @@ interface TodoStore {
   skipOccurrence: (id: string) => void;
   remove: (id: string) => void;
   moveOverdueToToday: () => void;
+  /** Closes these open to-dos with one request and one Undo. */
+  closeMany: (ids: readonly string[]) => void;
+  /** Deletes these to-dos with one request and one Undo. */
+  removeMany: (ids: readonly string[]) => void;
+  /** Gives these to-dos one due date with one request and one Undo. */
+  moveMany: (ids: readonly string[], dueDate: string | null) => void;
   /** Puts these to-dos in this order, in the places that they hold. */
   reorder: (ids: readonly string[]) => void;
   addStep: (todoId: string, text: string) => void;
@@ -212,14 +218,27 @@ function withStartInOrder(row: TodoItemData | undefined, edit: TodoEdit) {
 }
 
 function withDueDates(
-  changes: readonly Pick<TodoItemData, "id" | "dueDate">[],
+  changes: readonly (Pick<TodoItemData, "id" | "dueDate"> &
+    Partial<Pick<TodoItemData, "startDate">>)[],
 ): TodoOp {
-  const dates = new Map(changes.map((change) => [change.id, change.dueDate]));
-  return (rows) =>
-    rows.map((row) => {
-      const dueDate = dates.get(row.id);
-      return dueDate === undefined ? row : { ...row, dueDate };
-    });
+  const dates = new Map(
+    changes.map(({ id, dueDate, startDate }) => [
+      id,
+      startDate === undefined ? { dueDate } : { dueDate, startDate },
+    ]),
+  );
+  return (rows) => rows.map((row) => ({ ...row, ...dates.get(row.id) }));
+}
+
+function inOrder(ops: readonly TodoOp[]): TodoOp {
+  return (rows) => ops.reduce((list, op) => op(list), rows);
+}
+
+function sendBulk(body: object) {
+  return assistantFetch("/api/todos/bulk", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
 }
 
 function sendDueDates(changes: readonly DueDateChange[]) {
@@ -371,6 +390,20 @@ function Store({
       zh: "已删除，不会再重复",
     }),
     moved: t({ en: "Moved {count} to today", zh: "已把 {count} 项移到今天" }),
+    doneMany: t({ en: "{count} done", zh: "已完成 {count} 项" }),
+    deletedMany: t({ en: "{count} deleted", zh: "已删除 {count} 项" }),
+    deletedManySeries: t({
+      en: "{count} deleted. Those that repeat will not come back",
+      zh: "已删除 {count} 项，重复的待办不会再出现",
+    }),
+    movedMany: t({
+      en: "Moved {count} to {date}",
+      zh: "已把 {count} 项移到 {date}",
+    }),
+    undatedMany: t({
+      en: "Took the date off {count}",
+      zh: "已取消 {count} 项的日期",
+    }),
   };
 
   function run(op: TodoOp, request: () => Promise<unknown>) {
@@ -421,6 +454,22 @@ function Store({
           }),
         }),
     );
+  }
+
+  function nextRowOf(
+    row: TodoItemData,
+  ): (TodoItemData & { dueDate: string }) | null {
+    return row.repeat && isOpen(row)
+      ? {
+          ...row,
+          ...nextOccurrenceFields(row, row.repeat, today, timeZone),
+          id: crypto.randomUUID(),
+          checklist: withTicks(row.checklist, []),
+          createdBy: "owner" as const,
+          reAdded: false,
+          openHref: null,
+        }
+      : null;
   }
 
   const store: TodoStore = {
@@ -482,18 +531,7 @@ function Store({
         return;
       }
       const row = rows.find((entry) => entry.id === id);
-      const next =
-        row?.repeat && isOpen(row)
-          ? {
-              ...row,
-              ...nextOccurrenceFields(row, row.repeat, today, timeZone),
-              id: crypto.randomUUID(),
-              checklist: withTicks(row.checklist, []),
-              createdBy: "owner" as const,
-              reAdded: false,
-              openHref: null,
-            }
-          : null;
+      const next = row ? nextRowOf(row) : null;
       sendTodoChange(id, closeRow(id, next, new Date().toISOString()), {
         done: true,
         nextId: next?.id,
@@ -565,7 +603,7 @@ function Store({
     moveOverdueToToday: () => {
       const overdue = rows
         .filter((row) => isOverdue(row, today))
-        .slice(0, todoLimits.dueDateChanges);
+        .slice(0, todoLimits.bulkTodos);
       if (overdue.length === 0) return;
       const moved = overdue.map(({ id }) => ({
         id,
@@ -580,6 +618,111 @@ function Store({
           label: copy.undo,
           onAction: () => {
             run(withDueDates(overdue), move.undo);
+          },
+        },
+      });
+    },
+    closeMany: (ids) => {
+      const closing = rows
+        .filter((row) => ids.includes(row.id) && isOpen(row))
+        .map((row) => ({ id: row.id, next: nextRowOf(row) }));
+      if (closing.length === 0) return;
+      const doneAt = new Date().toISOString();
+      let closed: readonly string[] = [];
+      run(
+        inOrder(closing.map(({ id, next }) => closeRow(id, next, doneAt))),
+        async () => {
+          const response = await sendBulk({
+            action: "done",
+            todos: closing.map(({ id, next }) => ({ id, nextId: next?.id })),
+          });
+          const body = (await response.json()) as { closed: string[] };
+          closed = body.closed;
+        },
+      );
+      showToast({
+        message: copy.doneMany.replace("{count}", String(closing.length)),
+        action: {
+          label: copy.undo,
+          onAction: () => {
+            run(inOrder(closing.map(({ id }) => reopenRow(id))), () =>
+              closed.length === 0
+                ? Promise.resolve()
+                : sendBulk({ action: "reopen", ids: closed }),
+            );
+          },
+        },
+      });
+    },
+    removeMany: (ids) => {
+      const removing = rows.flatMap((row, index) =>
+        ids.includes(row.id) ? [{ row, index }] : [],
+      );
+      if (removing.length === 0) return;
+      const removedIds = removing.map(({ row }) => row.id);
+      run(
+        (list) => list.filter((entry) => !removedIds.includes(entry.id)),
+        () => sendBulk({ action: "delete", ids: removedIds }),
+      );
+      showToast({
+        message: (removing.some(({ row }) => row.repeat && isOpen(row))
+          ? copy.deletedManySeries
+          : copy.deletedMany
+        ).replace("{count}", String(removing.length)),
+        action: {
+          label: copy.undo,
+          onAction: () => {
+            run(
+              (list) =>
+                removing.reduce(
+                  (restored, { row, index }) =>
+                    restored.some((entry) => entry.id === row.id)
+                      ? restored
+                      : restored.toSpliced(index, 0, row),
+                  list,
+                ),
+              () => sendBulk({ action: "restore", ids: removedIds }),
+            );
+          },
+        },
+      });
+    },
+    moveMany: (ids, dueDate) => {
+      const moving = rows.filter((row) => ids.includes(row.id) && isOpen(row));
+      if (moving.length === 0) return;
+      const changes = moving.map(({ id, startDate }) =>
+        datesInOrder({ startDate, dueDate })
+          ? { id, dueDate, ownerSet: true }
+          : {
+              id,
+              dueDate,
+              ownerSet: true,
+              start: { date: null, ownerSet: true },
+            },
+      );
+      const move = dueDatesMove(changes);
+      run(
+        withDueDates(
+          changes.map((change) =>
+            change.start
+              ? { id: change.id, dueDate, startDate: null }
+              : { id: change.id, dueDate },
+          ),
+        ),
+        move.send,
+      );
+      const count = String(moving.length);
+      showToast({
+        message:
+          dueDate === null
+            ? copy.undatedMany.replace("{count}", count)
+            : copy.movedMany
+                .replace("{count}", count)
+                .replace("{date}", formatListDay(dueDate, locale)),
+        action: {
+          label: copy.undo,
+          onAction: () => {
+            run(withDueDates(moving), move.undo);
           },
         },
       });

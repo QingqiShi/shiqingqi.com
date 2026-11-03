@@ -1,5 +1,13 @@
 import { randomUUID } from "node:crypto";
-import { and, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
+import {
+  and,
+  eq,
+  inArray,
+  isNotNull,
+  isNull,
+  sql,
+  TransactionRollbackError,
+} from "drizzle-orm";
 import {
   TODO_EDITABLE_FIELDS,
   todoChecklistItems,
@@ -59,6 +67,8 @@ export interface DueDateChange {
   dueDate: string | null;
   /** Whether the date counts as the owner's. An undo sets this to what it was. */
   ownerSet: boolean;
+  /** A new start date, for a due date that would come before the one the to-do has. */
+  start?: { date: string | null; ownerSet: boolean };
 }
 
 /** `owner_edited_fields` with these fields added. */
@@ -310,6 +320,21 @@ async function restoreTodo(
   return restored.length > 0;
 }
 
+/** The fields with this one in them or out of them. */
+function withOwnerField(
+  fields: readonly TodoEditableField[],
+  field: TodoEditableField,
+  ownerSet: boolean,
+) {
+  const others = fields.filter((other) => other !== field);
+  return ownerSet ? [...others, field] : others;
+}
+
+function textArray(values: readonly string[]) {
+  const items = values.map((value) => sql`${value}`);
+  return sql`array[${sql.join(items, sql`, `)}]::text[]`;
+}
+
 /**
  * Sets the due dates of many to-dos in one transaction, and gives back what
  * they were, for an undo. Nothing changes when the user lacks one of them or
@@ -322,13 +347,7 @@ async function changeDueDates(
 ): Promise<DueDateChange[] | TodoRefusal> {
   const ids = [...new Set(changes.map((change) => change.id))];
   if (ids.length !== changes.length) return "not-found";
-  const rows = sql.join(
-    changes.map(
-      ({ id, dueDate, ownerSet }) =>
-        sql`(${id}::uuid, ${dueDate}::date, ${ownerSet}::boolean)`,
-    ),
-    sql`, `,
-  );
+  const changeOf = new Map(changes.map((change) => [change.id, change]));
   return scope.db.transaction(async (tx) => {
     const earlier = await tx
       .select({
@@ -341,29 +360,186 @@ async function changeDueDates(
       .where(and(ownTodo(scope), inArray(todos.id, ids)))
       .for("update");
     if (earlier.length !== ids.length) return "not-found";
-    const startOf = new Map(earlier.map((row) => [row.id, row.startDate]));
-    const outOfOrder = changes.some(
-      ({ id, dueDate }) =>
-        !datesInOrder({ startDate: startOf.get(id) ?? null, dueDate }),
+    const writes = earlier.flatMap((row) => {
+      const change = changeOf.get(row.id);
+      return change ? [{ row, change }] : [];
+    });
+    const startOf = ({ row, change }: (typeof writes)[number]) =>
+      change.start ? change.start.date : row.startDate;
+    const outOfOrder = writes.some(
+      (write) =>
+        !datesInOrder({
+          startDate: startOf(write),
+          dueDate: write.change.dueDate,
+        }),
     );
     if (outOfOrder) return "start-after-due";
+    const rows = writes.map((write) => {
+      const { row, change } = write;
+      const owned = withOwnerField(
+        row.ownerEditedFields,
+        "dueDate",
+        change.ownerSet,
+      );
+      const fields = change.start
+        ? withOwnerField(owned, "startDate", change.start.ownerSet)
+        : owned;
+      return sql`(${row.id}::uuid, ${change.dueDate}::date, ${startOf(write)}::date, ${textArray(fields)})`;
+    });
     await tx
       .update(todos)
       .set({
         dueDate: sql`changed.due_date`,
-        ownerEditedFields: sql`case when changed.owner_set
-          then ${withOwnerFields(["dueDate"])}
-          else array_remove(${todos.ownerEditedFields}, 'dueDate') end`,
+        startDate: sql`changed.start_date`,
+        ownerEditedFields: sql`changed.fields`,
         updatedAt: now,
       })
-      .from(sql`(values ${rows}) as changed(id, due_date, owner_set)`)
+      .from(
+        sql`(values ${sql.join(rows, sql`, `)}) as changed(id, due_date, start_date, fields)`,
+      )
       .where(and(ownTodo(scope), sql`${todos.id} = changed.id`));
-    return earlier.map(({ id, dueDate, ownerEditedFields }) => ({
-      id,
-      dueDate,
-      ownerSet: ownerEditedFields.includes("dueDate"),
+    return writes.map(({ row, change }) => ({
+      id: row.id,
+      dueDate: row.dueDate,
+      ownerSet: row.ownerEditedFields.includes("dueDate"),
+      ...(change.start
+        ? {
+            start: {
+              date: row.startDate,
+              ownerSet: row.ownerEditedFields.includes("startDate"),
+            },
+          }
+        : {}),
     }));
   });
+}
+
+/** Locks these to-dos for the transaction. */
+function lockTodos(
+  tx: Pick<AssistantDb, "select">,
+  scope: UserScope,
+  ids: readonly string[],
+) {
+  return tx
+    .select({
+      ...occurrenceColumns,
+      doneAt: todos.doneAt,
+      nextTodoId: todos.nextTodoId,
+    })
+    .from(todos)
+    .where(and(ownTodo(scope), inArray(todos.id, [...ids])))
+    .for("update");
+}
+
+/**
+ * Closes many to-dos, all or none, and makes the next occurrence of each one
+ * that repeats. It gives back those that it closed, because one that is done
+ * already must stay done after an undo.
+ */
+async function closeTodos(
+  scope: UserScope,
+  closing: readonly { id: string; nextId?: string }[],
+  now: Date,
+): Promise<string[] | TodoRefusal> {
+  const { timeZone } = await readReportSettings(scope);
+  const nextIdOf = new Map(closing.map(({ id, nextId }) => [id, nextId]));
+  try {
+    return await scope.db.transaction(async (tx) => {
+      const rows = await lockTodos(tx, scope, [...nextIdOf.keys()]);
+      if (rows.length !== closing.length) return "not-found";
+      const open = rows.filter((row) => row.doneAt === null);
+      for (const row of open) {
+        const added = await addNextOccurrence(tx, {
+          userId: scope.userId,
+          closed: row,
+          nextId: nextIdOf.get(row.id) ?? randomUUID(),
+          doneOn: localClock(now, timeZone).date,
+          timeZone,
+          now,
+        });
+        if (!added) tx.rollback();
+      }
+      const closed = open.map((row) => row.id);
+      await tx
+        .update(todos)
+        .set({ doneAt: now, updatedAt: now })
+        .where(and(ownTodo(scope), inArray(todos.id, closed)));
+      return closed;
+    });
+  } catch (error) {
+    if (error instanceof TransactionRollbackError) return "id-taken";
+    throw error;
+  }
+}
+
+/** Opens many to-dos again, all or none, each as `changeTodo` does. False when the user lacks one of them. */
+async function reopenTodos(
+  scope: UserScope,
+  ids: readonly string[],
+  now: Date,
+): Promise<boolean> {
+  return scope.db.transaction(async (tx) => {
+    const rows = await lockTodos(tx, scope, ids);
+    if (rows.length !== ids.length) return false;
+    const closed = rows.filter((row) => row.doneAt !== null);
+    for (const { id, nextTodoId } of closed) {
+      if (nextTodoId === null) continue;
+      await tx
+        .update(todos)
+        .set(await takeBackNextOccurrence(tx, scope, nextTodoId))
+        .where(liveTodo(scope, id));
+    }
+    await tx
+      .update(todos)
+      .set({ doneAt: null, doneReason: null, nextTodoId: null, updatedAt: now })
+      .where(
+        and(
+          ownTodo(scope),
+          inArray(
+            todos.id,
+            closed.map((row) => row.id),
+          ),
+        ),
+      );
+    return true;
+  });
+}
+
+/** Hides many to-dos, all or none. False when the user lacks one of them. */
+async function deleteTodos(
+  scope: UserScope,
+  ids: readonly string[],
+  now: Date,
+): Promise<boolean> {
+  return scope.db.transaction(async (tx) => {
+    const rows = await lockTodos(tx, scope, ids);
+    if (rows.length !== ids.length) return false;
+    await tx
+      .update(todos)
+      .set({ deletedAt: now, updatedAt: now })
+      .where(and(ownTodo(scope), inArray(todos.id, [...ids])));
+    return true;
+  });
+}
+
+/** Brings many deleted to-dos back. False when the user has none of them. */
+async function restoreTodos(
+  { db, userId }: UserScope,
+  ids: readonly string[],
+  now: Date,
+): Promise<boolean> {
+  const restored = await db
+    .update(todos)
+    .set({ deletedAt: null, updatedAt: now })
+    .where(
+      and(
+        eq(todos.userId, userId),
+        inArray(todos.id, [...ids]),
+        isNotNull(todos.deletedAt),
+      ),
+    )
+    .returning({ id: todos.id });
+  return restored.length > 0;
 }
 
 /**
@@ -403,5 +579,9 @@ export const ownerTodos = {
   delete: deleteTodo,
   restore: restoreTodo,
   changeDueDates,
+  closeMany: closeTodos,
+  reopenMany: reopenTodos,
+  deleteMany: deleteTodos,
+  restoreMany: restoreTodos,
   reorder: reorderTodos,
 };
