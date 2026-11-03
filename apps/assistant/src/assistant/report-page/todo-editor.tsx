@@ -10,12 +10,13 @@ import { Textarea } from "@tuja/ui/components/textarea";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
+import { datesInOrder } from "../report/dates-in-order.ts";
 import { todoLimits } from "../report/todo-limits.ts";
 import { OpenMailButton } from "./open-mail-button.tsx";
 import type { TodoItemData } from "./to-todo-item-data.ts";
 import { useTodoStore, type TodoEdit } from "./todo-store-provider.tsx";
 
-export type TodoEditFocus = "title" | "dueDate";
+export type TodoEditFocus = "title" | "dueDate" | "startDate";
 
 function openDatePicker(field: HTMLInputElement) {
   try {
@@ -25,7 +26,61 @@ function openDatePicker(field: HTMLInputElement) {
   }
 }
 
-/** The row of a to-do while its title, detail and due date can change. */
+/** A date, or none. It takes the focus and opens its picker when the menu asked for it. */
+function DateField({
+  label,
+  value,
+  max,
+  error,
+  autoPick,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  max?: string;
+  error?: string;
+  autoPick: boolean;
+  onChange: (value: string) => void;
+}) {
+  const fieldRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const field = fieldRef.current;
+    if (autoPick && field) openDatePicker(field);
+  }, [autoPick]);
+
+  return (
+    <div css={[cluster.tight, styles.dateRow]}>
+      <TextField
+        ref={fieldRef}
+        type="date"
+        label={label}
+        value={value}
+        max={max}
+        error={error}
+        autoFocus={autoPick}
+        css={styles.dateField}
+        onChange={(event) => {
+          onChange(event.target.value);
+        }}
+      />
+      {value ? (
+        <Button
+          type="button"
+          size="sm"
+          look="ghost"
+          onClick={() => {
+            onChange("");
+          }}
+        >
+          {t({ en: "No date", zh: "不设日期" })}
+        </Button>
+      ) : null}
+    </div>
+  );
+}
+
+/** The row of a to-do while its title, detail and dates can change. */
 export function TodoEditor({
   todo,
   focus,
@@ -39,14 +94,14 @@ export function TodoEditor({
   const [title, setTitle] = useState(todo.title);
   const [detail, setDetail] = useState(todo.detail ?? "");
   const [dueDate, setDueDate] = useState(todo.dueDate ?? "");
+  const [startDate, setStartDate] = useState(todo.startDate ?? "");
   const [titleError, setTitleError] = useState("");
-  const dueDateRef = useRef<HTMLInputElement>(null);
+  const [startError, setStartError] = useState("");
   const titleRequired = t({ en: "Give it a title.", zh: "请填写标题。" });
-
-  useEffect(() => {
-    const field = dueDateRef.current;
-    if (focus === "dueDate" && field) openDatePicker(field);
-  }, [focus]);
+  const startAfterDue = t({
+    en: "It cannot start after it is due.",
+    zh: "开始日期不能晚于到期日。",
+  });
 
   function save() {
     const nextTitle = title.trim();
@@ -56,10 +111,16 @@ export function TodoEditor({
     }
     const nextDetail = detail.trim() || null;
     const nextDueDate = dueDate || null;
+    const nextStartDate = startDate || null;
+    if (!datesInOrder({ startDate: nextStartDate, dueDate: nextDueDate })) {
+      setStartError(startAfterDue);
+      return;
+    }
     const change: TodoEdit = {};
     if (nextTitle !== todo.title) change.title = nextTitle;
     if (nextDetail !== todo.detail) change.detail = nextDetail;
     if (nextDueDate !== todo.dueDate) change.dueDate = nextDueDate;
+    if (nextStartDate !== todo.startDate) change.startDate = nextStartDate;
     if (Object.keys(change).length > 0) edit(todo.id, change);
     onClose();
   }
@@ -67,6 +128,7 @@ export function TodoEditor({
   return (
     <li css={listSurface.item}>
       <form
+        noValidate
         css={[listSurface.row, stack.item, styles.form]}
         onSubmit={(event) => {
           event.preventDefault();
@@ -100,31 +162,26 @@ export function TodoEditor({
             setDetail(event.target.value);
           }}
         />
-        <div css={[cluster.tight, styles.dueRow]}>
-          <TextField
-            ref={dueDateRef}
-            type="date"
-            label={t({ en: "Due date", zh: "到期日" })}
-            value={dueDate}
-            autoFocus={focus === "dueDate"}
-            css={styles.dueField}
-            onChange={(event) => {
-              setDueDate(event.target.value);
-            }}
-          />
-          {dueDate ? (
-            <Button
-              type="button"
-              size="sm"
-              look="ghost"
-              onClick={() => {
-                setDueDate("");
-              }}
-            >
-              {t({ en: "No date", zh: "不设日期" })}
-            </Button>
-          ) : null}
-        </div>
+        <DateField
+          label={t({ en: "Due date", zh: "到期日" })}
+          value={dueDate}
+          autoPick={focus === "dueDate"}
+          onChange={(value) => {
+            setDueDate(value);
+            setStartError("");
+          }}
+        />
+        <DateField
+          label={t({ en: "Start date", zh: "开始日期" })}
+          value={startDate}
+          max={dueDate || undefined}
+          error={startError || undefined}
+          autoPick={focus === "startDate"}
+          onChange={(value) => {
+            setStartDate(value);
+            setStartError("");
+          }}
+        />
         <div css={cluster.tight}>
           <Text look="caption" tone="muted">
             {todo.createdBy === "owner"
@@ -163,10 +220,10 @@ const styles = stylex.create({
     alignItems: "stretch",
     paddingBlock: space._3,
   },
-  dueRow: {
+  dateRow: {
     alignItems: "flex-end",
   },
-  dueField: {
+  dateField: {
     inlineSize: "11rem",
   },
   actions: {

@@ -17,6 +17,7 @@ import {
   type SetStateAction,
 } from "react";
 import { assistantFetch } from "../http/assistant-fetch.ts";
+import { datesInOrder } from "../report/dates-in-order.ts";
 import type { DueDateChange, OwnerTodoChange } from "../report/owner-todos.ts";
 import { todoLimits } from "../report/todo-limits.ts";
 import { refreshAfterSave } from "../shell/refresh-after-save.ts";
@@ -63,6 +64,16 @@ function isOverdue(row: TodoItemData, today: string) {
 function patchRow(id: string, patch: Partial<TodoItemData>): TodoOp {
   return (rows) =>
     rows.map((row) => (row.id === id ? { ...row, ...patch } : row));
+}
+
+/** Taking the due date before the start date also takes the start date away. */
+function withStartInOrder(row: TodoItemData | undefined, edit: TodoEdit) {
+  return row &&
+    edit.dueDate &&
+    edit.startDate === undefined &&
+    !datesInOrder({ startDate: row.startDate, dueDate: edit.dueDate })
+    ? { ...edit, startDate: null }
+    : edit;
 }
 
 function withDueDates(
@@ -248,6 +259,7 @@ function Store({
         title,
         detail: null,
         dueDate,
+        startDate: null,
         createdBy: "owner",
         doneAt: null,
         doneReason: null,
@@ -265,10 +277,14 @@ function Store({
       );
     },
     edit: (id, edit) => {
-      run(patchRow(id, edit), () =>
+      const change = withStartInOrder(
+        rows.find((row) => row.id === id),
+        edit,
+      );
+      run(patchRow(id, change), () =>
         assistantFetch(`/api/todos/${id}`, {
           method: "PATCH",
-          body: JSON.stringify(edit),
+          body: JSON.stringify(change),
         }),
       );
     },

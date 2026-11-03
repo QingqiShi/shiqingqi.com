@@ -6,6 +6,7 @@ import {
   type TodoCreator,
 } from "#src/assistant/db/schema.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
+import { startsAfter } from "./dates-in-order.ts";
 import { openMailHref } from "./open-mail-href.ts";
 import { ownTodo, todoSource } from "./own-todo.ts";
 import type {
@@ -23,6 +24,7 @@ export interface TodoView {
   title: string;
   detail: string | null;
   dueDate: string | null;
+  startDate: string | null;
   createdAt: Date;
   createdBy: TodoCreator;
   doneAt: Date | null;
@@ -46,7 +48,7 @@ export interface ReportView {
   content: MorningReportContent;
   needsAction: ReportItemView[];
   worthKnowing: ReportItemView[];
-  /** The to-dos this report made that no line of `needsAction` shows, open first. */
+  /** The to-dos this report made or named that no line of `needsAction` shows, open first. */
   todos: TodoView[];
   /** Today's events; null when the report has no agenda. */
   agenda: AgendaItem[] | null;
@@ -84,6 +86,7 @@ const todoColumns = {
   title: todos.title,
   detail: todos.detail,
   dueDate: todos.dueDate,
+  startDate: todos.startDate,
   createdAt: todos.createdAt,
   createdBy: todos.createdBy,
   doneAt: todos.doneAt,
@@ -104,6 +107,7 @@ function toTodoView(
     title: row.title,
     detail: row.detail,
     dueDate: row.dueDate,
+    startDate: row.startDate,
     createdAt: row.createdAt,
     createdBy: row.createdBy,
     doneAt: row.doneAt,
@@ -116,7 +120,9 @@ function toTodoView(
 /**
  * Turns a report into what the page shows. `created` are the to-dos the
  * report made. `overlay` gives a stored to-do the state the report leaves it
- * in, for a report whose changes are not stored.
+ * in, for a report whose changes are not stored. A line whose to-do starts
+ * after the report's day does not need the owner yet, so that to-do shows with
+ * the report's other to-dos.
  */
 export async function toReportView(
   scope: UserScope,
@@ -147,6 +153,16 @@ export async function toReportView(
       openHref: hrefOf(item.source),
       todo: item.todoId ? (linked.get(item.todoId) ?? null) : null,
     }));
+  const lines = items(content.needsAction);
+  const waits = (todo: TodoView | null) =>
+    todo !== null &&
+    todo.doneAt === null &&
+    startsAfter(todo, report.localDate);
+  const waiting = lines.flatMap(({ todo, openHref }) =>
+    todo && waits(todo)
+      ? [{ ...todo, openHref: todo.openHref ?? openHref }]
+      : [],
+  );
   const closedIds =
     content.version === 2 ? content.doneTodos.map((todo) => todo.id) : [];
   const closedRows = (
@@ -166,11 +182,14 @@ export async function toReportView(
   );
   return {
     ...report,
-    needsAction: items(content.needsAction),
+    needsAction: lines.filter(({ todo }) => !waits(todo)),
     worthKnowing: items(content.worthKnowing),
-    todos: [...created.filter((row) => !linked.has(row.id)), ...reopened]
-      .map((row) => toTodoView(row, hrefOf))
-      .sort((a, b) => Number(a.doneAt !== null) - Number(b.doneAt !== null)),
+    todos: [
+      ...[...created.filter((row) => !linked.has(row.id)), ...reopened].map(
+        (row) => toTodoView(row, hrefOf),
+      ),
+      ...waiting,
+    ].sort((a, b) => Number(a.doneAt !== null) - Number(b.doneAt !== null)),
     agenda: content.version === 2 ? content.agenda : null,
     doneTodos: closedRows
       .filter((row) => row.doneAt !== null)

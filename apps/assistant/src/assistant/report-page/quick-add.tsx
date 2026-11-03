@@ -20,7 +20,11 @@ import { useTodoStore } from "./todo-store-provider.tsx";
  * here for the next one. A date in the text shows as a chip while typing, and
  * dropping the chip keeps the text as it is.
  */
-export function QuickAdd() {
+export function QuickAdd({
+  onAdded,
+}: {
+  onAdded: (todo: { dueDate: string | null; startDate: null }) => void;
+}) {
   const { add, today, locale } = useTodoStore();
   const [text, setText] = useState("");
   const [droppedWords, setDroppedWords] = useState<string | null>(null);
@@ -37,6 +41,7 @@ export function QuickAdd() {
         const typed = text.trim();
         if (typed) {
           add({ title: dueDate ? parsed.title : typed, dueDate });
+          onAdded({ dueDate, startDate: null });
           setText("");
           setDroppedWords(null);
         }

@@ -8,7 +8,8 @@ import {
   guardRequest,
   type RequestGuardDependencies,
 } from "#src/assistant/http/guard-request.ts";
-import { ownerTodos } from "./owner-todos.ts";
+import { datesInOrder } from "./dates-in-order.ts";
+import { ownerTodos, type TodoRefusal } from "./owner-todos.ts";
 import { todoLimits } from "./todo-limits.ts";
 
 const title = z.string().trim().min(1).max(todoLimits.titleChars);
@@ -17,20 +18,24 @@ const detail = z
   .trim()
   .max(todoLimits.detailChars)
   .transform((text) => text || null);
-const dueDate = z.iso.date();
+const localDate = z.iso.date();
 
-const addBody = z.strictObject({
-  id: z.uuid(),
-  title,
-  detail: detail.nullable().default(null),
-  dueDate: dueDate.nullable().default(null),
-});
+const addBody = z
+  .strictObject({
+    id: z.uuid(),
+    title,
+    detail: detail.nullable().default(null),
+    dueDate: localDate.nullable().default(null),
+    startDate: localDate.nullable().default(null),
+  })
+  .refine(datesInOrder);
 const changeBody = z
   .strictObject({
     done: z.boolean().optional(),
     title: title.optional(),
     detail: detail.nullable().optional(),
-    dueDate: dueDate.nullable().optional(),
+    dueDate: localDate.nullable().optional(),
+    startDate: localDate.nullable().optional(),
   })
   .refine((body) => Object.keys(body).length > 0);
 const dueDatesBody = z.strictObject({
@@ -38,7 +43,7 @@ const dueDatesBody = z.strictObject({
     .array(
       z.strictObject({
         id: z.uuid(),
-        dueDate: dueDate.nullable(),
+        dueDate: localDate.nullable(),
         ownerSet: z.boolean(),
       }),
     )
@@ -50,6 +55,10 @@ const invalidBody = () =>
   assistantJson({ error: "invalid-body" }, { status: 400 });
 const notFound = () => assistantJson({ error: "not-found" }, { status: 404 });
 const saved = (found: boolean) => (found ? assistantNoContent() : notFound());
+const refused = (refusal: TodoRefusal) =>
+  refusal === "not-found"
+    ? notFound()
+    : assistantJson({ error: refusal }, { status: 409 });
 
 const isTodoId = (todoId: string) => z.uuid().safeParse(todoId).success;
 
@@ -101,7 +110,8 @@ export function makeTodoHandlers(
         const body = await readBody(request, changeBody);
         if (!body.success) return invalidBody();
         if (!isTodoId(todoId)) return notFound();
-        return saved(await ownerTodos.change(scope, todoId, body.data, now));
+        const refusal = await ownerTodos.change(scope, todoId, body.data, now);
+        return refusal ? refused(refusal) : assistantNoContent();
       }),
 
     delete: onTodo(ownerTodos.delete),
@@ -118,7 +128,9 @@ export function makeTodoHandlers(
           body.data.changes,
           now,
         );
-        return earlier ? assistantJson({ earlier }) : notFound();
+        return typeof earlier === "string"
+          ? refused(earlier)
+          : assistantJson({ earlier });
       }),
   };
 }

@@ -13,6 +13,7 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { use, useState, type ReactNode } from "react";
+import { startsAfter } from "../report/dates-in-order.ts";
 import { daysBetween, formatShortDate } from "./format-day.ts";
 import { OpenMailButton } from "./open-mail-button.tsx";
 import { TodoEditor, type TodoEditFocus } from "./todo-editor.tsx";
@@ -22,17 +23,19 @@ import { TodosReadOnlyContext } from "./todos-read-only.tsx";
 
 function DueBadge({
   dueDate,
+  started,
   today,
   locale,
 }: {
   dueDate: string;
+  started: boolean;
   today: string;
   locale: string;
 }) {
   const days = daysBetween(today, dueDate);
   const date = formatShortDate(dueDate, locale);
   return (
-    <Badge size="sm" intent={days <= 1 ? "warning" : "neutral"}>
+    <Badge size="sm" intent={started && days <= 1 ? "warning" : "neutral"}>
       {days < 0
         ? t({ en: "Overdue since {date}", zh: "{date} 已到期" }).replace(
             "{date}",
@@ -65,6 +68,7 @@ export function TodoItem({
   const todo = rows.find((row) => row.id === id);
   if (!todo) return fallback;
   const done = todo.doneAt !== null;
+  const notStarted = startsAfter(todo, today);
 
   if (editing && !done) {
     return (
@@ -134,7 +138,20 @@ export function TodoItem({
           ) : null}
           <div css={[cluster.inline, styles.meta]}>
             {todo.dueDate !== null && !done ? (
-              <DueBadge dueDate={todo.dueDate} today={today} locale={locale} />
+              <DueBadge
+                dueDate={todo.dueDate}
+                started={!notStarted}
+                today={today}
+                locale={locale}
+              />
+            ) : null}
+            {todo.startDate !== null && notStarted && !done ? (
+              <Badge size="sm" intent="neutral">
+                {t({ en: "Starts {date}", zh: "{date} 开始" }).replace(
+                  "{date}",
+                  formatShortDate(todo.startDate, locale),
+                )}
+              </Badge>
             ) : null}
             {showSource && todo.createdBy === "report" ? (
               <Text look="caption" tone="muted">

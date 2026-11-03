@@ -61,6 +61,111 @@ async function applyChanges(userId: string, changes: TodoChanges) {
 }
 
 describe("the to-do tools", () => {
+  it("refuse a start date after the due date, also of the dates a to-do has", async () => {
+    const userId = await insertUser(db);
+    await db.insert(todos).values([
+      { userId, title: "Pay", dueDate: "2026-11-10" },
+      {
+        userId,
+        title: "Renew",
+        dueDate: "2026-11-20",
+        startDate: "2026-11-15",
+        ownerEditedFields: ["startDate"],
+      },
+    ]);
+    const openTodos = await readOpenTodos({ db, userId });
+    const pay = `t${String(openTodos.findIndex((todo) => todo.title === "Pay") + 1)}`;
+    const renew = `t${String(openTodos.findIndex((todo) => todo.title === "Renew") + 1)}`;
+    const { tools, changes } = createTodoTools({
+      openTodos,
+      deletedTodos: [],
+      sourceOf: () => ({ accountId: "a", messageId: "<m@x>" }),
+      receivedAtOf: () => NOW,
+    });
+    const refusal = async (name: string, input: Record<string, unknown>) =>
+      JSON.stringify(await callAgentTool(tools[name], input));
+
+    expect(
+      await refusal("add_todo", {
+        title: "Sign",
+        dueDate: "2026-11-05",
+        startDate: "2026-11-06",
+      }),
+    ).toContain("cannot be after");
+    expect(
+      await refusal("update_todo", { todo: pay, startDate: "2026-11-11" }),
+    ).toContain("after its due date");
+    expect(
+      await refusal("update_todo", { todo: renew, dueDate: "2026-11-14" }),
+    ).toContain("after its due date");
+    expect(
+      await refusal("update_todo", { todo: renew, startDate: null }),
+    ).toContain("The owner set startDate");
+    expect(changes).toEqual({ added: [], done: [], updated: [] });
+
+    await callAgentTool(tools.update_todo, {
+      todo: pay,
+      startDate: "2026-11-08",
+    });
+    expect(changes.updated).toEqual([
+      {
+        id: openTodos[openTodos.findIndex((todo) => todo.title === "Pay")].id,
+        edit: { startDate: "2026-11-08" },
+      },
+    ]);
+  });
+
+  it("leave the dates as they are when the owner's new date no longer fits the run's", async () => {
+    const userId = await insertUser(db);
+    const [row] = await db
+      .insert(todos)
+      .values({ userId, title: "Pay", dueDate: "2026-11-20" })
+      .returning();
+
+    // The run saw a due date of the 20th. The owner moves it to the 5th.
+    await db
+      .update(todos)
+      .set({ dueDate: "2026-11-05", ownerEditedFields: ["dueDate"] })
+      .where(eq(todos.id, row.id));
+    await applyChanges(userId, {
+      added: [],
+      done: [],
+      updated: [
+        { id: row.id, edit: { title: "Pay it", startDate: "2026-11-08" } },
+      ],
+    });
+
+    const [after] = await db.select().from(todos).where(eq(todos.id, row.id));
+    expect(after).toMatchObject({
+      title: "Pay it",
+      dueDate: "2026-11-05",
+      startDate: null,
+    });
+  });
+
+  it("apply a start date and a due date from separate edits in order", async () => {
+    const userId = await insertUser(db);
+    const [row] = await db
+      .insert(todos)
+      .values({ userId, title: "Pay", dueDate: "2026-11-05" })
+      .returning();
+
+    await applyChanges(userId, {
+      added: [],
+      done: [],
+      updated: [
+        { id: row.id, edit: { dueDate: "2026-11-20" } },
+        { id: row.id, edit: { startDate: "2026-11-10" } },
+      ],
+    });
+
+    const [after] = await db.select().from(todos).where(eq(todos.id, row.id));
+    expect(after).toMatchObject({
+      dueDate: "2026-11-20",
+      startDate: "2026-11-10",
+    });
+  });
+
   it("know only the user's open to-dos, and write only the user's rows", async () => {
     const owner = await insertUser(db);
     const stranger = await insertUser(db);

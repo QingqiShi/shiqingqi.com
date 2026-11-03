@@ -7,6 +7,7 @@ export interface TodoItemData {
   title: string;
   detail: string | null;
   dueDate: string | null;
+  startDate: string | null;
   createdBy: TodoCreator;
   /** ISO time; null while open. */
   doneAt: string | null;
@@ -29,6 +30,7 @@ export function toTodoItemData(
     title: todo.title,
     detail: todo.detail,
     dueDate: todo.dueDate,
+    startDate: todo.startDate,
     createdBy: todo.createdBy,
     doneAt: todo.doneAt?.toISOString() ?? null,
     doneReason: todo.doneReason,

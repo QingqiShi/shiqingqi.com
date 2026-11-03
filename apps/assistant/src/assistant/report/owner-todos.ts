@@ -5,6 +5,7 @@ import {
   type TodoEditableField,
 } from "#src/assistant/db/schema.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
+import { datesInOrder } from "./dates-in-order.ts";
 import { ownTodo } from "./own-todo.ts";
 
 interface NewOwnerTodo {
@@ -13,6 +14,7 @@ interface NewOwnerTodo {
   title: string;
   detail: string | null;
   dueDate: string | null;
+  startDate: string | null;
 }
 
 export interface OwnerTodoChange {
@@ -20,7 +22,11 @@ export interface OwnerTodoChange {
   title?: string;
   detail?: string | null;
   dueDate?: string | null;
+  startDate?: string | null;
 }
+
+/** Why a change of an existing to-do did not happen. */
+export type TodoRefusal = "not-found" | "start-after-due";
 
 /** The date of one to-do, for a change of many in one request. */
 export interface DueDateChange {
@@ -68,35 +74,46 @@ async function addTodo(
   return added.length > 0;
 }
 
-/** Changes a to-do of the owner's. False when the user has no such to-do. */
+/** Changes a to-do of the owner's, or says why it did not. */
 async function changeTodo(
   scope: UserScope,
   todoId: string,
   change: OwnerTodoChange,
   now: Date,
-): Promise<boolean> {
+): Promise<TodoRefusal | null> {
   const { done, ...edit } = change;
   const fields = TODO_EDITABLE_FIELDS.filter(
     (field) => change[field] !== undefined,
   );
-  const updated = await scope.db
-    .update(todos)
-    .set({
-      ...edit,
-      ...(fields.length > 0
-        ? { ownerEditedFields: withOwnerFields(fields) }
-        : {}),
-      ...(done === true
-        ? {
-            doneAt: sql`coalesce(${todos.doneAt}, ${now.toISOString()}::timestamptz)`,
-          }
-        : {}),
-      ...(done === false ? { doneAt: null, doneReason: null } : {}),
-      updatedAt: now,
-    })
-    .where(liveTodo(scope, todoId))
-    .returning({ id: todos.id });
-  return updated.length > 0;
+  return scope.db.transaction(async (tx) => {
+    const row = (
+      await tx
+        .select({ startDate: todos.startDate, dueDate: todos.dueDate })
+        .from(todos)
+        .where(liveTodo(scope, todoId))
+        .for("update")
+    ).at(0);
+    if (!row) return "not-found";
+    const { startDate = row.startDate, dueDate = row.dueDate } = edit;
+    if (!datesInOrder({ startDate, dueDate })) return "start-after-due";
+    await tx
+      .update(todos)
+      .set({
+        ...edit,
+        ...(fields.length > 0
+          ? { ownerEditedFields: withOwnerFields(fields) }
+          : {}),
+        ...(done === true
+          ? {
+              doneAt: sql`coalesce(${todos.doneAt}, ${now.toISOString()}::timestamptz)`,
+            }
+          : {}),
+        ...(done === false ? { doneAt: null, doneReason: null } : {}),
+        updatedAt: now,
+      })
+      .where(liveTodo(scope, todoId));
+    return null;
+  });
 }
 
 /** Hides a to-do of the owner's. False when the user has no such to-do. */
@@ -135,16 +152,16 @@ async function restoreTodo(
 
 /**
  * Sets the due dates of many to-dos in one transaction, and gives back what
- * they were, for an undo. Null, and nothing changes, when the user lacks one
- * of them.
+ * they were, for an undo. Nothing changes when the user lacks one of them or
+ * one would start after its new date.
  */
 async function changeDueDates(
   scope: UserScope,
   changes: readonly DueDateChange[],
   now: Date,
-): Promise<DueDateChange[] | null> {
+): Promise<DueDateChange[] | TodoRefusal> {
   const ids = [...new Set(changes.map((change) => change.id))];
-  if (ids.length !== changes.length) return null;
+  if (ids.length !== changes.length) return "not-found";
   const rows = sql.join(
     changes.map(
       ({ id, dueDate, ownerSet }) =>
@@ -157,12 +174,19 @@ async function changeDueDates(
       .select({
         id: todos.id,
         dueDate: todos.dueDate,
+        startDate: todos.startDate,
         ownerEditedFields: todos.ownerEditedFields,
       })
       .from(todos)
       .where(and(ownTodo(scope), inArray(todos.id, ids)))
       .for("update");
-    if (earlier.length !== ids.length) return null;
+    if (earlier.length !== ids.length) return "not-found";
+    const startOf = new Map(earlier.map((row) => [row.id, row.startDate]));
+    const outOfOrder = changes.some(
+      ({ id, dueDate }) =>
+        !datesInOrder({ startDate: startOf.get(id) ?? null, dueDate }),
+    );
+    if (outOfOrder) return "start-after-due";
     await tx
       .update(todos)
       .set({
