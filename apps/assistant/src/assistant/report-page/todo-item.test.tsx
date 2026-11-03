@@ -32,6 +32,8 @@ function page(
     detail: null,
     dueDate: null,
     startDate: null,
+    repeat: null,
+    nextId: null,
     createdBy: "owner",
     doneAt: null,
     doneReason: null,

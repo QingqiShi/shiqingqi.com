@@ -57,6 +57,8 @@ export async function readReportPreview(
     detail: todo.detail,
     dueDate: todo.dueDate,
     startDate: todo.startDate,
+    repeat: null,
+    nextTodoId: null,
     createdAt: builtAt,
     createdBy: "report",
     doneAt: null,
@@ -70,6 +72,7 @@ export async function readReportPreview(
     edits.set(id, { ...edits.get(id), ...edit });
   }
   const closed = new Map(changes.done.map(({ id, reason }) => [id, reason]));
+  const closedForGood = changes.done.filter(({ repeats }) => !repeats).length;
   const [report, openNow] = await Promise.all([
     toReportView(
       scope,
@@ -88,6 +91,6 @@ export async function readReportPreview(
     status: "done",
     builtAt,
     report,
-    openTodos: Math.max(0, openNow + created.length - closed.size),
+    openTodos: Math.max(0, openNow + created.length - closedForGood),
   };
 }

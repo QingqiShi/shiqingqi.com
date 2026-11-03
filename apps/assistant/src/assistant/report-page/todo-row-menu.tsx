@@ -19,6 +19,7 @@ import { mergeRefs } from "@tuja/ui/utils/merge-refs";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { datesInOrder } from "../report/dates-in-order.ts";
 import { addDays } from "../report/local-day-bounds.ts";
+import { nextOccurrenceDates } from "../report/next-occurrence.ts";
 import { formatListDay } from "./format-day.ts";
 import { viewOfTodo } from "./group-open-todos.ts";
 import { nextWeekStart } from "./parse-todo-date.ts";
@@ -93,7 +94,7 @@ function TodoRowActions({
   close: () => void;
   onEdit: (field: TodoEditFocus) => void;
 }) {
-  const { edit, remove, today, locale } = useTodoStore();
+  const { edit, remove, skipOccurrence, today, locale } = useTodoStore();
   const showToast = useToast();
   const closeThen = (action: () => void) => () => {
     close();
@@ -154,13 +155,27 @@ function TodoRowActions({
           >
             {t({ en: "Pick a date…", zh: "选择日期…" })}
           </MenuAction>
-          {todo.dueDate !== null ? (
+          {todo.dueDate !== null &&
+          (todo.repeat === null || todo.repeat.kind === "after-done") ? (
             <MenuAction
               onClick={closeThen(() => {
                 edit(todo.id, { dueDate: null });
               })}
             >
               {t({ en: "No date", zh: "不设日期" })}
+            </MenuAction>
+          ) : null}
+          {todo.repeat ? (
+            <MenuAction
+              trailing={formatListDay(
+                nextOccurrenceDates(todo.repeat, todo, today).dueDate,
+                locale,
+              )}
+              onClick={closeThen(() => {
+                skipOccurrence(todo.id);
+              })}
+            >
+              {t({ en: "Skip this one", zh: "跳过这一次" })}
             </MenuAction>
           ) : null}
           {startDates.length > 0 ? (
@@ -202,6 +217,13 @@ function TodoRowActions({
               ) : null}
             </>
           ) : null}
+          <MenuAction
+            onClick={closeThen(() => {
+              onEdit("repeat");
+            })}
+          >
+            {t({ en: "Repeat…", zh: "重复…" })}
+          </MenuAction>
           <MenuAction
             onClick={closeThen(() => {
               onEdit("title");

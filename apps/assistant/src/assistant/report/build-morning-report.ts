@@ -240,7 +240,10 @@ export function reportContent({
         accountId: account.id,
         address: account.address,
       })),
-    doneTodos: (report ? agent?.todoChanges.done : undefined) ?? [],
+    doneTodos:
+      (report ? agent?.todoChanges.done : undefined)?.map(
+        ({ id, title, reason }) => ({ id, title, reason }),
+      ) ?? [],
   };
 }
 
@@ -341,6 +344,7 @@ export async function buildMorningReport(
           userId,
           reportId: row.id,
           now: builtAt,
+          today: localDate,
           changes,
         });
       }

@@ -20,6 +20,31 @@ const detail = z
   .transform((text) => text || null);
 const localDate = z.iso.date();
 
+const interval = z.int().min(1).max(todoLimits.repeatInterval);
+const repeatRule = z.discriminatedUnion("kind", [
+  z.strictObject({ kind: z.literal("daily"), every: interval }),
+  z.strictObject({
+    kind: z.literal("weekly"),
+    every: interval,
+    weekdays: z
+      .array(z.int().min(1).max(7))
+      .min(1)
+      .refine((days) => days.every((day, i) => i === 0 || day > days[i - 1])),
+  }),
+  z.strictObject({
+    kind: z.literal("monthly"),
+    every: interval,
+    day: z.union([z.int().min(1).max(31), z.literal("last")]),
+  }),
+  z.strictObject({
+    kind: z.literal("yearly"),
+    every: interval,
+    month: z.int().min(1).max(12),
+    day: z.int().min(1).max(31),
+  }),
+  z.strictObject({ kind: z.literal("after-done"), days: interval }),
+]);
+
 const addBody = z
   .strictObject({
     id: z.uuid(),
@@ -36,8 +61,16 @@ const changeBody = z
     detail: detail.nullable().optional(),
     dueDate: localDate.nullable().optional(),
     startDate: localDate.nullable().optional(),
+    repeat: repeatRule.nullable().optional(),
+    nextId: z.uuid().optional(),
   })
   .refine((body) => Object.keys(body).length > 0);
+const occurrenceBody = z
+  .strictObject({
+    dueDate: localDate.nullable(),
+    startDate: localDate.nullable(),
+  })
+  .refine(datesInOrder);
 const dueDatesBody = z.strictObject({
   changes: z
     .array(
@@ -119,6 +152,17 @@ export function makeTodoHandlers(
         if (!isTodoId(todoId)) return notFound();
         const refusal = await ownerTodos.change(scope, todoId, body.data, now);
         return refusal ? refused(refusal) : assistantNoContent();
+      }),
+
+    /** Skips an occurrence of a repeating to-do, or undoes that. */
+    moveOccurrence: (request: Request, todoId: string) =>
+      withSession(request, async (scope, now) => {
+        const body = await readBody(request, occurrenceBody);
+        if (!body.success) return invalidBody();
+        if (!isTodoId(todoId)) return notFound();
+        return saved(
+          await ownerTodos.moveOccurrence(scope, todoId, body.data, now),
+        );
       }),
 
     delete: onTodo(ownerTodos.delete),

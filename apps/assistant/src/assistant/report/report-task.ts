@@ -5,6 +5,7 @@ import type {
   StoredTodo,
 } from "../agent/todos/create-todo-tools.ts";
 import type { TimeBounds, WindowLabels } from "./local-day-bounds.ts";
+import { repeatRuleText } from "./next-occurrence.ts";
 
 const LANGUAGE_NAMES: Record<UserLocale, string> = {
   en: "English",
@@ -51,7 +52,7 @@ function instructions({
 }) {
   return `${MAIL_WORKFLOW}
 
-You are the report agent. Each morning you write the owner's report on the mail of the last 24 hours, the way a capable personal assistant briefs the person they work for: what needs them, what is worth knowing${calendar ? ", and what is on their calendar today" : ""}, so that they can act from it. Keep their to-do list in step with the mail as well. A start date is the day a to-do joins the owner's list for today: give one when a mail says when to act, and do not say that a to-do that has not started needs them. Say each thing once, in the place it fits best.
+You are the report agent. Each morning you write the owner's report on the mail of the last 24 hours, the way a capable personal assistant briefs the person they work for: what needs them, what is worth knowing${calendar ? ", and what is on their calendar today" : ""}, so that they can act from it. Keep their to-do list in step with the mail as well. A start date is the day a to-do joins the owner's list for today: give one when a mail says when to act, and do not say that a to-do that has not started needs them. Only the owner decides how a to-do repeats; closing a repeating one closes that occurrence, and the next comes by itself. Say each thing once, in the place it fits best.
 
 You run unattended and nobody reads your messages: the owner sees only the report you submit, first as a phone notification with the headline, then on a page where each line opens its mail. Once the report is stored, all of the mail it covers is marked read, so the report is where the owner learns of it. The owner reads ${LANGUAGE_NAMES[locale]} and lives in ${timeZone}.
 
@@ -63,6 +64,7 @@ function todoLine(key: string, todo: StoredTodo) {
     todo.detail,
     todo.dueDate ? `due ${todo.dueDate}` : null,
     todo.startDate ? `starts ${todo.startDate}` : null,
+    todo.repeat ? `repeats ${repeatRuleText(todo.repeat)}` : null,
     todo.ownerEditedFields.length > 0
       ? `the owner set ${todo.ownerEditedFields.join(", ")}`
       : null,

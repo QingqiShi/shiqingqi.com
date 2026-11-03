@@ -55,6 +55,7 @@ async function applyChanges(userId: string, changes: TodoChanges) {
       userId,
       reportId: report.id,
       now: NOW,
+      today: NOW.toISOString().slice(0, 10),
       changes,
     }),
   );
@@ -322,6 +323,86 @@ describe("the to-do tools", () => {
       doneAt: NOW,
       doneReason: "Sent.",
     });
+  });
+
+  it("close one occurrence of a repeating to-do, and cannot set or end its rule", async () => {
+    const userId = await insertUser(db);
+    const rule = { kind: "weekly", every: 1, weekdays: [1] } as const;
+    const [bill] = await db
+      .insert(todos)
+      .values({
+        userId,
+        title: "Pay",
+        dueDate: "2026-11-02",
+        repeat: rule,
+        ownerEditedFields: ["dueDate"],
+      })
+      .returning();
+    const { tools, changes } = createTodoTools({
+      openTodos: await readOpenTodos({ db, userId }),
+      deletedTodos: [],
+      sourceOf: () => ({ accountId: "a", messageId: "<m@x>" }),
+      receivedAtOf: () => NOW,
+    });
+
+    expect(await callAgentTool(tools.list_todos, {})).toMatchObject({
+      todos: [{ todo: "t1", repeats: "every week on Monday" }],
+    });
+    expect(
+      JSON.stringify(
+        await callAgentTool(tools.update_todo, {
+          todo: "t1",
+          repeat: { kind: "daily", every: 1 },
+        }),
+      ),
+    ).toContain("at least one field");
+
+    await callAgentTool(tools.complete_todo, { todo: "t1", reason: "Paid." });
+    expect(
+      JSON.stringify(await callAgentTool(tools.add_todo, { title: "pay" })),
+    ).toContain("comes by itself");
+
+    await applyChanges(userId, changes);
+
+    const rows = await db.select().from(todos).where(eq(todos.userId, userId));
+    expect(rows).toHaveLength(2);
+    const next = rows.find((row) => row.id !== bill.id);
+    expect(next).toMatchObject({
+      title: "Pay",
+      dueDate: "2026-11-09",
+      repeat: rule,
+      doneAt: null,
+      ownerEditedFields: ["dueDate"],
+    });
+    expect(rows.find((row) => row.id === bill.id)).toMatchObject({
+      doneReason: "Paid.",
+      nextTodoId: next?.id,
+    });
+  });
+
+  it("make no next occurrence of a to-do that the owner closed during the run", async () => {
+    const userId = await insertUser(db);
+    const [bill] = await db
+      .insert(todos)
+      .values({
+        userId,
+        title: "Pay",
+        dueDate: "2026-11-02",
+        repeat: { kind: "daily", every: 1 },
+      })
+      .returning();
+    const { tools, changes } = createTodoTools({
+      openTodos: await readOpenTodos({ db, userId }),
+      deletedTodos: [],
+      sourceOf: () => ({ accountId: "a", messageId: "<m@x>" }),
+      receivedAtOf: () => NOW,
+    });
+    await callAgentTool(tools.complete_todo, { todo: "t1", reason: "Paid." });
+    await db.update(todos).set({ doneAt: NOW }).where(eq(todos.id, bill.id));
+
+    await applyChanges(userId, changes);
+
+    expect(await db.$count(todos, eq(todos.userId, userId))).toBe(1);
   });
 
   describe("with a to-do the owner deleted", () => {
