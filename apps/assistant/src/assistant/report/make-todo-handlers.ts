@@ -138,6 +138,15 @@ const bulkBody = z.discriminatedUnion("action", [
   z.strictObject({ action: z.literal("reopen"), ids: bulkIds }),
   z.strictObject({ action: z.literal("delete"), ids: bulkIds }),
   z.strictObject({ action: z.literal("restore"), ids: bulkIds }),
+  z.strictObject({
+    action: z.literal("reject"),
+    ids: bulkIds,
+    note: z
+      .string()
+      .trim()
+      .max(todoLimits.rejectionNoteChars)
+      .transform((text) => text || null),
+  }),
 ]);
 const orderBody = z.strictObject({
   ids: z
@@ -263,6 +272,8 @@ export function makeTodoHandlers(
 
     restore: onTodo(ownerTodos.restore),
 
+    removeRejection: onTodo(ownerTodos.removeRejection),
+
     /** Sets the due dates of many to-dos, all or none, and answers with what they were. */
     changeDueDates: (request: Request) =>
       withSession(request, async (scope, now) => {
@@ -278,7 +289,7 @@ export function makeTodoHandlers(
           : assistantJson({ earlier });
       }),
 
-    /** Closes or deletes many to-dos, or undoes that, in one transaction. */
+    /** Closes or deletes many to-dos, undoes that, or says that the report should not have added them, in one transaction. */
     bulk: (request: Request) =>
       withSession(request, async (scope, now) => {
         const body = await readBody(request, bulkBody);
@@ -297,6 +308,10 @@ export function makeTodoHandlers(
             return saved(await ownerTodos.deleteMany(scope, data.ids, now));
           case "restore":
             return saved(await ownerTodos.restoreMany(scope, data.ids, now));
+          case "reject":
+            return saved(
+              await ownerTodos.rejectMany(scope, data.ids, data.note, now),
+            );
         }
       }),
 

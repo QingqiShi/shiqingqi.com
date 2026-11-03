@@ -416,6 +416,9 @@ async function deleteTodo(
   return deleted.length > 0;
 }
 
+/** A to-do that comes back no longer teaches the report anything. */
+const notDeleted = { deletedAt: null, rejectedAt: null, rejectionNote: null };
+
 /** Brings a deleted to-do back. False when the user has no such deleted to-do. */
 async function restoreTodo(
   { db, userId }: UserScope,
@@ -424,7 +427,7 @@ async function restoreTodo(
 ): Promise<boolean> {
   const restored = await db
     .update(todos)
-    .set({ deletedAt: null, updatedAt: now })
+    .set({ ...notDeleted, updatedAt: now })
     .where(
       and(
         eq(todos.userId, userId),
@@ -646,7 +649,7 @@ async function restoreTodos(
 ): Promise<boolean> {
   const restored = await db
     .update(todos)
-    .set({ deletedAt: null, updatedAt: now })
+    .set({ ...notDeleted, updatedAt: now })
     .where(
       and(
         eq(todos.userId, userId),
@@ -656,6 +659,57 @@ async function restoreTodos(
     )
     .returning({ id: todos.id });
   return restored.length > 0;
+}
+
+/**
+ * Says that the report should not have added these deleted to-dos, all or none.
+ * False when one of them is not a deleted to-do of the report's.
+ */
+async function rejectTodos(
+  { db, userId }: UserScope,
+  ids: readonly string[],
+  note: string | null,
+  now: Date,
+): Promise<boolean> {
+  return db.transaction(async (tx) => {
+    const rejectable = and(
+      eq(todos.userId, userId),
+      inArray(todos.id, [...ids]),
+      isNotNull(todos.deletedAt),
+      eq(todos.createdBy, "report"),
+    );
+    const rows = await tx
+      .select({ id: todos.id })
+      .from(todos)
+      .where(rejectable)
+      .for("update");
+    if (rows.length !== ids.length) return false;
+    await tx
+      .update(todos)
+      .set({ rejectedAt: now, rejectionNote: note, updatedAt: now })
+      .where(rejectable);
+    return true;
+  });
+}
+
+/** Takes a rejection away, and the to-do stays deleted. False when the user has no such rejection. */
+async function removeRejection(
+  { db, userId }: UserScope,
+  todoId: string,
+  now: Date,
+): Promise<boolean> {
+  const removed = await db
+    .update(todos)
+    .set({ rejectedAt: null, rejectionNote: null, updatedAt: now })
+    .where(
+      and(
+        eq(todos.userId, userId),
+        eq(todos.id, todoId),
+        isNotNull(todos.rejectedAt),
+      ),
+    )
+    .returning({ id: todos.id });
+  return removed.length > 0;
 }
 
 /**
@@ -701,5 +755,7 @@ export const ownerTodos = {
   reopenMany: reopenTodos,
   deleteMany: deleteTodos,
   restoreMany: restoreTodos,
+  rejectMany: rejectTodos,
+  removeRejection,
   reorder: reorderTodos,
 };

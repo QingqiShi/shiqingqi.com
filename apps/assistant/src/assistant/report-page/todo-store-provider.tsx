@@ -3,7 +3,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
-import { ToastProvider, useToast } from "@tuja/ui/components/toast-provider";
+import {
+  ToastProvider,
+  useToast,
+  type ToastOptions,
+} from "@tuja/ui/components/toast-provider";
 import { toastTokens } from "@tuja/ui/components/toast.stylex";
 import { useRouter } from "next/navigation";
 import {
@@ -35,6 +39,7 @@ import { todoLimits } from "../report/todo-limits.ts";
 import { refreshAfterSave } from "../shell/refresh-after-save.ts";
 import { formatListDay } from "./format-day.ts";
 import { groupOf, viewOfTodo } from "./group-open-todos.ts";
+import { RejectTodosSheet } from "./reject-todos-sheet.tsx";
 import { isOpen, type TodoItemData } from "./to-todo-item-data.ts";
 
 export type TodoEdit = Omit<OwnerTodoChange, "done" | "nextId">;
@@ -374,6 +379,10 @@ function Store({
     createOpRunner(setPending, setConfirmed, setSavedAt),
   );
   const lastSaveRef = useRef<Promise<unknown> | null>(null);
+  const [rejecting, setRejecting] = useState<{
+    rows: TodoRows;
+    deletedToast: ToastOptions;
+  } | null>(null);
 
   useEffect(
     () => () => {
@@ -425,6 +434,14 @@ function Store({
       zh: "已跳过。下一次在 {date}",
     }),
     deleted: t({ en: "Deleted", zh: "已删除" }),
+    shouldNotBeAdded: t({
+      en: "Should not have been added",
+      zh: "不该添加",
+    }),
+    rejected: t({
+      en: "Noted. The report will leave out this kind of to-do",
+      zh: "记下了，晨报不会再添加这类待办",
+    }),
     waitingOn: t({ en: "Waiting on {who}", zh: "正在等待：{who}" }),
     waitingOnUpcoming: t({
       en: "Waiting on {who}. It is in Upcoming now",
@@ -463,6 +480,24 @@ function Store({
   }
 
   const rows = pending.reduce<TodoRows>((list, { op }) => op(list), confirmed);
+
+  function showDeleted(removed: TodoRows, message: string, undo: () => void) {
+    const fromReport = removed.filter((row) => row.createdBy === "report");
+    const deletedToast: ToastOptions = {
+      message,
+      action: { label: copy.undo, onAction: undo },
+      secondAction:
+        fromReport.length === 0
+          ? undefined
+          : {
+              label: copy.shouldNotBeAdded,
+              onAction: () => {
+                setRejecting({ rows: fromReport, deletedToast });
+              },
+            },
+    };
+    showToast(deletedToast);
+  }
 
   function sendTodoChange(id: string, op: TodoOp, change: OwnerTodoChange) {
     run(op, () =>
@@ -636,22 +671,20 @@ function Store({
         (list) => list.filter((entry) => entry.id !== id),
         () => assistantFetch(`/api/todos/${id}`, { method: "DELETE" }),
       );
-      showToast({
-        message: row.repeat && isOpen(row) ? copy.deletedSeries : copy.deleted,
-        action: {
-          label: copy.undo,
-          onAction: () => {
-            run(
-              (list) =>
-                list.some((entry) => entry.id === id)
-                  ? list
-                  : list.toSpliced(index, 0, row),
-              () =>
-                assistantFetch(`/api/todos/${id}/restore`, { method: "POST" }),
-            );
-          },
+      showDeleted(
+        [row],
+        row.repeat && isOpen(row) ? copy.deletedSeries : copy.deleted,
+        () => {
+          run(
+            (list) =>
+              list.some((entry) => entry.id === id)
+                ? list
+                : list.toSpliced(index, 0, row),
+            () =>
+              assistantFetch(`/api/todos/${id}/restore`, { method: "POST" }),
+          );
         },
-      });
+      );
     },
     setWaiting: (id, change) => {
       const row = rows.find((entry) => entry.id === id);
@@ -749,28 +782,26 @@ function Store({
         (list) => list.filter((entry) => !removedIds.includes(entry.id)),
         () => sendBulk({ action: "delete", ids: removedIds }),
       );
-      showToast({
-        message: (removing.some(({ row }) => row.repeat && isOpen(row))
+      showDeleted(
+        removing.map(({ row }) => row),
+        (removing.some(({ row }) => row.repeat && isOpen(row))
           ? copy.deletedManySeries
           : copy.deletedMany
         ).replace("{count}", String(removing.length)),
-        action: {
-          label: copy.undo,
-          onAction: () => {
-            run(
-              (list) =>
-                removing.reduce(
-                  (restored, { row, index }) =>
-                    restored.some((entry) => entry.id === row.id)
-                      ? restored
-                      : restored.toSpliced(index, 0, row),
-                  list,
-                ),
-              () => sendBulk({ action: "restore", ids: removedIds }),
-            );
-          },
+        () => {
+          run(
+            (list) =>
+              removing.reduce(
+                (restored, { row, index }) =>
+                  restored.some((entry) => entry.id === row.id)
+                    ? restored
+                    : restored.toSpliced(index, 0, row),
+                list,
+              ),
+            () => sendBulk({ action: "restore", ids: removedIds }),
+          );
         },
-      });
+      );
     },
     moveMany: (ids, dueDate) => {
       const moving = rows.filter((row) => ids.includes(row.id) && isOpen(row));
@@ -891,7 +922,32 @@ function Store({
     },
   };
 
-  return <TodoStoreContext value={store}>{children}</TodoStoreContext>;
+  return (
+    <TodoStoreContext value={store}>
+      {children}
+      <RejectTodosSheet
+        rows={rejecting?.rows ?? null}
+        onSave={(note) => {
+          if (!rejecting) return;
+          const ids = rejecting.rows.map((row) => row.id);
+          setRejecting(null);
+          run(
+            (list) => list,
+            () => sendBulk({ action: "reject", ids, note }),
+          );
+          showToast({
+            message: copy.rejected,
+            action: rejecting.deletedToast.action,
+          });
+        }}
+        onCancel={() => {
+          if (!rejecting) return;
+          setRejecting(null);
+          showToast(rejecting.deletedToast);
+        }}
+      />
+    </TodoStoreContext>
+  );
 }
 
 /**

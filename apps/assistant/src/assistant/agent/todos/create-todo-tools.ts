@@ -39,6 +39,8 @@ const MAX_TITLE_CHARS = 120;
 const MAX_TEXT_CHARS = 400;
 const DELETED_DAYS = 30;
 const MAX_DELETED_TODOS = 100;
+const REJECTION_DAYS = 90;
+const MAX_REJECTED_TODOS = 50;
 
 export interface StoredTodo {
   id: string;
@@ -65,6 +67,15 @@ export interface DeletedTodo {
   title: string;
   source: MailSource | null;
   deletedAt: Date;
+}
+
+/** A to-do that the owner said should not have been added: the agent does not add its kind again. */
+export interface RejectedTodo {
+  id: string;
+  title: string;
+  /** Why, in the owner's words. */
+  note: string | null;
+  source: MailSource | null;
 }
 
 interface NewTodo {
@@ -140,7 +151,7 @@ export function readOpenTodos(scope: UserScope): Promise<StoredTodo[]> {
     .orderBy(asc(todos.createdAt), asc(todos.title));
 }
 
-/** The to-dos the user deleted in the last days, newest first. */
+/** The to-dos the user deleted in the last days and did not reject, newest first. */
 export async function readDeletedTodos(
   { db, userId }: UserScope,
   now: Date,
@@ -158,6 +169,7 @@ export async function readDeletedTodos(
       and(
         eq(todos.userId, userId),
         isNotNull(todos.deletedAt),
+        isNull(todos.rejectedAt),
         gt(
           todos.deletedAt,
           new Date(now.getTime() - DELETED_DAYS * 86_400_000),
@@ -169,6 +181,39 @@ export async function readDeletedTodos(
   return rows.flatMap(({ deletedAt, id, title, ...row }) =>
     deletedAt ? [{ id, title, deletedAt, source: todoSource(row) }] : [],
   );
+}
+
+/** The to-dos the user said should not have been added, in the last days, newest first. */
+export async function readRejectedTodos(
+  { db, userId }: UserScope,
+  now: Date,
+): Promise<RejectedTodo[]> {
+  const rows = await db
+    .select({
+      id: todos.id,
+      title: todos.title,
+      note: todos.rejectionNote,
+      sourceAccountId: todos.sourceAccountId,
+      sourceMessageId: todos.sourceMessageId,
+    })
+    .from(todos)
+    .where(
+      and(
+        eq(todos.userId, userId),
+        gt(
+          todos.rejectedAt,
+          new Date(now.getTime() - REJECTION_DAYS * 86_400_000),
+        ),
+      ),
+    )
+    .orderBy(desc(todos.rejectedAt))
+    .limit(MAX_REJECTED_TODOS);
+  return rows.map(({ id, title, note, ...row }) => ({
+    id,
+    title,
+    note,
+    source: todoSource(row),
+  }));
 }
 
 function sameMail(a: MailSource, b: MailSource) {
@@ -192,6 +237,23 @@ const startDate = z.iso
   );
 const reason = z.string().trim().min(1).max(MAX_TEXT_CHARS);
 const mailId = z.string().describe('The id of the mail, such as "m12".');
+
+function refuseRejected(
+  rejected: readonly RejectedTodo[],
+  title: string,
+  mail: MailSource | null,
+) {
+  const same = rejected.find(
+    (todo) =>
+      normal(todo.title) === normal(title) ||
+      (mail && todo.source && sameMail(todo.source, mail)),
+  );
+  if (same) {
+    throw new ToolRefusal(
+      `The owner said that "${same.title}" should not have been added. Do not add it again. If this mail needs them all the same, say so in the report.`,
+    );
+  }
+}
 
 /**
  * Refuses a to-do that the owner deleted, and gives the id of the deleted
@@ -249,6 +311,7 @@ function deletedTodoToBringBack(
 export function createTodoTools({
   openTodos,
   deletedTodos,
+  rejectedTodos,
   sourceOf,
   receivedAtOf,
   limits = TODO_TOOL_LIMITS,
@@ -257,6 +320,8 @@ export function createTodoTools({
   openTodos: readonly StoredTodo[];
   /** The to-dos the user deleted lately. */
   deletedTodos: readonly DeletedTodo[];
+  /** The to-dos the user said should not have been added. */
+  rejectedTodos: readonly RejectedTodo[];
   /** The mail of a run id such as `m12`; a refusal for an id the run does not know. */
   sourceOf: (mailId: string) => MailSource;
   /** When the mail of a run id came. */
@@ -429,6 +494,7 @@ export function createTodoTools({
                 source: sourceOf(input.mail),
                 receivedAt: receivedAtOf(input.mail),
               };
+        refuseRejected(rejectedTodos, input.title, mail?.source ?? null);
         const reAddsTodoId = deletedTodoToBringBack(deleted, input, mail);
         const todo: NewTodo = {
           id: randomUUID(),
