@@ -13,13 +13,14 @@ import { useState } from "react";
 import { DayHeader } from "../shell/day-header.tsx";
 import {
   groupOpenTodos,
+  orderRuns,
   viewOfTodo,
   type TodoBoardView,
   type TodoGroupKey,
 } from "./group-open-todos.ts";
 import { QuickAdd } from "./quick-add.tsx";
+import { SortableTodoList } from "./sortable-todo-list.tsx";
 import { isOpen } from "./to-todo-item-data.ts";
-import { TodoList } from "./todo-list.tsx";
 import { useTodoStore } from "./todo-store-provider.tsx";
 
 /** The input and the open to-dos of the store: a view of them, by when they matter. */
@@ -113,7 +114,7 @@ export function OpenTodoGroups({ headingLevel }: { headingLevel: 2 | 3 }) {
           >
             {groupTitles[group.key]}
           </DayHeader>
-          <TodoList ids={group.todos.map((todo) => todo.id)} showSource />
+          <SortableTodoList runs={orderRuns(group)} />
         </section>
       ))}
     </>

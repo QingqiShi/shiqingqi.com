@@ -7,6 +7,7 @@ import {
 import type { UserScope } from "#src/assistant/db/types.ts";
 import { datesInOrder } from "./dates-in-order.ts";
 import { ownTodo } from "./own-todo.ts";
+import { rearrange } from "./rearrange.ts";
 
 interface NewOwnerTodo {
   /** Made by the page, so that it can show the row and change it before the row is stored. */
@@ -206,6 +207,38 @@ async function changeDueDates(
   });
 }
 
+/**
+ * Puts the listed to-dos in the listed order, in the positions that they hold,
+ * so that every other to-do keeps its own. A row that is gone or is someone
+ * else's counts for nothing.
+ */
+async function reorderTodos(
+  scope: UserScope,
+  ids: readonly string[],
+  now: Date,
+): Promise<void> {
+  await scope.db.transaction(async (tx) => {
+    const rows = await tx
+      .select({ id: todos.id, position: todos.position })
+      .from(todos)
+      .where(and(ownTodo(scope), inArray(todos.id, [...ids])))
+      .for("update");
+    if (rows.length < 2) return;
+    // A row that waited for its lock can have a new position, and the order of
+    // the query does not show this. Thus sort after the lock.
+    const byPosition = rows.toSorted((a, b) => a.position - b.position);
+    const places = rearrange(byPosition, ids).map(
+      ({ id }, index) =>
+        sql`(${id}::uuid, ${byPosition[index].position}::integer)`,
+    );
+    await tx
+      .update(todos)
+      .set({ position: sql`placed.position`, updatedAt: now })
+      .from(sql`(values ${sql.join(places, sql`, `)}) as placed(id, position)`)
+      .where(and(ownTodo(scope), sql`${todos.id} = placed.id`));
+  });
+}
+
 /** What the owner can write in their to-dos. Each takes the user from the session. */
 export const ownerTodos = {
   add: addTodo,
@@ -213,4 +246,5 @@ export const ownerTodos = {
   delete: deleteTodo,
   restore: restoreTodo,
   changeDueDates,
+  reorder: reorderTodos,
 };

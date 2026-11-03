@@ -12,12 +12,13 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { use, useState, type ReactNode } from "react";
+import type { StyleProp } from "@tuja/ui/types";
+import { use, useState, type ReactNode, type Ref } from "react";
 import { startsAfter } from "../report/dates-in-order.ts";
 import { daysBetween, formatShortDate } from "./format-day.ts";
 import { OpenMailButton } from "./open-mail-button.tsx";
 import { TodoEditor, type TodoEditFocus } from "./todo-editor.tsx";
-import { TodoRowMenu } from "./todo-row-menu.tsx";
+import { TodoRowMenu, type TodoMoves } from "./todo-row-menu.tsx";
 import { useTodoStore } from "./todo-store-provider.tsx";
 import { TodosReadOnlyContext } from "./todos-read-only.tsx";
 
@@ -48,6 +49,15 @@ function DueBadge({
   );
 }
 
+/** What a list that the owner can put in order gives each of its rows. */
+export interface TodoItemSortable {
+  itemRef: Ref<HTMLLIElement>;
+  itemCss: StyleProp;
+  /** Where a pointer picks the row up. */
+  handle: ReactNode;
+  moves: TodoMoves;
+}
+
 /**
  * One to-do: a box to tick it off, its title, which opens its editor in place,
  * and a menu for all else. It shows `fallback` once the to-do is deleted.
@@ -56,11 +66,13 @@ export function TodoItem({
   id,
   showSource = false,
   fallback = null,
+  sortable,
 }: {
   id: string;
   /** Say that the morning report added it. The report's own page does not need to. */
   showSource?: boolean;
   fallback?: ReactNode;
+  sortable?: TodoItemSortable;
 }) {
   const readOnly = use(TodosReadOnlyContext);
   const { rows, today, locale, setDone } = useTodoStore();
@@ -75,6 +87,7 @@ export function TodoItem({
       <TodoEditor
         todo={todo}
         focus={editing}
+        sortable={sortable}
         onClose={() => {
           setEditing(null);
         }}
@@ -83,7 +96,7 @@ export function TodoItem({
   }
 
   return (
-    <li css={listSurface.item}>
+    <li ref={sortable?.itemRef} css={[listSurface.item, sortable?.itemCss]}>
       <div css={[listSurface.row, styles.row]}>
         {/* A tap around the box counts as a tap on the box, because a hidden
             label leaves it too small for a finger. */}
@@ -179,7 +192,14 @@ export function TodoItem({
         </div>
         <div css={styles.actions}>
           {todo.openHref ? <OpenMailButton href={todo.openHref} /> : null}
-          {readOnly ? null : <TodoRowMenu todo={todo} onEdit={setEditing} />}
+          {sortable?.handle}
+          {readOnly ? null : (
+            <TodoRowMenu
+              todo={todo}
+              moves={sortable?.moves}
+              onEdit={setEditing}
+            />
+          )}
         </div>
       </div>
     </li>

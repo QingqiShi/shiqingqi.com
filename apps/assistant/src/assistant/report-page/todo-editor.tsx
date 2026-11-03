@@ -14,6 +14,7 @@ import { datesInOrder } from "../report/dates-in-order.ts";
 import { todoLimits } from "../report/todo-limits.ts";
 import { OpenMailButton } from "./open-mail-button.tsx";
 import type { TodoItemData } from "./to-todo-item-data.ts";
+import type { TodoItemSortable } from "./todo-item.tsx";
 import { useTodoStore, type TodoEdit } from "./todo-store-provider.tsx";
 
 export type TodoEditFocus = "title" | "dueDate" | "startDate";
@@ -84,10 +85,12 @@ function DateField({
 export function TodoEditor({
   todo,
   focus,
+  sortable,
   onClose,
 }: {
   todo: TodoItemData;
   focus: TodoEditFocus;
+  sortable?: TodoItemSortable;
   onClose: () => void;
 }) {
   const { edit, remove } = useTodoStore();
@@ -126,7 +129,7 @@ export function TodoEditor({
   }
 
   return (
-    <li css={listSurface.item}>
+    <li ref={sortable?.itemRef} css={[listSurface.item, sortable?.itemCss]}>
       <form
         noValidate
         css={[listSurface.row, stack.item, styles.form]}

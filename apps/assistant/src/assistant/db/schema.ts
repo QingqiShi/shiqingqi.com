@@ -7,6 +7,7 @@ import {
   customType,
   date,
   index,
+  integer,
   jsonb,
   pgTable,
   smallint,
@@ -203,6 +204,8 @@ export const todos = pgTable(
     dueDate: date("due_date", { mode: "string" }),
     /** The day it joins the owner's list for today, before its due date does. */
     startDate: date("start_date", { mode: "string" }),
+    /** Where the owner put it in the list. A new row takes the next value, so it goes last. */
+    position: integer("position").notNull().generatedByDefaultAsIdentity(),
     sourceAccountId: uuid("source_account_id").references(
       () => mailAccounts.id,
       { onDelete: "set null" },

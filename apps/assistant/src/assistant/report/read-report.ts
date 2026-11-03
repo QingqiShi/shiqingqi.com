@@ -242,16 +242,16 @@ async function readOpenTodos(
     .select(todoColumns)
     .from(todos)
     .where(and(ownTodo(scope), isNull(todos.doneAt)))
-    .orderBy(desc(todos.createdAt), todos.title);
+    .orderBy(todos.position);
   return rows.map((row) => toTodoView(row, hrefOf));
 }
 
-/** Every open to-do, newest first. */
+/** Every open to-do, in the owner's order. */
 export async function listOpenTodos(scope: UserScope) {
   return readOpenTodos(scope, await hrefMaker(scope));
 }
 
-/** Every open to-do, newest first, and the latest done ones. */
+/** Every open to-do, in the owner's order, and the latest done ones. */
 export async function listTodos(scope: UserScope) {
   const hrefOf = await hrefMaker(scope);
   const open = await readOpenTodos(scope, hrefOf);

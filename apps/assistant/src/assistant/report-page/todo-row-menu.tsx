@@ -15,7 +15,8 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { useState, type ReactNode } from "react";
+import { mergeRefs } from "@tuja/ui/utils/merge-refs";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { datesInOrder } from "../report/dates-in-order.ts";
 import { addDays } from "../report/local-day-bounds.ts";
 import { formatListDay } from "./format-day.ts";
@@ -72,13 +73,23 @@ function MenuCaption({ children }: { children: string }) {
   );
 }
 
+/** How a to-do can move in its list. Each is null where it has no neighbour on that side. */
+export interface TodoMoves {
+  up: (() => void) | null;
+  down: (() => void) | null;
+}
+
 /** The actions of an open menu. A closed menu does not format its dates. */
 function TodoRowActions({
   todo,
+  up,
+  down,
   close,
   onEdit,
 }: {
   todo: TodoItemData;
+  up: (() => void) | null;
+  down: (() => void) | null;
   close: () => void;
   onEdit: (field: TodoEditFocus) => void;
 }) {
@@ -111,6 +122,16 @@ function TodoRowActions({
 
   return (
     <div css={[stack.rows, styles.menu]}>
+      {up ? (
+        <MenuAction onClick={closeThen(up)}>
+          {t({ en: "Move up", zh: "上移" })}
+        </MenuAction>
+      ) : null}
+      {down ? (
+        <MenuAction onClick={closeThen(down)}>
+          {t({ en: "Move down", zh: "下移" })}
+        </MenuAction>
+      ) : null}
       {isOpen(todo) ? (
         <>
           <MenuCaption>{t({ en: "Due", zh: "到期" })}</MenuCaption>
@@ -202,17 +223,38 @@ function TodoRowActions({
   );
 }
 
-/** What a row can do besides ticking it off: reschedule it, edit it and delete it. */
+/** What a row can do besides ticking it off: move it, reschedule it, edit it and delete it. */
 export function TodoRowMenu({
   todo,
+  moves,
   onEdit,
 }: {
   todo: TodoItemData;
+  moves?: TodoMoves;
   /** Opens the row's editor, on the given field. */
   onEdit: (field: TodoEditFocus) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const movedRef = useRef(false);
   const moreActions = t({ en: "More actions", zh: "更多操作" });
+
+  // The popover gives focus back to its button. Then React can move the row in
+  // the DOM, and a moved element loses focus. Thus give focus again after the move.
+  useEffect(() => {
+    if (!open && movedRef.current) {
+      movedRef.current = false;
+      triggerRef.current?.focus();
+    }
+  }, [open]);
+
+  const noteMove = (move: (() => void) | null | undefined) =>
+    move
+      ? () => {
+          movedRef.current = true;
+          move();
+        }
+      : null;
 
   return (
     <Popover
@@ -223,6 +265,7 @@ export function TodoRowMenu({
       trigger={(triggerProps) => (
         <Button
           {...triggerProps}
+          ref={mergeRefs(triggerProps.ref, triggerRef)}
           size="sm"
           look="ghost"
           icon={<DotsThreeIcon weight="bold" />}
@@ -232,6 +275,8 @@ export function TodoRowMenu({
     >
       <TodoRowActions
         todo={todo}
+        up={noteMove(moves?.up)}
+        down={noteMove(moves?.down)}
         close={() => {
           setOpen(false);
         }}
