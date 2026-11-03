@@ -15,6 +15,10 @@ describe("safeNextPath", () => {
   it.each([
     ["/digest", "/digest"],
     ["/?x=1", "/?x=1"],
+    [
+      "/todos?url=https%3A%2F%2Fa.example%2Fb",
+      "/todos?url=https%3A%2F%2Fa.example%2Fb",
+    ],
     ["reports", "/"],
     ["//evil.example/digest", "/"],
     ["https://evil.example", "/"],

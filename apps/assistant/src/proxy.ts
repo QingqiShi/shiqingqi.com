@@ -83,9 +83,15 @@ const CRON_PATH_PREFIX = "/api/cron/";
 // cookie instead.
 const OAUTH_CALLBACK_PATH = /^\/api\/connect\/[a-z]+\/callback$/;
 
+// An iOS Shortcut sends no Referer. The handler checks the capture token
+// instead, and that token can only add a to-do. This is one exact path, because
+// a wider pattern can let session routes through.
+const CAPTURE_PATH = "/api/todos/capture";
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (
+    pathname === CAPTURE_PATH ||
     pathname.startsWith(CRON_PATH_PREFIX) ||
     OAUTH_CALLBACK_PATH.test(pathname)
   ) {

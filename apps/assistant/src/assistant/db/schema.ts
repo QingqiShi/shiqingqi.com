@@ -345,6 +345,27 @@ export const todoChecklistItems = pgTable(
   (t) => [primaryKey({ columns: [t.todoId, t.id] })],
 );
 
+/**
+ * A token that lets a client without a session add a to-do, such as an iOS
+ * Shortcut. The client holds `<id>.<secret>`, and the row keeps only the hash of
+ * the secret. `window_started_at` and `window_count` are its rate limit.
+ */
+export const captureTokens = pgTable(
+  "capture_tokens",
+  {
+    id: uuid("id").primaryKey(),
+    userId: userId(),
+    tokenHash: bytea("token_hash").notNull(),
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+    windowStartedAt: timestamp("window_started_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    windowCount: integer("window_count").notNull().default(0),
+    createdAt: createdAt(),
+  },
+  (t) => [index("capture_tokens_user_idx").on(t.userId)],
+);
+
 /** One device that gets the morning report notification and to-do reminders. */
 export const pushSubscriptions = pgTable(
   "push_subscriptions",
@@ -502,6 +523,7 @@ export const schema = {
   users,
   passkeys,
   sessions,
+  captureTokens,
   userSettings,
   mailAccounts,
   pushSubscriptions,

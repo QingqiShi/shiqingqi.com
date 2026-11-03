@@ -1,6 +1,7 @@
 "use client";
 
 import type { Icon } from "@phosphor-icons/react";
+import { DeviceMobileIcon } from "@phosphor-icons/react/dist/ssr/DeviceMobile";
 import { EnvelopeSimpleIcon } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";
 import { NewspaperIcon } from "@phosphor-icons/react/dist/ssr/Newspaper";
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
@@ -24,6 +25,7 @@ const ICONS: Record<SettingsSection, Icon> = {
   report: NewspaperIcon,
   organise: SparkleIcon,
   mailboxes: EnvelopeSimpleIcon,
+  capture: DeviceMobileIcon,
 };
 
 /**
@@ -37,6 +39,7 @@ export function SettingsMenu({ current }: { current: SettingsSection | null }) {
     report: t({ en: "Report and notifications", zh: "晨报与通知" }),
     organise: t({ en: "Organise", zh: "整理" }),
     mailboxes: t({ en: "Mailboxes", zh: "邮箱" }),
+    capture: t({ en: "Add from your phone", zh: "从手机添加" }),
   };
   const items = SETTINGS_SECTIONS.map((section) => ({
     section,

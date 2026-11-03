@@ -11,7 +11,7 @@ import { AssistantFrame } from "../shell/assistant-frame.tsx";
 // apps go to review.
 export const CONTACT_ADDRESS = "[TODO: contact address]";
 
-export const LAST_UPDATED = "2026-11-02";
+export const LAST_UPDATED = "2026-11-03";
 
 /** A public page of plain prose: the privacy policy or the terms. */
 export function LegalPage({

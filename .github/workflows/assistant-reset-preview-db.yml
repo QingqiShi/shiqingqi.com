@@ -28,10 +28,10 @@ jobs:
           cs_database: neondb
       # Production and previews use the same ASSISTANT_CREDENTIAL_KEY and VAPID
       # keys. Thus a preview can open the real mailboxes with the copied logins
-      # and push to the real devices.
-      - name: Delete production sign-in sessions, mailbox logins and push subscriptions
+      # and push to the real devices. A copied capture token would work on a preview.
+      - name: Delete production sign-in sessions, capture tokens, mailbox logins and push subscriptions
         env:
           DATABASE_URL: ${{ steps.reset.outputs.db_url }}
         run: |
           echo "::add-mask::$DATABASE_URL"
-          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c 'delete from sessions; delete from mail_accounts; delete from push_subscriptions;'
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c 'delete from sessions; delete from capture_tokens; delete from mail_accounts; delete from push_subscriptions;'

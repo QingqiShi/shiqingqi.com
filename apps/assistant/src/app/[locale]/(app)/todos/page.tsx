@@ -7,9 +7,12 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
+import { safeNextPath } from "#src/assistant/auth/sign-in-path.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
+import { ASSISTANT_PATH_HEADER } from "#src/assistant/http/constants.ts";
 import { localClock } from "#src/assistant/report/due-report-date.ts";
 import { readReportSettings } from "#src/assistant/report/read-report-settings.ts";
 import {
@@ -19,6 +22,7 @@ import {
 } from "#src/assistant/report/read-report.ts";
 import { hasCalendarAccount } from "#src/assistant/report/todo-calendar-slots.ts";
 import { todoLimits } from "#src/assistant/report/todo-limits.ts";
+import { sharedTodoText } from "#src/assistant/report-page/shared-todo-text.ts";
 import { toTodoItemData } from "#src/assistant/report-page/to-todo-item-data.ts";
 import { TodoBoard } from "#src/assistant/report-page/todo-board.tsx";
 import { TodoSearchBox } from "#src/assistant/report-page/todo-search-box.tsx";
@@ -50,9 +54,15 @@ export default async function Page({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const locale = validateLocale((await params).locale);
-  const session = await requirePageSession(locale, "/todos");
+  // Next renders the layout and this page at the same time, so this redirect can
+  // come first. It must also keep what another app shared.
+  const session = await requirePageSession(
+    locale,
+    safeNextPath((await headers()).get(ASSISTANT_PATH_HEADER)),
+  );
   const scope = { db: getAssistantDb(), userId: session.userId };
-  const query = queryOf((await searchParams).q);
+  const { q, title, text, url } = await searchParams;
+  const query = queryOf(q);
   const renderedAt = new Date().getTime();
   const [{ todos, hasMore }, settings, openCount, hasCalendar] =
     await Promise.all([
@@ -86,7 +96,11 @@ export default async function Page({
           hasCalendar={hasCalendar}
           renderedAt={renderedAt}
         >
-          {query === "" ? <TodoBoard /> : <TodoSearchResults />}
+          {query === "" ? (
+            <TodoBoard sharedText={sharedTodoText({ title, text, url })} />
+          ) : (
+            <TodoSearchResults />
+          )}
         </TodoStoreProvider>
       </div>
     </AssistantPageColumn>

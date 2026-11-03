@@ -13,7 +13,7 @@ import { TodoSelectionArea } from "./todo-selection-area.tsx";
 import { useTodoStore } from "./todo-store-provider.tsx";
 
 /** The input, the open to-dos of a view by when they matter, the last ones done, and the way to the rest. */
-export function TodoBoard() {
+export function TodoBoard({ sharedText }: { sharedText: string }) {
   const { rows } = useTodoStore();
   const locale = useLocale();
   const done = rows
@@ -22,7 +22,7 @@ export function TodoBoard() {
 
   return (
     <TodoSelectionArea canAdd canSearch>
-      <OpenTodoGroups headingLevel={2} />
+      <OpenTodoGroups headingLevel={2} sharedText={sharedText} />
       {done.length > 0 ? (
         <section css={stack.tight}>
           <DayHeader

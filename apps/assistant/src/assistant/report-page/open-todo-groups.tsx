@@ -26,7 +26,13 @@ import { TodoListTools, useTodoSelection } from "./todo-selection-area.tsx";
 import { useTodoStore } from "./todo-store-provider.tsx";
 
 /** The input and the open to-dos of the store: a view of them, by when they matter. */
-export function OpenTodoGroups({ headingLevel }: { headingLevel: 2 | 3 }) {
+export function OpenTodoGroups({
+  headingLevel,
+  sharedText,
+}: {
+  headingLevel: 2 | 3;
+  sharedText?: string;
+}) {
   const { rows, today, moveOverdueToToday } = useTodoStore();
   const showToast = useToast();
   const selection = useTodoSelection();
@@ -70,6 +76,7 @@ export function OpenTodoGroups({ headingLevel }: { headingLevel: 2 | 3 }) {
         </Text>
       ) : null}
       <QuickAdd
+        sharedText={sharedText}
         onAdded={(todo) => {
           const landed = viewOfTodo(todo, today);
           if (landed !== view) {
