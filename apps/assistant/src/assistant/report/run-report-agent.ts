@@ -8,6 +8,10 @@ import {
 } from "#src/assistant/agent/agent-tool.ts";
 import { createCalendarTools } from "#src/assistant/agent/calendar/create-calendar-tools.ts";
 import { EventHandles } from "#src/assistant/agent/calendar/event-handles.ts";
+import {
+  readDayEvents,
+  withinTime,
+} from "#src/assistant/agent/calendar/read-day-events.ts";
 import type { RunCalendars } from "#src/assistant/agent/calendar/run-calendars.ts";
 import { sourceMailOf } from "#src/assistant/agent/calendar/source-mail-of.ts";
 import {
@@ -50,6 +54,8 @@ import type { AgendaItem, MailSource, ReportItem } from "./types.ts";
 const MAX_STEPS = 100;
 const MAX_LINE_CHARS = 400;
 const MAX_ITEMS = 30;
+/** The function has about 150 s left after a run that takes all its time, for this read, the store and the mail. */
+const CALENDAR_READ_MS = 30_000;
 const SUBMIT = "submit_report";
 const MARK_READ_BATCH = 100;
 const LIST_PAGE = MAIL_TOOL_LIMITS.listPage;
@@ -59,14 +65,16 @@ export interface SubmittedReport {
   needsAction: ReportItem[];
   worthKnowing: ReportItem[];
   rest: string | null;
-  /** Null when the run had no calendar. */
-  agenda: AgendaItem[] | null;
 }
 
 export interface ReportAgentResult {
   run: AgentRunResult;
   /** Null when the agent did not submit a report. */
   report: SubmittedReport | null;
+  /** The events of the report's day as they are after the run, with the agent's notes. Null when the run has no calendar or could not read it. */
+  agenda: AgendaItem[] | null;
+  /** True when the run has a calendar and its read failed or took too long. */
+  calendarUnread: boolean;
   todoChanges: TodoChanges;
   calendarChanges: number;
   /** The mails of the window in the folders the report covers, each Message-ID once; no earlier mail that the report also covers. */
@@ -123,14 +131,47 @@ function upFront(tool: AgentTool, loadUpFront: boolean): AgentTool {
 }
 
 /**
+ * The agenda of a report. A calendar that fails or does not answer in time
+ * must not cost the report, so this logs the error and gives a null agenda
+ * that the report marks as unread.
+ */
+async function readReportAgenda(
+  calendars: RunCalendars,
+  day: string,
+  timeZone: string,
+  notes: ReadonlyMap<string, string>,
+): Promise<{ agenda: AgendaItem[] | null; unread: boolean }> {
+  if (!calendars.hasAccounts) return { agenda: null, unread: false };
+  try {
+    const events = await withinTime(
+      readDayEvents(calendars, day, timeZone),
+      CALENDAR_READ_MS,
+    );
+    const agenda = agendaItems(
+      events.map((event) => ({ ...event, note: notes.get(event.key) ?? null })),
+      timeZone,
+    );
+    return { agenda, unread: false };
+  } catch (error) {
+    console.error(
+      "Reading the report's calendar failed",
+      error instanceof Error ? error.message : String(error),
+    );
+    return { agenda: null, unread: true };
+  }
+}
+
+/**
  * Runs the report agent over mailboxes and calendars that are open: it
- * lists and reads the window's mail, looks at today's calendar, changes the
- * to-dos in memory and submits the report. It also changes the
- * calendar at once, with an action row for each change, unless the calendars
- * are read-only. Before the run, code lists the mail from each account's
- * `mailStart` up to the window's end in every folder the report covers, so the
- * prompt can say how much each holds and `markWindowMailRead` reaches all of it. No report or to-do is stored here,
- * and no mail changes until `markWindowMailRead`.
+ * lists and reads the window's mail, changes the to-dos in memory and submits
+ * the report. It also changes the calendar at once, with an action row for
+ * each change, unless the calendars are read-only. Before the run, code lists
+ * the mail from each account's `mailStart` up to the window's end in every
+ * folder the report covers, so the prompt can say how much each holds and
+ * `markWindowMailRead` reaches all of it. After the run, code reads the events
+ * of `today`, so the agenda shows them whatever the agent did, with the agent's
+ * own changes. No report or to-do is stored here, and no mail changes until
+ * `markWindowMailRead`.
  */
 export async function runReportAgent(
   {
@@ -173,6 +214,8 @@ export async function runReportAgent(
   },
 ): Promise<ReportAgentResult> {
   const handles = new MailHandles();
+  const eventHandles = new EventHandles();
+  let eventNotes: ReadonlyMap<string, string> = new Map();
   const made: { calendar: ReturnType<typeof createCalendarTools> | null } = {
     calendar: null,
   };
@@ -240,7 +283,7 @@ export async function runReportAgent(
     loadUpFront: true,
     inputSchema: z.object({
       headline: line.describe(
-        "The most important thing for the owner to know, in one sentence. The push notification shows it.",
+        "The most important thing for the owner to know today, in one sentence. The push notification shows it.",
       ),
       needsAction: z
         .array(actionItem)
@@ -250,9 +293,9 @@ export async function runReportAgent(
         .array(item)
         .max(MAX_ITEMS)
         .describe(
-          "Other things the owner should know. Leave out anything already in the agenda, needsAction or a to-do.",
+          "Other things the owner should know. Leave out anything already in today's calendar, needsAction or a to-do.",
         ),
-      agenda: z
+      eventNotes: z
         .array(
           z.object({
             event: z
@@ -260,16 +303,14 @@ export async function runReportAgent(
               .describe(
                 'An event id from list_events or create_event, such as "e3".',
               ),
-            note: line
-              .optional()
-              .describe(
-                "What a mail changes or adds to this event, if anything.",
-              ),
+            note: line.describe("What a mail changes or adds to this event."),
           }),
         )
         .max(MAX_ITEMS)
         .optional()
-        .describe("Today's events."),
+        .describe(
+          "Notes on today's events, for those a mail changes or adds to.",
+        ),
       rest: z
         .string()
         .trim()
@@ -285,15 +326,12 @@ export async function runReportAgent(
           text: entry.text,
           source: sourceOrNull(entry.mail),
         }));
-      const agenda = calendars.hasAccounts
-        ? agendaItems(
-            (input.agenda ?? []).flatMap(({ event, note }) => {
-              const found = made.calendar?.view(event);
-              return found && !found.cancelled ? [{ ...found, note }] : [];
-            }),
-            timeZone,
-          )
-        : null;
+      const notes = new Map<string, string>();
+      for (const { event, note } of input.eventNotes ?? []) {
+        const key = eventHandles.keyOfId(event);
+        if (key) notes.set(key, note);
+      }
+      eventNotes = notes;
       submitted = {
         headline: input.headline,
         needsAction: input.needsAction.map((entry) => {
@@ -309,7 +347,6 @@ export async function runReportAgent(
           (entry) => !entry.source || !todo.closedBy(entry.source),
         ),
         rest: input.rest || null,
-        agenda,
       };
       return Promise.resolve({ submitted: true });
     },
@@ -334,7 +371,6 @@ export async function runReportAgent(
         deletedTodos,
         rejectedTodos,
         undoneTodoChanges,
-        minutes: Math.max(1, Math.floor((endsAt - now().getTime()) / 60_000)),
       }),
       maxSteps: MAX_STEPS,
       finish: { tool: SUBMIT, done: () => submitted !== null },
@@ -363,7 +399,7 @@ export async function runReportAgent(
         if (!calendars.hasAccounts) return tools;
         const calendar = createCalendarTools({
           calendars,
-          handles: new EventHandles(),
+          handles: eventHandles,
           timeZone,
           sourceMail: (id) => sourceMailOf(mailboxes, handles, id),
           run: context,
@@ -380,6 +416,12 @@ export async function runReportAgent(
     },
   );
 
+  const { agenda, unread: calendarUnread } = await readReportAgenda(
+    calendars,
+    today,
+    timeZone,
+    eventNotes,
+  );
   const listed = handles.listed();
   const windowMail = listed.filter(([, ref]) =>
     isInBounds(ref.receivedAt, mailWindow),
@@ -391,6 +433,8 @@ export async function runReportAgent(
   return {
     run,
     report: submitted,
+    agenda,
+    calendarUnread,
     todoChanges: todo.changes,
     calendarChanges: made.calendar
       ? made.calendar.stats.createdEvents +

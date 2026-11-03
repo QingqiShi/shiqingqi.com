@@ -248,7 +248,8 @@ export function reportContent({
     needsAction: report?.needsAction ?? [],
     worthKnowing: report?.worthKnowing ?? [],
     rest: report?.rest ?? null,
-    agenda: report?.agenda ?? null,
+    agenda: agent?.agenda ?? null,
+    ...(agent?.calendarUnread ? { calendarUnread: true } : {}),
     mailCount: agent?.mailCount ?? 0,
     ranOutOfTime: agent?.run.forcedFinish ?? false,
     unreadMailboxes: accounts
@@ -271,17 +272,17 @@ export function reportContent({
 }
 
 /**
- * Builds the user's morning report when one is due (see `dueReportDate`):
- * the report agent reads the mail of the report's window and today's
- * calendar, and submits the report; the report and the agent's to-do changes
- * are stored in one transaction. Only then is the mail of that window marked
- * read. The agent's calendar changes happen during its run and stay, whatever
- * the run stores. A mailbox that cannot be read does not delay the report: the report
- * says so, and the next report that can read the mailbox also covers the mail
- * it missed. Returns null when none is due, the user has no mailbox, or
- * another run stored the day first. Returns "retry" and stores nothing when
- * no mailbox can be read or the agent submits no report,
- * until the last try of the day. The mail is never stored.
+ * Builds the user's morning report when one is due (see `dueReportDate`).
+ * The report agent reads the mail of the report's window and submits the
+ * report, and code reads the day's calendar. The report and the agent's
+ * to-do changes are stored in one transaction. Only then is the mail of that
+ * window marked read. The agent's calendar changes happen during its run and
+ * stay, whatever the run stores. A mailbox that cannot be read does not delay
+ * the report: the report says so, and the next report that can read the
+ * mailbox also covers the mail it missed. Returns null when none is due, the
+ * user has no mailbox, or another run stored the day first. Returns "retry"
+ * and stores nothing when no mailbox can be read or the agent submits no
+ * report, until the last try of the day. The mail is never stored.
  */
 export async function buildMorningReport(
   {

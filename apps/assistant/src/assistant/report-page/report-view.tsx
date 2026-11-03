@@ -156,6 +156,14 @@ function Notes({
           </Anchor>
         </Callout>
       ) : null}
+      {content.version === 2 && content.calendarUnread ? (
+        <Callout intent="warning">
+          {t({
+            en: "Today's calendar could not be read.",
+            zh: "今天的日程没有读到。",
+          })}
+        </Callout>
+      ) : null}
       {notes.map((note) => (
         <Text key={note} as="p" look="bodySmall" tone="muted">
           {note}
