@@ -9,6 +9,30 @@ const dated = (dueDate: string | null, startDate: string | null = null) => ({
 });
 
 describe("groupOpenTodos", () => {
+  it("keeps what waits in its own group of Upcoming until its follow-up date, whatever its dates", () => {
+    const waits = (followUpDate: string | null) => ({
+      ...dated(TODAY),
+      waitingOn: "Alice",
+      followUpDate,
+    });
+    const noFollowUp = waits(null);
+    const later = waits("2026-11-03");
+    const arrived = waits(TODAY);
+    const overdueArrived = { ...waits("2026-11-01"), dueDate: "2026-10-31" };
+
+    const { today, upcoming } = groupOpenTodos(
+      [noFollowUp, later, arrived, overdueArrived],
+      TODAY,
+    );
+
+    expect(upcoming).toEqual([{ key: "waiting", todos: [noFollowUp, later] }]);
+    expect(today).toEqual([
+      { key: "overdue", todos: [overdueArrived] },
+      { key: "today", todos: [arrived] },
+    ]);
+    expect(viewOfTodo(later, "2026-11-03")).toBe("today");
+  });
+
   it("puts what is overdue, due today or started by today in Today, and the rest in Upcoming", () => {
     const overdue = dated("2026-11-01");
     const dueToday = dated(TODAY);

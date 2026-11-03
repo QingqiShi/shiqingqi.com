@@ -8,6 +8,8 @@ import {
   inArray,
   isNotNull,
   isNull,
+  lt,
+  or,
 } from "drizzle-orm";
 import { z } from "zod";
 import { todos, type TodoEditableField } from "#src/assistant/db/schema.ts";
@@ -46,6 +48,11 @@ export interface StoredTodo {
   startDate: string | null;
   /** How it comes back, which only the owner decides. */
   repeat: RepeatRule | null;
+  /** Who or what it waits on. */
+  waitingOn: string | null;
+  followUpDate: string | null;
+  /** When the wait began. Only a later mail can be the reply. */
+  waitingSince: Date | null;
   /** The owner's steps, which the agent can read and not change. */
   checklist: readonly ChecklistItem[];
   /** The fields that the owner set, which the agent may not change. */
@@ -70,6 +77,12 @@ interface NewTodo {
   source: MailSource | null;
   /** The deleted to-do that this one brings back. */
   reAddsTodoId: string | null;
+  /** Set only when the run makes it wait. */
+  waitingOn?: string;
+  followUpDate?: string;
+  /** An ISO time. */
+  waitingSince?: string;
+  waitingNote?: string;
 }
 
 export type TodoEdit = Partial<
@@ -79,8 +92,31 @@ export type TodoEdit = Partial<
 /** What a run wants to change in the to-do list: nothing is written until the report is stored. */
 export interface TodoChanges {
   added: NewTodo[];
-  done: { id: string; title: string; reason: string; repeats: boolean }[];
+  done: {
+    id: string;
+    title: string;
+    reason: string;
+    repeats: boolean;
+    /** The ISO time of the mail that shows it. */
+    mailAt?: string;
+  }[];
   updated: { id: string; edit: TodoEdit }[];
+  /** A preview stored before to-dos could wait does not have this. */
+  waiting?: {
+    id: string;
+    waitingOn: string;
+    followUpDate?: string;
+    /** The ISO time of the mail that shows it. */
+    since: string;
+    reason: string;
+  }[];
+  /** A preview stored before to-dos could wait does not have this. */
+  replied?: {
+    id: string;
+    reason: string;
+    /** The ISO time of the mail that shows it. */
+    mailAt: string;
+  }[];
 }
 
 /** The user's open to-dos, oldest first. */
@@ -93,6 +129,9 @@ export function readOpenTodos(scope: UserScope): Promise<StoredTodo[]> {
       dueDate: todos.dueDate,
       startDate: todos.startDate,
       repeat: todos.repeat,
+      waitingOn: todos.waitingOn,
+      followUpDate: todos.followUpDate,
+      waitingSince: todos.waitingSince,
       checklist: checklistOfTodo,
       ownerEditedFields: todos.ownerEditedFields,
     })
@@ -151,6 +190,8 @@ const startDate = z.iso
   .describe(
     "YYYY-MM-DD, not after dueDate. The day the to-do joins the owner's list for today, for when a mail says when to act.",
   );
+const reason = z.string().trim().min(1).max(MAX_TEXT_CHARS);
+const mailId = z.string().describe('The id of the mail, such as "m12".');
 
 /**
  * Refuses a to-do that the owner deleted, and gives the id of the deleted
@@ -241,7 +282,15 @@ export function createTodoTools({
   const deleted = new Map(
     deletedTodos.map((todo, index) => [`d${String(index + 1)}`, todo]),
   );
-  const changes: TodoChanges = { added: [], done: [], updated: [] };
+  const waiting: NonNullable<TodoChanges["waiting"]> = [];
+  const replied: NonNullable<TodoChanges["replied"]> = [];
+  const changes: TodoChanges = {
+    added: [],
+    done: [],
+    updated: [],
+    waiting,
+    replied,
+  };
   const closingMail: MailSource[] = [];
   let changeCount = 0;
 
@@ -273,6 +322,25 @@ export function createTodoTools({
     return entry.kind === "stored" ? entry.todo.repeat : null;
   }
 
+  function waitingSinceOf({ todo }: Entry) {
+    return todo.waitingSince ? new Date(todo.waitingSince) : null;
+  }
+
+  /**
+   * The time of a mail that ends a wait. An older mail is not the reply: the
+   * owner can read a reply, write again and only then mark the to-do.
+   */
+  function replyTime(key: string, entry: Entry, mail: string) {
+    const receivedAt = receivedAtOf(mail);
+    const since = waitingSinceOf(entry);
+    if (since && receivedAt <= since) {
+      throw new ToolRefusal(
+        `That mail came before to-do ${key} began to wait, so it is not the reply.`,
+      );
+    }
+    return receivedAt;
+  }
+
   function view(key: string, entry: Entry) {
     const repeat = repeatOf(entry);
     return {
@@ -282,6 +350,9 @@ export function createTodoTools({
       dueDate: entry.todo.dueDate,
       startDate: entry.todo.startDate,
       repeats: repeat && repeatRuleText(repeat),
+      waitingOn: entry.todo.waitingOn ?? null,
+      waitingSince: waitingSinceOf(entry)?.toISOString() ?? null,
+      followUpDate: entry.todo.followUpDate ?? null,
       checklist:
         entry.kind === "stored"
           ? entry.todo.checklist.map(({ text, done }) => ({ text, done }))
@@ -293,7 +364,7 @@ export function createTodoTools({
   const tools: AgentTools = {
     list_todos: agentTool({
       description:
-        "The owner's open to-dos. ownerSet names the fields the owner set, which you cannot change. repeats says how a to-do comes back when it is closed, which only the owner decides. checklist is the owner's steps and which are ticked, which you cannot change. Ticking every step does not close a to-do.",
+        "The owner's open to-dos. ownerSet names the fields the owner set, which you cannot change. waitingOn says who or what a to-do waits on, since waitingSince. repeats says how a to-do comes back when it is closed, which only the owner decides. checklist is the owner's steps and which are ticked, which you cannot change. Ticking every step does not close a to-do.",
       inputSchema: z.object({}),
       describe: () => ({ kind: "list_todos" }),
       execute: () =>
@@ -377,7 +448,7 @@ export function createTodoTools({
 
     complete_todo: agentTool({
       description:
-        "Marks an open to-do done, when mail shows that it is done or no longer needed. The report shows the owner the to-do with the reason, so it needs no other line on it. On a repeating to-do it closes this occurrence only: the next comes by itself, and only the owner can end the series.",
+        "Marks an open to-do done, when mail shows that it is done or no longer needed. The report shows the owner the to-do with the reason, so it needs no other line on it. On a repeating to-do it closes this occurrence only: the next comes by itself, and only the owner can end the series. A to-do that waits closes only with a mail that came after the wait began.",
       inputSchema: z.object({
         todo: todoKey,
         reason: z
@@ -398,6 +469,13 @@ export function createTodoTools({
       execute: ({ todo: key, reason, mail }) => {
         const entry = open(key);
         const source = mail === undefined ? null : sourceOf(mail);
+        if (waitingSinceOf(entry) && mail === undefined) {
+          throw new ToolRefusal(
+            `To-do ${key} waits, so give the mail that shows the reply came.`,
+          );
+        }
+        const mailAt =
+          mail === undefined ? undefined : replyTime(key, entry, mail);
         takeChange();
         if (source) closingMail.push(source);
         entry.done = true;
@@ -409,6 +487,7 @@ export function createTodoTools({
             title: entry.todo.title,
             reason,
             repeats: entry.todo.repeat !== null,
+            mailAt: mailAt?.toISOString(),
           });
         }
         return Promise.resolve({ done: key });
@@ -458,6 +537,109 @@ export function createTodoTools({
         return Promise.resolve(view(key, entry));
       },
     }),
+
+    mark_waiting: agentTool({
+      description:
+        "Marks an open to-do as waiting, when a mail shows that the owner waits for someone's reply. It leaves the owner's list for today until followUpDate. The report shows the owner the to-do with the reason, so it needs no other line on it. The owner's choice stands: you cannot change a wait that the owner set or ended.",
+      inputSchema: z.object({
+        todo: todoKey,
+        waitingOn: z
+          .string()
+          .trim()
+          .min(1)
+          .max(MAX_TITLE_CHARS)
+          .describe("Who or what it waits on."),
+        followUpDate: z.iso
+          .date()
+          .optional()
+          .describe(
+            "YYYY-MM-DD. The day it comes back to the owner's list for today, if no reply came.",
+          ),
+        mail: mailId.describe('The mail that shows it, such as "m12".'),
+        reason: reason.describe("What in the mail shows it, in one line."),
+      }),
+      describe: ({ todo: key }) => ({
+        kind: "mark_waiting",
+        title: open(key).todo.title,
+      }),
+      execute: ({ todo: key, waitingOn, followUpDate, mail, reason }) => {
+        const entry = open(key);
+        const refused = ownerSet(entry).filter(
+          (field) =>
+            field === "waitingOn" ||
+            (field === "followUpDate" && followUpDate !== undefined),
+        );
+        if (refused.length > 0) {
+          throw new ToolRefusal(
+            `The owner set ${refused.join(" and ")} of to-do ${key}, so leave it as it is. If the mail conflicts with it, say so in the report instead.`,
+          );
+        }
+        const since = receivedAtOf(mail).toISOString();
+        takeChange();
+        if (entry.kind === "new") {
+          Object.assign(entry.todo, {
+            waitingOn,
+            followUpDate,
+            waitingSince: since,
+            waitingNote: reason,
+          });
+        } else {
+          Object.assign(entry.todo, {
+            waitingOn,
+            followUpDate: followUpDate ?? entry.todo.followUpDate,
+            waitingSince: new Date(since),
+          });
+          waiting.push({
+            id: entry.todo.id,
+            waitingOn,
+            followUpDate,
+            since,
+            reason,
+          });
+        }
+        return Promise.resolve(view(key, entry));
+      },
+    }),
+
+    reply_came: agentTool({
+      description:
+        "Moves a to-do that waits back to open, when a mail shows that the reply came and the owner has something to do. It may be a wait that the owner set. If the reply settles the matter, use complete_todo instead. When it needs the owner today, also give it a start date with update_todo. The report shows the owner the to-do with the reason, so it needs no other line on it.",
+      inputSchema: z.object({
+        todo: todoKey,
+        mail: mailId.describe('The mail with the reply, such as "m12".'),
+        reason: reason.describe(
+          "What the reply says and what is left to do, in one line.",
+        ),
+      }),
+      describe: ({ todo: key }) => ({
+        kind: "reply_came",
+        title: open(key).todo.title,
+      }),
+      execute: ({ todo: key, mail, reason }) => {
+        const entry = open(key);
+        if (!waitingSinceOf(entry)) {
+          throw new ToolRefusal(`To-do ${key} does not wait.`);
+        }
+        const mailAt = replyTime(key, entry, mail).toISOString();
+        takeChange();
+        if (entry.kind === "new") {
+          Object.assign(entry.todo, {
+            waitingOn: undefined,
+            followUpDate: undefined,
+            waitingSince: undefined,
+            waitingNote: reason,
+          });
+        } else {
+          Object.assign(entry.todo, {
+            waitingOn: null,
+            followUpDate: null,
+            waitingSince: null,
+          });
+          replied.push({ id: entry.todo.id, reason, mailAt });
+        }
+        return Promise.resolve(view(key, entry));
+      },
+    }),
   };
   return {
     tools,
@@ -470,13 +652,21 @@ export function createTodoTools({
   };
 }
 
+const NOT_WAITING = {
+  waitingOn: null,
+  followUpDate: null,
+  waitingSince: null,
+  waitingNote: null,
+};
+
 /**
  * Writes the changes of a run in the transaction that stores its report.
  * Every write names the user, and a change reaches only a to-do that is still
  * open and not deleted, so one the owner closed or deleted during the run stays
  * as it is. The row is read again under a lock, so a field that the owner set
  * during the run stays as the owner set it, and dates that no longer fit the
- * owner's stay as they are. Closing a repeating to-do also makes its next
+ * owner's stay as they are. A wait that the owner began during the run does not
+ * end by a mail from before it. Closing a repeating to-do also makes its next
  * occurrence, from the day of the report.
  */
 export async function applyTodoChanges(
@@ -507,6 +697,10 @@ export async function applyTodoChanges(
         detail: todo.detail,
         dueDate: todo.dueDate,
         startDate: todo.startDate,
+        waitingOn: todo.waitingOn,
+        followUpDate: todo.followUpDate,
+        waitingSince: todo.waitingSince ? new Date(todo.waitingSince) : null,
+        waitingNote: todo.waitingNote,
         sourceAccountId: todo.source?.accountId ?? null,
         sourceMessageId: todo.source?.messageId ?? null,
         createdBy: "report" as const,
@@ -518,8 +712,12 @@ export async function applyTodoChanges(
     );
   }
   const stillOpen = and(ownTodo({ userId }), isNull(todos.doneAt));
+  const { waiting = [], replied = [] } = changes;
+  const lockedIds = [...changes.updated, ...waiting, ...replied].map(
+    ({ id }) => id,
+  );
   const locked =
-    changes.updated.length === 0
+    lockedIds.length === 0
       ? []
       : await tx
           .select({
@@ -527,17 +725,10 @@ export async function applyTodoChanges(
             ownerEditedFields: todos.ownerEditedFields,
             dueDate: todos.dueDate,
             startDate: todos.startDate,
+            waitingSince: todos.waitingSince,
           })
           .from(todos)
-          .where(
-            and(
-              stillOpen,
-              inArray(
-                todos.id,
-                changes.updated.map(({ id }) => id),
-              ),
-            ),
-          )
+          .where(and(stillOpen, inArray(todos.id, lockedIds)))
           .for("update");
   const stored = new Map(locked.map((row) => [row.id, row]));
   for (const { id, edit } of changes.updated) {
@@ -567,11 +758,50 @@ export async function applyTodoChanges(
       .set({ ...allowed, updatedAt: now })
       .where(and(stillOpen, eq(todos.id, id)));
   }
-  for (const { id, reason } of changes.done) {
+  for (const { id, waitingOn, followUpDate, since, reason } of waiting) {
+    const row = stored.get(id);
+    if (!row || row.ownerEditedFields.includes("waitingOn")) continue;
+    const waitingSince = new Date(since);
+    stored.set(id, { ...row, waitingSince });
+    await tx
+      .update(todos)
+      .set({
+        waitingOn,
+        waitingSince,
+        waitingNote: reason,
+        ...(followUpDate !== undefined &&
+        !row.ownerEditedFields.includes("followUpDate")
+          ? { followUpDate }
+          : {}),
+        updatedAt: now,
+      })
+      .where(and(stillOpen, eq(todos.id, id)));
+  }
+  for (const { id, reason, mailAt } of replied) {
+    const row = stored.get(id);
+    if (!row?.waitingSince || row.waitingSince >= new Date(mailAt)) continue;
+    stored.set(id, { ...row, waitingSince: null });
+    await tx
+      .update(todos)
+      .set({ ...NOT_WAITING, waitingNote: reason, updatedAt: now })
+      .where(and(stillOpen, eq(todos.id, id)));
+  }
+  for (const { id, reason, mailAt } of changes.done) {
     const closed = await tx
       .update(todos)
-      .set({ doneAt: now, doneReason: reason, updatedAt: now })
-      .where(and(stillOpen, eq(todos.id, id)))
+      .set({ ...NOT_WAITING, doneAt: now, doneReason: reason, updatedAt: now })
+      .where(
+        and(
+          stillOpen,
+          eq(todos.id, id),
+          mailAt === undefined
+            ? isNull(todos.waitingSince)
+            : or(
+                isNull(todos.waitingSince),
+                lt(todos.waitingSince, new Date(mailAt)),
+              ),
+        ),
+      )
       .returning(occurrenceColumns);
     for (const row of closed) {
       await addNextOccurrence(tx, {

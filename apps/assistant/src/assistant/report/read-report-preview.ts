@@ -62,6 +62,9 @@ export async function readReportPreview(
     snoozedUntil: null,
     remindedAt: null,
     nextTodoId: null,
+    waitingOn: todo.waitingOn ?? null,
+    followUpDate: todo.followUpDate ?? null,
+    waitingNote: todo.waitingNote ?? null,
     checklist: [],
     createdAt: builtAt,
     createdBy: "report",
@@ -75,6 +78,21 @@ export async function readReportPreview(
   for (const { id, edit } of changes.updated) {
     edits.set(id, { ...edits.get(id), ...edit });
   }
+  const waits = new Map<
+    string,
+    Pick<TodoRow, "waitingOn" | "waitingNote"> &
+      Partial<Pick<TodoRow, "followUpDate">>
+  >();
+  for (const { id, waitingOn, followUpDate, reason } of changes.waiting ?? []) {
+    waits.set(id, {
+      waitingOn,
+      waitingNote: reason,
+      ...(followUpDate === undefined ? {} : { followUpDate }),
+    });
+  }
+  for (const { id, reason } of changes.replied ?? []) {
+    waits.set(id, { waitingOn: null, followUpDate: null, waitingNote: reason });
+  }
   const closed = new Map(changes.done.map(({ id, reason }) => [id, reason]));
   const closedForGood = changes.done.filter(({ repeats }) => !repeats).length;
   const [report, openNow] = await Promise.all([
@@ -85,6 +103,7 @@ export async function readReportPreview(
       (todo) => ({
         ...todo,
         ...edits.get(todo.id),
+        ...waits.get(todo.id),
         doneAt: closed.has(todo.id) ? builtAt : todo.doneAt,
         doneReason: closed.get(todo.id) ?? todo.doneReason,
       }),

@@ -57,6 +57,8 @@ export const agentActivity = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("add_todo"), title: text }),
   z.object({ kind: z.literal("complete_todo"), title: text }),
   z.object({ kind: z.literal("update_todo"), title: text }),
+  z.object({ kind: z.literal("mark_waiting"), title: text }),
+  z.object({ kind: z.literal("reply_came"), title: text }),
   bare("write_report"),
 ]);
 

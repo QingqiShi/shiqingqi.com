@@ -316,5 +316,31 @@ export function ActivitySentence({
           : t({ en: "Changing the to-do {title}", zh: "正在修改待办 {title}" }),
         { title: <Quoted text={activity.title} /> },
       );
+    case "mark_waiting":
+      return fillTemplate(
+        ended
+          ? t({
+              en: "Marked the to-do {title} as waiting",
+              zh: "把待办 {title} 标为等待中",
+            })
+          : t({
+              en: "Marking the to-do {title} as waiting",
+              zh: "正在把待办 {title} 标为等待中",
+            }),
+        { title: <Quoted text={activity.title} /> },
+      );
+    case "reply_came":
+      return fillTemplate(
+        ended
+          ? t({
+              en: "Moved the to-do {title} back, as the reply came",
+              zh: "回复已到，把待办 {title} 移回了列表",
+            })
+          : t({
+              en: "Moving the to-do {title} back, as the reply came",
+              zh: "回复已到，正在把待办 {title} 移回列表",
+            }),
+        { title: <Quoted text={activity.title} /> },
+      );
   }
 }

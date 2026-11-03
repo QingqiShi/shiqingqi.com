@@ -32,7 +32,13 @@ import type { TodoItemSortable } from "./todo-item.tsx";
 import { useTodoStore, type TodoEdit } from "./todo-store-provider.tsx";
 
 export type TodoEditFocus =
-  "title" | "checklist" | "dueDate" | "startDate" | "remindAt" | "repeat";
+  | "title"
+  | "checklist"
+  | "dueDate"
+  | "startDate"
+  | "remindAt"
+  | "repeat"
+  | "waitingOn";
 
 function openDatePicker(field: HTMLInputElement) {
   try {
@@ -114,7 +120,8 @@ export function TodoEditor({
   sortable?: TodoItemSortable;
   onClose: () => void;
 }) {
-  const { edit, remove, addStep, today, locale, timeZone } = useTodoStore();
+  const { edit, remove, setWaiting, addStep, today, locale, timeZone } =
+    useTodoStore();
   const savedRemindAt = todo.remindAt
     ? formatLocalTime(localTimeAt(Date.parse(todo.remindAt), timeZone), true)
     : "";
@@ -126,6 +133,8 @@ export function TodoEditor({
   const [repeat, setRepeat] = useState(() =>
     repeatDraftOf(todo.repeat, todo.dueDate ?? today),
   );
+  const [waitingOn, setWaitingOn] = useState(todo.waitingOn ?? "");
+  const [followUpDate, setFollowUpDate] = useState(todo.followUpDate ?? "");
   const [newStep, setNewStep] = useState("");
   const [titleError, setTitleError] = useState("");
   const [repeatError, setRepeatError] = useState("");
@@ -182,6 +191,17 @@ export function TodoEditor({
     if (nextStartDate !== todo.startDate) change.startDate = nextStartDate;
     if (!sameRepeatRule(nextRepeat, todo.repeat)) change.repeat = nextRepeat;
     if (Object.keys(change).length > 0) edit(todo.id, change);
+    const nextWaitingOn = waitingOn.trim() || null;
+    const nextFollowUp = nextWaitingOn && followUpDate ? followUpDate : null;
+    if (
+      nextWaitingOn !== todo.waitingOn ||
+      nextFollowUp !== todo.followUpDate
+    ) {
+      setWaiting(todo.id, {
+        waitingOn: nextWaitingOn,
+        followUpDate: nextFollowUp,
+      });
+    }
     if (newStep.trim()) addStep(todo.id, newStep.trim());
     onClose();
   }
@@ -275,6 +295,31 @@ export function TodoEditor({
             }).replace("{zone}", timeZone)}
           </Text>
         </div>
+        <div css={stack.tight}>
+          <TextField
+            label={t({ en: "Waiting on", zh: "在等" })}
+            value={waitingOn}
+            maxLength={todoLimits.waitingOnChars}
+            autoFocus={focus === "waitingOn"}
+            onChange={(event) => {
+              setWaitingOn(event.target.value);
+            }}
+          />
+          <Text as="p" look="caption" tone="muted">
+            {t({
+              en: "Who or what it waits for. It leaves Today until the follow-up date, and the morning report watches your mail for the reply.",
+              zh: "在等谁或等什么。到跟进日期之前，它不会出现在“今天”里，晨报会替你留意邮件里的回复。",
+            })}
+          </Text>
+        </div>
+        {waitingOn.trim() ? (
+          <DateField
+            label={t({ en: "Follow up on", zh: "跟进日期" })}
+            value={followUpDate}
+            autoPick={false}
+            onChange={setFollowUpDate}
+          />
+        ) : null}
         <RepeatField
           draft={repeat}
           date={dueDate || today}

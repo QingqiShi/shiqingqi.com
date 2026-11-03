@@ -41,6 +41,7 @@ export function OpenTodoGroups({ headingLevel }: { headingLevel: 2 | 3 }) {
     overdue: t({ en: "Overdue", zh: "已过期" }),
     today: t({ en: "Today", zh: "今天" }),
     upcoming: t({ en: "Scheduled", zh: "已安排" }),
+    waiting: t({ en: "Waiting", zh: "等待中" }),
     "no-date": t({ en: "No date", zh: "没有日期" }),
   };
   const moveAll = t({ en: "Move all to today", zh: "全部移到今天" });

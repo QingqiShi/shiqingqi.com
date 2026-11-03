@@ -68,7 +68,12 @@ function todosOnPage(report: Report): TodoItemData[] {
   for (const { todo, openHref } of report.needsAction) {
     if (todo) rows.set(todo.id, toTodoItemData(todo, openHref));
   }
-  for (const todo of [...report.todos, ...report.doneTodos]) {
+  for (const todo of [
+    ...report.todos,
+    ...report.doneTodos,
+    ...report.waitingTodos,
+    ...report.repliedTodos,
+  ]) {
     if (!rows.has(todo.id)) rows.set(todo.id, toTodoItemData(todo));
   }
   return [...rows.values()];
@@ -210,12 +215,28 @@ export function ReportView({
         <ItemList items={report.needsAction} />
       </ReportSection>
     ) : null,
+    report.repliedTodos.length > 0 ? (
+      <ReportTodoSection
+        key="replied"
+        headingLevel={sectionLevel}
+        title={t({ en: "The reply came", zh: "回复到了" })}
+        ids={idsOf(report.repliedTodos)}
+      />
+    ) : null,
     ownTodos.length > 0 ? (
       <ReportTodoSection
         key="todos"
         headingLevel={sectionLevel}
         title={t({ en: "To-dos", zh: "待办" })}
         ids={idsOf(ownTodos)}
+      />
+    ) : null,
+    report.waitingTodos.length > 0 ? (
+      <ReportTodoSection
+        key="waiting"
+        headingLevel={sectionLevel}
+        title={t({ en: "Now waiting", zh: "开始等待" })}
+        ids={idsOf(report.waitingTodos)}
       />
     ) : null,
     report.doneTodos.length > 0 ? (

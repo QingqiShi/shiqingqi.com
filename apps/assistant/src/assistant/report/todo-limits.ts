@@ -9,5 +9,6 @@ export const todoLimits = {
   titleChars: 300,
   detailChars: 2000,
   checklistItemChars: 300,
+  waitingOnChars: 200,
   searchChars: 200,
 };

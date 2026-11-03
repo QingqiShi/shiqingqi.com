@@ -244,6 +244,12 @@ export function reportContent({
       (report ? agent?.todoChanges.done : undefined)?.map(
         ({ id, title, reason }) => ({ id, title, reason }),
       ) ?? [],
+    waitingTodoIds: (report ? agent?.todoChanges.waiting : undefined)?.map(
+      ({ id }) => id,
+    ),
+    repliedTodoIds: (report ? agent?.todoChanges.replied : undefined)?.map(
+      ({ id }) => id,
+    ),
   };
 }
 

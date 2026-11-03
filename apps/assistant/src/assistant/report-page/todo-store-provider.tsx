@@ -24,11 +24,17 @@ import {
   nextOccurrenceReminder,
 } from "../report/next-occurrence.ts";
 import type { ChecklistItem } from "../report/own-todo.ts";
-import type { DueDateChange, OwnerTodoChange } from "../report/owner-todos.ts";
+import type {
+  DueDateChange,
+  EarlierWaiting,
+  OwnerTodoChange,
+  WaitingChange,
+} from "../report/owner-todos.ts";
 import { rearrange } from "../report/rearrange.ts";
 import { todoLimits } from "../report/todo-limits.ts";
 import { refreshAfterSave } from "../shell/refresh-after-save.ts";
 import { formatListDay } from "./format-day.ts";
+import { groupOf, viewOfTodo } from "./group-open-todos.ts";
 import { isOpen, type TodoItemData } from "./to-todo-item-data.ts";
 
 export type TodoEdit = Omit<OwnerTodoChange, "done" | "nextId">;
@@ -58,6 +64,8 @@ interface TodoStore {
   /** Moves a repeating to-do on to its next occurrence, and this one counts as neither done nor deleted. */
   skipOccurrence: (id: string) => void;
   remove: (id: string) => void;
+  /** Makes a to-do wait, changes its wait or ends it. */
+  setWaiting: (id: string, change: WaitingChange) => void;
   moveOverdueToToday: () => void;
   /** Closes these open to-dos with one request and one Undo. */
   closeMany: (ids: readonly string[]) => void;
@@ -87,7 +95,7 @@ export function useTodoStore() {
 }
 
 function isOverdue(row: TodoItemData, today: string) {
-  return isOpen(row) && row.dueDate !== null && row.dueDate < today;
+  return isOpen(row) && groupOf(row, today) === "overdue";
 }
 
 function patchRow(id: string, patch: Partial<TodoItemData>): TodoOp {
@@ -228,6 +236,39 @@ function withDueDates(
     ]),
   );
   return (rows) => rows.map((row) => ({ ...row, ...dates.get(row.id) }));
+}
+
+/** A wait after a change, as the server writes it. A new wait has nothing yet from the agent. */
+function withWaiting(id: string, change: WaitingChange): TodoOp {
+  return (rows) =>
+    rows.map((row) =>
+      row.id === id
+        ? {
+            ...row,
+            ...change,
+            waitingNote:
+              row.waitingOn === change.waitingOn ? row.waitingNote : null,
+          }
+        : row,
+    );
+}
+
+/** A change of a wait, and its undo. A change that the server refused needs no undo. */
+function waitingMove(id: string, change: WaitingChange) {
+  const send = (body: object) =>
+    assistantFetch(`/api/todos/${id}/waiting`, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    });
+  let earlier: EarlierWaiting | null = null;
+  return {
+    send: async () => {
+      const response = await send(change);
+      const body = (await response.json()) as { earlier: EarlierWaiting };
+      earlier = body.earlier;
+    },
+    undo: () => (earlier ? send({ restore: earlier }) : Promise.resolve()),
+  };
 }
 
 function inOrder(ops: readonly TodoOp[]): TodoOp {
@@ -384,6 +425,12 @@ function Store({
       zh: "已跳过。下一次在 {date}",
     }),
     deleted: t({ en: "Deleted", zh: "已删除" }),
+    waitingOn: t({ en: "Waiting on {who}", zh: "正在等待：{who}" }),
+    waitingOnUpcoming: t({
+      en: "Waiting on {who}. It is in Upcoming now",
+      zh: "正在等待：{who}。它现在在“接下来”里",
+    }),
+    notWaiting: t({ en: "Not waiting any more", zh: "不再等待" }),
     stepDeleted: t({ en: "Step deleted", zh: "已删除这一步" }),
     deletedSeries: t({
       en: "Deleted, and it will not repeat",
@@ -465,6 +512,9 @@ function Store({
           ...nextOccurrenceFields(row, row.repeat, today, timeZone),
           id: crypto.randomUUID(),
           checklist: withTicks(row.checklist, []),
+          waitingOn: null,
+          followUpDate: null,
+          waitingNote: null,
           createdBy: "owner" as const,
           reAdded: false,
           openHref: null,
@@ -491,6 +541,9 @@ function Store({
         remindAt: null,
         nextReminderAt: null,
         nextId: null,
+        waitingOn: null,
+        followUpDate: null,
+        waitingNote: null,
         checklist: [],
         createdBy: "owner",
         doneAt: null,
@@ -595,6 +648,38 @@ function Store({
                   : list.toSpliced(index, 0, row),
               () =>
                 assistantFetch(`/api/todos/${id}/restore`, { method: "POST" }),
+            );
+          },
+        },
+      });
+    },
+    setWaiting: (id, change) => {
+      const row = rows.find((entry) => entry.id === id);
+      if (!row) return;
+      const move = waitingMove(id, change);
+      run(withWaiting(id, change), move.send);
+      if (row.waitingOn === change.waitingOn) return;
+      const moved =
+        viewOfTodo(row, today) === "today" &&
+        viewOfTodo({ ...row, ...change }, today) === "upcoming";
+      showToast({
+        message:
+          change.waitingOn === null
+            ? copy.notWaiting
+            : (moved ? copy.waitingOnUpcoming : copy.waitingOn).replace(
+                "{who}",
+                change.waitingOn,
+              ),
+        action: {
+          label: copy.undo,
+          onAction: () => {
+            run(
+              patchRow(id, {
+                waitingOn: row.waitingOn,
+                followUpDate: row.followUpDate,
+                waitingNote: row.waitingNote,
+              }),
+              move.undo,
             );
           },
         },

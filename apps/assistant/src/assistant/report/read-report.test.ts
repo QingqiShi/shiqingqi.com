@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+  morningReportPreviews,
   morningReports,
   todoChecklistItems,
   todos,
@@ -9,7 +10,10 @@ import {
   type TestDb,
 } from "#src/assistant/db/testing/create-test-db.ts";
 import { insertUser } from "#src/assistant/mail/testing/insert-account.ts";
+import { readReportPreview } from "./read-report-preview.ts";
 import { listDoneTodos, readReport, searchTodos } from "./read-report.ts";
+
+const NOW_ISO = "2026-11-02T09:00:00Z";
 
 let db: TestDb;
 
@@ -21,7 +25,142 @@ afterEach(async () => {
   await db.close();
 });
 
+describe("readReportPreview", () => {
+  const builtAt = new Date("2026-11-02T08:00:00Z");
+  const content = {
+    version: 2 as const,
+    mailDate: "2026-11-01",
+    status: "written" as const,
+    headline: "A day.",
+    needsAction: [],
+    worthKnowing: [],
+    rest: null,
+    agenda: null,
+    mailCount: 0,
+    ranOutOfTime: false,
+    unreadMailboxes: [],
+    doneTodos: [],
+  };
+  const storePreview = (
+    userId: string,
+    previewContent: typeof morningReportPreviews.$inferInsert.content,
+    todoChanges: typeof morningReportPreviews.$inferInsert.todoChanges,
+  ) =>
+    db.insert(morningReportPreviews).values({
+      userId,
+      status: "done",
+      localDate: "2026-11-02",
+      content: previewContent,
+      todoChanges,
+      startedAt: builtAt,
+      builtAt,
+    });
+
+  it("shows the waits that the agent would change, and changes no row", async () => {
+    const userId = await insertUser(db);
+    const [toWait, replied] = await db
+      .insert(todos)
+      .values([
+        { userId, title: "To wait" },
+        { userId, title: "Replied", waitingOn: "Bob", waitingSince: builtAt },
+      ])
+      .returning();
+    await storePreview(
+      userId,
+      {
+        ...content,
+        waitingTodoIds: [toWait.id],
+        repliedTodoIds: [replied.id],
+      },
+      {
+        added: [],
+        done: [],
+        updated: [],
+        waiting: [
+          {
+            id: toWait.id,
+            waitingOn: "Alice",
+            since: builtAt.toISOString(),
+            reason: "She will answer.",
+          },
+        ],
+        replied: [{ id: replied.id, reason: "It came.", mailAt: NOW_ISO }],
+      },
+    );
+
+    const preview = await readReportPreview({ db, userId }, builtAt);
+
+    expect(preview).toMatchObject({
+      report: {
+        waitingTodos: [{ title: "To wait", waitingOn: "Alice" }],
+        repliedTodos: [
+          { title: "Replied", waitingOn: null, waitingNote: "It came." },
+        ],
+      },
+    });
+    const rows = await db.select().from(todos);
+    expect(rows.find((row) => row.id === toWait.id)?.waitingOn).toBeNull();
+    expect(rows.find((row) => row.id === replied.id)?.waitingOn).toBe("Bob");
+  });
+
+  it("reads a preview stored before to-dos could wait", async () => {
+    const userId = await insertUser(db);
+    await storePreview(userId, content, { added: [], done: [], updated: [] });
+
+    expect(await readReportPreview({ db, userId }, builtAt)).toMatchObject({
+      status: "done",
+      report: { waitingTodos: [], repliedTodos: [] },
+    });
+  });
+});
+
 describe("readReport", () => {
+  it("says which to-dos the report made wait and which came back, as they are now", async () => {
+    const userId = await insertUser(db);
+    const since = new Date("2026-11-02T08:00:00Z");
+    const [named, unnamed, ownerEnded, replied, ownerMarked] = await db
+      .insert(todos)
+      .values([
+        { userId, title: "Named", waitingOn: "Alice", waitingSince: since },
+        { userId, title: "Unnamed", waitingOn: "Bob", waitingSince: since },
+        { userId, title: "The owner ended it" },
+        { userId, title: "Replied", waitingNote: "It came." },
+        { userId, title: "Waits again", waitingOn: "Eve", waitingSince: since },
+      ])
+      .returning();
+    await db.insert(morningReports).values({
+      userId,
+      localDate: "2026-11-02",
+      content: {
+        version: 2,
+        mailDate: "2026-11-01",
+        status: "written",
+        headline: "A day.",
+        needsAction: [{ text: "Named", source: null, todoId: named.id }],
+        worthKnowing: [],
+        rest: null,
+        agenda: null,
+        mailCount: 0,
+        ranOutOfTime: false,
+        unreadMailboxes: [],
+        doneTodos: [],
+        waitingTodoIds: [named.id, unnamed.id, ownerEnded.id],
+        repliedTodoIds: [replied.id, ownerMarked.id],
+      },
+      builtAt: since,
+    });
+
+    const report = await readReport({ db, userId }, "2026-11-02");
+
+    expect(report?.needsAction).toEqual([]);
+    expect(report?.todos).toEqual([]);
+    expect(report?.waitingTodos.map(({ title }) => title)).toEqual([
+      "Named",
+      "Unnamed",
+    ]);
+    expect(report?.repliedTodos.map(({ title }) => title)).toEqual(["Replied"]);
+  });
+
   it("does not show a to-do that has not started as needing the owner", async () => {
     const userId = await insertUser(db);
     const [waiting, started, closed] = await db
