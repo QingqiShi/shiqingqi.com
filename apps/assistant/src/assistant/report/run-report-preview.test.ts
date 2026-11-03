@@ -187,9 +187,17 @@ function reportAgent() {
       if (!outputs.has("added")) {
         return reply(
           [
-            call("add_todo", { title: "Pay the new invoice", mail }, "added"),
+            call(
+              "add_todo",
+              { title: "Pay the new invoice", mail, reason: "It is due." },
+              "added",
+            ),
             call("complete_todo", { todo: "t2", reason: "It came." }, "closed"),
-            call("update_todo", { todo: "t1", dueDate: "2026-11-05" }),
+            call("update_todo", {
+              todo: "t1",
+              dueDate: "2026-11-05",
+              reason: "The date moved.",
+            }),
           ],
           true,
         );
@@ -609,8 +617,16 @@ describe("a preview of the next morning report", () => {
         added: [],
         done: [],
         updated: [
-          { id: todo.id, edit: { dueDate: "2026-11-05" } },
-          { id: todo.id, edit: { detail: "Before the trip." } },
+          {
+            id: todo.id,
+            reason: "In the mail.",
+            edit: { dueDate: "2026-11-05" },
+          },
+          {
+            id: todo.id,
+            reason: "In the mail.",
+            edit: { detail: "Before the trip." },
+          },
         ],
       },
       startedAt: NOW,

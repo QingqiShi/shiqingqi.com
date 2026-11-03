@@ -18,6 +18,7 @@ import {
   addNextOccurrence,
   occurrenceColumns,
   reminderWrite,
+  takeBackNextOccurrence,
 } from "./add-next-occurrence.ts";
 import { datesInOrder } from "./dates-in-order.ts";
 import { localClock } from "./due-report-date.ts";
@@ -121,35 +122,6 @@ async function addTodo(
     .onConflictDoNothing({ target: todos.id })
     .returning({ id: todos.id });
   return added.length > 0;
-}
-
-/**
- * Opens a closed occurrence again. When its next occurrence is still open, the
- * row goes, with no trace for the agent, because the owner did not delete it, and
- * this one takes its place. When the series has moved on or ended, this one stays
- * as a to-do that does not repeat, so that the series does not run twice.
- */
-async function takeBackNextOccurrence(
-  tx: Pick<AssistantDb, "select" | "delete">,
-  scope: UserScope,
-  nextId: string,
-) {
-  const next = (
-    await tx
-      .select({
-        position: todos.position,
-        doneAt: todos.doneAt,
-        deletedAt: todos.deletedAt,
-      })
-      .from(todos)
-      .where(and(eq(todos.userId, scope.userId), eq(todos.id, nextId)))
-      .for("update")
-  ).at(0);
-  if (!next || next.doneAt || next.deletedAt) return { repeat: null };
-  await tx
-    .delete(todos)
-    .where(and(eq(todos.userId, scope.userId), eq(todos.id, nextId)));
-  return { position: next.position };
 }
 
 /** The fields that a change makes the owner's. A rule decides the dates, so it makes the due date the owner's. */
@@ -417,7 +389,12 @@ async function deleteTodo(
 }
 
 /** A to-do that comes back no longer teaches the report anything. */
-const notDeleted = { deletedAt: null, rejectedAt: null, rejectionNote: null };
+const notDeleted = {
+  deletedAt: null,
+  rejectedAt: null,
+  rejectionNote: null,
+  addUndoneAt: null,
+};
 
 /** Brings a deleted to-do back. False when the user has no such deleted to-do. */
 async function restoreTodo(

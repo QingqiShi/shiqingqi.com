@@ -213,10 +213,15 @@ function reportAgent() {
               { todo: "t2", reason: "The passport office sent the new one." },
               "done",
             ),
-            call("update_todo", { todo: "t1", dueDate: "2026-11-05" }),
+            call("update_todo", {
+              todo: "t1",
+              dueDate: "2026-11-05",
+              reason: "The invoice says Thursday.",
+            }),
             call("add_todo", {
               title: "Send the invoice to the accountant",
               mail: invoice,
+              reason: "The accountant needs it.",
             }),
           ],
           true,
@@ -535,14 +540,39 @@ describe("the morning report cron", () => {
     expect(seenOf("Sent Messages", uids.mine)).toBe(false);
     const actions = await db.select().from(agentActions);
     expect(
-      actions.map((action) => [action.kind, action.messageId]).sort(),
+      actions
+        .filter((action) => action.kind === "mark_read")
+        .map((action) => action.messageId)
+        .sort(),
     ).toEqual([
-      ["mark_read", "<invoice@example.com>"],
-      ["mark_read", "<last-in@example.com>"],
-      ["mark_read", "<passport@example.com>"],
-      ["mark_read", "<weekly@example.com>"],
+      "<invoice@example.com>",
+      "<last-in@example.com>",
+      "<passport@example.com>",
+      "<weekly@example.com>",
     ]);
     const [run] = await db.select().from(agentRuns);
+    expect(
+      actions
+        .filter((action) => action.kind !== "mark_read")
+        .map(({ kind, reason, runId }) => ({ kind, reason, runId }))
+        .sort((a, b) => a.kind.localeCompare(b.kind)),
+    ).toEqual([
+      {
+        kind: "add_todo",
+        reason: "The accountant needs it.",
+        runId: run.id,
+      },
+      {
+        kind: "complete_todo",
+        reason: "The passport office sent the new one.",
+        runId: run.id,
+      },
+      {
+        kind: "update_todo",
+        reason: "The invoice says Thursday.",
+        runId: run.id,
+      },
+    ]);
     expect(run).toMatchObject({ task: "report", status: "done" });
 
     const kept = JSON.stringify({ report, stored });

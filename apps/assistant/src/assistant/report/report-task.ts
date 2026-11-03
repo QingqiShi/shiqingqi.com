@@ -80,7 +80,7 @@ function todoLine(key: string, todo: StoredTodo) {
   return `- ${key}: ${todo.title}${extra.length > 0 ? ` (${extra.join("; ")})` : ""}`;
 }
 
-/** The first message: the mail it covers, where that mail is, the open, deleted and rejected to-dos and the time there is. */
+/** The first message: the mail it covers, where that mail is, the open, deleted and rejected to-dos, the to-do changes the owner undid and the time there is. */
 function prompt({
   today,
   windowLabels,
@@ -89,6 +89,7 @@ function prompt({
   openTodos,
   deletedTodos,
   rejectedTodos,
+  undoneTodoChanges,
   minutes,
 }: {
   today: string;
@@ -99,6 +100,7 @@ function prompt({
   openTodos: readonly StoredTodo[];
   deletedTodos: readonly DeletedTodo[];
   rejectedTodos: readonly RejectedTodo[];
+  undoneTodoChanges: readonly string[];
   /** About how long the run may take. */
   minutes: number;
 }) {
@@ -124,6 +126,13 @@ ${deletedTodos.map((todo, index) => `- d${String(index + 1)}: ${todo.title}`).jo
 The owner said that these to-dos should not have been added. Do not add to-dos of the same kind:
 ${rejectedTodos.map(({ title, note }) => `- ${title}${note ? ` (the owner's words: ${note})` : ""}`).join("\n")}`
       : "";
+  const undone =
+    undoneTodoChanges.length > 0
+      ? `
+
+The owner undid these changes of yours. Leave what they touched as it is now, unless a new mail changes the matter:
+${undoneTodoChanges.map((line) => `- ${line}`).join("\n")}`
+      : "";
   const catchUp = mailboxes.some((box) => box.since)
     ? `An earlier report could not read a mailbox with a since time, so this report also covers its mail from that time on: its counts above include that mail, and that mail is marked read too. list_mail with that since and before ${mailWindow.end.toISOString()} finds it.
 
@@ -133,7 +142,7 @@ ${rejectedTodos.map(({ title, note }) => `- ${title}${note ? ` (the owner's word
 ${boxes.join("\n")}
 
 ${catchUp}Open to-dos:
-${todos.length > 0 ? todos.join("\n") : "(none)"}${deleted}${rejected}
+${todos.length > 0 ? todos.join("\n") : "(none)"}${deleted}${rejected}${undone}
 
 You have about ${String(minutes)} minutes before the report has to be submitted.`;
 }

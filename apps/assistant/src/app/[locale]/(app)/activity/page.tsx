@@ -49,8 +49,8 @@ export default async function Page({
           </Heading>
           <Text as="p" look="bodySmall" tone="muted">
             {t({
-              en: "What the assistant did in your mailbox and calendar, and why. Undo anything that is not what you want.",
-              zh: "助手在你的邮箱和日历里做了什么、为什么这样做。不合你意的都可以撤销。",
+              en: "What the assistant did in your mailbox, calendar and to-dos, and why. Undo anything that is not what you want.",
+              zh: "助手在你的邮箱、日历和待办里做了什么、为什么这样做。不合你意的都可以撤销。",
             })}
           </Text>
         </header>

@@ -1,11 +1,18 @@
 import { and, desc, eq, inArray, lt } from "drizzle-orm";
 import { z } from "zod";
+import {
+  isTodoKind,
+  TODO_PLAIN_FIELDS,
+  todoActionDetail,
+  type TodoPlainField,
+} from "#src/assistant/agent/todos/todo-action-detail.ts";
 import { readIcsEvents } from "#src/assistant/calendar/ics/read-ics-events.ts";
 import {
   agentActions,
   agentRuns,
   type AgentActionKind,
   type AgentTask,
+  type TodoActionKind,
 } from "#src/assistant/db/schema.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
 import { localClock } from "#src/assistant/report/due-report-date.ts";
@@ -24,6 +31,13 @@ export interface ActivityMail {
   subject: string;
   sender: string;
   undone: boolean;
+}
+
+/** One field that the agent changed in a to-do. */
+export interface TodoFieldChange {
+  field: TodoPlainField;
+  from: string | null;
+  to: string | null;
 }
 
 /** One change, or a few of the same kind that one tool call made, as the page tells it. */
@@ -76,6 +90,22 @@ export type ActivityItem =
       previousStart: string | null;
       /** The subject of the mail it came from. */
       sourceSubject: string | null;
+      reason: string;
+      undone: boolean;
+    }
+  | {
+      type: "todo";
+      kind: TodoActionKind;
+      actionId: string;
+      title: string;
+      /** The fields an update changed. */
+      changes: TodoFieldChange[];
+      /** The due date of a new to-do. */
+      dueDate: string | null;
+      /** Who or what it began to wait on, or waited on until the reply. */
+      waitingOn: string | null;
+      /** What the undo left as it was, because it changed after the action. */
+      kept: TodoPlainField[];
       reason: string;
       undone: boolean;
     };
@@ -152,6 +182,32 @@ function eventItem(row: ActionRow, kind: EventKind): ActivityItem {
     start: detail.start ?? null,
     previousStart: previous?.startLocal ?? null,
     sourceSubject: row.subject,
+    reason: row.reason,
+    undone: row.undoneAt !== null,
+  };
+}
+
+function todoItem(row: ActionRow, kind: TodoActionKind): ActivityItem {
+  const detail = todoActionDetail.safeParse(row.detail).data;
+  const before = detail?.before ?? {};
+  const after = detail?.after ?? {};
+  return {
+    type: "todo",
+    kind,
+    actionId: row.id,
+    title: detail?.title ?? "",
+    changes:
+      kind === "update_todo"
+        ? TODO_PLAIN_FIELDS.filter((field) => field in after).map((field) => ({
+            field,
+            from: before[field] ?? null,
+            to: after[field] ?? null,
+          }))
+        : [],
+    dueDate: kind === "add_todo" ? (after.dueDate ?? null) : null,
+    waitingOn:
+      (kind === "reply_came" ? before.waitingOn : after.waitingOn) ?? null,
+    kept: detail?.undo?.kept ?? [],
     reason: row.reason,
     undone: row.undoneAt !== null,
   };
@@ -246,6 +302,10 @@ export function itemsOfRun(actions: readonly ActionRow[]): ActivityItem[] {
         reason: row.reason,
         undone: row.undoneAt !== null,
       });
+      continue;
+    }
+    if (isTodoKind(kind)) {
+      items.push(todoItem(row, kind));
       continue;
     }
     items.push(eventItem(row, kind));

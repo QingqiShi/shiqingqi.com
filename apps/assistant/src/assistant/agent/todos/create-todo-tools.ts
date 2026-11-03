@@ -12,7 +12,12 @@ import {
   or,
 } from "drizzle-orm";
 import { z } from "zod";
-import { todos, type TodoEditableField } from "#src/assistant/db/schema.ts";
+import {
+  agentActions,
+  todos,
+  type TodoActionKind,
+  type TodoEditableField,
+} from "#src/assistant/db/schema.ts";
 import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
 import {
   addNextOccurrence,
@@ -31,6 +36,11 @@ import {
 } from "#src/assistant/report/own-todo.ts";
 import type { MailSource } from "#src/assistant/report/types.ts";
 import { agentTool, ToolRefusal, type AgentTools } from "../agent-tool.ts";
+import {
+  TODO_PLAIN_FIELDS,
+  type TodoActionDetail,
+  type TodoActionFields,
+} from "./todo-action-detail.ts";
 
 /** The limits of one run, against a run that a mail talks into mass changes. */
 export const TODO_TOOL_LIMITS = { adds: 20, changes: 30 };
@@ -88,6 +98,8 @@ interface NewTodo {
   source: MailSource | null;
   /** The deleted to-do that this one brings back. */
   reAddsTodoId: string | null;
+  /** Why the agent added it, in its own words. */
+  reason: string;
   /** Set only when the run makes it wait. */
   waitingOn?: string;
   followUpDate?: string;
@@ -111,7 +123,7 @@ export interface TodoChanges {
     /** The ISO time of the mail that shows it. */
     mailAt?: string;
   }[];
-  updated: { id: string; edit: TodoEdit }[];
+  updated: { id: string; edit: TodoEdit; reason: string }[];
   /** A preview stored before to-dos could wait does not have this. */
   waiting?: {
     id: string;
@@ -151,7 +163,7 @@ export function readOpenTodos(scope: UserScope): Promise<StoredTodo[]> {
     .orderBy(asc(todos.createdAt), asc(todos.title));
 }
 
-/** The to-dos the user deleted in the last days and did not reject, newest first. */
+/** The to-dos the user deleted in the last days and did not reject, newest first. An undone add is not one of them. */
 export async function readDeletedTodos(
   { db, userId }: UserScope,
   now: Date,
@@ -170,6 +182,7 @@ export async function readDeletedTodos(
         eq(todos.userId, userId),
         isNotNull(todos.deletedAt),
         isNull(todos.rejectedAt),
+        isNull(todos.addUndoneAt),
         gt(
           todos.deletedAt,
           new Date(now.getTime() - DELETED_DAYS * 86_400_000),
@@ -237,6 +250,9 @@ const startDate = z.iso
   );
 const reason = z.string().trim().min(1).max(MAX_TEXT_CHARS);
 const mailId = z.string().describe('The id of the mail, such as "m12".');
+const changeReason = reason.describe(
+  "Why, in one line. The owner's activity page shows it.",
+);
 
 function refuseRejected(
   rejected: readonly RejectedTodo[],
@@ -459,6 +475,7 @@ export function createTodoTools({
           .describe(
             'The to-do the owner deleted that this is the same matter as, such as "d2". It needs a new mail.',
           ),
+        reason: changeReason,
       }),
       describe: ({ title }) => ({ kind: "add_todo", title }),
       execute: (input) => {
@@ -504,6 +521,7 @@ export function createTodoTools({
           startDate: input.startDate ?? null,
           source: mail?.source ?? null,
           reAddsTodoId,
+          reason: input.reason,
         };
         changes.added.push(todo);
         const key = `t${String(entries.size + 1)}`;
@@ -569,12 +587,13 @@ export function createTodoTools({
         detail: detail.nullable().optional(),
         dueDate: dueDate.nullable().optional(),
         startDate: startDate.nullable().optional(),
+        reason: changeReason,
       }),
       describe: ({ todo: key, title: newTitle }) => {
         const { title: oldTitle } = open(key).todo;
         return { kind: "update_todo", title: newTitle ?? oldTitle };
       },
-      execute: ({ todo: key, ...input }) => {
+      execute: ({ todo: key, reason, ...input }) => {
         const entry = open(key);
         const edit: TodoEdit = {};
         if (input.title !== undefined) edit.title = input.title;
@@ -598,7 +617,7 @@ export function createTodoTools({
         takeChange();
         Object.assign(entry.todo, edit);
         if (entry.kind === "stored") {
-          changes.updated.push({ id: entry.todo.id, edit });
+          changes.updated.push({ id: entry.todo.id, edit, reason });
         }
         return Promise.resolve(view(key, entry));
       },
@@ -725,21 +744,38 @@ const NOT_WAITING = {
   waitingNote: null,
 };
 
+/** What an undo needs to put a wait back. */
+function waitOf(row: {
+  waitingOn: string | null;
+  followUpDate: string | null;
+  waitingSince: Date | null;
+  waitingNote: string | null;
+}): TodoActionFields {
+  return {
+    waitingOn: row.waitingOn,
+    followUpDate: row.followUpDate,
+    waitingSince: row.waitingSince?.toISOString() ?? null,
+    waitingNote: row.waitingNote,
+  };
+}
+
 /**
- * Writes the changes of a run in the transaction that stores its report.
- * Every write names the user, and a change reaches only a to-do that is still
- * open and not deleted, so one the owner closed or deleted during the run stays
- * as it is. The row is read again under a lock, so a field that the owner set
- * during the run stays as the owner set it, and dates that no longer fit the
- * owner's stay as they are. A wait that the owner began during the run does not
- * end by a mail from before it. Closing a repeating to-do also makes its next
- * occurrence, from the day of the report.
+ * Writes the changes of a run in the transaction that stores its report, each
+ * with an `agent_actions` row that holds what it replaced. Every write names the
+ * user, and a change reaches only a to-do that is still open and not deleted, so
+ * one the owner closed or deleted during the run stays as it is, with no row. The
+ * row is read again under a lock, so a field that the owner set during the run
+ * stays as the owner set it, and dates that no longer fit the owner's stay as they
+ * are. A wait that the owner began during the run does not end by a mail from
+ * before it. Closing a repeating to-do also makes its next occurrence, from the
+ * day of the report.
  */
 export async function applyTodoChanges(
   tx: Pick<AssistantDb, "insert" | "select" | "update">,
   {
     userId,
     reportId,
+    runId,
     now,
     today,
     timeZone,
@@ -747,6 +783,8 @@ export async function applyTodoChanges(
   }: {
     userId: string;
     reportId: string;
+    /** The agent run that made the changes. */
+    runId: string;
     now: Date;
     /** The owner's local date, `YYYY-MM-DD`. */
     today: string;
@@ -754,6 +792,11 @@ export async function applyTodoChanges(
     changes: TodoChanges;
   },
 ) {
+  const actions: {
+    kind: TodoActionKind;
+    reason: string;
+    detail: TodoActionDetail;
+  }[] = [];
   if (changes.added.length > 0) {
     await tx.insert(todos).values(
       changes.added.map((todo) => ({
@@ -776,12 +819,31 @@ export async function applyTodoChanges(
         updatedAt: now,
       })),
     );
+    for (const todo of changes.added) {
+      actions.push({
+        kind: "add_todo",
+        reason: todo.reason,
+        detail: {
+          todoId: todo.id,
+          title: todo.title,
+          before: {},
+          after: {
+            dueDate: todo.dueDate,
+            startDate: todo.startDate,
+            waitingOn: todo.waitingOn ?? null,
+          },
+        },
+      });
+    }
   }
   const stillOpen = and(ownTodo({ userId }), isNull(todos.doneAt));
   const { waiting = [], replied = [] } = changes;
-  const lockedIds = [...changes.updated, ...waiting, ...replied].map(
-    ({ id }) => id,
-  );
+  const lockedIds = [
+    ...changes.updated,
+    ...waiting,
+    ...replied,
+    ...changes.done,
+  ].map(({ id }) => id);
   const locked =
     lockedIds.length === 0
       ? []
@@ -789,68 +851,111 @@ export async function applyTodoChanges(
           .select({
             id: todos.id,
             ownerEditedFields: todos.ownerEditedFields,
+            title: todos.title,
+            detail: todos.detail,
             dueDate: todos.dueDate,
             startDate: todos.startDate,
+            waitingOn: todos.waitingOn,
+            followUpDate: todos.followUpDate,
             waitingSince: todos.waitingSince,
+            waitingNote: todos.waitingNote,
           })
           .from(todos)
           .where(and(stillOpen, inArray(todos.id, lockedIds)))
           .for("update");
   const stored = new Map(locked.map((row) => [row.id, row]));
-  for (const { id, edit } of changes.updated) {
+  for (const { id, edit, reason } of changes.updated) {
     const row = stored.get(id);
     if (!row) continue;
-    const free = (field: TodoEditableField) =>
-      !row.ownerEditedFields.includes(field);
     const allowed: TodoEdit = {};
-    if (edit.title !== undefined && free("title")) allowed.title = edit.title;
-    if (edit.detail !== undefined && free("detail")) {
-      allowed.detail = edit.detail;
-    }
-    if (edit.dueDate !== undefined && free("dueDate")) {
-      allowed.dueDate = edit.dueDate;
-    }
-    if (edit.startDate !== undefined && free("startDate")) {
-      allowed.startDate = edit.startDate;
+    for (const field of TODO_PLAIN_FIELDS) {
+      const value = edit[field];
+      if (
+        value !== undefined &&
+        value !== row[field] &&
+        !row.ownerEditedFields.includes(field)
+      ) {
+        Object.assign(allowed, { [field]: value });
+      }
     }
     if (!datesInOrder({ ...row, ...allowed })) {
       delete allowed.dueDate;
       delete allowed.startDate;
     }
-    if (Object.keys(allowed).length === 0) continue;
-    stored.set(id, { ...row, ...allowed });
+    const written = TODO_PLAIN_FIELDS.filter((field) => field in allowed);
+    if (written.length === 0) continue;
+    const next = { ...row, ...allowed };
+    stored.set(id, next);
     await tx
       .update(todos)
       .set({ ...allowed, updatedAt: now })
       .where(and(stillOpen, eq(todos.id, id)));
+    actions.push({
+      kind: "update_todo",
+      reason,
+      detail: {
+        todoId: id,
+        title: next.title,
+        before: Object.fromEntries(written.map((field) => [field, row[field]])),
+        after: allowed,
+      },
+    });
   }
   for (const { id, waitingOn, followUpDate, since, reason } of waiting) {
     const row = stored.get(id);
     if (!row || row.ownerEditedFields.includes("waitingOn")) continue;
-    const waitingSince = new Date(since);
-    stored.set(id, { ...row, waitingSince });
+    const next = {
+      ...row,
+      waitingOn,
+      waitingSince: new Date(since),
+      waitingNote: reason,
+      followUpDate:
+        followUpDate !== undefined &&
+        !row.ownerEditedFields.includes("followUpDate")
+          ? followUpDate
+          : row.followUpDate,
+    };
+    stored.set(id, next);
     await tx
       .update(todos)
       .set({
-        waitingOn,
-        waitingSince,
-        waitingNote: reason,
-        ...(followUpDate !== undefined &&
-        !row.ownerEditedFields.includes("followUpDate")
-          ? { followUpDate }
-          : {}),
+        waitingOn: next.waitingOn,
+        followUpDate: next.followUpDate,
+        waitingSince: next.waitingSince,
+        waitingNote: next.waitingNote,
         updatedAt: now,
       })
       .where(and(stillOpen, eq(todos.id, id)));
+    actions.push({
+      kind: "mark_waiting",
+      reason,
+      detail: {
+        todoId: id,
+        title: row.title,
+        before: waitOf(row),
+        after: waitOf(next),
+      },
+    });
   }
   for (const { id, reason, mailAt } of replied) {
     const row = stored.get(id);
     if (!row?.waitingSince || row.waitingSince >= new Date(mailAt)) continue;
-    stored.set(id, { ...row, waitingSince: null });
+    const next = { ...row, ...NOT_WAITING, waitingNote: reason };
+    stored.set(id, next);
     await tx
       .update(todos)
       .set({ ...NOT_WAITING, waitingNote: reason, updatedAt: now })
       .where(and(stillOpen, eq(todos.id, id)));
+    actions.push({
+      kind: "reply_came",
+      reason,
+      detail: {
+        todoId: id,
+        title: row.title,
+        before: waitOf(row),
+        after: waitOf(next),
+      },
+    });
   }
   for (const { id, reason, mailAt } of changes.done) {
     const closed = await tx
@@ -878,6 +983,29 @@ export async function applyTodoChanges(
         timeZone,
         now,
       });
+      const before = stored.get(id);
+      actions.push({
+        kind: "complete_todo",
+        reason,
+        detail: {
+          todoId: id,
+          title: row.title,
+          before: before ? waitOf(before) : {},
+          after: NOT_WAITING,
+          doneAt: now.toISOString(),
+        },
+      });
     }
+  }
+  if (actions.length > 0) {
+    await tx.insert(agentActions).values(
+      actions.map((action, index) => ({
+        ...action,
+        runId,
+        userId,
+        // An undo goes newest first, and one transaction has one clock time.
+        createdAt: new Date(now.getTime() + index),
+      })),
+    );
   }
 }

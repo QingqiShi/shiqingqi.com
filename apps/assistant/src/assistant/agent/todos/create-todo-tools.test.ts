@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { z } from "zod";
 import {
+  agentRuns,
   morningReports,
   todoChecklistItems,
   todos,
@@ -57,11 +58,16 @@ async function applyChanges(userId: string, changes: TodoChanges) {
       builtAt: NOW,
     })
     .returning();
+  const [run] = await db
+    .insert(agentRuns)
+    .values({ userId, task: "report", modelId: "test", startedAt: NOW })
+    .returning();
   await db.transaction((tx) =>
     applyTodoChanges(tx, {
       timeZone: "UTC",
       userId,
       reportId: report.id,
+      runId: run.id,
       now: NOW,
       today: NOW.toISOString().slice(0, 10),
       changes,
@@ -143,19 +149,32 @@ describe("the to-do tools", () => {
 
     expect(
       await refusal("add_todo", {
+        reason: "In the mail.",
         title: "Sign",
         dueDate: "2026-11-05",
         startDate: "2026-11-06",
       }),
     ).toContain("cannot be after");
     expect(
-      await refusal("update_todo", { todo: pay, startDate: "2026-11-11" }),
+      await refusal("update_todo", {
+        reason: "In the mail.",
+        todo: pay,
+        startDate: "2026-11-11",
+      }),
     ).toContain("after its due date");
     expect(
-      await refusal("update_todo", { todo: renew, dueDate: "2026-11-14" }),
+      await refusal("update_todo", {
+        reason: "In the mail.",
+        todo: renew,
+        dueDate: "2026-11-14",
+      }),
     ).toContain("after its due date");
     expect(
-      await refusal("update_todo", { todo: renew, startDate: null }),
+      await refusal("update_todo", {
+        reason: "In the mail.",
+        todo: renew,
+        startDate: null,
+      }),
     ).toContain("The owner set startDate");
     expect(changes).toEqual({
       added: [],
@@ -166,12 +185,14 @@ describe("the to-do tools", () => {
     });
 
     await callAgentTool(tools.update_todo, {
+      reason: "In the mail.",
       todo: pay,
       startDate: "2026-11-08",
     });
     expect(changes.updated).toEqual([
       {
         id: openTodos[openTodos.findIndex((todo) => todo.title === "Pay")].id,
+        reason: "In the mail.",
         edit: { startDate: "2026-11-08" },
       },
     ]);
@@ -193,7 +214,11 @@ describe("the to-do tools", () => {
       added: [],
       done: [],
       updated: [
-        { id: row.id, edit: { title: "Pay it", startDate: "2026-11-08" } },
+        {
+          id: row.id,
+          reason: "In the mail.",
+          edit: { title: "Pay it", startDate: "2026-11-08" },
+        },
       ],
     });
 
@@ -216,8 +241,12 @@ describe("the to-do tools", () => {
       added: [],
       done: [],
       updated: [
-        { id: row.id, edit: { dueDate: "2026-11-20" } },
-        { id: row.id, edit: { startDate: "2026-11-10" } },
+        { id: row.id, reason: "In the mail.", edit: { dueDate: "2026-11-20" } },
+        {
+          id: row.id,
+          reason: "In the mail.",
+          edit: { startDate: "2026-11-10" },
+        },
       ],
     });
 
@@ -263,7 +292,10 @@ describe("the to-do tools", () => {
     ).toContain("Unknown to-do");
     expect(
       JSON.stringify(
-        await callAgentTool(tools.add_todo, { title: "pay the  invoice" }),
+        await callAgentTool(tools.add_todo, {
+          reason: "In the mail.",
+          title: "pay the  invoice",
+        }),
       ),
     ).toContain("has that title already");
     await callAgentTool(tools.complete_todo, {
@@ -271,10 +303,14 @@ describe("the to-do tools", () => {
       reason: "The receipt came.",
     });
     await callAgentTool(tools.update_todo, {
+      reason: "In the mail.",
       todo: key(call.id),
       dueDate: "2026-11-03",
     });
-    await callAgentTool(tools.add_todo, { title: "Sign the form" });
+    await callAgentTool(tools.add_todo, {
+      reason: "In the mail.",
+      title: "Sign the form",
+    });
 
     // The owner ticks "Call the bank" off while the run goes on.
     await db.update(todos).set({ doneAt: NOW }).where(eq(todos.id, call.id));
@@ -323,13 +359,19 @@ describe("the to-do tools", () => {
     expect(
       JSON.stringify(
         await callAgentTool(tools.update_todo, {
+          reason: "In the mail.",
           todo: payKey,
           dueDate: "2026-12-01",
         }),
       ),
     ).toContain("The owner set dueDate");
-    await callAgentTool(tools.update_todo, { todo: payKey, detail: "Rent" });
     await callAgentTool(tools.update_todo, {
+      reason: "In the mail.",
+      todo: payKey,
+      detail: "Rent",
+    });
+    await callAgentTool(tools.update_todo, {
+      reason: "In the mail.",
       todo: callKey,
       title: "Call the bank",
       dueDate: "2026-12-01",
@@ -416,6 +458,7 @@ describe("the to-do tools", () => {
     expect(
       JSON.stringify(
         await callAgentTool(tools.update_todo, {
+          reason: "In the mail.",
           todo: "t1",
           repeat: { kind: "daily", every: 1 },
         }),
@@ -424,7 +467,12 @@ describe("the to-do tools", () => {
 
     await callAgentTool(tools.complete_todo, { todo: "t1", reason: "Paid." });
     expect(
-      JSON.stringify(await callAgentTool(tools.add_todo, { title: "pay" })),
+      JSON.stringify(
+        await callAgentTool(tools.add_todo, {
+          reason: "In the mail.",
+          title: "pay",
+        }),
+      ),
     ).toContain("comes by itself");
 
     await applyChanges(userId, changes);
@@ -754,7 +802,10 @@ describe("the to-do tools", () => {
     async function add(input: Record<string, string>) {
       const run = toolsOfRun();
       const output = JSON.stringify(
-        await callAgentTool(run.tools.add_todo, input),
+        await callAgentTool(run.tools.add_todo, {
+          reason: "In the mail.",
+          ...input,
+        }),
       );
       return { output, added: run.changes.added };
     }
@@ -850,7 +901,10 @@ describe("the to-do tools", () => {
         receivedAtOf: () => NOW,
       });
       const output = JSON.stringify(
-        await callAgentTool(run.tools.add_todo, input),
+        await callAgentTool(run.tools.add_todo, {
+          reason: "In the mail.",
+          ...input,
+        }),
       );
       return { output, added: run.changes.added };
     }

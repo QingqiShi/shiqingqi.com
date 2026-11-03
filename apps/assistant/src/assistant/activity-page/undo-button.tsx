@@ -61,6 +61,21 @@ function refusalText(outcome: Refused) {
         en: "The event has changed in your calendar since, so it stays as it is.",
         zh: "这个日程之后在日历里改过，所以保持现状。",
       });
+    case "todo-gone":
+      return t({
+        en: "That to-do has been deleted.",
+        zh: "这个待办已经删除了。",
+      });
+    case "todo-changed":
+      return t({
+        en: "That to-do has changed since, so it stays as it is.",
+        zh: "这个待办之后改过，所以保持现状。",
+      });
+    case "todo-closed":
+      return t({
+        en: "That to-do is closed now, so it stays as it is.",
+        zh: "这个待办已经关闭了，所以保持现状。",
+      });
     case "account-gone":
       return t({
         en: "That mailbox is no longer connected.",

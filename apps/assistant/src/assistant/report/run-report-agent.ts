@@ -160,6 +160,7 @@ export async function runReportAgent(
     openTodos,
     deletedTodos,
     rejectedTodos,
+    undoneTodoChanges,
     locale,
     timeZone,
     today,
@@ -173,6 +174,8 @@ export async function runReportAgent(
     openTodos: readonly StoredTodo[];
     deletedTodos: readonly DeletedTodo[];
     rejectedTodos: readonly RejectedTodo[];
+    /** The agent's to-do changes that the owner undid, as lines. */
+    undoneTodoChanges: readonly string[];
     locale: UserLocale;
     timeZone: string;
     today: string;
@@ -339,6 +342,7 @@ export async function runReportAgent(
         openTodos,
         deletedTodos,
         rejectedTodos,
+        undoneTodoChanges,
         minutes: Math.max(1, Math.floor((endsAt - now().getTime()) / 60_000)),
       }),
       maxSteps: MAX_STEPS,
