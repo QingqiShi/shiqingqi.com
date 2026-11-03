@@ -352,6 +352,10 @@ function Store({
     retry: t({ en: "Try again", zh: "重试" }),
     undo: t({ en: "Undo", zh: "撤销" }),
     done: t({ en: "Done", zh: "已完成" }),
+    reopened: t({
+      en: "Reopened. It is back in your list",
+      zh: "已重新打开，回到了待办列表",
+    }),
     doneNext: t({
       en: "Done. Next one on {date}",
       zh: "已完成。下一次在 {date}",
@@ -474,6 +478,7 @@ function Store({
     setDone: (id, done) => {
       if (!done) {
         reopen(id);
+        showToast({ message: copy.reopened });
         return;
       }
       const row = rows.find((entry) => entry.id === id);

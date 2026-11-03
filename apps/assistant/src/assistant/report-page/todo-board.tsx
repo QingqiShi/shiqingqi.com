@@ -1,38 +1,46 @@
 "use client";
 
 import { t } from "@tuja/i18n";
-import { Disclosure } from "@tuja/ui/components/disclosure";
-import { Heading } from "@tuja/ui/components/heading";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { AnchorButton } from "#src/links/anchor-button.tsx";
+import { DayHeader } from "../shell/day-header.tsx";
 import { OpenTodoGroups } from "./open-todo-groups.tsx";
 import { isOpen } from "./to-todo-item-data.ts";
 import { TodoList } from "./todo-list.tsx";
 import { useTodoStore } from "./todo-store-provider.tsx";
 
-/** The page of to-dos: the input, the open ones of a view by when they matter, and the done ones. */
+/** The input, the open to-dos of a view by when they matter, the last ones done, and the way to the rest. */
 export function TodoBoard() {
   const { rows } = useTodoStore();
+  const locale = useLocale();
   const done = rows
     .filter((row) => !isOpen(row))
     .toSorted((a, b) => (b.doneAt ?? "").localeCompare(a.doneAt ?? ""));
 
   return (
-    <div css={stack.group}>
-      <Heading level={1} look="h3">
-        {t({ en: "To-dos", zh: "待办" })}
-      </Heading>
+    <>
       <OpenTodoGroups headingLevel={2} />
       {done.length > 0 ? (
-        <Disclosure
-          look="plain"
-          summary={t({
-            en: "Done ({count})",
-            zh: "已完成（{count}）",
-          }).replace("{count}", String(done.length))}
-        >
-          <TodoList ids={done.map((todo) => todo.id)} showSource />
-        </Disclosure>
+        <section css={stack.tight}>
+          <DayHeader
+            level={2}
+            trailing={
+              <AnchorButton
+                href={getLocalePath("/todos/done", locale)}
+                look="ghost"
+                size="sm"
+              >
+                {t({ en: "See all", zh: "查看全部" })}
+              </AnchorButton>
+            }
+          >
+            {t({ en: "Recently done", zh: "最近完成" })}
+          </DayHeader>
+          <TodoList ids={done.map((todo) => todo.id)} showSource showDoneDate />
+        </section>
       ) : null}
-    </div>
+    </>
   );
 }

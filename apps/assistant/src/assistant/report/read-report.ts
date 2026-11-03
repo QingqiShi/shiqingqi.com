@@ -1,7 +1,19 @@
-import { and, desc, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
+import {
+  and,
+  desc,
+  eq,
+  exists,
+  ilike,
+  inArray,
+  isNotNull,
+  isNull,
+  or,
+  sql,
+} from "drizzle-orm";
 import {
   mailAccounts,
   morningReports,
+  todoChecklistItems,
   todos,
   type TodoCreator,
 } from "#src/assistant/db/schema.ts";
@@ -23,7 +35,11 @@ import type {
 } from "./types.ts";
 
 /** How many done to-dos the to-do page lists. */
-const DONE_LIMIT = 50;
+const RECENT_DONE_LIMIT = 5;
+/** How many done to-dos one page of the archive lists. */
+const DONE_PAGE_SIZE = 30;
+/** How many to-dos a search lists. */
+const SEARCH_LIMIT = 50;
 
 export interface TodoView {
   id: string;
@@ -287,11 +303,79 @@ export async function listTodos(scope: UserScope) {
     .select(todoColumns)
     .from(todos)
     .where(and(ownTodo(scope), isNotNull(todos.doneAt)))
-    .orderBy(desc(todos.doneAt))
-    .limit(DONE_LIMIT);
+    .orderBy(desc(todos.doneAt), desc(todos.id))
+    .limit(RECENT_DONE_LIMIT);
   return {
     open,
     done: done.map((row) => toTodoView(row, hrefOf)),
+  };
+}
+
+/**
+ * One page of the done to-dos, newest first. A page after the last one gives
+ * the last one, because a reopen can take the last row of the last page away.
+ */
+export async function listDoneTodos(scope: UserScope, askedPage: number) {
+  const isDone = and(ownTodo(scope), isNotNull(todos.doneAt));
+  const total = await scope.db.$count(todos, isDone);
+  const pageCount = Math.max(1, Math.ceil(total / DONE_PAGE_SIZE));
+  const page = Math.min(askedPage, pageCount);
+  const hrefOf = await hrefMaker(scope);
+  const rows = await scope.db
+    .select(todoColumns)
+    .from(todos)
+    .where(isDone)
+    .orderBy(desc(todos.doneAt), desc(todos.id))
+    .limit(DONE_PAGE_SIZE)
+    .offset((page - 1) * DONE_PAGE_SIZE);
+  return {
+    todos: rows.map((row) => toTodoView(row, hrefOf)),
+    page,
+    pageCount,
+  };
+}
+
+function containsPattern(term: string) {
+  return `%${term.replace(/[\\%_]/g, "\\$&")}%`;
+}
+
+/**
+ * The to-dos, open and done, whose title, detail or a checklist step holds
+ * `term`, whatever its case: the open ones in the owner's order, then the done
+ * ones, newest first. `hasMore` says that the list stops before the last match.
+ */
+export async function searchTodos(scope: UserScope, term: string) {
+  const pattern = containsPattern(term);
+  const hrefOf = await hrefMaker(scope);
+  const rows = await scope.db
+    .select(todoColumns)
+    .from(todos)
+    .where(
+      and(
+        ownTodo(scope),
+        or(
+          ilike(todos.title, pattern),
+          ilike(todos.detail, pattern),
+          exists(
+            scope.db
+              .select({ found: sql`1` })
+              .from(todoChecklistItems)
+              .where(
+                and(
+                  eq(todoChecklistItems.userId, scope.userId),
+                  eq(todoChecklistItems.todoId, todos.id),
+                  ilike(todoChecklistItems.text, pattern),
+                ),
+              ),
+          ),
+        ),
+      ),
+    )
+    .orderBy(sql`${todos.doneAt} desc nulls first`, todos.position)
+    .limit(SEARCH_LIMIT + 1);
+  return {
+    todos: rows.slice(0, SEARCH_LIMIT).map((row) => toTodoView(row, hrefOf)),
+    hasMore: rows.length > SEARCH_LIMIT,
   };
 }
 
