@@ -25,6 +25,8 @@ interface MorningReportCronTotals {
   pushed: number;
   removedDevices: number;
   failedUsers: number;
+  /** Only of the runs that stored a report. */
+  calendarChanges: number;
 }
 
 /**
@@ -56,6 +58,7 @@ export function makeMorningReportCron(
         pushed: 0,
         removedDevices: 0,
         failedUsers: 0,
+        calendarChanges: 0,
       }),
       runUser: async ({ db, userId, totals, endsAt }) => {
         const deps = dependencies.getBuildDeps();
@@ -67,6 +70,7 @@ export function makeMorningReportCron(
           return;
         }
         totals.built += 1;
+        totals.calendarChanges += report.calendarChanges;
         if (report.status === "no-model" || report.status === "failed") {
           totals.notWritten += 1;
         }

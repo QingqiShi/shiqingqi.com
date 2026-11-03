@@ -1,4 +1,5 @@
 import { and, eq, gte, isNull } from "drizzle-orm";
+import type { CalendarPolicy } from "#src/assistant/agent/calendar/run-calendars.ts";
 import {
   agentActions,
   agentRuns,
@@ -17,6 +18,13 @@ import type { ClaimedReportPreview } from "./claim-report-preview.ts";
 import { localClock } from "./due-report-date.ts";
 import { MORNING_REPORT_BUDGET_MS } from "./make-morning-report-cron.ts";
 import { previewMailboxSession } from "./preview-mailbox-session.ts";
+
+/** A preview changes no calendar: every write tool refuses with this. */
+const readOnlyCalendars: CalendarPolicy = () => ({
+  canWrite: false,
+  refusal:
+    "This is a preview, so the calendar was not changed. Say in the report what you would change.",
+});
 
 /**
  * The Message-IDs, per account, of the mail that real reports marked read since
@@ -100,6 +108,7 @@ async function buildPreview(
         today: localDate,
         mailWindow,
         mailStart,
+        calendarPolicy: readOnlyCalendars,
         task: "report-preview",
       },
     );
@@ -123,7 +132,8 @@ async function buildPreview(
 /**
  * Runs the real report agent for a claimed preview and stores what it
  * submits in the preview row. It stores no report and applies no to-do
- * change, and it never calls `markWindowMailRead` and pushes nothing. Every
+ * change, and it never calls `markWindowMailRead` and pushes nothing. Its
+ * agent has the calendar write tools, but the calendars are read-only. Every
  * failure ends in a `failed` row. It does not throw while the database works.
  */
 export async function runReportPreview(

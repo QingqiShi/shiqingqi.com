@@ -1,6 +1,9 @@
 import { desc, eq } from "drizzle-orm";
 import { listUndoneForAgent } from "#src/assistant/activity/list-undone-for-agent.ts";
-import { RunCalendars } from "#src/assistant/agent/calendar/run-calendars.ts";
+import {
+  RunCalendars,
+  type CalendarPolicy,
+} from "#src/assistant/agent/calendar/run-calendars.ts";
 import {
   RunMailboxes,
   type SessionDecorator,
@@ -70,6 +73,7 @@ export interface BuiltReport {
   newTodos: number;
   /** The mails marked read once the report was stored. */
   markedRead: number;
+  calendarChanges: number;
 }
 
 export interface RecentReport {
@@ -184,10 +188,13 @@ export async function runReportOverMailboxes(
   {
     mailboxes,
     settings,
+    calendarPolicy,
     ...reportWindow
   }: ReportWindowInput & {
     mailboxes: RunMailboxes;
     settings: ReportSettings;
+    /** Which calendars the agent may change; by default, all of them. */
+    calendarPolicy?: CalendarPolicy;
   },
 ): Promise<ReportAgentResult> {
   return runReportAgent(
@@ -196,10 +203,12 @@ export async function runReportOverMailboxes(
       ...reportWindow,
       models: deps.models,
       mailboxes,
-      calendars: await RunCalendars.open(db, userId, {
-        calendarConnector: deps.calendarConnector,
-        auth: deps.mail.auth,
-      }),
+      calendars: await RunCalendars.open(
+        db,
+        userId,
+        { calendarConnector: deps.calendarConnector, auth: deps.mail.auth },
+        calendarPolicy,
+      ),
       openTodos: await readOpenTodos({ db, userId }),
       deletedTodos: await readDeletedTodos({ db, userId }, deps.now()),
       rejectedTodos: await readRejectedTodos({ db, userId }, deps.now()),
@@ -266,7 +275,8 @@ export function reportContent({
  * the report agent reads the mail of the report's window and today's
  * calendar, and submits the report; the report and the agent's to-do changes
  * are stored in one transaction. Only then is the mail of that window marked
- * read. A mailbox that cannot be read does not delay the report: the report
+ * read. The agent's calendar changes happen during its run and stay, whatever
+ * the run stores. A mailbox that cannot be read does not delay the report: the report
  * says so, and the next report that can read the mailbox also covers the mail
  * it missed. Returns null when none is due, the user has no mailbox, or
  * another run stored the day first. Returns "retry" and stores nothing when
@@ -381,6 +391,7 @@ export async function buildMorningReport(
       headline: content.headline,
       newTodos: changes?.added.length ?? 0,
       markedRead,
+      calendarChanges: agent?.calendarChanges ?? 0,
     };
   } finally {
     await mailboxes.finish();
