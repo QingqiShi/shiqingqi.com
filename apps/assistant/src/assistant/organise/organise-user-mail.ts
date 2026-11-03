@@ -3,10 +3,10 @@ import { listUndoneForAgent } from "#src/assistant/activity/list-undone-for-agen
 import {
   createCalendarTools,
   type CalendarToolStats,
-  type SourceMail,
 } from "#src/assistant/agent/calendar/create-calendar-tools.ts";
 import { EventHandles } from "#src/assistant/agent/calendar/event-handles.ts";
 import { RunCalendars } from "#src/assistant/agent/calendar/run-calendars.ts";
+import { sourceMailOf } from "#src/assistant/agent/calendar/source-mail-of.ts";
 import {
   createMailTools,
   type MailToolStats,
@@ -23,7 +23,6 @@ import type { CalendarConnector } from "#src/assistant/calendar/caldav/types.ts"
 import { DEFAULT_TIME_ZONE, userSettings } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
 import type { MailboxDeps } from "#src/assistant/mail/accounts/open-mailbox-session.ts";
-import { openMailHref } from "#src/assistant/report/open-mail-href.ts";
 import { organiseTask, type InboxState } from "./organise-task.ts";
 
 /**
@@ -135,24 +134,6 @@ export async function organiseUserMail(
       auth: deps.auth,
     });
     const timeZone = settings.timeZone || DEFAULT_TIME_ZONE;
-    const sourceMail = (id: string): SourceMail => {
-      const ref = handles.get(id);
-      const account = mailboxes.accounts.find(
-        (entry) => entry.key === ref.accountKey,
-      );
-      return {
-        messageId: ref.messageId,
-        subject: ref.subject,
-        sender: ref.sender,
-        href: account
-          ? openMailHref({
-              provider: account.provider,
-              accountAddress: account.address,
-              messageId: ref.messageId,
-            })
-          : null,
-      };
-    };
     const made: { stats: (MailToolStats | CalendarToolStats)[] } = {
       stats: [],
     };
@@ -190,7 +171,7 @@ export async function organiseUserMail(
             calendars,
             handles: new EventHandles(),
             timeZone,
-            sourceMail,
+            sourceMail: (id) => sourceMailOf(mailboxes, handles, id),
             run: context,
             now: deps.auth.now,
           });

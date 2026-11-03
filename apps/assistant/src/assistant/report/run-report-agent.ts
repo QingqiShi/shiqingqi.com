@@ -9,6 +9,7 @@ import {
 import { createCalendarTools } from "#src/assistant/agent/calendar/create-calendar-tools.ts";
 import { EventHandles } from "#src/assistant/agent/calendar/event-handles.ts";
 import type { RunCalendars } from "#src/assistant/agent/calendar/run-calendars.ts";
+import { sourceMailOf } from "#src/assistant/agent/calendar/source-mail-of.ts";
 import {
   createMailTools,
   listMail,
@@ -67,6 +68,7 @@ export interface ReportAgentResult {
   /** Null when the agent did not submit a report. */
   report: SubmittedReport | null;
   todoChanges: TodoChanges;
+  calendarChanges: number;
   /** The mails of the window in the folders the report covers, each Message-ID once; no earlier mail that the report also covers. */
   mailCount: number;
   /** Marks read, per account, the listed mail from its `mailStart` up to the window's end, in the folders the report covers, and no other mail. Call it only once the report is stored. */
@@ -89,23 +91,6 @@ const actionItem = item.extend({
       'The to-do for this line, such as "t3": the page shows the to-do in its place.',
     ),
 });
-
-const eventsOutput = z.object({
-  events: z.array(
-    z.object({
-      id: z.string(),
-      title: z.string(),
-      start: z.string(),
-      end: z.string().nullable(),
-      allDay: z.boolean(),
-      timeZone: z.string().nullable(),
-      endTimeZone: z.string().optional(),
-      location: z.string().nullable(),
-      cancelled: z.boolean(),
-    }),
-  ),
-});
-type ListedEvent = z.output<typeof eventsOutput>["events"][number];
 
 /**
  * Lists the mail the report covers in one folder, which gives each mail its
@@ -140,11 +125,12 @@ function upFront(tool: AgentTool, loadUpFront: boolean): AgentTool {
 /**
  * Runs the report agent over mailboxes and calendars that are open: it
  * lists and reads the window's mail, looks at today's calendar, changes the
- * to-dos in memory and submits the report. Before the run, code lists the
- * mail from each account's `mailStart` up to the window's end in every folder
- * the report covers, so the prompt can say how much each holds and
- * `markWindowMailRead` reaches all of it. Nothing is stored here, and no mail
- * changes until `markWindowMailRead`.
+ * to-dos in memory and submits the report. It also changes the
+ * calendar at once, with an action row for each change, unless the calendars
+ * are read-only. Before the run, code lists the mail from each account's
+ * `mailStart` up to the window's end in every folder the report covers, so the
+ * prompt can say how much each holds and `markWindowMailRead` reaches all of it. No report or to-do is stored here,
+ * and no mail changes until `markWindowMailRead`.
  */
 export async function runReportAgent(
   {
@@ -187,7 +173,9 @@ export async function runReportAgent(
   },
 ): Promise<ReportAgentResult> {
   const handles = new MailHandles();
-  const events = new Map<string, ListedEvent>();
+  const made: { calendar: ReturnType<typeof createCalendarTools> | null } = {
+    calendar: null,
+  };
   let submitted: SubmittedReport | null = null;
   let markRead: AgentTool | null = null;
 
@@ -269,7 +257,9 @@ export async function runReportAgent(
           z.object({
             event: z
               .string()
-              .describe('An event id from list_events, such as "e3".'),
+              .describe(
+                'An event id from list_events or create_event, such as "e3".',
+              ),
             note: line
               .optional()
               .describe(
@@ -298,7 +288,7 @@ export async function runReportAgent(
       const agenda = calendars.hasAccounts
         ? agendaItems(
             (input.agenda ?? []).flatMap(({ event, note }) => {
-              const found = events.get(event);
+              const found = made.calendar?.view(event);
               return found && !found.cancelled ? [{ ...found, note }] : [];
             }),
             timeZone,
@@ -375,23 +365,16 @@ export async function runReportAgent(
           calendars,
           handles: new EventHandles(),
           timeZone,
+          sourceMail: (id) => sourceMailOf(mailboxes, handles, id),
           run: context,
           now,
         });
-        const listEvents = calendar.tools.list_events;
+        made.calendar = calendar;
         tools.list_calendars = upFront(calendar.tools.list_calendars, false);
-        tools.list_events = {
-          ...listEvents,
-          loadUpFront: true,
-          execute: async (input) => {
-            const output = await listEvents.execute(input);
-            for (const event of eventsOutput.safeParse(output).data?.events ??
-              []) {
-              events.set(event.id, event);
-            }
-            return output;
-          },
-        };
+        tools.list_events = upFront(calendar.tools.list_events, true);
+        tools.create_event = upFront(calendar.tools.create_event, true);
+        tools.update_event = upFront(calendar.tools.update_event, true);
+        tools.delete_event = upFront(calendar.tools.delete_event, false);
         return tools;
       },
     },
@@ -409,6 +392,11 @@ export async function runReportAgent(
     run,
     report: submitted,
     todoChanges: todo.changes,
+    calendarChanges: made.calendar
+      ? made.calendar.stats.createdEvents +
+        made.calendar.stats.updatedEvents +
+        made.calendar.stats.deletedEvents
+      : 0,
     mailCount: new Set(windowMail.map(([, ref]) => ref.messageId)).size,
     markWindowMailRead: async (reason) => {
       if (!markRead) return 0;

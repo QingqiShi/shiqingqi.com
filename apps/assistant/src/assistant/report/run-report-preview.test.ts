@@ -487,6 +487,89 @@ describe("a preview of the next morning report", () => {
     expect(preview.openTodos).toBe(2);
   });
 
+  it("refuses every calendar write of its agent", async () => {
+    const calendar = createFakeCalendarServer({
+      user: "me@icloud.com",
+      password: "app-password",
+    });
+    const home = calendar.addCalendar("Home", { isDefault: true });
+    calendar.putEvent(
+      home,
+      "dentist.ics",
+      [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "BEGIN:VEVENT",
+        "UID:dentist",
+        "DTSTART:20261102T100000Z",
+        "DTEND:20261102T103000Z",
+        "SUMMARY:Dentist",
+        "END:VEVENT",
+        "END:VCALENDAR",
+        "",
+      ].join("\r\n"),
+    );
+    const eventsBefore = calendar.events(home);
+    const offered: string[][] = [];
+    const prompts: CallOptions["prompt"][] = [];
+    const writes = [
+      call("create_event", {
+        title: "Flight",
+        start: "2026-11-03T10:00",
+        allDay: false,
+        fromMail: "m1",
+        reason: "A booking.",
+      }),
+      call("update_event", { id: "e1", title: "Moved", reason: "It moved." }),
+      call("delete_event", { id: "e1", reason: "It was cancelled." }),
+    ];
+    const steps = [
+      [call("list_events", { from: "2026-11-02", to: "2026-11-02" })],
+      writes,
+      [
+        call("submit_report", {
+          headline: "Nothing urgent.",
+          needsAction: [],
+          worthKnowing: [],
+          agenda: [{ event: "e1" }],
+          rest: "",
+        }),
+      ],
+    ];
+    const agent = {
+      id: "agent-model",
+      model: new MockLanguageModelV3({
+        doGenerate: ({ tools = [], prompt }) => {
+          offered.push(tools.map((tool) => tool.name));
+          prompts.push(prompt);
+          return reply(steps[offered.length - 1], true);
+        },
+      }),
+    };
+
+    await start({ ...buildDeps(agent), calendarConnector: calendar.connector });
+
+    expect(offered).toHaveLength(steps.length);
+    expect(offered[0]).toEqual(
+      expect.arrayContaining(writes.map(({ toolName }) => toolName)),
+    );
+    const outputs = toolOutputs(prompts[2]);
+    expect(JSON.stringify(outputs.get("list_events"))).toContain("Dentist");
+    for (const { toolName } of writes) {
+      expect(outputs.get(toolName)).toEqual({
+        error:
+          "This is a preview, so the calendar was not changed. Say in the report what you would change.",
+      });
+    }
+    expect(calendar.events(home)).toEqual(eventsBefore);
+    expect(await db.select().from(agentActions)).toEqual([]);
+    const row = await previewRow();
+    expect(row.status).toBe("done");
+    expect(row.content?.agenda?.map((entry) => entry.title)).toEqual([
+      "Dentist",
+    ]);
+  });
+
   describe("with mail that a real report marked read", () => {
     const MARKED_AT = new Date("2026-11-01T12:00:00Z");
     const RECEIVED_AT = new Date("2026-11-01T09:00:00Z");

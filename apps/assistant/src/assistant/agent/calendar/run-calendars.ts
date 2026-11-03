@@ -27,12 +27,14 @@ export interface RunCalendar {
   isDefault: boolean;
   shared: boolean;
   canWrite: boolean;
+  /** What a write tool tells the model when `canWrite` is false; absent, it says the owner does not let the model change the calendar. */
+  refusal?: string;
 }
 
 /** Which calendars the agent may change. */
 export type CalendarPolicy = (
   calendar: Pick<RunCalendar, "accountId" | "url" | "name">,
-) => { canWrite: boolean };
+) => Pick<RunCalendar, "canWrite" | "refusal">;
 
 /** The owner lets the agent change every calendar; a setting per calendar can take its place. */
 export const writeEveryCalendar: CalendarPolicy = () => ({ canWrite: true });
@@ -140,7 +142,7 @@ export class RunCalendars {
             address: account.address,
             isDefault: calendar.isDefault,
             shared: calendar.shared,
-            canWrite: this.#policy(found).canWrite,
+            ...this.#policy(found),
           });
         }
       } catch (error) {

@@ -349,6 +349,8 @@ function eventView(
   };
 }
 
+export type EventView = ReturnType<typeof eventView>;
+
 /** The events of one calendar object repeat, or it holds changed instances of a repeating event. */
 function repeats(events: readonly IcsEvent[]) {
   return events.length > 1 || events.some((event) => event.recurring);
@@ -385,7 +387,12 @@ export function createCalendarTools({
   sourceMail,
   run,
   now,
-}: CalendarToolsInput): { tools: AgentTools; stats: CalendarToolStats } {
+}: CalendarToolsInput): {
+  tools: AgentTools;
+  stats: CalendarToolStats;
+  /** What the model knows of an event, as it is after the run's own writes; undefined for an id that is unknown or gone. */
+  view: (id: string) => EventView | undefined;
+} {
   const stats: CalendarToolStats = {
     createdEvents: 0,
     updatedEvents: 0,
@@ -433,7 +440,8 @@ export function createCalendarTools({
       : await calendars.defaultCalendar();
     if (!calendar.canWrite) {
       throw new ToolRefusal(
-        `Calendar ${calendar.key} ("${calendar.name}") is not one the owner lets you change.`,
+        calendar.refusal ??
+          `Calendar ${calendar.key} ("${calendar.name}") is not one the owner lets you change.`,
       );
     }
     return calendar;
@@ -498,13 +506,16 @@ export function createCalendarTools({
     event: IcsEvent,
     events: IcsEvent[],
   ) {
-    return handles.register({
-      calendarKey: calendar.key,
-      url: object.url,
-      etag: object.etag,
-      title: event.title,
-      occurrence: repeats(events) ? event.start : undefined,
-    });
+    return handles.register(
+      {
+        calendarKey: calendar.key,
+        url: object.url,
+        etag: object.etag,
+        title: event.title,
+        occurrence: repeats(events) ? event.start : undefined,
+      },
+      (id) => eventView(id, calendar, event, events),
+    );
   }
 
   /** An event in any calendar that is this one said again. */
@@ -527,12 +538,7 @@ export function createCalendarTools({
           end: range.end.getTime(),
         }).find((event) => isSameEvent(timing, title, sourceMessageId, event));
         if (same) {
-          return eventView(
-            register(calendar, object, same, events),
-            calendar,
-            same,
-            events,
-          );
+          return register(calendar, object, same, events);
         }
       }
     }
@@ -628,12 +634,7 @@ export function createCalendarTools({
             for (const event of eventsInRange(events, { start, end })) {
               found.push({
                 start: event.start,
-                view: eventView(
-                  register(calendar, object, event, events),
-                  calendar,
-                  event,
-                  events,
-                ),
+                view: register(calendar, object, event, events),
               });
             }
           }
@@ -723,7 +724,10 @@ export function createCalendarTools({
               etag,
               title: input.title,
             };
-            const id = handles.register(ref);
+            const [event] = readIcsEvents(ics, timeZone);
+            const { id } = handles.register(ref, (id) =>
+              eventView(id, calendar, event, [event]),
+            );
             await log("create_event", calendar, mail, input.reason, {
               href: created.url,
               etag,
@@ -811,10 +815,12 @@ export function createCalendarTools({
             found.ref.url,
             written.etag,
           );
-          handles.update(input.id, {
-            etag,
-            title: input.title ?? found.ref.title,
-          });
+          const [event] = readIcsEvents(data, timeZone);
+          const updated = handles.update(
+            input.id,
+            { etag, title: input.title ?? found.ref.title },
+            (id) => eventView(id, found.calendar, event, [event]),
+          );
           await log("update_event", found.calendar, mail, input.reason, {
             href: found.ref.url,
             etag,
@@ -829,10 +835,7 @@ export function createCalendarTools({
               : {}),
             previous: previousOf(found.object),
           });
-          const [event] = readIcsEvents(data, timeZone);
-          return {
-            updated: eventView(input.id, found.calendar, event, [event]),
-          };
+          return { updated };
         }),
     }),
 
@@ -868,5 +871,5 @@ export function createCalendarTools({
     }),
   };
 
-  return { tools, stats };
+  return { tools, stats, view: (id) => handles.view(id) };
 }
