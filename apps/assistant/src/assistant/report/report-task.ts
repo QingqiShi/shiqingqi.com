@@ -80,7 +80,7 @@ function todoLine(key: string, todo: StoredTodo) {
   return `- ${key}: ${todo.title}${extra.length > 0 ? ` (${extra.join("; ")})` : ""}`;
 }
 
-/** The first message: the mail it covers, where that mail is, the open, deleted and rejected to-dos, the to-do changes the owner undid and the time there is. */
+/** The first message: the mail it covers, where that mail is, the open, deleted and rejected to-dos, and the to-do changes the owner undid. */
 function prompt({
   today,
   windowLabels,
@@ -90,7 +90,6 @@ function prompt({
   deletedTodos,
   rejectedTodos,
   undoneTodoChanges,
-  minutes,
 }: {
   today: string;
   mailWindow: TimeBounds;
@@ -101,8 +100,6 @@ function prompt({
   deletedTodos: readonly DeletedTodo[];
   rejectedTodos: readonly RejectedTodo[];
   undoneTodoChanges: readonly string[];
-  /** About how long the run may take. */
-  minutes: number;
 }) {
   const weekday = new Intl.DateTimeFormat("en-GB", {
     weekday: "long",
@@ -142,9 +139,7 @@ ${undoneTodoChanges.map((line) => `- ${line}`).join("\n")}`
 ${boxes.join("\n")}
 
 ${catchUp}Open to-dos:
-${todos.length > 0 ? todos.join("\n") : "(none)"}${deleted}${rejected}${undone}
-
-You have about ${String(minutes)} minutes before the report has to be submitted.`;
+${todos.length > 0 ? todos.join("\n") : "(none)"}${deleted}${rejected}${undone}`;
 }
 
 /** Every word the report agent gets, besides the tool descriptions. */

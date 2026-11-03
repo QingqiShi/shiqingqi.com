@@ -334,7 +334,6 @@ export async function runReportAgent(
         deletedTodos,
         rejectedTodos,
         undoneTodoChanges,
-        minutes: Math.max(1, Math.floor((endsAt - now().getTime()) / 60_000)),
       }),
       maxSteps: MAX_STEPS,
       finish: { tool: SUBMIT, done: () => submitted !== null },
