@@ -1,14 +1,19 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { ArrowsMergeIcon } from "@phosphor-icons/react/dist/ssr/ArrowsMerge";
+import { ArrowUUpLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowUUpLeft";
 import { CalendarDotsIcon } from "@phosphor-icons/react/dist/ssr/CalendarDots";
 import { CalendarPlusIcon } from "@phosphor-icons/react/dist/ssr/CalendarPlus";
 import { CalendarXIcon } from "@phosphor-icons/react/dist/ssr/CalendarX";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
 import { EnvelopeOpenIcon } from "@phosphor-icons/react/dist/ssr/EnvelopeOpen";
 import { EnvelopeSimpleIcon } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";
 import { FlagIcon } from "@phosphor-icons/react/dist/ssr/Flag";
 import { FolderSimpleIcon } from "@phosphor-icons/react/dist/ssr/FolderSimple";
 import { FolderSimpleMinusIcon } from "@phosphor-icons/react/dist/ssr/FolderSimpleMinus";
 import { FolderSimplePlusIcon } from "@phosphor-icons/react/dist/ssr/FolderSimplePlus";
+import { HourglassIcon } from "@phosphor-icons/react/dist/ssr/Hourglass";
+import { ListPlusIcon } from "@phosphor-icons/react/dist/ssr/ListPlus";
+import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
@@ -30,7 +35,9 @@ import type {
   ActivityItem,
   ActivityMail,
   ActivityRun,
+  TodoFieldChange,
 } from "../activity/read-activity.ts";
+import type { TodoPlainField } from "../agent/todos/todo-action-detail.ts";
 import { localClock } from "../report/due-report-date.ts";
 import { daysBetween, formatDay } from "../report-page/format-day.ts";
 import { DayHeader } from "../shell/day-header.tsx";
@@ -269,6 +276,111 @@ function EventSentence({
   }
 }
 
+function TodoSentence({
+  item,
+  locale,
+}: {
+  item: Extract<ActivityItem, { type: "todo" }>;
+  locale: SupportedLocale;
+}) {
+  const parts = {
+    title: <Quoted text={item.title} />,
+    due: item.dueDate ? formatEventStart(item.dueDate, locale) : "",
+    who: item.waitingOn ?? "",
+  };
+  switch (item.kind) {
+    case "add_todo":
+      return fillTemplate(
+        item.dueDate
+          ? t({
+              en: "Added the to-do {title}, due {due}",
+              zh: "添加了待办 {title}，{due} 到期",
+            })
+          : t({ en: "Added the to-do {title}", zh: "添加了待办 {title}" }),
+        parts,
+      );
+    case "update_todo":
+      return fillTemplate(
+        t({ en: "Changed the to-do {title}", zh: "修改了待办 {title}" }),
+        parts,
+      );
+    case "complete_todo":
+      return fillTemplate(
+        t({ en: "Closed the to-do {title}", zh: "关闭了待办 {title}" }),
+        parts,
+      );
+    case "mark_waiting":
+      return fillTemplate(
+        t({
+          en: "Marked the to-do {title} as waiting on {who}",
+          zh: "把待办 {title} 标为等待 {who}",
+        }),
+        parts,
+      );
+    case "reply_came":
+      return fillTemplate(
+        t({
+          en: "Moved the to-do {title} back from waiting on {who}",
+          zh: "把待办 {title} 从等待 {who} 移了回来",
+        }),
+        parts,
+      );
+  }
+}
+
+function todoFieldNames(): Record<TodoPlainField, string> {
+  return {
+    title: t({ en: "Title", zh: "标题" }),
+    detail: t({ en: "Detail", zh: "详情" }),
+    dueDate: t({ en: "Due date", zh: "到期日" }),
+    startDate: t({ en: "Start date", zh: "开始日期" }),
+  };
+}
+
+function TodoChangeLine({
+  change: { field, from, to },
+  locale,
+}: {
+  change: TodoFieldChange;
+  locale: SupportedLocale;
+}) {
+  const none = t({ en: "none", zh: "无" });
+  const date = (value: string | null) =>
+    value ? formatEventStart(value, locale) : none;
+  const name = todoFieldNames()[field];
+  return (
+    <Text as="p" look="caption" tone="muted">
+      {field === "detail"
+        ? t({ en: "The detail changed", zh: "详情有改动" })
+        : fillTemplate(
+            t({ en: "{name}: {from} → {to}", zh: "{name}：{from} → {to}" }),
+            field === "title"
+              ? {
+                  name,
+                  from: <Quoted text={from ?? ""} />,
+                  to: <Quoted text={to ?? ""} />,
+                }
+              : { name, from: date(from), to: date(to) },
+          )}
+    </Text>
+  );
+}
+
+function KeptNote({ fields }: { fields: readonly TodoPlainField[] }) {
+  const names = todoFieldNames();
+  return (
+    <Text as="p" look="caption" tone="muted">
+      {t({
+        en: "These changed since, so they stay as they are: {fields}",
+        zh: "这些内容之后改过，所以保持现状：{fields}",
+      }).replace(
+        "{fields}",
+        fields.map((field) => names[field]).join(t({ en: ", ", zh: "、" })),
+      )}
+    </Text>
+  );
+}
+
 const KIND_GLYPHS: Record<
   Exclude<ActivityItem, { type: "merge" }>["kind"],
   ReactNode
@@ -284,6 +396,11 @@ const KIND_GLYPHS: Record<
   create_event: <CalendarPlusIcon weight="regular" />,
   update_event: <CalendarDotsIcon weight="regular" />,
   delete_event: <CalendarXIcon weight="regular" />,
+  add_todo: <ListPlusIcon weight="regular" />,
+  update_todo: <PencilSimpleIcon weight="regular" />,
+  complete_todo: <CheckCircleIcon weight="regular" />,
+  mark_waiting: <HourglassIcon weight="regular" />,
+  reply_came: <ArrowUUpLeftIcon weight="regular" />,
 };
 
 function UndoneBadge() {
@@ -366,6 +483,8 @@ function ItemRow({
                   <MailSentence item={item} />
                 ) : item.type === "event" ? (
                   <EventSentence item={item} locale={locale} />
+                ) : item.type === "todo" ? (
+                  <TodoSentence item={item} locale={locale} />
                 ) : (
                   <FolderSentence item={item} />
                 )}
@@ -373,6 +492,18 @@ function ItemRow({
               <Text as="p" look="bodySmall" tone="muted">
                 {item.reason}
               </Text>
+              {item.type === "todo"
+                ? item.changes.map((change) => (
+                    <TodoChangeLine
+                      key={change.field}
+                      change={change}
+                      locale={locale}
+                    />
+                  ))
+                : null}
+              {item.type === "todo" && item.kept.length > 0 ? (
+                <KeptNote fields={item.kept} />
+              ) : null}
               {item.type === "event" && item.sourceSubject ? (
                 <Text as="p" look="caption" tone="muted">
                   {fillTemplate(

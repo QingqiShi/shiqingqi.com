@@ -4,7 +4,11 @@ import type {
   CalendarConnector,
   CalendarSession,
 } from "#src/assistant/calendar/caldav/types.ts";
-import { agentActions, mailAccounts } from "#src/assistant/db/schema.ts";
+import {
+  agentActions,
+  mailAccounts,
+  type TodoActionKind,
+} from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
 import {
   openMailboxSession,
@@ -20,6 +24,7 @@ import {
   isSyntheticMessageId,
   parseMailSafely,
 } from "#src/assistant/mail/parse/parse-mail.ts";
+import { TODO_UNDO_REFUSALS, undoTodoAction } from "./undo-todo-action.ts";
 
 export interface UndoDeps extends MailboxDeps {
   calendarConnector: CalendarConnector;
@@ -45,6 +50,7 @@ export const UNDO_REFUSALS = [
   "account-gone",
   /** The mailbox or calendar did not let the app log in, or a command failed. */
   "failed",
+  ...TODO_UNDO_REFUSALS,
 ] as const;
 export type UndoRefusal = (typeof UNDO_REFUSALS)[number];
 
@@ -171,9 +177,10 @@ class UndoMailbox {
  * Takes back changes that agents made, newest first, for one user: mail
  * moves back, read and flagged state flips back, folders come back or go
  * when they are empty, and calendar events go back to the ICS kept before
- * the change. Each undone action gets `undone_at`. An action that cannot be
- * undone, because its mail or event is gone or changed, is left as it is
- * and the others go on. It never deletes mail.
+ * the change, and to-dos return to what they were (`undoTodoAction`). Each
+ * undone action gets `undone_at`. An action that cannot be undone, because its
+ * mail, event or to-do is gone or changed, is left as it is and the others go
+ * on. It never deletes mail.
  *
  * Returns null when no action of the target belongs to the user.
  */
@@ -408,9 +415,48 @@ export async function undoAgentActions(
     return written.etag ?? (await session.getEvent(detail.href))?.etag ?? null;
   }
 
+  function markUndone(
+    tx: AssistantDb,
+    row: ActionRow,
+    detail: ActionRow["detail"],
+  ) {
+    return tx
+      .update(agentActions)
+      .set({ undoneAt: now(), detail })
+      .where(
+        and(
+          eq(agentActions.id, row.id),
+          eq(agentActions.userId, userId),
+          isNull(agentActions.undoneAt),
+        ),
+      );
+  }
+
+  function undoTodo(row: ActionRow, kind: TodoActionKind) {
+    return db.transaction(async (tx) => {
+      const result = await undoTodoAction(
+        { tx, userId, now: now() },
+        kind,
+        row.detail,
+      );
+      if ("refusal" in result) throw new Refused(result.refusal);
+      await markUndone(tx, row, {
+        ...row.detail,
+        undo: { kept: result.kept },
+      });
+    });
+  }
+
   async function undoOne(row: ActionRow) {
     let detail = row.detail;
     switch (row.kind) {
+      case "add_todo":
+      case "update_todo":
+      case "complete_todo":
+      case "mark_waiting":
+      case "reply_came":
+        await undoTodo(row, row.kind);
+        return;
       case "move":
         await undoMove(row);
         break;
@@ -431,16 +477,7 @@ export async function undoAgentActions(
         detail = { ...row.detail, undo: { etag: await undoEvent(row) } };
         break;
     }
-    await db
-      .update(agentActions)
-      .set({ undoneAt: now(), detail })
-      .where(
-        and(
-          eq(agentActions.id, row.id),
-          eq(agentActions.userId, userId),
-          isNull(agentActions.undoneAt),
-        ),
-      );
+    await markUndone(db, row, detail);
   }
 
   const outcomes: UndoOutcome[] = [];

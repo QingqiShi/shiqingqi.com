@@ -266,6 +266,8 @@ export const todos = pgTable(
     rejectedAt: timestamp("rejected_at", { withTimezone: true }),
     /** Why, in the owner's words. */
     rejectionNote: text("rejection_note"),
+    /** When the owner undid the report's add on the activity page. Such a row is deleted, but the owner did not delete it, so the report agent does not hear of it as deleted. */
+    addUndoneAt: timestamp("add_undone_at", { withTimezone: true }),
   },
   (t) => [
     index("todos_open_idx")
@@ -293,6 +295,10 @@ export const todos = pgTable(
     check(
       "todos_rejection_note_needs_rejected",
       sql`${t.rejectionNote} is null or ${t.rejectedAt} is not null`,
+    ),
+    check(
+      "todos_add_undone_is_deleted",
+      sql`${t.addUndoneAt} is null or ${t.deletedAt} is not null`,
     ),
   ],
 );
@@ -406,6 +412,15 @@ export const agentRuns = pgTable(
   (t) => [index("agent_runs_user_idx").on(t.userId, t.startedAt)],
 );
 
+export const TODO_ACTION_KINDS = [
+  "add_todo",
+  "update_todo",
+  "complete_todo",
+  "mark_waiting",
+  "reply_came",
+] as const;
+export type TodoActionKind = (typeof TODO_ACTION_KINDS)[number];
+
 export const AGENT_ACTION_KINDS = [
   "create_folder",
   "rename_folder",
@@ -418,14 +433,16 @@ export const AGENT_ACTION_KINDS = [
   "create_event",
   "update_event",
   "delete_event",
+  ...TODO_ACTION_KINDS,
 ] as const;
 export type AgentActionKind = (typeof AGENT_ACTION_KINDS)[number];
 
 /**
- * One change that an agent made, with what it takes to find the mail or the
- * event again and undo the change: one row for each mail or event. For an
- * event, the mail columns name the mail it came from, and `detail` holds the
- * calendar, the event's href and, before an update or a delete, its ICS.
+ * One change that an agent made, with what it takes to find the mail, the event
+ * or the to-do again and undo the change: one row for each. For an event, the
+ * mail columns name the mail it came from, and `detail` holds the calendar, the
+ * event's href and, before an update or a delete, its ICS. For a to-do, `detail`
+ * holds `TodoActionDetail`.
  */
 export const agentActions = pgTable(
   "agent_actions",

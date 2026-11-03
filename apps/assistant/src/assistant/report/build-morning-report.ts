@@ -1,4 +1,5 @@
 import { desc, eq } from "drizzle-orm";
+import { listUndoneForAgent } from "#src/assistant/activity/list-undone-for-agent.ts";
 import { RunCalendars } from "#src/assistant/agent/calendar/run-calendars.ts";
 import {
   RunMailboxes,
@@ -202,6 +203,11 @@ export async function runReportOverMailboxes(
       openTodos: await readOpenTodos({ db, userId }),
       deletedTodos: await readDeletedTodos({ db, userId }, deps.now()),
       rejectedTodos: await readRejectedTodos({ db, userId }, deps.now()),
+      undoneTodoChanges: await listUndoneForAgent(
+        { db, userId },
+        deps.now(),
+        "todos",
+      ),
       locale: settings.locale,
       timeZone: settings.timeZone,
     },
@@ -347,10 +353,11 @@ export async function buildMorningReport(
           .returning({ id: morningReports.id })
       ).at(0);
       if (!row) return null;
-      if (changes) {
+      if (agent && changes) {
         await applyTodoChanges(tx, {
           userId,
           reportId: row.id,
+          runId: agent.run.runId,
           now: builtAt,
           today: localDate,
           timeZone: settings.timeZone,

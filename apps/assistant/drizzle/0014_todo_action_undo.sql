@@ -1,0 +1,2 @@
+ALTER TABLE "todos" ADD COLUMN "add_undone_at" timestamp with time zone;--> statement-breakpoint
+ALTER TABLE "todos" ADD CONSTRAINT "todos_add_undone_is_deleted" CHECK ("todos"."add_undone_at" is null or "todos"."deleted_at" is not null);

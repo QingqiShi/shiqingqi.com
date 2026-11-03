@@ -1,6 +1,6 @@
 import { and, eq, sql } from "drizzle-orm";
 import { todoChecklistItems, todos } from "#src/assistant/db/schema.ts";
-import type { AssistantDb } from "#src/assistant/db/types.ts";
+import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
 import {
   nextOccurrenceDates,
   nextOccurrenceReminder,
@@ -118,4 +118,34 @@ export async function addNextOccurrence(
     })
     .where(and(eq(todos.userId, userId), eq(todos.id, closed.id)));
   return true;
+}
+
+/**
+ * Opens the way for a closed occurrence to open again. When its next occurrence is
+ * still open, the row goes, with no trace for the agent, because the owner did not
+ * delete it, and this one takes its place. When the series has moved on or ended,
+ * this one stays as a to-do that does not repeat, so that the series does not run
+ * twice. It gives the columns to write on the row that opens.
+ */
+export async function takeBackNextOccurrence(
+  tx: Pick<AssistantDb, "select" | "delete">,
+  { userId }: Pick<UserScope, "userId">,
+  nextId: string,
+) {
+  const next = (
+    await tx
+      .select({
+        position: todos.position,
+        doneAt: todos.doneAt,
+        deletedAt: todos.deletedAt,
+      })
+      .from(todos)
+      .where(and(eq(todos.userId, userId), eq(todos.id, nextId)))
+      .for("update")
+  ).at(0);
+  if (!next || next.doneAt || next.deletedAt) return { repeat: null };
+  await tx
+    .delete(todos)
+    .where(and(eq(todos.userId, userId), eq(todos.id, nextId)));
+  return { position: next.position };
 }

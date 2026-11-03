@@ -167,7 +167,11 @@ export async function organiseUserMail(
         prompt: organiseTask.prompt(
           inboxes.filter((inbox) => inbox.total > 0),
           deps.auth.now(),
-          await listUndoneForAgent({ db, userId }, deps.auth.now()),
+          await listUndoneForAgent(
+            { db, userId },
+            deps.auth.now(),
+            "mail-and-calendar",
+          ),
         ),
         maxSteps: MAX_STEPS,
         tools: (context) => {
