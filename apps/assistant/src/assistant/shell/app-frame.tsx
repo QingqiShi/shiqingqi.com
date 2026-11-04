@@ -40,7 +40,7 @@ function TabLink(props: TabViewLinkProps) {
 export function AppFrame({ children }: { children: ReactNode }) {
   const locale = useLocale();
   const shown = shownDestination(normalizePath(usePathname()));
-  const appName = t({ en: "Mail Assistant", zh: "邮件助手" });
+  const appName = t({ en: "Qi Assistant", zh: "Qi Assistant" });
   const todosLabel = t({ en: "To-dos", zh: "待办" });
   const activityLabel = t({ en: "Activity", zh: "动态" });
   const destinations = [

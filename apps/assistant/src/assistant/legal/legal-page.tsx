@@ -7,11 +7,9 @@ import { space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { AssistantFrame } from "../shell/assistant-frame.tsx";
 
-// TODO(owner): put the contact address here before the Google and Microsoft
-// apps go to review.
-export const CONTACT_ADDRESS = "[TODO: contact address]";
+export const CONTACT_ADDRESS = "hi@qingqi.dev";
 
-export const LAST_UPDATED = "2026-11-03";
+export const LAST_UPDATED = "2026-11-04";
 
 /** A public page of plain prose: the privacy policy or the terms. */
 export function LegalPage({
@@ -22,7 +20,7 @@ export function LegalPage({
   children: ReactNode;
 }) {
   return (
-    <AssistantFrame brand={t({ en: "Mail Assistant", zh: "邮件助手" })}>
+    <AssistantFrame brand={t({ en: "Qi Assistant", zh: "Qi Assistant" })}>
       <article css={[stack.section, styles.article]}>
         <div css={stack.tight}>
           <Heading level={1} look="h1">

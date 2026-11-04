@@ -25,8 +25,8 @@ export default function Page() {
     <LegalPage title={t({ en: "Terms of use", zh: "使用条款" })}>
       <Text>
         {t({
-          en: "Mail Assistant (assistant.qingqi.dev) is a personal service that Qingqi Shi runs for his own use. By using it you agree to these terms.",
-          zh: "邮件助手（assistant.qingqi.dev）是石清琪为自己使用而运营的个人服务。使用本服务即表示你同意这些条款。",
+          en: "Qi Assistant (assistant.qingqi.dev) is a personal service that Qingqi Shi runs for his own use. By using it you agree to these terms.",
+          zh: "Qi Assistant（assistant.qingqi.dev）是石清琪为自己使用而运营的个人服务。使用本服务即表示你同意这些条款。",
         })}
       </Text>
 
@@ -42,13 +42,13 @@ export default function Page() {
       <LegalSection
         heading={t({
           en: "The assistant can be wrong",
-          zh: "邮件助手可能出错",
+          zh: "Qi Assistant 可能出错",
         })}
       >
         <Text>
           {t({
             en: "An AI model files your mail into folders, writes the morning report and adds to-dos, and it makes mistakes: it can file an important message where you do not look for it, or leave a deadline out of the report. Keep checking the mail and dates that matter to you. The assistant never deletes mail, so a message it filed is still in one of your folders.",
-            zh: "AI 模型把你的邮件归入文件夹，撰写晨报并添加待办，它会出错：可能把重要邮件放到你想不到的文件夹，或在晨报中漏掉截止日期。请继续自己核对重要的邮件和日期。邮件助手从不删除邮件，所以它整理过的邮件仍在你的某个文件夹中。",
+            zh: "AI 模型把你的邮件归入文件夹，撰写晨报并添加待办，它会出错：可能把重要邮件放到你想不到的文件夹，或在晨报中漏掉截止日期。请继续自己核对重要的邮件和日期。Qi Assistant 从不删除邮件，所以它整理过的邮件仍在你的某个文件夹中。",
           })}
         </Text>
       </LegalSection>

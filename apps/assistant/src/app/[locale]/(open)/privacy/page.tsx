@@ -22,15 +22,15 @@ export default function Page() {
     <LegalPage title={t({ en: "Privacy policy", zh: "隐私政策" })}>
       <Text>
         {t({
-          en: "Mail Assistant (assistant.qingqi.dev) is a personal service that Qingqi Shi runs for his own use. It files the mail in the inboxes you connect into folders, and each morning it writes a report of the last 24 hours' mail with the to-dos it finds. This page says what it stores, where your data goes, and what you can do about it.",
-          zh: "邮件助手（assistant.qingqi.dev）是石清琪为自己使用而运营的个人服务。它把你连接的邮箱收件箱里的邮件归入文件夹，并在每天早上就过去 24 小时的邮件写一份晨报，列出其中的待办。本页说明它保存什么、你的数据去往哪里，以及你可以做什么。",
+          en: "Qi Assistant (assistant.qingqi.dev) is a personal service that Qingqi Shi runs for his own use. It files the mail in the inboxes you connect into folders, and each morning it writes a report of the last 24 hours' mail with the to-dos it finds. This page says what it stores, where your data goes, and what you can do about it.",
+          zh: "Qi Assistant（assistant.qingqi.dev）是石清琪为自己使用而运营的个人服务。它把你连接的邮箱收件箱里的邮件归入文件夹，并在每天早上就过去 24 小时的邮件写一份晨报，列出其中的待办。本页说明它保存什么、你的数据去往哪里，以及你可以做什么。",
         })}
       </Text>
 
       <LegalSection
         heading={t({
           en: "What the assistant does with your mail",
-          zh: "邮件助手如何处理你的邮件",
+          zh: "Qi Assistant 如何处理你的邮件",
         })}
       >
         <Text>
@@ -92,13 +92,13 @@ export default function Page() {
         <Text>
           {t({
             en: "Anthropic: to organise your inbox, the assistant sends the sender, recipients, subject and date of its messages, with your folder names and your notes, to Anthropic's Claude API, and for the messages the agent needs to understand, up to about 6,000 characters of their text. To write the morning report, it sends the sender, recipients, subject, date and the start of the text of the last 24 hours' messages with your open to-dos the titles of the to-dos you deleted in the last 30 days, the titles and notes of those you said in the last 90 days should not have been added, and the titles of those whose changes you undid in the last 30 days. Anthropic's commercial terms say that it does not train its models on this data.",
-            zh: "Anthropic：为了整理收件箱，邮件助手会把邮件的发件人、收件人、主题和日期，连同你的文件夹名称和归类说明，发送到 Anthropic 的 Claude API；对智能体需要了解内容的邮件，还会发送最多约 6,000 个字符的正文。为了撰写晨报，它会把过去 24 小时邮件的发件人、收件人、主题、日期和正文开头，连同你未完成的待办、你在过去 30 天内删除的待办的标题，你在过去 90 天内说明不该添加的待办的标题和说明，以及你在过去 30 天内撤销过其更改的待办的标题一起发送过去。Anthropic 的商业条款规定，它不会用这些数据训练模型。",
+            zh: "Anthropic：为了整理收件箱，Qi Assistant 会把邮件的发件人、收件人、主题和日期，连同你的文件夹名称和归类说明，发送到 Anthropic 的 Claude API；对智能体需要了解内容的邮件，还会发送最多约 6,000 个字符的正文。为了撰写晨报，它会把过去 24 小时邮件的发件人、收件人、主题、日期和正文开头，连同你未完成的待办、你在过去 30 天内删除的待办的标题，你在过去 90 天内说明不该添加的待办的标题和说明，以及你在过去 30 天内撤销过其更改的待办的标题一起发送过去。Anthropic 的商业条款规定，它不会用这些数据训练模型。",
           })}
         </Text>
         <Text>
           {t({
             en: "The services that run the assistant: Vercel hosts the app and Neon hosts its database, both in London. Apple, Google and Microsoft receive the requests to your own mailbox, and Apple those to your iCloud Calendar. Your browser's push service (from Apple, Google or Mozilla) delivers the morning notification and to-do reminders, encrypted, with a to-do's title and the start of its detail.",
-            zh: "运行邮件助手的服务：Vercel 托管应用，Neon 托管数据库，均位于伦敦。Apple、Google 和 Microsoft 接收对你自己邮箱的请求，Apple 还接收对你 iCloud 日历的请求。你浏览器的推送服务（来自 Apple、Google 或 Mozilla）负责发送早间通知和待办提醒，内容经过加密，包含待办的标题和详情的开头。",
+            zh: "运行 Qi Assistant 的服务：Vercel 托管应用，Neon 托管数据库，均位于伦敦。Apple、Google 和 Microsoft 接收对你自己邮箱的请求，Apple 还接收对你 iCloud 日历的请求。你浏览器的推送服务（来自 Apple、Google 或 Mozilla）负责发送早间通知和待办提醒，内容经过加密，包含待办的标题和详情的开头。",
           })}
         </Text>
         <Text>
@@ -114,8 +114,8 @@ export default function Page() {
       >
         <Text>
           {t({
-            en: "Mail Assistant's use and transfer of information received from Google APIs adheres to the Google API Services User Data Policy, including the Limited Use requirements. Gmail data is used only to provide the features on this page to you, and people do not read it unless you ask for help with your account or the law requires it.",
-            zh: "邮件助手对从 Google API 获得的信息的使用和传输遵守《Google API 服务用户数据政策》，包括其中的“有限使用”要求。Gmail 数据仅用于向你提供本页所述的功能；除非你请求账户方面的帮助或法律要求，不会有人阅读这些数据。",
+            en: "Qi Assistant's use and transfer of information received from Google APIs adheres to the Google API Services User Data Policy, including the Limited Use requirements. Gmail data is used only to provide the features on this page to you, and people do not read it unless you ask for help with your account or the law requires it.",
+            zh: "Qi Assistant 对从 Google API 获得的信息的使用和传输遵守《Google API 服务用户数据政策》，包括其中的“有限使用”要求。Gmail 数据仅用于向你提供本页所述的功能；除非你请求账户方面的帮助或法律要求，不会有人阅读这些数据。",
           })}
         </Text>
       </LegalSection>

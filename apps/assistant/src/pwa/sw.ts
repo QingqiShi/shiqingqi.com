@@ -63,7 +63,7 @@ function readReminder(value: object): ReminderActions | null {
 
 function readPushMessage(data: PushMessageData | null): PushMessage {
   const fallback = {
-    title: "Mail Assistant",
+    title: "Qi Assistant",
     body: "",
     url: "/",
     tag: "digest",

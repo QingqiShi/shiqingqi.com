@@ -16,7 +16,7 @@ import { AssistantFrame } from "./assistant-frame.tsx";
 export function NotFoundScreen() {
   const locale = getLocale();
   return (
-    <AssistantFrame brand={t({ en: "Mail Assistant", zh: "邮件助手" })}>
+    <AssistantFrame brand={t({ en: "Qi Assistant", zh: "Qi Assistant" })}>
       <div css={stack.item}>
         <div css={stack.tight}>
           <Heading level={1} look="h2">

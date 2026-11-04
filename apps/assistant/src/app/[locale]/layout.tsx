@@ -33,8 +33,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   setLocale(locale);
   return {
     title: {
-      default: t({ en: "Mail Assistant", zh: "邮件助手" }),
-      template: t({ en: "%s | Mail Assistant", zh: "%s | 邮件助手" }),
+      default: t({ en: "Qi Assistant", zh: "Qi Assistant" }),
+      template: t({ en: "%s | Qi Assistant", zh: "%s | Qi Assistant" }),
     },
     robots: { index: false, follow: false },
     ...webAppMetadata(locale),
