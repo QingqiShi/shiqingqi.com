@@ -85,7 +85,7 @@ describe("ReportView", () => {
             openTodos={0}
             locale="en"
             headingLevel={1}
-            pastLink="list"
+            pastLink
             renderedAt={0}
           />
         </I18nContext>
@@ -161,7 +161,7 @@ describe("ReportView", () => {
             openTodos={2}
             locale="en"
             headingLevel={1}
-            pastLink="list"
+            pastLink
             renderedAt={0}
           />
         </I18nContext>
@@ -239,7 +239,7 @@ describe("ReportView", () => {
             openTodos={0}
             locale="en"
             headingLevel={1}
-            pastLink="list"
+            pastLink
             renderedAt={0}
           />
         </I18nContext>

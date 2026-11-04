@@ -4,10 +4,10 @@ import * as stylex from "@stylexjs/stylex";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { SheetBoundary } from "@tuja/ui/components/sheet";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
+import { border, color } from "@tuja/ui/tokens.stylex";
 import { useState, type ReactNode } from "react";
+import { breakoutBox } from "#src/design-system/reading-column.stylex.ts";
 
 /** One width a `DeviceFrame` can take. */
 export interface DeviceFrameSize<TValue extends string> {
@@ -54,30 +54,43 @@ export function DeviceFrame<TValue extends string>({
           such as a tab bar, so it floats at the bottom of the frame and not
           of the screen. A sheet opens in the frame too. */}
       <SheetBoundary
-        css={[
-          corner.radius_3,
-          styles.frame,
-          styles.size(size.inlineSize, size.blockSize),
-        ]}
+        css={[styles.frame, styles.size(size.inlineSize, size.blockSize)]}
       >
         <EffectCarrier value="contained">{children}</EffectCarrier>
+        <span aria-hidden css={styles.edge} />
       </SheetBoundary>
     </div>
   );
+}
+
+/**
+ * Spans the page instead of the reading column, so that a frame has the room
+ * for each form of its shell, and its caption and code keep to its edges.
+ */
+export function FrameBreakout({ children }: { children: ReactNode }) {
+  return <div css={[stack.item, styles.breakout]}>{children}</div>;
 }
 
 /** The frame of a `DeviceFrame`, empty, while the page reads its URL. */
 export function DeviceFramePlaceholder({ blockSize }: { blockSize: string }) {
   return (
     <div
-      css={[corner.radius_3, styles.frame, styles.size("100%", blockSize)]}
+      css={[styles.frame, styles.edgeOnBox, styles.size("100%", blockSize)]}
     />
   );
 }
 
 const styles = stylex.create({
+  breakout: {
+    boxSizing: "border-box",
+    inlineSize: breakoutBox.inlineSize,
+    marginInlineStart: breakoutBox.marginInlineStart,
+  },
+  // Below this width each size of the frame fills the page, so the control
+  // changes nothing.
   toggle: {
     alignSelf: "center",
+    display: { default: null, "@media (max-width: 28rem)": "none" },
   },
   frame: {
     position: "relative",
@@ -85,8 +98,22 @@ const styles = stylex.create({
     marginInline: "auto",
     overflow: "hidden",
     transform: "translateZ(0)",
+    borderRadius: border.radius_3,
+    cornerShape: "round",
     backgroundColor: color.bgCanvas,
-    boxShadow: `inset 0 0 0 1px ${color.border}`,
+  },
+  // The columns of a shell fill the frame and cover its own box, so the edge is
+  // a box over them.
+  edge: {
+    position: "absolute",
+    inset: 0,
+    borderRadius: "inherit",
+    cornerShape: "inherit",
+    boxShadow: `inset 0 0 0 ${border.size_1} ${color.border}`,
+    pointerEvents: "none",
+  },
+  edgeOnBox: {
+    boxShadow: `inset 0 0 0 ${border.size_1} ${color.border}`,
   },
   size: (inlineSize: string, blockSize: string) => ({
     inlineSize,

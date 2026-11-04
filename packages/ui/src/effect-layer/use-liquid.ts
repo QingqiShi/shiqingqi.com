@@ -38,7 +38,7 @@ export interface LiquidOptions {
 /**
  * Draws a Switch's thumb or a segmented control's indicator as liquid on
  * the effect layer while it moves, as the `effect` prop of the Switch, the
- * SegmentedControl and the TabBar describes. For a thumb, attach the
+ * SegmentedControl and the TabView describes. For a thumb, attach the
  * returned ref to the Switch's `<input>`: its track gives the liquid its
  * room, its `::before` thumb gives the liquid its size and colour, and the
  * colour of its `::after` gives the fill the track takes on a toggle. For an

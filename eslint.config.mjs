@@ -30,6 +30,7 @@ const restrictedPlugin = {
     "tmdb-query-fn": noRestrictedSyntax,
     "reduced-motion": noRestrictedSyntax,
     "type-assertion": noRestrictedSyntax,
+    "class-component": noRestrictedSyntax,
     "browser-typegpu": builtinRules.get("no-restricted-imports"),
   },
 };
@@ -183,6 +184,9 @@ export default defineConfig([
           message:
             "React Compiler memoizes components and hooks. Remove the manual `useMemo`, `useCallback`, or `memo`.",
         },
+      ],
+      "restricted/class-component": [
+        "error",
         {
           // `render` with JSX catches a class that does not extend a React
           // class, and a base class that the name match misses.
@@ -253,6 +257,13 @@ export default defineConfig([
       "@eslint-react/no-unnecessary-use-prefix": "off",
       "@tuja/no-unnecessary-use-prefix": "error",
       "@typescript-eslint/no-unused-vars": ["error", noUnusedVarsOptions],
+    },
+  },
+  {
+    // Only `getSnapshotBeforeUpdate` reads the DOM before React changes it.
+    files: ["packages/ui/src/shells/leaving-copy-taker.tsx"],
+    rules: {
+      "restricted/class-component": "off",
     },
   },
   // A `declare module "react"` augmentation must use the same type parameter
@@ -450,7 +461,7 @@ export default defineConfig([
       "packages/ui/src/tokens.stylex.ts",
       // These specimens draw a page at thumbnail scale. Their gaps are drawn
       // sizes, not relationships.
-      "apps/web/src/design-system/specimens/{header-footer-layout,sidebar-layout,progressive-blur,sticky-controls,movie-detail,scroll-mask}-specimen.tsx",
+      "apps/web/src/design-system/specimens/{header-footer-layout,progressive-blur,sticky-controls,movie-detail,scroll-mask}-specimen.tsx",
       // The effect test benches set physics distances: the reach of a fan, or
       // the strip of page that a test reads for dust.
       "apps/web/src/design-system/sections/effect-layer/*-test-bench.tsx",

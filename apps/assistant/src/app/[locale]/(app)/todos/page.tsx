@@ -1,11 +1,8 @@
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
-import { Heading } from "@tuja/ui/components/heading";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
@@ -28,7 +25,7 @@ import { TodoBoard } from "#src/assistant/report-page/todo-board.tsx";
 import { TodoSearchBox } from "#src/assistant/report-page/todo-search-box.tsx";
 import { TodoSearchResults } from "#src/assistant/report-page/todo-search-results.tsx";
 import { TodoStoreProvider } from "#src/assistant/report-page/todo-store-provider.tsx";
-import { AssistantPageColumn } from "#src/assistant/shell/assistant-page-column.tsx";
+import { TodosHeader } from "#src/assistant/report-page/todos-header.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);
@@ -72,50 +69,40 @@ export default async function Page({
       hasCalendarAccount(scope),
     ]);
 
+  const pageTitle = t({ en: "To-dos", zh: "待办" });
+
   return (
-    <AssistantPageColumn>
-      <div css={stack.group}>
-        <header css={[flex.wrap, styles.header]}>
-          <Heading level={1} look="h3">
-            {t({ en: "To-dos", zh: "待办" })}
-          </Heading>
-          <TodoSearchBox
-            query={query}
-            found={todos.length}
-            hasMore={hasMore}
-            css={styles.search}
-          />
-        </header>
-        <TodoStoreProvider
-          key={query}
-          todos={todos.map((todo) => toTodoItemData(todo))}
-          today={localClock(new Date(), settings.timeZone).date}
-          locale={locale}
-          timeZone={settings.timeZone}
-          openCount={openCount}
-          hasCalendar={hasCalendar}
-          renderedAt={renderedAt}
-        >
-          {query === "" ? (
-            <TodoBoard sharedText={sharedTodoText({ title, text, url })} />
-          ) : (
-            <TodoSearchResults />
-          )}
-        </TodoStoreProvider>
-      </div>
-    </AssistantPageColumn>
+    <NavigationSplitView
+      content={{
+        label: pageTitle,
+        node: (
+          <div css={stack.group}>
+            <TodosHeader title={pageTitle}>
+              <TodoSearchBox
+                query={query}
+                found={todos.length}
+                hasMore={hasMore}
+              />
+            </TodosHeader>
+            <TodoStoreProvider
+              key={query}
+              todos={todos.map((todo) => toTodoItemData(todo))}
+              today={localClock(new Date(), settings.timeZone).date}
+              locale={locale}
+              timeZone={settings.timeZone}
+              openCount={openCount}
+              hasCalendar={hasCalendar}
+              renderedAt={renderedAt}
+            >
+              {query === "" ? (
+                <TodoBoard sharedText={sharedTodoText({ title, text, url })} />
+              ) : (
+                <TodoSearchResults />
+              )}
+            </TodoStoreProvider>
+          </div>
+        ),
+      }}
+    />
   );
 }
-
-const styles = stylex.create({
-  header: {
-    alignItems: "baseline",
-    columnGap: rhythm.group,
-    rowGap: rhythm.tight,
-  },
-  search: {
-    flexBasis: "10rem",
-    flexGrow: 1,
-    minInlineSize: 0,
-  },
-});

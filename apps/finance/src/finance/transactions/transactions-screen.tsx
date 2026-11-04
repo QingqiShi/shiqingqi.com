@@ -13,6 +13,7 @@ import type { ToastAction } from "@tuja/ui/components/toast";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
+import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -294,7 +295,7 @@ export function TransactionsScreen() {
 
   const listLabel = t({ en: "Transactions by day", zh: "按日分组的交易" });
   const master = (
-    <div css={[stack.group, styles.master]}>
+    <div css={stack.group}>
       <header css={stack.item}>
         <div css={stack.text}>
           <Heading level={1} look="h3">
@@ -415,8 +416,9 @@ export function TransactionsScreen() {
     <>
       <NavigationSplitView
         linkComponent={ColumnLink}
+        linkStatus={null}
         replace={replace}
-        closeLabel={t({ en: "Close", zh: "关闭" })}
+        css={pageColumn.list}
         content={{
           label: t({ en: "Transactions", zh: "交易" }),
           accessory: <FinanceAddButton />,
@@ -427,6 +429,7 @@ export function TransactionsScreen() {
             ? {
                 label: t({ en: "Transaction", zh: "交易" }),
                 key: url.selectedId,
+                closeLabel: t({ en: "Close", zh: "关闭" }),
                 back: {
                   href: url.hrefWithout(),
                   label: t({ en: "Transactions", zh: "交易" }),
@@ -443,13 +446,6 @@ export function TransactionsScreen() {
 }
 
 const styles = stylex.create({
-  // A row wider than this is hard to read across, from the payee to the
-  // amount.
-  master: {
-    inlineSize: "100%",
-    maxInlineSize: "52rem",
-    marginInline: "auto",
-  },
   skeletonRow: {
     gap: rhythm.item,
   },

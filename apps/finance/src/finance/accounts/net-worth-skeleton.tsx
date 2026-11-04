@@ -29,9 +29,22 @@ export function NetWorthSkeleton() {
   return (
     <div aria-busy>
       <NavigationSplitView
-        closeLabel={t({ en: "Close", zh: "关闭" })}
+        linkStatus={null}
         sidebar={{
+          stacked: "hidden",
           label: t({ en: "Net worth", zh: "净资产" }),
+          collapsed: (
+            <div css={[stack.tight, styles.strip]}>
+              {Array.from({ length: STRIP_ITEMS }, (_, index) => (
+                <Skeleton
+                  key={index}
+                  width="2.25rem"
+                  height="2.25rem"
+                  css={corner.radius_3}
+                />
+              ))}
+            </div>
+          ),
           node: (
             <div css={stack.item}>
               <FiguresSkeleton form="label" />
@@ -40,18 +53,6 @@ export function NetWorthSkeleton() {
             </div>
           ),
         }}
-        collapsedSidebar={
-          <div css={[stack.tight, styles.strip]}>
-            {Array.from({ length: STRIP_ITEMS }, (_, index) => (
-              <Skeleton
-                key={index}
-                width="2.25rem"
-                height="2.25rem"
-                css={corner.radius_3}
-              />
-            ))}
-          </div>
-        }
         content={{
           label: t({ en: "Household", zh: "家庭" }),
           accessory: <FinanceAddButton />,

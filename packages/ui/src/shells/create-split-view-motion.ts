@@ -88,6 +88,12 @@ export interface SplitViewFlightOptions {
 export interface SplitViewChange {
   /** The content went one column deeper, came back one, or showed other content at the same depth. */
   readonly content: "push" | "pop" | "swap" | null;
+  /**
+   * The part of the sidebar in a push or a pop, where the sidebar is a page of
+   * the stack. `"back"`: a page of the content goes in or out over it.
+   * `"front"`: it goes in or out over the content. `null`: it has no part.
+   */
+  readonly stackRoot: "front" | "back" | null;
   /** The detail came, went, or showed other content. */
   readonly detail: "in" | "out" | "swap" | null;
 }
@@ -300,6 +306,7 @@ function createPush(
   fill: string,
   initial: number,
   isReduced = false,
+  isInStack = false,
 ): Push {
   const progress = springValue(
     engine,
@@ -312,7 +319,9 @@ function createPush(
     : DIM[presentation][isDark(fill) ? "dark" : "light"];
   const parallax = isReduced ? 0 : PARALLAX[presentation];
   const frontPose = (p: number, gone: number): Styles => ({
-    transform: `translateX(${px(width * (1 - p))})`,
+    // The column around a page of a stack has no fill, so a spring past its
+    // end would show the canvas beside the page.
+    transform: `translateX(${px(width * (isInStack ? Math.max(0, 1 - p) : 1 - p))})`,
     visibility: p <= 0.001 ? "hidden" : "visible",
     "content-visibility": "visible",
     "background-color": fill,
@@ -322,6 +331,11 @@ function createPush(
     show(front, [progress, faded], frontPose),
     ...showAll(progress, [
       { element: edgeOf(front), pose: (p) => ({ opacity: edgeOpacity(p) }) },
+      // The sidebar comes before the content in the DOM.
+      {
+        element: front.closest<HTMLElement>("[data-split-view-sidebar]"),
+        pose: () => ({ "z-index": "1" }),
+      },
     ]),
   ];
   const backPoses = (back: HTMLElement | null): Pose[] =>
@@ -678,15 +692,58 @@ export function addSplitViewMark(
   };
 }
 
+/**
+ * The width of a view, in rem, below which the content fills it, as on a phone.
+ *
+ * @internal
+ */
+export const STACKED_BELOW_REM = 30;
+/**
+ * The width of a view, in rem, below which the full sidebar does not fit beside
+ * the content. A sidebar that is a page of the stack has no other form, so the
+ * view stacks up to here. It is the same width as
+ * `splitViewQueries.contentBesideSidebar`.
+ *
+ * @internal
+ */
+export const STACK_PAGE_BELOW_REM = 48;
+
+/**
+ * `px` in rem. It reads the style of the root.
+ *
+ * @internal
+ */
+export function pxToRem(px: number) {
+  const rem = Number.parseFloat(
+    getComputedStyle(document.documentElement).fontSize,
+  );
+  return px / (rem || 16);
+}
+
 /** The data attributes that tell the motion which element is which. */
 const SELECTOR = {
-  content: ':scope [data-split-view-column="content"]',
-  detail: ':scope [data-split-view-column="detail"]',
-  fullSidebar: ':scope [data-split-view-sidebar="full"]',
-  collapsedSidebar: ':scope [data-split-view-sidebar="collapsed"]',
+  content: ':scope > * > [data-split-view-column="content"]',
+  detail: ':scope > * > [data-split-view-column="detail"]',
+  fullSidebar: ':scope > * > [data-split-view-sidebar="full"]',
+  stackRoot:
+    ":scope > * > [data-split-view-sidebar] > [data-split-view-pages] > [data-split-view-stack]",
+  collapsedSidebar: ':scope > * > [data-split-view-sidebar="collapsed"]',
   page: (role: "under" | "current" | "leaving") =>
     `:scope > [data-split-view-pages] > [data-split-view-page="${role}"]`,
 } as const;
+
+/**
+ * Whether the content fills the view, as on a phone. It reads the layout.
+ *
+ * @internal
+ */
+export function isViewStacked(view: HTMLElement) {
+  const stackedBelow =
+    view.querySelector(SELECTOR.stackRoot) === null
+      ? STACKED_BELOW_REM
+      : STACK_PAGE_BELOW_REM;
+  return pxToRem(view.getBoundingClientRect().width) < stackedBelow;
+}
 
 /**
  * The motion of a `NavigationSplitView`: the motion values, the bindings
@@ -992,10 +1049,26 @@ export function createSplitViewMotion(
     const fadeOut = (element: HTMLElement | null | undefined) => {
       if (element != null) fades.push(createFade(engine, element, "out"));
     };
+    const pageOf = (role: "under" | "current" | "leaving") =>
+      content?.querySelector<HTMLElement>(SELECTOR.page(role));
+    const stackRoot = view.querySelector<HTMLElement>(SELECTOR.stackRoot);
     if (change.content === "push") {
-      fadeOut(content?.querySelector<HTMLElement>(SELECTOR.page("under")));
-    } else if (change.content !== null && !isSwiped) {
-      fadeOut(content?.querySelector<HTMLElement>(SELECTOR.page("leaving")));
+      if (change.stackRoot === null) {
+        fadeOut(pageOf("under") ?? pageOf("leaving"));
+      } else {
+        const front =
+          change.stackRoot === "front" ? stackRoot : pageOf("current");
+        if (front != null) fades.push(createFade(engine, front, "in"));
+      }
+    } else if (change.content === "pop") {
+      if (!isSwiped) {
+        fadeOut(change.stackRoot === "front" ? stackRoot : pageOf("leaving"));
+      }
+    } else if (
+      change.content === "swap" &&
+      stackRoot?.dataset.splitViewStack !== "root"
+    ) {
+      fadeOut(pageOf("leaving"));
     }
     if (change.detail === "in" && column !== null) {
       fades.push(createFade(engine, column, "in"));
@@ -1011,7 +1084,7 @@ export function createSplitViewMotion(
   const noStart = () => {};
 
   function planContent(
-    kind: SplitViewChange["content"],
+    { content: kind, stackRoot: rootPart }: SplitViewChange,
     presentation: "columns" | "stacked",
   ) {
     if (kind === null) return noStart;
@@ -1025,15 +1098,31 @@ export function createSplitViewMotion(
       SELECTOR.page("leaving"),
     );
     if (current === null) return noStart;
-    if (kind === "swap") {
+    const stackRoot = view.querySelector<HTMLElement>(SELECTOR.stackRoot);
+    const isBesideRoot = stackRoot !== null && presentation === "columns";
+    if (kind === "swap" || isBesideRoot) {
       if (leaving === null) return noStart;
+      // The screen on top goes out over the sidebar, and it stays in front.
+      if (stackRoot?.dataset.splitViewStack === "root" && !isBesideRoot) {
+        return noStart;
+      }
       return () => {
         if (push?.front === leaving) push.setFront(current);
         fades.push(createFade(engine, leaving, "out"));
       };
     }
-    const back = kind === "push" ? under : current;
-    const front = kind === "push" ? current : leaving;
+    let back: HTMLElement | null;
+    let front: HTMLElement | null;
+    if (rootPart === "front") {
+      front = stackRoot;
+      back = kind === "push" ? (leaving ?? current) : current;
+    } else if (rootPart === "back") {
+      back = stackRoot;
+      front = kind === "push" ? current : (leaving ?? current);
+    } else {
+      back = kind === "push" ? (under ?? leaving) : current;
+      front = kind === "push" ? current : leaving;
+    }
     if (front === null) return noStart;
     const target = kind === "push" ? 1 : 0;
     const running = push;
@@ -1050,7 +1139,7 @@ export function createSplitViewMotion(
     running?.drop();
     push = null;
     const rect = rectIn(content, view.getBoundingClientRect());
-    const fill = opaqueFillOf(content);
+    const fill = opaqueFillOf(stackRoot ?? content);
     return () => {
       push = createPush(
         engine,
@@ -1060,6 +1149,8 @@ export function createSplitViewMotion(
         presentation,
         fill,
         1 - target,
+        false,
+        stackRoot !== null,
       );
       push.progress.to(target);
     };
@@ -1366,11 +1457,7 @@ export function createSplitViewMotion(
           : boxesAt(content, last.x + slide, last.width);
       const starts = engine.measure(() => {
         const origin = view.getBoundingClientRect();
-        const rem =
-          Number.parseFloat(
-            getComputedStyle(document.documentElement).fontSize,
-          ) || 16;
-        const presentation = origin.width / rem < 30 ? "stacked" : "columns";
+        const presentation = isViewStacked(view) ? "stacked" : "columns";
         const sidebar = sidebarShown();
         const foldChange =
           last?.sidebar === "full" && sidebar === "collapsed"
@@ -1391,7 +1478,7 @@ export function createSplitViewMotion(
           foldChange,
         );
         return [
-          planContent(change.content, presentation),
+          planContent(change, presentation),
           planDetail(change.detail),
           planOffset(content, contentBox, shift),
           planFold(foldChange),
@@ -1410,7 +1497,9 @@ export function createSplitViewMotion(
       );
       if (content == null || front == null) return false;
       if (push?.isFadingOut === true) return false;
-      const back = content.querySelector<HTMLElement>(SELECTOR.page("under"));
+      const stackRoot = view.querySelector<HTMLElement>(SELECTOR.stackRoot);
+      const back =
+        stackRoot ?? content.querySelector<HTMLElement>(SELECTOR.page("under"));
       if (push === null || push.front !== front) {
         push?.drop();
         push = createPush(
@@ -1419,9 +1508,10 @@ export function createSplitViewMotion(
           front,
           rectIn(content, view.getBoundingClientRect()),
           "stacked",
-          opaqueFillOf(content),
+          opaqueFillOf(stackRoot ?? content),
           1,
           engine.reducedMotion,
+          stackRoot !== null,
         );
       }
       push.progress.stop();

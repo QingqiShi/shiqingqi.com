@@ -107,10 +107,6 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "The previous and next links at the end of a page in a sequence.",
       zh: "连续页面末尾的上一页与下一页链接。",
     }),
-    "/design-system/components/tab-bar": t({
-      en: "An app's top-level destinations in a pill of Glass, one tap or one drag apart.",
-      zh: "把应用的顶层目标页收进一枚玻璃胶囊，轻触或拖动即可切换。",
-    }),
     "/design-system/components/nav-list": t({
       en: "The links between the pages of one place, in one column, with optional labelled groups.",
       zh: "同一处各页面之间的链接，排成一列，可分成带标签的组。",
@@ -218,10 +214,6 @@ export function getDesignSystemRouteDescriptions(): Record<
     "/design-system/components/sticky-controls": t({
       en: "A row of page chrome parked under the header strip, blurring the page around its controls while it holds.",
       zh: "停在页头下方的一行页面控件，停住期间在控件周围渐进虚化页面。",
-    }),
-    "/design-system/components/sidebar-layout": t({
-      en: "An app-density page shell with a sticky navigation rail and a mobile drawer.",
-      zh: "带粘性导航侧栏与移动端抽屉的应用密度页面骨架。",
     }),
     "/design-system/components/header-footer-layout": t({
       en: "A reading-density page shell with floating header controls and an optional footer.",

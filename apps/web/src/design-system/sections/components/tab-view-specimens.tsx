@@ -12,8 +12,7 @@ import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
 import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import type { TabBarLinkProps } from "@tuja/ui/components/tab-bar";
-import { TabView, type TabLinkStatusProps } from "@tuja/ui/components/tab-view";
+import { TabView, type TabViewLinkProps } from "@tuja/ui/components/tab-view";
 import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -21,22 +20,25 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize, space } from "@tuja/ui/tokens.stylex";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Link, useLinkStatus } from "#src/links/link.tsx";
+import type { ReactNode } from "react";
+import { Specimen } from "#src/design-system/specimen.tsx";
+import { Link, LinkStatus } from "#src/links/link.tsx";
 import { DeviceFrame, DeviceFramePlaceholder } from "./device-frame.tsx";
 
 /** The search param the demo reads, named so it clashes with nothing else on the page. */
 const PARAM = "demo-destination";
 
-const FRAME_BLOCK_SIZE = "32rem";
+const FRAME_BLOCK_SIZE = "26rem";
 
 /** A link that keeps the page where it is, so a tab does not scroll the doc page. */
-function DemoLink(props: TabBarLinkProps) {
+function DemoLink(props: TabViewLinkProps) {
   return <Link {...props} scroll={false} />;
 }
 
-function DemoLinkStatus({ children }: TabLinkStatusProps) {
-  return children(useLinkStatus().pending);
-}
+// The specimen source plugin prints each component that the code names. These
+// lower-case names keep the links of this site out of the shown code.
+const linkComponent = DemoLink;
+const linkStatus = LinkStatus;
 
 function DemoScreenSkeleton({ title, rows }: { title: string; rows: number }) {
   return (
@@ -66,12 +68,8 @@ function DemoScreenSkeleton({ title, rows }: { title: string; rows: number }) {
   );
 }
 
-/**
- * A small reading app in a frame of a width the reader picks: four
- * destinations in the rail where the frame is wide, and in the tab bar where
- * it is as narrow as a phone. Each one shows a screen of its own.
- */
-export function TabViewDemo() {
+/** A frame as wide as the page or as narrow as a phone. */
+function ReadingAppFrame({ children }: { children: ReactNode }) {
   return (
     <DeviceFrame
       label={t({ en: "Width of the frame", zh: "框的宽度" })}
@@ -90,7 +88,7 @@ export function TabViewDemo() {
         },
       ]}
     >
-      <ReadingApp />
+      {children}
     </DeviceFrame>
   );
 }
@@ -100,7 +98,12 @@ export function TabViewDemoPlaceholder() {
   return <DeviceFramePlaceholder blockSize={FRAME_BLOCK_SIZE} />;
 }
 
-function ReadingApp() {
+/**
+ * A small reading app: four destinations in the rail where the frame is wide,
+ * and in the tab bar where it is as narrow as a phone. Each one shows a screen
+ * of its own.
+ */
+export function TabViewDemo() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const hrefOf = (id: string | null) => {
@@ -229,61 +232,76 @@ function ReadingApp() {
     destinations.find((destination) => destination.id === id) ??
     destinations[0];
 
-  return (
-    <TabView
-      as="div"
-      label={t({ en: "Demo app", zh: "演示应用" })}
-      linkComponent={DemoLink}
-      linkStatus={DemoLinkStatus}
-      header={
-        <span css={[corner.radius_2, styles.mark]} aria-hidden>
-          <SquaresFourIcon weight="fill" />
-        </span>
-      }
-      footer={<Avatar name="Mei Lin" size="sm" />}
-      items={destinations.map((destination) => ({
-        href: hrefOf(destination.id),
-        label: destination.label,
-        icon: destination.icon,
-        current: destination === current,
-        skeleton: (
-          <DemoScreenSkeleton
-            title={destination.title}
-            rows={destination.rows.length}
-          />
-        ),
-      }))}
-    >
-      <div css={styles.screen}>
-        <div css={[stack.group, styles.screenContent]}>
-          <div css={stack.text}>
-            <Heading level={3} look="h3">
-              {current.title}
-            </Heading>
-            <Text look="bodySmall" tone="muted">
-              {current.text}
-            </Text>
-          </div>
-          <section css={stack.tight}>
-            <Heading level={4} look="h4">
-              {current.section}
-            </Heading>
-            <List>
-              {current.rows.map((row) => (
-                <li key={row.title} css={listSurface.item}>
-                  <div css={[listSurface.row, styles.row]}>
-                    <span css={typeRole.body}>{row.title}</span>
-                    <span css={[typeRole.bodySmall, styles.detail]}>
-                      {row.detail}
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </List>
-          </section>
+  const skeletonOf = (destination: (typeof destinations)[number]) => (
+    <DemoScreenSkeleton
+      title={destination.title}
+      rows={destination.rows.length}
+    />
+  );
+  const appMark = (
+    <span css={[corner.radius_2, styles.mark]} aria-hidden>
+      <SquaresFourIcon weight="fill" />
+    </span>
+  );
+  const member = <Avatar name="Mei Lin" size="sm" />;
+  const screen = (
+    <div css={styles.screen}>
+      <div css={[stack.group, styles.screenContent]}>
+        <div css={stack.text}>
+          <Heading level={3} look="h3">
+            {current.title}
+          </Heading>
+          <Text look="bodySmall" tone="muted">
+            {current.text}
+          </Text>
         </div>
+        <section css={stack.tight}>
+          <Heading level={4} look="h4">
+            {current.section}
+          </Heading>
+          <List>
+            {current.rows.map((row) => (
+              <li key={row.title} css={listSurface.item}>
+                <div css={[listSurface.row, styles.row]}>
+                  <span css={typeRole.body}>{row.title}</span>
+                  <span css={[typeRole.bodySmall, styles.detail]}>
+                    {row.detail}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </List>
+        </section>
       </div>
-    </TabView>
+    </div>
+  );
+
+  return (
+    <Specimen
+      stage={ReadingAppFrame}
+      caption={t({
+        en: "press a destination, or drag along the rail or the bar",
+        zh: "按下目标页，或沿侧轨或标签栏拖动",
+      })}
+    >
+      <TabView
+        as="div"
+        label={t({ en: "Demo app", zh: "演示应用" })}
+        linkComponent={linkComponent}
+        linkStatus={linkStatus}
+        header={appMark}
+        footer={member}
+        items={destinations.map((destination) => ({
+          href: hrefOf(destination.id),
+          label: destination.label,
+          icon: destination.icon,
+          current: destination === current,
+          skeleton: skeletonOf(destination),
+        }))}
+      >
+        {screen}
+      </TabView>
+    </Specimen>
   );
 }
 
@@ -295,8 +313,8 @@ const styles = stylex.create({
     inlineSize: controlSize._9,
     blockSize: controlSize._9,
     fontSize: controlSize._5,
-    color: color.fgOnAccent,
-    backgroundColor: color.bgAccent,
+    color: color.fg,
+    backgroundColor: color.bgNeutralSubtle,
   },
   // The frame does not scroll the page, so the screen scrolls itself. As
   // on a phone, its end scrolls clear of the floating tab bar.

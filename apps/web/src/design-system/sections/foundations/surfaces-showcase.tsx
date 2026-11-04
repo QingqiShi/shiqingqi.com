@@ -171,8 +171,8 @@ export function SurfacesShowcase() {
         </ul>
         <GuideNote>
           {t({
-            en: "A default Button takes shadow._2, and a TabBar over the content takes shadow._4.",
-            zh: "默认的 Button 用 shadow._2，浮在内容之上的 TabBar 用 shadow._4。",
+            en: "A default Button takes shadow._2, and the tab bar of a Tab view, over the content, takes shadow._4.",
+            zh: "默认的 Button 用 shadow._2，标签视图中浮在内容之上的标签栏用 shadow._4。",
           })}
         </GuideNote>
         <GuideNote>

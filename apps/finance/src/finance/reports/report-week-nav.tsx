@@ -7,8 +7,8 @@ import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Button } from "@tuja/ui/components/button";
+import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
-import { Link } from "#src/links/link.tsx";
 import { formatReportWeek } from "./format-report-week.ts";
 import type { ReportListItem } from "./report-api-schemas.ts";
 
@@ -37,7 +37,7 @@ export function ReportWeekNav({ older, newer }: ReportWeekNavProps) {
     ) : (
       <AnchorButton
         href={getLocalePath(`/reports/${report.id}`, locale)}
-        linkComponent={Link}
+        linkComponent={SplitViewLink}
         size="sm"
         look="ghost"
         icon={icon}

@@ -90,7 +90,7 @@ export function PropsTable({ component }: PropsTableProps) {
                     </span>
                   ) : (
                     <code css={[typeRole.caption, styles.code]}>
-                      {prop.defaultValue}
+                      <Identifier>{prop.defaultValue}</Identifier>
                     </code>
                   )}
                 </TableCell>
@@ -228,7 +228,10 @@ function Prose({ text }: { text: string }) {
   );
 }
 
-/** Wrap opportunities after each `|`, so a long type breaks between members. */
+/**
+ * Wrap opportunities after each `|`, so a long type breaks between members, and
+ * at the seams of a name too long for its column.
+ */
 function breakAtUnions(type: string): ReactNode {
   let at = 0;
   return type.split("|").map((part, index) => {
@@ -241,7 +244,7 @@ function breakAtUnions(type: string): ReactNode {
             |<wbr />
           </>
         ) : null}
-        {part}
+        <Identifier>{part}</Identifier>
       </Fragment>
     );
   });

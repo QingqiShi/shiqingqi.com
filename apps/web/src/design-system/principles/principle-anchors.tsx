@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
 import { useDust } from "@tuja/ui/hooks/use-dust";
 import { useExtractorFan } from "@tuja/ui/hooks/use-extractor-fan";
 import { useRingLight } from "@tuja/ui/hooks/use-ring-light";
@@ -88,6 +89,7 @@ export function PrincipleAnchors({ children }: { children: ReactNode }) {
     [],
   );
 
+  const scroller = useSplitViewColumn()?.scroller;
   const goTo = (id: string) => {
     const section = document.getElementById(id);
     if (section === null) return;
@@ -115,7 +117,11 @@ export function PrincipleAnchors({ children }: { children: ReactNode }) {
           window.clearTimeout(flightTimerRef.current);
           flightTimerRef.current = window.setTimeout(endFlight, PULL_MS);
         };
-    const { finished, stop } = springScrollTo(section, onNear);
+    const { finished, stop } = springScrollTo(
+      section,
+      scroller ?? null,
+      onNear,
+    );
     stopRef.current = stop;
     void finished.then((isThere) => {
       if (stopRef.current === stop) stopRef.current = null;

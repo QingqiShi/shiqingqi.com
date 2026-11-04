@@ -1,13 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
 
 /**
- * The widths of the columns of a `NavigationSplitView`. The content column
- * takes the rest of the view.
+ * The fixed widths of the columns of a `NavigationSplitView`. The full sidebar
+ * takes `splitViewTokens.sidebarInlineSize`, and the content column takes the
+ * rest of the view.
  *
  * @internal
  */
 export const splitViewWidths = stylex.defineConsts({
-  sidebar: "21.25rem",
   collapsedSidebar: "4.75rem",
   detail: "24rem",
 });
@@ -15,9 +15,11 @@ export const splitViewWidths = stylex.defineConsts({
 /**
  * The bands of view width in which a `NavigationSplitView` keeps one
  * composition. Without a detail beside the content, the sidebar shows full
- * where the content keeps at least 24.75rem beside it, collapsed where the
+ * where the content keeps at least 25.25rem beside it, collapsed where the
  * view is wider than a phone, and not at all on a phone, where the content
- * fills the view. `detailBeside` is where the detail fits beside the
+ * fills the view. The full sidebar starts at the width of `tabViewQueries.rail`,
+ * so that it never shows beside a tab bar: at that width the rail takes
+ * `tabViewTokens.railInlineSize` from the view, and the view stacks again. `detailBeside` is where the detail fits beside the
  * collapsed sidebar and at least 20rem of content. Each width also holds
  * the gaps around the islands, 0.5rem each. The view measures the same
  * width in script, `DETAIL_BESIDE_MIN_REM` in `navigation-split-view.tsx`,
@@ -28,18 +30,23 @@ export const splitViewWidths = stylex.defineConsts({
 export const splitViewQueries = stylex.defineConsts({
   /** The content fills the view, as on a phone. */
   contentAlone: "@container (width < 30rem)",
+  /** Not `contentAlone`, for a value that only this width sets. */
+  besideOthers: "@container (width >= 30rem)",
   /** The collapsed sidebar and the content. */
-  contentBesideCollapsed: "@container (30rem <= width < 47.5rem)",
+  contentBesideCollapsed: "@container (30rem <= width < 48rem)",
   /** The full sidebar and the content. */
-  contentBesideSidebar: "@container (width >= 47.5rem)",
+  contentBesideSidebar: "@container (width >= 48rem)",
+  /** Not `contentBesideSidebar`, for a value that only this width sets. */
+  noSidebarBeside: "@container (width < 48rem)",
   /** The detail fits beside the collapsed sidebar and the content. */
   detailBeside: "@container (width >= 50.75rem)",
   /**
-   * The view is in a `TabView` narrower than 30rem, as on a phone. There the
-   * page scrolls the content, so that it goes under the status bar of the
-   * browser. It queries the `TabView`, so the view itself can take it.
+   * The view fills a screen narrower than 30rem, as on a phone. There the page
+   * scrolls the content, so that it goes under the status bar of the browser. It
+   * queries the box around the view, a `TabView` or else a box of the view's own,
+   * so the view itself can take it.
    */
-  pageScrolls: "@container tab-view (width < 30rem)",
+  pageScrolls: "@container split-view-screen (width < 30rem)",
 });
 
 /**

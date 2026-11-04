@@ -13,7 +13,7 @@ interface DocPagerProps {
 }
 
 /**
- * The links to the routes before and after this one in the nav rail, the last
+ * The links to the routes before and after this one in the sidebar, the last
  * block of the documentation, so a reader can go through the system page by
  * page. It takes the column of the block above it: the reading column, or the
  * page when that block is a breakout. The Lab is a tool, not a page to read in

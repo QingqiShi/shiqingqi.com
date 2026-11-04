@@ -54,7 +54,6 @@ export default async function Page({ params }: Props) {
         openTodos={openTodos}
         locale={locale}
         headingLevel={1}
-        pastLink="back"
         renderedAt={renderedAt}
         hasCalendar={hasCalendar}
       />

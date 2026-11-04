@@ -1,7 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import type { ReactNode } from "react";
+import { use, type ReactNode } from "react";
+import { EffectContainedContext } from "../effect-layer/effect-carrier-context.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { ControlGroupBlur } from "../surfaces/control-group-blur.tsx";
 import { layer, space } from "../tokens.stylex.ts";
@@ -30,9 +31,15 @@ interface HeaderControlsProps {
  */
 export function HeaderControls({ children, css }: HeaderControlsProps) {
   const { isScrolled } = usePageScrolled();
+  // A preview in a box does not move with the window, so the window scroll
+  // does not tell if the preview is scrolled.
+  const isContained = use(EffectContainedContext);
 
   return (
-    <ControlGroupBlur isShown={isScrolled} css={[styles.floating, css]}>
+    <ControlGroupBlur
+      isShown={isScrolled && !isContained}
+      css={[styles.floating, css]}
+    >
       <EffectCarrier value="viewport">{children}</EffectCarrier>
     </ControlGroupBlur>
   );

@@ -10,7 +10,7 @@ import { SiteHeaderFooterLayout } from "#src/site-shell/site-header-footer-layou
  * slot. Content-and-footer surfaces (the home page and detail pages) and the
  * movie database, whose header controls sit on the wide page column, own their
  * own shell instance outside this group, and the design system uses
- * SidebarLayout — a page gets exactly one shell, never both.
+ * NavigationSplitView — a page gets exactly one shell, never both.
  *
  * `as="div"` because pages in this group provide their own `<main>` where they
  * have one; the shell doesn't add a second landmark.

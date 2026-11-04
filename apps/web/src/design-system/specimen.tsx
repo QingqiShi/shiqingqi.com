@@ -2,7 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { CodeToken } from "@tuja/ui/components/code-block";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
-import type { ReactElement, ReactNode } from "react";
+import type { ComponentType, ReactElement, ReactNode } from "react";
 import { SpecimenReveal } from "./specimen-reveal.tsx";
 
 /** What this instance shows, and the token it shows it with — at least one of the two. */
@@ -14,6 +14,11 @@ type SpecimenProps = SpecimenIdentity & {
   source?: readonly CodeToken[];
   /** StyleX overrides merged last, on the specimen cell. */
   css?: StyleProp;
+  /**
+   * What holds the instance on the page, such as a frame of a width the reader
+   * picks. It stays out of the shown code, which is the instance alone.
+   */
+  stage?: ComponentType<{ children: ReactNode }>;
   /** One instance. Put several in a layout element of their own. */
   children: ReactElement;
 };
@@ -28,11 +33,12 @@ export function Specimen({
   token,
   source,
   css,
+  stage: Stage,
   children,
 }: SpecimenProps) {
   return (
     <SpecimenReveal caption={caption} token={token} source={source} css={css}>
-      {children}
+      {Stage ? <Stage>{children}</Stage> : children}
     </SpecimenReveal>
   );
 }

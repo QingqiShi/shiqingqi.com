@@ -29,13 +29,11 @@ import { SectionSpecimen } from "./section-specimen.tsx";
 import { SegmentedControlSpecimen } from "./segmented-control-specimen.tsx";
 import { SelectSpecimen } from "./select-specimen.tsx";
 import { SheetSpecimen } from "./sheet-specimen.tsx";
-import { SidebarLayoutSpecimen } from "./sidebar-layout-specimen.tsx";
 import { SkeletonSpecimen } from "./skeleton-specimen.tsx";
 import { SliderSpecimen } from "./slider-specimen.tsx";
 import { SpinnerSpecimen } from "./spinner-specimen.tsx";
 import { StickyControlsSpecimen } from "./sticky-controls-specimen.tsx";
 import { SwitchSpecimen } from "./switch-specimen.tsx";
-import { TabBarSpecimen } from "./tab-bar-specimen.tsx";
 import { TabViewSpecimen } from "./tab-view-specimen.tsx";
 import { TableSpecimen } from "./table-specimen.tsx";
 import { TextFieldSpecimen } from "./text-field-specimen.tsx";
@@ -91,7 +89,6 @@ const COMPONENT_SPECIMENS: Partial<
   "/design-system/components/chip": { element: <ChipSpecimen /> },
   "/design-system/components/breadcrumb": { element: <BreadcrumbSpecimen /> },
   "/design-system/components/pager": { element: <PagerSpecimen /> },
-  "/design-system/components/tab-bar": { element: <TabBarSpecimen /> },
   "/design-system/components/badge": { element: <BadgeSpecimen /> },
   "/design-system/components/avatar": { element: <AvatarSpecimen /> },
   "/design-system/components/table": { element: <TableSpecimen /> },
@@ -127,10 +124,6 @@ const COMPONENT_SPECIMENS: Partial<
   },
   "/design-system/components/sheet": {
     element: <SheetSpecimen />,
-    fillsPlate: true,
-  },
-  "/design-system/components/sidebar-layout": {
-    element: <SidebarLayoutSpecimen />,
     fillsPlate: true,
   },
   "/design-system/components/header-footer-layout": {

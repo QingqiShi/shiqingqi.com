@@ -8,7 +8,6 @@ import { PortalTargetProvider } from "@tuja/ui/components/portal-target-provider
 import { root } from "@tuja/ui/primitives/root.stylex";
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { PostHogInit } from "#src/analytics/posthog-init.tsx";
 import { financeWebAppMetadata } from "#src/finance/pwa/finance-web-app-metadata.ts";
 import { SerwistProvider } from "#src/pwa/serwist-provider.tsx";
@@ -83,9 +82,7 @@ export default async function RootLayout({
             <script>{themeHack}</script>
             <ThemeApplier />
             <EffectLayerProvider>
-              <PortalTargetProvider>
-                <Suspense fallback={null}>{children}</Suspense>
-              </PortalTargetProvider>
+              <PortalTargetProvider>{children}</PortalTargetProvider>
             </EffectLayerProvider>
             <PostHogInit />
           </SerwistProvider>

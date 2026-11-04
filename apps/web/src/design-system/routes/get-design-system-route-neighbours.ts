@@ -9,8 +9,8 @@ export interface DesignSystemRouteNeighbours {
 }
 
 /**
- * The routes before and after one route, in the order the nav rail lists
- * them, so reading page by page walks the rail from top to bottom. Pure (no
+ * The routes before and after one route, in the order the sidebar lists
+ * them, so reading page by page walks the sidebar from top to bottom. Pure (no
  * i18n), like the sections it flattens.
  */
 export function getDesignSystemRouteNeighbours(

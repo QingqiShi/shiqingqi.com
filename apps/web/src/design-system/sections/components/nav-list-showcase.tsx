@@ -15,8 +15,8 @@ export function NavListShowcase() {
       >
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "Use NavList for the links that move between the pages of one place: a rail beside the content, the sections of a settings screen, the menu in a drawer. It sits inside your own <nav>, which names the landmark. For an app's top-level destinations on a small screen, use Tab bar; for rows that each open something, use List.",
-            zh: "在同一处的各页面之间切换的链接都使用 NavList：内容旁的侧栏、设置界面的各分区、抽屉里的菜单。它放在你自己的 <nav> 中，由 <nav> 为地标命名。小屏幕上应用的顶层目标页请用标签栏；每一行都能打开某个内容的列表请用 List。",
+            en: "Use NavList for the links that move between the pages of one place, such as the sections of a settings screen or the pages of a documentation site. It is a list and nothing more: put it in the sidebar of a Navigation split view, with SplitViewLink as its linkComponent, and the view places it and marks the row that opens. It sits inside your own <nav>, which names the landmark. For an app's few top-level destinations, use Tab view; for rows that each open something, use List.",
+            zh: "在同一处的各页面之间切换的链接都使用 NavList，例如设置界面的各分区或文档站的各页面。它只是一个列表：把它放进 Navigation split view 的侧栏，并以 SplitViewLink 作为其 linkComponent，由视图决定它的位置并标记正在打开的行。它放在你自己的 <nav> 中，由 <nav> 为地标命名。应用的少数顶层目标页请用 Tab view；每一行都能打开某个内容的列表请用 List。",
           })}
         </Text>
       </Showcase>

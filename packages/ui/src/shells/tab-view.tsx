@@ -4,13 +4,12 @@ import * as stylex from "@stylexjs/stylex";
 import {
   createContext,
   use,
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
-  type AnimationEvent,
   type ComponentType,
   type Dispatch,
+  type ReactElement,
   type ReactNode,
   type SetStateAction,
 } from "react";
@@ -55,68 +54,53 @@ import {
   rhythm,
   space,
 } from "../tokens.stylex.ts";
+import type { StyleProp } from "../types.ts";
 import { headerControlsTokens } from "./header-controls.stylex.ts";
 import { tabViewQueries, tabViewTokens } from "./tab-view.stylex.ts";
+import {
+  StatusLink,
+  useOpeningScreen,
+  useReveal,
+  type TabLinkStatusProps,
+} from "./use-opening-screen.tsx";
+
+export type { TabLinkStatusProps } from "./use-opening-screen.tsx";
+
+/** The props that `TabView` hands its `linkComponent`. */
+export type TabViewLinkProps = TabBarLinkProps;
 
 export interface TabViewItem extends TabBarItem {
   /**
    * What the content area shows after a moment while this destination's
-   * screen loads, in the shape of that screen. `null` is allowed where a
-   * screen has none.
+   * screen loads, in the shape of that screen.
    *
-   * @zh 该目标页的画面加载片刻之后，内容区域显示的内容，形状与该画面一致。画面没有骨架屏时可以传入 `null`。
+   * @zh 该目标页的画面加载片刻之后，内容区域显示的内容，形状与该画面一致。
    */
-  skeleton: ReactNode;
+  skeleton: ReactElement;
 }
 
-export interface TabLinkStatusProps {
-  /** Call it with whether the router's navigation to this link is pending. */
-  children: (pending: boolean) => ReactNode;
+/** A destination of a `TabView` with no router to wait for, which has no skeleton. */
+export interface PlainTabViewItem extends TabBarItem {
+  skeleton?: undefined;
 }
 
-interface TabViewProps {
+interface TabViewBaseProps {
   /**
-   * The destinations, in order: the shape `TabBar` takes, each with the
-   * `skeleton` of its screen. The rail and the tab bar show the same ones.
+   * Accessible name for the `<nav>` landmark of the rail and of the tab bar,
+   * already localised.
    *
-   * @zh 按顺序排列的目标页：形状与 `TabBar` 的相同，每个还带有其画面的 `skeleton`。侧轨与标签栏显示同一组目标页。
-   */
-  items: readonly TabViewItem[];
-  /**
-   * Accessible name for the `<nav>` landmark of the rail and of the tab bar.
-   * The package ships no i18n, so the consumer supplies the localised string.
-   *
-   * @zh 侧轨与标签栏中 `<nav>` 地标的无障碍名称。本包不内置 i18n，请由调用方提供本地化字符串。
+   * @zh 侧轨与标签栏中 `<nav>` 地标的无障碍名称，需已本地化。
    */
   label: string;
   /**
-   * Link Slot — renders each destination, in the rail and in the tab bar.
-   * Defaults to a plain `<a>`; pass a framework link to keep client-side
-   * navigation. Forward every prop it is handed onto the rendered anchor.
+   * Renders each destination, in the rail and in the tab bar. Pass a framework
+   * link to keep client-side navigation, and forward every prop it is handed
+   * onto the rendered anchor.
    *
-   * @zh 链接插槽——渲染侧轨与标签栏中的每个目标页。默认为原生 `<a>`；传入框架自带的链接组件即可保留客户端导航。请把收到的每一个 prop 都转发到渲染出的锚点上。
+   * @default <a>
+   * @zh 渲染侧轨与标签栏中的每个目标页。传入框架自带的链接组件即可保留客户端导航，请把收到的每一个 prop 都转发到渲染出的锚点上。
    */
-  linkComponent?: ComponentType<TabBarLinkProps>;
-  /**
-   * A component that the view renders inside each destination link, so that
-   * a router hook can read the state of that link. It calls `children` with
-   * whether the navigation to that link is pending. With Next, pass it with
-   * the matching `Link` as `linkComponent`. With it, the tapped destination
-   * is current at once. If the screen takes more than a moment to load, its
-   * `skeleton` shows in the content area while the old screen stays mounted,
-   * hidden, and the new screen then fades in. With a plain `<a>`, pass
-   * `null`: the current item then follows `items`, and no skeleton shows.
-   *
-   * @zh 视图渲染在每个目标页链接内部的组件，让路由器的 hook 能读取该链接的状态。它用该链接的导航是否处于 pending 状态调用 `children`。使用 Next 时，把它和对应的 `Link`（作为 `linkComponent`）一起传入。有了它，按下的目标页立即成为当前项；如果画面需要加载片刻，内容区域会显示它的 `skeleton`，旧画面保持挂载但隐藏，新画面随后淡入。使用原生 `<a>` 时请传入 `null`：此时当前项跟随 `items`，也不显示骨架屏。
-   */
-  linkStatus: ComponentType<TabLinkStatusProps> | null;
-  /**
-   * What shows where no destination gives a skeleton: on a page outside
-   * every destination, and for a destination whose `skeleton` is `null`.
-   *
-   * @zh 没有目标页提供骨架屏时显示的内容：不属于任何目标页的页面上，以及 `skeleton` 为 `null` 的目标页。
-   */
-  fallbackSkeleton?: ReactNode;
+  linkComponent?: ComponentType<TabViewLinkProps>;
   /**
    * The top of the rail, such as the app's mark. It is as wide as the
    * destinations, and centres what it holds. It shows at `md` and wider
@@ -140,17 +124,12 @@ interface TabViewProps {
   children: ReactNode;
   /**
    * An effect the effect layer draws on the indicator of the current
-   * destination, in the rail and in the tab bar. `"liquid"`, the default,
-   * draws it as `TabBar`'s `effect` describes, and in the rail the liquid
-   * pours up and down from one destination to the next. A press on a
-   * destination in the rail pours it there at once, and a drag from that
-   * press moves it with inertia along the rail. `"none"` keeps the plain
-   * indicator, which a press and a drag move in the same way. The effect
-   * draws only inside an `EffectLayerProvider` with WebGPU; elsewhere, and
-   * under forced colours, the view looks and works as it does with
-   * `"none"`.
+   * destination. `"liquid"`, the default, pours it to the destination, and a
+   * drag moves it with inertia. `"none"` keeps the plain indicator, which a
+   * press and a drag move in the same way. The effect draws only inside an
+   * `EffectLayerProvider` with WebGPU.
    *
-   * @zh 由效果层在当前目标页的指示块上绘制的效果，侧轨与标签栏都适用。默认的 `"liquid"` 按 `TabBar` 的 `effect` 所述绘制它；在侧轨中，液体从一个目标页向上或向下涌向下一个目标页。在侧轨中按下某个目标页时液体立即涌向那里，从这次按下开始拖动时它带着惯性沿侧轨移动。`"none"` 保留普通的指示块，按下与拖动以同样的方式移动它。效果只在带有 WebGPU 的 `EffectLayerProvider` 之内绘制；在其它情况下以及强制颜色模式下，视图的外观与行为与 `"none"` 相同。 @default "liquid"
+   * @zh 由效果层在当前目标页的指示块上绘制的效果。默认的 `"liquid"` 让它涌向目标页，拖动时带着惯性移动。`"none"` 保留普通的指示块，按下与拖动以同样的方式移动它。效果只在带有 WebGPU 的 `EffectLayerProvider` 之内绘制。 @default "liquid"
    */
   effect?: "liquid" | "none";
   /**
@@ -161,10 +140,54 @@ interface TabViewProps {
    * @zh 内容区域的地标元素。使用 `main`（默认）承载页面主内容；当骨架嵌套在已拥有 `<main>` 地标的表面内时，使用 `div`。 @default "main"
    */
   as?: "main" | "div";
+  /**
+   * StyleX styles merged over the view's own, such as `pageColumn.list` to set
+   * the width of the page column for each screen of one pane. A screen with a
+   * sidebar sets its own.
+   *
+   * @zh 合并到视图自身样式之上的 StyleX 样式，例如用 `pageColumn.list` 为每个单栏画面设定页面栏的宽度。带侧栏的画面自行设定。
+   */
+  css?: StyleProp;
 }
 
+type TabViewProps = TabViewBaseProps &
+  (
+    | {
+        /**
+         * The destinations, in order, each with the `href`, `label`, `icon` and
+         * `skeleton` of its screen. `current` marks the page the visitor is on,
+         * `badge` is a small mark at the corner of the icon, and `status` is
+         * hidden text that says what the mark means. The rail and the tab bar
+         * show the same ones.
+         *
+         * @zh 按顺序排列的目标页，每个都带有其画面的 `href`、`label`、`icon` 与 `skeleton`。`current` 标记访客所在的页面，`badge` 是图标角上的小标记，`status` 是说明该标记含义的隐藏文字。侧轨与标签栏显示同一组目标页。
+         */
+        items: readonly TabViewItem[];
+        /**
+         * A component that the view renders inside each destination link, so
+         * that a router hook can read whether the navigation to it is pending.
+         * With a plain `<a>`, pass `null`: the current item then follows `items`,
+         * no skeleton shows, and an item has none.
+         *
+         * @zh 视图渲染在每个目标页链接内部的组件，让路由器的 hook 能读取该链接的导航是否处于 pending 状态。使用原生 `<a>` 时请传入 `null`：此时当前项跟随 `items`，不显示骨架屏，各项也不带骨架屏。
+         */
+        linkStatus: ComponentType<TabLinkStatusProps>;
+        /**
+         * What shows on a page outside every destination.
+         *
+         * @zh 不属于任何目标页的页面上显示的内容。
+         */
+        fallbackSkeleton?: ReactElement;
+      }
+    | {
+        items: readonly PlainTabViewItem[];
+        linkStatus: null;
+        fallbackSkeleton?: undefined;
+      }
+  );
+
 interface TabViewLinksValue {
-  linkComponent: ComponentType<TabBarLinkProps>;
+  linkComponent: ComponentType<TabViewLinkProps>;
   linkStatus: ComponentType<TabLinkStatusProps> | null;
   setOpening: Dispatch<SetStateAction<string | null>>;
 }
@@ -174,21 +197,27 @@ const TabViewLinksContext = createContext<TabViewLinksValue>({
   linkStatus: null,
   setOpening: () => {},
 });
-const TabViewOpeningContext = createContext<string | null>(null);
+/** What opens in the `TabView` around, `undefined` outside one. */
+const TabViewOpeningContext = createContext<string | null | undefined>(
+  undefined,
+);
 const TabViewSkeletonContext = createContext<ReactNode>(null);
 
 /**
- * How long a switch waits for the new screen before the skeleton shows. A
- * screen that the router holds renders in less time, so it shows no skeleton.
+ * Whether a `TabView` is around the caller.
+ *
+ * @internal
  */
-const SKELETON_DELAY_MS = 100;
+export function useIsInTabView() {
+  return use(TabViewOpeningContext) !== undefined;
+}
 
 /**
  * The `href` of the destination that opens now, or null when none does.
  * Call it inside a `TabView`.
  */
 export function useTabViewOpening() {
-  return use(TabViewOpeningContext);
+  return use(TabViewOpeningContext) ?? null;
 }
 
 /**
@@ -199,111 +228,31 @@ export function TabViewSkeleton() {
   return use(TabViewSkeletonContext);
 }
 
-function isCurrentUrl(href: string) {
-  const { pathname, search } = new URL(href, location.href);
-  return pathname === location.pathname && search === location.search;
-}
-
-function OpeningReporter({
-  href,
-  pending,
-}: {
-  href: string;
-  pending: boolean;
-}) {
-  const { setOpening } = use(TabViewLinksContext);
-  useLayoutEffect(() => {
-    if (pending && !isCurrentUrl(href)) {
-      setOpening(href);
-    } else {
-      setOpening((opening) => (opening === href ? null : opening));
-    }
-  }, [pending, href, setOpening]);
-  return null;
-}
-
-interface SlottedLinkProps extends TabBarLinkProps {
-  linkComponent: ComponentType<TabBarLinkProps>;
-  linkStatus: ComponentType<TabLinkStatusProps> | null;
-}
-
-// This function is separate from `TabViewLink` because the lint rule
-// `static-components` does not let a function render a component that it reads
-// from a context.
-function SlottedLink({
-  linkComponent: LinkComponent,
-  linkStatus: LinkStatus,
-  children,
-  ...props
-}: SlottedLinkProps) {
+/**
+ * A link to a destination of the `TabView` around, from anywhere in the view,
+ * such as a mark in the rail or a row of a screen that opens another screen. It
+ * renders the view's `linkComponent` and tells the view while the navigation to
+ * it is pending, so the destination is current at once, and its skeleton shows
+ * if its screen takes more than a moment. The `href` can hold a query. Outside a
+ * `TabView`, it is a plain `<a>`.
+ */
+export function TabViewLink(props: TabViewLinkProps) {
+  const { linkComponent, linkStatus, setOpening } = use(TabViewLinksContext);
   return (
-    <LinkComponent {...props}>
-      {children}
-      {LinkStatus === null ? null : (
-        <LinkStatus>
-          {(pending) => <OpeningReporter href={props.href} pending={pending} />}
-        </LinkStatus>
-      )}
-    </LinkComponent>
-  );
-}
-
-function TabViewLink(props: TabBarLinkProps) {
-  const { linkComponent, linkStatus } = use(TabViewLinksContext);
-  return (
-    <SlottedLink
+    <StatusLink
       {...props}
       linkComponent={linkComponent}
       linkStatus={linkStatus}
+      setOpening={setOpening}
     />
   );
-}
-
-/**
- * The destination that opens, and the one whose skeleton shows, which is the
- * one that opens once it has taken `SKELETON_DELAY_MS`.
- */
-function useOpeningScreen() {
-  const [opening, setOpening] = useState<string | null>(null);
-  const [slow, setSlow] = useState<string | null>(null);
-  if (opening === null && slow !== null) setSlow(null);
-  useEffect(() => {
-    if (opening === null) return;
-    const timer = setTimeout(() => {
-      setSlow(opening);
-    }, SKELETON_DELAY_MS);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [opening]);
-  return {
-    opening,
-    setOpening,
-    skeletonHref: slow === opening ? opening : null,
-  };
-}
-
-/** Whether the screen fades in now, which it does each time its skeleton goes. */
-function useReveal(hidden: boolean) {
-  const [wasHidden, setWasHidden] = useState(hidden);
-  const [revealing, setRevealing] = useState(false);
-  if (hidden !== wasHidden) {
-    setWasHidden(hidden);
-    setRevealing(!hidden);
-  }
-  return {
-    revealing,
-    onAnimationEnd: (event: AnimationEvent<HTMLElement>) => {
-      if (event.target === event.currentTarget) setRevealing(false);
-    },
-  };
 }
 
 /**
  * The frame of an app with a few top-level destinations. Where the view is
  * `md` wide or wider, a narrow rail on the inline-start edge holds them, each
  * an icon over a small label, the current one raised on the canvas under an
- * indicator that a press can drag along the rail, as on a `TabBar`, with the
+ * indicator that a press can drag along the rail, with the
  * `header` at its top and the `footer` at its bottom. The rail has no fill
  * of its own, so the content beside it, such as the islands of a
  * `NavigationSplitView`, floats on the same canvas. Below that, a `TabBar`
@@ -311,9 +260,19 @@ function useReveal(hidden: boolean) {
  * view chooses, so the server paints the right one. The content goes under
  * the bar: `tabViewTokens.barClearance` is the strip the bar takes, and each
  * layout in the content keeps clear of it. With `linkStatus`, a tap on a
- * destination makes it current at once. When its screen takes more than a
- * moment to load, its skeleton rises into place, and the screen fades in over
- * it. A screen that needs no wait rises into place by itself.
+ * destination makes it current at once. With Next, pass it with the matching
+ * `Link` as `linkComponent`. When its screen takes more than a moment to load,
+ * its skeleton rises into place while the old screen stays mounted, hidden, and
+ * the screen fades in over it. A screen that needs no wait rises into place by
+ * itself.
+ *
+ * The `"liquid"` effect draws the indicator as the SegmentedControl's does: plain
+ * and solid at rest, with a lit edge only while a pointer is over it, and in motion
+ * liquid that pours to the destination, flows on for a moment and sets again. A
+ * release after a drag follows the link under it, and the indicator stays there
+ * while that page loads. Under reduced motion it crossfades to its place. Outside
+ * an `EffectLayerProvider` with WebGPU, and under forced colours, the view looks
+ * and works as it does with `"none"`.
  */
 export function TabView({
   items,
@@ -326,10 +285,11 @@ export function TabView({
   children,
   effect = "liquid",
   as = "main",
+  css,
 }: TabViewProps) {
   const { opening, setOpening, skeletonHref } = useOpeningScreen();
   const currentItem = items.find((item) => item.current === true);
-  const shownHref = opening ?? currentItem?.href;
+  const shownHref = opening === null ? currentItem?.href : pathOfHref(opening);
   const shownItems = items.map((item) => ({
     ...item,
     current: item.href === shownHref,
@@ -341,15 +301,15 @@ export function TabView({
   const [content, setContent] = useState<HTMLElement | null>(null);
   useRise(content, skeletonHref ?? currentItem?.href);
   const sticky = useEffectSticky();
-  const { ref, css } = sticky;
+  const { ref, css: stickyCss } = sticky;
   const Content = as;
   return (
     <TabViewLinksContext value={{ linkComponent, linkStatus, setOpening }}>
       <TabViewOpeningContext value={opening}>
         <TabViewSkeletonContext value={screenSkeleton}>
-          <div css={styles.container}>
+          <div css={[styles.container, css]}>
             <div css={styles.root}>
-              <div ref={ref} css={[styles.rail, css]}>
+              <div ref={ref} css={[styles.rail, stickyCss]}>
                 <EffectCarrier value={sticky}>
                   {header == null ? null : (
                     <div css={styles.slot}>{header}</div>
@@ -370,10 +330,12 @@ export function TabView({
                 {...stylex.props(styles.content, revealing && styles.reveal)}
                 onAnimationEnd={onAnimationEnd}
               >
-                {waiting ? screenSkeleton : null}
+                {/* The router scrolls a new page to its top if that top is
+                    out of view. So the hidden screen comes before the skeleton. */}
                 <div css={waiting ? styles.screenHidden : styles.screen}>
                   {children}
                 </div>
+                {waiting ? screenSkeleton : null}
               </Content>
               <EffectCarrier value="viewport-bottom">
                 <TabBar
@@ -392,11 +354,15 @@ export function TabView({
   );
 }
 
+function pathOfHref(href: string) {
+  return href.split(/[?#]/, 1)[0];
+}
+
 interface RailProps {
   items: readonly TabBarItem[];
   label: string;
   effect: "liquid" | "none";
-  linkComponent: ComponentType<TabBarLinkProps>;
+  linkComponent: ComponentType<TabViewLinkProps>;
 }
 
 /**
@@ -544,7 +510,7 @@ function useRise(content: HTMLElement | null, screen: unknown) {
 
 const styles = stylex.create({
   container: {
-    containerName: "tab-view",
+    containerName: "tab-view split-view-screen",
     containerType: "inline-size",
     blockSize: "100%",
   },
@@ -663,14 +629,22 @@ const styles = stylex.create({
     textWrap: "balance",
     overflowWrap: "anywhere",
   },
+  // The screen rises with a transform. WebKit anchors the scroll of the page
+  // through it, and the scroll that a view restores then follows the rise.
   content: {
     minInlineSize: 0,
+    overflowAnchor: "none",
   },
   screen: {
     display: "contents",
   },
+  // A screen can mount while it is hidden, and it must lay out, as a component
+  // can measure itself once as it mounts.
   screenHidden: {
-    display: "none",
+    display: "block",
+    visibility: "hidden",
+    blockSize: 0,
+    overflow: "clip",
   },
   reveal: {
     animationName: {

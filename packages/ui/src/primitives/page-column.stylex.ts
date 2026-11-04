@@ -47,9 +47,36 @@ export const pageColumn = stylex.create({
   /**
    * The wide page column: it spans the screen, so the content keeps only the
    * page gutter. Compose it with `base` or `scroller`, for a gallery of cards
-   * that takes every column a wide screen has room for.
+   * that takes every column a wide screen has room for. A `NavigationSplitView`
+   * with a sidebar starts from this width.
    */
   wide: {
     [pageColumnTokens.inlineSize]: "100%",
+  },
+  /**
+   * The width a page column has by default. A screen takes it by name where it
+   * sits in a view that starts from another width, such as a page beside a
+   * sidebar. Give it to the `css` of a `NavigationSplitView`, or compose it with
+   * `base` or `scroller`, as with the widths below.
+   */
+  regular: {
+    [pageColumnTokens.inlineSize]: layout.maxInlineSize,
+  },
+  /**
+   * The page column of a screen of rows, such as a list of transactions: a row
+   * wider than 52rem is hard to read across, from what it starts with to what
+   * sits at its end. The width holds the gutters too. Give it to a `TabView`,
+   * and each screen of one pane in it takes the width.
+   */
+  list: {
+    [pageColumnTokens.inlineSize]: "54.5rem",
+  },
+  /** The page column of a settings section, 48rem of fields and short lists. */
+  settings: {
+    [pageColumnTokens.inlineSize]: "50.5rem",
+  },
+  /** The page column of a report, 84rem of figures and charts side by side. */
+  report: {
+    [pageColumnTokens.inlineSize]: "86.5rem",
   },
 });

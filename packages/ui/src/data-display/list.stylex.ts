@@ -2,6 +2,17 @@ import * as stylex from "@stylexjs/stylex";
 import { border, color, rhythm, space } from "../tokens.stylex.ts";
 
 /**
+ * How the caret of a `ListRow` shows. A `NavigationSplitView` sets it to `none`
+ * for a sidebar that shows beside the content, as a row then opens beside the
+ * list.
+ *
+ * @internal
+ */
+export const listRowTokens = stylex.defineVars({
+  caretDisplay: "inline-flex",
+});
+
+/**
  * The pieces `List` and `ListRow` are built from, for an item that is not a
  * row the list can open, such as a loading placeholder. `item` draws the
  * divider above every item but the first; `row` sets the height and padding

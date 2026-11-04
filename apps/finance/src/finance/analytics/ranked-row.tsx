@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { TabViewLink } from "@tuja/ui/components/tab-view";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
@@ -8,7 +9,6 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
-import { Link } from "#src/links/link.tsx";
 import { chartMarks } from "../charts/chart-marks.stylex.ts";
 import { seriesKey } from "../charts/series-marks.stylex.ts";
 import type { SeriesTone } from "../charts/series-tone-at.ts";
@@ -92,9 +92,9 @@ export function RankedRow({
   return (
     <li>
       {href !== undefined ? (
-        <Link href={href} {...stylex.props(interactive)}>
+        <TabViewLink href={href} {...stylex.props(interactive)}>
           {body}
-        </Link>
+        </TabViewLink>
       ) : onSelect ? (
         <button
           type="button"

@@ -1,19 +1,22 @@
+"use client";
+
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
-import type {
-  AriaAttributes,
-  ComponentProps,
-  ComponentType,
-  ReactNode,
-  Ref,
+import {
+  type AriaAttributes,
+  type ComponentProps,
+  type ComponentType,
+  type ReactNode,
+  type Ref,
 } from "react";
+import { useShownCurrent } from "../actions/nav-list-context.tsx";
 import { mergeRefs } from "../merge-refs.ts";
 import { quietSurface } from "../primitives/quiet-surface.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { color, font, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
-import { listSurface } from "./list.stylex.ts";
+import { listRowTokens, listSurface } from "./list.stylex.ts";
 
 /**
  * The contract of the link Slot: `href`, `children`, `className`, `style`,
@@ -63,14 +66,19 @@ interface ListRowBaseProps {
   /**
    * Shows the caret that says the row opens something. Defaults to `true`.
    * Turn it off where the row opens beside the list rather than in its place.
+   * A `NavigationSplitView` that can stack its sidebar decides this for the
+   * rows of its sidebar: they show it only where the sidebar is a page.
    *
-   * @zh 显示表示该行可打开内容的箭头，默认为 `true`。当行在列表旁打开、而非替换列表时关闭它。
+   * @zh 显示表示该行可打开内容的箭头，默认为 `true`。当行在列表旁打开、而非替换列表时关闭它。可堆叠侧栏的 `NavigationSplitView` 替其侧栏中的行决定这一点：只有侧栏作为页面时才显示。
    */
   caret?: boolean;
   /**
-   * Marks the row that is open. The selected look follows it.
+   * Marks the row that is open. The selected look follows it. In a
+   * `NavigationSplitView`, the row of the destination that opens takes this
+   * mark at once, and the rows of a sidebar that is a page of the stack do not
+   * show it.
    *
-   * @zh 标记当前打开的行，选中样式随之变化。
+   * @zh 标记当前打开的行，选中样式随之变化。在 `NavigationSplitView` 中，正在打开的目标所对应的行会立即获得此标记；侧栏作为堆叠页面时，其中的行不显示标记。
    */
   "aria-current"?: AriaAttributes["aria-current"];
   /**
@@ -135,6 +143,11 @@ export function ListRow({
   css,
   ...target
 }: ListRowProps) {
+  const isCurrent = useShownCurrent(
+    target.href,
+    ariaCurrent !== undefined && ariaCurrent !== false,
+  );
+  const shownCurrent = isCurrent ? (ariaCurrent ?? "page") : undefined;
   const body = (
     <>
       {leading}
@@ -172,7 +185,7 @@ export function ListRow({
           href={target.href}
           component={target.linkComponent}
           ref={setRef}
-          aria-current={ariaCurrent}
+          aria-current={shownCurrent}
           look={look}
         >
           {body}
@@ -218,7 +231,7 @@ const styles = stylex.create({
     whiteSpace: "nowrap",
   },
   caret: {
-    display: "inline-flex",
+    display: listRowTokens.caretDisplay,
     flexShrink: 0,
     color: color.fgMuted,
   },

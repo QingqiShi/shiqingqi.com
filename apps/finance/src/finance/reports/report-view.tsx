@@ -13,7 +13,6 @@ import type {
   ReportListItem,
   WeeklyReportResponse,
 } from "./report-api-schemas.ts";
-import { ReportBackLink } from "./report-back-link.tsx";
 import { ReportBalanceSheet } from "./report-balance-sheet.tsx";
 import { reportColumns } from "./report-columns.stylex.ts";
 import { ReportFooter } from "./report-footer.tsx";
@@ -53,7 +52,6 @@ export function ReportView({
   return (
     <article css={[stack.section, layout.container]}>
       <header css={stack.item}>
-        <ReportBackLink />
         <div css={[cluster.item, styles.titleRow]}>
           <div css={stack.tight}>
             <Text look="overline" tone="muted">

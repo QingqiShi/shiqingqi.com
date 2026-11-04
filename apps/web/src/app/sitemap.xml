@@ -381,16 +381,6 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/pager" />
   </url>
   <url>
-    <loc>https://qingqi.dev/design-system/components/tab-bar</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/tab-bar" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/tab-bar" />
-  </url>
-  <url>
-    <loc>https://qingqi.dev/zh/design-system/components/tab-bar</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/tab-bar" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/tab-bar" />
-  </url>
-  <url>
     <loc>https://qingqi.dev/design-system/components/nav-list</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/nav-list" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/nav-list" />
@@ -750,16 +740,6 @@
     <loc>https://qingqi.dev/zh/design-system/components/select</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/select" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/select" />
-  </url>
-  <url>
-    <loc>https://qingqi.dev/design-system/components/sidebar-layout</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/sidebar-layout" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/sidebar-layout" />
-  </url>
-  <url>
-    <loc>https://qingqi.dev/zh/design-system/components/sidebar-layout</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/sidebar-layout" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/sidebar-layout" />
   </url>
   <url>
     <loc>https://qingqi.dev/design-system/components/header-footer-layout</loc>

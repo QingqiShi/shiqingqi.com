@@ -25,8 +25,8 @@ interface Layer {
 }
 
 /**
- * The whole system in one picture: the three layers in the order of the nav
- * rail, how many pages each holds, what it is, and the import path that
+ * The whole system in one picture: the three layers in the order of the
+ * sidebar, how many pages each holds, what it is, and the import path that
  * shows its shape. Each layer name links to its group on the Overview. The
  * counts come from the route registry, so a new page moves them.
  */

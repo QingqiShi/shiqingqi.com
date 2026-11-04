@@ -452,13 +452,13 @@ function mergeRecords(
   const props: PropDoc[] = [];
   for (const [name, group] of grouped) {
     const typeNodes = group.map((record) => record.declaration?.type);
+    const documented = group
+      .map((record) => record.declaration)
+      .filter((declaration) => declaration !== undefined);
     const typeText = printGroupType(group);
     if (typeText === "") continue;
 
     const members = enumMembersOf(typeNodes, checker);
-    const documented = group
-      .map((record) => record.declaration)
-      .filter((declaration) => declaration !== undefined);
 
     const tagDefault = documented
       .map(
@@ -502,27 +502,41 @@ function printMembers(members: readonly string[]): string {
   return members.map((member) => JSON.stringify(member)).join(" | ");
 }
 
+/** The members of a union type, at any depth; any other type is its own member. */
+function unionMembersOf(node: ts.TypeNode | undefined): ts.TypeNode[] {
+  const inner = unwrapParens(node);
+  if (!inner) return [];
+  return ts.isUnionTypeNode(inner)
+    ? inner.types.flatMap(unionMembersOf)
+    : [inner];
+}
+
 /**
  * The type of one name, joined across the branches that declare it. A
  * discriminated union declares the same name once per branch, and printing
- * only one branch would hide the other half of the API. `undefined`, which is
- * how a branch says the name does not belong to it, is left out.
+ * only one branch would hide the other half of the API. Each member shows once,
+ * with `null` last. `undefined`, which is how a branch says the name does not
+ * belong to it, is left out.
  */
 function printGroupType(group: readonly MemberRecord[]): string {
   const constituents: { text: string; isFunction: boolean }[] = [];
+  const add = (text: string, isFunction: boolean) => {
+    if (text === "" || text === "undefined") return;
+    if (constituents.some((entry) => entry.text === text)) return;
+    constituents.push({ text, isFunction });
+  };
   for (const record of group) {
-    const text =
-      record.impliedType ??
-      normalizeSpace(record.declaration?.type?.getText() ?? "");
-    if (text === "" || text === "undefined") continue;
-    if (constituents.some((entry) => entry.text === text)) continue;
-    constituents.push({
-      text,
-      isFunction: isFunctionTypeNode(record.declaration?.type),
-    });
+    if (record.impliedType !== undefined) {
+      add(record.impliedType, false);
+      continue;
+    }
+    for (const member of unionMembersOf(record.declaration?.type)) {
+      add(normalizeSpace(member.getText()), isFunctionTypeNode(member));
+    }
   }
   if (constituents.length < 2) return constituents[0]?.text ?? "";
   return constituents
+    .toSorted((a, b) => Number(a.text === "null") - Number(b.text === "null"))
     .map((entry) => (entry.isFunction ? `(${entry.text})` : entry.text))
     .join(" | ");
 }
