@@ -28,12 +28,17 @@ import {
 } from "#src/assistant/calendar/ics/instant-of.ts";
 import {
   readIcsEvents,
+  repeats,
   type IcsEvent,
 } from "#src/assistant/calendar/ics/read-ics-events.ts";
 import type { AgentActionKind } from "#src/assistant/db/schema.ts";
 import { agentTool, ToolRefusal, type AgentTools } from "../agent-tool.ts";
 import type { AgentRunContext } from "../run-agent.ts";
-import type { EventHandles, EventRef } from "./event-handles.ts";
+import {
+  occurrenceOf,
+  type EventHandles,
+  type EventRef,
+} from "./event-handles.ts";
 import type { RunCalendar, RunCalendars } from "./run-calendars.ts";
 
 /** The limits of one run. A call over a limit is refused. */
@@ -349,13 +354,6 @@ function eventView(
   };
 }
 
-export type EventView = ReturnType<typeof eventView>;
-
-/** The events of one calendar object repeat, or it holds changed instances of a repeating event. */
-function repeats(events: readonly IcsEvent[]) {
-  return events.length > 1 || events.some((event) => event.recurring);
-}
-
 function matchesText(events: IcsEvent[], text: string) {
   const needle = text.toLowerCase();
   return events.some((event) =>
@@ -390,8 +388,6 @@ export function createCalendarTools({
 }: CalendarToolsInput): {
   tools: AgentTools;
   stats: CalendarToolStats;
-  /** What the model knows of an event, as it is after the run's own writes; undefined for an id that is unknown or gone. */
-  view: (id: string) => EventView | undefined;
 } {
   const stats: CalendarToolStats = {
     createdEvents: 0,
@@ -506,16 +502,14 @@ export function createCalendarTools({
     event: IcsEvent,
     events: IcsEvent[],
   ) {
-    return handles.register(
-      {
-        calendarKey: calendar.key,
-        url: object.url,
-        etag: object.etag,
-        title: event.title,
-        occurrence: repeats(events) ? event.start : undefined,
-      },
-      (id) => eventView(id, calendar, event, events),
-    );
+    const id = handles.register({
+      calendarKey: calendar.key,
+      url: object.url,
+      etag: object.etag,
+      title: event.title,
+      occurrence: occurrenceOf(repeats(events), event),
+    });
+    return eventView(id, calendar, event, events);
   }
 
   /** An event in any calendar that is this one said again. */
@@ -724,10 +718,7 @@ export function createCalendarTools({
               etag,
               title: input.title,
             };
-            const [event] = readIcsEvents(ics, timeZone);
-            const { id } = handles.register(ref, (id) =>
-              eventView(id, calendar, event, [event]),
-            );
+            const id = handles.register(ref);
             await log("create_event", calendar, mail, input.reason, {
               href: created.url,
               etag,
@@ -816,11 +807,11 @@ export function createCalendarTools({
             written.etag,
           );
           const [event] = readIcsEvents(data, timeZone);
-          const updated = handles.update(
-            input.id,
-            { etag, title: input.title ?? found.ref.title },
-            (id) => eventView(id, found.calendar, event, [event]),
-          );
+          handles.update(input.id, {
+            etag,
+            title: input.title ?? found.ref.title,
+          });
+          const updated = eventView(input.id, found.calendar, event, [event]);
           await log("update_event", found.calendar, mail, input.reason, {
             href: found.ref.url,
             etag,
@@ -871,5 +862,5 @@ export function createCalendarTools({
     }),
   };
 
-  return { tools, stats, view: (id) => handles.view(id) };
+  return { tools, stats };
 }

@@ -257,3 +257,8 @@ export function readIcsEvents(ics: string, fallbackZone: string): IcsEvent[] {
   }
   return events;
 }
+
+/** The events of one calendar object repeat, or it holds changed instances of a repeating event. */
+export function repeats(events: readonly IcsEvent[]) {
+  return events.length > 1 || events.some((event) => event.recurring);
+}

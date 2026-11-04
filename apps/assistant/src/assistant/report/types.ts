@@ -76,8 +76,10 @@ export interface MorningReportContentV2 {
   needsAction: ReportItem[];
   worthKnowing: ReportItem[];
   rest: string | null;
-  /** Today's events; null when the assistant has no calendar of the owner. */
+  /** Today's events; null when the assistant has no calendar of the owner or could not read it. */
   agenda: AgendaItem[] | null;
+  /** True when the assistant has a calendar of the owner and could not read it, so a null `agenda` does not mean a day without events. Older reports do not have this. */
+  calendarUnread?: true;
   /** The mails of the report's window that the agent listed; no earlier mail that the report also covers. */
   mailCount: number;
   /** True when the time or the step limit made the agent submit early. */

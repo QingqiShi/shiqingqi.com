@@ -501,8 +501,8 @@ describe("a preview of the next morning report", () => {
         "VERSION:2.0",
         "BEGIN:VEVENT",
         "UID:dentist",
-        "DTSTART:20261102T100000Z",
-        "DTEND:20261102T103000Z",
+        "DTSTART:20261101T100000Z",
+        "DTEND:20261101T103000Z",
         "SUMMARY:Dentist",
         "END:VEVENT",
         "END:VCALENDAR",
@@ -524,14 +524,13 @@ describe("a preview of the next morning report", () => {
       call("delete_event", { id: "e1", reason: "It was cancelled." }),
     ];
     const steps = [
-      [call("list_events", { from: "2026-11-02", to: "2026-11-02" })],
+      [call("list_events", { from: "2026-11-01", to: "2026-11-01" })],
       writes,
       [
         call("submit_report", {
           headline: "Nothing urgent.",
           needsAction: [],
           worthKnowing: [],
-          agenda: [{ event: "e1" }],
           rest: "",
         }),
       ],

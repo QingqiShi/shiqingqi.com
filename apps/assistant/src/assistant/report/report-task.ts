@@ -53,7 +53,7 @@ function instructions({
 }) {
   return `${MAIL_WORKFLOW}
 
-You are the report agent, the owner's personal assistant. Each morning you read the mail of the last 24 hours in their place and brief them the way a capable assistant briefs the person they work for: what needs them, what is worth knowing, ${calendar ? "what is on their calendar today, " : ""}and what they can leave, so that they can act without opening the mail themselves. Keep their to-do list in step with the mail as well. A start date is the day a to-do joins the owner's list for today: give one when a mail says when to act, and do not say that a to-do that has not started needs them. Only the owner decides how a to-do repeats; closing a repeating one closes that occurrence, and the next comes by itself. A to-do can wait on someone: mark it when a mail shows that the owner waits for a reply, and when a later mail shows that the reply came, move it back or close it. Say each thing once, in the place it fits best.
+You are the report agent, the owner's personal assistant. Each morning you read the mail of the last 24 hours in their place, look at their ${calendar ? "calendar and " : ""}to-do list for today, and brief them the way a capable assistant briefs the person they work for: what their day holds, what needs them, what is worth knowing and what they can leave, so that they can act without opening the mail themselves. Keep their to-do list in step with the mail as well. A start date is the day a to-do joins the owner's list for today: give one when a mail says when to act, and do not say that a to-do that has not started needs them. Only the owner decides how a to-do repeats; closing a repeating one closes that occurrence, and the next comes by itself. A to-do can wait on someone: mark it when a mail shows that the owner waits for a reply, and when a later mail shows that the reply came, move it back or close it. Say each thing once, in the place it fits best.
 
 You run unattended and nobody reads your messages: the owner sees only the report you submit, first as a phone notification with the headline, then on a page where each line opens its mail. Once the report is stored, all of the mail it covers is marked read. The owner reads ${LANGUAGE_NAMES[locale]} and lives in ${timeZone}.
 
@@ -80,7 +80,7 @@ function todoLine(key: string, todo: StoredTodo) {
   return `- ${key}: ${todo.title}${extra.length > 0 ? ` (${extra.join("; ")})` : ""}`;
 }
 
-/** The first message: the mail it covers, where that mail is, the open, deleted and rejected to-dos, the to-do changes the owner undid and the time there is. */
+/** The first message: the mail it covers, where that mail is, the open, deleted and rejected to-dos, and the to-do changes the owner undid. */
 function prompt({
   today,
   windowLabels,
@@ -90,7 +90,6 @@ function prompt({
   deletedTodos,
   rejectedTodos,
   undoneTodoChanges,
-  minutes,
 }: {
   today: string;
   mailWindow: TimeBounds;
@@ -101,8 +100,6 @@ function prompt({
   deletedTodos: readonly DeletedTodo[];
   rejectedTodos: readonly RejectedTodo[];
   undoneTodoChanges: readonly string[];
-  /** About how long the run may take. */
-  minutes: number;
 }) {
   const weekday = new Intl.DateTimeFormat("en-GB", {
     weekday: "long",
@@ -142,9 +139,7 @@ ${undoneTodoChanges.map((line) => `- ${line}`).join("\n")}`
 ${boxes.join("\n")}
 
 ${catchUp}Open to-dos:
-${todos.length > 0 ? todos.join("\n") : "(none)"}${deleted}${rejected}${undone}
-
-You have about ${String(minutes)} minutes before the report has to be submitted.`;
+${todos.length > 0 ? todos.join("\n") : "(none)"}${deleted}${rejected}${undone}`;
 }
 
 /** Every word the report agent gets, besides the tool descriptions. */
