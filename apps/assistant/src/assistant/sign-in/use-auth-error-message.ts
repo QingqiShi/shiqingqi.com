@@ -6,7 +6,7 @@ export function useAuthErrorMessage() {
   const messages: Record<string, string> = {
     passkey_unknown: t({
       en: "This passkey belongs to no user of the assistant. Use another passkey.",
-      zh: "此通行密钥不属于邮件助手的任何用户。请换一个通行密钥。",
+      zh: "此通行密钥不属于 Qi Assistant 的任何用户。请换一个通行密钥。",
     }),
     passkey_invalid: t({
       en: "The passkey check did not go through. Try again.",
@@ -18,7 +18,7 @@ export function useAuthErrorMessage() {
     }),
     not_configured: t({
       en: "The assistant is not set up on this server.",
-      zh: "此服务器尚未配置邮件助手。",
+      zh: "此服务器尚未配置 Qi Assistant。",
     }),
   };
   const fallback = t({

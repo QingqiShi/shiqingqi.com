@@ -16,14 +16,14 @@ import { AssistantFrame } from "./assistant-frame.tsx";
 // own copy.
 const copy = {
   en: {
-    brand: "Mail Assistant",
+    brand: "Qi Assistant",
     heading: "Something went wrong",
     text: "An unexpected error stopped this page. Try again, or go back to the report.",
     retry: "Try again",
     home: "Back to the report",
   },
   zh: {
-    brand: "邮件助手",
+    brand: "Qi Assistant",
     heading: "出了点问题",
     text: "页面因意外错误中断。请重试，或返回晨报。",
     retry: "重试",

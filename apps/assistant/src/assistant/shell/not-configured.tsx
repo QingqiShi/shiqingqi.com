@@ -7,12 +7,12 @@ import { AssistantFrame } from "./assistant-frame.tsx";
 /** Shown where the app has no database. */
 export function NotConfigured() {
   return (
-    <AssistantFrame brand={t({ en: "Mail Assistant", zh: "邮件助手" })}>
+    <AssistantFrame brand={t({ en: "Qi Assistant", zh: "Qi Assistant" })}>
       <div css={stack.tight}>
         <Heading level={1} look="h2">
           {t({
             en: "The assistant is not set up on this deployment",
-            zh: "此部署尚未配置邮件助手",
+            zh: "此部署尚未配置 Qi Assistant",
           })}
         </Heading>
         <Text tone="muted">

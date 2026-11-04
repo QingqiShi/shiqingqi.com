@@ -7,14 +7,14 @@ import icon512 from "./assistant-icon-512.png";
 
 const COPY = {
   en: {
-    name: "Mail Assistant",
+    name: "Qi Assistant",
     shortName: "Assistant",
     description:
       "Your inbox filed into folders, and a morning report of what needs you.",
   },
   zh: {
-    name: "邮件助手",
-    shortName: "邮件助手",
+    name: "Qi Assistant",
+    shortName: "Qi Assistant",
     description: "替你把收件箱归入文件夹，每天早上一份晨报，告诉你要处理什么。",
   },
 } satisfies Record<SupportedLocale, Record<string, string>>;

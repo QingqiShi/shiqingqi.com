@@ -88,7 +88,7 @@ const OAUTH_CALLBACK_PATH = /^\/api\/connect\/[a-z]+\/callback$/;
 // a wider pattern can let session routes through.
 const CAPTURE_PATH = "/api/todos/capture";
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (
     pathname === CAPTURE_PATH ||
@@ -101,7 +101,10 @@ export function proxy(request: NextRequest) {
     return validateReferer(request) ?? NextResponse.next();
   }
 
-  const response = assistantProxy(request, i18nRouter(request, i18nConfig));
+  const response = await assistantProxy(
+    request,
+    i18nRouter(request, i18nConfig),
+  );
 
   // Only a document load may change the Preference: it is the one URL the
   // visitor chose. next-i18n-router writes NEXT_LOCALE on every locale-prefixed

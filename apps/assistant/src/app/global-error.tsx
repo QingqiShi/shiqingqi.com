@@ -13,7 +13,7 @@ const copy = {
   },
   zh: {
     heading: "出了点问题",
-    text: "邮件助手无法加载，请重试。",
+    text: "Qi Assistant 无法加载，请重试。",
     retry: "重试",
   },
 };
