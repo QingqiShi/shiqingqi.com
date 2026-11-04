@@ -18,6 +18,7 @@ import { HeadingSpecimen } from "./heading-specimen.tsx";
 import { ListSpecimen } from "./list-specimen.tsx";
 import { MenuButtonSpecimen } from "./menu-button-specimen.tsx";
 import { MovieDetailSpecimen } from "./movie-detail-specimen.tsx";
+import { NavListSpecimen } from "./nav-list-specimen.tsx";
 import { NavigationSplitViewSpecimen } from "./navigation-split-view-specimen.tsx";
 import { OptionCardSpecimen } from "./option-card-specimen.tsx";
 import { PagerSpecimen } from "./pager-specimen.tsx";
@@ -89,6 +90,7 @@ const COMPONENT_SPECIMENS: Partial<
   "/design-system/components/chip": { element: <ChipSpecimen /> },
   "/design-system/components/breadcrumb": { element: <BreadcrumbSpecimen /> },
   "/design-system/components/pager": { element: <PagerSpecimen /> },
+  "/design-system/components/nav-list": { element: <NavListSpecimen /> },
   "/design-system/components/badge": { element: <BadgeSpecimen /> },
   "/design-system/components/avatar": { element: <AvatarSpecimen /> },
   "/design-system/components/table": { element: <TableSpecimen /> },

@@ -279,7 +279,7 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
     const { box, marker, shed, hover, canShed } = parts;
     const origin = box.getBoundingClientRect();
     if (hoverRow !== null && hoverRow.isConnected) {
-      follow(hover, boxIn(hoverRow, origin));
+      follow(hover, boxIn(box, hoverRow));
     }
     const current = box.querySelector(CURRENT);
     const was = markerRow;
@@ -292,7 +292,7 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
     }
     const target = markerTargetOf(current);
     markerRow = target;
-    const to = boxIn(target, origin);
+    const to = boxIn(box, target);
     if (isFirst) {
       placeAt(marker, to);
       placeAt(shed, to);
@@ -405,7 +405,7 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
         showTo(hover, false);
         return;
       }
-      const to = boxIn(row, box.getBoundingClientRect());
+      const to = boxIn(box, row);
       // From the marker's row, the fill grows in at the new row. A fill
       // that glides out of the marker looks like the marker comes off.
       glideTo(hover, to, wasOnMarker);

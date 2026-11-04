@@ -38,16 +38,28 @@ export interface Box {
 }
 
 /**
- * The box of `element` from the point `origin` in the viewport.
+ * The box of `element` in the coordinates of a fill under `holder`: from the
+ * padding box of `holder`, in the px of `holder`.
  *
  * @internal
  */
-export function boxIn(
-  element: Element,
-  origin: Pick<DOMRect, "left" | "top">,
-): Box {
+export function boxIn(holder: HTMLElement, element: Element): Box {
+  const origin = holder.getBoundingClientRect();
   const { left, top, width, height } = element.getBoundingClientRect();
-  return { x: left - origin.left, y: top - origin.top, width, height };
+  // An ancestor can have a scale, such as a motion or a thumbnail, and the fill
+  // is in that scale too. Remove the scale from the measure, or the scale
+  // applies two times to the fill. `offsetWidth` is a rounded value and has no
+  // scale, so compare it only with a rounded value.
+  const scale =
+    Math.round(origin.width) === holder.offsetWidth
+      ? 1
+      : origin.width / holder.offsetWidth;
+  return {
+    x: (left - origin.left) / scale - holder.clientLeft,
+    y: (top - origin.top) / scale - holder.clientTop,
+    width: width / scale,
+    height: height / scale,
+  };
 }
 
 /**

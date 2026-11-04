@@ -13,25 +13,6 @@ import {
 } from "../motion/create-fill.ts";
 import type { MotionEngine } from "../motion/create-motion-engine.ts";
 
-function boxInTrack(track: HTMLElement, segment: Element) {
-  const origin = track.getBoundingClientRect();
-  const box = boxIn(segment, origin);
-  // A motion can scale a box that holds the track, and the fill is in that
-  // scale too. Remove the scale from the measure, or the fill keeps the wrong
-  // size after the motion stops. `offsetWidth` is a rounded value and has no
-  // scale, so compare it only with a rounded value.
-  const scale =
-    Math.round(origin.width) === track.offsetWidth
-      ? 1
-      : origin.width / track.offsetWidth;
-  return {
-    x: box.x / scale - track.clientLeft,
-    y: box.y / scale - track.clientTop,
-    width: box.width / scale,
-    height: box.height / scale,
-  };
-}
-
 /**
  * The hover fill of a Segment track, on the fill and the spring of the hover
  * fill of a `NavList`. It stays on the last segment across a gap between two
@@ -60,7 +41,7 @@ export function createSegmentHover(engine: MotionEngine, onDrawn: () => void) {
       const under = track.querySelector(`[${LIQUID_SEGMENT}]:hover`);
       if (under !== null && canHover.matches) {
         hovered = under;
-        placeAt(fill, boxInTrack(track, under));
+        placeAt(fill, boxIn(track, under));
         setShown(fill, 1);
       }
       const observer =
@@ -68,7 +49,7 @@ export function createSegmentHover(engine: MotionEngine, onDrawn: () => void) {
           ? null
           : new ResizeObserver(() => {
               if (hovered !== null) {
-                follow(fill, boxInTrack(track, hovered));
+                follow(fill, boxIn(track, hovered));
               }
             });
       observer?.observe(track);
@@ -91,7 +72,7 @@ export function createSegmentHover(engine: MotionEngine, onDrawn: () => void) {
           : null;
       if (segment === null || segment === hovered) return;
       hovered = segment;
-      glideTo(fill, boxInTrack(track, segment), false);
+      glideTo(fill, boxIn(track, segment), false);
     },
     /** The pointer left the track, or pressed it. */
     hide() {
