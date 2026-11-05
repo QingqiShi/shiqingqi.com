@@ -8,7 +8,7 @@ import { pageColumn } from "../primitives/page-column.stylex.ts";
 import { islandSurface } from "../surfaces/island.stylex.ts";
 import { useIsInSheetBoundary } from "../surfaces/sheet.tsx";
 import { LeavingCopyTaker } from "./leaving-copy-taker.tsx";
-import type { ColumnPage } from "./split-view/column.tsx";
+import type { ColumnPage, ColumnPageScroll } from "./split-view/column.tsx";
 import { ContentColumn } from "./split-view/content-column.tsx";
 import { DetailColumn } from "./split-view/detail-column.tsx";
 import { DetailSheet } from "./split-view/detail-sheet.tsx";
@@ -30,6 +30,7 @@ import { useStackOpening } from "./split-view/use-stack-opening.ts";
 import { useViewMotion } from "./split-view/use-view-motion.ts";
 import { useViewWidthsReached } from "./split-view/use-view-widths-reached.ts";
 import {
+  viewFramePageScrollAlwaysStyles,
   viewFramePageScrollStyles,
   viewFrameStyles,
 } from "./split-view/view-frame.stylex.ts";
@@ -107,7 +108,10 @@ export {
  * menu button at the top-end corner wherever it does not fit beside the content:
  * focus stays in it, the page does not scroll, and Esc, the backdrop or a link in
  * it closes it. The view publishes the room of the button as
- * `headerControlsTokens`, for a first row to keep clear of it.
+ * `headerControlsTokens`, for a first row to keep clear of it. Such a view is a
+ * document: outside a `SheetBoundary`, the page scrolls the content at every
+ * width, not only on a phone. The content lies on the canvas, and the sidebar is
+ * the only island, which sticks beside it while its nav scrolls on its own.
  *
  * With a `linkStatus`, a `NavLink` or a `ListRow` marks its link at once, a
  * stacked view opens the destination at once, and if the screen takes more than
@@ -174,6 +178,12 @@ export function NavigationSplitView({
   const isInTabView = useIsInTabView();
   const isContained = useIsInSheetBoundary();
   const fillsScreen = !isInTabView && !isContained;
+  const pageScroll: ColumnPageScroll = isContained
+    ? "never"
+    : drawer === null
+      ? "narrow"
+      : "always";
+  const scrollsWithPage = pageScroll === "always";
   const isPageSidebar = sidebarFits === false;
   const asSheet = detail != null && detailBeside === false;
   const detailColumn = asSheet ? null : (detail ?? null);
@@ -311,6 +321,7 @@ export function NavigationSplitView({
             css={[
               viewFrameStyles.view,
               !isContained && viewFramePageScrollStyles.view,
+              scrollsWithPage && viewFramePageScrollAlwaysStyles.view,
               movingMarker,
               hasSidebar && pageColumn.wide,
               css,
@@ -329,6 +340,7 @@ export function NavigationSplitView({
                 islandSurface.frame,
                 viewFrameStyles.columns,
                 !isContained && viewFramePageScrollStyles.columns,
+                scrollsWithPage && viewFramePageScrollAlwaysStyles.columns,
                 !isInTabView && viewFrameStyles.columnsWithoutBar,
                 fillsScreen && viewFrameStyles.columnsOnScreen,
                 drawer !== null && viewFrameStyles.columnsWithMenu,
@@ -363,7 +375,7 @@ export function NavigationSplitView({
                   hasDetailColumn={hasDetailColumn}
                   folding={folding}
                   pageScrolls={pageScrolls}
-                  canPageScroll={!isContained}
+                  pageScroll={pageScroll}
                 />
               ) : null}
               <ContentColumn
@@ -372,7 +384,7 @@ export function NavigationSplitView({
                 as={fillsScreen ? "main" : "section"}
                 pages={contentPages}
                 pageScrolls={pageScrolls}
-                canPageScroll={!isContained}
+                pageScroll={pageScroll}
                 isShown={!isAtStackRoot || fitsFullSidebar !== false}
                 close={closeOf(content.back)}
                 stacks={stacks}
@@ -392,7 +404,7 @@ export function NavigationSplitView({
                   detail={shownDetail}
                   pages={detailPages}
                   pageScrolls={pageScrolls}
-                  canPageScroll={!isContained}
+                  pageScroll={pageScroll}
                   isLeaving={detailColumn === null}
                   close={
                     detailColumn === null ? null : closeOf(shownDetail.back)

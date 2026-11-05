@@ -4,7 +4,7 @@ import type { AnimationEventHandler, ReactNode, RefObject } from "react";
 import type { LeavingCopy } from "../leaving-copy-taker.tsx";
 import { BackLink } from "./back-link.tsx";
 import { columnStyles, contentStyles, stackStyles } from "./column.stylex.ts";
-import { Column, type ColumnPage } from "./column.tsx";
+import { Column, type ColumnPage, type ColumnPageScroll } from "./column.tsx";
 import { sidebarStyles } from "./sidebar.stylex.ts";
 import { StackedOnly } from "./stacked-only.tsx";
 import type {
@@ -56,7 +56,7 @@ export function ContentColumn({
   as,
   pages,
   pageScrolls,
-  canPageScroll,
+  pageScroll,
   isShown,
   close,
   stacks,
@@ -76,7 +76,7 @@ export function ContentColumn({
   as: "main" | "section";
   pages: readonly ColumnPage[];
   pageScrolls: boolean;
-  canPageScroll: boolean;
+  pageScroll: ColumnPageScroll;
   isShown: boolean;
   close: (() => void) | null;
   stacks: boolean;
@@ -96,13 +96,14 @@ export function ContentColumn({
       column="content"
       as={as}
       pageScrolls={pageScrolls}
-      canPageScroll={canPageScroll}
+      pageScroll={pageScroll}
       isShown={isShown}
       label={content.label}
       pages={pages}
       close={close}
       css={[
         contentStyles.base,
+        sidebar?.stacked === "drawer" && contentStyles.onCanvas,
         stacks && stackStyles.contentColumn,
         showsStackRoot && [
           sidebarStyles.fullBesideContent,

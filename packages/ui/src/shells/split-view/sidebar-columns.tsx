@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { SidebarDrawer } from "../sidebar-drawer.tsx";
 import { stackStyles } from "./column.stylex.ts";
-import { Column } from "./column.tsx";
+import { Column, type ColumnPageScroll } from "./column.tsx";
 import { sidebarStyles } from "./sidebar.stylex.ts";
 import { SplitViewDustContext } from "./split-view-link.tsx";
 import type { NavigationSplitViewSidebar } from "./types.ts";
@@ -33,7 +33,7 @@ export function SidebarColumns({
   hasDetailColumn,
   folding,
   pageScrolls,
-  canPageScroll,
+  pageScroll,
 }: {
   sidebar: NavigationSplitViewSidebar;
   collapsedSidebar: ReactNode;
@@ -45,7 +45,7 @@ export function SidebarColumns({
   hasDetailColumn: boolean;
   folding: "fold" | "unfold" | null;
   pageScrolls: boolean;
-  canPageScroll: boolean;
+  pageScroll: ColumnPageScroll;
 }) {
   const hasCollapsed = collapsedSidebar !== null;
   const sidebarForms: readonly ("full" | "collapsed")[] = hasCollapsed
@@ -69,7 +69,7 @@ export function SidebarColumns({
         column="sidebar"
         form={form}
         pageScrolls={pageScrolls}
-        canPageScroll={canPageScroll}
+        pageScroll={pageScroll}
         isShown={isSidebarShown(form)}
         label={sidebar.label}
         presentation={stacks && sidebarFits !== true ? "page" : "column"}

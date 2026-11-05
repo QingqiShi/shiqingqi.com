@@ -210,6 +210,30 @@ export const columnPageScrollStyles = stylex.create({
   },
 });
 
+// A view with a drawer is a document: the page scrolls its content at every
+// width, as at the narrow width above.
+/** @internal */
+export const columnPageScrollAlwaysStyles = stylex.create({
+  page: {
+    position: "relative",
+  },
+  pageAside: {
+    position: "absolute",
+    insetBlockEnd: "auto",
+  },
+  scroller: {
+    overflowY: "visible",
+  },
+  // At least one screen less the gaps of the frame, so that a short page does not
+  // scroll.
+  content: {
+    minBlockSize: {
+      default: `calc(100dvh - ${islandTokens.insetBlockStart} - ${islandTokens.insetBlockEnd})`,
+      "@media print": "auto",
+    },
+  },
+});
+
 /** @internal */
 export const contentStyles = stylex.create({
   base: {
@@ -217,6 +241,12 @@ export const contentStyles = stylex.create({
     flexGrow: 1,
     flexBasis: 0,
     inlineSize: "100%",
+  },
+  // The content of a document lies on the canvas, and only the sidebar is an
+  // island.
+  onCanvas: {
+    backgroundColor: "transparent",
+    borderRadius: 0,
   },
   gutters: {
     paddingInlineStart: {

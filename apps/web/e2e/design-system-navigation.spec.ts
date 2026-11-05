@@ -29,6 +29,22 @@ test("a category in the sidebar opens and closes, and the current one starts ope
   await expect(colour).toHaveAttribute("aria-current", "page");
 });
 
+test("the wheel scrolls the document, and the sidebar stays in place", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(PATH);
+  const sidebar = page.getByRole("region", { name: "Design system" });
+  const sidebarTop = (await sidebar.boundingBox())?.y;
+
+  await page.mouse.move(900, 450);
+  await page.mouse.wheel(0, 600);
+  await expect
+    .poll(() => page.evaluate(() => document.scrollingElement?.scrollTop))
+    .toBeGreaterThan(0);
+  expect((await sidebar.boundingBox())?.y).toBe(sidebarTop);
+});
+
 test.describe("on a phone", () => {
   test.use({
     viewport: { width: 390, height: 844 },

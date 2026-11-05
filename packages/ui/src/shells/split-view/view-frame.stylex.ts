@@ -155,3 +155,17 @@ export const viewFramePageScrollStyles = stylex.create({
     },
   },
 });
+
+// A view with a drawer is a document: the page scrolls its content at every
+// width, and its sidebar sticks beside it.
+/** @internal */
+export const viewFramePageScrollAlwaysStyles = stylex.create({
+  view: {
+    blockSize: "auto",
+    maxBlockSize: "none",
+    overflowAnchor: "none",
+  },
+  columns: {
+    blockSize: "auto",
+  },
+});
