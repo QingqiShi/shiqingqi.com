@@ -185,7 +185,7 @@ export default function PrinciplesPage() {
           }),
         },
         {
-          lead: t({ en: "Space with rhythm.", zh: "有节奏地留白。" }),
+          lead: t({ en: "Give gaps a rhythm.", zh: "让间距有节奏。" }),
           text: t({
             en: "Keep related things close and unrelated things apart, so the layout reads at a glance.",
             zh: "相关的内容靠近，无关的内容分开，让版面一眼就能看清。",

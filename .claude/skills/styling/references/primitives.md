@@ -1,459 +1,84 @@
-# Design Primitives — Full API Reference
+# Primitives
 
-Multi-property composable styles in `packages/ui/src/primitives/`. Each primitive combines 2+ CSS properties that encode a common pattern. Import directly from individual files: the paths below are the `@tuja/ui` package exports, and inside `packages/ui` the same files are imported by relative path.
+A primitive is a style object of two or more properties that encodes a common pattern. Each one is in `packages/ui/src/primitives/<name>.stylex.ts`, imported as `@tuja/ui/primitives/<name>.stylex`. The files are short, and their names and JSDoc say what each member sets: read the file for its members. This page says which primitive to choose, the order to compose them in, and the traps that the files do not show.
 
-## Table of Contents
+## Flex and stack
 
-- [Flex Layouts](#flex-layouts)
-- [Stack](#stack)
-- [Type Role](#type-role)
-- [Corner](#corner)
-- [Layout Patterns](#layout-patterns)
-- [Resets](#resets)
-- [Root](#root)
-- [Motion](#motion)
-- [Accessibility](#accessibility)
-- [Selected](#selected)
-- [Quiet Surface](#quiet-surface)
-- [Material (Texture, Wash)](#material-texture-wash)
+`flex.*` sets the display and the alignment, and `align`, `justify`, `grow` and `shrink` (all in `flex.stylex.ts`) each change one property after it: `css={[flex.row, align.end]}`.
 
----
-
-## Flex Layouts
-
-**Import**: `@tuja/ui/primitives/flex.stylex`
-
-### Flex Patterns
-
-| Export              | Properties                                                         |
-| ------------------- | ------------------------------------------------------------------ |
-| `flex.row`          | display: flex + alignItems: center                                 |
-| `flex.col`          | display: flex + flexDirection: column                              |
-| `flex.center`       | display: flex + alignItems: center + justifyContent: center        |
-| `flex.between`      | display: flex + alignItems: center + justifyContent: space-between |
-| `flex.wrap`         | display: flex + flexWrap: wrap + alignItems: center                |
-| `flex.inlineCenter` | display: inline-flex + alignItems: center + justifyContent: center |
-
-### Layout Modifiers
-
-Override defaults from flex primitives:
-
-| Export    | Values                                          |
-| --------- | ----------------------------------------------- |
-| `align`   | `start`, `center`, `end`, `baseline`, `stretch` |
-| `justify` | `start`, `center`, `end`, `between`             |
-| `grow`    | `_0`, `_1`                                      |
-| `shrink`  | `_0`, `_1`                                      |
-
-### Examples
-
-```tsx
-import { flex, align, justify, grow } from "@tuja/ui/primitives/flex.stylex";
-
-// Common row — vertically centered by default
-<div css={flex.row}>
-
-// Override alignment
-<div css={[flex.row, align.end]}>
-
-// Toolbar: items spaced, vertically centered
-<header css={flex.between}>
-
-// Column with centered content
-<div css={[flex.col, justify.center]}>
-
-// Wrapping row of small controls
-<div css={flex.wrap}>
-
-// Fill remaining space
-<div css={[flex.row, grow._1]}>
-```
-
----
-
-## Stack
-
-**Import**: `@tuja/ui/primitives/stack.stylex`
-
-A container that owns the space between its children at one `rhythm` step. Prefer it to `flex.col` / `flex.wrap` / `flex.row` plus a local gap; compose a modifier after it (`[stack.tight, align.center]`) for the one property that differs.
-
-| Export           | Properties                                                            |
-| ---------------- | --------------------------------------------------------------------- |
-| `stack.text`     | flex column, no gap: lines of text in one item                        |
-| `stack.rows`     | flex column, no gap, list reset: rows that pad themselves (nav links) |
-| `stack.tight`    | flex column + gap: `rhythm.tight`                                     |
-| `stack.item`     | flex column + gap: `rhythm.item`                                      |
-| `stack.group`    | flex column + gap: `rhythm.group`                                     |
-| `stack.section`  | flex column + gap: `rhythm.section`                                   |
-| `cluster.inline` | flex row + wrap + alignItems: center + gap: `rhythm.inline`           |
-| `cluster.tight`  | flex row + wrap + alignItems: center + gap: `rhythm.tight`            |
-| `cluster.item`   | flex row + wrap + alignItems: center + gap: `rhythm.item`             |
-| `row.inline`     | flex row + alignItems: center + gap: `rhythm.inline`                  |
-| `row.tight`      | flex row + alignItems: center + gap: `rhythm.tight`                   |
-| `row.item`       | flex row + alignItems: center + gap: `rhythm.item`                    |
-
-`cluster.*` and `row.*` set `flexDirection: row`, so they win over a stack they are composed after. `Card` is a `stack.item`.
-
-```tsx
-import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
-
-<section css={stack.group}>
-  <header css={stack.text}>
-    <h3>Tonight</h3>
-    <p>Two films.</p>
-  </header>
-  <div css={cluster.tight}>{actions}</div>
-  <span css={row.inline}>
-    <ClockIcon weight="bold" /> 2h 44m
-  </span>
-</section>;
-```
-
----
+When a container also owns the space between its children, take `stack.*` (a column), `cluster.*` (a row that wraps) or `row.*` (a row that does not wrap) from `stack.stylex.ts`, not `flex.*` with a gap of your own. Compose a modifier after it for the one property that differs. `cluster.*` and `row.*` set `flexDirection: row`, so they win over a stack composed before them. `Card` is already a `stack.item`.
 
 ## Page column
 
-**Import**: `@tuja/ui/primitives/page-column.stylex`
+`page-column.stylex.ts` describes each width. To choose:
 
-The page column is where a page's content sits: centred, `layout.maxInlineSize` wide with its gutters, and never closer to the screen edge than the page gutter (`space._3` past the safe area). It is padding, not a capped box, so the box spans its parent and its background bleeds to the edges. `HeaderFooterLayout` with `pageColumn` sets its content and its footer on it, so everything lines up with the header controls. Never write `layout.maxInlineSize` or `env(safe-area-inset-left/right)` outside `packages/ui`, and never set `pageColumnTokens.inlineSize` there: the `@tuja/require-page-column` lint rule refuses all three.
+- A gallery of cards, such as a poster grid, takes `pageColumn.wide`, so that a wide screen fits more columns. Prose stays in the page column. Pass `wideHeader` to `HeaderFooterLayout` on such a page, so the header controls share the gallery's edges.
+- A named width (`list`, `settings`, `report`) composes with `base` or `scroller`, or goes in the `css` of a `NavigationSplitView` or a `TabView`. Their JSDoc says which screens take it.
 
-| Export                         | Use                                                                                     |
-| ------------------------------ | --------------------------------------------------------------------------------------- |
-| `pageColumn.base`              | A box that spans its parent and sets its content in the page column                     |
-| `pageColumn.scroller`          | A horizontal scroller: its end items rest on the column, the rest scroll to the edges   |
-| `pageColumn.wide`              | With `base` or `scroller`: the wide page column, only the page gutter from the edges    |
-| `pageColumn.regular`           | The default width by name, for a screen in a view that starts from another width        |
-| `pageColumn.list`              | A screen of rows                                                                        |
-| `pageColumn.settings`          | A settings section                                                                      |
-| `pageColumn.report`            | A report                                                                                |
-| `pageGutter.inlineStart`/`End` | One gutter: for a box that steps out of the column by a gutter, or a fixed edge control |
-| `pageColumnTokens.inlineSize`  | The dial behind these, its gutters included. An app reads it and does not set it        |
+## Type role
 
-```tsx
-import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
+Copy goes through `Text` and `Heading` first, with their `look` prop. Compose a `typeRole.*` yourself only for text that these do not render.
 
-<section css={[pageColumn.base, styles.hero]}>{/* bleeds; content in the column */}</section>
-<div css={[pageColumn.scroller, scrollX.base]}>{cards}</div>
-<section css={[pageColumn.base, pageColumn.wide]}>{posterGrid}</section>
-```
-
-A gallery of cards, such as a poster grid, takes the wide page column so that a wide screen fits more columns; prose stays in the page column. Pass `wideHeader` to `HeaderFooterLayout` on such a page, so the header controls share the gallery's edges.
-
-A named width composes with `base` or `scroller`, or goes in the `css` of a view. The content of every `NavigationSplitView` sits in the page column: `css={pageColumn.settings}` sets its width. Without a name, a view with a sidebar spans its column (the detail and the sidebar always do), and a view of one pane takes the width around it, so a `TabView` with `css={pageColumn.list}` sets its screens of one pane and not a screen with a sidebar.
-
----
-
-## Type Role
-
-**Import**: `@tuja/ui/primitives/type.stylex`
-
-The job a piece of text does. Each role sets `fontSize`, `lineHeight`, `fontWeight` and `letterSpacing` together. Compose it first, so a later style can change the weight with a `font.weight_*` token. `Text` and `Heading` take the same roles as their `look`.
-
-| Export                    | Size                    | Leading | Weight | Tracking |
-| ------------------------- | ----------------------- | ------- | ------ | -------- |
-| `typeRole.display`        | `font.uiDisplay`        | 0.98    | 600    | display  |
-| `typeRole.subDisplay`     | `font.uiSubDisplay`     | 0.98    | 600    | display  |
-| `typeRole.h1`             | `font.uiHeading1`       | 1.24    | 600    | heading  |
-| `typeRole.h2`             | `font.uiHeading2`       | 1.24    | 600    | heading  |
-| `typeRole.h3`             | `font.uiHeading3`       | 1.24    | 600    | heading  |
-| `typeRole.h4`             | `font.uiBody`           | 1.24    | 600    | heading  |
-| `typeRole.body`           | `font.uiBody`           | 1.5     | 400    | body     |
-| `typeRole.bodySmall`      | `font.uiBodySmall`      | 1.5     | 400    | body     |
-| `typeRole.label`          | `font.uiBodySmall`      | 1.3     | 400    | body     |
-| `typeRole.caption`        | `font.uiCaption`        | 1.3     | 400    | body     |
-| `typeRole.overline`       | `font.uiOverline`       | 1.3     | 400    | normal   |
-| `typeRole.control`        | `font.uiControl`        | 1.3     | 400    | body     |
-| `typeRole.controlCaption` | `font.uiControlCaption` | 1.3     | 400    | body     |
-| `typeRole.fluidDisplay`   | `font.vpDisplay`        | 0.98    | 600    | display  |
-| `typeRole.fluidH1`        | `font.vpHeading1`       | 1.24    | 600    | heading  |
-| `typeRole.fluidH2`        | `font.vpHeading2`       | 1.24    | 600    | heading  |
-| `typeRole.fluidH3`        | `font.vpHeading3`       | 1.24    | 600    | heading  |
-| `typeRole.fluidLead`      | `font.vpSubDisplay`     | 1.5     | 400    | body     |
-| `typeRole.cardTitle`      | `font.cqTitle`          | 1.24    | 600    | heading  |
-| `typeModifier.numeric`    | —                       | —       | —      | tabular  |
-
-The heading and display leading and the display, heading and body tracking are `latinType` tokens (see `tokens.md`): Chinese text takes no tracking, a heading leading of 1.2 and a display leading of 1.1. The overline is in sentence case. `control` and `controlCaption` step down at `md` together with `controlSize`. The `fluid*` roles are for a landing page and grow with the viewport. `cardTitle` grows with the nearest `inline-size` container, so put it inside one.
-
-```tsx
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-
-<header css={stack.text}>
-  <h3 css={typeRole.h3}>Tonight</h3>
-  <span css={[typeRole.caption, typeModifier.numeric, styles.meta]}>
-    2h 44m
-  </span>
-</header>;
-```
-
----
+**`data-prose`** marks a layout box that holds running text, such as each `DocSection` body. On a Chinese page, its direct child paragraphs justify when the box is wide enough (`apps/web/src/app/global.css` has the rule and the width). Put a paragraph directly in the box, not in a wrapper `div`. Do not mark a box that holds other text, such as a card or a caption, where a short justified line opens wide gaps. `data-prose` also makes the box an `inline-size` container, so a `cqi` unit or an unnamed container query inside it measures that box.
 
 ## Corner
 
-**Import**: `@tuja/ui/primitives/corner.stylex`
-
-Pairs a `border.radius_*` step with its corner shape in one declaration — squircle on the fixed steps, circular caps on `radius_round` (clamped into a pill or a circle, a superellipse cap reads as neither). Never write a bare `borderRadius` — use the matching member here instead. Where a radius genuinely can't go through the primitive (a vendor pseudo-element, a CSS-var-driven radius), pair `cornerShape` beside `borderRadius` in the same object literal (`"squircle"`, or `"round"` at the full-round radius); the `@tuja/require-corner-shape` ESLint rule enforces this in `packages/ui` and `apps/web`.
-
-| Export                  | Properties                                                                                         |
-| ----------------------- | -------------------------------------------------------------------------------------------------- |
-| `corner.radius_1`       | borderRadius: `border.radius_1` + cornerShape: squircle                                            |
-| `corner.radius_2`       | borderRadius: `border.radius_2` + cornerShape: squircle                                            |
-| `corner.radius_3`       | borderRadius: `border.radius_3` + cornerShape: squircle                                            |
-| `corner.radius_4`       | borderRadius: `border.radius_4` + cornerShape: squircle                                            |
-| `corner.radius_5`       | borderRadius: `border.radius_5` + cornerShape: squircle                                            |
-| `corner.radius_round`   | borderRadius: `border.radius_round` + cornerShape: round                                           |
-| `corner.squircle_round` | borderRadius: `border.radius_round`, closing at half `cornerTokens.height` + cornerShape: squircle |
-
-`cornerTokens.height` (default `controlSize._9`) is the dial for `squircle_round` — the control height it closes the radius at. `Button` and `SegmentedControl` each set it to their own height in a local `stylex.create`, the same way `textureTokens.pitch` is overridden.
-
-### Example
-
-```tsx
-import { corner, cornerTokens } from "@tuja/ui/primitives/corner.stylex";
-
-// Card corner
-<div css={corner.radius_3}>
-
-// Pill / avatar
-<span css={corner.radius_round}>
-
-// Squircle pill dialed to this control's height
-const styles = stylex.create({ track: { [cornerTokens.height]: controlSize._7 } });
-<div css={[corner.squircle_round, styles.track]}>
-```
-
-There is no global `corner-shape` rule.
-
----
-
-## Layout Patterns
-
-**Import**: `@tuja/ui/primitives/layout.stylex`
-
-| Export                  | Properties                                                                                                            |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `absoluteFill.all`      | position: absolute + top/right/bottom/left: 0                                                                         |
-| `absoluteFill.x`        | position: absolute + left: 0 + right: 0                                                                               |
-| `absoluteFill.y`        | position: absolute + top: 0 + bottom: 0                                                                               |
-| `viewportAnchor.fixed`  | position: fixed + inset-block/inline-start: 0 + 0 × 0 size (containing block for overlays that bring their own size)  |
-| `viewportFill.absolute` | position: absolute + start insets: 0 + end insets: auto + 100vw × 100dvh (one viewport-sized layer inside the anchor) |
-| `scrollX.base`          | overflowX: auto + scrollbarWidth: none                                                                                |
-| `scrollY.base`          | overflowY: auto                                                                                                       |
-| `plainList.list`        | margin: 0 −`space._2` + padding: 0 + no bullets (a list on no surface whose rows show a hover or selected plate)      |
-| `plainList.row`         | paddingInline: `space._2` (the row of a `plainList.list`: its content lines up with the text around the list)         |
-| `truncate.base`         | overflow: hidden + textOverflow: ellipsis + whiteSpace: nowrap                                                        |
-| `imageCover.base`       | objectFit: cover + width: 100% + height: 100%                                                                         |
-| `imageContain.base`     | objectFit: contain + width: 100% + height: 100%                                                                       |
-| `scrollbar.autoHide`    | thin scrollbar, transparent at rest and shown on hover or focus, on `NON_TOUCH_DEVICE` only                           |
-
-`pointerConstants.NON_TOUCH_DEVICE` (`@media (hover: hover) and (not (any-pointer: coarse))`) gates an affordance that a touch device replaces. A hover style takes `pointer.canHover` from `@tuja/ui/breakpoints.stylex` instead; see the Hover section of `SKILL.md`.
-
-### Examples
-
-```tsx
-import { absoluteFill, scrollY, truncate, imageCover } from "@tuja/ui/primitives/layout.stylex";
-
-// Overlay covering parent
-<div css={absoluteFill.all}>
-
-// Scrollable content area
-<div css={scrollY.base}>
-
-// Truncated text
-<span css={truncate.base}>
-
-// Cover image
-<img css={imageCover.base} src={url} alt={alt} />
-```
-
----
-
-## Resets
-
-**Import**: `@tuja/ui/primitives/reset.stylex`
-
-| Export             | Properties                                                                                                                                                                        |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `buttonReset.base` | appearance: none + borderWidth: 0 + borderStyle: none + backgroundColor: transparent + padding: 0 + cursor: pointer + the `a11y.focusRing` ring + the `a11y.touchTarget` hit area |
-
-Every hand-built `<button>` starts from `buttonReset.base`, so it has the system focus ring and the touch target without a second primitive. Compose `a11y.focusRingInset` after it where an ancestor clips overflow.
-
-### Example
-
-```tsx
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-
-<button
-  css={[buttonReset.base, flex.center, styles.iconButton]}
-  onClick={onClick}
->
-  {icon}
-</button>;
-```
-
----
+`cornerTokens.height` sets the height at which `corner.squircle_round` closes its corners. A control with its own height sets it in a local `stylex.create`, as `SegmentedControl` does: `{ [cornerTokens.height]: controlSize._7 }`.
 
 ## Root
 
-**Import**: `@tuja/ui/primitives/root.stylex`
+`root.html` goes on `<html>` and `root.body` on `<body>`, once. In `apps/web`, `root.html` goes through `getDocumentClassName` in `apps/web/src/theme/global-styles.ts`, because the Theme script sets the class. StyleX cannot select by tag, so `apps/web/src/app/global.css` balances a raw `<h1>`–`<h6>` that has no heading role.
 
-| Export      | Properties                                                                                                                                                                |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `root.html` | colorScheme: light dark + backgroundColor: `color.bgCanvas` + textSizeAdjust: 100% + the `latinType` tokens set back to plain values under `:lang(zh)`                    |
-| `root.body` | color: `color.fg` + fontFamily: `font.family` + lineHeight: `font.lineHeightBody` + letterSpacing: `latinType.trackingBody` + textWrap: pretty + overflowWrap: break-word |
+## Motion presets
 
-Goes once on the document: `root.html` on `<html>` (in apps/web, through `getDocumentClassName` in `apps/web/src/theme/global-styles.ts`, because the Theme script sets the class) and `root.body` on `<body>`. Everything inherits the body's leading, `text-wrap: pretty` and `overflow-wrap: break-word`, so text needs no `lineHeight`, `textWrap` or `overflowWrap` of its own unless it differs. `break-word` leaves the min-content size alone, so a flex or grid item that must shrink below its longest word still needs `overflowWrap: "anywhere"` or a zero minimum size. Never set a `fontSize` on the root: it overrides the visitor's browser font size, which every `rem` token follows. Every heading type role balances its lines, so `Heading` and any element that takes a heading role balance by default. StyleX cannot select by tag, so `apps/web/src/app/global.css` also balances raw `<h1>`–`<h6>` in the `normalize` layer, for a heading without a role.
+`motion.stylex.ts` has the transitions, the animations, the durations and `easing`.
 
----
+- `transition.all` also animates a layout property that changes on the element. Name the properties instead when one can change.
+- `animate.expand` and `animate.collapse` animate `grid-template-rows`, which runs layout. Do not use them.
 
-## Motion
+## Motion engine
 
-**Import**: `@tuja/ui/primitives/motion.stylex`
+`@tuja/ui/motion/*`, in `packages/ui/src/motion/`. Each file's JSDoc describes its exports.
 
-### Transition Presets
+| Module                                         | For                                                                     |
+| ---------------------------------------------- | ----------------------------------------------------------------------- |
+| `spring-roles`                                 | `springRoles` and `springOf`: the spring of each thing that moves       |
+| `use-motion-engine`                            | `useMotionEngine` and `useMotionValue`, for a component                 |
+| `create-motion-value`                          | The `MotionValue` interface: `set`, `to` and their options              |
+| `use-binding`                                  | `useBinding`: writes values to an element through a `pose`              |
+| `play-layout`                                  | `captureLayout` and `playLayout`: move elements to their new layout box |
+| `create-motion-engine`, `bind`                 | The engine and the binding outside React                                |
+| `prefers-reduced-motion`, `use-reduced-motion` | The one reduced-motion store                                            |
 
-Each includes a reduced-motion override automatically.
+## Flow blocks
 
-| `transition.*` | Effect                                                 |
-| -------------- | ------------------------------------------------------ |
-| `none`         | transition: none                                       |
-| `all`          | all 200ms ease (reduced-motion: colors + opacity only) |
-| `colors`       | color + background-color + border-color                |
-| `opacity`      | opacity 200ms ease                                     |
-| `shadow`       | box-shadow 200ms ease                                  |
-| `transform`    | transform 500ms spring (reduced-motion: none)          |
-
-### Animation Presets
-
-| `animate.*`             | Effect                                                       |
-| ----------------------- | ------------------------------------------------------------ |
-| `fadeIn` / `fadeOut`    | opacity transition, 200ms                                    |
-| `slideUp` / `slideDown` | translateY entrance, 500ms spring (reduced-motion: disabled) |
-| `pulse`                 | opacity pulse, 2s infinite                                   |
-| `bounce`                | scale + opacity bounce, 1.4s infinite                        |
-| `expand` / `collapse`   | grid-template-rows 0fr/1fr, 300ms                            |
-
-### Constants
-
-For building custom transitions:
-
-- `duration` — `{ _75, _100, _150, _200, _300, _400, _500, _700, _800, _1000, _1400, _1600, _2000 }` (ms strings)
-- `easing` — `{ linear, ease, easeIn, easeOut, easeInOut, spring, springFallback, pulse }`. A movement takes `spring`: the system spring of the motion engine at mass 1, sampled into `linear()` over 500ms (a test keeps the two the same). At 500ms it moves as the `surface` role (mass 1) does. A longer or shorter duration changes the speed as a different mass does: the bounce stays the same. It is at 95% at approximately a quarter of the duration, so use a duration that is approximately four times the time in which the movement must look complete. `springFallback` is a bezier near it, for a browser without `linear()`
-- `motionConstants.REDUCED_MOTION` — media query string (defined via `stylex.defineConsts`, works cross-module as computed keys in `stylex.create`)
-- `motionKeyframes` — `{ fadeIn }`, the keyframes of `animate.fadeIn`, for an `animationName` that changes with a condition such as reduced motion
-
-### Custom Transition Example
-
-```tsx
-import {
-  duration,
-  easing,
-  motionConstants,
-} from "@tuja/ui/primitives/motion.stylex";
-
-const styles = stylex.create({
-  animated: {
-    transition: {
-      default: `transform ${duration._500} ${easing.spring}, filter ${duration._150} ${easing.easeOut}`,
-      [motionConstants.REDUCED_MOTION]: "none",
-    },
-  },
-});
-```
-
-### Motion engine
-
-CSS keeps only simple state changes (hover, press, focus, selected, colour, small cues) and loops. Motion that can be interrupted, follows a gesture, or is measured from layout runs on the one motion engine, `@tuja/ui/motion/*`:
-
-- `spring-roles` — `systemSpring` (one stiffness and one damping ratio for the whole system), `springRoles` (a mass per moving thing, from the lightest: `surface`, `switchFill`, `stackPush`, `move`, `flight`, `columnPush`, `lift`, `fold`, `aim`), `springOf(role)`. A heavier role moves slower with the same bounce. A spring has no duration.
-- `use-motion-engine` — `useMotionEngine()`, `useMotionValue(engine, initial, { spring, precision })`. A `MotionValue` has `get`, `getVelocity`, `target`, `isMoving`, `set(value, { velocity })`, `to(target, { spring, tween, from, velocity, delay, reduced })` → `{ finished }`, `stop`, `subscribe`.
-- `use-binding` — `useBinding(ref, values, { pose, reducedPose, hold, rest, renderer })` writes the values to the element through `pose`; `px` (from `px`) formats a length.
-- `play-layout` — `captureLayout` then `playLayout` moves elements to their new layout box (FLIP).
-- `create-motion-engine`, `create-motion-value`, `bind` — the same outside React.
-- `prefers-reduced-motion` (`prefersReducedMotion`, `subscribeReducedMotion`, `REDUCED_MOTION_QUERY`) and `use-reduced-motion` (`useReducedMotion`) — the one reduced-motion store.
-
-The spring is solved exactly and played as Web Animations on the compositor. A `to()` during a motion turns from where the value is, at its speed; `set(x, { velocity })` during a drag, then `to(end)` on release, keeps the speed of the release. Under reduced motion `to()` snaps, or takes `reduced: tween` (such as a short fade). See `/design-system/foundations/motion`.
-
----
+`SKILL.md` says when to register. `useFlowBlock` (`packages/ui/src/motion/use-flow-block.tsx`) and `FlowBlock` (`packages/ui/src/surfaces/flow-block.tsx`) describe their options in JSDoc. `useFlowPanel` (`packages/ui/src/motion/use-flow-panel.ts`) is internal to `packages/ui`. A new panel follows `Disclosure`, which also gives its content box `display: flow-root` and says why.
 
 ## Accessibility
 
-**Import**: `@tuja/ui/primitives/a11y.stylex`
+`a11y.stylex.ts` describes the focus rings and the touch targets. A text field with no frame of its own leaves the ring to its frame: compose `a11y.focusRingWithin` on the frame and `stylex.defaultMarker()` on the field, as `apps/web/src/movie-database/chat/chat-textarea.tsx` does.
 
-| Export                | Properties                                                                                                                 |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `a11y.srOnly`         | Visually hidden, still announced — the canonical "visually hidden" clip recipe                                             |
-| `a11y.focusRing`      | Keyboard focus ring, outward, on `:focus-visible`                                                                          |
-| `a11y.focusRingInset` | Same ring pulled inside the box, for an ancestor (e.g. a rounded card) that clips overflow                                 |
-| `a11y.touchTarget`    | No tap flash, `touch-action: manipulation`, and a 44px `::after` hit area under a coarse pointer                           |
-| `a11y.touchRow`       | The touch feel of `touchTarget`, and a 44px min block size under a coarse pointer, for a control that abuts its neighbours |
-
-### Example
-
-```tsx
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-
-// Visible to screen readers only
-<span css={a11y.srOnly}>Loading</span>
-
-// Keyboard focus ring on a focusable element that is not a reset button
-<Link {...stylex.props(a11y.focusRing, styles.cta)} href={href}>
-```
-
-Every element that takes focus draws the system ring: a component, `buttonReset.base`, `outlineSurface.interactive` and `cardSurface.interactive` carry it, and anything else (a link, a native `<input>`, a scroller) composes `a11y.focusRing`. Never set `outline: none` or `outlineWidth: 0` to hide it. A text field with no frame of its own leaves the ring to its frame: compose `a11y.focusRingWithin` on the frame and `stylex.defaultMarker()` on the field, as `chat-textarea.tsx` does.
-
-Every control takes a tap across at least 44px under a coarse pointer, without changing how it looks: `a11y.touchTarget` adds an `::after` hit area that extends past a smaller box, and drops the tap flash and the double-tap zoom. `buttonReset.base`, `outlineSurface.interactive` and `Button` carry it, and `cardSurface.interactive` carries all of it except the hit area, which a card does not need; compose `a11y.touchTarget` on any other control, before any style that sets `position`. Under a coarse pointer the control becomes `position: relative` and `isolation: isolate`. Three things take the hit area away:
+Three things take the 44px hit area of `a11y.touchTarget` away:
 
 - An ancestor that clips overflow also clips the hit area. Give a control inside one 44px of its own under `pointer.coarse`, or move the clip to an inner element.
 - A small control closer to a field or another control than its hit area extends covers it and takes its taps. Make the gap larger under `pointer.coarse`.
 - Controls that touch, such as the options of `SegmentedControl`, cannot share the gap. Each one needs 44px of its own under `pointer.coarse`.
 
-A control that abuts its neighbours, such as a nav link in a list of rows, takes `a11y.touchRow` instead: the same touch feel, with no hit area past its box, and the control itself grows to at least 44px tall under a coarse pointer. `NavLink` carries it.
-
----
-
 ## Selected
 
-**Import**: `@tuja/ui/primitives/selected.stylex`
+`selected.stylex.ts` describes `selected.marked` and `selectedTokens.rest`. Where the content of an item covers its background, such as a colour swatch or an image thumbnail, neither `selected.marked` nor `quietSurface.interactive` shows. Keep a ring there.
 
-| Export                | Properties                                                                                               |
-| --------------------- | -------------------------------------------------------------------------------------------------------- |
-| `selected.marked`     | `borderAccent` border and `bgAccentSubtle` tint while selected — for a choice that decides the next step |
-| `selectedTokens.rest` | The background while not selected; defaults to `transparent`                                             |
+## Quiet surface
 
-Every selected state reads the ARIA state already on the element: `aria-pressed`, `aria-checked` or `aria-selected` set to `true`, or any `aria-current` but `false`. Never write a `selected && styles.selected` style of your own — set the attribute and compose the look. An item that only has to stand out from its siblings (a menu row, a nav link, a segmented choice) takes `quietSurface.interactive`, below. `selected.marked` is for a choice the visitor submits, such as a picked option card. It owns `backgroundColor` and `borderColor`, so set a rest background through `selectedTokens.rest`, and give the element a border width. Where the item's content covers its background (a colour swatch, an image thumbnail), neither look shows; keep a ring there.
+`quietSurface.interactive` is for a link or button with no fill of its own that fills under the pointer: a row of a list, a menu item, a segmented choice, a bare icon button. A control with a surface at rest is a different look. A card that also moves on hover composes it, and keeps its own transform and shadow.
 
-```tsx
-import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
-
-const styles = stylex.create({
-  option: { borderWidth: border.size_2, borderStyle: "solid", [selectedTokens.rest]: color.bgSurface },
-});
-<button {...getOptionProps(value)} css={[styles.option, selected.marked]}>
-```
-
----
-
-## Quiet Surface
-
-**Import**: `@tuja/ui/primitives/quiet-surface.stylex`
-
-| Export                     | Properties                                                                                                                                                                                                                                                          |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `quietSurface.interactive` | `selectedTokens.rest` at rest + `bgControlHover` on hover + `bgControlPressed` on press + `bgControlSelected` while selected + the inset focus ring + `transition.colors` + no tap flash + `touch-action: manipulation` + cursor + no decoration + inherited colour |
-
-A link or button with no fill of its own that fills under the pointer: a row of a list, a menu item, a segmented choice, a bare icon button. The `@tuja/require-quiet-surface` ESLint rule reports a hand-written hover fill of `color.bgControlHover` on an element that is transparent at rest, in `apps/*`. A control with a surface at rest is a different look and is not in its scope. A card that also moves on hover composes it, and keeps its own transform and shadow.
-
-- **The caller sets the shape.** Radius and padding differ from row to row (`corner.radius_1` to `radius_3`, or `radius_round` on an icon button), so compose a `corner.*` and set the padding. A button without a fill at rest takes `buttonReset.base` first, because it sets the same properties.
-- **The caller's own styles come after it.** It sets `color: inherit`, `cursor`, no text decoration, the `transition.colors` transition and the ring. A style that changes one of them, such as a muted `color` or a transition with a transform, must come later in `css`. An element whose fill must change at once, such as a combobox option, sets `transition: null`.
-- **The ring is inset**, because a row abuts its neighbours and often sits in an ancestor that clips overflow. Compose `a11y.focusRing` after it for an element that stands alone and must keep an outward ring, such as a chip or a standalone button.
-- **It reads the selected state itself.** Set `aria-current`, `aria-pressed`, `aria-checked` or `aria-selected`. A selected element keeps its fill under the pointer and on press. Set a rest background through `selectedTokens.rest`.
-- **It sets no size.** A row under 44px composes `a11y.touchRow` before it for a touch screen. `buttonReset.base` already carries the hit area of a button.
+- **The caller sets the shape.** Compose a `corner.*` and set the padding. A button takes `buttonReset.base` first, because it sets the same properties.
+- **The caller's own styles come after it.** It sets `color: inherit`, `cursor`, no text decoration, the colour transition and the ring. A style that changes one of them, such as a muted `color` or a transition with a transform, comes later in `css`. An element whose fill must change at once, such as a combobox option, sets `transition: null`.
+- **The ring is inset**, because a row abuts its neighbours and often sits in an ancestor that clips overflow. Compose `a11y.focusRing` after it for an element that stands alone, such as a chip.
+- **It reads the selected state itself.** Set `aria-current`, `aria-pressed`, `aria-checked` or `aria-selected`, and set a rest background through `selectedTokens.rest`.
+- **It sets no size.** A row under 44px composes `a11y.touchRow` before it.
 
 ```tsx
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
-
 const styles = stylex.create({
   row: { paddingBlock: space._1, paddingInline: space._2 },
 });
@@ -465,34 +90,83 @@ const styles = stylex.create({
 >
 ```
 
----
+## Hover
 
-## Material (Texture, Wash)
+A tap on a touch screen leaves `:hover` matching until the next tap elsewhere, so every hover style goes behind `pointer.canHover` from `@tuja/ui/breakpoints.stylex`. It lives beside `breakpoints` because the breakpoints Babel plugin inlines both, and StyleX ranks only an inlined media query as one.
 
-**Import**: `@tuja/ui/primitives/texture.stylex`, `@tuja/ui/primitives/wash.stylex`
+A hover that reveals something is one of two kinds, and the kind decides what touch sees:
 
-Texture and Wash are the two Material primitives; Glass is the third but ships as a component style object (`glassSurface`), not a primitive — see below. The rules are on the texture and wash showcases (`apps/web/src/design-system/sections/foundations/texture-showcase.tsx`, `wash-showcase.tsx`).
-
-| Export                                           | Properties                                                                            |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------- |
-| `texture.dot`                                    | One drawn dot (≤1px), repeated at `textureTokens.pitch`, coloured `textureTokens.ink` |
-| `wash.toBottom` / `toTop` / `toRight` / `toLeft` | A linear gradient of `washTokens.tone` fading to transparent, in the named direction  |
-
-A Texture is one mark at one size — never nest a textured surface inside another, and never mix two sizes in one group. A Wash has no bright spot anywhere; a bright spot reads as a light source, and only Glass is lit.
-
-Each dials its default through a token, overridden in a local `stylex.create` the same way `cornerTokens.height` is:
+- **It adds content or a control the visitor needs** (a label they must read, a button they must reach): touch gets the revealed state in full.
+- **It adds only emphasis** (a colour, a motion, an open cue such as "Details"): touch stays at rest, the same as a desktop at rest. A colour reveal also takes `:active`, so the surface lights up under the finger while it presses.
 
 ```tsx
-import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 
 const styles = stylex.create({
-  wide: { [textureTokens.pitch]: space._4 },
+  // Feedback: wrap the hover value. Touch keeps the rest state. An element that
+  // is transparent at rest takes `quietSurface.interactive` instead.
+  row: {
+    backgroundColor: {
+      default: color.bgSurface,
+      ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
+    },
+  },
+  // Several hover keys on one property, or a chained key such as
+  // `:disabled:hover` (which takes no nested value): one branch for all.
+  filter: {
+    backgroundColor: {
+      default: color.bgSurface,
+      [pointer.canHover]: {
+        default: null,
+        ":hover": color.bgControlHover,
+        ":disabled:hover": color.bgSurface,
+      },
+    },
+  },
+  // A reveal of something the visitor needs, such as an action button that
+  // shows on hover: the revealed state is the default, and only a device that
+  // can hover holds it back.
+  rowAction: {
+    opacity: {
+      default: 1,
+      [pointer.canHover]: { default: 0, ":hover": 1 },
+    },
+  },
+  // A reveal of emphasis alone: touch stays at rest. The colour also shows on
+  // press, gated as well, because a gated hover outranks a bare `:active`.
+  logo: {
+    filter: {
+      default: "grayscale(1)",
+      ":hover": { default: null, [pointer.canHover]: "grayscale(0)" },
+      ":active": {
+        default: "grayscale(0)",
+        [pointer.canHover]: "grayscale(0)",
+      },
+    },
+  },
 });
-
-<div css={[texture.dot, styles.wide]}>
 ```
 
-`textureTokens.pitch` (default `space._1`) sets the gap between marks, `textureTokens.ink` (default `color.fg` at 20%) the mark's colour. `washTokens.tone` (default `color.bgNeutralSubtle`) sets the drifting tone.
+`pointerConstants.NON_TOUCH_DEVICE` from `@tuja/ui/primitives/layout.stylex` is stricter: it also excludes every device that has a touch pointer at all. Use it only for an affordance that a touch device replaces, such as the scroll buttons of `ScrollMask`, and never for a hover style.
 
-Glass is `glassSurface` from `@tuja/ui/components/glass-surface.stylex` — a translucent, lit surface composed onto an element with `position: relative` plus a `corner.*` preset; the rim inherits that radius and shape. `glassTokens` (`fill`, `border`, `highlight`, `blur`) is its dial, overridden in a local `stylex.create` the same way `cornerTokens.height` is.
+## Icons
+
+A Phosphor icon is 1em square and fills with `currentColor`, so it takes its size and colour from its parent. Beside text it needs nothing: it takes the text's size. Anywhere else, give the parent a type role or a `controlSize` font size. A component slot (`icon`, `leading`, `indicator`) already does this. Every icon names its `weight`: `bold` inside a control, to match the package's own glyphs.
+
+```tsx
+const styles = stylex.create({
+  close: { fontSize: controlSize._5 },
+});
+
+<button css={[buttonReset.base, styles.close]} aria-label="Close">
+  <XIcon weight="bold" aria-hidden />
+</button>;
+```
+
+## Material
+
+`texture.stylex.ts` and `wash.stylex.ts` are primitives. Glass is the component style `glassSurface` from `@tuja/ui/components/glass-surface.stylex` (`packages/ui/src/surfaces/glass-surface.stylex.ts`). Each file states its rules and its dial tokens. The Material page and its showcases (`apps/web/src/design-system/sections/foundations/texture-showcase.tsx`, `wash-showcase.tsx`, `glass-showcase.tsx`) say when to use each one.
+
+## A class that a third-party stylesheet needs
+
+Do not put `className` beside `css` on one element. When a third-party stylesheet needs a literal class, spread `stylex.props` and join the class by hand: `const sx = stylex.props(...); <div {...sx} className={`${sx.className ?? ""} ln-grid`}>`. The repo has one, in `apps/web/src/movie-database/browse/table/media-table-grid.tsx`.
