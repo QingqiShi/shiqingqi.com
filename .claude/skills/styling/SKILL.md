@@ -47,16 +47,17 @@ Use `css={styles.foo}` instead of `{...stylex.props(styles.foo)}`. This is Style
 - NEVER pass `css` to a third-party component (next/link, next/image, Phosphor icons) — it doesn't know the prop. Spread compiled props instead: `<Link {...stylex.props(styles.cta)}>`.
 - NEVER put an explicit `className=`/`style=` attribute on the same host element as `css=` — the compiled spread and the attributes clobber each other, and merging is never needed:
   - A runtime-computed value belongs in a **dynamic style function**, not a `style` attribute: `stylex.create({ swatch: (bg: string) => ({ backgroundColor: bg }) })`, applied as `css={[styles.tone, styles.swatch(hex)]}`. Custom properties work too: `(x: string) => ({ "--nudge-x": x })`.
-  - A literal class required by a third-party stylesheet (the repo has exactly one: LyteNyte's `ln-grid` in media-table.tsx) is concatenated inline: `const sx = stylex.props(...); <div {...sx} className={`${sx.className ?? ""} ln-grid`}>`.
+  - A literal class required by a third-party stylesheet (the repo has exactly one: LyteNyte's `ln-grid` in media-table-grid.tsx) is concatenated inline: `const sx = stylex.props(...); <div {...sx} className={`${sx.className ?? ""} ln-grid`}>`.
 
 ## Design Tokens
 
-Import from `@tuja/ui/tokens.stylex`. All tokens are theme-aware. For the full catalog of every token and its values, read `references/tokens.md`.
+Import `color` from `@tuja/ui/color.stylex` and every other token from `@tuja/ui/tokens.stylex`. StyleX hashes a variable from the file that defines it, so a `.stylex.ts` file cannot re-export another one's tokens. All tokens are theme-aware. For the full catalog of every token and its values, read `references/tokens.md`.
 
 Categories: `color`, `rhythm`, `space`, `controlSize`, `font`, `border`, `shadow`, `layer`, `opacity`, `ratio`, plus the `constants`, `layout` and `measure` consts.
 
 ```tsx
-import { color, space, border, font } from "@tuja/ui/tokens.stylex";
+import { color } from "@tuja/ui/color.stylex";
+import { space, border, font } from "@tuja/ui/tokens.stylex";
 
 const styles = stylex.create({
   card: {

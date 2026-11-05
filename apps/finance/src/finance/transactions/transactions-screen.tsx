@@ -4,6 +4,7 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGl
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { color } from "@tuja/ui/color.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { Skeleton } from "@tuja/ui/components/skeleton";
@@ -16,7 +17,7 @@ import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
-import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
 import type { VirtuosoHandle } from "react-virtuoso";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";

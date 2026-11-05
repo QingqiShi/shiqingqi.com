@@ -52,7 +52,12 @@ const effectLayerTypegpuModules = [
   "effect-clip",
   "effect-element-distance",
   "element-quad",
+  "liquid-lens",
+  "liquid-surface",
+  "lit-edge",
   "pcg",
+  "to-track-frame",
+  "track-at",
 ];
 const browserTypegpuRule = (directory) => [
   "error",
@@ -132,6 +137,12 @@ export default defineConfig([
       noInlineConfig: true,
     },
     rules: {
+      // A long file hides its structure. This limit makes the author divide
+      // the module. Do not add an exception for a file that a person edits.
+      "max-lines": [
+        "error",
+        { max: 600, skipBlankLines: false, skipComments: false },
+      ],
       // This rule replaces @stylexjs/valid-styles. Its doc header gives the
       // reason.
       "@tuja/valid-styles": "error",

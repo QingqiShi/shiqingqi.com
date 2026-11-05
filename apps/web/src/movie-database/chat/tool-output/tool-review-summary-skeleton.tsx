@@ -1,10 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
 
 const STAGGER_DELAY = 80;
 

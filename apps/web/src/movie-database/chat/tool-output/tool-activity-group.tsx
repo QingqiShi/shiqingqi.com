@@ -3,6 +3,7 @@
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import {
@@ -12,7 +13,7 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, controlSize, space } from "@tuja/ui/tokens.stylex";
+import { controlSize, space } from "@tuja/ui/tokens.stylex";
 import { useId, useState } from "react";
 import { TERMINAL_STATES, ToolActivityLine } from "./tool-activity-line";
 

@@ -1,8 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
 import type { MediaCellParams } from "./types";
 
 /** Row number in the current (possibly sorted) view. */

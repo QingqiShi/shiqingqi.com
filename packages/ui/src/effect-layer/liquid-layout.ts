@@ -1,5 +1,5 @@
 import { d, tgpu } from "typegpu";
-import { MAX_PARTICLE_COUNT } from "./step-liquid.ts";
+import { MAX_PARTICLE_COUNT } from "./resting-liquid.ts";
 import { EFFECT_GROUP } from "./target-layout.ts";
 
 /**

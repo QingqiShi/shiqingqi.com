@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { unit } from "@tuja/ui/motion/mix";
 import { springOf, springRoles } from "@tuja/ui/motion/spring-roles";
@@ -16,7 +17,7 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
   useEffect,
   useRef,

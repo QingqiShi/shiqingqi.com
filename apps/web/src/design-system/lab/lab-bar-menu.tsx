@@ -3,6 +3,7 @@
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -10,7 +11,7 @@ import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
+import { controlSize, font, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { Identifier } from "#src/design-system/identifier.tsx";
 import { LabVariantSection } from "./lab-variant-section.tsx";

@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { cssTween } from "../motion/css-tween.ts";
 import { unit } from "../motion/mix.ts";
 import { px } from "../motion/px.ts";
@@ -27,14 +28,7 @@ import { quietSurface } from "../primitives/quiet-surface.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import {
-  border,
-  color,
-  controlSize,
-  font,
-  rhythm,
-  space,
-} from "../tokens.stylex.ts";
+import { border, controlSize, font, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { NAV_ROW } from "./create-nav-list-motion.ts";
 import { NavListContext, navListStyles } from "./nav-list-context.tsx";

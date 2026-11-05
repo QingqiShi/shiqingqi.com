@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode, Ref } from "react";
+import { color } from "../color.stylex.ts";
 import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
 import {
   usePopover,
@@ -9,7 +10,7 @@ import {
   type PopoverTriggerProps,
 } from "../hooks/use-popover.ts";
 import { mergeRefs } from "../merge-refs.ts";
-import { color, layer, space } from "../tokens.stylex.ts";
+import { layer, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { popoverSurface } from "./popover-surface.stylex.ts";
 import { Portal } from "./portal.tsx";

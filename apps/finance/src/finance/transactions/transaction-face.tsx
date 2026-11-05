@@ -1,10 +1,11 @@
 import { ArrowsLeftRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowsLeftRight";
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { align, flex } from "@tuja/ui/primitives/flex.stylex";
 import { plainList, truncate } from "@tuja/ui/primitives/layout.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, controlSize, font, rhythm } from "@tuja/ui/tokens.stylex";
+import { controlSize, font, rhythm } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import type { TransactionRow } from "../sync/row-schemas.ts";
 import type { TransactionLookups } from "./select-transaction-lookups.ts";

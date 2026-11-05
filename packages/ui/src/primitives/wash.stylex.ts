@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { color } from "../tokens.stylex.ts";
+import { color } from "../color.stylex.ts";
 
 /** The tone that drifts across the surface. */
 export const washTokens = stylex.defineVars({

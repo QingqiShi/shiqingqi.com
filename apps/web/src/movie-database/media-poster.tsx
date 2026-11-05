@@ -3,10 +3,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { color } from "@tuja/ui/color.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, font, space } from "@tuja/ui/tokens.stylex";
 import { PosterImage } from "./poster-image";
 import type { MediaListItem } from "./types.ts";
 

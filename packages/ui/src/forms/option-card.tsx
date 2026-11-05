@@ -2,13 +2,14 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useId, type ComponentProps, type ReactNode } from "react";
+import { color } from "../color.stylex.ts";
 import { flex, grow, shrink } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { cardSurface } from "../surfaces/card.stylex.ts";
-import { color, rhythm, space } from "../tokens.stylex.ts";
+import { rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { optionCardSurface } from "./option-card.stylex.ts";
 import { SelectionMark } from "./selection-mark.tsx";

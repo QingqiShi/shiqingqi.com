@@ -3,13 +3,14 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DayInput } from "../transactions/day-input.tsx";
 import type {
   AnalyticsState,

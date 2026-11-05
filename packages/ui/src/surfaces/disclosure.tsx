@@ -9,6 +9,7 @@ import {
   type ComponentProps,
   type ReactNode,
 } from "react";
+import { color } from "../color.stylex.ts";
 import { useDisclosure } from "../hooks/use-disclosure.ts";
 import { cssTween } from "../motion/css-tween.ts";
 import { unit } from "../motion/mix.ts";
@@ -28,7 +29,7 @@ import {
 } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { border, color, controlSize, font, space } from "../tokens.stylex.ts";
+import { border, controlSize, font, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { cardSurface } from "./card.stylex.ts";
 

@@ -15,6 +15,7 @@ import { buttonTokens } from "../actions/button.stylex.ts";
 import { Button } from "../actions/button.tsx";
 import { navListTokens } from "../actions/nav-list.stylex.ts";
 import { pointer } from "../breakpoints.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
 import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
@@ -32,14 +33,7 @@ import { scrollbar } from "../primitives/layout.stylex.ts";
 import { duration, easing, transition } from "../primitives/motion.stylex.ts";
 import { islandTokens } from "../surfaces/island.stylex.ts";
 import { ScrollMask } from "../surfaces/scroll-mask.tsx";
-import {
-  border,
-  color,
-  layer,
-  rhythm,
-  shadow,
-  space,
-} from "../tokens.stylex.ts";
+import { border, layer, rhythm, shadow, space } from "../tokens.stylex.ts";
 import { splitViewQueries } from "./navigation-split-view-layout.stylex.ts";
 import { splitViewTokens } from "./navigation-split-view.stylex.ts";
 

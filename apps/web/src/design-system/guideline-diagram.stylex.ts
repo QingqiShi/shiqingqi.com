@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { color } from "@tuja/ui/color.stylex";
+import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
 
 /**
  * Chrome for a "do" / "don't" guideline diagram — the miniature page a

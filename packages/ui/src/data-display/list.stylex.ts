@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, rhythm, space } from "../tokens.stylex.ts";
+import { color } from "../color.stylex.ts";
+import { border, rhythm, space } from "../tokens.stylex.ts";
 
 /**
  * How the caret of a `ListRow` shows. A `NavigationSplitView` sets it to `none`

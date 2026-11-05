@@ -4,6 +4,7 @@ import { getLocale } from "@tuja/i18n/server-locale";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import type { PropDoc } from "@tuja/props-codegen/types";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import {
   Table,
@@ -16,7 +17,7 @@ import {
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, type ReactNode } from "react";
 import { PROPS_DOCS } from "#src/_generated/props/index.ts";
 import { definitionRows } from "./definition-rows.stylex.ts";

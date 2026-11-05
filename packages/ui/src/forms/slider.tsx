@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { useRef, type ComponentProps, type ReactNode } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
@@ -16,7 +17,6 @@ import { stack } from "../primitives/stack.stylex.ts";
 import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
 import {
   border,
-  color,
   controlSize,
   opacity,
   rhythm,

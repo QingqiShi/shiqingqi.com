@@ -5,6 +5,7 @@ import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOu
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
@@ -14,14 +15,7 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import {
-  color,
-  font,
-  layer,
-  rhythm,
-  shadow,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { font, layer, rhythm, shadow, space } from "@tuja/ui/tokens.stylex";
 import { svgTokens } from "#src/brand/svg.stylex.ts";
 import { Anchor } from "./anchor";
 import { cardTokens } from "./card.stylex";

@@ -1,10 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
+import { color } from "../color.stylex.ts";
 import {
   duration,
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
-import { border, color } from "../tokens.stylex.ts";
+import { border } from "../tokens.stylex.ts";
 
 const enterKeyframes = stylex.keyframes({
   from: { opacity: 0, transform: "scale(0.98)" },

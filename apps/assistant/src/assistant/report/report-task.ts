@@ -4,7 +4,7 @@ import type {
   DeletedTodo,
   RejectedTodo,
   StoredTodo,
-} from "../agent/todos/create-todo-tools.ts";
+} from "../agent/todos/types.ts";
 import type { TimeBounds, WindowLabels } from "./local-day-bounds.ts";
 import { repeatRuleText } from "./next-occurrence.ts";
 

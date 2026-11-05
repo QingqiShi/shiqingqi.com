@@ -1,9 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, ratio, rhythm } from "@tuja/ui/tokens.stylex";
+import { font, ratio, rhythm } from "@tuja/ui/tokens.stylex";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { Suspense } from "react";

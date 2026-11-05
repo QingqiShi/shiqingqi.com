@@ -1,7 +1,7 @@
 import { openMailHref } from "#src/assistant/report/open-mail-href.ts";
 import type { MailHandles } from "../mail/mail-handles.ts";
 import type { RunMailboxes } from "../mail/run-mailboxes.ts";
-import type { SourceMail } from "./create-calendar-tools.ts";
+import type { SourceMail } from "./types.ts";
 
 /** The mail of a run id such as `m12`; a refusal for an id the run does not know. */
 export function sourceMailOf(

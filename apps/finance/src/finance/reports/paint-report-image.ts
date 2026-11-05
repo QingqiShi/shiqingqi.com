@@ -4,7 +4,7 @@ import type {
   ReportImageDrawing,
   ReportImageFont,
   ReportImagePaint,
-} from "./build-report-image-drawing.ts";
+} from "./report-image-canvas.ts";
 
 /** The largest canvas iOS Safari draws, in pixels; a larger one stays blank. */
 const MAX_CANVAS_AREA = 4096 * 4096;

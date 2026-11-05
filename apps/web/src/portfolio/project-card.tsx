@@ -1,9 +1,10 @@
 import type { Icon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, rhythm } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { svgTokens } from "#src/brand/svg.stylex.ts";
 import { Card } from "#src/links/card.tsx";
 import { projectCardTokens } from "./project-card.stylex.ts";

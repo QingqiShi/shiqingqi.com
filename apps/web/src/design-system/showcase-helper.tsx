@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, measure } from "@tuja/ui/tokens.stylex";
+import { measure } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { onReadingColumn } from "./reading-column.stylex.ts";
 

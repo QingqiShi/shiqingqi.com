@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
 import { TextField } from "@tuja/ui/components/text-field";
 import { useEffectCover } from "@tuja/ui/hooks/use-effect-cover";
@@ -9,7 +10,7 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
   useId,
   useState,

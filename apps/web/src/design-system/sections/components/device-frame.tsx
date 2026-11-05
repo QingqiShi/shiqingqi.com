@@ -1,11 +1,12 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { SheetBoundary } from "@tuja/ui/components/sheet";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { border, color } from "@tuja/ui/tokens.stylex";
+import { border } from "@tuja/ui/tokens.stylex";
 import { useState, type ReactNode } from "react";
 import { breakoutBox } from "#src/design-system/reading-column.stylex.ts";
 

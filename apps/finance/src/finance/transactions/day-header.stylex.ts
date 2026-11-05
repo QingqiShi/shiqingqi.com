@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { color } from "@tuja/ui/color.stylex";
+import { border, space } from "@tuja/ui/tokens.stylex";
 
 /** The box of a `DayHeader` and its rule, which its skeleton also takes. */
 export const dayHeader = stylex.create({

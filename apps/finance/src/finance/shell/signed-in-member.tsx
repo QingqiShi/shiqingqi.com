@@ -1,8 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { border, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import { SignOutButton } from "./sign-out-button.tsx";
 import { SyncStatusIndicator } from "./sync-status-indicator.tsx";

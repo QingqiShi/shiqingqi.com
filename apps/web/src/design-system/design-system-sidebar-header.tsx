@@ -3,18 +3,13 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
+import { color } from "@tuja/ui/color.stylex";
 import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import {
-  color,
-  controlSize,
-  font,
-  rhythm,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { controlSize, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 
 /**
  * Title region of the design-system sidebar: a tile with the design-system

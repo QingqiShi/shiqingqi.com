@@ -2,10 +2,11 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font } from "@tuja/ui/tokens.stylex";
+import { font } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
 /** The mark beside a field's name: where its value came from, a value to check, or a value a save needs. */

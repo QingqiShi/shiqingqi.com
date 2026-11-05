@@ -1,13 +1,14 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { TabViewLink } from "@tuja/ui/components/tab-view";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { chartMarks } from "../charts/chart-marks.stylex.ts";
 import { seriesKey } from "../charts/series-marks.stylex.ts";

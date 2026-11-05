@@ -2,15 +2,17 @@ import { d, std, tgpu } from "typegpu";
 import type { LiquidStep } from "./liquid-layout.ts";
 import { LiquidParticle, liquidSimulationLayout } from "./liquid-layout.ts";
 import {
+  KERNEL_REACH,
+  MAX_PARTICLE_COUNT,
+  PARTICLE_RADIUS,
+  REST_DENSITY,
+} from "./resting-liquid.ts";
+import {
   AIM_TILT,
   CENTRE_PULL,
   DRAG,
-  KERNEL_REACH,
   leanTo,
-  MAX_PARTICLE_COUNT,
   NEAR_STIFFNESS,
-  PARTICLE_RADIUS,
-  REST_DENSITY,
   SETTLE_DRAG,
   SIDE_GRIP_SHARE,
   STIFFNESS,
@@ -22,7 +24,7 @@ import {
   WALL_GRIP,
   WALL_GRIP_REACH,
   wallGap,
-} from "./step-liquid.ts";
+} from "./simulate-liquid.ts";
 
 /**
  * The invocations of one workgroup: one body's particles, up to

@@ -1,8 +1,9 @@
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import * as stylex from "@stylexjs/stylex";
+import { color } from "../color.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { flex, shrink } from "../primitives/flex.stylex.ts";
-import { border, color, controlSize } from "../tokens.stylex.ts";
+import { border, controlSize } from "../tokens.stylex.ts";
 import type { OptionCardRole } from "./option-card.tsx";
 
 /**

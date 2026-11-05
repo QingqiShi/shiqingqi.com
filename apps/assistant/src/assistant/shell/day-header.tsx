@@ -1,8 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { border, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
 interface DayHeaderProps {

@@ -1,8 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, ratio, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { font, ratio, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
 import { Card } from "#src/links/card.tsx";
 

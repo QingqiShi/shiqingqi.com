@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
+import { color } from "../color.stylex.ts";
 import { typeModifier } from "../primitives/type.stylex.ts";
-import { border, color, font } from "../tokens.stylex.ts";
+import { border, font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { alignStyles, styles as cellStyles } from "./table-cell.stylex.ts";
 import type { TableCellAlignment } from "./table-cell.tsx";

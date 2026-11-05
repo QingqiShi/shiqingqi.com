@@ -1,12 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
 import { Text } from "@tuja/ui/components/text";
 import type { PopoverPlacement } from "@tuja/ui/hooks/use-popover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { border, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { guidelineDiagram } from "#src/design-system/guideline-diagram.stylex.ts";
 import { PropsTable } from "#src/design-system/props-table.tsx";

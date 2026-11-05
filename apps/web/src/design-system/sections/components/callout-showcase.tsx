@@ -1,9 +1,10 @@
 import { MegaphoneIcon } from "@phosphor-icons/react/dist/ssr/Megaphone";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Callout } from "@tuja/ui/components/callout";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";

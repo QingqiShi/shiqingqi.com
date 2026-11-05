@@ -3,6 +3,7 @@
 import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Popover } from "@tuja/ui/components/popover";
 import { Text } from "@tuja/ui/components/text";
@@ -14,7 +15,7 @@ import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { mergeRefs } from "@tuja/ui/utils/merge-refs";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { datesInOrder } from "../report/dates-in-order.ts";

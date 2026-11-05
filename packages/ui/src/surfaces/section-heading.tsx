@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
+import { color } from "../color.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { color } from "../tokens.stylex.ts";
 import type { SectionLevel } from "./section.tsx";
 
 /**

@@ -22,8 +22,9 @@ export const splitViewWidths = stylex.defineConsts({
  * `tabViewTokens.railInlineSize` from the view, and the view stacks again. `detailBeside` is where the detail fits beside the
  * collapsed sidebar and at least 20rem of content. Each width also holds
  * the gaps around the islands, 0.5rem each. The view measures the same
- * width in script, `DETAIL_BESIDE_MIN_REM` in `navigation-split-view.tsx`,
- * and shows the detail in a sheet below it.
+ * width in script, `DETAIL_BESIDE_MIN_REM` in
+ * `split-view/use-view-widths-reached.ts`, and shows the detail in a sheet
+ * below it.
  *
  * @internal
  */

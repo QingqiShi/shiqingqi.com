@@ -1,69 +1,29 @@
 "use client";
 
-import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise";
-import { ArrowUUpLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowUUpLeft";
-import { ArrowUUpRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowUUpRight";
-import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
-import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
-import { EraserIcon } from "@phosphor-icons/react/dist/ssr/Eraser";
-import { EyedropperIcon } from "@phosphor-icons/react/dist/ssr/Eyedropper";
-import { FlipHorizontalIcon } from "@phosphor-icons/react/dist/ssr/FlipHorizontal";
-import { FlipVerticalIcon } from "@phosphor-icons/react/dist/ssr/FlipVertical";
-import { FrameCornersIcon } from "@phosphor-icons/react/dist/ssr/FrameCorners";
-import { MagicWandIcon } from "@phosphor-icons/react/dist/ssr/MagicWand";
-import { PaintBucketIcon } from "@phosphor-icons/react/dist/ssr/PaintBucket";
-import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
-import { SelectionIcon } from "@phosphor-icons/react/dist/ssr/Selection";
-import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
-import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
-import { t } from "@tuja/i18n";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { useResolvedTheme } from "@tuja/ui/hooks/use-resolved-theme";
 import { purple } from "@tuja/ui/palette/purple.stylex";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import {
-  duration,
-  easing,
-  motionConstants,
-} from "@tuja/ui/primitives/motion.stylex";
-import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { selectedTokens } from "@tuja/ui/primitives/selected.stylex";
-import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
-import {
-  border,
-  color,
-  controlSize,
-  font,
-  opacity,
-  rhythm,
-  shadow,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { border, rhythm, shadow } from "@tuja/ui/tokens.stylex";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { parseHex } from "#src/pixel-art/parse-hex.ts";
 import { cloneCell } from "#src/sprite-editor/pixel-ops/clone-cell.ts";
-import { cropCell } from "#src/sprite-editor/pixel-ops/crop-cell.ts";
-import { eraseRect } from "#src/sprite-editor/pixel-ops/erase-rect.ts";
-import { flipCellH } from "#src/sprite-editor/pixel-ops/flip-cell-h.ts";
-import { flipCellV } from "#src/sprite-editor/pixel-ops/flip-cell-v.ts";
 import { floodFill } from "#src/sprite-editor/pixel-ops/flood-fill.ts";
 import { getPixel } from "#src/sprite-editor/pixel-ops/get-pixel.ts";
-import { normalizeRect } from "#src/sprite-editor/pixel-ops/normalize-rect.ts";
-import { pasteCellScaled } from "#src/sprite-editor/pixel-ops/paste-cell-scaled.ts";
 import { rgbaToHex } from "#src/sprite-editor/pixel-ops/rgba-to-hex.ts";
 import { setPixel } from "#src/sprite-editor/pixel-ops/set-pixel.ts";
-import type { Rect } from "#src/sprite-editor/pixel-ops/types.ts";
-import { computeGuideFractions } from "./compute-guide-fractions";
+import { ColorRow } from "./color-row";
+import { drawEditorCanvas } from "./draw-editor-canvas";
+import { EditorToolbar } from "./editor-toolbar";
 import { isEditableTarget } from "./is-editable-target";
 import { prepareCanvas } from "./prepare-canvas";
-import type { CellPixels, GuideOptions } from "./types";
+import { SelectionBar } from "./selection-bar";
+import type { CellPixels, GuideOptions, Tool } from "./types";
+import { useCanvasPointer } from "./use-canvas-pointer";
+import { useCanvasViewport, useWheelZoom } from "./use-canvas-viewport";
+import { useEditorSelection } from "./use-editor-selection";
 import { useHistory } from "./use-history";
-
-type Tool =
-  "pencil" | "eraser" | "select" | "eyedropper" | "fill" | "bg-remove";
 
 interface PixelEditorProps {
   /** Source-of-truth cell pixels — what was sliced from the source image. */
@@ -84,47 +44,8 @@ interface PixelEditorProps {
   guides?: GuideOptions;
 }
 
-const DEFAULT_PALETTE = [
-  "#000000",
-  "#ffffff",
-  "#f3eded",
-  "#ff8000",
-  "#a855f7",
-  "#0ea5e9",
-  "#10b981",
-  "#fbbf24",
-  "#ef4444",
-  "#1ecc5a",
-];
-
 const RECENT_LIMIT = 8;
 const TOLERANCE_DEFAULT = 32;
-const MIN_SCALE = 1;
-const MAX_SCALE = 64;
-const HANDLE_SIZE = 10; // CSS px for the resize handle hit-area
-
-interface Transform {
-  scale: number; // CSS px per source pixel
-  panX: number; // CSS px offset of the cell origin within the canvas
-  panY: number;
-}
-
-/**
- * Selection state. `marquee` is just an outline over the current cell —
- * operations like Erase/Flip apply directly. `floating` means the rect's
- * pixels have been lifted: `previewBase` is the cell with that rect cleared,
- * `pixels` is the lifted content (always at its natural size), and `rect`
- * is where it'll land on Apply (potentially with a different w/h, in which
- * case the pixels get nearest-neighbor scaled).
- */
-type Selection =
-  | { mode: "marquee"; rect: Rect }
-  | {
-      mode: "floating";
-      rect: Rect;
-      pixels: CellPixels;
-      previewBase: CellPixels;
-    };
 
 export function PixelEditor({
   baseCell,
@@ -172,12 +93,20 @@ export function PixelEditor({
   const [activeColor, setActiveColor] = useState<string>("#000000");
   const [recent, setRecent] = useState<readonly string[]>([]);
   const [tolerance, setTolerance] = useState(TOLERANCE_DEFAULT);
-  const [selection, setSelection] = useState<Selection | null>(null);
-  const [transform, setTransform] = useState<Transform | null>(null);
+  const {
+    selection,
+    setSelection,
+    commitSelection,
+    cancelSelection,
+    eraseSelection,
+    flipSelection,
+    copySelection,
+    liftIfMarquee,
+  } = useEditorSelection({ presentRef, push });
+  const { transform, setTransform, containerRef, containerSize, fitToView } =
+    useCanvasViewport(present);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
 
   // Track effective theme (light/dark) so we can pick canvas-painted grid
   // and cell-border colors that contrast with whichever side of the theme
@@ -188,52 +117,6 @@ export function PixelEditor({
   // The selection accent painted directly on the canvas — kept in step with
   // the `accent` token (purple._30 light / purple._50 dark).
   const accentStroke = isDark ? purple._50 : purple._30;
-
-  // Canvas size tracks the container so the cell can be panned around inside
-  // the wrapper at varying zoom without having to grow the canvas itself.
-  useEffect(() => {
-    const el = containerRef.current;
-    if (el === null) return;
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      setContainerSize({
-        width: entry.contentRect.width,
-        height: entry.contentRect.height,
-      });
-    });
-    observer.observe(el);
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
-  // Auto-fit transform when container or cell shape changes and there's no
-  // user transform yet. Stored-deps pattern.
-  const fitTransform = ((): Transform | null => {
-    if (containerSize.width === 0 || containerSize.height === 0) return null;
-    const sx = Math.floor(containerSize.width / present.width);
-    const sy = Math.floor(containerSize.height / present.height);
-    const fit = Math.max(MIN_SCALE, Math.min(MAX_SCALE, Math.min(sx, sy)));
-    return {
-      scale: fit,
-      panX: Math.floor((containerSize.width - present.width * fit) / 2),
-      panY: Math.floor((containerSize.height - present.height * fit) / 2),
-    };
-  })();
-
-  const [prevFitKey, setPrevFitKey] = useState<string | null>(null);
-  const fitKey =
-    fitTransform === null
-      ? null
-      : `${String(containerSize.width)}x${String(containerSize.height)}@${String(present.width)}x${String(present.height)}`;
-  if (fitKey !== prevFitKey && fitTransform !== null) {
-    setPrevFitKey(fitKey);
-    if (transform === null) setTransform(fitTransform);
-  }
-
-  const fitToView = () => {
-    if (fitTransform !== null) setTransform(fitTransform);
-  };
 
   // Drawing.
   useEffect(() => {
@@ -247,185 +130,17 @@ export function PixelEditor({
     );
     if (ctx === null) return;
 
-    const { scale, panX, panY } = transform;
-    const cellW = present.width;
-    const cellH = present.height;
-
-    // 1) Transparency checkerboard is painted by the canvas element's CSS
-    // `background-image`, so it covers the entire viewport — including the
-    // area outside the cell rect. That gives a steady visual anchor when
-    // the user pans/zooms. The canvas itself stays transparent here; opaque
-    // cell pixels drawn below will cover the pattern, and transparent
-    // pixels (or the area outside the cell) let it show through.
-
-    // Determine what the visible cell is — `previewBase` while a selection
-    // is floating (the rect was lifted), otherwise just `present`.
-    const visibleBase =
-      selection !== null && selection.mode === "floating"
-        ? selection.previewBase
-        : present;
-
-    // 2) Cell pixels (drawn via offscreen at native size, then nearest-
-    // neighbor scaled). Alpha-blends naturally over the checker.
-    const off =
-      typeof OffscreenCanvas !== "undefined"
-        ? new OffscreenCanvas(cellW, cellH)
-        : null;
-    const drawCell = (cell: CellPixels) => {
-      if (off !== null) {
-        const offCtx = off.getContext("2d");
-        if (offCtx !== null) {
-          offCtx.clearRect(0, 0, cellW, cellH);
-          offCtx.putImageData(
-            new ImageData(cell.data, cell.width, cell.height),
-            0,
-            0,
-          );
-          ctx.drawImage(off, panX, panY, cellW * scale, cellH * scale);
-        }
-      } else {
-        for (let y = 0; y < cellH; y++) {
-          for (let x = 0; x < cellW; x++) {
-            const i = (y * cellW + x) * 4;
-            const a = cell.data[i + 3];
-            if (a === 0) continue;
-            ctx.fillStyle = `rgba(${String(cell.data[i])}, ${String(cell.data[i + 1])}, ${String(cell.data[i + 2])}, ${String(a / 255)})`;
-            ctx.fillRect(panX + x * scale, panY + y * scale, scale, scale);
-          }
-        }
-      }
-    };
-    drawCell(visibleBase);
-
-    // 3) Onion skin overlay (only when shape matches).
-    if (
-      onionCell !== null &&
-      onionCell !== undefined &&
-      onionCell.width === cellW &&
-      onionCell.height === cellH
-    ) {
-      ctx.globalAlpha = onionOpacity;
-      drawCell(onionCell);
-      ctx.globalAlpha = 1;
-    }
-
-    // 4) Floating selection — draw the lifted pixels at the current rect,
-    // scaled if w/h has changed via resize.
-    if (selection !== null && selection.mode === "floating") {
-      const r = selection.rect;
-      const offFloat =
-        typeof OffscreenCanvas !== "undefined"
-          ? new OffscreenCanvas(selection.pixels.width, selection.pixels.height)
-          : null;
-      if (offFloat !== null) {
-        const offCtx = offFloat.getContext("2d");
-        if (offCtx !== null) {
-          offCtx.putImageData(
-            new ImageData(
-              selection.pixels.data,
-              selection.pixels.width,
-              selection.pixels.height,
-            ),
-            0,
-            0,
-          );
-          ctx.drawImage(
-            offFloat,
-            panX + r.x * scale,
-            panY + r.y * scale,
-            r.w * scale,
-            r.h * scale,
-          );
-        }
-      }
-    }
-
-    // 5) Pixel grid — only when the user has zoomed in past the threshold,
-    // since at typical fit-view scales the grid lines just add visual noise
-    // on top of the diagonal-hash transparency pattern.
-    if (scale >= 24) {
-      ctx.strokeStyle = gridColor;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      for (let x = 0; x <= cellW; x++) {
-        const px = Math.round(panX + x * scale) + 0.5;
-        ctx.moveTo(px, panY);
-        ctx.lineTo(px, panY + cellH * scale);
-      }
-      for (let y = 0; y <= cellH; y++) {
-        const py = Math.round(panY + y * scale) + 0.5;
-        ctx.moveTo(panX, py);
-        ctx.lineTo(panX + cellW * scale, py);
-      }
-      ctx.stroke();
-    }
-
-    // 6) Cell border — always visible so the user knows where the
-    // editable area ends, especially when zoomed out.
-    ctx.strokeStyle = cellBorderColor;
-    ctx.lineWidth = 1;
-    ctx.strokeRect(
-      Math.round(panX) + 0.5,
-      Math.round(panY) + 0.5,
-      cellW * scale,
-      cellH * scale,
-    );
-
-    // 7) Sub-cell alignment guides.
-    if (guides !== undefined) {
-      const fractions = computeGuideFractions(guides);
-      if (fractions.vertical.length > 0 || fractions.horizontal.length > 0) {
-        ctx.strokeStyle = "rgba(251, 191, 36, 0.65)";
-        ctx.lineWidth = 1;
-        ctx.setLineDash([4, 4]);
-        ctx.beginPath();
-        for (const fx of fractions.vertical) {
-          const x = Math.round(panX + fx * cellW * scale) + 0.5;
-          ctx.moveTo(x, panY);
-          ctx.lineTo(x, panY + cellH * scale);
-        }
-        for (const fy of fractions.horizontal) {
-          const y = Math.round(panY + fy * cellH * scale) + 0.5;
-          ctx.moveTo(panX, y);
-          ctx.lineTo(panX + cellW * scale, y);
-        }
-        ctx.stroke();
-        ctx.setLineDash([]);
-      }
-    }
-
-    // 8) Selection marquee + bottom-right resize handle.
-    if (selection !== null) {
-      const r = selection.rect;
-      const sx = panX + r.x * scale;
-      const sy = panY + r.y * scale;
-      const sw = r.w * scale;
-      const sh = r.h * scale;
-      ctx.strokeStyle = accentStroke;
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([6, 4]);
-      ctx.strokeRect(Math.round(sx) + 0.5, Math.round(sy) + 0.5, sw, sh);
-      ctx.setLineDash([]);
-
-      // Resize handle at bottom-right.
-      const hx = sx + sw;
-      const hy = sy + sh;
-      ctx.fillStyle = accentStroke;
-      ctx.fillRect(
-        hx - HANDLE_SIZE / 2,
-        hy - HANDLE_SIZE / 2,
-        HANDLE_SIZE,
-        HANDLE_SIZE,
-      );
-      ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 1;
-      ctx.strokeRect(
-        hx - HANDLE_SIZE / 2 + 0.5,
-        hy - HANDLE_SIZE / 2 + 0.5,
-        HANDLE_SIZE - 1,
-        HANDLE_SIZE - 1,
-      );
-    }
+    drawEditorCanvas(ctx, {
+      present,
+      transform,
+      onionCell,
+      onionOpacity,
+      guides,
+      selection,
+      gridColor,
+      cellBorderColor,
+      accentStroke,
+    });
   }, [
     present,
     transform,
@@ -443,117 +158,6 @@ export function PixelEditor({
     setRecent((current) => {
       const next = [hex, ...current.filter((c) => c !== hex)];
       return next.slice(0, RECENT_LIMIT);
-    });
-  };
-
-  // Selection action helpers ------------------------------------------------
-
-  /**
-   * Commit a floating selection back into the cell at its current rect
-   * (scaled if rect.w/h differ from the lifted pixels' natural size). For
-   * marquee selections, this is a no-op. Either way, the selection is
-   * cleared. Pushes a single history entry so the whole edit can be undone.
-   */
-  const commitSelection = () => {
-    if (selection === null) return;
-    if (selection.mode === "floating") {
-      const next = cloneCell(selection.previewBase);
-      pasteCellScaled(
-        next,
-        selection.pixels,
-        selection.rect.x,
-        selection.rect.y,
-        selection.rect.w,
-        selection.rect.h,
-      );
-      push(next);
-    }
-    setSelection(null);
-  };
-
-  const cancelSelection = () => {
-    setSelection(null);
-  };
-
-  const eraseSelection = () => {
-    if (selection === null) return;
-    if (selection.mode === "floating") {
-      // Already cleared in previewBase — just commit that.
-      push(cloneCell(selection.previewBase));
-    } else {
-      const next = cloneCell(presentRef.current);
-      eraseRect(next, selection.rect);
-      push(next);
-    }
-    setSelection(null);
-  };
-
-  const flipSelection = (axis: "h" | "v") => {
-    if (selection === null) return;
-    if (selection.mode === "floating") {
-      const next = cloneCell(selection.pixels);
-      if (axis === "h") flipCellH(next);
-      else flipCellV(next);
-      setSelection({ ...selection, pixels: next });
-      return;
-    }
-    // Marquee: lift, flip the lifted pixels, but keep them floating so the
-    // user can still move/resize/erase.
-    const cropped = cropCell(presentRef.current, selection.rect);
-    if (axis === "h") flipCellH(cropped);
-    else flipCellV(cropped);
-    const previewBase = cloneCell(presentRef.current);
-    eraseRect(previewBase, selection.rect);
-    setSelection({
-      mode: "floating",
-      rect: selection.rect,
-      pixels: cropped,
-      previewBase,
-    });
-  };
-
-  const copySelection = () => {
-    if (selection === null) return;
-    // "Copy" duplicates the contents at a +2,+2 offset and leaves the
-    // duplicate floating. The original stays in place.
-    const offset = 2;
-    const sourceCell =
-      selection.mode === "floating" ? selection.pixels : presentRef.current;
-    const sourceRect =
-      selection.mode === "floating"
-        ? { x: 0, y: 0, w: selection.pixels.width, h: selection.pixels.height }
-        : selection.rect;
-    const cropped = cropCell(sourceCell, sourceRect);
-    // The previewBase needs to reflect the original still being present,
-    // because we're DUPLICATING, not moving.
-    const previewBase =
-      selection.mode === "floating"
-        ? // Bake the original lifted pixels back into previewBase before
-          // creating the duplicate, otherwise we'd lose the original on
-          // commit.
-          (() => {
-            const baked = cloneCell(selection.previewBase);
-            pasteCellScaled(
-              baked,
-              selection.pixels,
-              selection.rect.x,
-              selection.rect.y,
-              selection.rect.w,
-              selection.rect.h,
-            );
-            return baked;
-          })()
-        : cloneCell(presentRef.current);
-    setSelection({
-      mode: "floating",
-      rect: {
-        x: selection.rect.x + offset,
-        y: selection.rect.y + offset,
-        w: selection.rect.w,
-        h: selection.rect.h,
-      },
-      pixels: cropped,
-      previewBase,
     });
   };
 
@@ -602,278 +206,20 @@ export function PixelEditor({
     push(next);
   };
 
-  // Pointer handling --------------------------------------------------------
+  const { handlePointerDown, handlePointerMove, handlePointerUp } =
+    useCanvasPointer({
+      present,
+      tool,
+      transform,
+      setTransform,
+      selection,
+      setSelection,
+      commitSelection,
+      liftIfMarquee,
+      applyAtPixel,
+    });
 
-  type DragKind =
-    | { kind: "paint"; lastX: number; lastY: number }
-    | {
-        kind: "pan";
-        startX: number;
-        startY: number;
-        basePan: { x: number; y: number };
-      }
-    | { kind: "marquee"; startX: number; startY: number }
-    | { kind: "move"; startX: number; startY: number; baseRect: Rect }
-    | { kind: "resize"; baseRect: Rect };
-
-  const dragRef = useRef<({ pointerId: number } & DragKind) | null>(null);
-
-  const pointerToCanvas = (
-    event: React.PointerEvent<HTMLCanvasElement>,
-  ): { cx: number; cy: number } => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    return {
-      cx: event.clientX - rect.left,
-      cy: event.clientY - rect.top,
-    };
-  };
-
-  const canvasToPixel = (
-    cx: number,
-    cy: number,
-  ): readonly [number, number] | null => {
-    if (transform === null) return null;
-    const px = Math.floor((cx - transform.panX) / transform.scale);
-    const py = Math.floor((cy - transform.panY) / transform.scale);
-    if (px < 0 || py < 0 || px >= present.width || py >= present.height) {
-      return null;
-    }
-    return [px, py];
-  };
-
-  const isOnResizeHandle = (cx: number, cy: number): boolean => {
-    if (selection === null || transform === null) return false;
-    const r = selection.rect;
-    const hx = transform.panX + (r.x + r.w) * transform.scale;
-    const hy = transform.panY + (r.y + r.h) * transform.scale;
-    return (
-      Math.abs(cx - hx) <= HANDLE_SIZE / 2 + 2 &&
-      Math.abs(cy - hy) <= HANDLE_SIZE / 2 + 2
-    );
-  };
-
-  const isInsideSelectionRect = (px: number, py: number): boolean => {
-    if (selection === null) return false;
-    const r = selection.rect;
-    return px >= r.x && py >= r.y && px < r.x + r.w && py < r.y + r.h;
-  };
-
-  /** Lift the current marquee selection to floating state. No-op otherwise. */
-  const liftIfMarquee = (sel: Selection): Selection => {
-    if (sel.mode === "floating") return sel;
-    const cropped = cropCell(presentRef.current, sel.rect);
-    const previewBase = cloneCell(presentRef.current);
-    eraseRect(previewBase, sel.rect);
-    return {
-      mode: "floating",
-      rect: sel.rect,
-      pixels: cropped,
-      previewBase,
-    };
-  };
-
-  const handlePointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
-    if (event.button !== 0 && event.button !== 1) return;
-    if (transform === null) return;
-    const { cx, cy } = pointerToCanvas(event);
-
-    // Pan: middle-click or Shift + left-click.
-    if (event.button === 1 || event.shiftKey) {
-      event.currentTarget.setPointerCapture(event.pointerId);
-      dragRef.current = {
-        pointerId: event.pointerId,
-        kind: "pan",
-        startX: cx,
-        startY: cy,
-        basePan: { x: transform.panX, y: transform.panY },
-      };
-      return;
-    }
-
-    if (tool === "select") {
-      // Resize-handle takes priority over inside-selection so users can
-      // grab the corner even when it's near the rect edge.
-      if (isOnResizeHandle(cx, cy) && selection !== null) {
-        event.currentTarget.setPointerCapture(event.pointerId);
-        const lifted = liftIfMarquee(selection);
-        setSelection(lifted);
-        dragRef.current = {
-          pointerId: event.pointerId,
-          kind: "resize",
-          baseRect: { ...lifted.rect },
-        };
-        return;
-      }
-      const point = canvasToPixel(cx, cy);
-      if (
-        point !== null &&
-        isInsideSelectionRect(point[0], point[1]) &&
-        selection !== null
-      ) {
-        event.currentTarget.setPointerCapture(event.pointerId);
-        const lifted = liftIfMarquee(selection);
-        setSelection(lifted);
-        dragRef.current = {
-          pointerId: event.pointerId,
-          kind: "move",
-          startX: cx,
-          startY: cy,
-          baseRect: { ...lifted.rect },
-        };
-        return;
-      }
-      // Click outside: commit any existing floating selection, then start a
-      // new marquee from the click point.
-      if (selection !== null) {
-        commitSelection();
-      }
-      if (point === null) return;
-      event.currentTarget.setPointerCapture(event.pointerId);
-      setSelection({
-        mode: "marquee",
-        rect: { x: point[0], y: point[1], w: 0, h: 0 },
-      });
-      dragRef.current = {
-        pointerId: event.pointerId,
-        kind: "marquee",
-        startX: point[0],
-        startY: point[1],
-      };
-      return;
-    }
-
-    // Painting tools.
-    const point = canvasToPixel(cx, cy);
-    if (point === null) return;
-    event.currentTarget.setPointerCapture(event.pointerId);
-    dragRef.current = {
-      pointerId: event.pointerId,
-      kind: "paint",
-      lastX: point[0],
-      lastY: point[1],
-    };
-    applyAtPixel(point[0], point[1], false);
-  };
-
-  const handlePointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
-    const drag = dragRef.current;
-    if (drag === null || event.pointerId !== drag.pointerId) return;
-    if (transform === null) return;
-    const { cx, cy } = pointerToCanvas(event);
-
-    if (drag.kind === "pan") {
-      setTransform({
-        scale: transform.scale,
-        panX: drag.basePan.x + (cx - drag.startX),
-        panY: drag.basePan.y + (cy - drag.startY),
-      });
-      return;
-    }
-    if (drag.kind === "marquee") {
-      const point = canvasToPixel(cx, cy);
-      if (point === null) return;
-      // The rectangle covers from start to end inclusive.
-      const x = Math.min(drag.startX, point[0]);
-      const y = Math.min(drag.startY, point[1]);
-      const w = Math.abs(point[0] - drag.startX) + 1;
-      const h = Math.abs(point[1] - drag.startY) + 1;
-      setSelection({ mode: "marquee", rect: { x, y, w, h } });
-      return;
-    }
-    if (drag.kind === "move") {
-      const sel = selection;
-      if (sel === null || sel.mode !== "floating") return;
-      const dx = Math.round((cx - drag.startX) / transform.scale);
-      const dy = Math.round((cy - drag.startY) / transform.scale);
-      setSelection({
-        ...sel,
-        rect: {
-          x: drag.baseRect.x + dx,
-          y: drag.baseRect.y + dy,
-          w: drag.baseRect.w,
-          h: drag.baseRect.h,
-        },
-      });
-      return;
-    }
-    if (drag.kind === "resize") {
-      const sel = selection;
-      if (sel === null || sel.mode !== "floating") return;
-      const handlePixelX = Math.round((cx - transform.panX) / transform.scale);
-      const handlePixelY = Math.round((cy - transform.panY) / transform.scale);
-      const w = Math.max(1, handlePixelX - drag.baseRect.x);
-      const h = Math.max(1, handlePixelY - drag.baseRect.y);
-      setSelection({ ...sel, rect: { ...drag.baseRect, w, h } });
-      return;
-    }
-    // Paint — drag.kind is narrowed to "paint" here.
-    if (tool !== "pencil" && tool !== "eraser") return;
-    const point = canvasToPixel(cx, cy);
-    if (point === null) return;
-    if (point[0] === drag.lastX && point[1] === drag.lastY) return;
-    drag.lastX = point[0];
-    drag.lastY = point[1];
-    applyAtPixel(point[0], point[1], true);
-  };
-
-  const handlePointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
-    if (
-      dragRef.current !== null &&
-      event.pointerId === dragRef.current.pointerId &&
-      event.currentTarget.hasPointerCapture(event.pointerId)
-    ) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-    const drag = dragRef.current;
-    dragRef.current = null;
-    if (drag === null) return;
-    // Drop a zero-area marquee — can happen on a quick click.
-    if (drag.kind === "marquee" && selection !== null) {
-      const r = normalizeRect(selection.rect);
-      if (r.w < 1 || r.h < 1) {
-        setSelection(null);
-      } else {
-        setSelection({ mode: "marquee", rect: r });
-      }
-    }
-  };
-
-  // Wheel zoom — native non-passive listener so preventDefault stops the page
-  // from scrolling.
-  const transformRef = useRef(transform);
-  useEffect(() => {
-    transformRef.current = transform;
-  }, [transform]);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (canvas === null) return;
-    const onWheel = (event: WheelEvent) => {
-      const current = transformRef.current;
-      if (current === null) return;
-      event.preventDefault();
-      const rect = canvas.getBoundingClientRect();
-      const cx = event.clientX - rect.left;
-      const cy = event.clientY - rect.top;
-      // Integer scale steps so pixels stay crisp.
-      const dir = event.deltaY < 0 ? 1 : -1;
-      const nextScale = Math.max(
-        MIN_SCALE,
-        Math.min(MAX_SCALE, current.scale + dir),
-      );
-      if (nextScale === current.scale) return;
-      const px = (cx - current.panX) / current.scale;
-      const py = (cy - current.panY) / current.scale;
-      setTransform({
-        scale: nextScale,
-        panX: cx - px * nextScale,
-        panY: cy - py * nextScale,
-      });
-    };
-    canvas.addEventListener("wheel", onWheel, { passive: false });
-    return () => {
-      canvas.removeEventListener("wheel", onWheel);
-    };
-  }, []);
+  useWheelZoom(canvasRef, transform, setTransform);
 
   // Keyboard shortcuts.
   const onKey = useEffectEvent((event: KeyboardEvent) => {
@@ -935,188 +281,32 @@ export function PixelEditor({
     return styles.canvasPaint;
   })();
 
-  const flipHLabel = t({ en: "Flip horizontal", zh: "水平翻转" });
-  const flipVLabel = t({ en: "Flip vertical", zh: "垂直翻转" });
-  const eraseLabel = t({ en: "Erase", zh: "擦除" });
-  const copyLabel = t({ en: "Copy", zh: "复制" });
-  const applyLabel = t({ en: "Apply", zh: "应用" });
-  const cancelLabel = t({ en: "Cancel", zh: "取消" });
-
   return (
     <div css={styles.root}>
-      <div
-        css={[corner.radius_2, styles.toolbar]}
-        role="toolbar"
-        aria-label={t({ en: "Tools", zh: "工具" })}
-      >
-        <ToolButton
-          icon={<PencilSimpleIcon weight="bold" />}
-          label={t({ en: "Pencil", zh: "铅笔" })}
-          active={tool === "pencil"}
-          onClick={() => {
-            switchTool("pencil");
-          }}
-          testId="tool-pencil"
-        />
-        <ToolButton
-          icon={<EraserIcon weight="bold" />}
-          label={t({ en: "Eraser", zh: "橡皮" })}
-          active={tool === "eraser"}
-          onClick={() => {
-            switchTool("eraser");
-          }}
-          testId="tool-eraser"
-        />
-        <ToolButton
-          icon={<SelectionIcon weight="bold" />}
-          label={t({ en: "Range select", zh: "区域选择" })}
-          active={tool === "select"}
-          onClick={() => {
-            switchTool("select");
-          }}
-          testId="tool-select"
-        />
-        <ToolButton
-          icon={<EyedropperIcon weight="bold" />}
-          label={t({ en: "Eyedropper", zh: "取色" })}
-          active={tool === "eyedropper"}
-          onClick={() => {
-            switchTool("eyedropper");
-          }}
-          testId="tool-eyedropper"
-        />
-        <ToolButton
-          icon={<PaintBucketIcon weight="bold" />}
-          label={t({ en: "Fill", zh: "填充" })}
-          active={tool === "fill"}
-          onClick={() => {
-            switchTool("fill");
-          }}
-          testId="tool-fill"
-        />
-        <ToolButton
-          icon={<MagicWandIcon weight="bold" />}
-          label={t({ en: "Remove background", zh: "去背景" })}
-          active={tool === "bg-remove"}
-          onClick={() => {
-            switchTool("bg-remove");
-          }}
-          testId="tool-bg-remove"
-        />
-        <span css={styles.spacer} />
-        <ToolButton
-          icon={<FrameCornersIcon weight="bold" />}
-          label={t({ en: "Fit view", zh: "适应视图" })}
-          onClick={fitToView}
-          testId="tool-fit"
-        />
-        <ToolButton
-          icon={<ArrowUUpLeftIcon weight="bold" />}
-          label={t({ en: "Undo", zh: "撤销" })}
-          onClick={undo}
-          disabled={!canUndo}
-          testId="tool-undo"
-        />
-        <ToolButton
-          icon={<ArrowUUpRightIcon weight="bold" />}
-          label={t({ en: "Redo", zh: "重做" })}
-          onClick={redo}
-          disabled={!canRedo}
-          testId="tool-redo"
-        />
-        <ToolButton
-          icon={<ArrowCounterClockwiseIcon weight="bold" />}
-          label={t({ en: "Revert", zh: "还原" })}
-          onClick={() => {
-            skipNextSyncRef.current = true;
-            reset(cloneCell(baseCell));
-            onRevert();
-          }}
-          testId="tool-revert"
-        />
-      </div>
+      <EditorToolbar
+        tool={tool}
+        onSwitchTool={switchTool}
+        onFit={fitToView}
+        onUndo={undo}
+        onRedo={redo}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        onRevert={() => {
+          skipNextSyncRef.current = true;
+          reset(cloneCell(baseCell));
+          onRevert();
+        }}
+      />
 
-      <div css={[corner.radius_2, styles.colorRow]}>
-        <label css={[typeRole.label, styles.colorLabel]}>
-          <span>{t({ en: "Color", zh: "颜色" })}</span>
-          <input
-            type="color"
-            value={activeColor}
-            onChange={(event) => {
-              setActiveColor(event.target.value);
-            }}
-            css={[corner.radius_2, a11y.focusRing, styles.colorInput]}
-            data-testid="color-input"
-          />
-        </label>
-        <div css={styles.swatches}>
-          {DEFAULT_PALETTE.map((hex) => (
-            <button
-              key={hex}
-              type="button"
-              aria-label={hex}
-              onClick={() => {
-                setActiveColor(hex);
-                remember(hex);
-              }}
-              css={[
-                buttonReset.base,
-                styles.swatch,
-                activeColor === hex && styles.swatchActive,
-                styles.swatchColor(hex),
-              ]}
-            />
-          ))}
-        </div>
-        {recent.length > 0 ? (
-          <div
-            css={styles.swatches}
-            aria-label={t({ en: "Recent colors", zh: "最近颜色" })}
-          >
-            {recent.map((hex) => (
-              <button
-                key={hex}
-                type="button"
-                aria-label={hex}
-                onClick={() => {
-                  setActiveColor(hex);
-                }}
-                css={[
-                  buttonReset.base,
-                  styles.swatch,
-                  activeColor === hex && styles.swatchActive,
-                  styles.swatchColor(hex),
-                ]}
-              />
-            ))}
-          </div>
-        ) : null}
-        {tool === "bg-remove" ? (
-          <label css={[typeRole.label, styles.colorLabel]}>
-            <span>{t({ en: "Tolerance", zh: "容差" })}</span>
-            <input
-              type="range"
-              min={0}
-              max={128}
-              value={tolerance}
-              onChange={(event) => {
-                setTolerance(Number(event.target.value));
-              }}
-              css={[a11y.focusRing, styles.range]}
-              data-testid="tolerance"
-            />
-            <span
-              css={[
-                typeRole.bodySmall,
-                typeModifier.numeric,
-                styles.toleranceValue,
-              ]}
-            >
-              {tolerance}
-            </span>
-          </label>
-        ) : null}
-      </div>
+      <ColorRow
+        tool={tool}
+        activeColor={activeColor}
+        onColorChange={setActiveColor}
+        recent={recent}
+        onRemember={remember}
+        tolerance={tolerance}
+        onToleranceChange={setTolerance}
+      />
 
       <div ref={containerRef} css={[corner.radius_3, styles.canvasArea]}>
         <canvas
@@ -1129,133 +319,16 @@ export function PixelEditor({
           data-testid="pixel-canvas"
         />
         {selection !== null ? (
-          <div
-            css={[corner.radius_2, styles.selectionBar]}
-            role="toolbar"
-            aria-label={t({ en: "Selection actions", zh: "选区操作" })}
-          >
-            <SelectionButton
-              icon={<TrashIcon weight="bold" />}
-              label={eraseLabel}
-              onClick={eraseSelection}
-              testId="selection-erase"
-            />
-            <SelectionButton
-              icon={<CopyIcon weight="bold" />}
-              label={copyLabel}
-              onClick={copySelection}
-              testId="selection-copy"
-            />
-            <SelectionButton
-              icon={<FlipHorizontalIcon weight="bold" />}
-              label={flipHLabel}
-              onClick={() => {
-                flipSelection("h");
-              }}
-              testId="selection-flip-h"
-            />
-            <SelectionButton
-              icon={<FlipVerticalIcon weight="bold" />}
-              label={flipVLabel}
-              onClick={() => {
-                flipSelection("v");
-              }}
-              testId="selection-flip-v"
-            />
-            <span css={styles.selectionDivider} aria-hidden="true" />
-            <SelectionButton
-              icon={<CheckIcon weight="bold" />}
-              label={applyLabel}
-              onClick={commitSelection}
-              testId="selection-apply"
-              variant="primary"
-            />
-            <SelectionButton
-              icon={<XIcon weight="bold" />}
-              label={cancelLabel}
-              onClick={cancelSelection}
-              testId="selection-cancel"
-            />
-          </div>
+          <SelectionBar
+            onErase={eraseSelection}
+            onCopy={copySelection}
+            onFlip={flipSelection}
+            onApply={commitSelection}
+            onCancel={cancelSelection}
+          />
         ) : null}
       </div>
     </div>
-  );
-}
-
-interface ToolButtonProps {
-  icon: React.ReactNode;
-  label: string;
-  active?: boolean;
-  disabled?: boolean;
-  onClick: () => void;
-  testId?: string;
-}
-
-function ToolButton({
-  icon,
-  label,
-  active,
-  disabled,
-  onClick,
-  testId,
-}: ToolButtonProps) {
-  return (
-    <button
-      type="button"
-      css={[
-        buttonReset.base,
-        corner.radius_2,
-        quietSurface.interactive,
-        a11y.focusRing,
-        styles.toolButton,
-      ]}
-      title={label}
-      aria-label={label}
-      aria-pressed={active}
-      disabled={disabled}
-      onClick={onClick}
-      data-testid={testId}
-    >
-      {icon}
-    </button>
-  );
-}
-
-interface SelectionButtonProps {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-  testId?: string;
-  variant?: "primary";
-}
-
-function SelectionButton({
-  icon,
-  label,
-  onClick,
-  testId,
-  variant,
-}: SelectionButtonProps) {
-  return (
-    <button
-      type="button"
-      css={[
-        buttonReset.base,
-        typeRole.label,
-        corner.radius_1,
-        quietSurface.interactive,
-        styles.selectionButton,
-        variant === "primary" && styles.selectionButtonPrimary,
-      ]}
-      onClick={onClick}
-      data-testid={testId}
-    >
-      <span css={styles.selectionIcon} aria-hidden="true">
-        {icon}
-      </span>
-      <span>{label}</span>
-    </button>
   );
 }
 
@@ -1266,91 +339,6 @@ const styles = stylex.create({
     gap: rhythm.item,
     height: "100%",
     minHeight: 0,
-  },
-  toolbar: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    gap: rhythm.tight,
-    padding: space._2,
-    backgroundColor: color.bgSurface,
-    border: `${border.size_1} solid ${color.border}`,
-  },
-  spacer: {
-    flex: "1",
-  },
-  toolButton: {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "34px",
-    height: "34px",
-    fontSize: controlSize._4,
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.border,
-    [selectedTokens.rest]: color.bgControl,
-    color: color.fg,
-    cursor: { default: "pointer", ":disabled": "not-allowed" },
-    opacity: { default: 1, ":disabled": opacity.disabled },
-    transition: {
-      default: `background-color ${duration._150} ${easing.easeOut}, border-color ${duration._150} ${easing.easeOut}, color ${duration._150} ${easing.easeOut}`,
-      [motionConstants.REDUCED_MOTION]: "none",
-    },
-  },
-
-  colorRow: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    gap: rhythm.tight,
-    padding: space._2,
-    backgroundColor: color.bgSurface,
-    border: `${border.size_1} solid ${color.border}`,
-  },
-  colorLabel: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: rhythm.tight,
-    color: color.fgMuted,
-  },
-  colorInput: {
-    width: "32px",
-    height: "32px",
-    padding: 0,
-    border: `${border.size_1} solid ${color.border}`,
-    backgroundColor: "transparent",
-    cursor: "pointer",
-  },
-  swatches: {
-    display: "flex",
-    gap: rhythm.inline,
-  },
-  swatch: {
-    width: "24px",
-    height: "24px",
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.border,
-    borderRadius: "4px",
-    cornerShape: "squircle",
-  },
-  swatchActive: {
-    outlineColor: color.borderAccent,
-    outlineOffset: border.size_1,
-  },
-  swatchColor: (backgroundColor: string) => ({
-    backgroundColor,
-  }),
-  range: {
-    accentColor: color.bgAccent,
-    cursor: "pointer",
-  },
-  toleranceValue: {
-    minWidth: "2.5em",
-    textAlign: "right",
-    fontFamily: font.familyMono,
-    color: color.fg,
   },
   canvasArea: {
     position: "relative",
@@ -1377,51 +365,5 @@ const styles = stylex.create({
   },
   canvasSelect: {
     cursor: "cell",
-  },
-  selectionBar: {
-    position: "absolute",
-    insetBlockStart: space._2,
-    insetInlineStart: "50%",
-    transform: "translateX(-50%)",
-    display: "flex",
-    alignItems: "center",
-    gap: controlSize._0,
-    padding: "4px",
-    backgroundColor: color.bgSurfaceRaised,
-    border: `${border.size_1} solid ${color.border}`,
-    boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
-    flexWrap: "wrap",
-    maxInlineSize: "calc(100% - 24px)",
-    justifyContent: "center",
-  },
-  selectionButton: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: controlSize._1,
-    paddingBlock: "4px",
-    paddingInline: space._1,
-    color: color.fg,
-    fontFamily: "inherit",
-    fontWeight: font.weight_6,
-  },
-  selectionButtonPrimary: {
-    backgroundColor: {
-      default: color.bgAccent,
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgAccentHover,
-      },
-    },
-    color: color.fgOnAccent,
-  },
-  selectionIcon: {
-    display: "inline-flex",
-    fontSize: controlSize._4,
-  },
-  selectionDivider: {
-    width: "1px",
-    height: "18px",
-    backgroundColor: color.border,
-    marginInline: controlSize._0,
   },
 });

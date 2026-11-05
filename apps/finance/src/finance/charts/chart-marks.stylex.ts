@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/tokens.stylex";
+import { color } from "@tuja/ui/color.stylex";
 
 /**
  * The marks every Finance chart shares, so a line, a bar and a stacked bar

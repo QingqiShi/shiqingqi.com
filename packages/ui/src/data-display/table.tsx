@@ -1,8 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { useId, type ComponentProps, type ReactNode } from "react";
+import { color } from "../color.stylex.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { color, space } from "../tokens.stylex.ts";
+import { space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { TableScroller } from "./table-scroller.tsx";
 import { tableTokens } from "./table.stylex.ts";

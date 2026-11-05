@@ -10,11 +10,12 @@ import {
   type Ref,
 } from "react";
 import { useShownCurrent } from "../actions/nav-list-context.tsx";
+import { color } from "../color.stylex.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { quietSurface } from "../primitives/quiet-surface.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { color, font, rhythm, space } from "../tokens.stylex.ts";
+import { font, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { listRowTokens, listSurface } from "./list.stylex.ts";
 

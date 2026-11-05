@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
 import { useDust } from "@tuja/ui/hooks/use-dust";
@@ -16,7 +17,7 @@ import {
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import {
   createContext,
   use,

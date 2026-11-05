@@ -5,17 +5,12 @@ import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import {
-  border,
-  color,
-  controlSize,
-  rhythm,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { border, controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { ViewTransition } from "react";
 import { useHeroVisibility } from "#src/movie-database/browse/hero-visibility-context.ts";
 import { PreferenceManager } from "#src/movie-database/taste/preference-panel.tsx";

@@ -5,6 +5,7 @@ import { KeyIcon } from "@phosphor-icons/react/dist/ssr/Key";
 import { PlusSquareIcon } from "@phosphor-icons/react/dist/ssr/PlusSquare";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { listSurface } from "@tuja/ui/components/list.stylex";
@@ -15,7 +16,6 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
-  color,
   controlSize,
   rhythm,
   shadow,

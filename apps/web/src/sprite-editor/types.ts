@@ -8,6 +8,8 @@
  * sprite sheet (Phase 4).
  */
 
+import type { Rect } from "#src/sprite-editor/pixel-ops/types.ts";
+
 export interface GridConfig {
   /** Number of columns in the slicing grid. */
   cols: number;
@@ -61,3 +63,29 @@ export interface GuideOptions {
   thirds: boolean;
   baseline: boolean;
 }
+
+export type Tool =
+  "pencil" | "eraser" | "select" | "eyedropper" | "fill" | "bg-remove";
+
+export interface Transform {
+  scale: number; // CSS px per source pixel
+  panX: number; // CSS px offset of the cell origin within the canvas
+  panY: number;
+}
+
+/**
+ * Selection state. `marquee` is just an outline over the current cell —
+ * operations like Erase/Flip apply directly. `floating` means the rect's
+ * pixels have been lifted: `previewBase` is the cell with that rect cleared,
+ * `pixels` is the lifted content (always at its natural size), and `rect`
+ * is where it'll land on Apply (potentially with a different w/h, in which
+ * case the pixels get nearest-neighbor scaled).
+ */
+export type Selection =
+  | { mode: "marquee"; rect: Rect }
+  | {
+      mode: "floating";
+      rect: Rect;
+      pixels: CellPixels;
+      previewBase: CellPixels;
+    };

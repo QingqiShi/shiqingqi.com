@@ -2,13 +2,14 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { EffectContainer } from "@tuja/ui/components/effect-container";
 import { Text } from "@tuja/ui/components/text";
 import { useEffectContainer } from "@tuja/ui/hooks/use-effect-container";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import { DustTile, Fan } from "./dust-tile.tsx";
 

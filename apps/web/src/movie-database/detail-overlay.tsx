@@ -4,6 +4,7 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { useDialogFocus } from "@tuja/ui/hooks/use-dialog-focus";
 import { useEffectCover } from "@tuja/ui/hooks/use-effect-cover";
 import { usePortalTarget } from "@tuja/ui/hooks/use-portal-target";
@@ -17,7 +18,7 @@ import {
   transition,
 } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { color, controlSize, layer, space } from "@tuja/ui/tokens.stylex";
+import { controlSize, layer, space } from "@tuja/ui/tokens.stylex";
 import { mergeRefs } from "@tuja/ui/utils/merge-refs";
 import type { PropsWithChildren, RefObject } from "react";
 import { useRef } from "react";

@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { color } from "@tuja/ui/color.stylex";
+import { border, space } from "@tuja/ui/tokens.stylex";
 
 /**
  * Gridline-via-gap: the ground the token specimens are laid out on.

@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Ref } from "react";
+import { color } from "../color.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import {
   duration,
@@ -7,7 +8,6 @@ import {
   motionConstants,
   motionTokens,
 } from "../primitives/motion.stylex.ts";
-import { color } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { skeletonTokens } from "./skeleton.stylex.ts";
 

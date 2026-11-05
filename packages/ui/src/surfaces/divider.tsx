@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Ref } from "react";
+import { color } from "../color.stylex.ts";
 import { mergeRefs } from "../merge-refs.ts";
-import { border, color } from "../tokens.stylex.ts";
+import { border } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
 interface DividerProps {
