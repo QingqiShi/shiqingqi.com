@@ -4,6 +4,7 @@ const exportMatchesFilename = require("./conventions/export-matches-filename");
 const noSingleUseLiteralAlias = require("./conventions/no-single-use-literal-alias");
 const noUseClientInHooks = require("./conventions/no-use-client-in-hooks");
 const noCustomProperties = require("./design-system/no-custom-properties");
+const noLayoutAnimation = require("./design-system/no-layout-animation");
 const noPartialHoverUnderline = require("./design-system/no-partial-hover-underline");
 const onlyStylexExports = require("./design-system/only-stylex-exports");
 const requireCornerShape = require("./design-system/require-corner-shape");
@@ -29,6 +30,7 @@ module.exports = {
     "no-single-use-literal-alias": noSingleUseLiteralAlias,
     "no-use-client-in-hooks": noUseClientInHooks,
     "no-custom-properties": noCustomProperties,
+    "no-layout-animation": noLayoutAnimation,
     "no-partial-hover-underline": noPartialHoverUnderline,
     "only-stylex-exports": onlyStylexExports,
     "require-corner-shape": requireCornerShape,
