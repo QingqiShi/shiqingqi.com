@@ -25,7 +25,7 @@ export function MovieDetailSpecimen() {
           <WireframeBar width="35%" />
           <WireframeBar width="80%" strong />
           <WireframeBar width="60%" />
-          {/* Chips and view segments are `WireframeBar`s too — its two fills are
+          {/* Badges and view segments are `WireframeBar`s too — its two fills are
               the ones chosen to survive the plate's desaturation, so re-declaring
               them here would leave this specimen behind the next time they move.
               Only the taller box and the pill radius are local. */}

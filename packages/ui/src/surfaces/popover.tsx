@@ -17,7 +17,7 @@ import { Portal } from "./portal.tsx";
 interface PopoverBaseProps {
   /**
    * Renders the trigger: spread the supplied props onto whatever element
-   * opens the popover (a `Button`, a `Chip`, a bare `<button>`) to wire up
+   * opens the popover (a `Button`, a bare `<button>`) to wire up
    * the anchor ref, open state, and ARIA. A callback, not a node, since
    * cloning can't type an injected ref and `aria-*` without `any`.
    *

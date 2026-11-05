@@ -221,26 +221,6 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/divider" />
   </url>
   <url>
-    <loc>https://qingqi.dev/design-system/components/chip</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/chip" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/chip" />
-  </url>
-  <url>
-    <loc>https://qingqi.dev/zh/design-system/components/chip</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/chip" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/chip" />
-  </url>
-  <url>
-    <loc>https://qingqi.dev/design-system/components/chip/lab</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/chip/lab" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/chip/lab" />
-  </url>
-  <url>
-    <loc>https://qingqi.dev/zh/design-system/components/chip/lab</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/chip/lab" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/chip/lab" />
-  </url>
-  <url>
     <loc>https://qingqi.dev/design-system/components/avatar</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/avatar" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/avatar" />
@@ -479,26 +459,6 @@
     <loc>https://qingqi.dev/zh/design-system/components/button/lab</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/button/lab" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/button/lab" />
-  </url>
-  <url>
-    <loc>https://qingqi.dev/design-system/components/anchor-button</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/anchor-button" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/anchor-button" />
-  </url>
-  <url>
-    <loc>https://qingqi.dev/zh/design-system/components/anchor-button</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/anchor-button" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/anchor-button" />
-  </url>
-  <url>
-    <loc>https://qingqi.dev/design-system/components/anchor-button/lab</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/anchor-button/lab" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/anchor-button/lab" />
-  </url>
-  <url>
-    <loc>https://qingqi.dev/zh/design-system/components/anchor-button/lab</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/anchor-button/lab" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/anchor-button/lab" />
   </url>
   <url>
     <loc>https://qingqi.dev/design-system/components/menu-button</loc>

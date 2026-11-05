@@ -6,7 +6,7 @@ import { specimenLayout } from "./specimen.stylex.ts";
  * Three short crumbs, chevrons between them, the last one emphasised — the
  * shape that separates a breadcrumb from any other row of small text.
  *
- * No hrefs, following the Chip specimen: the plate is inert, so an anchor here
+ * No hrefs: the plate is inert, so an anchor here
  * would only advertise a destination the tile can't take you to. Items without
  * one render as plain text, and the trailing crumb keeps the current-page
  * emphasis either way.

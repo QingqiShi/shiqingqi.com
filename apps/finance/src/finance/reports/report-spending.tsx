@@ -4,12 +4,11 @@ import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { AnchorButton } from "@tuja/ui/components/anchor-button";
+import { Button } from "@tuja/ui/components/button";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm } from "@tuja/ui/tokens.stylex";
-import { Link } from "#src/links/link.tsx";
 import { RankedRow } from "../analytics/ranked-row.tsx";
 import { ChartLegend } from "../charts/chart-legend.tsx";
 import { chartMarks } from "../charts/chart-marks.stylex.ts";
@@ -183,14 +182,13 @@ export function ReportSpending({
               <span>{transactionCount}</span>
             </p>
             {data.reviewCount > 0 ? (
-              <AnchorButton
+              <Button
                 href={transactionsHref({ review: true })}
-                linkComponent={Link}
                 size="sm"
                 icon={<ArrowRightIcon weight="bold" />}
               >
                 {reviewCount}
-              </AnchorButton>
+              </Button>
             ) : null}
           </div>
         </div>

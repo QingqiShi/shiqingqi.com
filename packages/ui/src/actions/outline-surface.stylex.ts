@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "../breakpoints.stylex.ts";
+import { cornerTokens } from "../primitives/corner.stylex.ts";
 import {
   border,
   color,
@@ -10,19 +11,23 @@ import {
 } from "../tokens.stylex.ts";
 
 /**
- * The pill skin shared by every chip and, at rest, by `Badge` — exposed as
- * composable StyleX for an element `Chip` can't be, most often a `<Link>`.
+ * The outline look of `Button`, as composable StyleX for an element that a
+ * `Button` cannot be, such as a `<select>` or a date `<input>`. `Button` reads
+ * `skin` and `active` from here, so the element and an outline `Button` beside
+ * it stay the same.
+ *
  * Compose a type role first (`typeRole.label` for the `sm` step,
- * `typeRole.caption` for `xs`), then `base` plus a `chipSize` step, then
- * `interactive`, then `active` for the selected one.
+ * `typeRole.caption` for `xs`), then `layout`, `skin`, an `outlineSurfaceSize`
+ * step and `corner.squircle_round`, then `interactive`, then `active` for the
+ * selected one.
  *
  * `interactive` inlines its focus ring and its touch target instead of
  * composing `a11y.focusRing` and `a11y.touchTarget`, since a primitive can't
  * compose another at definition time. Keep the copies the same as the
  * originals.
  */
-export const chipSurface = stylex.create({
-  base: {
+export const outlineSurface = stylex.create({
+  layout: {
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
@@ -30,34 +35,25 @@ export const chipSurface = stylex.create({
     gap: controlSize._1,
     boxSizing: "border-box",
     whiteSpace: "nowrap",
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.border,
-    borderRadius: border.radius_round,
-    cornerShape: "round",
-    backgroundColor: color.bgSurface,
     color: color.fg,
     fontWeight: font.weight_5,
     textDecoration: "none",
   },
-  interactive: {
-    cursor: { default: "pointer", ":disabled": "not-allowed" },
-    borderColor: {
-      default: color.border,
-      [pointer.canHover]: {
-        default: null,
-        ":hover": color.borderAccent,
-        ":disabled:hover": color.border,
-      },
-    },
+  skin: {
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.border,
     backgroundColor: {
-      default: color.bgSurface,
+      default: "transparent",
       [pointer.canHover]: {
         default: null,
         ":hover": color.bgControlHover,
-        ":disabled:hover": color.bgSurface,
+        ":disabled:hover": "transparent",
       },
     },
+  },
+  interactive: {
+    cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: null, ":disabled": opacity.disabled },
     outlineWidth: border.size_2,
     outlineStyle: "solid",
@@ -81,9 +77,10 @@ export const chipSurface = stylex.create({
     borderColor: color.borderAccent,
     backgroundColor: {
       default: color.bgAccent,
-      ":hover": {
+      [pointer.canHover]: {
         default: null,
-        [pointer.canHover]: color.bgAccentHover,
+        ":hover": color.bgAccentHover,
+        ":disabled:hover": color.bgAccent,
       },
     },
     color: color.fgOnAccent,
@@ -91,19 +88,20 @@ export const chipSurface = stylex.create({
 });
 
 /**
- * Height steps for a chip, split from `chipSurface` so a
- * hand-composed chip sizes itself the same way the `size` prop does. Heights
- * use `controlHeight`, so a chip is as tall as any control of the same step.
+ * The height steps of `outlineSurface`. The heights and the padding are those
+ * of a `Button` of the same size, so the element lines up with it in a row.
  */
-export const chipSize = stylex.create({
+export const outlineSurfaceSize = stylex.create({
   xs: {
+    [cornerTokens.height]: controlHeight.xs,
     minBlockSize: controlHeight.xs,
     paddingBlock: controlSize._0,
     paddingInline: controlSize._2,
   },
   sm: {
+    [cornerTokens.height]: controlHeight.sm,
     minBlockSize: controlHeight.sm,
-    paddingBlock: controlSize._1,
-    paddingInline: controlSize._3,
+    paddingBlock: controlSize._0,
+    paddingInline: controlSize._2,
   },
 });

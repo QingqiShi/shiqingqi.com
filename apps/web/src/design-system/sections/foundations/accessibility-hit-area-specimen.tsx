@@ -2,7 +2,6 @@ import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
-import { Chip } from "@tuja/ui/components/chip";
 import { border, color, rhythm } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
@@ -15,7 +14,9 @@ export function AccessibilityHitAreaSpecimen() {
   return (
     <div css={styles.row}>
       <HitArea>
-        <Chip size="xs">{t({ en: "Watchlist", zh: "待看清单" })}</Chip>
+        <Button look="outline" size="xs">
+          {t({ en: "Watchlist", zh: "待看清单" })}
+        </Button>
       </HitArea>
       <HitArea>
         <Button

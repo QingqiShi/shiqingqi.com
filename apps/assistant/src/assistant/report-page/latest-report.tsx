@@ -1,13 +1,13 @@
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
+import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { eq } from "drizzle-orm";
 import { mailAccounts } from "#src/assistant/db/schema.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
-import { AnchorButton } from "#src/links/anchor-button.tsx";
 import { localClock } from "../report/due-report-date.ts";
 import {
   readReportSettings,
@@ -65,13 +65,13 @@ export async function NoReportYet({
       </div>
       {accounts === 0 ? (
         <div>
-          <AnchorButton
+          <Button
             href={getLocalePath("/settings/mailboxes", locale)}
             look="primary"
             size="sm"
           >
             {t({ en: "Connect a mailbox", zh: "连接邮箱" })}
-          </AnchorButton>
+          </Button>
         </div>
       ) : null}
     </div>

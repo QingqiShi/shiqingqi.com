@@ -4,13 +4,13 @@ import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { Button } from "@tuja/ui/components/button";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlSize, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
-import { AnchorButton } from "#src/links/anchor-button.tsx";
 import { genresQuery } from "#src/movie-database/tmdb/queries/genres-query.ts";
 import { useMediaFilters } from "./use-media-filters";
 
@@ -47,7 +47,7 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
             const idString = genre.id.toString();
             const isActive = genres.has(idString);
             return (
-              <AnchorButton
+              <Button
                 key={genre.id}
                 href={toggleGenreUrl(idString)}
                 isActive={isActive}
@@ -56,12 +56,10 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
                   toggleGenre(idString);
                 }}
                 rel="nofollow"
-                replace
-                shallow
-                bright
+                look="bright"
               >
                 {genre.name}
-              </AnchorButton>
+              </Button>
             );
           })}
         </div>

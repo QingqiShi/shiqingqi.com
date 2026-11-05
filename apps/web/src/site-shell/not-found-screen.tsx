@@ -7,6 +7,7 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { getLocale } from "@tuja/i18n/server-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { Button } from "@tuja/ui/components/button";
 import { CardDescription, CardTitle } from "@tuja/ui/components/card";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Heading } from "@tuja/ui/components/heading";
@@ -22,7 +23,6 @@ import {
   rhythm,
   space,
 } from "@tuja/ui/tokens.stylex";
-import { AnchorButton } from "#src/links/anchor-button.tsx";
 import { Link } from "#src/links/link.tsx";
 import { SiteHeaderFooterLayout } from "./site-header-footer-layout.tsx";
 
@@ -97,13 +97,13 @@ export function NotFoundScreen() {
               })}
             </Text>
           </div>
-          <AnchorButton
+          <Button
             href={getLocalePath("/", locale)}
-            bright
+            look="bright"
             icon={<HouseIcon weight="bold" role="presentation" />}
           >
             {t({ en: "Back to home", zh: "返回首页" })}
-          </AnchorButton>
+          </Button>
         </div>
 
         <nav

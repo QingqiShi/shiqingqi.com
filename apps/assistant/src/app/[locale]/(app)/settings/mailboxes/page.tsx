@@ -1,7 +1,7 @@
 import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
-import { AnchorButton } from "@tuja/ui/components/anchor-button";
+import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { List } from "@tuja/ui/components/list";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
@@ -149,15 +149,12 @@ export default async function Page({
           })}
         >
           <div css={cluster.tight}>
-            <AnchorButton href={connectHref("google", locale)} look="outline">
+            <Button href={connectHref("google", locale)} look="outline">
               {t({ en: "Connect Gmail", zh: "连接 Gmail" })}
-            </AnchorButton>
-            <AnchorButton
-              href={connectHref("microsoft", locale)}
-              look="outline"
-            >
+            </Button>
+            <Button href={connectHref("microsoft", locale)} look="outline">
               {t({ en: "Connect Outlook", zh: "连接 Outlook" })}
-            </AnchorButton>
+            </Button>
           </div>
         </SettingsSection>
         <SettingsSection

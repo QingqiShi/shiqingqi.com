@@ -3,12 +3,12 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
+import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
 import { Spinner } from "@tuja/ui/components/spinner";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { AnchorButton } from "#src/links/anchor-button.tsx";
 import type { ReportPreview } from "../report/read-report-preview.ts";
 import { ReportView } from "../report-page/report-view.tsx";
 import { TodosReadOnly } from "../report-page/todos-read-only.tsx";
@@ -69,14 +69,14 @@ export function ReportPreviewView({
     <div css={stack.group}>
       <header css={stack.item}>
         <div>
-          <AnchorButton
+          <Button
             href={getLocalePath("/settings/report", locale)}
             look="ghost"
             size="sm"
             icon={<ArrowLeftIcon weight="bold" />}
           >
             {t({ en: "Report and notifications", zh: "晨报与通知" })}
-          </AnchorButton>
+          </Button>
         </div>
         <div css={stack.text}>
           <Heading level={1} look="h3">

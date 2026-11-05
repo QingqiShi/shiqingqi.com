@@ -84,20 +84,12 @@ export function getDesignSystemRouteDescriptions(): Record<
       zh: "以彩色片段绘制的源码，每个 part 各占一格，改动时会滑动、升起或原地淡出。",
     }),
     "/design-system/components/button": t({
-      en: "The primary action control, with looks and a press animation.",
-      zh: "主要的操作控件，提供多种外观与按压动画。",
-    }),
-    "/design-system/components/anchor-button": t({
-      en: "A destination drawn as a button, on the same looks and sizes.",
-      zh: "外观与尺寸都与按钮一致的目标链接。",
+      en: "An action or a destination, with looks, sizes and a press animation.",
+      zh: "操作或目标链接，提供多种外观、尺寸与按压动画。",
     }),
     "/design-system/components/menu-button": t({
       en: "A button that expands into a popup menu.",
       zh: "点击后展开为弹出菜单的按钮。",
-    }),
-    "/design-system/components/chip": t({
-      en: "A compact interactive pill — a link or a button, never an inert label.",
-      zh: "紧凑的可交互胶囊形控件——链接或按钮，绝非静态标签。",
     }),
     "/design-system/components/breadcrumb": t({
       en: "A trail of links back up the hierarchy, ending on the page you are reading.",

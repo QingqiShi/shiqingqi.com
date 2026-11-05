@@ -1,13 +1,13 @@
 import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
-import type { ComponentType } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { color, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
-import { AnchorButton, type AnchorButtonLinkProps } from "./anchor-button.tsx";
+import { Button } from "./button.tsx";
+import type { LinkSlot } from "./link-provider.tsx";
 
 /** One page on either side of the current page. */
 export interface PagerPage {
@@ -41,12 +41,12 @@ interface PagerProps {
    */
   next?: PagerPage;
   /**
-   * Link Slot: renders each anchor. Defaults to a plain `<a>`; pass a framework
-   * link (`next/link` and friends) to keep client-side navigation.
+   * Link Slot: renders each anchor. Defaults to the link of the nearest
+   * `LinkProvider`, or a plain `<a>` without one.
    *
-   * @zh 链接插槽：负责渲染每个锚点。默认为原生 `<a>`；传入框架自带的链接组件（例如 `next/link`）即可保留客户端导航。
+   * @zh 链接插槽：负责渲染每个锚点。默认使用最近的 `LinkProvider` 提供的链接；没有 provider 时使用原生 `<a>`。
    */
-  linkComponent?: ComponentType<AnchorButtonLinkProps>;
+  linkComponent?: LinkSlot;
   /**
    * StyleX styles merged over the landmark's own, for its place on the page.
    *
@@ -95,7 +95,7 @@ function PagerLink({ page, direction, linkComponent }: PagerLinkProps) {
   const Caret = isNext ? CaretRightIcon : CaretLeftIcon;
 
   return (
-    <AnchorButton
+    <Button
       look="ghost"
       href={page.href}
       aria-label={`${page.label} ${page.title}`}
@@ -114,7 +114,7 @@ function PagerLink({ page, direction, linkComponent }: PagerLinkProps) {
         </span>
         <span css={[typeRole.h4, styles.title]}>{page.title}</span>
       </span>
-    </AnchorButton>
+    </Button>
   );
 }
 

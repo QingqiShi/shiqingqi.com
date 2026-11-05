@@ -22,7 +22,7 @@ const ringShape = {
  * `touchTarget` gives a control the touch feel of the system: no tap flash, no
  * double-tap zoom delay, and, under a coarse pointer, a hit area of at least
  * 44px (WCAG 2.5.8) that does not change how the control looks.
- * `buttonReset.base` and `chipSurface.interactive` already carry it.
+ * `buttonReset.base` and `outlineSurface.interactive` already carry it.
  * `cardSurface.interactive` carries all of it except the hit area.
  *
  * `touchRow` is `touchTarget` for a control that abuts its neighbours, such

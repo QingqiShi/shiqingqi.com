@@ -198,6 +198,16 @@ const ROUTES = [
       "cta",
       "submit",
       "primary",
+      "link",
+      "anchor",
+      "href",
+      "navigate",
+      "destination",
+      "chip",
+      "pill",
+      "tag",
+      "filter",
+      "token",
       "action",
       "icon",
       "toolbar",
@@ -207,22 +217,8 @@ const ROUTES = [
   {
     section: "components",
     category: "actions",
-    path: "/design-system/components/anchor-button",
-    lab: true,
-    keywords: ["link", "anchor", "href", "navigate", "cta", "destination"],
-  },
-  {
-    section: "components",
-    category: "actions",
     path: "/design-system/components/menu-button",
     keywords: ["dropdown", "popup", "menu", "sheet", "context menu"],
-  },
-  {
-    section: "components",
-    category: "actions",
-    path: "/design-system/components/chip",
-    lab: true,
-    keywords: ["pill", "tag", "filter", "token"],
   },
   // Breadcrumb sits with the Actions rather than under a Navigation heading of
   // its own: it is a row of links the visitor operates, and one route cannot
@@ -315,7 +311,7 @@ const ROUTES = [
     keywords: ["range", "track", "thumb", "scrub", "form"],
   },
   // Avatar and Badge are the inert markers that label a thing or report its
-  // state. Badge sits here rather than beside Chip in Actions on purpose: the
+  // state. Badge sits here rather than beside Button in Actions on purpose: the
   // two are not variants of each other, and the split is the rule made visible.
   {
     section: "components",

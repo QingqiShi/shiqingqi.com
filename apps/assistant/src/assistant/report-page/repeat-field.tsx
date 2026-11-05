@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { Chip } from "@tuja/ui/components/chip";
+import { Button } from "@tuja/ui/components/button";
 import { Select } from "@tuja/ui/components/select";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
@@ -225,7 +225,9 @@ export function RepeatField({
               css={cluster.tight}
             >
               {WEEKDAYS.map((day) => (
-                <Chip
+                <Button
+                  size="sm"
+                  look="outline"
                   key={day}
                   type="button"
                   isActive={draft.weekdays.includes(day)}
@@ -237,7 +239,7 @@ export function RepeatField({
                   }}
                 >
                   {formatShortWeekday(day, locale)}
-                </Chip>
+                </Button>
               ))}
             </div>
           ) : null}

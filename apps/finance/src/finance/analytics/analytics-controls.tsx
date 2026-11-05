@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { Chip } from "@tuja/ui/components/chip";
+import { Button } from "@tuja/ui/components/button";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
@@ -62,7 +62,8 @@ export function AnalyticsControls({
         css={cluster.tight}
       >
         {ranges.map((range) => (
-          <Chip
+          <Button
+            look="outline"
             key={range.value}
             size="xs"
             aria-pressed={state.range === range.value}
@@ -81,7 +82,7 @@ export function AnalyticsControls({
             }}
           >
             {range.label}
-          </Chip>
+          </Button>
         ))}
         {state.range === "custom" ? (
           <>

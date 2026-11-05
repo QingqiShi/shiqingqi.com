@@ -3,8 +3,8 @@ import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { Button } from "@tuja/ui/components/button";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
-import { Chip } from "@tuja/ui/components/chip";
 import { Text } from "@tuja/ui/components/text";
 import { useDisclosure } from "@tuja/ui/hooks/use-disclosure";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -26,7 +26,8 @@ export function DisclosureHeadlessSpecimen() {
         <a href="#disclosure" css={[a11y.focusRing, styles.link]}>
           {t({ en: "Florence → Siena", zh: "佛罗伦萨 → 锡耶纳" })}
         </a>
-        <Chip
+        <Button
+          look="outline"
           size="xs"
           {...triggerProps}
           trailing={
@@ -43,7 +44,7 @@ export function DisclosureHeadlessSpecimen() {
           }
         >
           {t({ en: "Map", zh: "地图" })}
-        </Chip>
+        </Button>
       </div>
       <div {...panelProps} css={styles.panel}>
         <Text look="bodySmall" tone="muted">

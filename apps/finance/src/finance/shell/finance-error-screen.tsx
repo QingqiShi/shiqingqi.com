@@ -9,7 +9,6 @@ import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useEffect } from "react";
 import { captureException } from "#src/analytics/capture-exception.ts";
-import { AnchorButton } from "#src/links/anchor-button.tsx";
 import { FinanceFrame } from "./finance-frame.tsx";
 
 // An error boundary is not an entry that the i18n codegen traces, so it gets
@@ -64,9 +63,7 @@ export function FinanceErrorScreen({
           >
             {strings.retry}
           </Button>
-          <AnchorButton href={getLocalePath("/", locale)}>
-            {strings.home}
-          </AnchorButton>
+          <Button href={getLocalePath("/", locale)}>{strings.home}</Button>
         </div>
       </div>
     </FinanceFrame>

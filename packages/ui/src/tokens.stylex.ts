@@ -587,7 +587,7 @@ export const controlSize = stylex.defineVars({
 
 /**
  * The height of a control at each `size` step. A step names the same height
- * in every control, so a `sm` Chip, Button and TextField line up in a row.
+ * in every control, so a `sm` Button, Select and TextField line up in a row.
  */
 export const controlHeight = stylex.defineVars({
   xs: controlSize._6,

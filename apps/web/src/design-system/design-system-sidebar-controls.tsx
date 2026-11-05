@@ -2,9 +2,8 @@ import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
-import { AnchorButton } from "@tuja/ui/components/anchor-button";
+import { Button } from "@tuja/ui/components/button";
 import { row } from "@tuja/ui/primitives/stack.stylex";
-import { Link } from "#src/links/link.tsx";
 import { LocaleSelector } from "#src/site-shell/locale-selector.tsx";
 import { ThemeSwitch } from "#src/theme/theme-switch.tsx";
 
@@ -21,9 +20,8 @@ export function DesignSystemSidebarControls({
 }) {
   return (
     <div css={row.tight}>
-      <AnchorButton
+      <Button
         href={getLocalePath("/", locale)}
-        linkComponent={Link}
         size="sm"
         icon={<HouseIcon weight="bold" />}
         aria-label={t({ en: "Home", zh: "首页" })}

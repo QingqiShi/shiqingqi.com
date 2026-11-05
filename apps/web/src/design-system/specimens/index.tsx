@@ -1,7 +1,6 @@
 import type { ReactElement } from "react";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
 import { UndoToastSpecimen } from "#src/design-system/sections/components/toast-specimens.tsx";
-import { AnchorButtonSpecimen } from "./anchor-button-specimen.tsx";
 import { AvatarSpecimen } from "./avatar-specimen.tsx";
 import { BadgeSpecimen } from "./badge-specimen.tsx";
 import { BreadcrumbSpecimen } from "./breadcrumb-specimen.tsx";
@@ -9,7 +8,6 @@ import { ButtonSpecimen } from "./button-specimen.tsx";
 import { CalloutSpecimen } from "./callout-specimen.tsx";
 import { CardSpecimen } from "./card-specimen.tsx";
 import { CheckboxSpecimen } from "./checkbox-specimen.tsx";
-import { ChipSpecimen } from "./chip-specimen.tsx";
 import { CodeBlockSpecimen } from "./code-block-specimen.tsx";
 import { DisclosureSpecimen } from "./disclosure-specimen.tsx";
 import { DividerSpecimen } from "./divider-specimen.tsx";
@@ -83,11 +81,7 @@ const COMPONENT_SPECIMENS: Partial<
   "/design-system/components/heading": { element: <HeadingSpecimen /> },
   "/design-system/components/code-block": { element: <CodeBlockSpecimen /> },
   "/design-system/components/button": { element: <ButtonSpecimen /> },
-  "/design-system/components/anchor-button": {
-    element: <AnchorButtonSpecimen />,
-  },
   "/design-system/components/menu-button": { element: <MenuButtonSpecimen /> },
-  "/design-system/components/chip": { element: <ChipSpecimen /> },
   "/design-system/components/breadcrumb": { element: <BreadcrumbSpecimen /> },
   "/design-system/components/pager": { element: <PagerSpecimen /> },
   "/design-system/components/nav-list": { element: <NavListSpecimen /> },

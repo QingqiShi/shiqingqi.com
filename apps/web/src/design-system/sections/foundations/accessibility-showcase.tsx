@@ -41,8 +41,8 @@ export function AccessibilityShowcase() {
       <GuideSection
         title={t({ en: "Give every tap 44px.", zh: "每次点按都有 44px。" })}
         lead={t({
-          en: "On a touch screen, Button, Chip, Switch and the other controls take a tap across at least 44px without growing, and show no tap flash. The dashed box shows that area.",
-          zh: "在触摸屏上，Button、Chip、Switch 等控件都能在至少 44px 的范围内响应点按，自身不会变大，也没有点按闪烁。虚线框标出了这个范围。",
+          en: "On a touch screen, Button, Switch and the other controls take a tap across at least 44px without growing, and show no tap flash. The dashed box shows that area.",
+          zh: "在触摸屏上，Button、Switch 等控件都能在至少 44px 的范围内响应点按，自身不会变大，也没有点按闪烁。虚线框标出了这个范围。",
         })}
       >
         <Stage>

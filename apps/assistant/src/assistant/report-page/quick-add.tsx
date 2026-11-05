@@ -5,7 +5,6 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
-import { Chip } from "@tuja/ui/components/chip";
 import { TextField } from "@tuja/ui/components/text-field";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
@@ -90,7 +89,8 @@ export function QuickAdd({
       </div>
       <div aria-live="polite">
         {dueDate ? (
-          <Chip
+          <Button
+            look="outline"
             type="button"
             size="xs"
             icon={<CalendarBlankIcon weight="bold" />}
@@ -105,7 +105,7 @@ export function QuickAdd({
             }}
           >
             {formatListDay(dueDate, locale)}
-          </Chip>
+          </Button>
         ) : null}
       </div>
     </form>

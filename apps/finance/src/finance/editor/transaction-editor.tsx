@@ -15,7 +15,6 @@ import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
-import { Chip } from "@tuja/ui/components/chip";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
@@ -1144,7 +1143,8 @@ function EditorForm({
         {draft.kind === "expense" ? (
           <div css={stack.tight}>
             <div>
-              <Chip
+              <Button
+                look="outline"
                 size="xs"
                 isActive={draft.refund}
                 icon={<ArrowUUpLeftIcon weight="bold" />}
@@ -1159,7 +1159,7 @@ function EditorForm({
                 }}
               >
                 {t({ en: "Refund", zh: "退款" })}
-              </Chip>
+              </Button>
             </div>
             {draft.refund && refundCandidates.length > 0 ? (
               <Select
@@ -1495,7 +1495,8 @@ function EditorForm({
             </FieldLabel>
             <div css={cluster.tight}>
               {memberChoices.map((member) => (
-                <Chip
+                <Button
+                  look="outline"
                   key={member.id}
                   size="xs"
                   isActive={draft.memberId === member.id}
@@ -1504,7 +1505,7 @@ function EditorForm({
                   }}
                 >
                   {member.name}
-                </Chip>
+                </Button>
               ))}
             </div>
           </div>

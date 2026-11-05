@@ -2,10 +2,10 @@ import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { getLocale } from "@tuja/i18n/server-locale";
+import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { AnchorButton } from "#src/links/anchor-button.tsx";
 import { AssistantFrame } from "./assistant-frame.tsx";
 
 /**
@@ -30,13 +30,13 @@ export function NotFoundScreen() {
           </Text>
         </div>
         <div>
-          <AnchorButton
+          <Button
             href={getLocalePath("/", locale)}
             look="primary"
             icon={<HouseIcon weight="bold" />}
           >
             {t({ en: "Back to the report", zh: "返回晨报" })}
-          </AnchorButton>
+          </Button>
         </div>
       </div>
     </AssistantFrame>

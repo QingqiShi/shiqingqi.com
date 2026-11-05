@@ -6,9 +6,13 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Badge } from "@tuja/ui/components/badge";
-import { Chip } from "@tuja/ui/components/chip";
-import { chipSize, chipSurface } from "@tuja/ui/components/chip.stylex";
+import { Button } from "@tuja/ui/components/button";
+import {
+  outlineSurface,
+  outlineSurfaceSize,
+} from "@tuja/ui/components/outline-surface.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
@@ -99,10 +103,12 @@ function FilterSelect({
         }}
         css={[
           typeRole.label,
-          chipSurface.base,
-          chipSize.sm,
-          chipSurface.interactive,
-          isActive && chipSurface.active,
+          outlineSurface.layout,
+          outlineSurface.skin,
+          outlineSurfaceSize.sm,
+          corner.squircle_round,
+          outlineSurface.interactive,
+          isActive && outlineSurface.active,
           styles.select,
         ]}
       >
@@ -164,27 +170,33 @@ export function TransactionFilterBar({
       css={[cluster.tight, styles.bar]}
     >
       {reviewCount > 0 || filters.review ? (
-        <Chip
+        <Button
+          size="sm"
+          look="outline"
           isActive={filters.review}
           onClick={() => {
             set({ review: !filters.review });
           }}
         >
           {`${t({ en: "Review", zh: "待审核" })} (${String(reviewCount)})`}
-        </Chip>
+        </Button>
       ) : null}
       {expectedCount > 0 || filters.expected ? (
-        <Chip
+        <Button
+          size="sm"
+          look="outline"
           isActive={filters.expected}
           onClick={() => {
             set({ expected: !filters.expected });
           }}
         >
           {`${t({ en: "Expected", zh: "待确认" })} (${String(expectedCount)})`}
-        </Chip>
+        </Button>
       ) : null}
       <span css={styles.narrowOnly}>
-        <Chip
+        <Button
+          size="sm"
+          look="outline"
           icon={<FunnelSimpleIcon weight="bold" />}
           aria-expanded={moreOpen}
           aria-controls={moreId}
@@ -200,14 +212,16 @@ export function TransactionFilterBar({
           }}
         >
           {t({ en: "Filter", zh: "筛选" })}
-        </Chip>
+        </Button>
       </span>
       <div id={moreId} css={[styles.more, !moreOpen && styles.collapsed]}>
         {members.length > 1
           ? members.map((member) => {
               const active = filters.memberIds.includes(member.id);
               return (
-                <Chip
+                <Button
+                  size="sm"
+                  look="outline"
                   key={member.id}
                   isActive={active}
                   onClick={() => {
@@ -219,7 +233,7 @@ export function TransactionFilterBar({
                   }}
                 >
                   {member.name}
-                </Chip>
+                </Button>
               );
             })
           : null}
@@ -333,7 +347,9 @@ export function TransactionFilterBar({
           </>
         ) : null}
         {filters.payeeIds.map((id) => (
-          <Chip
+          <Button
+            size="sm"
+            look="outline"
             key={id}
             isActive
             aria-label={`${removeLabel} ${lookups.payeeById.get(id)?.name ?? ""}`}
@@ -345,10 +361,12 @@ export function TransactionFilterBar({
             }}
           >
             {lookups.payeeById.get(id)?.name ?? "…"}
-          </Chip>
+          </Button>
         ))}
         {filters.tagIds.map((id) => (
-          <Chip
+          <Button
+            size="sm"
+            look="outline"
             key={id}
             isActive
             aria-label={`${removeLabel} #${lookups.tagById.get(id)?.name ?? ""}`}
@@ -358,17 +376,19 @@ export function TransactionFilterBar({
             }}
           >
             {`#${lookups.tagById.get(id)?.name ?? "…"}`}
-          </Chip>
+          </Button>
         ))}
       </div>
       {transactionFilters.isEmpty({ ...filters, query: "" }) ? null : (
-        <Chip
+        <Button
+          size="sm"
+          look="outline"
           onClick={() => {
             onChange({ ...EMPTY_TRANSACTION_FILTERS, query: filters.query });
           }}
         >
           {t({ en: "Clear filters", zh: "清除筛选" })}
-        </Chip>
+        </Button>
       )}
     </div>
   );

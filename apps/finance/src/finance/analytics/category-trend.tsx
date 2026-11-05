@@ -4,7 +4,7 @@ import { ListIcon } from "@phosphor-icons/react/dist/ssr/List";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { AnchorButton } from "@tuja/ui/components/anchor-button";
+import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Switch } from "@tuja/ui/components/switch";
@@ -13,7 +13,6 @@ import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
-import { Link } from "#src/links/link.tsx";
 import { BarChart } from "../charts/bar-chart.tsx";
 import { formatAxisMoney } from "../charts/format-axis-money.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
@@ -140,15 +139,14 @@ export function CategoryTrend({
             {title}
           </Heading>
         </div>
-        <AnchorButton
+        <Button
           href={listHref}
-          linkComponent={Link}
           size="sm"
           look="ghost"
           icon={<ListIcon weight="bold" />}
         >
           {t({ en: "Transactions", zh: "交易" })}
-        </AnchorButton>
+        </Button>
       </header>
       <SegmentedControl
         size="sm"

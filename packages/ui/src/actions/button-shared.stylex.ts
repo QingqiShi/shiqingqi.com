@@ -6,13 +6,7 @@ import {
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
-import {
-  border,
-  color,
-  controlHeight,
-  controlSize,
-  font,
-} from "../tokens.stylex.ts";
+import { color, controlHeight, controlSize, font } from "../tokens.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
 
 // Can't use a `transition.*` preset for a compound transform+filter
@@ -108,6 +102,9 @@ export const sharedStyles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: controlSize._2,
+    // A label that truncates needs this, because a flex item stops at its
+    // content width by default.
+    minInlineSize: 0,
   },
   hideLabelBelowMd: {
     display: { default: "none", [breakpoints.md]: "inline-flex" },
@@ -120,17 +117,6 @@ export const sharedStyles = stylex.create({
         default: null,
         ":hover": color.bgAccentHover,
         ":disabled:hover": color.bgAccent,
-      },
-    },
-  },
-  bright: {
-    backgroundColor: color.bgControlBright,
-    [buttonTokens.color]: color.fgOnControlBright,
-    filter: {
-      default: "brightness(1)",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: "brightness(1.1)",
       },
     },
   },
@@ -161,16 +147,22 @@ export const sharedStyles = stylex.create({
 // Each look re-points the shared `buttonTokens` knobs instead of declaring
 // its own colours, so the skin travels to anything else reading them.
 // `"primary"` is absent because it reuses `sharedStyles.active`, the same
-// highlight `isActive` paints.
+// highlight `isActive` paints. `outline` takes its border and its fill from
+// `outlineSurface`, which an element that is not a `Button` composes too.
 export const lookStyles = stylex.create({
   outline: {
-    [buttonTokens.backgroundColor]: "transparent",
-    [buttonTokens.backgroundColorHover]: color.bgControlHover,
-    [buttonTokens.backgroundColorDisabledHover]: "transparent",
     [buttonTokens.boxShadow]: "none",
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.border,
+  },
+  bright: {
+    backgroundColor: color.bgControlBright,
+    [buttonTokens.color]: color.fgOnControlBright,
+    filter: {
+      default: "brightness(1)",
+      ":hover": {
+        default: null,
+        [pointer.canHover]: "brightness(1.1)",
+      },
+    },
   },
   // The quietest look: no surface, and the label drains to muted until the
   // pointer arrives. `:disabled:hover` keeps it drained, matching the fill.
@@ -198,8 +190,16 @@ export const lookStyles = stylex.create({
 
 // Each size drives `buttonTokens.height` and scales padding to match. The
 // label size comes from a type role composed before `sharedStyles.base`:
-// `label` for `sm`, `control` for `md`, `h2` for `lg`.
+// `caption` for `xs`, `label` for `sm`, `control` for `md`, `h2` for `lg`.
 export const sizeStyles = stylex.create({
+  xs: {
+    [buttonTokens.height]: controlHeight.xs,
+    [buttonTokens.paddingInline]: controlSize._2,
+    gap: controlSize._1,
+    paddingBlock: controlSize._0,
+    flexShrink: 0,
+    whiteSpace: "nowrap",
+  },
   sm: {
     [buttonTokens.height]: controlHeight.sm,
     [buttonTokens.paddingInline]: controlSize._2,

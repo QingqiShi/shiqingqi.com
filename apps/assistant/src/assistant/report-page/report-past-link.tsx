@@ -4,7 +4,7 @@ import { ListBulletsIcon } from "@phosphor-icons/react/dist/ssr/ListBullets";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
-import { AnchorButton } from "@tuja/ui/components/anchor-button";
+import { Button } from "@tuja/ui/components/button";
 import {
   SplitViewLink,
   StackedOnly,
@@ -18,7 +18,7 @@ export function ReportPastLink({ locale }: { locale: SupportedLocale }) {
   return (
     <StackedOnly>
       <div>
-        <AnchorButton
+        <Button
           href={getLocalePath("/reports", locale)}
           linkComponent={SplitViewLink}
           look="ghost"
@@ -26,7 +26,7 @@ export function ReportPastLink({ locale }: { locale: SupportedLocale }) {
           icon={<ListBulletsIcon weight="bold" />}
         >
           {t({ en: "Past reports", zh: "往期晨报" })}
-        </AnchorButton>
+        </Button>
       </div>
     </StackedOnly>
   );

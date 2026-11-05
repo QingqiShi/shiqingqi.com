@@ -1,7 +1,7 @@
 "use client";
 
 import { t } from "@tuja/i18n";
-import { Chip } from "@tuja/ui/components/chip";
+import { Button } from "@tuja/ui/components/button";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 
@@ -37,17 +37,18 @@ export function LabVariantChips({
       css={cluster.tight}
     >
       {variants.map((variant) => (
-        <Chip
+        <Button
+          look="outline"
           key={variant.id}
           size="xs"
           isActive={variant.id === variantId}
-          // `Chip` emits `aria-pressed` for its own selected state, which a
+          // `Button` emits `aria-pressed` for its own selected state, which a
           // radio must not carry beside `aria-checked`.
           aria-pressed={undefined}
           {...getOptionProps(variant.id)}
         >
           {variant.label}
-        </Chip>
+        </Button>
       ))}
     </div>
   );

@@ -188,8 +188,8 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
 
           <div css={[stack.item, styles.heroRest]}>
             {/*
-              Badges, not Chips. The system's own rule is that a Chip renders a
-              control and a Badge renders a label — "if it can't be clicked, it's
+              Badges, not Buttons. The system's own rule is that a Button renders
+              a control and a Badge renders a label — "if it can't be clicked, it's
               a Badge" — and on a screen with no data layer behind it a genre has
               nowhere to navigate to. Dressing these as controls would document
               the wrong half of that rule on the page whose subject is composing

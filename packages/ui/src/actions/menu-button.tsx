@@ -2,14 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type ComponentProps,
-  type ReactNode,
-} from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { RemoveScroll } from "react-remove-scroll";
 import { clamp } from "../clamp.ts";
 import { OptionalEffectCarrier } from "../effect-layer/effect-carrier.tsx";
@@ -30,7 +23,7 @@ import { observeViewport } from "../surfaces/observe-viewport.ts";
 import { popoverSurface } from "../surfaces/popover-surface.stylex.ts";
 import { ProgressiveBlur } from "../surfaces/progressive-blur.tsx";
 import { border, color, controlSize, layer } from "../tokens.stylex.ts";
-import { Button } from "./button.tsx";
+import { Button, type ButtonFormProps } from "./button.tsx";
 import { useRovingFocus } from "./use-roving-focus.ts";
 import { useSheetCap } from "./use-sheet-cap.ts";
 import { useSurfaceMorph } from "./use-surface-morph.ts";
@@ -54,7 +47,7 @@ interface MenuButtonBaseProps {
    *
    * @zh 转发给触发 `Button` 的属性（例如 `icon`、`look`、`disabled`）。
    */
-  buttonProps: Partial<ComponentProps<typeof Button>>;
+  buttonProps: Partial<ButtonFormProps>;
   /**
    * Content rendered into the expanded popup.
    *

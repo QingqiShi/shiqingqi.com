@@ -4,7 +4,6 @@ import { ListChecksIcon } from "@phosphor-icons/react/dist/ssr/ListChecks";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import {
@@ -17,7 +16,6 @@ import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useState } from "react";
-import { Link } from "#src/links/link.tsx";
 import { AccountGroupList } from "./account-group-list.tsx";
 import { BankBalanceSummary } from "./bank-balance-notice.tsx";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
@@ -154,14 +152,13 @@ export function NetWorthActions({
 }) {
   return (
     <div css={[cluster.tight, !flush && styles.inset]}>
-      <AnchorButton
+      <Button
         href={updateHref}
-        linkComponent={Link}
         size="sm"
         icon={<ListChecksIcon weight="bold" />}
       >
         {t({ en: "Update balances", zh: "批量更新余额" })}
-      </AnchorButton>
+      </Button>
       <Button
         size="sm"
         icon={<PlusIcon weight="bold" />}
