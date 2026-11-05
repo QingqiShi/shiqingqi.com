@@ -14,7 +14,7 @@ import {
   type Box,
   type Fill,
 } from "../motion/create-fill.ts";
-import { FLOW_SPRING } from "../motion/create-flow-motion.ts";
+import { FLOW_SPRING, type RestRate } from "../motion/create-flow-motion.ts";
 import type { MotionEngine } from "../motion/create-motion-engine.ts";
 import type { MotionValue } from "../motion/create-motion-value.ts";
 import { px, writeStyles } from "../motion/px.ts";
@@ -192,12 +192,12 @@ export interface NavListMotion {
   /**
    * A group moves the rows under the key `group`, until `endMove`. The fills go
    * to their rows on the spring of the rows. `readTarget` runs a read in the
-   * layout that the rows go to, and `restRate` tells how fast the rows go there.
+   * layout that the rows go to, and `restRate` tells how a row goes there.
    */
   moveWithRows(
     group: string,
     readTarget: ReadTarget,
-    restRate: () => number,
+    restRate: RestRateOf,
   ): void;
   endMove(group: string): void;
   /** The pointer came over `target`. */
@@ -209,6 +209,8 @@ export interface NavListMotion {
 }
 
 type ReadTarget = <T>(read: () => T) => T;
+
+type RestRateOf = (row: Element) => RestRate;
 
 /** @internal */
 export function createNavListMotion(engine: MotionEngine): NavListMotion {
@@ -229,7 +231,7 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
   /** The groups that move the rows. While one does, a layout does not move a fill. */
   const movingGroups = new Map<
     string,
-    { readTarget: ReadTarget; restRate: () => number }
+    { readTarget: ReadTarget; restRate: RestRateOf }
   >();
   /** The icons that shed dust that is still on its way, while the pull lasts. */
   let sources: Box[] = [];
@@ -433,16 +435,18 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
         row === null ? null : boxIn(box, row),
         shownHoverRow === null ? null : boxIn(box, shownHoverRow),
       ]);
-      if (markerTo !== null) {
+      if (row !== null && markerTo !== null) {
         markerRow = row;
         if (marker.shown.target === 1) {
-          springTo(marker, markerTo, FLOW_SPRING);
+          springTo(marker, markerTo, FLOW_SPRING, restRate(row).trail);
         } else {
           placeAt(marker, markerTo);
           showTo(marker, true);
         }
       }
-      if (hoverTo !== null) springTo(hover, hoverTo, FLOW_SPRING);
+      if (shownHoverRow !== null && hoverTo !== null) {
+        springTo(hover, hoverTo, FLOW_SPRING, restRate(shownHoverRow).trail);
+      }
     },
     endMove(group) {
       movingGroups.delete(group);
@@ -468,18 +472,18 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
       }
       const at = boxIn(box, row);
       const to = readAtRest(() => boxIn(box, row));
+      const rest = [...movingGroups.values()]
+        .map(({ restRate }) => restRate(row))
+        .reduce((most, next) => (next.rate > most.rate ? next : most));
       if (wasOnMarker || hover.shown.get() <= FADED) {
         placeAt(hover, at);
         setShown(hover, 0);
         // On one spring, with the speed of the row, the fill stays on the row.
-        const rate = Math.max(
-          ...[...movingGroups.values()].map(({ restRate }) => restRate()),
-        );
         const [x, y] = hover.box;
-        x.set(at.x, { velocity: (to.x - at.x) * rate });
-        y.set(at.y, { velocity: (to.y - at.y) * rate });
+        x.set(at.x, { velocity: (to.x - at.x) * rest.rate });
+        y.set(at.y, { velocity: (to.y - at.y) * rest.rate });
       }
-      springTo(hover, to, FLOW_SPRING);
+      springTo(hover, to, FLOW_SPRING, rest.trail);
       showTo(hover, true);
     },
     hoverOut() {

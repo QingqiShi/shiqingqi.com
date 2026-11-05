@@ -1,3 +1,4 @@
+import { chainedPath } from "./chained-path.ts";
 import { registryOf, type MotionEngine } from "./create-motion-engine.ts";
 import {
   afterDelay,
@@ -41,6 +42,11 @@ export interface MotionValue {
    * such as a short fade, in place of the spring. A `tween` replaces the
    * spring always, also under reduced motion, such as for a cross-fade.
    * `precision` replaces the value's own for this motion.
+   *
+   * With `trail`, the value hangs on the spring `trail.link` on a leader that
+   * springs to `target`, and trails it, as what lies below a panel trails
+   * the panel. The leader starts where the value starts, or at
+   * `trail.leader`, such as where the panel is that a row below it trails.
    */
   to(
     target: number,
@@ -52,6 +58,7 @@ export interface MotionValue {
       delay?: number;
       reduced?: "snap" | Tween;
       precision?: number;
+      trail?: { link: Spring; leader?: MotionState };
     },
   ): Motion;
   /** Stops it where it is. */
@@ -90,6 +97,10 @@ interface ValueInternals {
   readonly engine: MotionEngine;
   plan(): Plan;
   watch(watcher: PlanWatcher): () => void;
+  /** How close to its target the value must be to be at rest. */
+  readonly precision: number;
+  /** Starts `path` now, as a motion. */
+  adopt(path: MotionPath, reduced: boolean): Motion;
 }
 
 const internals = new WeakMap<MotionValue, ValueInternals>();
@@ -226,6 +237,7 @@ export function createMotionValue(
         delay = 0,
         reduced = "snap",
         precision: near = precision,
+        trail,
       } = {},
     ) {
       const state = stateNow();
@@ -237,10 +249,14 @@ export function createMotionValue(
       const isReduced = engine.reducedMotion;
       const pathFrom = (start: MotionState) => {
         if (tween !== undefined) return tweenPath(tween, start.value, target);
-        if (!isReduced) return springPath(own, start, target, near);
-        return reduced === "snap"
-          ? restingPath(target)
-          : tweenPath(reduced, start.value, target);
+        if (isReduced) {
+          return reduced === "snap"
+            ? restingPath(target)
+            : tweenPath(reduced, start.value, target);
+        }
+        if (trail === undefined) return springPath(own, start, target, near);
+        const lead = springPath(own, trail.leader ?? start, target, near);
+        return chainedPath(trail.link, start, lead, near);
       };
       const delayed = () => {
         const first =
@@ -267,6 +283,7 @@ export function createMotionValue(
 
   internals.set(value, {
     engine,
+    precision,
     plan: () => plan,
     watch(watcher) {
       watchers.add(watcher);
@@ -274,6 +291,8 @@ export function createMotionValue(
         watchers.delete(watcher);
       };
     },
+    adopt: (path, reduced) =>
+      replace({ path, start: loop.now(), reduced }, true),
   });
   return value;
 }

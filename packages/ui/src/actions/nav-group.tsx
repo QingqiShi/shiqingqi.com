@@ -65,8 +65,8 @@ interface NavGroupProps {
  * A group in the list is a section. Its label is a quiet caption on the text
  * edge, directly on its first row. A group in a group is a row the size of a
  * link, with a chevron at its end. The row opens and closes the group: its
- * rows grow open from the row on a spring, the rows below move with them,
- * and the chevron turns on the same spring. While the group is closed, the
+ * rows grow open from the row on a spring, the rows below trail them by a
+ * moment, and the chevron turns on the same spring. While the group is closed, the
  * list's marker is on its row when it holds the current page. The rows of an
  * open group are indented under a guide line. The line is below
  * the centre of the icon, or below the start of the text when there is no
@@ -124,7 +124,7 @@ export function NavGroup({
 
 /**
  * A group in a group. Its rows grow open from its row on the spring, and the
- * rows below move with them, with no layout during the motion. The chevron
+ * rows below trail them, with no layout during the motion. The chevron
  * turns on the same spring. A press while the rows move turns them from where
  * they are. Under reduced motion, the rows fade in and out in place.
  */
@@ -155,7 +155,7 @@ function OpeningGroup({
           motion?.moveWithRows(
             movesId,
             (read) => flow.readTarget(!open, read),
-            () => flow.restRate(),
+            (row) => flow.restRate(row),
           );
         }
       },

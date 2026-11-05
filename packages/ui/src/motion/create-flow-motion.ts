@@ -1,3 +1,4 @@
+import type { FillTrail } from "./create-fill.ts";
 import {
   bindOnceAfter,
   createFlowMover,
@@ -7,7 +8,12 @@ import {
   createMotionEngine,
   type MotionEngine,
 } from "./create-motion-engine.ts";
-import { createMotionValue, type MotionValue } from "./create-motion-value.ts";
+import {
+  createMotionValue,
+  internalsOf,
+  type MotionValue,
+} from "./create-motion-value.ts";
+import { createTrail } from "./create-trail.ts";
 import { unit } from "./mix.ts";
 import { MIN_MOVE } from "./play-layout.ts";
 import { writeStyles } from "./px.ts";
@@ -18,10 +24,17 @@ import {
   type FlowOffset,
   type FlowParts,
 } from "./read-flow.ts";
-import { springOf, springRoles } from "./spring-roles.ts";
+import { springOf, springRoles, type Spring } from "./spring-roles.ts";
 
 /** @internal */
 export const FLOW_SPRING = springOf(springRoles.move);
+
+/**
+ * The link that hangs what lies below a panel on the panel.
+ *
+ * @internal
+ */
+export const TRAIL_SPRING = springOf(springRoles.trail);
 
 /**
  * Only the block axis clips, because a child can have a negative inline margin
@@ -46,18 +59,32 @@ export function flowEngine() {
   return sharedEngine;
 }
 
-const closedShare = (at: number) => 1 - Math.max(0, at);
+const closedShare = (at: number) => 1 - at;
 
 const clippedShare = (at: number) => 1 - unit(at);
 
 const ownShare = (at: number) => at;
 
+/**
+ * How a thing that the panel moves comes to rest: `rate` is how fast it comes
+ * closer, as a share of the way that is left, in 1/s. A thing below the panel
+ * trails the panel, and has a `trail`: how it trails, with a `lead`: where the panel is, as a share of the
+ * way that is left to the thing, and how fast the panel comes closer, in the
+ * same share.
+ *
+ * @internal
+ */
+export interface RestRate {
+  readonly rate: number;
+  readonly trail: FillTrail | null;
+}
+
 /** @internal */
 export interface FlowMotion {
   aim(closing: boolean): void;
   readTarget<T>(closing: boolean, read: () => T): T;
-  /** How fast the rest comes closer, as a share of the way that is left, in 1/s. */
-  restRate(): number;
+  /** How `element` comes to rest, below the panel or in it. */
+  restRate(element: Element): RestRate;
   /** A new aim drops `done`. */
   settle(done: () => void): void;
   /** Call it in the task that commits the layout at rest. */
@@ -105,6 +132,8 @@ export function createFlowMotion(
 ): FlowMotion {
   const { value, panel, content, scroller } = parts;
   const door = [createFlowMover(panel), createFlowMover(content)];
+  const trail = createTrail(value, TRAIL_SPRING);
+  let target = isOpening ? 1 : 0;
   let isOnFrames = false;
   let releases: (() => void)[] = [];
   let catchUps: { value: MotionValue; releases: (() => void)[] }[] = [];
@@ -119,7 +148,9 @@ export function createFlowMotion(
   let dropPanelHold: (() => void) | null = null;
 
   const isAtRest = () =>
-    !value.isMoving && !catchUps.some((catchUp) => catchUp.value.isMoving);
+    !value.isMoving &&
+    !trail.value.isMoving &&
+    !catchUps.some((catchUp) => catchUp.value.isMoving);
 
   /** The binding of the panel ends with `value`, and a catch-up can move on. */
   function holdPanel() {
@@ -149,20 +180,27 @@ export function createFlowMotion(
 
   function addCatchUp(
     changes: readonly FlowChange[],
+    leader: MotionValue,
     shareAt: (at: number) => number,
+    link?: Spring,
   ) {
     if (changes.length === 0) return;
     const most = Math.max(
       ...changes.map(({ change }) => Math.hypot(change.dx, change.dy)),
     );
-    const catchUp = createCatchUp(value, shareAt, most);
+    const catchUp = createCatchUp(leader, shareAt, most);
     catchUps.push({
       value: catchUp,
       releases: changes.map(({ mover, change }) =>
         mover.add({ value: catchUp, ...change, shareAt: ownShare }),
       ),
     });
-    void catchUp.to(0, { spring: FLOW_SPRING }).finished.then(checkSettled);
+    void catchUp
+      .to(0, {
+        spring: FLOW_SPRING,
+        trail: link === undefined ? undefined : { link },
+      })
+      .finished.then(checkSettled);
   }
 
   function watch(elements: ReadonlySet<Element>) {
@@ -209,7 +247,9 @@ export function createFlowMotion(
       for (const { block, element, own } of flow.moves) {
         movers.push(block.mover);
         plan(block.mover, own, closedChanges);
-        releases.push(block.mover.add({ value, ...own, shareAt: closedShare }));
+        releases.push(
+          block.mover.add({ value: trail.value, ...own, shareAt: closedShare }),
+        );
         elements.add(element);
       }
       for (const stretch of flow.stretches) {
@@ -219,7 +259,7 @@ export function createFlowMotion(
         plan(surface.mover, { dx: 0, dy }, closedChanges);
         releases.push(
           surface.stretch({
-            share: { value, dx: 0, dy, shareAt: closedShare },
+            share: { value: trail.value, dx: 0, dy, shareAt: closedShare },
             openHeight,
             closedHeight,
           }),
@@ -237,8 +277,8 @@ export function createFlowMotion(
         plan(mover, { dx: 0, dy }, doorChanges);
         releases.push(mover.add({ value, dx: 0, dy, shareAt: clippedShare }));
       });
-      addCatchUp(closedChanges, closedShare);
-      addCatchUp(clippedChanges, clippedShare);
+      addCatchUp(closedChanges, trail.value, closedShare, TRAIL_SPRING);
+      addCatchUp(clippedChanges, value, clippedShare);
       planned = nextPlan;
       // A surface with a new stretch keeps its hold and its paint.
       for (const release of replaced) release();
@@ -290,11 +330,19 @@ export function createFlowMotion(
     };
   }
 
+  // The bindings of the trail must finish before the end takes them off.
+  const stopRestWatch = internalsOf(trail.value).watch({
+    plan: () => {},
+    rest: () => {
+      queueMicrotask(checkSettled);
+    },
+  });
   play(true);
   watchHover();
 
   return {
     aim(closing) {
+      target = closing ? 0 : 1;
       const scroll = scrollOfPress;
       scrollOfPress = null;
       onSettled = null;
@@ -306,8 +354,8 @@ export function createFlowMotion(
       if (top <= most - shrinksBy) return;
       isOnFrames = true;
       for (const mover of movers) mover.useFrames();
-      stopClamp = value.subscribe((at) => {
-        const allowed = most - shrinksBy * closedShare(at);
+      stopClamp = trail.value.subscribe((at) => {
+        const allowed = most - shrinksBy * clippedShare(at);
         if (scroller.scrollTop > allowed) {
           scroller.scrollTo({ top: allowed, behavior: "instant" });
         }
@@ -325,9 +373,37 @@ export function createFlowMotion(
         return target;
       });
     },
-    restRate() {
-      const left = value.target - value.get();
-      return Math.abs(left) < MIN_REST_LEFT ? 0 : value.getVelocity() / left;
+    restRate(element) {
+      const isBelow =
+        !panel.contains(element) &&
+        (panel.compareDocumentPosition(element) &
+          Node.DOCUMENT_POSITION_FOLLOWING) !==
+          0;
+      const remaining = (of: MotionValue) => {
+        const left = target - of.get();
+        const velocity = of.getVelocity();
+        return {
+          left,
+          velocity,
+          rate: Math.abs(left) < MIN_REST_LEFT ? 0 : velocity / left,
+        };
+      };
+      const leader = remaining(value);
+      if (!isBelow) return { rate: leader.rate, trail: null };
+      const own = remaining(trail.value);
+      if (own.rate === 0 && Math.abs(own.left) < MIN_REST_LEFT) {
+        return { rate: 0, trail: null };
+      }
+      return {
+        rate: own.rate,
+        trail: {
+          link: TRAIL_SPRING,
+          lead: {
+            share: leader.left / own.left,
+            rate: leader.velocity / own.left,
+          },
+        },
+      };
     },
     settle(done) {
       onSettled = done;
@@ -335,6 +411,8 @@ export function createFlowMotion(
       checkSettled();
     },
     end() {
+      stopRestWatch();
+      trail.release();
       stopClamp?.();
       stopClamp = null;
       stopHoverChecks?.();
@@ -348,6 +426,7 @@ export function createFlowMotion(
         }
       });
       for (const catchUp of catchUps) catchUp.value.stop();
+      trail.value.stop();
       catchUps = [];
       // A close hides the panel in this task, and that is a layout.
       if (value.target > 0) testHover();
