@@ -7,7 +7,6 @@ import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
-import { ThemeFramePair } from "#src/design-system/theme-frame.tsx";
 import { hardCodedType } from "./hard-coded-type.stylex.ts";
 
 export function TextShowcase() {
@@ -67,31 +66,29 @@ export function TextShowcase() {
             zh: "三种色调会随主题自动解析——无需手动挑选颜色。",
           })}
         </ShowcaseHelper>
-        <ThemeFramePair>
-          <div css={stack.item}>
-            <Specimen caption="default">
-              <Text tone="default">
-                {t({ en: "Primary reading content", zh: "主要阅读内容" })}
-              </Text>
-            </Specimen>
-            <Specimen caption="muted">
-              <Text tone="muted">
-                {t({
-                  en: "Secondary metadata and captions",
-                  zh: "次要信息与说明",
-                })}
-              </Text>
-            </Specimen>
-            <Specimen caption="accent">
-              <Text tone="accent">
-                {t({
-                  en: "Highlighted, on-brand phrases",
-                  zh: "突出显示的品牌语句",
-                })}
-              </Text>
-            </Specimen>
-          </div>
-        </ThemeFramePair>
+        <div css={stack.item}>
+          <Specimen caption="default">
+            <Text tone="default">
+              {t({ en: "Primary reading content", zh: "主要阅读内容" })}
+            </Text>
+          </Specimen>
+          <Specimen caption="muted">
+            <Text tone="muted">
+              {t({
+                en: "Secondary metadata and captions",
+                zh: "次要信息与说明",
+              })}
+            </Text>
+          </Specimen>
+          <Specimen caption="accent">
+            <Text tone="accent">
+              {t({
+                en: "Highlighted, on-brand phrases",
+                zh: "突出显示的品牌语句",
+              })}
+            </Text>
+          </Specimen>
+        </div>
       </Showcase>
 
       <Showcase label={t({ en: "Weights", zh: "字重" })}>
