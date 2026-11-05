@@ -171,8 +171,8 @@ export function bind(
   const removeBinding = registryOf(engine).addBinding({
     suspend() {
       wasPosed = written.size > 0;
-      const kept =
-        wasPosed || isMoving() ? withoutMoves(stylesAt(loop.now())) : {};
+      if (!wasPosed && !isMoving()) return;
+      const kept = withoutMoves(stylesAt(loop.now()));
       renderer.stop();
       clear();
       write(kept);

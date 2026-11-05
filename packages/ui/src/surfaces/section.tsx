@@ -6,6 +6,7 @@ import { row, stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { border, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
+import { FlowBlock } from "./flow-block.tsx";
 import { SectionHeading } from "./section-heading.tsx";
 
 export type SectionLevel = 2 | 3 | 4 | 5 | 6;
@@ -89,8 +90,9 @@ export function Section({
   ...restProps
 }: SectionProps) {
   return (
-    <section
+    <FlowBlock
       {...restProps}
+      as="section"
       ref={ref}
       css={[stack.tight, divider === true && styles.divided, css]}
     >
@@ -115,7 +117,7 @@ export function Section({
         ) : null}
       </div>
       {children ? <div css={stack.item}>{children}</div> : null}
-    </section>
+    </FlowBlock>
   );
 }
 

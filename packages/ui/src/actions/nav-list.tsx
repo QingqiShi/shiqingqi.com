@@ -17,13 +17,14 @@ import { useEffectContainer } from "../effect-layer/use-effect-container.ts";
 import { useExtractorFan } from "../effect-layer/use-extractor-fan.ts";
 import { useIsEffectMeasured } from "../effect-layer/use-is-effect-measured.ts";
 import { mergeRefs } from "../merge-refs.ts";
+import { useFlowBlock } from "../motion/use-flow-block.tsx";
 import { useMotionEngine } from "../motion/use-motion-engine.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { border, controlSize, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
-import { createNavListMotion } from "./create-nav-list-motion.ts";
+import { createNavListMotion, NAV_MARKER } from "./create-nav-list-motion.ts";
 import {
   NavListContext,
   PlainAnchor,
@@ -100,6 +101,7 @@ export function NavList({
   const hoverRef = useRef<HTMLSpanElement>(null);
   const shedRef = useRef<HTMLSpanElement>(null);
   const fanRef = useRef<HTMLSpanElement>(null);
+  const { ref: flowRef, skin } = useFlowBlock({ surface: true });
 
   useLayoutEffect(() => {
     const [box, list, marker, hover, shed, fan] = [
@@ -134,7 +136,7 @@ export function NavList({
   return (
     <NavListContext value={{ nested: false, linkComponent, motion }}>
       <div
-        ref={mergeRefs(boxRef, container)}
+        ref={mergeRefs(boxRef, container, flowRef)}
         css={[styles.box, css]}
         onPointerOver={(event) => {
           motion.hoverOver(event.target, event.pointerType);
@@ -153,7 +155,12 @@ export function NavList({
         }}
       >
         <span ref={hoverRef} aria-hidden css={FILL} />
-        <span ref={markerRef} aria-hidden css={FILL} />
+        <span
+          ref={markerRef}
+          aria-hidden
+          {...{ [NAV_MARKER]: "" }}
+          css={FILL}
+        />
         <EffectContainer value={container}>
           <IconDust
             shedRef={shedRef}
@@ -169,6 +176,7 @@ export function NavList({
         >
           {children}
         </ul>
+        {skin}
       </div>
     </NavListContext>
   );

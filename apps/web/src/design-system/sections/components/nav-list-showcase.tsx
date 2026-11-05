@@ -1,4 +1,5 @@
 import { t } from "@tuja/i18n";
+import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { Text } from "@tuja/ui/components/text";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -37,12 +38,14 @@ export function NavListShowcase() {
         <Specimen caption="NavGroup, label, icon, current">
           <GroupedNavList />
         </Specimen>
-        <Text look="bodySmall" tone="muted">
-          {t({
-            en: "NavGroup sets rows apart, and its label names the group for a screen reader too. A group in the list is a section: its label is a small muted caption on the text edge, directly on its first row, and sections are an item step apart. A group in a group is a row the size of a link, with an optional icon and a chevron at its end; the row opens and closes the group. The rows grow open from the row on a spring, the rows below move down with them, and the chevron turns on the same spring; a press mid-way turns them back from where they are. While the group is closed, the marker rests on its row if it holds the current page. Its rows are indented under a thin guide line, so their text starts where the group's text starts. Mark the group that holds the current page with current: it is open from the first render, and the others start closed. The structure sets every space, so you write none.",
-            zh: "NavGroup 把各行分开，其 label 同时为读屏软件命名该分组。直接位于列表中的分组是一个分区：其标签是位于文字边缘、紧贴第一行的弱化小字，各分区之间是条目间距。位于分组中的分组是一个与链接同高的行，可带图标，末端有一个箭头；点击该行可展开或收起分组。各行以弹簧动效从该行中展开，下方的行随之下移，箭头也以同一弹簧转动；动画中途再次点击，会从当前位置折返。分组收起时，若其中包含当前页面，标记会停在该分组的行上。其中的各行缩进于一条细引导线之下，文字与分组行的文字从同一处开始。用 current 标记包含当前页面的分组：它从首次渲染起即为展开状态，其他分组初始为收起状态。所有间距都由结构决定，你无需自己设置。",
-          })}
-        </Text>
+        <FlowBlock data-prose>
+          <Text look="bodySmall" tone="muted">
+            {t({
+              en: "NavGroup sets rows apart, and its label names the group for a screen reader too. A group in the list is a section: its label is a small muted caption on the text edge, directly on its first row, and sections are an item step apart. A group in a group is a row the size of a link, with an optional icon and a chevron at its end; the row opens and closes the group. The rows grow open from the row on a spring, the rows below move down with them, and the chevron turns on the same spring; a press mid-way turns them back from where they are. While the group is closed, the marker rests on its row if it holds the current page. Its rows are indented under a thin guide line, so their text starts where the group's text starts. Mark the group that holds the current page with current: it is open from the first render, and the others start closed. The structure sets every space, so you write none.",
+              zh: "NavGroup 把各行分开，其 label 同时为读屏软件命名该分组。直接位于列表中的分组是一个分区：其标签是位于文字边缘、紧贴第一行的弱化小字，各分区之间是条目间距。位于分组中的分组是一个与链接同高的行，可带图标，末端有一个箭头；点击该行可展开或收起分组。各行以弹簧动效从该行中展开，下方的行随之下移，箭头也以同一弹簧转动；动画中途再次点击，会从当前位置折返。分组收起时，若其中包含当前页面，标记会停在该分组的行上。其中的各行缩进于一条细引导线之下，文字与分组行的文字从同一处开始。用 current 标记包含当前页面的分组：它从首次渲染起即为展开状态，其他分组初始为收起状态。所有间距都由结构决定，你无需自己设置。",
+            })}
+          </Text>
+        </FlowBlock>
       </Showcase>
 
       <Showcase label={t({ en: "Usage", zh: "用法" })}>

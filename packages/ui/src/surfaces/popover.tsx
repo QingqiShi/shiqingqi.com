@@ -10,6 +10,7 @@ import {
   type PopoverTriggerProps,
 } from "../hooks/use-popover.ts";
 import { mergeRefs } from "../merge-refs.ts";
+import { useFlowBlock } from "../motion/use-flow-block.tsx";
 import { layer, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { popoverSurface } from "./popover-surface.stylex.ts";
@@ -142,7 +143,7 @@ export function Popover({
   css,
   ref,
 }: PopoverProps) {
-  const { open, triggerProps, contentProps } = usePopover({
+  const { open, place, triggerProps, contentProps } = usePopover({
     open: controlledOpen,
     defaultOpen,
     onOpenChange,
@@ -156,6 +157,8 @@ export function Popover({
     ...restContentProps
   } = contentProps;
   const coverRef = useEffectCover();
+  const { ref: flowRef, skin } = useFlowBlock({ surface: true, place });
+  const contentMergedRef = mergeRefs(ref, contentRef, coverRef, flowRef);
 
   return (
     <>
@@ -164,7 +167,7 @@ export function Popover({
         <Portal target={portalTarget}>
           <div
             {...restContentProps}
-            ref={mergeRefs(ref, contentRef, coverRef)}
+            ref={contentMergedRef}
             aria-label={ariaLabel}
             aria-labelledby={
               ariaLabel === undefined
@@ -179,6 +182,7 @@ export function Popover({
             ]}
           >
             {children}
+            {skin}
           </div>
         </Portal>
       ) : null}
@@ -193,6 +197,8 @@ const styles = stylex.create({
     position: "fixed",
     zIndex: layer.tooltip,
     boxSizing: "border-box",
+    // The width of a box that fits its text must not change with `left`.
+    inlineSize: "max-content",
     paddingBlock: space._2,
     paddingInline: space._3,
     // Portalled content inherits from `<body>`, not from the trigger's context.

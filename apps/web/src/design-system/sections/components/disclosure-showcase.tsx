@@ -2,6 +2,7 @@ import { SuitcaseIcon } from "@phosphor-icons/react/dist/ssr/Suitcase";
 import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
 import { Disclosure } from "@tuja/ui/components/disclosure";
+import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { Text } from "@tuja/ui/components/text";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -45,12 +46,14 @@ export function DisclosureShowcase() {
             </Disclosure>
           </Specimen>
         </div>
-        <Text look="bodySmall" tone="muted">
-          {t({
-            en: "Plain is chrome-free, for a disclosure inside a surface something else already owns. Card wraps both parts in the shared bordered surface and rules the panel off from the header.",
-            zh: "简洁样式不带外框，适用于外层已有表面的场景。卡片样式将标题与面板一同包进共享的描边表面，并用分隔线将面板与标题分开。",
-          })}
-        </Text>
+        <FlowBlock data-prose>
+          <Text look="bodySmall" tone="muted">
+            {t({
+              en: "Plain is chrome-free, for a disclosure inside a surface something else already owns. Card wraps both parts in the shared bordered surface and rules the panel off from the header.",
+              zh: "简洁样式不带外框，适用于外层已有表面的场景。卡片样式将标题与面板一同包进共享的描边表面，并用分隔线将面板与标题分开。",
+            })}
+          </Text>
+        </FlowBlock>
       </Showcase>
 
       <Showcase label={t({ en: "Slots", zh: "插槽" })}>
@@ -71,12 +74,14 @@ export function DisclosureShowcase() {
             </Text>
           </Disclosure>
         </Specimen>
-        <Text look="bodySmall" tone="muted">
-          {t({
-            en: "Both slots render inside the trigger, so neither may be interactive — a count or a status badge, never a button. The icon is hidden from assistive tech but trailing is not: a count is content, and the trigger announces as “Packing list 2/5”. defaultOpen starts this one expanded.",
-            zh: "两个插槽都渲染在触发器内部，因此都不能是可交互元素——只能是计数或状态标记，绝不能是按钮。图标对辅助技术隐藏，但 trailing 不隐藏：计数属于内容，触发器会被朗读为「Packing list 2/5」。defaultOpen 让该示例默认展开。",
-          })}
-        </Text>
+        <FlowBlock data-prose>
+          <Text look="bodySmall" tone="muted">
+            {t({
+              en: "Both slots render inside the trigger, so neither may be interactive — a count or a status badge, never a button. The icon is hidden from assistive tech but trailing is not: a count is content, and the trigger announces as “Packing list 2/5”. defaultOpen starts this one expanded.",
+              zh: "两个插槽都渲染在触发器内部，因此都不能是可交互元素——只能是计数或状态标记，绝不能是按钮。图标对辅助技术隐藏，但 trailing 不隐藏：计数属于内容，触发器会被朗读为「Packing list 2/5」。defaultOpen 让该示例默认展开。",
+            })}
+          </Text>
+        </FlowBlock>
       </Showcase>
 
       <Showcase label={t({ en: "Headless", zh: "无头用法" })}>
@@ -103,6 +108,21 @@ const { open, triggerProps, panelProps } = useDisclosure();
   <button {...triggerProps}>Map</button>
   <div {...panelProps}>{open ? <MapEmbed src={route.src} /> : null}</div>
 </li>`}
+          label="tsx"
+        />
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "What sits below the panel moves with it only as a block. Card, List, Section, Divider and each Disclosure are blocks. Put anything else in a FlowBlock, at the coarsest level that moves as one, or it jumps at the press.",
+            zh: "面板下方的内容只有作为区块才会随面板移动。Card、List、Section、Divider 和每个 Disclosure 都是区块。其他内容请放进 FlowBlock，并选择能整体移动的最外一层，否则按下时它会跳动。",
+          })}
+        </Text>
+        <UsageSnippet
+          code={`import { FlowBlock } from "@tuja/ui/components/flow-block";
+
+<Disclosure summary="Route">{stops}</Disclosure>
+<FlowBlock>
+  <p>Next stop: the harbour at nine.</p>
+</FlowBlock>`}
           label="tsx"
         />
       </Showcase>

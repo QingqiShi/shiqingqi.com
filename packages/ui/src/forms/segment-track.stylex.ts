@@ -49,6 +49,7 @@ const SELECTED_ANCHOR = "--segment-selected";
 const NO_ANCHOR_POSITIONING = "@supports not (anchor-name: --x)";
 /** The effect layer sets this attribute on the track while it draws the indicator. */
 const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
+const NOT_DRAWN_BY_EFFECT = ":not([data-effect-drawn] *)";
 /** The motion engine sets this attribute on a box while it moves it. */
 const MOVED = ":is([data-moving])";
 
@@ -159,7 +160,7 @@ export const segmentTrack = stylex.create({
   // unless the effect draws the indicator over the track. WebKit moves a box
   // on the main thread while an anchor is in it. Thus while a motion moves a
   // box that holds the track, no segment is the anchor, and the shown segment
-  // paints the surface at once.
+  // paints the surface at once, unless the effect draws it.
   shown: {
     anchorName: {
       default: SELECTED_ANCHOR,
@@ -172,7 +173,10 @@ export const segmentTrack = stylex.create({
         [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]:
           "transparent",
       },
-      [stylex.when.ancestor(MOVED, movingMarker)]: segmentSurface.fill,
+      [NOT_DRAWN_BY_EFFECT]: {
+        default: null,
+        [stylex.when.ancestor(MOVED, movingMarker)]: segmentSurface.fill,
+      },
     },
     boxShadow: {
       default: "none",
@@ -180,7 +184,10 @@ export const segmentTrack = stylex.create({
         default: segmentSurface.edge,
         [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]: "none",
       },
-      [stylex.when.ancestor(MOVED, movingMarker)]: segmentSurface.edge,
+      [NOT_DRAWN_BY_EFFECT]: {
+        default: null,
+        [stylex.when.ancestor(MOVED, movingMarker)]: segmentSurface.edge,
+      },
     },
     transition: {
       default: null,

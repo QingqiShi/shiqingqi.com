@@ -10,6 +10,7 @@ import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Disclosure } from "@tuja/ui/components/disclosure";
 import { Divider } from "@tuja/ui/components/divider";
+import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -91,10 +92,12 @@ export function SignInPanel({ next }: SignInPanelProps) {
           <RecoveryRequestForm />
         </Disclosure>
       </div>
-      <Divider />
-      <SignUpRequestForm />
-      <Divider />
-      <DemoEntry />
+      <FlowBlock css={stack.section}>
+        <Divider />
+        <SignUpRequestForm />
+        <Divider />
+        <DemoEntry />
+      </FlowBlock>
     </div>
   );
 }

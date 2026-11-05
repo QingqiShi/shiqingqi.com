@@ -1,9 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Ref } from "react";
 import { color } from "../color.stylex.ts";
-import { mergeRefs } from "../merge-refs.ts";
 import { border } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
+import { FlowBlock } from "./flow-block.tsx";
 
 interface DividerProps {
   /**
@@ -44,30 +44,25 @@ export function Divider({
   css,
   ref,
 }: DividerProps) {
-  // Merges into one callback ref: `<hr>`/`<div>` share `HTMLElement` but not a
-  // concrete ref type. `mergeRefs` returns `undefined` with no ref, so nothing
-  // attaches during a Server Component render, where attaching any ref is
-  // illegal.
-  const setRef = mergeRefs(ref);
-
   // The `decorative` look is an ornamental flourish, not a content
   // boundary, so it opts out of the `separator` role.
   const decorative = look === "decorative";
 
   if (orientation === "vertical") {
     return (
-      <div
+      <FlowBlock
         role={decorative ? "presentation" : "separator"}
         aria-orientation={decorative ? undefined : "vertical"}
-        ref={setRef}
+        ref={ref}
         css={[styles.base, styles.vertical, verticalLookStyles[look], css]}
       />
     );
   }
 
   return (
-    <hr
-      ref={setRef}
+    <FlowBlock
+      as="hr"
+      ref={ref}
       role={decorative ? "presentation" : undefined}
       css={[styles.base, styles.horizontal, horizontalLookStyles[look], css]}
     />

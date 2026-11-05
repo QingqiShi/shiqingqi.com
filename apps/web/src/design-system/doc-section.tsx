@@ -1,3 +1,4 @@
+import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { Heading } from "@tuja/ui/components/heading";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { StyleProp } from "@tuja/ui/types";
@@ -13,6 +14,8 @@ interface DocSectionProps extends Omit<
   titleCss?: StyleProp;
   /** The section's surface and width. */
   css?: StyleProp;
+  /** Set when `css` gives the section a surface. */
+  surface?: boolean;
   /**
    * Set when the content starts with a line of text, such as an intro, and
    * `titleCss` sets the title smaller than h2. The heading and that text are
@@ -33,20 +36,29 @@ export function DocSection({
   title,
   titleCss,
   css,
+  surface = false,
   leadsWithText = false,
   children,
   ...sectionProps
 }: DocSectionProps) {
   if (title == null || title === "") {
     return (
-      <section {...sectionProps} data-prose css={[stack.item, css]}>
+      <FlowBlock
+        {...sectionProps}
+        as="section"
+        surface={surface}
+        data-prose
+        css={[stack.item, css]}
+      >
         {children}
-      </section>
+      </FlowBlock>
     );
   }
   return (
-    <section
+    <FlowBlock
       {...sectionProps}
+      as="section"
+      surface={surface}
       css={[leadsWithText ? stack.text : stack.tight, css]}
     >
       <Heading level={2} css={titleCss}>
@@ -55,6 +67,6 @@ export function DocSection({
       <div data-prose css={stack.item}>
         {children}
       </div>
-    </section>
+    </FlowBlock>
   );
 }

@@ -1,5 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { use, useState, type RefCallback } from "react";
+import { mergeRefs } from "../merge-refs.ts";
+import { useFlowBlock } from "../motion/use-flow-block.tsx";
 import { layer } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import type {
@@ -81,6 +83,7 @@ export function useEffectSticky(): EffectSticky {
     }),
   );
   const [isStuck, setIsStuck] = useState(false);
+  const { ref: flowRef } = useFlowBlock({ sticky: true });
   // The descendants compare carriers by identity, so keep this one until the
   // parent changes.
   if (carrier.parent !== parent) {
@@ -88,12 +91,20 @@ export function useEffectSticky(): EffectSticky {
   }
   // A box that holds its sticky descendants makes this box stick to it, not
   // to the page. Thus, the box is not a carrier there.
-  const ref = stickyRef(isContained ? null : registry, carrier, setIsStuck);
+  const ref = mergeRefs<Element>(
+    stickyRef(isContained ? null : registry, carrier, setIsStuck),
+    (element) => {
+      if (element === null || element instanceof HTMLElement) {
+        return flowRef(element);
+      }
+    },
+  );
   // A contained box is a stacking context, so a plane in it cannot go under
   // the effects. The box keeps its own plane, as its fixed and sticky
   // neighbours in the box do.
   return {
-    ref,
+    // `mergeRefs` returns a ref when it has a ref.
+    ref: ref ?? flowRef,
     isStuck,
     css: isStuck || isContained ? null : styles.unstuck,
     carrier,

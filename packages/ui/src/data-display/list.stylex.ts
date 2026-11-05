@@ -28,6 +28,13 @@ export const listSurface = stylex.create({
     padding: 0,
     listStyle: "none",
   },
+  rows: {
+    display: "flex",
+    flexDirection: "column",
+    margin: 0,
+    padding: 0,
+    listStyle: "none",
+  },
   item: {
     display: "flex",
     alignItems: "center",
