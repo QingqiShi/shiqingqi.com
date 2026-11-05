@@ -14,10 +14,10 @@ import {
   type Box,
   type Fill,
 } from "../motion/create-fill.ts";
+import { FLOW_SPRING } from "../motion/create-flow-motion.ts";
 import type { MotionEngine } from "../motion/create-motion-engine.ts";
 import type { MotionValue } from "../motion/create-motion-value.ts";
 import { px, writeStyles } from "../motion/px.ts";
-import { springOf, springRoles } from "../motion/spring-roles.ts";
 
 /**
  * The attribute of each row that the hover fill can rest on: a link, or the
@@ -42,8 +42,14 @@ export const NAV_ICON = "data-nav-icon";
  */
 export const NAV_PRESSED = "data-pressed";
 
+/**
+ * The attribute of the marker of the current page, so that a test can find it.
+ *
+ * @internal
+ */
+export const NAV_MARKER = "data-nav-marker";
+
 const CURRENT = "[aria-current=page]";
-const MARKER_SPRING = springOf(springRoles.move);
 /** How long the new icon pulls the dust in after the last shed, in s. */
 const PULL_SECONDS = 1;
 /** How far past the old icon the dust of a burst flies before it turns, in px. */
@@ -70,7 +76,7 @@ export function markerTargetOf(current: Element): Element {
     rows !== null;
     rows = rows.parentElement?.closest("ul[id]") ?? null
   ) {
-    const toggle = rows.previousElementSibling;
+    const toggle = rows.parentElement?.previousElementSibling;
     if (toggle?.getAttribute("aria-expanded") === "false") target = toggle;
   }
   return target;
@@ -183,6 +189,17 @@ export interface NavListMotion {
   }): () => void;
   /** Moves the marker to the row of the current page, after the commit. */
   refresh(): void;
+  /**
+   * A group moves the rows under the key `group`, until `endMove`. The fills go
+   * to their rows on the spring of the rows. `readTarget` runs a read in the
+   * layout that the rows go to, and `restRate` tells how fast the rows go there.
+   */
+  moveWithRows(
+    group: string,
+    readTarget: ReadTarget,
+    restRate: () => number,
+  ): void;
+  endMove(group: string): void;
   /** The pointer came over `target`. */
   hoverOver(target: EventTarget, pointerType: string): void;
   /** The pointer left the list. */
@@ -190,6 +207,8 @@ export interface NavListMotion {
   /** A press started or ended on `target`. */
   press(target: EventTarget, isDown: boolean): void;
 }
+
+type ReadTarget = <T>(read: () => T) => T;
 
 /** @internal */
 export function createNavListMotion(engine: MotionEngine): NavListMotion {
@@ -207,6 +226,11 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
   let currentPage: Element | null = null;
   let hoverRow: Element | null = null;
   let isQueued = false;
+  /** The groups that move the rows. While one does, a layout does not move a fill. */
+  const movingGroups = new Map<
+    string,
+    { readTarget: ReadTarget; restRate: () => number }
+  >();
   /** The icons that shed dust that is still on its way, while the pull lasts. */
   let sources: Box[] = [];
   let cancelPullEnd: (() => void) | null = null;
@@ -273,7 +297,26 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
     });
   }
 
+  function readAtRest<T>(read: () => T) {
+    let composed = read;
+    for (const { readTarget } of movingGroups.values()) {
+      const inner = composed;
+      composed = () => readTarget(inner);
+    }
+    return composed();
+  }
+
   function update(isFirst: boolean) {
+    if (parts === null) return;
+    if (movingGroups.size === 0) place(isFirst);
+    else if (parts.box.querySelector(CURRENT) !== currentPage) {
+      readAtRest(() => {
+        place(false);
+      });
+    }
+  }
+
+  function place(isFirst: boolean) {
     if (parts === null) return;
     const { box, marker, hover } = parts;
     const origin = box.getBoundingClientRect();
@@ -333,7 +376,7 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
       onPull,
       canShed,
     }) {
-      const marker = createFill(engine, markerElement, MARKER_SPRING);
+      const marker = createFill(engine, markerElement, FLOW_SPRING);
       const hover = createFill(engine, hoverElement, HOVER_SPRING);
       parts = {
         box,
@@ -376,6 +419,35 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
         update(false);
       });
     },
+    moveWithRows(group, readTarget, restRate) {
+      movingGroups.set(group, { readTarget, restRate });
+      if (parts === null) return;
+      const { box, marker, hover } = parts;
+      const current = box.querySelector(CURRENT);
+      const isNewPage = current !== currentPage;
+      if (isNewPage) update(false);
+      const row =
+        current === null || isNewPage ? null : markerTargetOf(current);
+      const shownHoverRow = hoverRow?.isConnected === true ? hoverRow : null;
+      const [markerTo, hoverTo] = readAtRest(() => [
+        row === null ? null : boxIn(box, row),
+        shownHoverRow === null ? null : boxIn(box, shownHoverRow),
+      ]);
+      if (markerTo !== null) {
+        markerRow = row;
+        if (marker.shown.target === 1) {
+          springTo(marker, markerTo, FLOW_SPRING);
+        } else {
+          placeAt(marker, markerTo);
+          showTo(marker, true);
+        }
+      }
+      if (hoverTo !== null) springTo(hover, hoverTo, FLOW_SPRING);
+    },
+    endMove(group) {
+      movingGroups.delete(group);
+      update(false);
+    },
     hoverOver(target, pointerType) {
       if (parts === null) return;
       const { box, hover, canHover } = parts;
@@ -388,11 +460,27 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
         showTo(hover, false);
         return;
       }
-      const to = boxIn(box, row);
-      // From the marker's row, the fill grows in at the new row. A fill
-      // that glides out of the marker looks like the marker comes off.
-      glideTo(hover, to, wasOnMarker);
-      return;
+      if (movingGroups.size === 0) {
+        // From the marker's row, the fill grows in at the new row. A fill
+        // that glides out of the marker looks like the marker comes off.
+        glideTo(hover, boxIn(box, row), wasOnMarker);
+        return;
+      }
+      const at = boxIn(box, row);
+      const to = readAtRest(() => boxIn(box, row));
+      if (wasOnMarker || hover.shown.get() <= FADED) {
+        placeAt(hover, at);
+        setShown(hover, 0);
+        // On one spring, with the speed of the row, the fill stays on the row.
+        const rate = Math.max(
+          ...[...movingGroups.values()].map(({ restRate }) => restRate()),
+        );
+        const [x, y] = hover.box;
+        x.set(at.x, { velocity: (to.x - at.x) * rate });
+        y.set(at.y, { velocity: (to.y - at.y) * rate });
+      }
+      springTo(hover, to, FLOW_SPRING);
+      showTo(hover, true);
     },
     hoverOut() {
       if (parts === null) return;

@@ -6,6 +6,7 @@ import {
   pageGutter,
 } from "../primitives/page-column.stylex.ts";
 import { BlurPlane, BlurPlaneProvider } from "../surfaces/blur-plane.tsx";
+import { FlowBlock } from "../surfaces/flow-block.tsx";
 import { layer, space } from "../tokens.stylex.ts";
 import { headerControlsTokens } from "./header-controls.stylex.ts";
 import { HeaderControls } from "./header-controls.tsx";
@@ -145,7 +146,9 @@ export function HeaderFooterLayout({
         </header>
         {contentBody}
         {footer != null && (
-          <div css={[styles.footer, pageColumnStyles.base]}>{footer}</div>
+          <FlowBlock css={[styles.footer, pageColumnStyles.base]}>
+            {footer}
+          </FlowBlock>
         )}
       </div>
     </BlurPlaneProvider>

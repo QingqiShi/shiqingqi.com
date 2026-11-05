@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
+import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
@@ -42,7 +43,7 @@ export function DoDont({
   const dontLabel = t({ en: "Don't", zh: "避免" });
   return (
     <div css={styles.grid}>
-      <div css={[corner.radius_2, styles.panel, styles.doPanel]}>
+      <FlowBlock surface css={[corner.radius_2, styles.panel, styles.doPanel]}>
         <div css={row.tight}>
           <span css={[styles.icon, styles.doText]}>
             <CheckIcon />
@@ -55,12 +56,17 @@ export function DoDont({
           <div data-spacing-scope="" css={styles.example}>
             {doExample}
           </div>
-          <Text look="caption" tone="muted">
-            {doCaption}
-          </Text>
+          <FlowBlock>
+            <Text look="caption" tone="muted">
+              {doCaption}
+            </Text>
+          </FlowBlock>
         </div>
-      </div>
-      <div css={[corner.radius_2, styles.panel, styles.dontPanel]}>
+      </FlowBlock>
+      <FlowBlock
+        surface
+        css={[corner.radius_2, styles.panel, styles.dontPanel]}
+      >
         <div css={row.tight}>
           <span css={[styles.icon, styles.dontText]}>
             <CrossIcon />
@@ -78,11 +84,13 @@ export function DoDont({
           <div data-spacing-scope="" css={styles.example}>
             {dont}
           </div>
-          <Text look="caption" tone="muted">
-            {dontCaption}
-          </Text>
+          <FlowBlock>
+            <Text look="caption" tone="muted">
+              {dontCaption}
+            </Text>
+          </FlowBlock>
         </div>
-      </div>
+      </FlowBlock>
     </div>
   );
 }

@@ -56,6 +56,7 @@ export function createMotionEngine(): MotionEngine {
   const bindings = new Set<EngineBinding>();
   const moving = new Set<EngineValue>();
   const restListeners = new Set<() => void>();
+  let isMeasuring = false;
 
   const engine: MotionEngine = {
     loop,
@@ -66,11 +67,14 @@ export function createMotionEngine(): MotionEngine {
       return moving.size > 0;
     },
     measure(read) {
+      if (isMeasuring) return read();
       const suspended = [...bindings];
       for (const binding of suspended) binding.suspend();
+      isMeasuring = true;
       try {
         return read();
       } finally {
+        isMeasuring = false;
         for (const binding of suspended) {
           if (bindings.has(binding)) binding.resume();
         }

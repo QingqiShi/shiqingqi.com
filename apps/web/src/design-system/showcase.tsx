@@ -72,6 +72,7 @@ export function Showcase({
         !plain && [cardSurface.base, styles.card],
         breakout && [styles.breakout, breakoutMarker],
       ]}
+      surface={!plain}
       leadsWithText={leadsWithText}
     >
       {children}

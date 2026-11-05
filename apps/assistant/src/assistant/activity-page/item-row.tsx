@@ -20,6 +20,7 @@ import type { SupportedLocale } from "@tuja/i18n/types";
 import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Disclosure } from "@tuja/ui/components/disclosure";
+import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { flex, shrink } from "@tuja/ui/primitives/flex.stylex";
@@ -173,7 +174,7 @@ export function ItemRow({
   const mails = item.type === "mail" || item.type === "merge" ? item.mails : [];
   const showMails = mails.length > 1 || item.type === "merge";
   return (
-    <li css={listSurface.item}>
+    <FlowBlock as="li" css={listSurface.item}>
       <div css={[listSurface.row, styles.row]}>
         <span
           css={[typeRole.body, flex.row, shrink._0, styles.glyph]}
@@ -247,7 +248,7 @@ export function ItemRow({
           ) : null}
         </div>
       </div>
-    </li>
+    </FlowBlock>
   );
 }
 

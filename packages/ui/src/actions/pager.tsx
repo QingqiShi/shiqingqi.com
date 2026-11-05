@@ -5,6 +5,7 @@ import { pointer } from "../breakpoints.stylex.ts";
 import { color } from "../color.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
+import { FlowBlock } from "../surfaces/flow-block.tsx";
 import { rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { Button } from "./button.tsx";
@@ -70,7 +71,7 @@ export function Pager({
   if (!previous && !next) return null;
 
   return (
-    <nav aria-label={ariaLabel} css={[styles.nav, css]}>
+    <FlowBlock as="nav" aria-label={ariaLabel} css={[styles.nav, css]}>
       {previous && (
         <PagerLink
           page={previous}
@@ -81,7 +82,7 @@ export function Pager({
       {next && (
         <PagerLink page={next} direction="next" linkComponent={linkComponent} />
       )}
-    </nav>
+    </FlowBlock>
   );
 }
 

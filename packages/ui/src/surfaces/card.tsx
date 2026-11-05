@@ -5,6 +5,7 @@ import { stack } from "../primitives/stack.stylex.ts";
 import { space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { cardSurface } from "./card.stylex.ts";
+import { FlowBlock } from "./flow-block.tsx";
 
 interface CardProps extends Omit<ComponentProps<"div">, "className" | "style"> {
   /**
@@ -44,8 +45,9 @@ export function Card({
   ...restProps
 }: CardProps) {
   return (
-    <div
+    <FlowBlock
       {...restProps}
+      surface
       ref={ref}
       css={[
         stack.item,
@@ -57,7 +59,7 @@ export function Card({
       ]}
     >
       {children}
-    </div>
+    </FlowBlock>
   );
 }
 

@@ -2,32 +2,18 @@
 
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
-import {
-  use,
-  useId,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { use, useId, useRef, useState, type ReactNode } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
 import { color } from "../color.stylex.ts";
-import { cssTween } from "../motion/css-tween.ts";
-import { unit } from "../motion/mix.ts";
-import { px } from "../motion/px.ts";
-import { springOf, springRoles } from "../motion/spring-roles.ts";
 import { useBinding } from "../motion/use-binding.ts";
-import {
-  useMotionEngine,
-  useMotionValue,
-} from "../motion/use-motion-engine.ts";
+import { useFlowPanel } from "../motion/use-flow-panel.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
-import { duration, easing } from "../primitives/motion.stylex.ts";
 import { quietSurface } from "../primitives/quiet-surface.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
+import { FlowBlock } from "../surfaces/flow-block.tsx";
 import { border, controlSize, font, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { NAV_ROW } from "./create-nav-list-motion.ts";
@@ -103,17 +89,17 @@ export function NavGroup({
 
   if (label == null) {
     return (
-      <li css={[navListStyles.row, css]}>
+      <FlowBlock as="li" css={[navListStyles.row, css]}>
         <NavListContext value={context}>
           <ul css={[stack.rows, styles.list]}>{children}</ul>
         </NavListContext>
-      </li>
+      </FlowBlock>
     );
   }
 
   if (!parent.nested) {
     return (
-      <li css={[navListStyles.row, css]}>
+      <FlowBlock as="li" css={[navListStyles.row, css]}>
         <div role="group" aria-labelledby={labelId}>
           <span
             id={labelId}
@@ -125,7 +111,7 @@ export function NavGroup({
             <ul css={[stack.rows, styles.list]}>{children}</ul>
           </NavListContext>
         </div>
-      </li>
+      </FlowBlock>
     );
   }
 
@@ -136,14 +122,11 @@ export function NavGroup({
   );
 }
 
-const OPEN_SPRING = springOf(springRoles.move);
-const REDUCED_FADE = cssTween(duration._150, easing.ease);
-
 /**
  * A group in a group. Its rows grow open from its row on the spring, and the
- * rows below move down with the layout. The chevron turns on the same
- * spring. A press while the rows move turns them from where they are. Under
- * reduced motion, the rows fade in and out in place.
+ * rows below move with them, with no layout during the motion. The chevron
+ * turns on the same spring. A press while the rows move turns them from where
+ * they are. Under reduced motion, the rows fade in and out in place.
  */
 function OpeningGroup({
   label,
@@ -161,50 +144,35 @@ function OpeningGroup({
     setWasCurrent(current);
     if (current) setIsOpen(true);
   }
-  // The rows stay in the layout while they close, and leave it at rest.
-  const [isShown, setIsShown] = useState(isOpen);
-  if (isOpen && !isShown) setIsShown(true);
-
-  const engine = useMotionEngine();
-  const progress = useMotionValue(engine, isOpen ? 1 : 0, {
-    spring: OPEN_SPRING,
-  });
-  const rowsRef = useRef<HTMLUListElement>(null);
+  const { motion } = parent;
+  const movesId = useId();
+  const { panel, contentRef, progress } = useFlowPanel<HTMLUListElement>(
+    isOpen,
+    {
+      onAim: (flow, open) => {
+        if (flow === null) motion?.refresh();
+        else {
+          motion?.moveWithRows(
+            movesId,
+            (read) => flow.readTarget(!open, read),
+            () => flow.restRate(),
+          );
+        }
+      },
+      onEnd: () => {
+        motion?.endMove(movesId);
+      },
+    },
+  );
   const chevronRef = useRef<HTMLSpanElement>(null);
-  const heightRef = useRef(0);
-  useBinding(rowsRef, progress, {
-    pose: (at) => ({
-      height: px(Math.max(0, at) * heightRef.current),
-      overflow: "clip",
-      opacity: unit(at * 2).toFixed(3),
-    }),
-    reducedPose: (at) => ({ opacity: unit(at).toFixed(3) }),
-    rest: "clear",
-  });
   useBinding(chevronRef, progress, {
     pose: (at) => ({ rotate: `${(at * 90).toFixed(2)}deg` }),
     reducedPose: () => ({}),
     rest: "clear",
   });
 
-  const { motion } = parent;
-  const wasOpenRef = useRef(isOpen);
-  useLayoutEffect(() => {
-    if (wasOpenRef.current === isOpen) return;
-    wasOpenRef.current = isOpen;
-    const rows = rowsRef.current;
-    if (rows === null) return;
-    heightRef.current = engine.measure(() => rows.scrollHeight);
-    motion?.refresh();
-    void progress
-      .to(isOpen ? 1 : 0, { reduced: REDUCED_FADE })
-      .finished.then((landed) => {
-        if (landed && !isOpen) setIsShown(false);
-      });
-  }, [engine, isOpen, motion, progress]);
-
   return (
-    <li css={[navListStyles.row, css]}>
+    <FlowBlock as="li" css={[navListStyles.row, css]}>
       <button
         type="button"
         id={labelId}
@@ -238,24 +206,24 @@ function OpeningGroup({
           <CaretRightIcon weight="bold" />
         </span>
       </button>
-      <NavListContext value={{ ...parent, nested: true }}>
-        <ul
-          ref={rowsRef}
-          id={rowsId}
-          aria-labelledby={labelId}
-          hidden={!isShown}
-          css={[
-            stack.rows,
-            styles.list,
-            styles.nested,
-            !isOpen && styles.closed,
-            icon === undefined ? styles.underText : styles.underIcon,
-          ]}
-        >
-          {children}
-        </ul>
-      </NavListContext>
-    </li>
+      <div {...panel}>
+        <NavListContext value={{ ...parent, nested: true }}>
+          <ul
+            ref={contentRef}
+            id={rowsId}
+            aria-labelledby={labelId}
+            css={[
+              stack.rows,
+              styles.list,
+              styles.nested,
+              icon === undefined ? styles.underText : styles.underIcon,
+            ]}
+          >
+            {children}
+          </ul>
+        </NavListContext>
+      </div>
+    </FlowBlock>
   );
 }
 
@@ -291,20 +259,11 @@ const styles = stylex.create({
   chevronOpen: {
     rotate: "90deg",
   },
-  // The open motion writes the height while it moves.
-  closed: {
-    blockSize: 0,
-    overflow: "clip",
-  },
   // With an icon, the rows of the group start after the icon, so their text
   // starts where the text of the group's row starts, and the guide line is
   // below the centre of the icon. Without one, the line is below the start
   // of the text.
   nested: {
-    display: {
-      default: "flex",
-      ":is([hidden])": "none",
-    },
     position: "relative",
     "::before": {
       content: '""',

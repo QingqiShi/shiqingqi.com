@@ -138,9 +138,8 @@ export function placeAt(fill: Fill, box: Box) {
 }
 
 /** @internal */
-export function springTo(fill: Fill, box: Box) {
+export function springTo(fill: Fill, box: Box, spring = fill.spring) {
   const [x, y, width, height] = fill.box;
-  const { spring } = fill;
   x.to(box.x, { spring });
   y.to(box.y, { spring });
   width.to(box.width, { spring });

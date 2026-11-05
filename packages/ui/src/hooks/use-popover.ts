@@ -4,6 +4,7 @@ import {
   useId,
   useLayoutEffect,
   useRef,
+  useState,
   type KeyboardEvent,
   type RefObject,
 } from "react";
@@ -72,7 +73,8 @@ const VIEWPORT_PADDING = 8;
  * The popup element must be `position: fixed`: the hook writes its `top`/`left`
  * straight to the node so a scroll gesture repositions it without re-rendering.
  *
- * @returns `{ open, setOpen, toggle, triggerProps, contentProps }`.
+ * @returns `{ open, setOpen, toggle, place, triggerProps, contentProps }`.
+ * `place` measures again and places the popup at once.
  */
 export function usePopover({
   open: controlled,
@@ -90,6 +92,10 @@ export function usePopover({
   // Focus lives inside a popup that unmounts on close, so whether it was ours
   // to give back has to be known before the node goes away.
   const ownsFocusRef = useRef(false);
+  const positionRef = useRef<(() => void) | null>(null);
+  const [place] = useState(() => () => {
+    positionRef.current?.();
+  });
 
   const [open, setInternalOpen] = useControlled({
     controlled,
@@ -137,6 +143,7 @@ export function usePopover({
     };
 
     position();
+    positionRef.current = position;
     const unobserveViewport = observeViewport(position);
     // A popup measured once at open keeps that placement even if async content
     // or a validation message later grows it past the edge it was flipped to
@@ -150,6 +157,7 @@ export function usePopover({
     observer?.observe(content);
 
     return () => {
+      positionRef.current = null;
       observer?.disconnect();
       unobserveViewport();
     };
@@ -252,5 +260,5 @@ export function usePopover({
     onKeyDown: handleKeyDown,
   };
 
-  return { open, setOpen, toggle, triggerProps, contentProps };
+  return { open, setOpen, toggle, place, triggerProps, contentProps };
 }

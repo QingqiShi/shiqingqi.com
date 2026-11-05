@@ -7,6 +7,7 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Disclosure } from "@tuja/ui/components/disclosure";
+import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { List } from "@tuja/ui/components/list";
 import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
 import { Switch } from "@tuja/ui/components/switch";
@@ -126,7 +127,7 @@ export function AccountGroupList({
           </section>
         );
       })}
-      <div css={[row.tight, styles.footer]}>
+      <FlowBlock css={[row.tight, styles.footer]}>
         {hiddenCount > 0 ? (
           <div css={row.tight}>
             <Switch
@@ -153,7 +154,7 @@ export function AccountGroupList({
         >
           {t({ en: "Reorder", zh: "调整顺序" })}
         </Button>
-      </div>
+      </FlowBlock>
     </div>
   );
 }

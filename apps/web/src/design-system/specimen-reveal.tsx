@@ -6,6 +6,7 @@ import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { CodeBlock, type CodeToken } from "@tuja/ui/components/code-block";
+import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { Text } from "@tuja/ui/components/text";
 import { useDisclosure } from "@tuja/ui/hooks/use-disclosure";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -48,11 +49,11 @@ export function SpecimenReveal({
 
   return (
     <>
-      <div css={[stack.tight, styles.cell, css]}>
+      <FlowBlock css={[stack.tight, styles.cell, css]}>
         <div data-spacing-scope="" css={styles.stage}>
           {children}
         </div>
-        <div css={styles.row}>
+        <FlowBlock css={styles.row}>
           <Text as="span" look="caption" tone="muted" css={styles.caption}>
             {caption}
             {caption && token ? " " : null}
@@ -87,19 +88,19 @@ export function SpecimenReveal({
               </span>
             </button>
           ) : null}
-        </div>
-      </div>
+        </FlowBlock>
+      </FlowBlock>
       {/* No `display` here: the panel collapses through the `hidden` attribute,
           which any `display` declaration would override. */}
       {source ? (
-        <div {...panelProps} css={[corner.radius_2, styles.panel]}>
+        <FlowBlock {...panelProps} css={[corner.radius_2, styles.panel]}>
           <CodeBlock
             source={source}
             label={t({ en: "Code", zh: "代码" })}
             css={styles.code}
             contentCss={styles.codeInset}
           />
-        </div>
+        </FlowBlock>
       ) : null}
     </>
   );

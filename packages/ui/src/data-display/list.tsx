@@ -2,6 +2,7 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import type { CSSProperties } from "@stylexjs/stylex/lib/types/StyleXTypes";
 import type { ComponentProps, ReactNode } from "react";
 import { cardSurface } from "../surfaces/card.stylex.ts";
+import { FlowBlock } from "../surfaces/flow-block.tsx";
 import { listSurface } from "./list.stylex.ts";
 
 interface ListProps extends Omit<
@@ -50,8 +51,10 @@ interface ListProps extends Omit<
  */
 export function List({ children, css, ...rest }: ListProps) {
   return (
-    <ul {...rest} css={[cardSurface.base, listSurface.list, css]}>
-      {children}
-    </ul>
+    <FlowBlock surface css={[cardSurface.base, listSurface.list, css]}>
+      <ul {...rest} css={listSurface.rows}>
+        {children}
+      </ul>
+    </FlowBlock>
   );
 }

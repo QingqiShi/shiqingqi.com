@@ -8,6 +8,7 @@ import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { quietSurface } from "../primitives/quiet-surface.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
+import { FlowBlock } from "../surfaces/flow-block.tsx";
 import { font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { NAV_ROW } from "./create-nav-list-motion.ts";
@@ -80,7 +81,7 @@ export function NavLink({
   // renders. In JSX, the static-components rule cannot see this, so use
   // createElement.
   return (
-    <li css={navListStyles.row}>
+    <FlowBlock as="li" css={navListStyles.row}>
       {createElement(
         linkComponent,
         {
@@ -104,7 +105,7 @@ export function NavLink({
           <CaretRightIcon weight="bold" />
         </span>,
       )}
-    </li>
+    </FlowBlock>
   );
 }
 

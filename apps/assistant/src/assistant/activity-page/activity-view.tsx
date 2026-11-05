@@ -4,6 +4,7 @@ import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
+import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
 import { listSurface } from "@tuja/ui/components/list.stylex";
@@ -190,12 +191,14 @@ function QuietLine({
           zh: "{first} 到 {last} 检查了 {count} 次，没有更改",
         });
   return (
-    <Text as="p" look="caption" tone="muted" numeric>
-      {text
-        .replace("{count}", String(entry.count))
-        .replace("{first}", formatClock(entry.first, place))
-        .replace("{last}", formatClock(entry.last, place))}
-    </Text>
+    <FlowBlock>
+      <Text as="p" look="caption" tone="muted" numeric>
+        {text
+          .replace("{count}", String(entry.count))
+          .replace("{first}", formatClock(entry.first, place))
+          .replace("{last}", formatClock(entry.last, place))}
+      </Text>
+    </FlowBlock>
   );
 }
 
@@ -242,7 +245,7 @@ export function ActivityView({
   return (
     <div css={stack.group}>
       {days.map((day) => (
-        <section key={day.date} css={stack.tight}>
+        <FlowBlock as="section" key={day.date} css={stack.tight}>
           <DayHeader level={2}>
             <DayName date={day.date} today={today} locale={place.locale} />
           </DayHeader>
@@ -259,10 +262,10 @@ export function ActivityView({
               ),
             )}
           </div>
-        </section>
+        </FlowBlock>
       ))}
       {earlier ? (
-        <div>
+        <FlowBlock>
           <Button
             href={`${getLocalePath("/activity", place.locale)}?before=${encodeURIComponent(earlier.toISOString())}`}
             look="ghost"
@@ -270,7 +273,7 @@ export function ActivityView({
           >
             {t({ en: "Earlier", zh: "更早" })}
           </Button>
-        </div>
+        </FlowBlock>
       ) : null}
     </div>
   );

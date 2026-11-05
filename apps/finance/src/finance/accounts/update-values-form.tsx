@@ -15,7 +15,7 @@ import { TextField } from "@tuja/ui/components/text-field";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm } from "@tuja/ui/tokens.stylex";
+import { font, layer, rhythm } from "@tuja/ui/tokens.stylex";
 import { usePathname, useRouter } from "next/navigation";
 import {
   useEffect,
@@ -482,5 +482,6 @@ const styles = stylex.create({
   actions: {
     position: "sticky",
     insetBlockEnd: floatingActionTokens.insetBlockEnd,
+    zIndex: layer.raised,
   },
 });

@@ -14,6 +14,7 @@ import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
 import { useVisualViewport } from "../hooks/use-visual-viewport.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { movingMarker } from "../motion/moving-marker.stylex.ts";
+import { useFlowBlock } from "../motion/use-flow-block.tsx";
 import { corner } from "../primitives/corner.stylex.ts";
 import { lockPageScroll } from "./lock-page-scroll.ts";
 import { SheetRecedeContext } from "./sheet-recede-context.ts";
@@ -136,6 +137,8 @@ export function SheetFrame({
   const container = useEffectContainer();
   const region = useScrollRegion();
   const { scroller, content } = region;
+  const { ref: flowRef, skin } = useFlowBlock({ surface: true });
+  const cardMergedRef = mergeRefs(cardRef, container, flowRef);
 
   // The page scroll lock makes the body positioned, with no top margin,
   // while the sheet is open. So the body is the containing block of the dim
@@ -185,7 +188,7 @@ export function SheetFrame({
                     directly on the card. Passing the ref through RemoveScroll
                     keeps `cardRef` working for focus and the Tab trap. */}
                 <RemoveScroll
-                  ref={mergeRefs(cardRef, container)}
+                  ref={cardMergedRef}
                   allowPinchZoom
                   forwardProps
                   removeScrollBar={false}
@@ -253,6 +256,7 @@ export function SheetFrame({
                         </div>
                       </div>
                     </EffectContainer>
+                    {skin}
                   </div>
                 </RemoveScroll>
               </div>
