@@ -60,10 +60,10 @@ export function GetStartedLayers() {
       paths: ["@tuja/ui/components/button"],
     },
     {
-      section: "composition",
+      section: "buildingBlocks",
       what: t({
-        en: "Primitives, hooks, the WebGPU effect layer, and one full example page.",
-        zh: "原语、钩子、WebGPU 效果层，以及一个完整的示例页面。",
+        en: "Primitives, hooks, and the WebGPU effect layer.",
+        zh: "原语、钩子与 WebGPU 效果层。",
       }),
       paths: ["@tuja/ui/primitives/stack.stylex", "@tuja/ui/hooks/use-ripple"],
     },

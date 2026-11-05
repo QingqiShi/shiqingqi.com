@@ -136,10 +136,6 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       en: "Navigation split view",
       zh: "导航分栏视图",
     }),
-    "/design-system/examples/movie-detail": t({
-      en: "Movie details",
-      zh: "影片详情",
-    }),
     "/design-system/primitives": t({ en: "Primitives", zh: "原语" }),
     "/design-system/hooks": t({ en: "Hooks", zh: "钩子" }),
     "/design-system/effect-layer": t({ en: "Effect layer", zh: "效果层" }),

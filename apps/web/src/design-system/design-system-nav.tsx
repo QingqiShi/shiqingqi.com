@@ -7,7 +7,6 @@ import { CardsIcon } from "@phosphor-icons/react/dist/ssr/Cards";
 import { CompassIcon } from "@phosphor-icons/react/dist/ssr/Compass";
 import { CubeIcon } from "@phosphor-icons/react/dist/ssr/Cube";
 import { CursorClickIcon } from "@phosphor-icons/react/dist/ssr/CursorClick";
-import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
 import { LayoutIcon } from "@phosphor-icons/react/dist/ssr/Layout";
 import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
 import { PaletteIcon } from "@phosphor-icons/react/dist/ssr/Palette";
@@ -55,7 +54,6 @@ const CATEGORY_ICONS: Record<DesignSystemCategoryId, Icon> = {
 const LINK_ICONS: Partial<Record<DesignSystemPath, Icon>> = {
   "/design-system": SquaresFourIcon,
   "/design-system/get-started": CompassIcon,
-  "/design-system/examples/movie-detail": FilmSlateIcon,
   "/design-system/primitives": CubeIcon,
   "/design-system/hooks": PlugsIcon,
   "/design-system/effect-layer": SparkleIcon,

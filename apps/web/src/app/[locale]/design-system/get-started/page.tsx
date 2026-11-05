@@ -108,17 +108,6 @@ export default function GetStartedPage() {
             zh: "中搜索；有实验室的组件，再打开它的实验室。",
           })}
         </Text>
-        <Text tone="muted">
-          <Text as="span" weight="semibold">
-            {t({ en: "For a whole page,", zh: "想看一整个页面，" })}
-          </Text>
-          {t({ en: " open ", zh: "打开" })}
-          <DocLink path="/design-system/examples/movie-detail" />
-          {t({
-            en: ", built from nothing but this system.",
-            zh: "，它完全由本系统搭建。",
-          })}
-        </Text>
       </GuideSection>
     </DocPage>
   );

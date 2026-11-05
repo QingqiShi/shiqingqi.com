@@ -219,10 +219,6 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "A sidebar, the content and the detail of what is picked, side by side, with the detail in a sheet on a phone.",
       zh: "侧栏、内容与所选项的详情并排显示；在手机上，详情在面板中打开。",
     }),
-    "/design-system/examples/movie-detail": t({
-      en: "A whole movie-details screen built from nothing but this system.",
-      zh: "一整个影片详情页面，完全由本系统搭建。",
-    }),
     "/design-system/primitives": t({
       en: "Composable StyleX primitives — flex, layout, motion, reset, and accessibility.",
       zh: "可组合的 StyleX 原语——flex、布局、动效、重置与无障碍。",
