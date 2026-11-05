@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
+import { color } from "../color.stylex.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import {
   duration,
@@ -7,7 +8,7 @@ import {
   motionConstants,
   motionTokens,
 } from "../primitives/motion.stylex.ts";
-import { color, space } from "../tokens.stylex.ts";
+import { space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
 interface SpinnerBaseProps extends Omit<

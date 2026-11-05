@@ -1,6 +1,7 @@
 # Design Tokens — Full API Reference
 
-All tokens are theme-aware (light/dark) and imported from `@tuja/ui/tokens.stylex`.
+All tokens are theme-aware (light/dark). `color` is imported from
+`@tuja/ui/color.stylex`, and every other token from `@tuja/ui/tokens.stylex`.
 
 ## Table of Contents
 
@@ -24,7 +25,7 @@ Theme-aware color tokens. Every token is a single `light-dark(<light>, <dark>)`
 value that resolves against the element's `color-scheme`. No per-theme
 stylesheets exist; forcing a theme just pins `color-scheme` on the root.
 Palette values are not listed here because they change with retuning. See
-`packages/ui/src/tokens.stylex.ts` for the current mapping.
+`packages/ui/src/color.stylex.ts` for the current mapping.
 
 ### The grammar
 

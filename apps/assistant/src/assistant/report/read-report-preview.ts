@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import type { TodoEdit } from "#src/assistant/agent/todos/create-todo-tools.ts";
+import type { TodoEdit } from "#src/assistant/agent/todos/types.ts";
 import {
   morningReportPreviews,
   type ReportPreviewError,

@@ -8,19 +8,13 @@ import { XCircleIcon } from "@phosphor-icons/react/dist/ssr/XCircle";
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import {
-  border,
-  color,
-  controlSize,
-  font,
-  rhythm,
-  space,
-} from "../tokens.stylex.ts";
+import { border, controlSize, font, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
 type CalloutIntent =

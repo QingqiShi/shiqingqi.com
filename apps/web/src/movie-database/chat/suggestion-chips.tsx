@@ -2,13 +2,14 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
 import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, font, opacity, space } from "@tuja/ui/tokens.stylex";
+import { border, font, opacity, space } from "@tuja/ui/tokens.stylex";
 import { use } from "react";
 import { ChatActionsContext } from "./chat-actions-context";
 

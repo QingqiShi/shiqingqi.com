@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { useRadioGroup } from "../hooks/use-radio-group.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner, cornerTokens } from "../primitives/corner.stylex.ts";
@@ -15,13 +16,7 @@ import {
 } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import {
-  border,
-  color,
-  controlHeight,
-  controlSize,
-  font,
-} from "../tokens.stylex.ts";
+import { border, controlHeight, controlSize, font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { useSegmentTrack } from "./use-segment-track.ts";
 

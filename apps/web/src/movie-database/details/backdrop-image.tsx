@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { absoluteFill } from "@tuja/ui/primitives/layout.stylex";
-import { color, layer, ratio, space } from "@tuja/ui/tokens.stylex";
+import { layer, ratio, space } from "@tuja/ui/tokens.stylex";
 import { getConfiguration } from "#src/_generated/tmdb-server-functions.ts";
 import { buildTmdbSrcSet } from "#src/movie-database/tmdb/build-tmdb-src-set.ts";
 

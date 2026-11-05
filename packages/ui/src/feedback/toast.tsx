@@ -4,6 +4,7 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { useState, type ComponentProps, type ReactNode } from "react";
 import { Button } from "../actions/button.tsx";
+import { color } from "../color.stylex.ts";
 import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
 import { useRingLight } from "../effect-layer/use-ring-light.ts";
 import { mergeRefs } from "../merge-refs.ts";
@@ -15,7 +16,7 @@ import {
 } from "../primitives/motion.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { glassSurface } from "../surfaces/glass-surface.stylex.ts";
-import { color, controlSize, space } from "../tokens.stylex.ts";
+import { controlSize, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
 /**

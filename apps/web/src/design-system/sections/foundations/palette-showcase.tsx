@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import {
   type SystemHuePalette,
   SYSTEM_PALETTE_TONES,
@@ -8,7 +9,7 @@ import {
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { gridlineTokens } from "#src/design-system/gridline-ground.stylex.ts";
 import {
   GuideNote,

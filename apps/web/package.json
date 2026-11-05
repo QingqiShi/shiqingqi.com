@@ -19,7 +19,7 @@
     "codegen:pwa-icons": "node ../../packages/pwa-icons/src/generate-hashed-icons.mjs",
     "codegen:tmdb": "node ../../packages/tmdb-codegen/src/generator.js && prettier 'src/_generated/*.ts' 'src/app/api/tmdb/*/route.ts' -w",
     "codegen:wgsl": "node --experimental-strip-types --no-warnings ../../packages/ui/codegen/generate-wgsl.ts",
-    "openapi:generate": "openapi-typescript https://developer.themoviedb.org/openapi/tmdb-api.json -o ../../packages/tmdb-types/src/openapi.d.ts && prettier '../../packages/tmdb-types/src/openapi.d.ts' -w",
+    "openapi:generate": "openapi-typescript https://developer.themoviedb.org/openapi/tmdb-api.json -o ../../packages/tmdb-types/src/_generated/openapi.d.ts && prettier '../../packages/tmdb-types/src/_generated/openapi.d.ts' -w",
     "predev": "run-p \"fonts -- --dev\" predev:codegen",
     "predev:codegen": "npm-run-all codegen:i18n codegen:palette codegen:props codegen:wgsl",
     "dev": "run-p watch:i18n watch:props watch:wgsl dev:next",

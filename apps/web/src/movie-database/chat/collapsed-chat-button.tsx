@@ -3,10 +3,10 @@
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
 import {
   DATA_HERO_COLLAPSED_BUTTON,
   useHeroVisibility,

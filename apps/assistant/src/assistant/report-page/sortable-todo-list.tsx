@@ -1,10 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { listSurface } from "@tuja/ui/components/list.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { border, color } from "@tuja/ui/tokens.stylex";
+import { border } from "@tuja/ui/tokens.stylex";
 import { spanOfMove } from "../report/rearrange.ts";
 import {
   SortableRows,

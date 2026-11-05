@@ -7,7 +7,7 @@ import { ListRow } from "@tuja/ui/components/list-row";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { measure } from "@tuja/ui/tokens.stylex";
 import { Link } from "#src/links/link.tsx";
-import { readRejectedTodos } from "../agent/todos/create-todo-tools.ts";
+import { readRejectedTodos } from "../agent/todos/read-open-todos.ts";
 import { getAssistantDb } from "../db/get-assistant-db.ts";
 import { readReportSettings } from "../report/read-report-settings.ts";
 import { PushToggle } from "./push-toggle.tsx";

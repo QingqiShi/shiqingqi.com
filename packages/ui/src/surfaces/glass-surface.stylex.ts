@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, shadow } from "../tokens.stylex.ts";
+import { color } from "../color.stylex.ts";
+import { border, shadow } from "../tokens.stylex.ts";
 
 /** Each part's colour, and the depth of the blur. */
 export const glassTokens = stylex.defineVars({

@@ -5,128 +5,43 @@ import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
-import { Callout } from "@tuja/ui/components/callout";
-import { Checkbox } from "@tuja/ui/components/checkbox";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
-import { SegmentedControl } from "@tuja/ui/components/segmented-control";
-import { Select } from "@tuja/ui/components/select";
 import { Text } from "@tuja/ui/components/text";
-import { TextField } from "@tuja/ui/components/text-field";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
-import { useRef, useState } from "react";
-import { useBaseCurrency } from "../accounts/use-base-currency.ts";
-import { useHouseholdToday } from "../accounts/use-household-today.ts";
+import { useRef } from "react";
 import { displayDay } from "../domain/dates/display-day.ts";
-import {
-  NON_BUSINESS_DAYS,
-  type NonBusinessDay,
-} from "../domain/dates/to-business-day.ts";
-import { isValidDay } from "../domain/dates/to-epoch-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
-import { parseMoney } from "../domain/money/parse-money.ts";
-import { minorUnitsToDecimalString } from "../domain/money/to-minor-units.ts";
-import { normalisePayeeText } from "../editor/rank-payees.ts";
-import { mayAutoPost } from "../reconciliation/may-auto-post.ts";
 import { useReplica } from "../replica/use-replica.ts";
-import { sameTemplate } from "../rules/same-template.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
-import { selectBankLinkedAccountIds } from "../store/select-bank-linked-account-ids.ts";
 import type { RuleRow } from "../sync/row-schemas.ts";
-import { buildNewRule } from "./build-new-rule.ts";
-import { editRuleTemplate } from "./edit-rule-template.ts";
 import { EditSheet } from "./edit-sheet.tsx";
-import {
-  RuleTemplateFields,
-  type RuleTemplateFieldsDraft,
-} from "./rule-template-fields.tsx";
+import { RuleEditorFields } from "./rule-editor-fields.tsx";
 import { SettingsPanel } from "./settings-panel.tsx";
-import {
-  simpleTemplateAccounts,
-  templateAmount,
-} from "./simple-template-accounts.ts";
+import { templateAmount } from "./simple-template-accounts.ts";
 import { useApplyMutations } from "./use-apply-mutations.ts";
 import { useDescribeSchedule } from "./use-describe-schedule.ts";
-
-type Unit = RuleRow["unit"];
-const UNITS: readonly Unit[] = ["week", "month", "year"];
-
-interface Draft {
-  /** Null while making a new Rule from scratch. */
-  rule: RuleRow | null;
-  /** The kind, Payee, accounts and Category of the template. */
-  fields: RuleTemplateFieldsDraft;
-  startsOn: string;
-  name: string;
-  amount: string;
-  unit: Unit;
-  interval: string;
-  day: string;
-  nonBusinessDay: NonBusinessDay;
-  endsOn: string;
-  autoPost: boolean;
-  paused: boolean;
-}
-
-function scheduleDay(rule: RuleRow) {
-  if (rule.unit === "week") return String(rule.weekday ?? "");
-  return String(rule.dayOfMonth ?? "");
-}
-
-/** The accounts the template Entries made from these fields go on. */
-function templateFieldsAccounts({
-  kind,
-  accountId,
-  toAccountId,
-}: RuleTemplateFieldsDraft) {
-  return kind === "transfer"
-    ? [{ accountId }, { accountId: toAccountId }]
-    : [{ accountId }];
-}
-
-const EMPTY_FIELDS: RuleTemplateFieldsDraft = {
-  kind: "expense",
-  payeeText: "",
-  payeeId: null,
-  accountId: "",
-  toAccountId: "",
-  categoryId: "",
-};
+import { useRuleEditor } from "./use-rule-editor.ts";
 
 /** The recurring Rules: make one from scratch, change its schedule, amount, accounts, Payee and Category, pause or resume, delete. */
 export function RulesSettings() {
   const locale = useLocale();
-  const today = useHouseholdToday();
   const rules = useReplica(liveRowSelectors.rules);
-  const payees = useReplica(liveRowSelectors.payees);
-  const accounts = useReplica((snapshot) => snapshot.tables.accounts);
-  const bankLinkedAccountIds = useReplica(selectBankLinkedAccountIds);
   const payeeRef = useRef<HTMLInputElement>(null);
-  const baseCurrency = useBaseCurrency();
   const apply = useApplyMutations();
   const nameRef = useRef<HTMLInputElement>(null);
-  const [draft, setDraft] = useState<Draft | null>(null);
-  const [error, setError] = useState<string | undefined>();
-  const isBase = (accountId: string) =>
-    accounts.get(accountId)?.currency === baseCurrency;
-  const templateCurrency = (rule: RuleRow) =>
-    accounts.get(rule.template.entries[0]?.accountId ?? "")?.currency ??
-    baseCurrency;
+  const {
+    draft,
+    setDraft,
+    error,
+    templateEditable,
+    autoPostBlocked,
+    templateCurrency,
+    openNew,
+    openRule,
+    save,
+  } = useRuleEditor();
 
-  const unitLabels: Record<Unit, string> = {
-    week: t({ en: "weeks", zh: "周" }),
-    month: t({ en: "months", zh: "个月" }),
-    year: t({ en: "years", zh: "年" }),
-  };
-  const everyLabel = t({ en: "Every", zh: "每" });
-  const nonBusinessDayLabels: Record<NonBusinessDay, string> = {
-    stay: t({ en: "Keep the date", zh: "日期不变" }),
-    next: t({ en: "Move to the next working day", zh: "顺延到下一个工作日" }),
-    previous: t({
-      en: "Move to the working day before",
-      zh: "提前到上一个工作日",
-    }),
-  };
   const describeSchedule = useDescribeSchedule();
   const nextLabel = t({ en: "next", zh: "下次" });
   const pausedLabel = t({ en: "Paused", zh: "已暂停" });
@@ -134,36 +49,9 @@ export function RulesSettings() {
   const pauseLabel = t({ en: "Pause", zh: "暂停" });
   const resumeLabel = t({ en: "Resume", zh: "恢复" });
   const messages = {
-    amount: t({ en: "Enter an amount above zero", zh: "请输入大于零的金额" }),
-    interval: t({
-      en: "Enter a whole number from 1 to 99",
-      zh: "请输入 1 到 99 之间的整数",
-    }),
-    day: t({
-      en: "Enter 1 to 7 for a weekday, or 1 to 31 for a day of the month",
-      zh: "星期请填 1 到 7，日期请填 1 到 31",
-    }),
-    name: t({ en: "Give the rule a name", zh: "请填写规则名称" }),
-    startsOn: t({ en: "Pick a start date", zh: "请选择开始日期" }),
-    account: t({ en: "Pick an account", zh: "请选择账户" }),
-    toAccount: t({
-      en: "Pick the account the money goes to",
-      zh: "请选择转入账户",
-    }),
-    sameAccount: t({
-      en: "A transfer needs two different accounts",
-      zh: "转账需要两个不同的账户",
-    }),
-    currency: t({
-      en: "A recurring transfer needs two accounts in the same currency",
-      zh: "周期转账的两个账户需使用同一币种",
-    }),
-    category: t({ en: "Pick a category", zh: "请选择分类" }),
     paused: t({ en: "Rule paused", zh: "规则已暂停" }),
     resumed: t({ en: "Rule resumed", zh: "规则已恢复" }),
     deleted: t({ en: "Rule deleted", zh: "规则已删除" }),
-    added: t({ en: "Rule added", zh: "规则已添加" }),
-    saved: t({ en: "Rule saved", zh: "规则已保存" }),
   };
 
   function summary(rule: RuleRow) {
@@ -182,193 +70,6 @@ export function RulesSettings() {
       .join(" · ");
   }
 
-  function readSchedule(current: Draft) {
-    const interval = Number(current.interval);
-    if (!Number.isInteger(interval) || interval < 1 || interval > 99) {
-      setError(messages.interval);
-      return null;
-    }
-    const day = current.day.trim() === "" ? null : Number(current.day);
-    const maxDay = current.unit === "week" ? 7 : 31;
-    if (day !== null && (!Number.isInteger(day) || day < 1 || day > maxDay)) {
-      setError(messages.day);
-      return null;
-    }
-    return { interval, day };
-  }
-
-  const templateEditable =
-    draft !== null &&
-    (draft.rule === null ||
-      simpleTemplateAccounts(draft.rule.template, isBase) !== null);
-
-  const autoPostBlocked =
-    draft !== null &&
-    !mayAutoPost(
-      draft.rule !== null && !templateEditable
-        ? draft.rule.template.entries
-        : templateFieldsAccounts(draft.fields),
-      (accountId) => bankLinkedAccountIds.has(accountId),
-    );
-
-  /** The Payee the text names, and a new one to add when no Payee has that name. */
-  function resolvePayee(fields: RuleTemplateFieldsDraft) {
-    if (fields.payeeId !== null) {
-      return { payeeId: fields.payeeId, mutations: [] };
-    }
-    const name = fields.payeeText.trim();
-    if (name === "") return { payeeId: null, mutations: [] };
-    const wanted = normalisePayeeText(name);
-    const existing = payees.find(
-      (payee) =>
-        payee.mergedIntoId === null &&
-        normalisePayeeText(payee.name) === wanted,
-    );
-    if (existing) return { payeeId: existing.id, mutations: [] };
-    const payeeId = crypto.randomUUID();
-    return {
-      payeeId,
-      mutations: [
-        {
-          name: "upsertPayee" as const,
-          args: { id: payeeId, name: name.slice(0, 200) },
-        },
-      ],
-    };
-  }
-
-  function saveNew(current: Draft) {
-    const { fields } = current;
-    const payeeName = fields.payeeText.trim();
-    const name = current.name.trim() === "" ? payeeName : current.name.trim();
-    if (name === "") {
-      setError(messages.name);
-      return false;
-    }
-    const account = accounts.get(fields.accountId);
-    if (!account) {
-      setError(messages.account);
-      return false;
-    }
-    const amount = parseMoney(current.amount, account.currency);
-    if (amount === null || amount <= 0) {
-      setError(messages.amount);
-      return false;
-    }
-    const schedule = readSchedule(current);
-    if (!schedule) return false;
-    if (!isValidDay(current.startsOn)) {
-      setError(messages.startsOn);
-      return false;
-    }
-    const payee = resolvePayee(fields);
-    const built = buildNewRule(
-      {
-        id: crypto.randomUUID(),
-        name,
-        kind: fields.kind,
-        amountMinor: amount,
-        accountId: fields.accountId,
-        toAccountId: fields.toAccountId,
-        payeeId: payee.payeeId,
-        categoryId: fields.categoryId === "" ? null : fields.categoryId,
-        unit: current.unit,
-        interval: schedule.interval,
-        day: schedule.day,
-        nonBusinessDay: current.nonBusinessDay,
-        startsOn: current.startsOn,
-        endsOn: isValidDay(current.endsOn) ? current.endsOn : null,
-        autoPost: current.autoPost && !autoPostBlocked,
-        today,
-      },
-      { accountById: accounts },
-    );
-    if (!built.ok) {
-      setError(messages[built.error]);
-      return false;
-    }
-    return apply(
-      [...payee.mutations, { name: "upsertRule", args: built.args }],
-      { message: messages.added },
-    );
-  }
-
-  function save() {
-    if (!draft) return false;
-    const { rule } = draft;
-    if (rule === null) return saveNew(draft);
-    if (draft.name.trim() === "") {
-      setError(messages.name);
-      return false;
-    }
-    const schedule = readSchedule(draft);
-    if (!schedule) return false;
-    const { interval, day } = schedule;
-    const payee = resolvePayee(draft.fields);
-    let template = rule.template;
-    if (templateEditable) {
-      const amount = parseMoney(draft.amount, baseCurrency);
-      if (amount === null || amount <= 0) {
-        setError(messages.amount);
-        return false;
-      }
-      const edited = editRuleTemplate(
-        rule.template,
-        {
-          amountMinor: amount,
-          accountId: draft.fields.accountId,
-          toAccountId: draft.fields.toAccountId,
-          payeeId: payee.payeeId,
-          categoryId:
-            draft.fields.categoryId === "" ? null : draft.fields.categoryId,
-        },
-        { accountById: accounts, isBaseCurrency: isBase },
-      );
-      if (!edited.ok) {
-        setError(messages[edited.error]);
-        return false;
-      }
-      template = edited.template;
-    }
-    return apply(
-      [
-        ...payee.mutations,
-        {
-          name: "upsertRule",
-          args: {
-            id: rule.id,
-            name: draft.name.trim(),
-            unit: draft.unit,
-            interval,
-            weekday: draft.unit === "week" ? day : null,
-            dayOfMonth: draft.unit === "week" ? null : day,
-            nonBusinessDay: draft.nonBusinessDay,
-            endsOn: isValidDay(draft.endsOn) ? draft.endsOn : null,
-            autoPost: draft.autoPost && !autoPostBlocked,
-            paused: draft.paused,
-            ...(sameTemplate(template, rule.template) ? {} : { template }),
-          },
-        },
-      ],
-      { message: messages.saved },
-    );
-  }
-
-  function templateFields(rule: RuleRow): RuleTemplateFieldsDraft {
-    const { template } = rule;
-    const editable = simpleTemplateAccounts(template, isBase);
-    if (!editable) return EMPTY_FIELDS;
-    const payee = payees.find((row) => row.id === template.payeeId);
-    return {
-      kind: template.kind,
-      payeeText: payee?.name ?? "",
-      payeeId: payee?.id ?? null,
-      accountId: editable.accountId,
-      toAccountId: editable.toAccountId,
-      categoryId: template.categoryId ?? "",
-    };
-  }
-
   function toggle(rule: RuleRow) {
     const pausing = rule.pausedAt === null;
     apply([{ name: "upsertRule", args: { id: rule.id, paused: pausing } }], {
@@ -384,27 +85,7 @@ export function RulesSettings() {
         zh: "每条规则会提前生成待确认交易；到期时确认，或由银行同步自动匹配。",
       })}
       actions={
-        <Button
-          size="sm"
-          icon={<PlusIcon weight="bold" />}
-          onClick={() => {
-            setError(undefined);
-            setDraft({
-              rule: null,
-              fields: EMPTY_FIELDS,
-              startsOn: today,
-              name: "",
-              amount: "",
-              unit: "month",
-              interval: "1",
-              day: "",
-              nonBusinessDay: "stay",
-              endsOn: "",
-              autoPost: false,
-              paused: false,
-            });
-          }}
-        >
+        <Button size="sm" icon={<PlusIcon weight="bold" />} onClick={openNew}>
           {t({ en: "New rule", zh: "新建规则" })}
         </Button>
       }
@@ -449,24 +130,7 @@ export function RulesSettings() {
                 </Button>
               }
               onClick={() => {
-                setError(undefined);
-                setDraft({
-                  rule,
-                  fields: templateFields(rule),
-                  startsOn: rule.startsOn,
-                  name: rule.name,
-                  amount: minorUnitsToDecimalString(
-                    templateAmount(rule.template),
-                    templateCurrency(rule),
-                  ),
-                  unit: rule.unit,
-                  interval: String(rule.interval),
-                  day: scheduleDay(rule),
-                  nonBusinessDay: rule.nonBusinessDay,
-                  endsOn: rule.endsOn ?? "",
-                  autoPost: rule.autoPost,
-                  paused: rule.pausedAt !== null,
-                });
+                openRule(rule);
               }}
             >
               {rule.name}
@@ -502,188 +166,15 @@ export function RulesSettings() {
         }
       >
         {draft ? (
-          <>
-            {error ? (
-              <Callout intent="danger" role="alert">
-                {error}
-              </Callout>
-            ) : null}
-            {draft.rule === null ? (
-              <SegmentedControl
-                aria-label={t({ en: "Kind", zh: "类型" })}
-                fullWidth
-                options={[
-                  { value: "expense", label: t({ en: "Expense", zh: "支出" }) },
-                  { value: "income", label: t({ en: "Income", zh: "收入" }) },
-                  {
-                    value: "transfer",
-                    label: t({ en: "Transfer", zh: "转账" }),
-                  },
-                ]}
-                value={draft.fields.kind}
-                onChange={(kind) => {
-                  setDraft({
-                    ...draft,
-                    fields: { ...draft.fields, kind, categoryId: "" },
-                  });
-                }}
-              />
-            ) : null}
-            {templateEditable ? (
-              <RuleTemplateFields
-                value={draft.fields}
-                payeeRef={payeeRef}
-                baseCurrencyOnly={draft.rule !== null}
-                onChange={(fields) => {
-                  setDraft({ ...draft, fields });
-                }}
-                onPayeePicked={(payeeName) => {
-                  setDraft((current) =>
-                    current && current.name.trim() === ""
-                      ? { ...current, name: payeeName }
-                      : current,
-                  );
-                }}
-              />
-            ) : null}
-            <TextField
-              ref={nameRef}
-              label={t({ en: "Name", zh: "名称" })}
-              value={draft.name}
-              onChange={(event) => {
-                setDraft({ ...draft, name: event.target.value });
-              }}
-            />
-            {templateEditable ? (
-              <TextField
-                label={t({ en: "Amount", zh: "金额" })}
-                inputMode="decimal"
-                value={draft.amount}
-                onChange={(event) => {
-                  setDraft({ ...draft, amount: event.target.value });
-                }}
-              />
-            ) : null}
-            <div css={cluster.item}>
-              <TextField
-                label={everyLabel}
-                inputMode="numeric"
-                value={draft.interval}
-                onChange={(event) => {
-                  setDraft({ ...draft, interval: event.target.value });
-                }}
-              />
-              <Select
-                label={t({ en: "Unit", zh: "单位" })}
-                value={draft.unit}
-                options={UNITS.map((unit) => ({
-                  value: unit,
-                  label: unitLabels[unit],
-                }))}
-                onChange={(event) => {
-                  const unit = UNITS.find(
-                    (value) => value === event.target.value,
-                  );
-                  if (unit) setDraft({ ...draft, unit, day: "" });
-                }}
-              />
-            </div>
-            <TextField
-              label={
-                draft.unit === "week"
-                  ? t({ en: "Weekday (1 is Monday)", zh: "星期几（1 为周一）" })
-                  : t({ en: "Day of the month", zh: "每月几号" })
-              }
-              description={t({
-                en: "Leave empty to use the start day.",
-                zh: "留空则按开始日期。",
-              })}
-              inputMode="numeric"
-              value={draft.day}
-              onChange={(event) => {
-                setDraft({ ...draft, day: event.target.value });
-              }}
-            />
-            <Select
-              label={t({
-                en: "On a weekend or bank holiday",
-                zh: "遇周末或节假日",
-              })}
-              description={t({
-                en: "Bank holidays are those of England and Wales.",
-                zh: "节假日按英格兰和威尔士的银行假日计算。",
-              })}
-              value={draft.nonBusinessDay}
-              options={NON_BUSINESS_DAYS.map((value) => ({
-                value,
-                label: nonBusinessDayLabels[value],
-              }))}
-              onChange={(event) => {
-                const nonBusinessDay = NON_BUSINESS_DAYS.find(
-                  (value) => value === event.target.value,
-                );
-                if (nonBusinessDay) setDraft({ ...draft, nonBusinessDay });
-              }}
-            />
-            {draft.rule === null ? (
-              <TextField
-                type="date"
-                label={t({ en: "Starts on", zh: "开始日期" })}
-                description={t({
-                  en: "The first expected transaction falls on or after this day, and never before today.",
-                  zh: "第一笔待确认交易在这天或之后，且不早于今天。",
-                })}
-                value={draft.startsOn}
-                onChange={(event) => {
-                  setDraft({ ...draft, startsOn: event.target.value });
-                }}
-              />
-            ) : null}
-            <TextField
-              type="date"
-              label={t({ en: "Ends on", zh: "结束日期" })}
-              description={t({
-                en: "Leave empty to repeat with no end.",
-                zh: "留空则一直重复。",
-              })}
-              value={draft.endsOn}
-              onChange={(event) => {
-                setDraft({ ...draft, endsOn: event.target.value });
-              }}
-            />
-            <Checkbox
-              label={t({
-                en: "Post on the day without asking",
-                zh: "到期自动入账，无需确认",
-              })}
-              description={
-                autoPostBlocked
-                  ? t({
-                      en: "Bank sync brings in this account's transactions.",
-                      zh: "该账户的交易由银行同步导入。",
-                    })
-                  : undefined
-              }
-              disabled={autoPostBlocked}
-              checked={draft.autoPost && !autoPostBlocked}
-              onChange={(event) => {
-                setDraft({ ...draft, autoPost: event.target.checked });
-              }}
-            />
-            {draft.rule === null ? null : (
-              <Checkbox
-                label={t({ en: "Paused", zh: "暂停" })}
-                description={t({
-                  en: "A paused rule adds nothing until you resume it.",
-                  zh: "暂停期间不会生成交易。",
-                })}
-                checked={draft.paused}
-                onChange={(event) => {
-                  setDraft({ ...draft, paused: event.target.checked });
-                }}
-              />
-            )}
-          </>
+          <RuleEditorFields
+            draft={draft}
+            setDraft={setDraft}
+            error={error}
+            templateEditable={templateEditable}
+            autoPostBlocked={autoPostBlocked}
+            payeeRef={payeeRef}
+            nameRef={nameRef}
+          />
         ) : null}
       </EditSheet>
     </SettingsPanel>

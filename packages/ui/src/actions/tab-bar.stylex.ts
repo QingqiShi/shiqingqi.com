@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { color, font, space } from "../tokens.stylex.ts";
+import { color } from "../color.stylex.ts";
+import { font, space } from "../tokens.stylex.ts";
 
 /**
  * The TabBar's dial, set the way `cornerTokens.height` is. `blockSize` is

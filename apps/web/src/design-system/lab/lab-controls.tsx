@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { glassSurface } from "@tuja/ui/components/glass-surface.stylex";
 import { Text } from "@tuja/ui/components/text";
@@ -11,7 +12,7 @@ import { scrollbar, scrollY } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Identifier } from "#src/design-system/identifier.tsx";
 import { LabControl } from "./lab-control.tsx";
 import type { LabAction, LabState } from "./lab-reducer.ts";

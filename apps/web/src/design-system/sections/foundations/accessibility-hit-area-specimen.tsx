@@ -1,8 +1,9 @@
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
-import { border, color, rhythm } from "@tuja/ui/tokens.stylex";
+import { border, rhythm } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
 /**

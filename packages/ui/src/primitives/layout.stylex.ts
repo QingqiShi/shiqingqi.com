@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { color, space } from "../tokens.stylex.ts";
+import { color } from "../color.stylex.ts";
+import { space } from "../tokens.stylex.ts";
 
 // Position + inset fills
 export const absoluteFill = stylex.create({

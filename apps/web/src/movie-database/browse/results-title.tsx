@@ -2,8 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
 import type { MediaType, Sort } from "#src/movie-database/types.ts";
 import { useMediaFilters } from "./filters/use-media-filters.ts";
 

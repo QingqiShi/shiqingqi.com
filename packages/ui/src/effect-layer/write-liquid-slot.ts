@@ -1,5 +1,5 @@
 import { LiquidParticle, LiquidSlot } from "../_generated/wgsl/layouts.ts";
-import type { LiquidParticles } from "./step-liquid.ts";
+import type { LiquidParticles } from "./resting-liquid.ts";
 
 const WORD = Float32Array.BYTES_PER_ELEMENT;
 const {

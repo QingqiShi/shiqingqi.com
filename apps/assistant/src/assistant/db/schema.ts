@@ -18,7 +18,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import type { AgentRunProgress } from "../agent/agent-activity.ts";
-import type { TodoChanges } from "../agent/todos/create-todo-tools.ts";
+import type { TodoChanges } from "../agent/todos/types.ts";
 import type { AgentStepRecord, AgentUsage } from "../agent/types.ts";
 import type { RepeatRule } from "../report/next-occurrence.ts";
 import type {

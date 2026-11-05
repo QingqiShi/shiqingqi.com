@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { gray, gray_rgb } from "@tuja/ui/palette/gray.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
 
 /** The light `color.bgCanvas` of Assistant. */
 export const ASSISTANT_LIGHT_CANVAS = gray._92;

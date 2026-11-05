@@ -4,8 +4,6 @@ import * as stylex from "@stylexjs/stylex";
 import {
   createContext,
   use,
-  useLayoutEffect,
-  useRef,
   useState,
   type ComponentType,
   type Dispatch,
@@ -13,49 +11,27 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
-import { tabBarTokens, tabLink } from "../actions/tab-bar.stylex.ts";
+import { tabBarTokens } from "../actions/tab-bar.stylex.ts";
 import {
   PlainAnchor,
   TabBar,
   type TabBarItem,
   type TabBarLinkProps,
 } from "../actions/tab-bar.tsx";
-import { useTabPress } from "../actions/use-tab-press.ts";
 import { pointer } from "../breakpoints.stylex.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
-import { useScrollRegion } from "../effect-layer/use-scroll-region.ts";
-import { useScrollMask } from "../hooks/use-scroll-mask.ts";
-import { mergeRefs } from "../merge-refs.ts";
-import { bind } from "../motion/bind.ts";
-import type { Styles } from "../motion/px.ts";
-import { springOf, springRoles } from "../motion/spring-roles.ts";
-import {
-  useMotionEngine,
-  useMotionValue,
-} from "../motion/use-motion-engine.ts";
-import { a11y } from "../primitives/a11y.stylex.ts";
-import { corner } from "../primitives/corner.stylex.ts";
 import {
   duration,
   easing,
   motionConstants,
   motionKeyframes,
-  transition,
 } from "../primitives/motion.stylex.ts";
 import { pageGutter } from "../primitives/page-column.stylex.ts";
-import { stack } from "../primitives/stack.stylex.ts";
-import { typeRole } from "../primitives/type.stylex.ts";
-import {
-  color,
-  controlSize,
-  font,
-  layer,
-  rhythm,
-  space,
-} from "../tokens.stylex.ts";
+import { layer, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { headerControlsTokens } from "./header-controls.stylex.ts";
+import { Rail } from "./rail.tsx";
 import { tabViewQueries, tabViewTokens } from "./tab-view.stylex.ts";
 import {
   StatusLink,
@@ -63,6 +39,7 @@ import {
   useReveal,
   type TabLinkStatusProps,
 } from "./use-opening-screen.tsx";
+import { useRise } from "./use-rise.ts";
 
 export type { TabLinkStatusProps } from "./use-opening-screen.tsx";
 
@@ -358,113 +335,6 @@ function pathOfHref(href: string) {
   return href.split(/[?#]/, 1)[0];
 }
 
-interface RailProps {
-  items: readonly TabBarItem[];
-  label: string;
-  effect: "liquid" | "none";
-  linkComponent: ComponentType<TabViewLinkProps>;
-}
-
-/**
- * The destinations in the rail, in a Scroll region for a rail too short to
- * hold them all.
- */
-function Rail({ label, ...track }: RailProps) {
-  const region = useScrollRegion();
-  const { scroller, content } = region;
-  const navRef = useRef<HTMLElement>(null);
-  const { showStartMask, showEndMask } = useScrollMask(navRef, "vertical");
-  return (
-    <nav ref={mergeRefs(scroller, navRef)} aria-label={label} css={styles.nav}>
-      <div ref={content} css={styles.navContent}>
-        <EffectCarrier value={region}>
-          <RailTrack {...track} scrolls={showStartMask || showEndMask} />
-        </EffectCarrier>
-      </div>
-    </nav>
-  );
-}
-
-interface RailTrackProps extends Omit<RailProps, "label"> {
-  scrolls: boolean;
-}
-
-/**
- * The current destination under an indicator that moves down and up the
- * rail as the one on a `TabBar` moves across it.
- */
-function RailTrack({
-  items,
-  effect,
-  linkComponent: LinkComponent,
-  scrolls,
-}: RailTrackProps) {
-  const current = items.findIndex((item) => item.current === true);
-  const track = useTabPress({
-    current,
-    effect,
-    surface: "flat",
-    orientation: "vertical",
-    scrolls,
-    hoverSurface: true,
-  });
-  return (
-    <div {...track.props} css={[track.css, styles.track]}>
-      <span {...track.hover} css={[corner.radius_3, track.hoverCss]} />
-      {track.shown >= 0 ? (
-        <span
-          {...track.indicator}
-          css={[corner.radius_3, track.indicatorCss]}
-        />
-      ) : null}
-      {/* `role="list"` survives the marker reset, which otherwise drops
-            list semantics in Safari/VoiceOver. */}
-      <ul role="list" css={stack.rows}>
-        {items.map((item, index) => {
-          const isShown = index === track.shown;
-          return (
-            <li key={item.href}>
-              <LinkComponent
-                href={item.href}
-                aria-current={item.current === true ? "page" : undefined}
-                {...track.segment(index)}
-                {...stylex.props(
-                  typeRole.caption,
-                  a11y.touchRow,
-                  transition.colors,
-                  corner.radius_3,
-                  styles.link,
-                  track.segmentCss(index),
-                  isShown && tabLink.shown,
-                  a11y.focusRingInset,
-                )}
-              >
-                <span css={styles.icon} aria-hidden>
-                  <item.icon weight={isShown ? "fill" : "bold"} />
-                  {item.badge ? (
-                    <span css={styles.badge}>{item.badge}</span>
-                  ) : null}
-                </span>
-                <span css={styles.label}>{item.label}</span>
-                {item.status === undefined ? null : (
-                  <>
-                    {" "}
-                    <span css={a11y.srOnly} role="status">
-                      {item.status}
-                    </span>
-                  </>
-                )}
-              </LinkComponent>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
-
-const RISE_SPRING = springOf(springRoles.surface);
-
 const RAIL_PADDING_BLOCK_START = `calc(${space._3} + env(safe-area-inset-top))`;
 const RAIL_PADDING_BLOCK_END = `calc(${space._3} + env(safe-area-inset-bottom))`;
 // CSS cannot read the radius of a rounded display corner. These values
@@ -475,38 +345,6 @@ const RAIL_PADDING_BLOCK_END = `calc(${space._3} + env(safe-area-inset-bottom))`
 // such as the inner screen of a foldable phone.
 const DISPLAY_CORNER_CLEARANCE_BLOCK_START = "2.5rem";
 const DISPLAY_CORNER_CLEARANCE_BLOCK_END = space._5;
-
-/** The new screen at `t` of its rise: it fades in as it rises `space._7` into place. */
-function risePose(t: number): Styles {
-  return {
-    opacity: t.toFixed(3),
-    transform: `translateY(calc(${(1 - t).toFixed(4)} * ${space._7}))`,
-  };
-}
-
-/**
- * Makes the screen in `content` rise into place each time `screen` changes
- * after the first render. Under reduced motion it stays still.
- */
-function useRise(content: HTMLElement | null, screen: unknown) {
-  const engine = useMotionEngine();
-  const rise = useMotionValue(engine, 1, { spring: RISE_SPRING });
-  useLayoutEffect(() => {
-    if (content === null) return;
-    const binding = bind(content, rise, { pose: risePose, rest: "clear" });
-    return () => {
-      binding.unbind();
-    };
-  }, [content, rise]);
-  const shownRef = useRef(screen);
-  useLayoutEffect(() => {
-    if (shownRef.current === screen) return;
-    shownRef.current = screen;
-    if (engine.reducedMotion) return;
-    rise.set(0);
-    rise.to(1);
-  }, [engine, rise, screen]);
-}
 
 const styles = stylex.create({
   container: {
@@ -571,63 +409,6 @@ const styles = stylex.create({
   },
   footer: {
     marginBlockStart: "auto",
-  },
-  nav: {
-    alignSelf: "stretch",
-    minBlockSize: 0,
-    overflowY: "auto",
-  },
-  navContent: {
-    position: "relative",
-  },
-  // The spring moves the indicator past the first and the last link. The
-  // nav clips it there, but it also makes the nav scroll for a moment, so
-  // the track clips it first.
-  track: {
-    overflow: "clip",
-  },
-  link: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: rhythm.inline,
-    minInlineSize: 0,
-    // The liquid rests in a shape as wide as the link, with round ends, so
-    // it fits only in a link at least as tall as it is wide.
-    aspectRatio: 1,
-    paddingBlock: space._1,
-    paddingInline: 0,
-    color: {
-      default: color.fgControl,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
-    },
-    fontWeight: font.weight_5,
-    textDecoration: "none",
-    // A press on a destination can drag the indicator, so it does not
-    // select the label.
-    userSelect: "none",
-  },
-  icon: {
-    position: "relative",
-    display: "inline-flex",
-    fontSize: controlSize._5,
-  },
-  badge: {
-    position: "absolute",
-    insetBlockStart: 0,
-    insetInlineEnd: `calc(-1 * ${space._0})`,
-    display: "flex",
-  },
-  // A label too long for the rail wraps, and it breaks inside a word only
-  // where the word alone is wider than the rail.
-  label: {
-    maxInlineSize: "100%",
-    minInlineSize: 0,
-    letterSpacing: font.trackingTight,
-    textAlign: "center",
-    textWrap: "balance",
-    overflowWrap: "anywhere",
   },
   // The screen rises with a transform. WebKit anchors the scroll of the page
   // through it, and the scroll that a view restores then follows the rise.

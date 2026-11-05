@@ -3,6 +3,7 @@
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
@@ -12,7 +13,7 @@ import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { useEffectSticky } from "@tuja/ui/hooks/use-effect-sticky";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, layer, rhythm, shadow, space } from "@tuja/ui/tokens.stylex";
+import { layer, rhythm, shadow, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { addDays } from "../report/local-day-bounds.ts";
 import { formatListDay } from "./format-day.ts";

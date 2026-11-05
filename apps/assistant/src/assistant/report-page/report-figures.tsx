@@ -5,11 +5,12 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { TabViewLink } from "@tuja/ui/components/tab-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
+import { font, rhythm } from "@tuja/ui/tokens.stylex";
 import { formatWeekday } from "./format-day.ts";
 import { useTodoStore } from "./todo-store-provider.tsx";
 

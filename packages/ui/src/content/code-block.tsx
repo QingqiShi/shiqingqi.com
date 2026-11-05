@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { color } from "../color.stylex.ts";
 import { bind } from "../motion/bind.ts";
 import type { MotionEngine } from "../motion/create-motion-engine.ts";
 import { createMotionValue } from "../motion/create-motion-value.ts";
@@ -16,7 +17,7 @@ import { duration, easing, transition } from "../primitives/motion.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { observeChildren } from "../surfaces/observe-children.ts";
 import { ScrollMask } from "../surfaces/scroll-mask.tsx";
-import { border, color, font } from "../tokens.stylex.ts";
+import { border, font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { codeRun } from "./code-run.stylex.ts";
 import { syntax } from "./syntax.stylex.ts";

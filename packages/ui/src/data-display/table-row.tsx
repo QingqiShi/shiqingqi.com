@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
-import { border, color, font } from "../tokens.stylex.ts";
+import { color } from "../color.stylex.ts";
+import { border, font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
 interface TableRowProps extends Omit<

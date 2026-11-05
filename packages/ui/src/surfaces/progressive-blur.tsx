@@ -10,13 +10,13 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import { color } from "../color.stylex.ts";
 import { useIsHydrated } from "../hooks/use-is-hydrated.ts";
 import {
   duration,
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
-import { color } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { BlurPlaneContext } from "./blur-plane.tsx";
 import { buildBlurLayers, type BlurGeometry } from "./build-blur-layers.ts";

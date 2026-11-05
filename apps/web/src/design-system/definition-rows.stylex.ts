@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, rhythm } from "@tuja/ui/tokens.stylex";
+import { color } from "@tuja/ui/color.stylex";
+import { border, rhythm } from "@tuja/ui/tokens.stylex";
 
 /**
  * The row anatomy `GuideList` and the stacked `PropsTable` share. Inside a row

@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { border, space } from "@tuja/ui/tokens.stylex";
 import { specimenLayout } from "./specimen.stylex.ts";
 import { WireframeBar } from "./wireframe-bar.tsx";
 

@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, rhythm } from "../tokens.stylex.ts";
+import { color } from "../color.stylex.ts";
+import { border, rhythm } from "../tokens.stylex.ts";
 
 // The gap between two islands, and the least inset of an island from the
 // edge of the frame.

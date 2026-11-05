@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/tokens.stylex";
+import { color } from "@tuja/ui/color.stylex";
 
 /**
  * The chrome more than one media table cell renders: the em dash a missing

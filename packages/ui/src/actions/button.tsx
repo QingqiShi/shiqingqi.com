@@ -8,13 +8,14 @@ import {
   type MouseEvent,
   type ReactNode,
 } from "react";
+import { color } from "../color.stylex.ts";
 import { Spinner } from "../feedback/spinner.tsx";
 import { usePressHandlers } from "../hooks/use-press-handlers.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { color, opacity } from "../tokens.stylex.ts";
+import { opacity } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import {
   lookStyles,

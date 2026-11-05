@@ -1,12 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
+import { color } from "../color.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import {
   duration,
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
-import { border, color, space } from "../tokens.stylex.ts";
+import { border, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { progressTokens } from "./progress.stylex.ts";
 

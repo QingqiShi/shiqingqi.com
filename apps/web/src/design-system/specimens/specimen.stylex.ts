@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, rhythm } from "@tuja/ui/tokens.stylex";
+import { color } from "@tuja/ui/color.stylex";
+import { border, rhythm } from "@tuja/ui/tokens.stylex";
 
 /**
  * Shared layout styles for the component specimens rendered under each overview

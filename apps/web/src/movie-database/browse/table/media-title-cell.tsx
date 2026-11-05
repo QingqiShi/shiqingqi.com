@@ -2,11 +2,12 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, ratio, rhythm } from "@tuja/ui/tokens.stylex";
+import { font, ratio, rhythm } from "@tuja/ui/tokens.stylex";
 import { Anchor } from "#src/links/anchor.tsx";
 import { TmdbImage } from "#src/movie-database/tmdb/tmdb-image.tsx";
 import { useMediaTable } from "./media-table-context";

@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { color, controlHeight, controlSize, shadow } from "../tokens.stylex.ts";
+import { color } from "../color.stylex.ts";
+import { controlHeight, controlSize, shadow } from "../tokens.stylex.ts";
 
 export const buttonTokens = stylex.defineVars({
   backgroundColor: color.bgControl,

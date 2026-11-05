@@ -1,8 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, measure } from "@tuja/ui/tokens.stylex";
+import { measure } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { LabViewSwitch } from "#src/design-system/lab/lab-view-switch.tsx";
 import { getDesignSystemRouteLabel } from "#src/design-system/route-copy/get-design-system-route-label.ts";

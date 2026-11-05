@@ -19,10 +19,11 @@ import { CSS } from "@dnd-kit/utilities";
 import { DotsSixVerticalIcon } from "@phosphor-icons/react/dist/ssr/DotsSixVertical";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { color, controlSize, layer, shadow } from "@tuja/ui/tokens.stylex";
+import { controlSize, layer, shadow } from "@tuja/ui/tokens.stylex";
 import { useState, type ReactNode } from "react";
 
 const upAndDownInsideTheList: Modifier = ({

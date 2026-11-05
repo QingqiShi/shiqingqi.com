@@ -3,6 +3,7 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -10,7 +11,6 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
-  color,
   controlHeight,
   controlSize,
   font,
@@ -342,7 +342,8 @@ const nested = stylex.create({
   },
 });
 
-const NESTED_STYLES = `import { border, color, space } from "@tuja/ui/tokens.stylex";
+const NESTED_STYLES = `import { color } from "@tuja/ui/color.stylex";
+import { border, space } from "@tuja/ui/tokens.stylex";
 
 const nested = stylex.create({
   outer: {

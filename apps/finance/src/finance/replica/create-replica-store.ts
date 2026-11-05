@@ -19,32 +19,25 @@ import {
 import type { PushResponse } from "../sync/types.ts";
 import type { LocalMutationContext } from "./apply-local-mutation.ts";
 import { applyLocalMutation } from "./apply-local-mutation.ts";
+import { createOutboxQueue } from "./create-outbox-queue.ts";
+import { createReplicaView } from "./create-replica-view.ts";
+import { createReplicaWriter } from "./create-replica-writer.ts";
 import {
   createTablesDraft,
   type ChangedKeys,
   type TablesDraft,
 } from "./create-tables-draft.ts";
 import { emptyReplicaTables } from "./empty-replica-tables.ts";
-import {
-  mergeAccountDays,
-  mergeChangedKeys,
-  replayOutbox,
-} from "./replay-outbox.ts";
-import { rowKey } from "./row-key.ts";
+import { mergeServerRows, writesOf } from "./merge-server-rows.ts";
+import { replayOutbox } from "./replay-outbox.ts";
 import type {
   OutboxEntry,
   PersistedReplica,
-  ReplicaChanges,
   ReplicaExchangeRates,
   ReplicaMeta,
   ReplicaPersistence,
   ReplicaRejection,
-  ReplicaRow,
-  ReplicaSnapshot,
-  ReplicaStorageState,
   ReplicaTables,
-  ReplicaTableWrites,
-  ReplicaWrite,
 } from "./types.ts";
 
 /** A mutation as a caller writes it; the store gives it an id when it has none. */
@@ -59,34 +52,6 @@ interface ReplicaStoreOptions {
   persistence: ReplicaPersistence;
   now?: () => Date;
   createId?: () => string;
-}
-
-/** Derived tables: their deleted rows carry nothing a screen needs, so the Replica drops them. */
-const DROP_DELETED = new Set<SyncTableName>(["accountBalanceDays"]);
-
-function writesOf(tables: TablesDraft, changed: ChangedKeys) {
-  const writes: ReplicaTableWrites = {};
-  for (const table of SYNC_TABLE_NAMES) {
-    const keys = changed.get(table);
-    if (!keys) continue;
-    const put: ReplicaRow<SyncTableName>[] = [];
-    const remove: string[] = [];
-    for (const key of keys) {
-      const row = tables.get(table, key);
-      if (row) put.push(row);
-      else remove.push(key);
-    }
-    Object.assign(writes, { [table]: { put, delete: remove } });
-  }
-  return writes;
-}
-
-function isDeletedRow(row: object) {
-  return "deletedAt" in row && row.deletedAt !== null;
-}
-
-function bySeq(a: OutboxEntry, b: OutboxEntry) {
-  return a.seq - b.seq;
 }
 
 /** Meta whose rows have an old shape must bootstrap again. */
@@ -119,51 +84,17 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
   };
   let base: ReplicaTables = emptyReplicaTables();
   let exchangeRates: ReplicaExchangeRates = new Map();
-  /** The rate cursor of the rates on disk: what the meta on disk may claim. */
-  let cursorOnDisk: string | null = null;
-  /** Not acknowledged by the server yet. */
-  let queued: OutboxEntry[] = [];
-  /** Sent in the push now running. */
-  const inFlight = new Set<string>();
-  /** Applied by the server, kept in the view (and on disk) until a pull confirms them. */
-  let awaiting: OutboxEntry[] = [];
-  let lastSeq = 0;
-  /** The Outbox entry each mutation must have on disk (null: none) where the write has not committed. */
-  const unsaved = new Map<string, OutboxEntry | null>();
-  /** Outbox writes running now, per mutation. */
-  const saving = new Map<string, number>();
-  /** Mutations whose last Outbox write failed. */
-  const failedSaves = new Set<string>();
-  const outboxWrites = new Set<Promise<void>>();
-  /** The last write of server rows failed. */
-  let rowsFailed = false;
-  /** A write of server rows failed, so the clock on disk must not claim the rows after it. */
-  let rowsBehind = false;
-  let storageState: ReplicaStorageState = { unsaved: 0, failed: false };
+  const writer = createReplicaWriter(persistence, (exchangeRateCursor) => {
+    meta = { ...meta, exchangeRateCursor };
+  });
+  const { persist } = writer;
+  const outbox = createOutboxQueue(writer);
+  const view = createReplicaView(base, exchangeRates);
   let loaded = false;
-  /** Counts the writes that other tabs must read. A pull that changes nothing does not count. */
-  let diskRevision = 0;
   /** The server rows of the bootstrap now running, shown only when it finishes. */
   let bootstrapDraft: TablesDraft | null = null;
-
-  const initialSnapshot: ReplicaSnapshot = {
-    household: null,
-    tables: base,
-    exchangeRates,
-    pendingKeys: new Set(),
-    pendingAccounts: new Map(),
-    outboxCount: 0,
-    loaded: false,
-    bootstrapped: false,
-    changes: {},
-  };
-  let snapshot = initialSnapshot;
-
-  const listeners = new Set<() => void>();
   const localListeners = new Set<() => void>();
   const rejectionListeners = new Set<(rejection: ReplicaRejection) => void>();
-  const storageListeners = new Set<() => void>();
-  let writes: Promise<void> = Promise.resolve();
 
   function contextOf(entry: OutboxEntry): LocalMutationContext {
     const timezone = meta.household?.timezone ?? "UTC";
@@ -175,242 +106,21 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
     };
   }
 
-  function updateStorageState() {
-    let count = 0;
-    for (const wanted of unsaved.values()) {
-      if (wanted && !wanted.acknowledged) count++;
-    }
-    let failed = rowsFailed;
-    for (const id of failedSaves) {
-      if (unsaved.has(id)) failed = true;
-      else failedSaves.delete(id);
-    }
-    if (count === storageState.unsaved && failed === storageState.failed) {
-      return;
-    }
-    storageState = { unsaved: count, failed };
-    for (const listener of storageListeners) listener();
-  }
-
-  /**
-   * Writes server rows and the meta, one batch after another; these can
-   * wait. The meta on disk keeps the rate cursor of the rates on disk, or
-   * `exchangeRateCursor` when the batch writes the rates it reaches.
-   */
-  function persist(
-    batch: ReplicaWrite,
-    {
-      startsOver = false,
-      forOtherTabs = true,
-      exchangeRateCursor,
-    }: {
-      startsOver?: boolean;
-      forOtherTabs?: boolean;
-      exchangeRateCursor?: string;
-    } = {},
-  ) {
-    if (forOtherTabs) diskRevision++;
-    writes = writes
-      .then(() => {
-        if (startsOver) rowsBehind = false;
-        return persistence.write(
-          batch.meta
-            ? {
-                ...batch,
-                meta: {
-                  ...batch.meta,
-                  clock: rowsBehind ? 0 : batch.meta.clock,
-                  exchangeRateCursor: exchangeRateCursor ?? cursorOnDisk,
-                },
-              }
-            : batch,
-        );
-      })
-      .then(
-        () => {
-          rowsFailed = false;
-          if (exchangeRateCursor === undefined) return;
-          cursorOnDisk = exchangeRateCursor;
-          meta = { ...meta, exchangeRateCursor };
-        },
-        () => {
-          rowsBehind = true;
-          rowsFailed = true;
-        },
-      )
-      .finally(updateStorageState);
-    return writes;
-  }
-
-  /**
-   * Starts the Outbox write for `ids` in this task, with no wait behind
-   * other writes: the page can unload at any moment. IndexedDB runs
-   * transactions on the same store in the order they start, so the
-   * writes stay in order. Never rejects.
-   */
-  function saveOutbox(ids: Iterable<string>): Promise<void> {
-    const written = new Map<string, OutboxEntry | null>();
-    for (const id of ids) {
-      const wanted = unsaved.get(id);
-      if (wanted !== undefined) written.set(id, wanted);
-    }
-    if (written.size === 0) return Promise.resolve();
-    diskRevision++;
-    const outboxPut: OutboxEntry[] = [];
-    const outboxDelete: string[] = [];
-    for (const [id, wanted] of written) {
-      if (wanted) outboxPut.push(wanted);
-      else outboxDelete.push(id);
-      saving.set(id, (saving.get(id) ?? 0) + 1);
-    }
-    const write = new Promise<void>((resolve, reject) => {
-      persistence.write({ outboxPut, outboxDelete }).then(resolve, reject);
-    })
-      .then(
-        () => {
-          for (const [id, wanted] of written) {
-            failedSaves.delete(id);
-            if (unsaved.get(id) === wanted) unsaved.delete(id);
-          }
-        },
-        () => {
-          for (const id of written.keys()) failedSaves.add(id);
-        },
-      )
-      .finally(() => {
-        for (const id of written.keys()) {
-          const count = (saving.get(id) ?? 1) - 1;
-          if (count > 0) saving.set(id, count);
-          else saving.delete(id);
-        }
-        outboxWrites.delete(write);
-        updateStorageState();
-      });
-    outboxWrites.add(write);
-    updateStorageState();
-    return write;
-  }
-
-  /** Writes every Outbox change that is not on disk and has no write running. */
-  function saveUnsavedOutbox() {
-    return saveOutbox([...unsaved.keys()].filter((id) => !saving.has(id)));
-  }
-
-  /** Marks Outbox entries for removal from disk. */
-  function forgetOutbox(ids: readonly string[]) {
-    for (const id of ids) unsaved.set(id, null);
-    return saveOutbox(ids);
-  }
-
-  function changesOf(
-    previous: ReplicaTables,
-    tables: ReplicaTables,
-    changed: ChangedKeys,
-  ) {
-    const changes: ReplicaChanges = {};
-    for (const table of SYNC_TABLE_NAMES) {
-      if (previous[table] === tables[table]) continue;
-      Object.assign(changes, {
-        [table]: {
-          from: previous[table],
-          keys: changed.get(table) ?? new Set(),
-        },
-      });
-    }
-    return changes;
-  }
-
-  function pendingKeysOf(changed: ChangedKeys) {
-    const keys = new Set<string>();
-    for (const [table, tableKeys] of changed) {
-      for (const key of tableKeys) keys.add(`${table}:${key}`);
-    }
-    return keys;
-  }
-
-  function publish(
-    next: Omit<ReplicaSnapshot, "changes">,
-    changed: ChangedKeys,
-  ) {
-    snapshot = {
-      ...next,
-      changes: changesOf(snapshot.tables, next.tables, changed),
-    };
-    for (const listener of listeners) listener();
-  }
-
-  /** The keys a view rebuild may change: the ones the server rows changed plus every pending key, old and new. */
   function rebuildView(baseChanged: ChangedKeys) {
-    const replay = replayOutbox(base, [...awaiting, ...queued], contextOf);
+    const replay = replayOutbox(base, outbox.entries(), contextOf);
     if (replay.failed.length > 0) {
       const failed = new Set(
         replay.failed.map(({ entry }) => entry.mutation.id),
       );
-      const dropped = awaiting
-        .map((entry) => entry.mutation.id)
-        .filter((id) => failed.has(id));
-      awaiting = awaiting.filter((entry) => !failed.has(entry.mutation.id));
-      if (dropped.length > 0) void forgetOutbox(dropped);
+      outbox.dropFailed(failed);
     }
-    const changed: ChangedKeys = new Map();
-    mergeChangedKeys(changed, baseChanged);
-    mergeChangedKeys(changed, replay.changed);
-    for (const key of snapshot.pendingKeys) {
-      const split = key.indexOf(":");
-      const table = SYNC_TABLE_NAMES.find(
-        (name) => name === key.slice(0, split),
-      );
-      if (!table) continue;
-      const set = changed.get(table) ?? new Set<string>();
-      set.add(key.slice(split + 1));
-      changed.set(table, set);
-    }
-    publish(
-      {
-        household: meta.household,
-        tables: replay.tables,
-        exchangeRates,
-        pendingKeys: pendingKeysOf(replay.changed),
-        pendingAccounts: replay.accounts,
-        outboxCount: queued.length,
-        loaded,
-        bootstrapped: meta.bootstrapped,
-      },
-      changed,
-    );
-  }
-
-  /** Returns the keys it changed. */
-  function mergeServerRows(draft: TablesDraft, tables: Partial<SyncRows>) {
-    const changed: ChangedKeys = new Map();
-    for (const table of SYNC_TABLE_NAMES) {
-      const rows: readonly ReplicaRow<SyncTableName>[] | undefined =
-        tables[table];
-      if (!rows) continue;
-      const keys = new Set<string>();
-      for (const row of rows) {
-        const key = rowKey(table, row);
-        if (!DROP_DELETED.has(table) || !isDeletedRow(row)) {
-          draft.put(table, key, row);
-          keys.add(key);
-        } else if (draft.remove(table, key)) {
-          keys.add(key);
-        }
-      }
-      if (keys.size > 0) changed.set(table, keys);
-    }
-    return changed;
-  }
-
-  /** Drops the confirmed mutations from the view and returns their ids, to remove from disk with the rows that confirm them. */
-  function confirm(confirmed: ReadonlySet<string>) {
-    const removed = awaiting
-      .map((entry) => entry.mutation.id)
-      .filter((id) => confirmed.has(id));
-    awaiting = awaiting.filter((entry) => !confirmed.has(entry.mutation.id));
-    const pending = removed.filter((id) => unsaved.has(id));
-    if (pending.length > 0) void forgetOutbox(pending);
-    return removed;
+    view.publishRebuild(replay, baseChanged, {
+      household: meta.household,
+      exchangeRates,
+      outboxCount: outbox.queuedCount(),
+      loaded,
+      bootstrapped: meta.bootstrapped,
+    });
   }
 
   /** Takes in what is on disk, with this tab's Outbox writes that have not committed on top. */
@@ -418,17 +128,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
     const previous = base;
     base = persisted.tables;
     exchangeRates = persisted.exchangeRates;
-    const outbox = new Map(
-      persisted.outbox.map((entry) => [entry.mutation.id, entry]),
-    );
-    for (const [id, wanted] of unsaved) {
-      if (wanted) outbox.set(id, wanted);
-      else outbox.delete(id);
-    }
-    const entries = [...outbox.values()].sort(bySeq);
-    queued = entries.filter((entry) => !entry.acknowledged);
-    awaiting = entries.filter((entry) => entry.acknowledged);
-    lastSeq = Math.max(lastSeq, entries.at(-1)?.seq ?? 0);
+    outbox.adopt(persisted.outbox);
     const changed: ChangedKeys = new Map();
     for (const table of SYNC_TABLE_NAMES) {
       if (previous[table] === base[table]) continue;
@@ -444,7 +144,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
       const persisted = await persistence.load();
       if (persisted.meta) {
         meta = withCurrentRowShape(persisted.meta);
-        cursorOnDisk = meta.exchangeRateCursor ?? null;
+        writer.setCursorOnDisk(meta.exchangeRateCursor ?? null);
       } else {
         void persist({ meta });
       }
@@ -458,41 +158,27 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
       try {
         persisted = await persistence.load();
       } catch {
-        rowsFailed = true;
-        updateStorageState();
+        writer.markRowsFailed();
         return;
       }
       if (persisted.meta) {
         meta = withCurrentRowShape(persisted.meta);
-        cursorOnDisk = meta.exchangeRateCursor ?? null;
+        writer.setCursorOnDisk(meta.exchangeRateCursor ?? null);
       }
       adopt(persisted);
     },
 
-    getSnapshot: (): ReplicaSnapshot => {
-      return snapshot;
-    },
+    getSnapshot: view.getSnapshot,
 
-    /** The snapshot before the load. The server renders this snapshot because it does not load the Replica. */
-    getServerSnapshot: (): ReplicaSnapshot => {
-      return initialSnapshot;
-    },
+    getServerSnapshot: view.getServerSnapshot,
 
-    subscribe: (listener: () => void) => {
-      listeners.add(listener);
-      return () => {
-        listeners.delete(listener);
-      };
-    },
+    subscribe: view.subscribe,
 
     getMeta(): ReplicaMeta {
       return meta;
     },
 
-    /** Moves when this tab writes something other tabs must read, so they reload only then. */
-    getDiskRevision() {
-      return diskRevision;
-    },
+    getDiskRevision: writer.getDiskRevision,
 
     /**
      * Checks a mutation, shows its result at once, and puts it in the
@@ -506,61 +192,30 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
         ...input,
         id: input.id ?? createId(),
       });
-      const time = now();
-      lastSeq = Math.max(lastSeq + 1, time.getTime());
-      const entry: OutboxEntry = {
-        mutation,
-        seq: lastSeq,
-        createdAt: time.toISOString(),
-      };
+      const entry = outbox.createEntry(mutation, now());
       const { tables, changed, accounts } = applyLocalMutation(
-        snapshot.tables,
+        view.getSnapshot().tables,
         mutation,
         contextOf(entry),
       );
-      queued.push(entry);
-      unsaved.set(mutation.id, entry);
-      void saveUnsavedOutbox().then(() => {
+      void outbox.enqueue(entry).then(() => {
         for (const listener of localListeners) listener();
       });
 
-      const pendingKeys = new Set(snapshot.pendingKeys);
-      for (const key of pendingKeysOf(changed)) pendingKeys.add(key);
-      const pendingAccounts = new Map(snapshot.pendingAccounts);
-      mergeAccountDays(pendingAccounts, accounts);
-      publish(
-        {
-          ...snapshot,
-          tables,
-          pendingKeys,
-          pendingAccounts,
-          outboxCount: queued.length,
-        },
-        changed,
-      );
+      view.publishLocal({ tables, changed, accounts }, outbox.queuedCount());
       return mutation;
     },
 
     /** Adds mutations another tab wrote to the Outbox on disk. */
     async mergeOutboxFromDisk() {
-      const known = new Set(
-        [...queued, ...awaiting].map((entry) => entry.mutation.id),
-      );
+      const known = outbox.knownIds();
       let stored: OutboxEntry[];
       try {
         stored = await persistence.loadOutbox();
       } catch {
         return;
       }
-      const added = stored.filter(
-        (entry) =>
-          !entry.acknowledged &&
-          !known.has(entry.mutation.id) &&
-          !unsaved.has(entry.mutation.id),
-      );
-      if (added.length === 0) return;
-      queued = [...queued, ...added].sort(bySeq);
-      lastSeq = Math.max(lastSeq, queued.at(-1)?.seq ?? 0);
+      if (!outbox.addFromDisk(stored, known)) return;
       rebuildView(new Map());
     },
 
@@ -579,85 +234,30 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
       };
     },
 
-    getStorageState(): ReplicaStorageState {
-      return storageState;
-    },
+    getStorageState: writer.getStorageState,
 
-    subscribeStorage(listener: () => void) {
-      storageListeners.add(listener);
-      return () => {
-        storageListeners.delete(listener);
-      };
-    },
+    subscribeStorage: writer.subscribeStorage,
 
-    /** Tries the failed Outbox writes again and resolves when every write so far has settled. */
-    async flush() {
-      void saveUnsavedOutbox();
-      await Promise.all([writes, ...outboxWrites]);
-    },
+    flush: writer.flush,
 
-    /** Takes up to `limit` queued mutations for a push. */
-    takeOutbox(limit = 500): Mutation[] {
-      const taken = queued
-        .filter((entry) => !inFlight.has(entry.mutation.id))
-        .slice(0, limit);
-      for (const entry of taken) inFlight.add(entry.mutation.id);
-      return taken.map((entry) => entry.mutation);
-    },
+    takeOutbox: outbox.takeOutbox,
 
-    /** Puts mutations of a failed push back in the queue. */
-    releaseOutbox(mutationIds: readonly string[]) {
-      for (const id of mutationIds) inFlight.delete(id);
-    },
+    releaseOutbox: outbox.releaseOutbox,
 
-    hasQueued() {
-      return queued.some((entry) => !inFlight.has(entry.mutation.id));
-    },
+    hasQueued: outbox.hasQueued,
 
-    /** Mutations the server applied that a pull starting now confirms. */
-    awaitingIds(): ReadonlySet<string> {
-      return new Set(awaiting.map((entry) => entry.mutation.id));
-    },
+    awaitingIds: outbox.awaitingIds,
 
     /** Takes in a push response. A rejected mutation leaves the view at once. */
     acknowledge(sent: readonly string[], response: PushResponse) {
-      const applied = new Set(response.applied);
-      const rejected = new Map(response.rejected.map((r) => [r.id, r]));
-      for (const id of sent) inFlight.delete(id);
-      const done: string[] = [];
-      const rejections: ReplicaRejection[] = [];
-      const stillQueued: OutboxEntry[] = [];
-      for (const entry of queued) {
-        const id = entry.mutation.id;
-        if (applied.has(id)) {
-          const acknowledged = { ...entry, acknowledged: true };
-          awaiting.push(acknowledged);
-          unsaved.set(id, acknowledged);
-          done.push(id);
-        } else if (rejected.has(id)) {
-          const rejection = rejected.get(id);
-          unsaved.set(id, null);
-          done.push(id);
-          if (rejection) {
-            rejections.push({
-              mutation: entry.mutation,
-              reason: rejection.reason,
-              message: rejection.message,
-            });
-          }
-        } else {
-          stillQueued.push(entry);
-        }
-      }
-      queued = stillQueued;
-      if (done.length > 0) void saveOutbox(done);
+      const rejections = outbox.acknowledge(sent, response);
       if (rejections.length > 0) {
         rebuildView(new Map());
         for (const rejection of rejections) {
           for (const listener of rejectionListeners) listener(rejection);
         }
       } else {
-        publish({ ...snapshot, outboxCount: queued.length }, new Map());
+        view.publishPatch({ outboxCount: outbox.queuedCount() });
       }
     },
 
@@ -681,7 +281,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
         household: pull.household,
         lastSyncedAt: now().toISOString(),
       };
-      const removed = confirm(confirmed);
+      const removed = outbox.confirm(confirmed);
       void persist(
         {
           tables: writesOf(draft, result.changed),
@@ -735,7 +335,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
         rowShape: REPLICA_ROW_SHAPE,
         lastSyncedAt: now().toISOString(),
       };
-      void persist({ meta, outboxDelete: confirm(confirmed) });
+      void persist({ meta, outboxDelete: outbox.confirm(confirmed) });
       rebuildView(changed);
     },
 
@@ -766,7 +366,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
         },
         { exchangeRateCursor: cursor },
       );
-      publish({ ...snapshot, exchangeRates }, new Map());
+      view.publishPatch({ exchangeRates });
     },
 
     /** The server's clock went backwards: forget the rows so the next sync bootstraps. */

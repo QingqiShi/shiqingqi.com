@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { color, font } from "../tokens.stylex.ts";
+import { color } from "../color.stylex.ts";
+import { font } from "../tokens.stylex.ts";
 
 export const anchorTokens = stylex.defineVars({
   color: { default: color.fg, ":hover": color.fgMuted },

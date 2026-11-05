@@ -1,8 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
-import { border, color, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { border, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { getScrollBehavior } from "@tuja/ui/utils/get-scroll-behavior";
 import { ViewTransition, useEffect, useState, type ReactNode } from "react";
 import { MediaDetailOverlay } from "#src/movie-database/details/media-detail-overlay.tsx";

@@ -19,7 +19,8 @@ Import each export from its own subpath; there is no barrel. Style through the
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { color } from "@tuja/ui/color.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 
 const styles = stylex.create({
   card: { padding: space._4, backgroundColor: color.bgSurface },

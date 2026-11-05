@@ -8,6 +8,10 @@ export function ownTodo({ userId }: Pick<UserScope, "userId">) {
   return and(eq(todos.userId, userId), isNull(todos.deletedAt));
 }
 
+export function liveTodo(scope: UserScope, todoId: string) {
+  return and(ownTodo(scope), eq(todos.id, todoId));
+}
+
 /** One step of a to-do's checklist. */
 export interface ChecklistItem {
   id: string;

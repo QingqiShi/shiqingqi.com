@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "../breakpoints.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { handBack } from "../effect-layer/hand-back.stylex.ts";
 import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import {
@@ -7,7 +8,6 @@ import {
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
-import { color } from "../tokens.stylex.ts";
 
 /**
  * The shadows of the selected surface of a SegmentedControl and of the

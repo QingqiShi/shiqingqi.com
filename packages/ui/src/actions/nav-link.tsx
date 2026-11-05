@@ -3,11 +3,12 @@
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { createElement, use, useLayoutEffect, type ReactNode } from "react";
+import { color } from "../color.stylex.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { quietSurface } from "../primitives/quiet-surface.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { color, font } from "../tokens.stylex.ts";
+import { font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { NAV_ROW } from "./create-nav-list-motion.ts";
 import {

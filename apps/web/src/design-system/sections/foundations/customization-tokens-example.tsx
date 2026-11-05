@@ -1,14 +1,14 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Progress } from "@tuja/ui/components/progress";
 import { progressTokens } from "@tuja/ui/components/progress.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
 import { Example } from "#src/design-system/example.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 
 const STYLES = `import * as stylex from "@stylexjs/stylex";
 import { progressTokens } from "@tuja/ui/components/progress.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
+import { color } from "@tuja/ui/color.stylex";
 
 const styles = stylex.create({
   outside: { inlineSize: "50%" },

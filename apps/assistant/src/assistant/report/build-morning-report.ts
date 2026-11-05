@@ -8,12 +8,12 @@ import {
   RunMailboxes,
   type SessionDecorator,
 } from "#src/assistant/agent/mail/run-mailboxes.ts";
+import { applyTodoChanges } from "#src/assistant/agent/todos/apply-todo-changes.ts";
 import {
-  applyTodoChanges,
   readDeletedTodos,
   readOpenTodos,
   readRejectedTodos,
-} from "#src/assistant/agent/todos/create-todo-tools.ts";
+} from "#src/assistant/agent/todos/read-open-todos.ts";
 import type { AgentModels } from "#src/assistant/ai/get-agent-models.ts";
 import type { CalendarConnector } from "#src/assistant/calendar/caldav/types.ts";
 import {

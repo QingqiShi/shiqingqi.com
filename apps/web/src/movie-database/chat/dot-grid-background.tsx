@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { cyan } from "@tuja/ui/palette/cyan.stylex";
 import { orange } from "@tuja/ui/palette/orange.stylex";
 import { pink } from "@tuja/ui/palette/pink.stylex";
@@ -11,7 +12,7 @@ import {
   duration,
   easing,
 } from "@tuja/ui/primitives/motion.stylex";
-import { color, layer } from "@tuja/ui/tokens.stylex";
+import { layer } from "@tuja/ui/tokens.stylex";
 import { useAIChatContext } from "./ai-chat-provider.tsx";
 import type { ChatMood } from "./types.ts";
 

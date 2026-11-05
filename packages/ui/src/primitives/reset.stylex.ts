@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "../breakpoints.stylex.ts";
-import { border, color } from "../tokens.stylex.ts";
+import { color } from "../color.stylex.ts";
+import { border } from "../tokens.stylex.ts";
 
 /**
  * Strips the browser's button chrome and puts back what every control needs:

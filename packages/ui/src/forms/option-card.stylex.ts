@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, font } from "../tokens.stylex.ts";
+import { color } from "../color.stylex.ts";
+import { border, font } from "../tokens.stylex.ts";
 
 /**
  * The selectable-card skin: compose it over `cardSurface.base` +

@@ -1,10 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
-import { color, font, controlSize } from "@tuja/ui/tokens.stylex";
+import { font, controlSize } from "@tuja/ui/tokens.stylex";
 import type { MouseEventHandler, PropsWithChildren } from "react";
 
 interface ItemProps {

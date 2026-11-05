@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { border, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
   GuideNote,
   GuideSection,
@@ -48,8 +49,8 @@ export function ColorNamesShowcase() {
         zh: "说出元素，令牌随之而定。",
       })}
       lead={t({
-        en: "Every colour token in @tuja/ui/tokens.stylex reads in one order: what it paints, the element, then any variant and state. Each holds a light and a dark value, so one style paints both themes.",
-        zh: "@tuja/ui/tokens.stylex 中的每个颜色令牌都按同一顺序命名：绘制什么、什么元素，再加上变体与状态。每个令牌都同时含有浅色与深色值，因此一份样式即可绘制两种主题。",
+        en: "Every colour token in @tuja/ui/color.stylex reads in one order: what it paints, the element, then any variant and state. Each holds a light and a dark value, so one style paints both themes.",
+        zh: "@tuja/ui/color.stylex 中的每个颜色令牌都按同一顺序命名：绘制什么、什么元素，再加上变体与状态。每个令牌都同时含有浅色与深色值，因此一份样式即可绘制两种主题。",
       })}
     >
       <div css={styles.container}>

@@ -1,30 +1,27 @@
-import { exchangeRateCursor } from "../exchange-rates/exchange-rate-cursor.ts";
-import { exchangeRatesResponseSchema } from "../exchange-rates/exchange-rate-row-schema.ts";
-import { firstEcbDayOf } from "../exchange-rates/supported-currencies.ts";
-import {
-  readRowShape,
-  REPLICA_ROW_SHAPE,
-  ROW_SHAPE_HEADER,
-  ROW_SHAPE_MISMATCH_STATUS,
-} from "../sync/replica-row-shape.ts";
+import { REPLICA_ROW_SHAPE } from "../sync/replica-row-shape.ts";
 import type {
   BootstrapLine,
   PullResponse,
   PushResponse,
 } from "../sync/types.ts";
+import { createExchangeRateDownloads } from "./create-exchange-rate-downloads.ts";
 import type { ReplicaStore } from "./create-replica-store.ts";
+import {
+  BACKOFF_MAX_MS,
+  createSyncSender,
+  httpError,
+  isUnauthorised,
+  problemOf,
+  RowShapeError,
+  SyncHttpError,
+} from "./create-sync-sender.ts";
+import { createSyncStatusStore } from "./create-sync-status-store.ts";
 import { readNdjsonLines } from "./read-ndjson-lines.ts";
-import type { SyncProblem, SyncStatus } from "./types.ts";
+import type { SyncStatus } from "./types.ts";
 
 const SYNC_ENDPOINT = "/api/sync";
-const EXCHANGE_RATES_ENDPOINT = "/api/exchange-rates";
-const EXCHANGE_RATES_INTERVAL_MS = 15 * 60_000;
-const EXCHANGE_RATES_RETRY_START_MS = 30_000;
-const FIRST_EXCHANGE_RATES_TIMEOUT_MS = 5_000;
-const FIRST_EXCHANGE_RATES_RETRY_START_MS = 2_000;
 const PUSH_BATCH = 500;
 const BACKOFF_START_MS = 1_000;
-const BACKOFF_MAX_MS = 60_000;
 const PULL_INTERVAL_MS = 60_000;
 
 interface SyncLoopOptions {
@@ -43,75 +40,6 @@ interface SyncLoopOptions {
   sendOutbox?: boolean;
   isOnline?: () => boolean;
   isVisible?: () => boolean;
-}
-
-class SyncHttpError extends Error {
-  readonly status: number;
-  /** How long the server asked us to wait, from `Retry-After`. */
-  readonly retryAfterMs: number;
-
-  constructor(status: number, retryAfterMs = 0) {
-    super(`Sync request failed with ${String(status)}`);
-    this.name = "SyncHttpError";
-    this.status = status;
-    this.retryAfterMs = retryAfterMs;
-  }
-}
-
-class RowShapeError extends Error {
-  readonly serverRowShape: number;
-  readonly serverIsNewer: boolean;
-
-  constructor(serverRowShape: number, rowShape: number) {
-    super(
-      `The server has row shape ${String(serverRowShape)}, not ${String(rowShape)}`,
-    );
-    this.name = "RowShapeError";
-    this.serverRowShape = serverRowShape;
-    this.serverIsNewer = serverRowShape > rowShape;
-  }
-}
-
-function retryAfterMsOf(response: Response): number {
-  const seconds = Number(response.headers.get("Retry-After"));
-  return Number.isFinite(seconds) && seconds > 0
-    ? Math.min(seconds * 1_000, BACKOFF_MAX_MS * 5)
-    : 0;
-}
-
-function httpError(response: Response) {
-  return new SyncHttpError(response.status, retryAfterMsOf(response));
-}
-
-function isUnauthorised(error: unknown) {
-  return error instanceof SyncHttpError && error.status === 401;
-}
-
-function problemOf(error: unknown, online: boolean): SyncProblem {
-  if (!online) return "offline";
-  if (error instanceof RowShapeError) {
-    return error.serverIsNewer ? "outdated" : "server-behind";
-  }
-  if (error instanceof SyncHttpError) {
-    if (error.status === 401) return "unauthorised";
-    if (error.status === 503) return "not-configured";
-    if (error.status === 429) return "busy";
-  }
-  return "server";
-}
-
-/** Rejects when `signal` aborts, also when `promise` does not listen to it. */
-function untilAborted<T>(promise: Promise<T>, signal: AbortSignal) {
-  return new Promise<T>((resolve, reject) => {
-    signal.addEventListener(
-      "abort",
-      () => {
-        reject(new Error("The request was aborted", { cause: signal.reason }));
-      },
-      { once: true },
-    );
-    promise.then(resolve, reject);
-  });
 }
 
 /**
@@ -135,8 +63,6 @@ export function createSyncLoop(options: SyncLoopOptions) {
   const rowShape = options.rowShape ?? REPLICA_ROW_SHAPE;
   const request = options.fetch ?? ((input, init) => fetch(input, init));
   const endpoint = options.endpoint ?? SYNC_ENDPOINT;
-  const exchangeRatesEndpoint =
-    options.exchangeRatesEndpoint ?? EXCHANGE_RATES_ENDPOINT;
   const now = options.now ?? (() => Date.now());
   const sendsOutbox = options.sendOutbox ?? true;
   const pendingCount = () =>
@@ -157,80 +83,24 @@ export function createSyncLoop(options: SyncLoopOptions) {
     leader: false,
     newerRowShape: null,
   };
-  let status = initialStatus;
-  /** This device can not write the Replica; it shows over every other problem. */
-  let storageFailed = false;
-  /** The row shape of a newer tab. This tab then never syncs again. */
-  let newerTabRowShape: number | null = null;
-  let shown = status;
-  const statusListeners = new Set<() => void>();
+  const syncStatus = createSyncStatusStore(initialStatus);
+  const { setStatus } = syncStatus;
   let running: Promise<void> | null = null;
   let runAgain = false;
   let failures = 0;
   let pushFailures = 0;
   let retryAfterMs = 0;
   let retryTimer: ReturnType<typeof setTimeout> | undefined;
-  let exchangeRatesTimer: ReturnType<typeof setTimeout> | undefined;
   let stopped = false;
-  let exchangeRatesDueAt = -Infinity;
-  let exchangeRatesFailed = false;
-  let exchangeRatesRetries = 0;
-  let firstExchangeRatesTried = false;
-  let downloadedExchangeRates = false;
-  let servedPairsId: string | null = null;
-  let householdPairsId: string | null = null;
-
-  function setStatus(patch: Partial<SyncStatus>) {
-    status = { ...status, ...patch };
-    let next = status;
-    if (newerTabRowShape !== null) {
-      next = {
-        ...next,
-        problem: "outdated",
-        activity: "idle",
-        leader: false,
-        newerRowShape: Math.max(newerTabRowShape, next.newerRowShape ?? 0),
-      };
-    }
-    if (storageFailed) next = { ...next, problem: "storage" };
-    if (
-      next.online === shown.online &&
-      next.activity === shown.activity &&
-      next.pendingCount === shown.pendingCount &&
-      next.lastSyncedAt === shown.lastSyncedAt &&
-      next.problem === shown.problem &&
-      next.failures === shown.failures &&
-      next.pushProblem === shown.pushProblem &&
-      next.pushFailures === shown.pushFailures &&
-      next.leader === shown.leader &&
-      next.newerRowShape === shown.newerRowShape
-    ) {
-      return;
-    }
-    shown = next;
-    for (const listener of statusListeners) listener();
-  }
-
-  async function send(url: string, init?: RequestInit) {
-    const headers = new Headers(init?.headers);
-    headers.set(ROW_SHAPE_HEADER, String(rowShape));
-    const response = await request(url, {
-      credentials: "same-origin",
-      cache: "no-store",
-      ...init,
-      headers,
-    });
-    if (response.status === 401) {
-      throw new SyncHttpError(401);
-    }
-    if (response.ok || response.status === ROW_SHAPE_MISMATCH_STATUS) {
-      const serverRowShape = readRowShape(response.headers);
-      if (serverRowShape !== undefined && serverRowShape !== rowShape) {
-        throw new RowShapeError(serverRowShape, rowShape);
-      }
-    }
-    return response;
-  }
+  const send = createSyncSender(request, rowShape);
+  const rateDownloads = createExchangeRateDownloads({
+    store,
+    send,
+    exchangeRatesEndpoint: options.exchangeRatesEndpoint,
+    now,
+    isStopped: () => stopped,
+    sync,
+  });
 
   async function push() {
     if (!sendsOutbox) return;
@@ -271,7 +141,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
       const line = JSON.parse(text) as BootstrapLine;
       switch (line.type) {
         case "start": {
-          householdPairsId = line.exchangeRatePairsId ?? householdPairsId;
+          rateDownloads.noteHouseholdPairsId(line.exchangeRatePairsId);
           store.startBootstrap(line.household);
           break;
         }
@@ -280,15 +150,11 @@ export function createSyncLoop(options: SyncLoopOptions) {
           break;
         }
         case "end": {
-          const isFirst =
-            !firstExchangeRatesTried &&
-            store.getMeta().exchangeRateCursor === null;
-          firstExchangeRatesTried = true;
+          const isFirst = rateDownloads.claimFirstDownload();
           const gotFirstRates =
-            isFirst &&
-            (await downloadExchangeRates(FIRST_EXCHANGE_RATES_TIMEOUT_MS));
+            isFirst && (await rateDownloads.downloadFirstExchangeRates());
           store.finishBootstrap(line.clock, confirmed);
-          if (gotFirstRates) scheduleExchangeRates();
+          if (gotFirstRates) rateDownloads.scheduleExchangeRates();
           return;
         }
       }
@@ -309,127 +175,8 @@ export function createSyncLoop(options: SyncLoopOptions) {
     }
     if (!response.ok) throw httpError(response);
     const changes = (await response.json()) as PullResponse;
-    householdPairsId = changes.exchangeRatePairsId ?? householdPairsId;
+    rateDownloads.noteHouseholdPairsId(changes.exchangeRatePairsId);
     store.applyPull(changes, confirmed);
-  }
-
-  function exchangeRatesDue() {
-    if (now() >= exchangeRatesDueAt) return true;
-    return (
-      !exchangeRatesFailed &&
-      householdPairsId !== null &&
-      householdPairsId !== servedPairsId
-    );
-  }
-
-  function householdLacksRates() {
-    const { household, tables, exchangeRates } = store.getSnapshot();
-    if (!household) return false;
-    const quote = household.baseCurrency;
-    const withRates = new Set<string>();
-    for (const rate of exchangeRates.values()) {
-      if (rate.quote === quote) withRates.add(rate.base);
-      if (rate.base === quote) withRates.add(rate.quote);
-    }
-    for (const account of tables.accounts.values()) {
-      const base = account.currency;
-      if (
-        account.deletedAt === null &&
-        base !== quote &&
-        !withRates.has(base) &&
-        firstEcbDayOf({ base, quote }) !== null
-      ) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /** A device with no rates yet tries again soon, and does not wait for the next run. */
-  function retryExchangeRatesLater() {
-    exchangeRatesRetries++;
-    const hasNoRates =
-      !downloadedExchangeRates && store.getMeta().exchangeRateCursor === null;
-    const delay = Math.min(
-      EXCHANGE_RATES_INTERVAL_MS,
-      (hasNoRates
-        ? FIRST_EXCHANGE_RATES_RETRY_START_MS
-        : EXCHANGE_RATES_RETRY_START_MS) *
-        2 ** Math.min(exchangeRatesRetries - 1, 10),
-    );
-    exchangeRatesDueAt = now() + delay;
-    clearTimeout(exchangeRatesTimer);
-    if (hasNoRates && !stopped) {
-      exchangeRatesTimer = setTimeout(() => {
-        void sync();
-      }, delay);
-    }
-  }
-
-  async function fetchExchangeRates(signal: AbortSignal) {
-    const cursor = store.getMeta().exchangeRateCursor;
-    const response = await send(
-      cursor
-        ? `${exchangeRatesEndpoint}?since=${encodeURIComponent(cursor)}`
-        : exchangeRatesEndpoint,
-      { signal },
-    );
-    if (!response.ok) throw httpError(response);
-    return exchangeRatesResponseSchema.parse(await response.json());
-  }
-
-  /**
-   * Downloads the rates that are new since the last download, and gives up
-   * after `timeoutMs`. True when it got them. Only a lost session or another
-   * row shape throws; the rates on the device stay in use.
-   */
-  async function downloadExchangeRates(timeoutMs?: number) {
-    const controller = new AbortController();
-    const timer =
-      timeoutMs === undefined
-        ? undefined
-        : setTimeout(() => {
-            controller.abort(new Error("The exchange rates took too long"));
-          }, timeoutMs);
-    try {
-      const rates = await untilAborted(
-        fetchExchangeRates(controller.signal),
-        controller.signal,
-      );
-      store.applyExchangeRates(rates);
-      const pairsId = exchangeRateCursor.parse(rates.cursor)?.pairsId ?? null;
-      if (pairsId !== servedPairsId) exchangeRatesRetries = 0;
-      servedPairsId = pairsId;
-      exchangeRatesFailed = false;
-      downloadedExchangeRates = true;
-      clearTimeout(exchangeRatesTimer);
-    } catch (error) {
-      if (isUnauthorised(error) || error instanceof RowShapeError) throw error;
-      exchangeRatesFailed = true;
-      retryExchangeRatesLater();
-      return false;
-    } finally {
-      clearTimeout(timer);
-    }
-    return true;
-  }
-
-  /**
-   * A pair with no rate yet waits for the download that the server starts
-   * after the push, so it retries soon.
-   */
-  function scheduleExchangeRates() {
-    if (householdLacksRates()) {
-      retryExchangeRatesLater();
-    } else {
-      exchangeRatesRetries = 0;
-      exchangeRatesDueAt = now() + EXCHANGE_RATES_INTERVAL_MS;
-    }
-  }
-
-  async function refreshExchangeRates() {
-    if (!exchangeRatesDue()) return;
-    if (await downloadExchangeRates()) scheduleExchangeRates();
   }
 
   /** Returns the error of a failed push, or null. A lost session or another row shape throws, because the download then fails too. */
@@ -460,7 +207,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
     if (!meta.bootstrapped || meta.clock === 0) await bootstrap();
     else await pull();
     if (pushError === null && store.hasQueued()) pushError = await tryPush();
-    await refreshExchangeRates();
+    await rateDownloads.refreshExchangeRates();
     return pushError;
   }
 
@@ -486,7 +233,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
 
   /** Runs one sync, or one more after the current one. Never rejects. */
   function sync(): Promise<void> {
-    if (newerTabRowShape !== null) return Promise.resolve();
+    if (syncStatus.hasNewerTab()) return Promise.resolve();
     if (running) {
       runAgain = true;
       return running;
@@ -558,7 +305,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
   function stop() {
     stopped = true;
     clearTimeout(retryTimer);
-    clearTimeout(exchangeRatesTimer);
+    rateDownloads.cancelTimer();
     detach?.();
     detach = null;
     setStatus({ leader: false });
@@ -567,27 +314,13 @@ export function createSyncLoop(options: SyncLoopOptions) {
   return {
     sync,
 
-    getStatus: (): SyncStatus => {
-      return shown;
-    },
+    getStatus: syncStatus.getStatus,
 
-    /** The status before the first sync. The server renders this status because it does not sync. */
-    getServerStatus: (): SyncStatus => {
-      return initialStatus;
-    },
+    getServerStatus: syncStatus.getServerStatus,
 
-    /** Shows that the Replica can not write to disk, until a write works again. */
-    setStorageFailed(failed: boolean) {
-      storageFailed = failed;
-      setStatus({});
-    },
+    setStorageFailed: syncStatus.setStorageFailed,
 
-    subscribeStatus: (listener: () => void) => {
-      statusListeners.add(listener);
-      return () => {
-        statusListeners.delete(listener);
-      };
-    },
+    subscribeStatus: syncStatus.subscribeStatus,
 
     /** Starts the triggers: a local change, coming online, the tab showing, focus, and every 60 s while visible and not outdated. */
     start() {
@@ -597,7 +330,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
         if (isVisible()) void sync();
       };
       const onPoll = () => {
-        if (status.problem !== "outdated") onTrigger();
+        if (syncStatus.reportedProblem() !== "outdated") onTrigger();
       };
       const onOnline = () => {
         setStatus({ online: true });
@@ -638,7 +371,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
 
     /** A tab with a newer row shape is open: stops for good and shows that this tab must reload. */
     stopForNewerTab(newerRowShape: number) {
-      newerTabRowShape = Math.max(newerTabRowShape ?? 0, newerRowShape);
+      syncStatus.noteNewerTab(newerRowShape);
       stop();
       setStatus({});
     },

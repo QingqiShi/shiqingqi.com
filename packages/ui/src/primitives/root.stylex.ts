@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { color, font, latinType } from "../tokens.stylex.ts";
+import { color } from "../color.stylex.ts";
+import { font, latinType } from "../tokens.stylex.ts";
 
 /**
  * Document defaults: `root.html` goes on `<html>` and `root.body` on `<body>`.

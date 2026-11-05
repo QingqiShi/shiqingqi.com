@@ -1,19 +1,14 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { skeletonTokens } from "@tuja/ui/components/skeleton.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import {
-  color,
-  controlHeight,
-  measure,
-  rhythm,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { controlHeight, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
 import { BackdropImage } from "./backdrop-image.tsx";

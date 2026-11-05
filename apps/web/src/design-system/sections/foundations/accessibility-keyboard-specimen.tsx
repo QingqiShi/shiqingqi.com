@@ -5,6 +5,7 @@ import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -12,12 +13,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
-import {
-  border,
-  color,
-  controlHeight,
-  controlSize,
-} from "@tuja/ui/tokens.stylex";
+import { border, controlHeight, controlSize } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 
 /**

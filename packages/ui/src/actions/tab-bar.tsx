@@ -4,20 +4,14 @@ import type { Icon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ComponentType, ReactNode } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { truncate } from "../primitives/layout.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { glassSurface, glassTokens } from "../surfaces/glass-surface.stylex.ts";
-import {
-  color,
-  controlSize,
-  font,
-  rhythm,
-  shadow,
-  space,
-} from "../tokens.stylex.ts";
+import { controlSize, font, rhythm, shadow, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { tabBarTokens, tabLink } from "./tab-bar.stylex.ts";
 import { useTabPress } from "./use-tab-press.ts";

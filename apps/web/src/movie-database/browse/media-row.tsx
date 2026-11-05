@@ -2,10 +2,11 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { pageColumn, pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { CompactMediaCard } from "#src/movie-database/compact-media-card.tsx";
 import { useMediaDetail } from "#src/movie-database/details/media-detail-provider.tsx";
 import { HorizontalScrollRow } from "#src/movie-database/horizontal-scroll-row.tsx";

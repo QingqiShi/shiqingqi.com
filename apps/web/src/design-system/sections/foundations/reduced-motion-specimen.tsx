@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { useReducedMotion } from "@tuja/ui/motion/use-reduced-motion";
 import {
@@ -12,7 +13,7 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, rhythm } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 import { MotionDot, MotionStage } from "./motion-stage.tsx";
