@@ -61,8 +61,7 @@ export function CategoryTrend({
   const datePeriodLabel = usePeriodLabel(view);
   const headingId = useId();
   const switchId = useId();
-  const { name, emoji } = names.category(trend.categoryId);
-  const title = emoji ? `${emoji} ${name}` : name;
+  const title = names.categoryLabel(trend.categoryId);
   const money = (minor: number) =>
     formatAnalyticsMoney(minor, currency, locale, state.kind);
   const tone =

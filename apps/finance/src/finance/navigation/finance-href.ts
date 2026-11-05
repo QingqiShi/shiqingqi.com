@@ -48,6 +48,12 @@ interface AnalyticsDestination extends OverScreen {
   state?: AnalyticsState;
 }
 
+/** `/analytics/month`: one calendar month, `?month=YYYY-MM`, the current month when it is not given. */
+interface MonthDestination extends OverScreen {
+  screen: "month";
+  month?: string | null;
+}
+
 /** The screen that shows, with its own state as it is. */
 interface CurrentDestination extends OverScreen {
   screen: "current";
@@ -58,6 +64,7 @@ export type FinanceDestination =
   | NetWorthDestination
   | TransactionsDestination
   | AnalyticsDestination
+  | MonthDestination
   | (OverScreen & { screen: "reports" | "settings" })
   | CurrentDestination;
 
@@ -69,6 +76,7 @@ const SCREEN_PATHS: Record<FinanceScreen, string> = {
   netWorth,
   transactions,
   analytics,
+  month: `${analytics}/month`,
   reports,
   settings,
 };
@@ -122,6 +130,11 @@ function screenParams(
     }
     case "analytics":
       return to.state ? analyticsParams.write(to.state) : new URLSearchParams();
+    case "month": {
+      const params = new URLSearchParams();
+      if (to.month != null) params.set("month", to.month);
+      return params;
+    }
     case "reports":
     case "settings":
       return new URLSearchParams();

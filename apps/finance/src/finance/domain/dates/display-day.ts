@@ -11,6 +11,8 @@ type DisplayDayStyle =
   | "dayYear"
   | "month"
   | "monthYear"
+  | "longMonthYear"
+  | "narrowMonth"
   | "year";
 
 const DATE_PART: Record<DisplayDayStyle, Intl.DateTimeFormatOptions> = {
@@ -20,6 +22,8 @@ const DATE_PART: Record<DisplayDayStyle, Intl.DateTimeFormatOptions> = {
   dayYear: { day: "numeric", month: "short", year: "numeric" },
   month: { month: "short" },
   monthYear: { month: "short", year: "numeric" },
+  longMonthYear: { month: "long", year: "numeric" },
+  narrowMonth: { month: "narrow" },
   year: { year: "numeric" },
 };
 

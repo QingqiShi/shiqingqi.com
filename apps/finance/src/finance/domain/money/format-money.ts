@@ -6,6 +6,8 @@ interface FormatMoneyOptions {
   signDisplay?: "auto" | "exceptZero";
   /** True shows `£1,137,093` for a summary figure, where pence are noise. */
   wholeUnits?: boolean;
+  /** True shows `£1M` where there is room for only a few characters, in whole units. */
+  compact?: boolean;
 }
 
 const formatters = new Map<string, Intl.NumberFormat>();
@@ -13,16 +15,17 @@ const formatters = new Map<string, Intl.NumberFormat>();
 function getFormatter(
   currency: string,
   locale: string,
-  { signDisplay, wholeUnits }: FormatMoneyOptions,
+  { signDisplay, wholeUnits, compact }: FormatMoneyOptions,
 ) {
-  const key = `${locale}|${currency}|${signDisplay ?? ""}|${wholeUnits ? "whole" : ""}`;
+  const key = `${locale}|${currency}|${signDisplay ?? ""}|${wholeUnits ? "whole" : ""}|${compact ? "compact" : ""}`;
   let formatter = formatters.get(key);
   if (!formatter) {
-    const exponent = wholeUnits ? 0 : currencyExponent(currency);
+    const exponent = wholeUnits || compact ? 0 : currencyExponent(currency);
     formatter = new Intl.NumberFormat(locale, {
       style: "currency",
       currency,
       signDisplay,
+      notation: compact ? "compact" : "standard",
       minimumFractionDigits: exponent,
       maximumFractionDigits: exponent,
     });

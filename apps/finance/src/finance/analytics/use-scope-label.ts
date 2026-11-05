@@ -6,6 +6,5 @@ export function useScopeLabel(view: AnalyticsView): string | null {
   const names = useAnalyticsNames();
   const opened = view.path.at(-1);
   if (opened === undefined) return null;
-  const { name, emoji } = names.category(opened);
-  return emoji ? `${emoji} ${name}` : name;
+  return names.categoryLabel(opened);
 }

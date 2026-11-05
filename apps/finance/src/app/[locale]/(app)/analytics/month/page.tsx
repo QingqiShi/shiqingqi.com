@@ -1,0 +1,20 @@
+import { t } from "@tuja/i18n";
+import type { PageProps } from "@tuja/i18n/types";
+import { validateLocale } from "@tuja/i18n/validate-locale";
+import { TabViewSkeleton } from "@tuja/ui/components/tab-view";
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import { MonthScreen } from "#src/finance/month/month-screen.tsx";
+
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  validateLocale((await props.params).locale);
+  return { title: t({ en: "Month", zh: "月度" }) };
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<TabViewSkeleton />}>
+      <MonthScreen />
+    </Suspense>
+  );
+}
