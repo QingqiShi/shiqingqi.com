@@ -1,7 +1,9 @@
+import type { AnthropicLanguageModelOptions } from "@ai-sdk/anthropic";
+
 /**
  * Compaction threshold in input tokens.
  *
- * The server (context-management-provider-options.ts) and the client (usage
+ * The server (chat-provider-options.ts) and the client (usage
  * indicator) both read this module. Do not import `server-only` here.
  */
 export const COMPACTION_TRIGGER_TOKENS = 100_000;
@@ -20,9 +22,9 @@ export const USAGE_WARNING_RATIO = 0.6;
  * per-message costs low until that point, so no intermediate clearing is
  * needed.
  *
- * Claude Sonnet 4.6 has a 200k context window. The production threshold
- * (100k) leaves headroom and avoids quality degradation ("context rot")
- * that occurs well before the hard limit.
+ * Claude Sonnet 5.5 has a 1M context window. The production threshold
+ * (100k) avoids quality degradation ("context rot") that occurs well before
+ * the hard limit.
  */
 export const CONTEXT_MANAGEMENT_CONFIG = {
   edits: [
@@ -34,4 +36,4 @@ export const CONTEXT_MANAGEMENT_CONFIG = {
         "Summarise this movie/TV recommendation conversation. Preserve: exact titles with release years, user preference signals (liked/disliked genres, actors, moods), recommendation outcomes (accepted, rejected, saved for later), and any ongoing request. Drop: search result details, plot summaries already discussed, and tool call mechanics.",
     },
   ],
-};
+} satisfies AnthropicLanguageModelOptions["contextManagement"];

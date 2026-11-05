@@ -8,7 +8,8 @@ import { classifyMoodTool } from "#src/movie-database/chat/tools/classify-mood-t
 import { createMediaCreditsTool } from "#src/movie-database/chat/tools/create-media-credits-tool.ts";
 import { createPersonCreditsTool } from "#src/movie-database/chat/tools/create-person-credits-tool.ts";
 import { createReviewSummaryTool } from "#src/movie-database/chat/tools/create-review-summary-tool.ts";
-import { createSemanticSearchTool } from "#src/movie-database/chat/tools/create-semantic-search-tool.ts";
+import { createTmdbDiscoverTool } from "#src/movie-database/chat/tools/create-tmdb-discover-tool.ts";
+import { createTmdbRecommendationsTool } from "#src/movie-database/chat/tools/create-tmdb-recommendations-tool.ts";
 import { createTmdbSearchTool } from "#src/movie-database/chat/tools/create-tmdb-search-tool.ts";
 import { createWatchProvidersTool } from "#src/movie-database/chat/tools/create-watch-providers-tool.ts";
 import { presentMediaTool } from "#src/movie-database/chat/tools/present-media-tool.ts";
@@ -78,8 +79,9 @@ function mockStreamResult() {
     messages: [{ role: "user", content: "test" }],
     tools: {
       classify_mood: classifyMoodTool,
-      semantic_search: createSemanticSearchTool("en"),
       tmdb_search: createTmdbSearchTool("en"),
+      tmdb_discover: createTmdbDiscoverTool("en"),
+      tmdb_recommendations: createTmdbRecommendationsTool("en"),
       present_media: presentMediaTool,
       watch_providers: createWatchProvidersTool(),
       present_watch_providers: presentWatchProvidersTool,

@@ -1,7 +1,7 @@
 import { isRecord } from "#src/movie-database/is-record.ts";
 import type { MediaListItem } from "#src/movie-database/types.ts";
 
-function mapTmdbSearchOutput(output: unknown): ReadonlyArray<MediaListItem> {
+function mapMediaResultsOutput(output: unknown): ReadonlyArray<MediaListItem> {
   if (!Array.isArray(output)) return [];
 
   const items: MediaListItem[] = [];
@@ -27,33 +27,6 @@ function mapTmdbSearchOutput(output: unknown): ReadonlyArray<MediaListItem> {
       mediaType:
         entry.media_type === "movie" || entry.media_type === "tv"
           ? entry.media_type
-          : null,
-    });
-  }
-
-  return items;
-}
-
-function mapSemanticSearchOutput(
-  output: unknown,
-): ReadonlyArray<MediaListItem> {
-  if (!Array.isArray(output)) return [];
-
-  const items: MediaListItem[] = [];
-
-  for (const entry of output) {
-    if (!isRecord(entry)) continue;
-    if (typeof entry.tmdbId !== "number") continue;
-
-    items.push({
-      id: entry.tmdbId,
-      title: typeof entry.title === "string" ? entry.title : undefined,
-      posterPath:
-        typeof entry.posterPath === "string" ? entry.posterPath : null,
-      rating: typeof entry.voteAverage === "number" ? entry.voteAverage : null,
-      mediaType:
-        entry.mediaType === "movie" || entry.mediaType === "tv"
-          ? entry.mediaType
           : null,
     });
   }
@@ -91,9 +64,9 @@ export function mapToolOutputToMediaItems(
 ): ReadonlyArray<MediaListItem> {
   switch (toolName) {
     case "tmdb_search":
-      return mapTmdbSearchOutput(output);
-    case "semantic_search":
-      return mapSemanticSearchOutput(output);
+    case "tmdb_discover":
+    case "tmdb_recommendations":
+      return mapMediaResultsOutput(output);
     case "person_credits":
       return mapPersonCreditsOutput(output);
     default:

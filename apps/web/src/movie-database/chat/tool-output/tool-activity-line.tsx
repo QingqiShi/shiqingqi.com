@@ -50,12 +50,33 @@ function getPersonCount(input: unknown): number | null {
   return null;
 }
 
-function getPersonIdSummary(input: unknown): string | null {
+function getIdSummary(input: unknown, key: string): string | null {
   if (!isRecord(input)) return null;
-  if (typeof input.person_id === "number") {
-    return `ID ${String(input.person_id)}`;
+  const id = input[key];
+  return typeof id === "number" ? `ID ${String(id)}` : null;
+}
+
+function formatYearRange(from: unknown, to: unknown): string | null {
+  const start = typeof from === "number" ? String(from) : "";
+  const end = typeof to === "number" ? String(to) : "";
+  if (start === end) return start === "" ? null : start;
+  return `${start}–${end}`;
+}
+
+function getDiscoverSummary(input: unknown): string | null {
+  if (!isRecord(input)) return null;
+  const parts: string[] = [];
+  const years = formatYearRange(input.year_from, input.year_to);
+  if (years !== null) {
+    parts.push(years);
   }
-  return null;
+  if (typeof input.original_language === "string") {
+    parts.push(input.original_language);
+  }
+  if (typeof input.min_rating === "number") {
+    parts.push(`≥ ${String(input.min_rating)}`);
+  }
+  return parts.length > 0 ? parts.join(" · ") : null;
 }
 
 interface ToolActivityLineProps {
@@ -82,8 +103,11 @@ export function ToolActivityLine({
     case "tmdb_search":
       label = t({ en: "TMDB Search", zh: "TMDB 搜索" });
       break;
-    case "semantic_search":
-      label = t({ en: "Semantic Search", zh: "语义搜索" });
+    case "tmdb_discover":
+      label = t({ en: "TMDB Discover", zh: "TMDB 筛选" });
+      break;
+    case "tmdb_recommendations":
+      label = t({ en: "Similar Titles", zh: "相似作品" });
       break;
     case "present_media":
       label = t({ en: "Presenting Results", zh: "展示结果" });
@@ -123,12 +147,12 @@ export function ToolActivityLine({
   const itemPlural = t({ en: "items", zh: "个项目" });
 
   let summary: string | null = null;
-  if (
-    toolName === "tmdb_search" ||
-    toolName === "semantic_search" ||
-    toolName === "web_search"
-  ) {
+  if (toolName === "tmdb_search" || toolName === "web_search") {
     summary = getQuerySummary(input);
+  } else if (toolName === "tmdb_discover") {
+    summary = getDiscoverSummary(input);
+  } else if (toolName === "tmdb_recommendations") {
+    summary = getIdSummary(input, "id");
   } else if (toolName === "watch_providers") {
     if (isRecord(input)) {
       if (typeof input.provider_name === "string") {
@@ -147,7 +171,7 @@ export function ToolActivityLine({
     // No good summary available — media_credits input only has ID + type
     summary = null;
   } else if (toolName === "person_credits") {
-    summary = getPersonIdSummary(input);
+    summary = getIdSummary(input, "person_id");
   } else if (toolName === "present_person") {
     const count = getPersonCount(input);
     if (count !== null) {

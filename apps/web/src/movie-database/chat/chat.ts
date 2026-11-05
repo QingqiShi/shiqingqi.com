@@ -7,7 +7,8 @@ import { classifyMoodTool } from "#src/movie-database/chat/tools/classify-mood-t
 import { createMediaCreditsTool } from "#src/movie-database/chat/tools/create-media-credits-tool.ts";
 import { createPersonCreditsTool } from "#src/movie-database/chat/tools/create-person-credits-tool.ts";
 import { createReviewSummaryTool } from "#src/movie-database/chat/tools/create-review-summary-tool.ts";
-import { createSemanticSearchTool } from "#src/movie-database/chat/tools/create-semantic-search-tool.ts";
+import { createTmdbDiscoverTool } from "#src/movie-database/chat/tools/create-tmdb-discover-tool.ts";
+import { createTmdbRecommendationsTool } from "#src/movie-database/chat/tools/create-tmdb-recommendations-tool.ts";
 import { createTmdbSearchTool } from "#src/movie-database/chat/tools/create-tmdb-search-tool.ts";
 import { createWatchProvidersTool } from "#src/movie-database/chat/tools/create-watch-providers-tool.ts";
 import { presentMediaTool } from "#src/movie-database/chat/tools/present-media-tool.ts";
@@ -16,7 +17,7 @@ import { presentProviderRegionsTool } from "#src/movie-database/chat/tools/prese
 import { presentWatchProvidersTool } from "#src/movie-database/chat/tools/present-watch-providers-tool.ts";
 import { savePreferenceTool } from "#src/movie-database/chat/tools/save-preference-tool.ts";
 import { addCacheControlToMessages } from "./add-cache-control-to-messages";
-import { contextManagementProviderOptions } from "./context-management-provider-options";
+import { chatProviderOptions } from "./chat-provider-options";
 import { getChatSystemInstructions } from "./get-chat-system-instructions";
 import type { ChatInput } from "./types";
 
@@ -40,8 +41,9 @@ export async function chat({
     messages: modelMessages,
     tools: {
       classify_mood: classifyMoodTool,
-      semantic_search: createSemanticSearchTool(locale),
       tmdb_search: createTmdbSearchTool(locale),
+      tmdb_discover: createTmdbDiscoverTool(locale),
+      tmdb_recommendations: createTmdbRecommendationsTool(locale),
       present_media: presentMediaTool,
       watch_providers: createWatchProvidersTool(),
       present_watch_providers: presentWatchProvidersTool,
@@ -51,7 +53,7 @@ export async function chat({
       present_person: presentPersonTool,
       review_summary: createReviewSummaryTool(locale),
       save_preference: savePreferenceTool,
-      web_search: anthropic.tools.webSearch_20250305(
+      web_search: anthropic.tools.webSearch_20260209(
         countryCode && countryCode !== "unknown"
           ? {
               maxUses: 3,
@@ -63,8 +65,8 @@ export async function chat({
           : { maxUses: 3 },
       ),
     },
-    providerOptions: contextManagementProviderOptions,
-    stopWhen: isStepCount(5),
+    providerOptions: chatProviderOptions,
+    stopWhen: isStepCount(8),
     prepareStep: ({ messages, model }) => ({
       messages: addCacheControlToMessages({ messages, model }),
     }),

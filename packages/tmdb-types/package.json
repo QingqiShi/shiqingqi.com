@@ -4,16 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./openapi": "./src/_generated/openapi.d.ts",
-    "./types": "./src/types.ts",
-    "./vector-search-filters-schema": "./src/vector-search-filters-schema.ts"
+    "./openapi": "./src/_generated/openapi.d.ts"
   },
   "scripts": {
-    "build:tsc": "tsc --noEmit",
-    "lint": "eslint --max-warnings 0 ."
-  },
-  "dependencies": {
-    "zod": "catalog:"
+    "build:tsc": "tsc --noEmit"
   },
   "devDependencies": {
     "@tuja/tsconfig": "workspace:*",

@@ -85,6 +85,7 @@ export async function generateCreatureLore(
         content: userPrompt,
       },
     ],
+    providerOptions: { anthropic: { effort: "low" } },
   });
 
   return result.output;

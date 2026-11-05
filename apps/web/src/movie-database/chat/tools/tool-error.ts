@@ -3,9 +3,7 @@ import { isRecord } from "#src/movie-database/is-record.ts";
 export const TOOL_ERROR_MARKER = "__toolError";
 
 export type ToolErrorReason =
-  | "tmdb_unavailable"
-  | "vector_search_unavailable"
-  | "summary_generation_failed";
+  "tmdb_unavailable" | "summary_generation_failed" | "no_match";
 
 export interface ToolErrorResult {
   [TOOL_ERROR_MARKER]: true;

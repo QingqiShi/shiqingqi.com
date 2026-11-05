@@ -22,9 +22,7 @@
     "test:ci": "turbo test",
     "test:e2e": "turbo test:e2e",
     "eval": "pnpm --filter web eval",
-    "eval:dev": "pnpm --filter web eval:dev",
-    "ingest:vector": "pnpm --filter web ingest:vector",
-    "verify:vector": "pnpm --filter web verify:vector"
+    "eval:dev": "pnpm --filter web eval:dev"
   },
   "devDependencies": {
     "@eslint-community/eslint-plugin-eslint-comments": "^4.8.1",

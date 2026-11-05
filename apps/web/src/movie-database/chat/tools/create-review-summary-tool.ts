@@ -29,10 +29,12 @@ export const reviewSummaryInputSchema = z.object({
 });
 
 const TOOL_DESCRIPTION =
-  "Fetch user reviews for a movie or TV show and generate an AI summary " +
-  "with adjustable tone. Use when users ask about reviews, critical reception, " +
-  "or what people think of a title. The spiciness parameter controls the tone " +
-  "(1 = neutral, 5 = bold/opinionated).";
+  "Fetch user reviews for a movie or TV show and generate a summary with an adjustable tone. " +
+  "Use it when the user asks about reviews, critical reception, or what people think of a title. " +
+  "The summary shows on a card, so do not repeat or paraphrase it in your text: " +
+  "add a brief remark or a question at most. " +
+  "Spiciness sets the tone and defaults to 3. " +
+  "When the user asks for a different tone, call it again with a new spiciness value.";
 
 const MAX_REVIEWS = 20;
 const MAX_REVIEW_LENGTH = 500;
@@ -181,6 +183,7 @@ export function createReviewSummaryTool(locale: SupportedLocale) {
         const generation = await generateText({
           model: getAnthropicModel(),
           prompt,
+          providerOptions: { anthropic: { effort: "low" } },
           abortSignal,
         });
         summaryText = generation.text;

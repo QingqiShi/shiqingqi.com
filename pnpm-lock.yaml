@@ -81,9 +81,6 @@ catalogs:
     '@typescript/native':
       specifier: npm:typescript@^7.0.2
       version: 7.0.2
-    '@upstash/vector':
-      specifier: ^1.2.3
-      version: 1.2.3
     '@vercel/analytics':
       specifier: ^2.0.1
       version: 2.0.1
@@ -730,9 +727,6 @@ importers:
       '@upstash/redis':
         specifier: ^1.40.0
         version: 1.40.0
-      '@upstash/vector':
-        specifier: 'catalog:'
-        version: 1.2.3
       ai:
         specifier: ^7.0.154
         version: 7.0.154(zod@4.6.7)
@@ -830,9 +824,6 @@ importers:
       '@tuja/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
-      '@tuja/vector-ingest':
-        specifier: workspace:*
-        version: link:../../packages/vector-ingest
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.5
@@ -1097,10 +1088,6 @@ importers:
   packages/tmdb-codegen: {}
 
   packages/tmdb-types:
-    dependencies:
-      zod:
-        specifier: 'catalog:'
-        version: 4.6.7
     devDependencies:
       '@tuja/tsconfig':
         specifier: workspace:*
@@ -1189,31 +1176,6 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1)
-      vitest:
-        specifier: 'catalog:'
-        version: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(jsdom@30.1.3)(msw@3.0.3(@types/node@26.6.5)(graphql@16.14.2)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1)))(vite@8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1))
-
-  packages/vector-ingest:
-    dependencies:
-      '@tuja/tmdb-types':
-        specifier: workspace:*
-        version: link:../tmdb-types
-      '@upstash/vector':
-        specifier: 'catalog:'
-        version: 1.2.3
-      dotenv:
-        specifier: 'catalog:'
-        version: 18.0.9
-      zod:
-        specifier: 'catalog:'
-        version: 4.6.7
-    devDependencies:
-      '@tuja/tsconfig':
-        specifier: workspace:*
-        version: link:../tsconfig
-      '@types/node':
-        specifier: 'catalog:'
-        version: 26.6.5
       vitest:
         specifier: 'catalog:'
         version: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(jsdom@30.1.3)(msw@3.0.3(@types/node@26.6.5)(graphql@16.14.2)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1)))(vite@8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1))
@@ -4293,9 +4255,6 @@ packages:
 
   '@upstash/redis@1.40.0':
     resolution: {integrity: sha512-F6+V7Kof2McJtGWclusZLt7hBRmIMZg+albS32/5TuNRg/92FM2nkyKPY9wWEieMj9hjyUi4iURsN1djsHNbwA==}
-
-  '@upstash/vector@1.2.3':
-    resolution: {integrity: sha512-yXsWKeuHNYyH72BcSZd3bV5ZD5MybAoTvKxkMaeV2UzuGfNzbHBVh5eO+ysTWTFAf8I9XcOueF4tZfAGjCa4Iw==}
 
   '@vercel/analytics@2.0.1':
     resolution: {integrity: sha512-MTQG6V9qQrt1tsDeF+2Uoo5aPjqbVPys1xvnIftXSJYG2SrwXRHnqEvVoYID7BTruDz4lCd2Z7rM1BdkUehk2g==}
@@ -11241,8 +11200,6 @@ snapshots:
   '@upstash/redis@1.40.0':
     dependencies:
       uncrypto: 0.1.3
-
-  '@upstash/vector@1.2.3': {}
 
   '@vercel/analytics@2.0.1(next@16.4.3(@opentelemetry/api@1.9.1)(@playwright/test@1.64.1)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)':
     optionalDependencies:

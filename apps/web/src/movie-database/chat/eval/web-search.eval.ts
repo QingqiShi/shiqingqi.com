@@ -38,7 +38,7 @@ const cases: EvalCase[] = [
     name: "Does NOT web search for recommendations",
     input: "Recommend sci-fi movies like Arrival",
     criteria: ["Recommends multiple sci-fi movies similar to Arrival"],
-    requireToolCall: "semantic_search",
+    requireToolCall: "tmdb_recommendations",
     forbidToolCall: "web_search",
   },
 ];

@@ -126,6 +126,50 @@ describe("tmdb search execute", () => {
     expect(items).toHaveLength(10);
   });
 
+  it("retries without a trailing year when the first search finds nothing", async () => {
+    server.use(
+      http.get(`${TMDB_BASE}/3/search/multi`, ({ request }) => {
+        const query = new URL(request.url).searchParams.get("query");
+        return HttpResponse.json({
+          page: 1,
+          results:
+            query === "Clue" ? [movieResult({ id: 1, title: "Clue" })] : [],
+          total_pages: 1,
+          total_results: query === "Clue" ? 1 : 0,
+        });
+      }),
+    );
+
+    const tool = createTmdbSearchTool("en");
+    const results = await tool.execute(
+      { query: "Clue (1985)" },
+      toolExecutionOptions(),
+    );
+
+    expect(Array.isArray(results) && results.map((r) => r.id)).toEqual([1]);
+  });
+
+  it("returns a no-match tool error when nothing matches", async () => {
+    server.use(
+      http.get(`${TMDB_BASE}/3/search/multi`, () =>
+        HttpResponse.json({
+          page: 1,
+          results: [],
+          total_pages: 1,
+          total_results: 0,
+        }),
+      ),
+    );
+
+    const tool = createTmdbSearchTool("en");
+    const result = await tool.execute(
+      { query: "Paul alien road trip" },
+      toolExecutionOptions(),
+    );
+
+    expect(isToolError(result) && result.reason).toBe("no_match");
+  });
+
   it("returns a structured tool error when TMDB fails", async () => {
     server.use(
       http.get(`${TMDB_BASE}/3/search/multi`, () =>
