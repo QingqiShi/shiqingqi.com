@@ -1,6 +1,7 @@
 import { fromEpochDay, toEpochDay } from "./to-epoch-day.ts";
 
-function weekdayOfEpochDay(epochDay: number): number {
+/** The ISO weekday of an epoch day: 1 is Monday. */
+export function weekdayOfEpochDay(epochDay: number): number {
   // 1970-01-01 was a Thursday, ISO weekday 4.
   return ((((epochDay + 3) % 7) + 7) % 7) + 1;
 }

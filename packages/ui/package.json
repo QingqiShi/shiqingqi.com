@@ -61,6 +61,7 @@
     "./hooks/use-effect-sticky": "./src/effect-layer/use-effect-sticky.ts",
     "./hooks/use-extractor-fan": "./src/effect-layer/use-extractor-fan.ts",
     "./hooks/use-flow-block": "./src/motion/use-flow-block.tsx",
+    "./hooks/use-flow-change": "./src/motion/use-flow-change.ts",
     "./hooks/use-is-hydrated": "./src/hooks/use-is-hydrated.ts",
     "./hooks/use-light-beam": "./src/effect-layer/use-light-beam.ts",
     "./hooks/use-liquid": "./src/effect-layer/use-liquid.ts",

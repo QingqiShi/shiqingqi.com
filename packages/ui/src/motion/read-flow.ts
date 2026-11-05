@@ -9,6 +9,8 @@ export interface FlowStretch {
   readonly share: FlowShare;
   readonly openHeight: number;
   readonly closedHeight: number;
+  /** Hide what the surface shows below its lower edge, also when it does not clip. */
+  readonly clipsBelow?: boolean;
 }
 
 /** @internal */
@@ -30,7 +32,8 @@ export interface FlowBlock {
 
 const blocks = new Set<FlowBlock>();
 
-interface PlacedBlock {
+/** @internal */
+export interface PlacedBlock {
   readonly block: FlowBlock;
   readonly element: HTMLElement;
 }
@@ -47,8 +50,12 @@ export function addFlowBlock(block: FlowBlock) {
   };
 }
 
-/** A keyed reorder keeps each ancestor before its blocks, so only a new set needs a sort. */
-function placedBlocks() {
+/**
+ * A keyed reorder keeps each ancestor before its blocks, so only a new set needs a sort.
+ *
+ * @internal
+ */
+export function placedBlocks() {
   if (sortedBlocks !== null) return sortedBlocks;
   const placed: PlacedBlock[] = [];
   for (const block of blocks) {
@@ -179,20 +186,75 @@ export function readFlow(
         ? 0
         : scroller.getBoundingClientRect().top);
 
+  const { moves, stretches, offsets } = planFlow(
+    placed,
+    (index, element) =>
+      element !== root && root.contains(element)
+        ? null
+        : { from: open.rects[index], to: closed.rects[index] },
+    (block, element, from, to) => {
+      const isHeld =
+        isAnchored ||
+        (block.isSticky && Math.abs(to.top - from.top) < MIN_MOVE);
+      const scrolled = scroller.contains(element)
+        ? closed.scroll.top - open.scroll.top
+        : 0;
+      return {
+        dx: isAnchored ? 0 : to.left - from.left,
+        dy: isHeld ? 0 : to.top - from.top + scrolled,
+      };
+    },
+    !isAnchored,
+  );
+
+  check?.report(offsets, isAnchored);
+  return {
+    moves,
+    stretches,
+    contentHeight: open.contentHeight,
+    shrinksBy: isAnchored ? 0 : shrinksBy,
+    openScroll: open.scroll,
+  };
+}
+
+/** @internal */
+export interface FlowStretchPlan {
+  readonly element: Element;
+  readonly surface: FlowSurface;
+  readonly openHeight: number;
+  readonly closedHeight: number;
+}
+
+/**
+ * What each block does to show the box `to` from its box `from` in the layout
+ * now: its own offset inside the blocks around it, and the stretch of each
+ * surface that changes its height. `rectsOf` gives `null` to leave a block out.
+ *
+ * @internal
+ */
+export function planFlow(
+  placed: readonly PlacedBlock[],
+  rectsOf: (
+    index: number,
+    element: HTMLElement,
+  ) => { readonly from: DOMRect; readonly to: DOMRect } | null,
+  offsetOf: (
+    block: FlowBlock,
+    element: HTMLElement,
+    from: DOMRect,
+    to: DOMRect,
+  ) => FlowOffset,
+  canStretch: boolean,
+) {
   const offsets = new Map<Element, FlowOffset>();
   const moves: { block: FlowBlock; element: Element; own: FlowOffset }[] = [];
-  const stretches: {
-    element: Element;
-    surface: FlowSurface;
-    openHeight: number;
-    closedHeight: number;
-  }[] = [];
+  const stretches: FlowStretchPlan[] = [];
   const stack: { element: Element; offset: FlowOffset }[] = [];
 
   placed.forEach(({ block, element }, index) => {
-    if (element !== root && root.contains(element)) return;
-    const from = open.rects[index];
-    const to = closed.rects[index];
+    const rects = rectsOf(index, element);
+    if (rects === null) return;
+    const { from, to } = rects;
     if (from.width === 0 && from.height === 0) return;
     while (
       stack.length > 0 &&
@@ -201,13 +263,7 @@ export function readFlow(
       stack.pop();
     }
     const outer = stack.at(-1)?.offset ?? NO_OFFSET;
-    const isHeld =
-      isAnchored || (block.isSticky && Math.abs(to.top - from.top) < MIN_MOVE);
-    const dx = isAnchored ? 0 : to.left - from.left;
-    const scrolled = scroller.contains(element)
-      ? closed.scroll.top - open.scroll.top
-      : 0;
-    const dy = isHeld ? 0 : to.top - from.top + scrolled;
+    const { dx, dy } = offsetOf(block, element, from, to);
     const own = { dx: dx - outer.dx, dy: dy - outer.dy };
     const isMoved = Math.hypot(own.dx, own.dy) >= MIN_MOVE;
     const offset = isMoved ? { dx, dy } : outer;
@@ -217,7 +273,7 @@ export function readFlow(
     const { surface } = block;
     if (
       surface !== null &&
-      !isAnchored &&
+      canStretch &&
       Math.abs(to.height - from.height) >= MIN_MOVE
     ) {
       stretches.push({
@@ -229,12 +285,5 @@ export function readFlow(
     }
   });
 
-  check?.report(offsets, isAnchored);
-  return {
-    moves,
-    stretches,
-    contentHeight: open.contentHeight,
-    shrinksBy: isAnchored ? 0 : shrinksBy,
-    openScroll: open.scroll,
-  };
+  return { moves, stretches, offsets };
 }

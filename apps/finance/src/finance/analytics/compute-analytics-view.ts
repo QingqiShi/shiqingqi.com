@@ -3,6 +3,7 @@ import { fromEpochDay, toEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { upperBound } from "../domain/upper-bound.ts";
 import { aggregateAnalytics } from "./aggregate-analytics.ts";
 import { categoryBuckets } from "./category-buckets.ts";
+import { categoryIdOf } from "./category-id-of.ts";
 import { outlierFences } from "./outlier-fences.ts";
 import { partialPeriods } from "./partial-periods.ts";
 import { periodBoundaries } from "./period-boundaries.ts";
@@ -238,9 +239,6 @@ export function computeAnalyticsView(
       })
     : null;
 
-  const none = parents.length - 1;
-  const idOf = (category: number) =>
-    category === none ? null : index.categoryIds[category];
   const breakdownTotal = current.total;
   const rows: BreakdownRow[] = [];
   for (let bucket = 0; bucket < buckets.count; bucket++) {
@@ -250,7 +248,7 @@ export function computeAnalyticsView(
     const category = buckets.categories[bucket];
     rows.push({
       bucket,
-      categoryId: idOf(category),
+      categoryId: categoryIdOf(index, category),
       direct: bucket === buckets.directBucket,
       hasChildren:
         bucket !== buckets.directBucket && withChildren.has(category),

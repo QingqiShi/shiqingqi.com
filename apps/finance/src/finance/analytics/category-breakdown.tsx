@@ -68,8 +68,7 @@ export function CategoryBreakdown({
 
   const nameOf = (categoryId: string | null, direct: boolean) => {
     if (categoryId === null) return noCategory;
-    const { name, emoji } = names.category(categoryId);
-    const label = emoji ? `${emoji} ${name}` : name;
+    const label = names.categoryLabel(categoryId);
     return direct ? `${label} · ${ownLabel}` : label;
   };
   const rowName = (item: BreakdownRow) => nameOf(item.categoryId, item.direct);

@@ -13,15 +13,21 @@ export function useAnalyticsNames() {
     en: "Uncategorised income",
     zh: "未分类收入",
   });
+  const category = (id: string) => {
+    const row = categories.get(id);
+    if (!row) return { name: "…", emoji: "" };
+    const name =
+      row.isSystem && row.kind === "income"
+        ? uncategorisedIncome
+        : categoryDisplayName(row, systemNames);
+    return { name, emoji: row.emoji };
+  };
   return {
-    category: (id: string) => {
-      const row = categories.get(id);
-      if (!row) return { name: "…", emoji: "" };
-      const name =
-        row.isSystem && row.kind === "income"
-          ? uncategorisedIncome
-          : categoryDisplayName(row, systemNames);
-      return { name, emoji: row.emoji };
+    category,
+    /** The Category's name after its emoji, when it has one. */
+    categoryLabel: (id: string) => {
+      const { name, emoji } = category(id);
+      return emoji ? `${emoji} ${name}` : name;
     },
     payee: (id: string) => payees.get(id)?.name ?? "…",
     tag: (id: string) => tags.get(id)?.name ?? "…",

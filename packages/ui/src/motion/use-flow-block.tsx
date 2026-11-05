@@ -137,10 +137,11 @@ function createSurface(
   block: Pick<FlowBlock, "element">,
   showSkin: (plan: SkinPlan | null) => void,
 ): FlowSurface {
-  let clipCorners = "";
-  // The clip replaces the one that the hold takes off, and goes with the edge.
+  let clipAt: (bottom: string) => string = () => "none";
+  // The clip goes with the edge. It replaces the clip that the hold takes off,
+  // or it hides new content below the edge.
   const clipMover = createFlowMover(null, null, (_x, y) => ({
-    "clip-path": `inset(0 0 ${px(-y)} 0 round ${clipCorners})`,
+    "clip-path": clipAt(px(-y)),
   }));
   const patternMover = createFlowMover(null, clipMover);
   const mover = createFlowMover(null, patternMover);
@@ -176,7 +177,7 @@ function createSurface(
               element.scrollWidth <= element.clientWidth + 1,
       };
     },
-    stretch({ share, openHeight, closedHeight }: FlowStretch) {
+    stretch({ share, openHeight, closedHeight, clipsBelow }: FlowStretch) {
       const { element } = block;
       if (element === null) return () => {};
       for (const part of parts) part.style.removeProperty("display");
@@ -186,7 +187,10 @@ function createSurface(
         dropHold = hold.drop;
         const corners = box.clipsNothing ? clipCornersOf(paint) : null;
         if (corners !== null) {
-          clipCorners = corners;
+          clipAt = (bottom) => `inset(0 0 ${bottom} 0 round ${corners})`;
+          clipMover.setElement(element);
+        } else if (clipsBelow === true) {
+          clipAt = (bottom) => `inset(-100vmax -100vmax ${bottom} -100vmax)`;
           clipMover.setElement(element);
         }
       }
