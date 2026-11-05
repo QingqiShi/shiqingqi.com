@@ -25,8 +25,8 @@ export default function Page() {
     <LegalPage title={t({ en: "Terms of use", zh: "使用条款" })}>
       <Text>
         {t({
-          en: "Qi Assistant (assistant.qingqi.dev) is a personal service that Qingqi Shi runs for his own use. By using it you agree to these terms.",
-          zh: "Qi Assistant（assistant.qingqi.dev）是石清琪为自己使用而运营的个人服务。使用本服务即表示你同意这些条款。",
+          en: "Qi Assistant (assistant.qingqi.dev) is a mail assistant that Qingqi Shi built and runs. It is designed for anyone to use, but it is not open for sign-up yet. By using it you agree to these terms.",
+          zh: "Qi Assistant（assistant.qingqi.dev）是石清琪开发并运营的邮件助手，面向所有人设计，但目前尚未开放注册。使用本服务即表示你同意这些条款。",
         })}
       </Text>
 
