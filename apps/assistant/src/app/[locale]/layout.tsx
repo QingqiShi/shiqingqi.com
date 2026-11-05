@@ -4,11 +4,13 @@ import { setLocale } from "@tuja/i18n/server-locale";
 import type { PageProps } from "@tuja/i18n/types";
 import { isValidLocale, validateLocale } from "@tuja/i18n/validate-locale";
 import { EffectLayerProvider } from "@tuja/ui/components/effect-layer-provider";
+import { LinkProvider } from "@tuja/ui/components/link-provider";
 import { PortalTargetProvider } from "@tuja/ui/components/portal-target-provider";
 import { root } from "@tuja/ui/primitives/root.stylex";
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { webAppMetadata } from "#src/assistant/pwa/web-app-metadata.ts";
+import { RouterLink } from "#src/links/router-link.tsx";
 import { SerwistProvider } from "#src/pwa/serwist-provider.tsx";
 import { globalStyles } from "#src/theme/global-styles.ts";
 import { ThemeApplier } from "#src/theme/theme-applier.tsx";
@@ -78,7 +80,11 @@ export default async function RootLayout({
             <script>{themeHack}</script>
             <ThemeApplier />
             <EffectLayerProvider>
-              <PortalTargetProvider>{children}</PortalTargetProvider>
+              <PortalTargetProvider>
+                <LinkProvider linkComponent={RouterLink}>
+                  {children}
+                </LinkProvider>
+              </PortalTargetProvider>
             </EffectLayerProvider>
           </SerwistProvider>
         </I18nProvider>

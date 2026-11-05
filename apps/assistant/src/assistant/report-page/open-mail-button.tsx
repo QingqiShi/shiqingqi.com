@@ -2,12 +2,12 @@
 
 import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import { t } from "@tuja/i18n";
-import { AnchorButton } from "@tuja/ui/components/anchor-button";
+import { Button } from "@tuja/ui/components/button";
 
 /** Opens the mail a row came from, in the owner's mail app or its web page. */
 export function OpenMailButton({ href }: { href: string }) {
   return (
-    <AnchorButton
+    <Button
       href={href}
       size="sm"
       look="ghost"

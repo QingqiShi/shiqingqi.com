@@ -19,6 +19,7 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import { Badge } from "@tuja/ui/components/badge";
+import { Button } from "@tuja/ui/components/button";
 import { Disclosure } from "@tuja/ui/components/disclosure";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
@@ -29,7 +30,6 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
-import { AnchorButton } from "#src/links/anchor-button.tsx";
 import type {
   ActivityEntry,
   ActivityItem,
@@ -780,13 +780,13 @@ export function ActivityView({
       ))}
       {earlier ? (
         <div>
-          <AnchorButton
+          <Button
             href={`${getLocalePath("/activity", place.locale)}?before=${encodeURIComponent(earlier.toISOString())}`}
             look="ghost"
             size="sm"
           >
             {t({ en: "Earlier", zh: "更早" })}
-          </AnchorButton>
+          </Button>
         </div>
       ) : null}
     </div>

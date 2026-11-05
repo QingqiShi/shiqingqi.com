@@ -9,7 +9,6 @@ import type { SupportedLocale } from "@tuja/i18n/types";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { usePathname } from "next/navigation";
-import { AnchorButton } from "#src/links/anchor-button.tsx";
 import { useBackOverride } from "./back-override-provider.tsx";
 
 // Intermediate route segments that have no page of their own — detail pages
@@ -69,7 +68,7 @@ export function BackButton({ locale, label }: BackButtonProps) {
           ? getLocalePath("/movie-database?type=tv", locale)
           : getLocalePath("/movie-database", locale);
       return (
-        <AnchorButton
+        <Button
           icon={<CaretLeftIcon weight="bold" role="presentation" />}
           href={targetPath}
           aria-label={label}
@@ -80,7 +79,7 @@ export function BackButton({ locale, label }: BackButtonProps) {
             role="presentation"
             {...stylex.props(styles.mobileVisible)}
           />
-        </AnchorButton>
+        </Button>
       );
     }
   }
@@ -93,7 +92,7 @@ export function BackButton({ locale, label }: BackButtonProps) {
   );
 
   return (
-    <AnchorButton
+    <Button
       icon={<CaretLeftIcon weight="bold" role="presentation" />}
       href={targetPath}
       aria-label={label}
@@ -104,7 +103,7 @@ export function BackButton({ locale, label }: BackButtonProps) {
         role="presentation"
         {...stylex.props(styles.mobileVisible)}
       />
-    </AnchorButton>
+    </Button>
   );
 }
 

@@ -2,13 +2,13 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { Chip } from "@tuja/ui/components/chip";
+import { Button } from "@tuja/ui/components/button";
 import { fieldStyles } from "@tuja/ui/components/field-shared.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { corner, cornerTokens } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { border, color, controlHeight, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { addDays } from "../domain/dates/add-days.ts";
 import { isValidDay } from "../domain/dates/to-epoch-day.ts";
@@ -37,7 +37,8 @@ export function DateChips({ value, today, onChange, mark }: DateChipsProps) {
       </FieldLabel>
       <div css={cluster.tight}>
         {choices.map((choice) => (
-          <Chip
+          <Button
+            look="outline"
             key={choice.day}
             size="xs"
             isActive={value === choice.day}
@@ -46,7 +47,7 @@ export function DateChips({ value, today, onChange, mark }: DateChipsProps) {
             }}
           >
             {choice.label}
-          </Chip>
+          </Button>
         ))}
         <label htmlFor={inputId} css={a11y.srOnly}>
           {t({ en: "Pick a date", zh: "选择日期" })}
@@ -63,7 +64,7 @@ export function DateChips({ value, today, onChange, mark }: DateChipsProps) {
             typeRole.controlCaption,
             fieldStyles.box,
             fieldStyles.control,
-            corner.radius_round,
+            corner.squircle_round,
             a11y.focusRing,
             styles.input,
           ]}
@@ -75,6 +76,7 @@ export function DateChips({ value, today, onChange, mark }: DateChipsProps) {
 
 const styles = stylex.create({
   input: {
+    [cornerTokens.height]: controlHeight.xs,
     inlineSize: "auto",
     paddingBlock: space._00,
     paddingInline: space._2,

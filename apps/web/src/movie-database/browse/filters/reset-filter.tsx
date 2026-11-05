@@ -2,9 +2,9 @@
 
 import { FunnelXIcon } from "@phosphor-icons/react/dist/ssr/FunnelX";
 import { t } from "@tuja/i18n";
+import { Button } from "@tuja/ui/components/button";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
 import type { MouseEvent } from "react";
-import { AnchorButton } from "#src/links/anchor-button.tsx";
 import { useMediaFilters } from "./use-media-filters";
 
 interface ResetFilterProps {
@@ -30,7 +30,7 @@ export function ResetFilter({ bright, hideLabel, iconOnly }: ResetFilterProps) {
       reset();
     },
     icon: <FunnelXIcon weight="bold" aria-hidden="true" />,
-    bright,
+    look: bright ? ("bright" as const) : undefined,
   };
 
   return (
@@ -41,9 +41,9 @@ export function ResetFilter({ bright, hideLabel, iconOnly }: ResetFilterProps) {
         </MenuLabel>
       )}
       {iconOnly ? (
-        <AnchorButton {...linkProps} aria-label={label} />
+        <Button {...linkProps} aria-label={label} />
       ) : (
-        <AnchorButton {...linkProps}>{label}</AnchorButton>
+        <Button {...linkProps}>{label}</Button>
       )}
     </div>
   );

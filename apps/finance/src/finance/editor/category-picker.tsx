@@ -3,7 +3,7 @@
 import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { Chip } from "@tuja/ui/components/chip";
+import { Button } from "@tuja/ui/components/button";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm } from "@tuja/ui/tokens.stylex";
@@ -40,7 +40,8 @@ function CategoryChip({
 }) {
   const categoryName = useCategoryDisplayName();
   return (
-    <Chip
+    <Button
+      look="outline"
       ref={chipRef}
       size="xs"
       isActive={isActive}
@@ -48,7 +49,7 @@ function CategoryChip({
       onClick={onPick}
     >
       {categoryName(category)}
-    </Chip>
+    </Button>
   );
 }
 
@@ -106,7 +107,8 @@ export function CategoryPicker({
             chipRef={index === 0 ? firstChipRef : undefined}
           />
         ))}
-        <Chip
+        <Button
+          look="outline"
           size="xs"
           aria-expanded={showAll}
           trailing={
@@ -121,7 +123,7 @@ export function CategoryPicker({
           }}
         >
           {t({ en: "More", zh: "更多" })}
-        </Chip>
+        </Button>
       </div>
       {showAll ? (
         <div css={[stack.item, styles.all]}>

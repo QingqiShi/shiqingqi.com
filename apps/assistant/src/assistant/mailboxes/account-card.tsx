@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
+import { Button } from "@tuja/ui/components/button";
 import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -158,9 +158,9 @@ export function AccountCard({
           ) : null}
           <div css={styles.actions}>
             {account.status === "reconnect" && reconnectHref ? (
-              <AnchorButton href={reconnectHref} size="sm" look="primary">
+              <Button href={reconnectHref} size="sm" look="primary">
                 {t({ en: "Connect again", zh: "重新连接" })}
-              </AnchorButton>
+              </Button>
             ) : null}
             <AccountActions accountId={account.id} />
           </div>

@@ -190,8 +190,11 @@ export function BreadcrumbShowcase() {
               items={[
                 { label: home, href: homeHref },
                 {
-                  label: t({ en: "Chip", zh: "标签按钮" }),
-                  href: getLocalePath("/design-system/components/chip", locale),
+                  label: t({ en: "Menu button", zh: "菜单按钮" }),
+                  href: getLocalePath(
+                    "/design-system/components/menu-button",
+                    locale,
+                  ),
                 },
                 {
                   label: t({ en: "Switch", zh: "开关" }),
@@ -209,8 +212,8 @@ export function BreadcrumbShowcase() {
             />
           }
           dontCaption={t({
-            en: "Don't retrace how the visitor reached this page — Chip and Switch are siblings of this page, not ancestors. A breadcrumb reports location, and it is not a Back control: the browser already has one.",
-            zh: "不要还原访客的浏览过程——标签按钮与开关是本页面的同级页面，而非上级。面包屑导航表示位置，也不是返回控件：浏览器本身已经提供了返回。",
+            en: "Don't retrace how the visitor reached this page — Menu button and Switch are siblings of this page, not ancestors. A breadcrumb reports location, and it is not a Back control: the browser already has one.",
+            zh: "不要还原访客的浏览过程——菜单按钮与开关是本页面的同级页面，而非上级。面包屑导航表示位置，也不是返回控件：浏览器本身已经提供了返回。",
           })}
         />
       </Showcase>

@@ -5,7 +5,6 @@ import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Button } from "@tuja/ui/components/button";
 import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
@@ -35,7 +34,7 @@ export function ReportWeekNav({ older, newer }: ReportWeekNavProps) {
         {label}
       </Button>
     ) : (
-      <AnchorButton
+      <Button
         href={getLocalePath(`/reports/${report.id}`, locale)}
         linkComponent={SplitViewLink}
         size="sm"
@@ -44,7 +43,7 @@ export function ReportWeekNav({ older, newer }: ReportWeekNavProps) {
         aria-label={`${label}${colon}${formatReportWeek(report.periodStart, report.periodEnd, locale)}`}
       >
         {label}
-      </AnchorButton>
+      </Button>
     );
 
   return (

@@ -11,23 +11,23 @@ The import paths below are the `@tuja/ui` package exports that `apps/web` uses. 
 
 ## Quick Decision Guide
 
-| Need                                                | Use                                                | Example                                                             |
-| --------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------- |
-| Flex layout, fills, truncation, resets, transitions | Design primitives                                  | `css={flex.row}`                                                    |
-| Space between siblings (a stack, a row)             | Stack primitives / `rhythm`                        | `css={stack.item}`, `gap: rhythm.tight`                             |
-| Text size, line height, weight, tracking            | `Text`/`Heading`, or `typeRole`                    | `css={[typeRole.label, styles.navItem]}`                            |
-| A small line above a title (eyebrow)                | `stack.tight`                                      | `css={stack.tight}` on the eyebrow and title                        |
-| A link or button with more than one line            | `Pager`, `AnchorButton`, `cardSurface.interactive` | hover responds across the whole target, never underlines part of it |
-| A link or button that fills only on hover (a row)   | `quietSurface.interactive`                         | `css={[corner.radius_3, quietSurface.interactive, styles.row]}`     |
-| Cap a line of prose                                 | `measure` tokens                                   | `maxInlineSize: measure.prose`                                      |
-| Set a page's content in the centred column          | `pageColumn` primitive                             | `css={[pageColumn.base, styles.hero]}`                              |
-| Rounded corners                                     | Design primitives (`corner.*`)                     | `css={corner.radius_3}`                                             |
-| Override a primitive's default                      | Layout modifier                                    | `css={[flex.row, align.end]}`                                       |
-| Single-property styling (color, padding, border)    | `stylex.create` + tokens                           | `color: color.fg`                                                   |
-| Responsive behavior                                 | `stylex.create` + breakpoints                      | `{ default: "none", [breakpoints.md]: "flex" }`                     |
-| Pseudo-selectors (focus, active)                    | `stylex.create`                                    | `{ default: val, ":focus-visible": focusVal }`                      |
-| Hover                                               | `stylex.create` + `pointer`                        | see [Hover](#hover)                                                 |
-| Icon size and colour                                | The parent's font size, `color`                    | see [Icons](#icons)                                                 |
+| Need                                                | Use                                          | Example                                                             |
+| --------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------- |
+| Flex layout, fills, truncation, resets, transitions | Design primitives                            | `css={flex.row}`                                                    |
+| Space between siblings (a stack, a row)             | Stack primitives / `rhythm`                  | `css={stack.item}`, `gap: rhythm.tight`                             |
+| Text size, line height, weight, tracking            | `Text`/`Heading`, or `typeRole`              | `css={[typeRole.label, styles.navItem]}`                            |
+| A small line above a title (eyebrow)                | `stack.tight`                                | `css={stack.tight}` on the eyebrow and title                        |
+| A link or button with more than one line            | `Pager`, `Button`, `cardSurface.interactive` | hover responds across the whole target, never underlines part of it |
+| A link or button that fills only on hover (a row)   | `quietSurface.interactive`                   | `css={[corner.radius_3, quietSurface.interactive, styles.row]}`     |
+| Cap a line of prose                                 | `measure` tokens                             | `maxInlineSize: measure.prose`                                      |
+| Set a page's content in the centred column          | `pageColumn` primitive                       | `css={[pageColumn.base, styles.hero]}`                              |
+| Rounded corners                                     | Design primitives (`corner.*`)               | `css={corner.radius_3}`                                             |
+| Override a primitive's default                      | Layout modifier                              | `css={[flex.row, align.end]}`                                       |
+| Single-property styling (color, padding, border)    | `stylex.create` + tokens                     | `color: color.fg`                                                   |
+| Responsive behavior                                 | `stylex.create` + breakpoints                | `{ default: "none", [breakpoints.md]: "flex" }`                     |
+| Pseudo-selectors (focus, active)                    | `stylex.create`                              | `{ default: val, ":focus-visible": focusVal }`                      |
+| Hover                                               | `stylex.create` + `pointer`                  | see [Hover](#hover)                                                 |
+| Icon size and colour                                | The parent's font size, `color`              | see [Icons](#icons)                                                 |
 
 ## The `css` Prop
 
@@ -98,7 +98,7 @@ stacked: {
 
 ## Hover
 
-A tap on a touch screen leaves `:hover` matching until the next tap elsewhere, so a Button or a Chip keeps its hover fill. Every hover style goes behind `pointer.canHover` (`@media (hover: hover) and (pointer: fine)`) from `@tuja/ui/breakpoints.stylex`. It lives beside `breakpoints` because the breakpoints Babel plugin inlines both, and an inlined media query is what StyleX ranks as one. The `@tuja/require-hover-media` ESLint rule enforces this for every key that contains `:hover`, including `:not(:hover)` and `stylex.when.*(":hover")`.
+A tap on a touch screen leaves `:hover` matching until the next tap elsewhere, so a Button keeps its hover fill. Every hover style goes behind `pointer.canHover` (`@media (hover: hover) and (pointer: fine)`) from `@tuja/ui/breakpoints.stylex`. It lives beside `breakpoints` because the breakpoints Babel plugin inlines both, and an inlined media query is what StyleX ranks as one. The `@tuja/require-hover-media` ESLint rule enforces this for every key that contains `:hover`, including `:not(:hover)` and `stylex.when.*(":hover")`.
 
 A hover that reveals something is one of two kinds, and the kind decides what touch sees:
 
@@ -121,7 +121,7 @@ const styles = stylex.create({
   },
   // Several hover keys on one property, or a chained key such as
   // `:disabled:hover` (which takes no nested value): one branch for all.
-  chip: {
+  filter: {
     backgroundColor: {
       default: color.bgSurface,
       [pointer.canHover]: {
@@ -261,7 +261,7 @@ Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. 
 - **Selected** — every selected state reads the element's own `aria-pressed`, `aria-checked`, `aria-selected` or `aria-current`: set the attribute, never a hand-built `isActive && styles.active`. `quietSurface.interactive` (a background) is the default. `selected.marked` (accent border and tint) is only for a choice the visitor submits
 - **Quiet surface** — `quietSurface.interactive` is a link or button with no fill of its own that fills under the pointer, such as a row of a list, a menu item, a segmented choice or a bare icon button. It carries the hover, the press, the selected state, the inset focus ring, the transition, the touch feel, `cursor: pointer`, no text decoration and the inherited colour. The caller sets the radius and the padding. Compose it after `buttonReset.base`, and put the caller's own styles after it. A control that stands alone composes `a11y.focusRing` after it to keep an outward ring
 - **Page column** — `pageColumn.base` / `pageColumn.scroller` set a page's content in the centred column with the page gutter; `pageColumn.wide` with either widens the column to the screen for a gallery of cards; `pageColumn.regular`, `list`, `settings` and `report` name the other widths; a screen chooses its width with one of these in the `css` of its `NavigationSplitView`, or of a `TabView` for its screens of one pane; `pageGutter` is one gutter
-- **A11y** — `srOnly` visually hides text while keeping it announced; `focusRing`/`focusRingInset`/`focusRingWithin` paint the keyboard focus ring. Every element that takes focus draws it: start a hand-built `<button>` from `buttonReset.base`, which already carries it, and compose `a11y.focusRing` on any other focusable element (a link, a native input, a scroller). Never remove the outline. `touchTarget` gives a control a hit area of at least 44px under a coarse pointer, no tap flash and `touch-action: manipulation`; `buttonReset.base`, `chipSurface.interactive` and `Button` carry it, and `cardSurface.interactive` carries all of it except the hit area, which a card does not need; `touchRow` gives a control that abuts its neighbours, such as a row of a list, the same touch feel and a min block size of 44px instead of a hit area that would cover the next row
+- **A11y** — `srOnly` visually hides text while keeping it announced; `focusRing`/`focusRingInset`/`focusRingWithin` paint the keyboard focus ring. Every element that takes focus draws it: start a hand-built `<button>` from `buttonReset.base`, which already carries it, and compose `a11y.focusRing` on any other focusable element (a link, a native input, a scroller). Never remove the outline. `touchTarget` gives a control a hit area of at least 44px under a coarse pointer, no tap flash and `touch-action: manipulation`; `buttonReset.base`, `outlineSurface.interactive` and `Button` carry it, and `cardSurface.interactive` carries all of it except the hit area, which a card does not need; `touchRow` gives a control that abuts its neighbours, such as a row of a list, the same touch feel and a min block size of 44px instead of a hit area that would cover the next row
 
 ## Best Practices
 

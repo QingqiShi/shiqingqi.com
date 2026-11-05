@@ -29,7 +29,7 @@ const noPartialHoverUnderline = {
     },
     messages: {
       partialHoverUnderline:
-        'A target of more than one line responds as a whole, so underlining part of it on hover reads as a text link inside a button. Use `AnchorButton`, `Pager`, `cardSurface.interactive` or a fill. A plain `":hover"` underline on an inline link is fine.',
+        'A target of more than one line responds as a whole, so underlining part of it on hover reads as a text link inside a button. Use `Button`, `Pager`, `cardSurface.interactive` or a fill. A plain `":hover"` underline on an inline link is fine.',
     },
     schema: [],
   },

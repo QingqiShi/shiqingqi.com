@@ -89,7 +89,7 @@ export function SurfacesShowcase() {
           />
           <Step
             token="radius_round"
-            name={t({ en: "Chip", zh: "标签" })}
+            name={t({ en: "Badge", zh: "徽章" })}
             shape={
               <div css={[corner.radius_round, styles.panel, styles.pill]} />
             }

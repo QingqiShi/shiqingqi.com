@@ -3,7 +3,7 @@
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { AnchorButton } from "@tuja/ui/components/anchor-button";
+import { Button } from "@tuja/ui/components/button";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { controlSize, font, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -19,7 +19,7 @@ export function FinanceRailAdd() {
   const href = useNewTransactionHref();
 
   return (
-    <AnchorButton
+    <Button
       href={href}
       linkComponent={NewTransactionLink}
       look="primary"
@@ -32,7 +32,7 @@ export function FinanceRailAdd() {
       css={[typeRole.caption, corner.radius_3, styles.tile]}
     >
       {t({ en: "Add", zh: "记一笔" })}
-    </AnchorButton>
+    </Button>
   );
 }
 

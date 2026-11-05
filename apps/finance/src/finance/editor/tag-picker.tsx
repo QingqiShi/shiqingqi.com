@@ -2,7 +2,7 @@
 
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import { t } from "@tuja/i18n";
-import { Chip } from "@tuja/ui/components/chip";
+import { Button } from "@tuja/ui/components/button";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useId, useState } from "react";
 import type { TagRow } from "../sync/row-schemas.ts";
@@ -56,7 +56,8 @@ export function TagPicker({
       {value.length > 0 ? (
         <div css={cluster.tight}>
           {value.map((tagId) => (
-            <Chip
+            <Button
+              look="outline"
               key={tagId}
               size="xs"
               aria-label={`${removeLabel} ${byId.get(tagId)?.name ?? ""}`}
@@ -66,7 +67,7 @@ export function TagPicker({
               }}
             >
               {byId.get(tagId)?.name ?? "…"}
-            </Chip>
+            </Button>
           ))}
         </div>
       ) : null}

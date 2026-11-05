@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { Button } from "./button.tsx";
+import { LinkProvider, type LinkSlotProps } from "./link-provider.tsx";
 
 describe("Button Interaction", () => {
   it("triggers onClick when clicked", async () => {
@@ -88,5 +89,94 @@ describe("Button loading state", () => {
     await user.click(screen.getByRole("button"));
 
     expect(onClick).not.toHaveBeenCalled();
+  });
+});
+
+describe("Button with an href", () => {
+  function ProvidedLink(props: LinkSlotProps) {
+    return <a {...props} data-link="provided" />;
+  }
+
+  function OwnLink(props: LinkSlotProps) {
+    return <a {...props} data-link="own" />;
+  }
+
+  it("renders a plain link without a provider", () => {
+    render(<Button href="/settings">Settings</Button>);
+
+    const link = screen.getByRole("link", { name: "Settings" });
+    expect(link).toHaveAttribute("href", "/settings");
+    expect(link).not.toHaveAttribute("data-link");
+    expect(link).not.toHaveAttribute("type");
+  });
+
+  it("takes the link of the provider", () => {
+    render(
+      <LinkProvider linkComponent={ProvidedLink}>
+        <Button href="/settings">Settings</Button>
+      </LinkProvider>,
+    );
+
+    expect(screen.getByRole("link")).toHaveAttribute("data-link", "provided");
+  });
+
+  it("prefers its own linkComponent to the provider", () => {
+    render(
+      <LinkProvider linkComponent={ProvidedLink}>
+        <Button href="/settings" linkComponent={OwnLink}>
+          Settings
+        </Button>
+      </LinkProvider>,
+    );
+
+    expect(screen.getByRole("link")).toHaveAttribute("data-link", "own");
+  });
+
+  it("keeps a click handler working through the link", async () => {
+    const handleClick = vi.fn((event: { preventDefault: () => void }) => {
+      event.preventDefault();
+    });
+    const user = userEvent.setup();
+    render(
+      <Button href="/settings" onClick={handleClick}>
+        Settings
+      </Button>,
+    );
+
+    await user.click(screen.getByRole("link"));
+
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("Button isActive ARIA", () => {
+  it("presses a button and marks nothing as current", () => {
+    render(<Button isActive>Filter</Button>);
+
+    const button = screen.getByRole("button");
+    expect(button).toHaveAttribute("aria-pressed", "true");
+    expect(button).not.toHaveAttribute("aria-current");
+  });
+
+  it("marks a link as current and never presses it", () => {
+    render(
+      <Button href="/films" isActive>
+        Films
+      </Button>,
+    );
+
+    const link = screen.getByRole("link");
+    expect(link).toHaveAttribute("aria-current", "true");
+    expect(link).not.toHaveAttribute("aria-pressed");
+  });
+
+  it("lets the caller's aria-current win on a link", () => {
+    render(
+      <Button href="/films" isActive aria-current="page">
+        Films
+      </Button>,
+    );
+
+    expect(screen.getByRole("link")).toHaveAttribute("aria-current", "page");
   });
 });

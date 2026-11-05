@@ -3,11 +3,9 @@
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import {
-  AnchorButton,
-  type AnchorButtonLinkProps,
-} from "@tuja/ui/components/anchor-button";
+import { Button } from "@tuja/ui/components/button";
 import { buttonTokens } from "@tuja/ui/components/button.stylex";
+import type { LinkSlotProps } from "@tuja/ui/components/link-provider";
 import { tabViewQueries } from "@tuja/ui/components/tab-view.stylex";
 import { ColumnLink } from "../navigation/column-link.tsx";
 import {
@@ -16,7 +14,7 @@ import {
 } from "./floating-action.stylex.ts";
 import { useNewTransactionHref } from "./use-new-transaction-href.ts";
 
-export function NewTransactionLink(props: AnchorButtonLinkProps) {
+export function NewTransactionLink(props: LinkSlotProps) {
   return <ColumnLink {...props} opens />;
 }
 
@@ -33,7 +31,7 @@ export function FinanceAddButton() {
 
   return (
     <div css={styles.barOnly}>
-      <AnchorButton
+      <Button
         href={href}
         linkComponent={NewTransactionLink}
         look="primary"
@@ -43,7 +41,7 @@ export function FinanceAddButton() {
         css={[floatingAction.lift, styles.button]}
       >
         {t({ en: "Add", zh: "记一笔" })}
-      </AnchorButton>
+      </Button>
     </div>
   );
 }

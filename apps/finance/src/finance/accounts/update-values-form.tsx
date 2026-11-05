@@ -5,7 +5,6 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
@@ -24,7 +23,6 @@ import {
   type KeyboardEvent,
   type SubmitEvent,
 } from "react";
-import { Link } from "#src/links/link.tsx";
 import { sideOfKind } from "../domain/accounts/side-of-kind.ts";
 import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
@@ -396,13 +394,9 @@ export function UpdateValuesForm() {
           </Callout>
         ) : null}
         <FloatingActions>
-          <AnchorButton
-            href={pathname}
-            linkComponent={Link}
-            css={floatingAction.lift}
-          >
+          <Button href={pathname} css={floatingAction.lift}>
             {t({ en: "Cancel", zh: "取消" })}
-          </AnchorButton>
+          </Button>
           <Button
             ref={saveRef}
             type="submit"

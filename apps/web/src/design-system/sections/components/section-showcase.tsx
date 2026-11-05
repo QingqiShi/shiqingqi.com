@@ -1,7 +1,7 @@
 import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
 import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
 import { t } from "@tuja/i18n";
-import { Chip } from "@tuja/ui/components/chip";
+import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { Section } from "@tuja/ui/components/section";
 import { Text } from "@tuja/ui/components/text";
@@ -32,14 +32,14 @@ export function SectionShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "With actions", zh: "带操作" })}>
-        <Specimen caption={t({ en: "with a chip", zh: "带标签按钮" })}>
+        <Specimen caption={t({ en: "with a link", zh: "带链接" })}>
           <Section
             title={t({ en: "Similar titles", zh: "相似作品" })}
             icon={<FilmSlateIcon weight="bold" />}
             actions={
-              <Chip size="xs" href="#section">
+              <Button look="outline" size="xs" href="#section">
                 {t({ en: "See all", zh: "查看全部" })}
-              </Chip>
+              </Button>
             }
             css={fill.inline}
             description={t({

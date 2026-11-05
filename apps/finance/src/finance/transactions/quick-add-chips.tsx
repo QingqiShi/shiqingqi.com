@@ -17,7 +17,7 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { Chip } from "@tuja/ui/components/chip";
+import { Button } from "@tuja/ui/components/button";
 import { Popover } from "@tuja/ui/components/popover";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
@@ -102,7 +102,8 @@ function AccountChoices({
       </Text>
       <div css={cluster.tight}>
         {accounts.map((account) => (
-          <Chip
+          <Button
+            look="outline"
             key={account.id}
             size="xs"
             isActive={account.id === value}
@@ -111,7 +112,7 @@ function AccountChoices({
             }}
           >
             {data.lookups.accountLabelById.get(account.id) ?? account.name}
-          </Chip>
+          </Button>
         ))}
       </div>
     </div>
@@ -269,7 +270,8 @@ export function QuickAddChips({
             <FieldLabel>{names.kind}</FieldLabel>
             <div css={cluster.tight}>
               {KINDS.map((kind) => (
-                <Chip
+                <Button
+                  look="outline"
                   key={kind}
                   size="xs"
                   icon={KIND_ICONS[kind]}
@@ -279,7 +281,7 @@ export function QuickAddChips({
                   }}
                 >
                   {kindLabels[kind]}
-                </Chip>
+                </Button>
               ))}
             </div>
           </div>
@@ -333,7 +335,8 @@ export function QuickAddChips({
             {ranked.length > 0 ? (
               <div css={cluster.tight}>
                 {ranked.map((payee) => (
-                  <Chip
+                  <Button
+                    look="outline"
                     key={payee.id}
                     size="xs"
                     isActive={payee.id === draft.payeeId}
@@ -342,7 +345,7 @@ export function QuickAddChips({
                     }}
                   >
                     {payee.name}
-                  </Chip>
+                  </Button>
                 ))}
               </div>
             ) : null}
@@ -411,7 +414,8 @@ export function QuickAddChips({
               }}
             />
             <div>
-              <Chip
+              <Button
+                look="outline"
                 size="xs"
                 icon={<XIcon weight="bold" />}
                 onClick={() => {
@@ -419,7 +423,7 @@ export function QuickAddChips({
                 }}
               >
                 {removeLabel}
-              </Chip>
+              </Button>
             </div>
           </div>
         );
@@ -439,7 +443,8 @@ export function QuickAddChips({
             <FieldLabel>{names.member}</FieldLabel>
             <div css={cluster.tight}>
               {data.members.map((member) => (
-                <Chip
+                <Button
+                  look="outline"
                   key={member.id}
                   size="xs"
                   isActive={draft.memberId === member.id}
@@ -448,7 +453,7 @@ export function QuickAddChips({
                   }}
                 >
                   {member.name}
-                </Chip>
+                </Button>
               ))}
             </div>
           </div>
@@ -501,7 +506,8 @@ export function QuickAddChips({
             aria-label={names[field]}
             css={styles.popover}
             trigger={(props) => (
-              <Chip
+              <Button
+                look="outline"
                 {...props}
                 size="xs"
                 icon={
@@ -520,7 +526,7 @@ export function QuickAddChips({
                 <span css={truncate.base}>
                   {status === "unsure" ? `${shown}?` : shown}
                 </span>
-              </Chip>
+              </Button>
             )}
           >
             <div css={stack.item}>
@@ -529,7 +535,8 @@ export function QuickAddChips({
                   <Text look="caption" tone="muted">
                     {orLabel}
                   </Text>
-                  <Chip
+                  <Button
+                    look="outline"
                     size="xs"
                     icon={<SparkleIcon weight="bold" />}
                     onClick={() => {
@@ -537,7 +544,7 @@ export function QuickAddChips({
                     }}
                   >
                     {runnerUpValue}
-                  </Chip>
+                  </Button>
                 </div>
               )}
               {openField === field ? pickerOf(field, pick) : null}

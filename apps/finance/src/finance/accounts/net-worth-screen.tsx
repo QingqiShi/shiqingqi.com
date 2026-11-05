@@ -3,7 +3,7 @@
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { AnchorButton } from "@tuja/ui/components/anchor-button";
+import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { Text } from "@tuja/ui/components/text";
@@ -11,7 +11,6 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import dynamic from "next/dynamic";
 import { type ReactNode, useState } from "react";
-import { Link } from "#src/links/link.tsx";
 import {
   useTransactionTask,
   type TransactionTask,
@@ -210,15 +209,14 @@ function ReorderScreen({ url }: { url: NetWorthUrl }) {
           <Heading level={1} look="h3" css={styles.title}>
             {t({ en: "Reorder accounts", zh: "调整账户顺序" })}
           </Heading>
-          <AnchorButton
+          <Button
             href={url.modeHref(null)}
-            linkComponent={Link}
             size="sm"
             look="primary"
             icon={<CheckIcon weight="bold" />}
           >
             {t({ en: "Done", zh: "完成" })}
-          </AnchorButton>
+          </Button>
         </div>
         <Text as="p" look="bodySmall" tone="muted">
           {t({

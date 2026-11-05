@@ -5,7 +5,7 @@ import type { ReactNode, Ref } from "react";
 
 interface FloatingActionsProps {
   /**
-   * The actions, each a Button or an AnchorButton that takes
+   * The actions, each a Button that takes
    * `floatingAction.lift`. Put the main action last, so that it sits at the
    * inline end, where the Add button floats.
    */

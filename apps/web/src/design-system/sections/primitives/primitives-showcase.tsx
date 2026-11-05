@@ -98,8 +98,8 @@ function FlexSection() {
       token: "flex.wrap",
       meta: "flex-wrap:wrap · align:center",
       description: t({
-        en: "Wrapping row for chips and badges.",
-        zh: "用于标签按钮与徽章的换行行。",
+        en: "Wrapping row for buttons and badges.",
+        zh: "用于按钮与徽章的换行行。",
       }),
     },
     {
@@ -165,7 +165,7 @@ function FlexSection() {
           </div>
         </Specimen>
         <Specimen
-          caption={t({ en: "flex.wrap — chips", zh: "flex.wrap —— 标签按钮" })}
+          caption={t({ en: "flex.wrap — genres", zh: "flex.wrap —— 类型" })}
         >
           <GenreChips css={[flex.wrap, fill.inline, styles.chipRow]} />
         </Specimen>
@@ -903,8 +903,8 @@ function A11ySection() {
       token: "a11y.touchTarget",
       meta: "≥44px hit area · (pointer: coarse) · no tap flash",
       description: t({
-        en: "On a touch screen, a tap across at least 44px without a change in how the control looks (WCAG 2.5.8). buttonReset.base and chipSurface.interactive already carry it. An ancestor that clips overflow clips the hit area too.",
-        zh: "在触摸屏上，控件能在至少 44px 的范围内响应点按，且外观不变（WCAG 2.5.8）。buttonReset.base 与 chipSurface.interactive 已经带有它。裁切溢出内容的祖先元素也会裁切点按区域。",
+        en: "On a touch screen, a tap across at least 44px without a change in how the control looks (WCAG 2.5.8). buttonReset.base and outlineSurface.interactive already carry it. An ancestor that clips overflow clips the hit area too.",
+        zh: "在触摸屏上，控件能在至少 44px 的范围内响应点按，且外观不变（WCAG 2.5.8）。buttonReset.base 与 outlineSurface.interactive 已经带有它。裁切溢出内容的祖先元素也会裁切点按区域。",
       }),
     },
     {

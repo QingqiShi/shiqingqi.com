@@ -4,7 +4,7 @@ import { ArrowsDownUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowsDownUp";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { AnchorButton } from "@tuja/ui/components/anchor-button";
+import { Button } from "@tuja/ui/components/button";
 import { Disclosure } from "@tuja/ui/components/disclosure";
 import { List } from "@tuja/ui/components/list";
 import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
@@ -13,7 +13,6 @@ import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useId, useState } from "react";
-import { Link } from "#src/links/link.tsx";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { AccountRow, type AccountRowForm } from "./account-row.tsx";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
@@ -144,16 +143,15 @@ export function AccountGroupList({
             </label>
           </div>
         ) : null}
-        <AnchorButton
+        <Button
           href={reorderHref}
-          linkComponent={Link}
           size="sm"
           look="ghost"
           icon={<ArrowsDownUpIcon weight="bold" />}
           css={styles.reorder}
         >
           {t({ en: "Reorder", zh: "调整顺序" })}
-        </AnchorButton>
+        </Button>
       </div>
     </div>
   );

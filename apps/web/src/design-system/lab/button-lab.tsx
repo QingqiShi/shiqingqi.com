@@ -47,6 +47,22 @@ const config: LabConfig<ButtonLabProps> = {
       props: { children: "Delete", look: "danger", icon: "trash" },
     },
     {
+      id: "link",
+      label: { en: "Link", zh: "链接" },
+      props: { children: LABEL, href: "#" },
+    },
+    {
+      id: "filter",
+      label: { en: "Filter", zh: "筛选项" },
+      props: {
+        children: "Watchlist",
+        size: "xs",
+        look: "outline",
+        isActive: true,
+        trailing: "12",
+      },
+    },
+    {
       id: "iconOnly",
       label: { en: "Icon only", zh: "纯图标" },
       props: { icon: "plus", "aria-label": "Add item" },
@@ -62,7 +78,7 @@ const config: LabConfig<ButtonLabProps> = {
     "look",
     "size",
     { prop: "icon", samples: labIconSamples },
-    "bright",
+    "trailing",
     "isActive",
     "loading",
     "hideLabelOnMobile",

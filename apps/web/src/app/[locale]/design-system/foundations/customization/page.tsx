@@ -50,8 +50,8 @@ export default function CustomizationPage() {
         </GuideNote>
         <GuideNote>
           {t({
-            en: "Links in components reload the whole page until you pass linkComponent.",
-            zh: "组件里的链接会重新加载整个页面，直到你传入 linkComponent。",
+            en: "A link reloads the whole page until you set the link: LinkProvider at the root for Button, linkComponent on the others.",
+            zh: "链接会重新加载整个页面，直到你设置链接组件：Button 用根部的 LinkProvider，其他组件用 linkComponent。",
           })}
         </GuideNote>
       </GuideSection>
@@ -102,6 +102,12 @@ export default function CustomizationPage() {
           {t({
             en: "A surface is the look only: no ARIA, no keyboard handling and no padding.",
             zh: "表面样式只有外观：没有 ARIA、没有键盘处理，也没有内边距。",
+          })}
+        </GuideNote>
+        <GuideNote>
+          {t({
+            en: "A <select> beside an outline Button takes outlineSurface, so the two stay the same.",
+            zh: "位于描边 Button 旁边的 <select> 使用 outlineSurface，两者因此保持一致。",
           })}
         </GuideNote>
         <GuideNote>

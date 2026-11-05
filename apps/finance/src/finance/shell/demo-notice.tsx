@@ -6,13 +6,12 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
-import { Chip } from "@tuja/ui/components/chip";
 import { Popover } from "@tuja/ui/components/popover";
 import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { controlHeight, layer } from "@tuja/ui/tokens.stylex";
+import { color, controlHeight, layer } from "@tuja/ui/tokens.stylex";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import {
   floatingAction,
@@ -39,13 +38,15 @@ export function DemoNotice() {
         aria-label={t({ en: "Demo", zh: "演示" })}
         css={styles.popover}
         trigger={(props) => (
-          <Chip
+          <Button
+            size="sm"
+            look="outline"
             {...props}
             icon={<EyeIcon weight="bold" />}
-            css={floatingAction.lift}
+            css={[floatingAction.lift, styles.trigger]}
           >
             {label}
-          </Chip>
+          </Button>
         )}
       >
         <div css={stack.item}>
@@ -79,6 +80,10 @@ const styles = stylex.create({
       [breakpoints.md]: `calc(${tabViewTokens.railInlineSize} + ${pageGutter.inlineStart})`,
     },
     insetBlockEnd: `calc(${floatingActionTokens.insetBlockEnd} + (${floatingActionTokens.blockSize} - ${controlHeight.sm}) / 2)`,
+  },
+  // It floats over the content that scrolls behind it, so it needs a fill.
+  trigger: {
+    backgroundColor: color.bgSurface,
   },
   popover: {
     inlineSize: "18rem",

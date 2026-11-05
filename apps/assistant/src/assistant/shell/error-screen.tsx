@@ -8,7 +8,6 @@ import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useEffect } from "react";
-import { AnchorButton } from "#src/links/anchor-button.tsx";
 import { AssistantFrame } from "./assistant-frame.tsx";
 
 // An error boundary is not an entry that the i18n codegen traces, so it gets
@@ -62,9 +61,7 @@ export function ErrorScreen({
           >
             {strings.retry}
           </Button>
-          <AnchorButton href={getLocalePath("/", locale)}>
-            {strings.home}
-          </AnchorButton>
+          <Button href={getLocalePath("/", locale)}>{strings.home}</Button>
         </div>
       </div>
     </AssistantFrame>

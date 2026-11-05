@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
-import { chipSurface } from "../actions/chip.stylex.ts";
+import { outlineSurface } from "../actions/outline-surface.stylex.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { color, font, space } from "../tokens.stylex.ts";
@@ -53,7 +54,7 @@ interface BadgeProps extends Omit<
 }
 
 /**
- * Compact status / label badge. It shares `Chip`'s pill skin, sized on the
+ * Compact status / label badge. It shares `Button`'s outline surface, sized on the
  * `space` scale rather than `controlSize` because nothing here is pressed.
  * Forwards native span attributes so a caller can attach behaviour without a
  * wrapper; `css` composes last, so a caller wins over the intent defaults.
@@ -73,7 +74,9 @@ export function Badge({
       ref={ref}
       css={[
         typeRole.caption,
-        chipSurface.base,
+        outlineSurface.layout,
+        outlineSurface.skin,
+        corner.radius_round,
         styles.base,
         sizeStyles[size],
         intentStyles[intent],
@@ -93,6 +96,7 @@ export function Badge({
 const styles = stylex.create({
   base: {
     borderColor: "transparent",
+    backgroundColor: color.bgSurface,
     fontWeight: font.weight_6,
   },
   // `em` box so the icon tracks the badge's font-size across sizes.

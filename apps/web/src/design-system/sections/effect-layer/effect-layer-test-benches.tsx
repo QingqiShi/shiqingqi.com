@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { AnchorButton } from "@tuja/ui/components/anchor-button";
+import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
+import { PlainAnchor } from "@tuja/ui/components/link-provider";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { ReactNode } from "react";
 import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
@@ -51,9 +52,16 @@ export function EffectLayerTestBenches() {
         })}
       >
         <div css={styles.debugLink}>
-          <AnchorButton href="?effects=debug" look="outline" size="sm">
+          <Button
+            href="?effects=debug"
+            // The effect layer reads its mode one time, on page load. Thus,
+            // this link must load the page.
+            linkComponent={PlainAnchor}
+            look="outline"
+            size="sm"
+          >
             {t({ en: "Open the debug view", zh: "打开调试视图" })}
-          </AnchorButton>
+          </Button>
         </div>
       </GuideSection>
 

@@ -1,7 +1,11 @@
 "use client";
 
-import { chipSize, chipSurface } from "@tuja/ui/components/chip.stylex";
+import {
+  outlineSurface,
+  outlineSurfaceSize,
+} from "@tuja/ui/components/outline-surface.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import { useId } from "react";
@@ -15,7 +19,10 @@ interface DayInputProps {
   css?: StyleProp;
 }
 
-/** A chip-sized date input with a hidden label; it reports only valid `YYYY-MM-DD` days. */
+/**
+ * A date input that matches an outline `Button` beside it, with a hidden label.
+ * It reports only valid `YYYY-MM-DD` days.
+ */
 export function DayInput({
   label,
   value,
@@ -38,9 +45,11 @@ export function DayInput({
         }}
         css={[
           size === "xs" ? typeRole.caption : typeRole.label,
-          chipSurface.base,
-          chipSize[size],
-          chipSurface.interactive,
+          outlineSurface.layout,
+          outlineSurface.skin,
+          outlineSurfaceSize[size],
+          corner.squircle_round,
+          outlineSurface.interactive,
           css,
         ]}
       />

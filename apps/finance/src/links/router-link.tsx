@@ -1,5 +1,6 @@
 "use client";
 
+import { isBrowserLink } from "@tuja/ui/components/is-browser-link";
 import type { ComponentProps } from "react";
 import { Link } from "./link.tsx";
 
@@ -9,13 +10,21 @@ export type RoutingProps = Pick<
   "replace" | "scroll" | "shallow"
 >;
 
+type RouterLinkProps = ComponentProps<"a"> & { href: string };
+
 /**
- * The link Slot of `@tuja/ui`'s `Anchor` and `AnchorButton`, bound to
- * next/link: `className` and `style` carry the whole look, so they go onto
- * `Link` as attributes.
+ * The link Slot of `@tuja/ui`'s `Anchor` and `Button`, bound to next/link:
+ * `className` and `style` carry the whole look, so they go onto `Link` as
+ * attributes. A link that the router cannot follow stays a plain `<a>`.
  */
-export function RouterLink(
-  props: ComponentProps<"a"> & { href: string } & RoutingProps,
-) {
-  return <Link {...props} />;
+export function RouterLink({
+  replace,
+  scroll,
+  shallow,
+  ...props
+}: RouterLinkProps & RoutingProps) {
+  if (isBrowserLink(props)) return <a {...props} />;
+  return (
+    <Link {...props} replace={replace} scroll={scroll} shallow={shallow} />
+  );
 }

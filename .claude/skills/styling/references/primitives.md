@@ -62,7 +62,7 @@ import { flex, align, justify, grow } from "@tuja/ui/primitives/flex.stylex";
 // Column with centered content
 <div css={[flex.col, justify.center]}>
 
-// Wrapping chip row
+// Wrapping row of small controls
 <div css={flex.wrap}>
 
 // Fill remaining space
@@ -400,9 +400,9 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 <Link {...stylex.props(a11y.focusRing, styles.cta)} href={href}>
 ```
 
-Every element that takes focus draws the system ring: a component, `buttonReset.base`, `chipSurface.interactive` and `cardSurface.interactive` carry it, and anything else (a link, a native `<input>`, a scroller) composes `a11y.focusRing`. Never set `outline: none` or `outlineWidth: 0` to hide it. A text field with no frame of its own leaves the ring to its frame: compose `a11y.focusRingWithin` on the frame and `stylex.defaultMarker()` on the field, as `chat-textarea.tsx` does.
+Every element that takes focus draws the system ring: a component, `buttonReset.base`, `outlineSurface.interactive` and `cardSurface.interactive` carry it, and anything else (a link, a native `<input>`, a scroller) composes `a11y.focusRing`. Never set `outline: none` or `outlineWidth: 0` to hide it. A text field with no frame of its own leaves the ring to its frame: compose `a11y.focusRingWithin` on the frame and `stylex.defaultMarker()` on the field, as `chat-textarea.tsx` does.
 
-Every control takes a tap across at least 44px under a coarse pointer, without changing how it looks: `a11y.touchTarget` adds an `::after` hit area that extends past a smaller box, and drops the tap flash and the double-tap zoom. `buttonReset.base`, `chipSurface.interactive` and `Button` carry it, and `cardSurface.interactive` carries all of it except the hit area, which a card does not need; compose `a11y.touchTarget` on any other control, before any style that sets `position`. Under a coarse pointer the control becomes `position: relative` and `isolation: isolate`. Three things take the hit area away:
+Every control takes a tap across at least 44px under a coarse pointer, without changing how it looks: `a11y.touchTarget` adds an `::after` hit area that extends past a smaller box, and drops the tap flash and the double-tap zoom. `buttonReset.base`, `outlineSurface.interactive` and `Button` carry it, and `cardSurface.interactive` carries all of it except the hit area, which a card does not need; compose `a11y.touchTarget` on any other control, before any style that sets `position`. Under a coarse pointer the control becomes `position: relative` and `isolation: isolate`. Three things take the hit area away:
 
 - An ancestor that clips overflow also clips the hit area. Give a control inside one 44px of its own under `pointer.coarse`, or move the clip to an inner element.
 - A small control closer to a field or another control than its hit area extends covers it and takes its taps. Make the gap larger under `pointer.coarse`.

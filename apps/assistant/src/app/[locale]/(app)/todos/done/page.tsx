@@ -3,6 +3,7 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
+import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { Pager, type PagerPage } from "@tuja/ui/components/pager";
@@ -19,7 +20,6 @@ import {
 import { DoneArchive } from "#src/assistant/report-page/done-archive.tsx";
 import { toTodoItemData } from "#src/assistant/report-page/to-todo-item-data.ts";
 import { TodoStoreProvider } from "#src/assistant/report-page/todo-store-provider.tsx";
-import { AnchorButton } from "#src/links/anchor-button.tsx";
 import { RouterLink } from "#src/links/router-link.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
@@ -64,14 +64,14 @@ export default async function Page({
           <div css={stack.group}>
             <header css={stack.tight}>
               <div>
-                <AnchorButton
+                <Button
                   href={getLocalePath("/todos", locale)}
                   look="ghost"
                   size="sm"
                   icon={<ArrowLeftIcon weight="bold" />}
                 >
                   {t({ en: "To-dos", zh: "待办" })}
-                </AnchorButton>
+                </Button>
               </div>
               <Heading level={1} look="h3">
                 {title}

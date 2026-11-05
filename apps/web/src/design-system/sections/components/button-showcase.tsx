@@ -1,4 +1,6 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
+import { BookmarkIcon } from "@phosphor-icons/react/dist/ssr/Bookmark";
+import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
 import { FloppyDiskIcon } from "@phosphor-icons/react/dist/ssr/FloppyDisk";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
@@ -6,21 +8,31 @@ import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
+import {
+  outlineSurface,
+  outlineSurfaceSize,
+} from "@tuja/ui/components/outline-surface.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
+import { Example } from "#src/design-system/example.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
-import {
-  GuideNote,
-  GuideSection,
-} from "#src/design-system/guide/guide-section.tsx";
+import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
+import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
+
+const LINK_PROVIDER = `import { LinkProvider } from "@tuja/ui/components/link-provider";
+import NextLink from "next/link";
+
+<LinkProvider linkComponent={NextLink}>{children}</LinkProvider>`;
 
 export function ButtonShowcase() {
   const searchLabel = t({ en: "Search", zh: "搜索" });
@@ -52,9 +64,95 @@ export function ButtonShowcase() {
             <Button isActive>{t({ en: "Active", zh: "激活" })}</Button>
           </Specimen>
           <Specimen caption="bright">
-            <Button bright>{t({ en: "Bright", zh: "明亮" })}</Button>
+            <Button look="bright">{t({ en: "Bright", zh: "明亮" })}</Button>
           </Specimen>
         </SpecimenGrid>
+      </Showcase>
+
+      <Showcase
+        label={t({
+          en: "A link is a Button with an href",
+          zh: "链接是带 href 的 Button",
+        })}
+      >
+        <SpecimenGrid>
+          <Specimen caption="href">
+            <Button href="#" icon={<CaretLeftIcon weight="bold" />}>
+              {t({ en: "Back to films", zh: "返回影片" })}
+            </Button>
+          </Specimen>
+          <Specimen caption="href + primary">
+            <Button
+              href="#"
+              look="primary"
+              icon={<ArrowRightIcon weight="bold" />}
+            >
+              {t({ en: "Browse films", zh: "浏览影片" })}
+            </Button>
+          </Specimen>
+          <Specimen caption="href + isActive">
+            <Button href="#" isActive>
+              {t({ en: "Current", zh: "当前" })}
+            </Button>
+          </Specimen>
+        </SpecimenGrid>
+        <ShowcaseHelper>
+          {t({
+            en: 'With href the Button renders an <a>, so it keeps the link role, the new tab and the context menu. isActive then emits aria-current="true", not aria-pressed. target, rel and download belong to this form, and type, disabled and loading do not compile with it.',
+            zh: '有 href 时 Button 渲染为 <a>，因此保留链接角色、新标签页与右键菜单。此时 isActive 发出 aria-current="true"，而不是 aria-pressed。target、rel 与 download 属于这种形态，type、disabled 与 loading 与它同用无法通过编译。',
+          })}
+        </ShowcaseHelper>
+        <UsageSnippet
+          code={LINK_PROVIDER}
+          label={t({ en: "At the root of the app", zh: "在应用的根部" })}
+        />
+        <ShowcaseHelper>
+          {t({
+            en: "The package depends on no framework, so a link is a plain <a> that reloads the page until the app sets its link once at the root. A single Button can pass its own linkComponent. Either one has to forward everything it is handed onto its anchor: className and style carry the look, and the ref and the event handlers carry the press animation.",
+            zh: "该包不依赖任何框架，因此链接是会重新加载页面的原生 <a>，直到应用在根部统一设置链接组件。单个 Button 也可以传入自己的 linkComponent。两者都必须把收到的一切转发到锚点上：className 与 style 承载外观，ref 与事件处理函数承载按压动画。",
+          })}
+        </ShowcaseHelper>
+      </Showcase>
+
+      <Showcase label={t({ en: "A row of filters", zh: "一排筛选项" })}>
+        <Example>
+          <div css={cluster.tight}>
+            <Button size="xs" look="outline" isActive>
+              {t({ en: "Now playing", zh: "正在上映" })}
+            </Button>
+            <Button size="xs" look="outline">
+              {t({ en: "Upcoming", zh: "即将上映" })}
+            </Button>
+            <Button
+              size="xs"
+              look="outline"
+              icon={<BookmarkIcon weight="bold" />}
+              trailing="12"
+            >
+              {t({ en: "Watchlist", zh: "待看清单" })}
+            </Button>
+            <select
+              aria-label={t({ en: "Genre", zh: "类型" })}
+              css={[
+                typeRole.caption,
+                outlineSurface.layout,
+                outlineSurface.skin,
+                outlineSurfaceSize.xs,
+                corner.squircle_round,
+                outlineSurface.interactive,
+              ]}
+            >
+              <option>{t({ en: "Any genre", zh: "全部类型" })}</option>
+              <option>{t({ en: "Drama", zh: "剧情" })}</option>
+            </select>
+          </div>
+        </Example>
+        <ShowcaseHelper>
+          {t({
+            en: 'A dense row takes size="xs" and look="outline". trailing stays in the accessibility tree, so it reads as part of the name, and on the selected fill it takes the label\'s colour to keep its contrast. A <select> cannot be a Button, so it takes outlineSurface, the same border, fill and selected state.',
+            zh: '紧凑的一行使用 size="xs" 与 look="outline"。trailing 保留在无障碍树中，会作为名称的一部分被朗读；在选中态的填充上它改用标签的颜色，以保持对比度。<select> 不可能是 Button，因此使用 outlineSurface，它带有同样的描边、填充与选中态。',
+          })}
+        </ShowcaseHelper>
       </Showcase>
 
       <Showcase label={t({ en: "Loading", zh: "加载中" })}>
@@ -83,6 +181,9 @@ export function ButtonShowcase() {
 
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
         <SpecimenGrid>
+          <Specimen caption="xs">
+            <Button size="xs">{t({ en: "Extra small", zh: "特小" })}</Button>
+          </Specimen>
           <Specimen caption="sm">
             <Button size="sm">{t({ en: "Small", zh: "小" })}</Button>
           </Specimen>
@@ -285,8 +386,36 @@ export function ButtonShowcase() {
           })}
           dont={<Button>{t({ en: "Back to films", zh: "返回影片" })}</Button>}
           dontCaption={t({
-            en: "Don't use a Button to go somewhere. It renders a <button>, so a destination loses the link role, the new tab and the context menu.",
-            zh: "不要用按钮跳转到别处。它渲染的是 <button>，目的地会因此失去链接角色、新标签页与右键菜单。",
+            en: "Don't go somewhere from onClick. Without href it renders a <button>, so a destination loses the link role, the new tab and the context menu. Pass href.",
+            zh: "不要在 onClick 里跳转。没有 href 时它渲染的是 <button>，目的地会因此失去链接角色、新标签页与右键菜单。请传入 href。",
+          })}
+        />
+        <DoDont
+          do={
+            <>
+              <Button size="xs" look="outline" isActive>
+                {t({ en: "Now playing", zh: "正在上映" })}
+              </Button>
+              <Button size="xs" look="outline">
+                {t({ en: "Upcoming", zh: "即将上映" })}
+              </Button>
+            </>
+          }
+          doCaption={t({
+            en: "Use a Button when the pill does something, such as filter or select. It takes focus and has a role.",
+            zh: "当胶囊形元素有实际行为时使用按钮，例如筛选或选择。它可获得焦点，并带有明确的角色。",
+          })}
+          dont={
+            <>
+              <Badge intent="accent">
+                {t({ en: "Now playing", zh: "正在上映" })}
+              </Badge>
+              <Badge>{t({ en: "Upcoming", zh: "即将上映" })}</Badge>
+            </>
+          }
+          dontCaption={t({
+            en: "Don't put a click handler on a Badge to fake a filter. A span takes no focus, and a screen reader does not announce it as a control.",
+            zh: "不要给徽章挂上点击事件来伪装筛选器。span 无法获得焦点，读屏软件也不会将其识别为控件。",
           })}
         />
       </GuideSection>
@@ -346,6 +475,17 @@ export function ButtonShowcase() {
             },
             {
               term: t({
+                en: "A button on a dark or tinted surface",
+                zh: "位于深色或着色表面上的按钮",
+              }),
+              value: 'look="bright"',
+              note: t({
+                en: "A bright surface that stays light in both themes and brightens further on hover.",
+                zh: "在两种主题下都保持浅色的明亮表面，悬停时进一步提亮。",
+              }),
+            },
+            {
+              term: t({
                 en: "An action that destroys something",
                 zh: "具有破坏性的操作",
               }),
@@ -357,19 +497,13 @@ export function ButtonShowcase() {
             },
           ]}
         />
-        <GuideNote>
-          {t({
-            en: "bright is not a Look: it lifts the button onto a bright surface and overrides the fill, so pairing it with outline or ghost cancels their chrome.",
-            zh: "bright 不是一种外观：它把按钮置于明亮表面并覆盖填充，因此与 outline 或 ghost 同用会抵消二者的外框处理。",
-          })}
-        </GuideNote>
       </GuideSection>
 
       <GuideSection
         title={t({ en: "Accessibility", zh: "无障碍" })}
         lead={t({
-          en: "Every button needs a name, and a button that is busy still has to be reachable.",
-          zh: "每个按钮都需要名称，而处于忙碌状态的按钮仍然必须可达。",
+          en: "Every button needs a name, a button that is busy still has to be reachable, and the ARIA follows the element.",
+          zh: "每个按钮都需要名称，处于忙碌状态的按钮仍然必须可达，ARIA 则跟随元素。",
         })}
       >
         <GuideList
@@ -396,6 +530,14 @@ export function ButtonShowcase() {
               note: t({
                 en: 'isActive emits aria-pressed. look="primary" carries the same highlight with no state, so a toggle belongs to isActive alone.',
                 zh: 'isActive 会发出 aria-pressed。look="primary" 只有同样的高亮而没有状态，因此切换状态只交给 isActive。',
+              }),
+            },
+            {
+              term: t({ en: "Current page", zh: "当前页面" }),
+              value: "href + isActive",
+              note: t({
+                en: 'On a link, isActive emits aria-current="true", because a link is a destination and not a toggle.',
+                zh: '在链接上，isActive 发出 aria-current="true"，因为链接是目标而不是切换控件。',
               }),
             },
           ]}
