@@ -137,13 +137,43 @@ export function placeAt(fill: Fill, box: Box) {
   height.set(box.height);
 }
 
+/**
+ * How a fill trails, as a row below a panel trails the panel: on the spring
+ * `link`, behind a leader that is where `lead` puts it.
+ *
+ * @internal
+ */
+export interface FillTrail {
+  readonly link: Spring;
+  /** Where the leader is, as a share of the way that is left to the fill, and how fast it comes closer, in 1/s. */
+  readonly lead: { readonly share: number; readonly rate: number };
+}
+
 /** @internal */
-export function springTo(fill: Fill, box: Box, spring = fill.spring) {
-  const [x, y, width, height] = fill.box;
-  x.to(box.x, { spring });
-  y.to(box.y, { spring });
-  width.to(box.width, { spring });
-  height.to(box.height, { spring });
+export function springTo(
+  fill: Fill,
+  box: Box,
+  spring = fill.spring,
+  trail?: FillTrail | null,
+) {
+  const targets = [box.x, box.y, box.width, box.height];
+  fill.box.forEach((value, index) => {
+    const target = targets[index];
+    const gap = value.get() - target;
+    value.to(target, {
+      spring,
+      trail:
+        trail == null || gap === 0
+          ? undefined
+          : {
+              link: trail.link,
+              leader: {
+                value: target + gap * trail.lead.share,
+                velocity: -gap * trail.lead.rate,
+              },
+            },
+    });
+  });
 }
 
 /**

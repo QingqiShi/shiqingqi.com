@@ -52,6 +52,11 @@ export const systemSpring: SystemSpring = {
  * its bounce.
  */
 export const springRoles = {
+  /**
+   * The link that hangs what lies below a panel on the panel as it opens or
+   * closes, so that it trails the panel by a moment.
+   */
+  trail: { mass: 0.05 },
   /** A popover, a menu, a toast, a Sheet's card, a screen that rises, a control. */
   surface: { mass: 1 },
   /** The on fill as it rises through a Switch's track. */

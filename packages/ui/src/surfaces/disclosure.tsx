@@ -122,8 +122,8 @@ type DisclosureProps = DisclosureBaseProps & DisclosureStateProps;
 /**
  * An expand/collapse section: a header row that toggles a panel beneath it,
  * wired with `aria-expanded` and `aria-controls`. The panel grows from the
- * header on a spring, what lies below moves with it with no layout during the
- * motion, and the indicator turns on the same spring. A press during the motion
+ * header on a spring, what lies below trails it by a moment with no layout
+ * during the motion, and the indicator turns on the same spring. A press during the motion
  * turns it from where it is. Under reduced motion, the panel fades in place. The
  * panel stays mounted and is `hidden` while it rests closed, so render expensive
  * contents conditionally yourself if you need them deferred.
