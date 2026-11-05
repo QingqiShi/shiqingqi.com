@@ -12,6 +12,7 @@ import { font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { NAV_ROW } from "./create-nav-list-motion.ts";
 import {
+  NavIcon,
   NavListContext,
   navListStyles,
   useShownCurrent,
@@ -97,9 +98,7 @@ export function NavLink({
             css,
           ),
         },
-        icon === undefined ? null : (
-          <span css={navListStyles.icon}>{icon}</span>
-        ),
+        icon === undefined ? null : <NavIcon>{icon}</NavIcon>,
         children,
         <span key="caret" aria-hidden css={styles.caret}>
           <CaretRightIcon weight="bold" />

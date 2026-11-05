@@ -31,7 +31,7 @@ import { typeRole } from "../primitives/type.stylex.ts";
 import { border, controlSize, font, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { NAV_ROW } from "./create-nav-list-motion.ts";
-import { NavListContext, navListStyles } from "./nav-list-context.tsx";
+import { NavIcon, NavListContext, navListStyles } from "./nav-list-context.tsx";
 import { navListQueries, navListTokens } from "./nav-list.stylex.ts";
 
 interface NavGroupProps {
@@ -225,9 +225,7 @@ function OpeningGroup({
           styles.toggle,
         ]}
       >
-        {icon === undefined ? null : (
-          <span css={navListStyles.icon}>{icon}</span>
-        )}
+        {icon === undefined ? null : <NavIcon>{icon}</NavIcon>}
         <span css={styles.toggleLabel}>{label}</span>
         <span
           ref={chevronRef}

@@ -16,10 +16,8 @@ import {
 } from "../motion/create-fill.ts";
 import type { MotionEngine } from "../motion/create-motion-engine.ts";
 import type { MotionValue } from "../motion/create-motion-value.ts";
-import { cssTween } from "../motion/css-tween.ts";
-import { unit } from "../motion/mix.ts";
+import { px, writeStyles } from "../motion/px.ts";
 import { springOf, springRoles } from "../motion/spring-roles.ts";
-import { duration, easing } from "../primitives/motion.stylex.ts";
 
 /**
  * The attribute of each row that the hover fill can rest on: a link, or the
@@ -30,6 +28,14 @@ import { duration, easing } from "../primitives/motion.stylex.ts";
 export const NAV_ROW = "data-nav-row";
 
 /**
+ * The attribute of the icon of a row, which sheds the dust of a change of
+ * page and pulls it in.
+ *
+ * @internal
+ */
+export const NAV_ICON = "data-nav-icon";
+
+/**
  * The attribute of the hover fill while a press holds it.
  *
  * @internal
@@ -38,31 +44,18 @@ export const NAV_PRESSED = "data-pressed";
 
 const CURRENT = "[aria-current=page]";
 const MARKER_SPRING = springOf(springRoles.move);
+/** How long the new icon pulls the dust in after the last shed, in s. */
+const PULL_SECONDS = 1;
+/** How far past the old icon the dust of a burst flies before it turns, in px. */
+const FLIGHT = 40;
 /**
- * How fast the old marker fades out where it sheds its dust, and the scale
- * it shrinks to as it loses the dust.
+ * How fast the new icon pulls the dust in, as `useExtractorFan` takes it: at
+ * least `PULL_STRENGTH`, and more from `PULL_FAR` px away. A spring takes the
+ * same time for any distance, so a pull that grows with the distance lands
+ * the dust as the marker settles.
  */
-const SHED_FADE = cssTween(duration._200, easing.easeOut);
-const SHED_SCALE = 0.95;
-/**
- * The new marker forms from the dust: it starts `FORM_LEAD` seconds before
- * the bulk of the dust lands, at `FORM_FROM` scale, and springs out at
- * `FORM_KICK` scale per second, so it overshoots a little as the dust
- * lands.
- */
-const FORM_LEAD = 0.06;
-const FORM_FROM = 0.94;
-const FORM_KICK = 1.2;
-/**
- * When the bulk of the dust lands, in seconds after the shed: `LAND_AFTER`,
- * and `1 / LAND_SPEED` more for each px from the old row to the new row.
- */
-const LAND_AFTER = 0.25;
-const LAND_SPEED = 1900;
-/** How long the new marker pulls the dust in after the last shed, in s. */
-const PULL_SECONDS = 1.2;
-/** How far past the old row the dust of a burst flies before it turns, in px. */
-const FLIGHT = 160;
+const PULL_STRENGTH = 1.5;
+const PULL_FAR = 150;
 
 /**
  * The row that shows the current page: the current link, or the row of the
@@ -122,6 +115,22 @@ function isSeen(from: Element, origin: DOMRect, box: Box) {
   return bottom - top >= box.height / 2;
 }
 
+/** The box of the icon of `row` under `holder`, or `null` where none shows. */
+function iconBoxOf(holder: HTMLElement, row: Element | null): Box | null {
+  const icon = row?.querySelector(`[${NAV_ICON}]`);
+  if (icon == null) return null;
+  const box = boxIn(holder, icon);
+  return box.width > 0 ? box : null;
+}
+
+function placeOn(element: HTMLElement, { x, y, width, height }: Box) {
+  writeStyles(element, {
+    translate: `${px(x)} ${px(y)}`,
+    width: px(width),
+    height: px(height),
+  });
+}
+
 /** Puts `into` where `out` is, at its speed, and sends it to `target`. */
 function carry(out: MotionValue, into: MotionValue, target: number) {
   into.set(out.get(), { velocity: out.getVelocity() });
@@ -142,11 +151,12 @@ function boxOf(fill: Fill): Box {
 }
 
 /**
- * The motion of a `NavList`: the current-page marker, the old marker that
- * sheds dust when the current page changes, and the hover fill that glides
- * under a fine pointer. Each is one element in `box`, under the rows. The
- * three look the same, so the hover fill hides on the marker's row, and the
- * marker takes the place of the hover fill on the row that becomes current.
+ * The motion of a `NavList`: the current-page marker and the hover fill that
+ * glides under a fine pointer, each one element in `box`, under the rows, and
+ * the wisp of dust that goes from the icon of the old row to the icon of the
+ * new row when the current page changes. The two fills look the same, so the
+ * hover fill hides on the marker's row, and where the marker has no row to
+ * come from, it takes the place of the hover fill.
  *
  * @internal
  */
@@ -154,18 +164,21 @@ export interface NavListMotion {
   /**
    * Starts the motion on the elements, and puts the marker on its row at
    * once. `list` holds the rows, and `box` holds the list and the fills.
-   * `onPull` gets how far the new marker must pull dust in while it forms:
-   * with `shake` when the old marker must shed dust too, and with 0 when
-   * the pull ends. `canShed` tells whether the effect layer draws the dust
-   * of `shed` now. Else the marker springs from the old row to the new one.
+   * `shed` and `fan` are hidden elements that go on the old icon and on the
+   * new icon, for the effect layer to measure. `onPull` gets how far `fan`
+   * must pull dust in and how fast: with `shake` when `shed` must shed dust
+   * too, and with a reach of 0 when the pull ends. `canShed` tells whether the
+   * effect layer draws the dust of `shed` now. Else the marker moves with no
+   * dust.
    */
   attach(parts: {
     box: HTMLElement;
     list: HTMLElement;
     marker: HTMLElement;
-    shed: HTMLElement;
     hover: HTMLElement;
-    onPull: (reach: number, shake: boolean) => void;
+    shed: HTMLElement;
+    fan: HTMLElement;
+    onPull: (reach: number, strength: number, shake: boolean) => void;
     canShed: () => boolean;
   }): () => void;
   /** Moves the marker to the row of the current page, after the commit. */
@@ -183,17 +196,18 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
   let parts: {
     box: HTMLElement;
     marker: Fill;
-    shed: Fill;
     hover: Fill;
+    shed: HTMLElement;
+    fan: HTMLElement;
     canHover: MediaQueryList;
-    onPull: (reach: number, shake: boolean) => void;
+    onPull: (reach: number, strength: number, shake: boolean) => void;
     canShed: () => boolean;
   } | null = null;
   let markerRow: Element | null = null;
   let currentPage: Element | null = null;
   let hoverRow: Element | null = null;
   let isQueued = false;
-  /** The rows that shed dust that is still on its way, while the pull lasts. */
+  /** The icons that shed dust that is still on its way, while the pull lasts. */
   let sources: Box[] = [];
   let cancelPullEnd: (() => void) | null = null;
   const rowOf = (target: EventTarget) =>
@@ -205,20 +219,6 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
     cancelPullEnd?.();
     cancelPullEnd = null;
     sources = [];
-  }
-
-  /**
-   * Fades the old marker out at `from`, and shrinks it as it sheds its
-   * dust. It stays measured by the effect layer until the burst has shed.
-   */
-  function shedAt(from: Box) {
-    if (parts === null) return;
-    const { marker, shed } = parts;
-    placeAt(shed, from);
-    shed.shown.set(unit(marker.shown.get()));
-    shed.size.set(marker.size.get());
-    shed.shown.to(0, { tween: SHED_FADE });
-    shed.size.to(SHED_SCALE, { tween: SHED_FADE });
   }
 
   /**
@@ -244,39 +244,38 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
   }
 
   /**
-   * Pulls the dust of every row that shed it into the marker at `to`, and
-   * with `from` sheds dust off the old marker there first. With `isFormed`
-   * the marker already shows at `to`, and takes the dust in. Else it is
-   * empty until the first dust can reach it, then forms from the dust and
-   * settles when the bulk of the dust lands.
+   * Sheds a burst from the icon of `fromRow`, and pulls it into the icon of
+   * `toRow`, with the dust that is still on its way from other icons.
    */
-  function pull(to: Box, from: Box | null, isFormed: boolean) {
-    if (parts === null) return;
-    const { marker, onPull } = parts;
-    if (from !== null) {
-      shedAt(from);
+  function passDust(fromRow: Element | null, toRow: Element, origin: DOMRect) {
+    if (parts === null || engine.reducedMotion || !parts.canShed()) return;
+    const { box, shed, fan, onPull } = parts;
+    const to = iconBoxOf(box, toRow);
+    if (to === null || !isSeen(box, origin, to)) return;
+    const from = iconBoxOf(box, fromRow);
+    const sheds = from !== null && isSeen(box, origin, from);
+    if (sheds) {
+      placeOn(shed, from);
       sources.push(from);
     }
+    if (sources.length === 0) return;
+    placeOn(fan, to);
     const gap = Math.max(...sources.map((source) => farGap(source, to)));
-    if (!isFormed) {
-      const delay = Math.max(0, LAND_AFTER + gap / LAND_SPEED - FORM_LEAD);
-      placeAt(marker, to);
-      marker.shown.set(0);
-      marker.size.set(FORM_FROM, { velocity: FORM_KICK });
-      marker.shown.to(1, { delay });
-      marker.size.to(1, { delay });
-    }
-    onPull((gap + FLIGHT) / EXTRACTOR_FAN_FALLOFF, from !== null);
+    onPull(
+      (gap + FLIGHT) / EXTRACTOR_FAN_FALLOFF,
+      PULL_STRENGTH * Math.max(1, gap / PULL_FAR),
+      sheds,
+    );
     cancelPullEnd?.();
     cancelPullEnd = engine.loop.at(engine.loop.now() + PULL_SECONDS, () => {
       endPull();
-      parts?.onPull(0, false);
+      parts?.onPull(0, PULL_STRENGTH, false);
     });
   }
 
   function update(isFirst: boolean) {
     if (parts === null) return;
-    const { box, marker, shed, hover, canShed } = parts;
+    const { box, marker, hover } = parts;
     const origin = box.getBoundingClientRect();
     if (hoverRow !== null && hoverRow.isConnected) {
       follow(hover, boxIn(box, hoverRow));
@@ -295,7 +294,6 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
     const to = boxIn(box, target);
     if (isFirst) {
       placeAt(marker, to);
-      placeAt(shed, to);
       setShown(marker, 1);
       return;
     }
@@ -303,33 +301,18 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
       follow(marker, to);
       return;
     }
-    const from = boxOf(marker);
-    const isPulling = sources.length > 0;
     const isSolid = marker.shown.target === 1 && marker.shown.get() > FADED;
-    const isOldSeen = isSolid && isSeen(box, origin, from);
-    if (isOldSeen && current === wasPage) {
-      springTo(marker, to);
-      return;
-    }
     const isHovered = hoverRow === target && hover.shown.get() > FADED;
-    if (
-      !engine.reducedMotion &&
-      (isOldSeen || isPulling) &&
-      isSeen(box, origin, to) &&
-      canShed()
-    ) {
-      if (isHovered) takeHover(to);
-      pull(to, isOldSeen ? from : null, isHovered);
-      return;
-    }
+    const isOldSeen = isSolid && isSeen(box, origin, boxOf(marker));
+    if (current !== wasPage) passDust(was, target, origin);
     if (isOldSeen) {
       springTo(marker, to);
       showTo(marker, true);
-      if (isHovered) showTo(hover, false);
+      // The hover fill fades on the marker's spring, as the marker comes
+      // over it. Thus the row does not go empty while the marker moves.
+      if (isHovered) hover.shown.to(0, { spring: marker.spring });
       return;
     }
-    placeAt(shed, to);
-    setShown(shed, 0);
     if (isHovered) {
       takeHover(to);
       return;
@@ -344,19 +327,20 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
       box,
       list,
       marker: markerElement,
-      shed: shedElement,
       hover: hoverElement,
+      shed,
+      fan,
       onPull,
       canShed,
     }) {
       const marker = createFill(engine, markerElement, MARKER_SPRING);
-      const shed = createFill(engine, shedElement, MARKER_SPRING);
       const hover = createFill(engine, hoverElement, HOVER_SPRING);
       parts = {
         box,
         marker,
-        shed,
         hover,
+        shed,
+        fan,
         canHover: window.matchMedia(CAN_HOVER_QUERY),
         onPull,
         canShed,
@@ -377,7 +361,6 @@ export function createNavListMotion(engine: MotionEngine): NavListMotion {
         observer?.disconnect();
         endPull();
         marker.binding.unbind();
-        shed.binding.unbind();
         hover.binding.unbind();
         parts = null;
         markerRow = null;

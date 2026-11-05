@@ -4,6 +4,7 @@ import {
   use,
   type ComponentProps,
   type ComponentType,
+  type ReactNode,
 } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
 import { color } from "../color.stylex.ts";
@@ -16,7 +17,7 @@ import {
   rhythm,
   space,
 } from "../tokens.stylex.ts";
-import type { NavListMotion } from "./create-nav-list-motion.ts";
+import { NAV_ICON, type NavListMotion } from "./create-nav-list-motion.ts";
 import { navListQueries, navListTokens } from "./nav-list.stylex.ts";
 
 /**
@@ -130,3 +131,17 @@ export const navListStyles = stylex.create({
     borderBlockStartColor: color.border,
   },
 });
+
+/**
+ * The icon at the start of a row, which sheds the dust of a change of page and
+ * pulls it in.
+ *
+ * @internal
+ */
+export function NavIcon({ children }: { children: ReactNode }) {
+  return (
+    <span {...{ [NAV_ICON]: "" }} css={navListStyles.icon}>
+      {children}
+    </span>
+  );
+}

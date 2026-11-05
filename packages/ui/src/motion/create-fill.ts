@@ -79,9 +79,9 @@ export interface Fill {
 }
 
 /**
- * The fill hides through a filter, not through `opacity`. The effect layer
- * measures no element at `opacity: 0`, and a fill that sheds dust or pulls
- * it in must stay measured.
+ * The fill fades through a filter, not through `opacity`. The style of a Segment
+ * track fill sets `opacity` and hides the fill while the effect layer draws the
+ * indicator. An inline `opacity` overrides that style.
  *
  * @internal
  */
