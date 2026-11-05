@@ -6,11 +6,11 @@ import type { DESIGN_SYSTEM_ROUTES } from "./design-system-routes.ts";
  * layer underneath both.
  */
 export type DesignSystemSectionId =
-  "overview" | "foundations" | "components" | "composition";
+  "overview" | "foundations" | "components" | "buildingBlocks";
 
 /**
  * The inner level of the route map: what a component is for, or what a
- * foundation decides. `"composition"` is short enough to read as one list.
+ * foundation decides. `"buildingBlocks"` is short enough to read as one list.
  */
 export type DesignSystemCategoryId =
   | "basics"

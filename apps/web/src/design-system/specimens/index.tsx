@@ -15,7 +15,6 @@ import { HeaderFooterLayoutSpecimen } from "./header-footer-layout-specimen.tsx"
 import { HeadingSpecimen } from "./heading-specimen.tsx";
 import { ListSpecimen } from "./list-specimen.tsx";
 import { MenuButtonSpecimen } from "./menu-button-specimen.tsx";
-import { MovieDetailSpecimen } from "./movie-detail-specimen.tsx";
 import { NavListSpecimen } from "./nav-list-specimen.tsx";
 import { NavigationSplitViewSpecimen } from "./navigation-split-view-specimen.tsx";
 import { OptionCardSpecimen } from "./option-card-specimen.tsx";
@@ -53,13 +52,13 @@ interface ComponentSpecimen {
 }
 
 /**
- * Maps each components route — plus the one composed example — to the specimen
+ * Maps each components route to the specimen
  * shown in its overview tile. The counterpart to `foundation-illustrations/`:
  * foundations get a generated picture because a token has no rendered form,
  * whereas a component does — so these are the real components, rendered live,
  * and they cannot drift from the thing they advertise. The ones that cannot
  * render their real form inside a tile (Sheet, Menu button, the four page
- * shells, the movie-details example, Progressive blur and Sticky controls)
+ * shells, Progressive blur and Sticky controls)
  * fall back to a miniature drawn from the same tokens; each specimen's own doc
  * comment says why.
  *
@@ -132,10 +131,6 @@ const COMPONENT_SPECIMENS: Partial<
   },
   "/design-system/components/navigation-split-view": {
     element: <NavigationSplitViewSpecimen />,
-    fillsPlate: true,
-  },
-  "/design-system/examples/movie-detail": {
-    element: <MovieDetailSpecimen />,
     fillsPlate: true,
   },
 };

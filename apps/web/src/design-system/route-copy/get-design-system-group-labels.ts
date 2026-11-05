@@ -24,7 +24,7 @@ export function getDesignSystemGroupLabels(): DesignSystemGroupLabels {
       overview: null,
       foundations: t({ en: "Foundations", zh: "基础" }),
       components: t({ en: "Components", zh: "组件" }),
-      composition: t({ en: "Composition", zh: "组合" }),
+      buildingBlocks: t({ en: "Building blocks", zh: "构建块" }),
     },
     categories: {
       basics: t({ en: "Basics", zh: "入门" }),
