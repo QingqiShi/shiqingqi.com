@@ -4,15 +4,14 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { splitViewTokens } from "@tuja/ui/components/navigation-split-view.stylex";
-import { Skeleton } from "@tuja/ui/components/skeleton";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { measure, space } from "@tuja/ui/tokens.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { usePathname, useRouter } from "next/navigation";
 import type { ComponentProps, ReactNode } from "react";
 import { DESIGN_SYSTEM_CONTENT_ID } from "#src/design-system/design-system-content-id.ts";
+import { DocPageSkeleton } from "#src/design-system/doc-page-skeleton.tsx";
 import { Link, LinkStatus } from "#src/links/link.tsx";
 
 interface DesignSystemFrameProps {
@@ -55,19 +54,7 @@ export function DesignSystemFrame({
         router.replace(href);
       }}
       css={[pageColumn.regular, styles.view]}
-      skeleton={
-        <div aria-busy css={[styles.page, stack.group]}>
-          <div css={stack.text}>
-            <Skeleton width="10rem" height="1rem" />
-            <Skeleton width="16rem" height="2.5rem" />
-          </div>
-          <div css={[stack.tight, styles.prose]}>
-            <Skeleton width="100%" height="1rem" />
-            <Skeleton width="85%" height="1rem" />
-          </div>
-          <Skeleton width="100%" height="16rem" />
-        </div>
-      }
+      skeleton={<DocPageSkeleton css={styles.page} />}
       sidebar={{
         stacked: "drawer",
         label: sidebarLabel,
@@ -112,8 +99,5 @@ const styles = stylex.create({
       default: `calc(${space._4} + env(safe-area-inset-top))`,
       [breakpoints.md]: 0,
     },
-  },
-  prose: {
-    maxInlineSize: measure.prose,
   },
 });
