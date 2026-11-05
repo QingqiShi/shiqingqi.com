@@ -453,6 +453,24 @@ export default defineConfig([
       "@tuja/no-partial-hover-underline": "error",
     },
   },
+  // An animated block size lays out the page on each frame. What lies below
+  // moves with `translate` through `FlowBlock` instead.
+  {
+    files: ["apps/*/src/**/*.{ts,tsx}", "packages/ui/src/**/*.{ts,tsx}"],
+    ignores: [
+      "**/*.test.{ts,tsx}",
+      "**/test-setup.ts",
+      // These files change the height of a box that is out of the flow, so no
+      // other box moves. A scale changes the corner radius of the box or the
+      // line width of its drawing, so these motions stay until a new design.
+      "packages/ui/src/actions/use-surface-morph.ts",
+      "packages/ui/src/motion/create-fill.ts",
+      "packages/ui/src/motion/fly-shared.ts",
+    ],
+    rules: {
+      "@tuja/no-layout-animation": "error",
+    },
+  },
   // A link or button that fills only on hover takes the one primitive, which
   // also carries its press, selected state, focus ring and touch feel.
   {
