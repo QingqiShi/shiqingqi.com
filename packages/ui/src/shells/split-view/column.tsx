@@ -10,7 +10,11 @@ import { a11y } from "../../primitives/a11y.stylex.ts";
 import { islandSurface } from "../../surfaces/island.stylex.ts";
 import type { StyleProp } from "../../types.ts";
 import { STACK_ROOT_KEY } from "../create-page-scroll.ts";
-import { columnPageScrollStyles, columnStyles } from "./column.stylex.ts";
+import {
+  columnPageScrollAlwaysStyles,
+  columnPageScrollStyles,
+  columnStyles,
+} from "./column.stylex.ts";
 import type {
   NavigationSplitViewColumn,
   NavigationSplitViewDetail,
@@ -32,6 +36,9 @@ export interface ColumnPage {
   leftAs?: "skeleton" | "blank";
 }
 
+/** @internal */
+export type ColumnPageScroll = "never" | "narrow" | "always";
+
 interface ColumnProps {
   column: SplitViewColumnState["column"];
   /** The form of the sidebar, for a sidebar column. */
@@ -40,8 +47,12 @@ interface ColumnProps {
   as?: "main" | "section";
   /** Whether the page scrolls the column instead of its scroller. */
   pageScrolls: boolean;
-  /** Whether the view can leave the scroll of the column to the page. */
-  canPageScroll: boolean;
+  /**
+   * Where the view can leave the scroll of the column to the page: nowhere, as
+   * in a box that does not fill the screen, on a screen narrower than 30rem, or
+   * at every width.
+   */
+  pageScroll: ColumnPageScroll;
   /** Whether the view shows the column now, for `useSplitViewColumn`. */
   isShown: boolean;
   /** How the column shows, for `useSplitViewColumn`. */
@@ -72,7 +83,7 @@ export function Column({
   form,
   as: Landmark = "section",
   pageScrolls,
-  canPageScroll,
+  pageScroll,
   isShown,
   presentation = "column",
   label,
@@ -108,7 +119,7 @@ export function Column({
             key={page.key}
             column={column}
             pageScrolls={pageScrolls}
-            canPageScroll={canPageScroll}
+            pageScroll={pageScroll}
             isShown={isShown}
             presentation={presentation}
             page={page}
@@ -131,7 +142,7 @@ export function Column({
 function ColumnPageView({
   column,
   pageScrolls,
-  canPageScroll,
+  pageScroll,
   isShown,
   presentation,
   page,
@@ -144,7 +155,7 @@ function ColumnPageView({
 }: {
   column: SplitViewColumnState["column"];
   pageScrolls: boolean;
-  canPageScroll: boolean;
+  pageScroll: ColumnPageScroll;
   isShown: boolean;
   presentation: "column" | "page";
   page: ColumnPage;
@@ -158,6 +169,12 @@ function ColumnPageView({
   const [box, setBox] = useState<HTMLElement | null>(null);
   const scroller = pageScrolls ? undefined : box;
   const isCurrent = page.role === "current";
+  const scrollStyles =
+    pageScroll === "never"
+      ? null
+      : pageScroll === "narrow"
+        ? columnPageScrollStyles
+        : columnPageScrollAlwaysStyles;
   const accessory = "accessory" in page.column ? page.column.accessory : null;
   return (
     <div
@@ -170,9 +187,9 @@ function ColumnPageView({
       aria-hidden={isCurrent ? undefined : true}
       css={[
         columnStyles.page,
-        canPageScroll && columnPageScrollStyles.page,
+        scrollStyles?.page,
         !isCurrent && columnStyles.pageAside,
-        !isCurrent && canPageScroll && columnPageScrollStyles.pageAside,
+        !isCurrent && scrollStyles?.pageAside,
         pageCss,
       ]}
     >
@@ -181,14 +198,8 @@ function ColumnPageView({
       >
         <RegionScroller
           scrollerRef={setBox}
-          scrollerCss={[
-            canPageScroll && columnPageScrollStyles.scroller,
-            scrollerCss,
-          ]}
-          contentCss={[
-            canPageScroll && columnPageScrollStyles.content,
-            contentCss,
-          ]}
+          scrollerCss={[scrollStyles?.scroller, scrollerCss]}
+          contentCss={[scrollStyles?.content, contentCss]}
         >
           {top?.(page)}
           {body === undefined ? page.column.node : body(page)}

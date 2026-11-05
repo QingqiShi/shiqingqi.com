@@ -60,7 +60,8 @@ interface SidebarDrawerProps {
  * beside the content where it fits, and where it does not, a menu button at the
  * top-end corner that opens it as a drawer. It is one element in both forms, and
  * CSS chooses, so the server paints the right one, and the sidebar keeps its
- * state and its scroll.
+ * state and its scroll. Where the page scrolls the content, the island sticks
+ * beside it.
  *
  * @internal
  */
@@ -142,6 +143,7 @@ export function SidebarDrawer({
         data-split-view-sidebar="full"
         css={[
           styles.drawer,
+          !isContained && styles.drawerOnPage,
           isOpen && styles.drawerOpen,
           a11y.focusRingInset,
           css,
@@ -307,6 +309,18 @@ const styles = stylex.create({
     transform: { default: "translateX(110%)", [BESIDE]: "none" },
     opacity: { default: 0, [BESIDE]: 1 },
     visibility: { default: "hidden", [BESIDE]: "visible" },
+  },
+  // Where the page scrolls the content, the island sticks beside it, one screen
+  // tall less the gaps of the frame, and its nav scrolls on its own.
+  drawerOnPage: {
+    position: { default: "fixed", [BESIDE]: "sticky" },
+    insetBlockStart: { default: 0, [BESIDE]: islandTokens.insetBlockStart },
+    alignSelf: "flex-start",
+    blockSize: {
+      default: null,
+      [BESIDE]: `calc(100dvh - ${islandTokens.insetBlockStart} - ${islandTokens.insetBlockEnd})`,
+    },
+    zIndex: { default: layer.overlay, [BESIDE]: layer.raised },
   },
   drawerOpen: {
     transform: "none",

@@ -84,9 +84,11 @@ export type NavigationSplitViewSidebar = NavigationSplitViewColumn &
          * opens without its sidebar says `"hidden"` there and `"page"` at the
          * other URLs, and the sidebar keeps its state and its scroll. `"drawer"`:
          * it opens as a drawer from a menu button at the top-end corner of the
-         * view, and the content fills the view under the button.
+         * view, and the content fills the view under the button. Such a view is a
+         * document: at every width the page scrolls the content, which lies on the
+         * canvas, and beside it the sidebar sticks as an island.
          *
-         * @zh 侧栏放不到内容栏旁边时的去向。`"page"`：它是堆叠的根页面，位于 `href`；带 `back` 的 `content` 推入其上，不带 `back` 的 `content` 不显示；完整侧栏放不下时视图堆叠。堆叠需要路由器，因此需要 `linkStatus`。`"hidden"`：不显示，或以 `collapsed` 形态显示。它可以随 URL 变化：打开时没有侧栏的画面在该 URL 传 `"hidden"`，其他 URL 传 `"page"`，侧栏保留其状态与滚动位置。`"drawer"`：它从视图顶部末端角落的菜单按钮以抽屉形式打开，内容栏在按钮下方占满视图。
+         * @zh 侧栏放不到内容栏旁边时的去向。`"page"`：它是堆叠的根页面，位于 `href`；带 `back` 的 `content` 推入其上，不带 `back` 的 `content` 不显示；完整侧栏放不下时视图堆叠。堆叠需要路由器，因此需要 `linkStatus`。`"hidden"`：不显示，或以 `collapsed` 形态显示。它可以随 URL 变化：打开时没有侧栏的画面在该 URL 传 `"hidden"`，其他 URL 传 `"page"`，侧栏保留其状态与滚动位置。`"drawer"`：它从视图顶部末端角落的菜单按钮以抽屉形式打开，内容栏在按钮下方占满视图。这样的视图是一篇文档：在任何宽度下都由页面滚动内容，内容直接位于画布上，侧栏则作为岛屿固定在它旁边。
          */
         stacked: "page";
         /**
@@ -186,8 +188,8 @@ export interface SplitViewColumnState {
   /**
    * The box that scrolls the column, `null` until it mounts and in a sheet,
    * and `undefined` where the page scrolls the column, as on a phone inside
-   * a `TabView`. Give it to a virtual list as its scroll parent, or the
-   * window where it is `undefined`.
+   * a `TabView` and at every width in a view with a drawer. Give it to a
+   * virtual list as its scroll parent, or the window where it is `undefined`.
    */
   scroller: HTMLElement | null | undefined;
   /**

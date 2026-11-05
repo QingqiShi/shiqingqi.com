@@ -13,7 +13,7 @@ import {
   splitViewWidths,
 } from "../navigation-split-view-layout.stylex.ts";
 import { columnStyles, contentStyles } from "./column.stylex.ts";
-import { Column, type ColumnPage } from "./column.tsx";
+import { Column, type ColumnPage, type ColumnPageScroll } from "./column.tsx";
 import type { NavigationSplitViewDetail, SplitViewBackLink } from "./types.ts";
 
 function DetailHeader({
@@ -51,7 +51,7 @@ export function DetailColumn({
   detail,
   pages,
   pageScrolls,
-  canPageScroll,
+  pageScroll,
   isLeaving,
   close,
   onTakeOff,
@@ -59,7 +59,7 @@ export function DetailColumn({
   detail: NavigationSplitViewDetail;
   pages: readonly ColumnPage[];
   pageScrolls: boolean;
-  canPageScroll: boolean;
+  pageScroll: ColumnPageScroll;
   isLeaving: boolean;
   close: (() => void) | null;
   onTakeOff: (href: string) => void;
@@ -68,7 +68,7 @@ export function DetailColumn({
     <Column
       column="detail"
       pageScrolls={pageScrolls}
-      canPageScroll={canPageScroll}
+      pageScroll={pageScroll}
       isShown
       label={detail.label}
       isLeaving={isLeaving}
