@@ -2,11 +2,30 @@
 
 import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
-import type { ComponentProps, ReactNode } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
 import { useDisclosure } from "../hooks/use-disclosure.ts";
+import { cssTween } from "../motion/css-tween.ts";
+import { unit } from "../motion/mix.ts";
+import { px } from "../motion/px.ts";
+import { springOf, springRoles } from "../motion/spring-roles.ts";
+import { useBinding } from "../motion/use-binding.ts";
+import {
+  useMotionEngine,
+  useMotionValue,
+} from "../motion/use-motion-engine.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
-import { transition } from "../primitives/motion.stylex.ts";
+import {
+  duration,
+  easing,
+  motionConstants,
+} from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { border, color, controlSize, font, space } from "../tokens.stylex.ts";
@@ -115,11 +134,17 @@ type DisclosureStateProps =
 
 type DisclosureProps = DisclosureBaseProps & DisclosureStateProps;
 
+const OPEN_SPRING = springOf(springRoles.move);
+const REDUCED_FADE = cssTween(duration._150, easing.ease);
+
 /**
  * An expand/collapse section: a header row that toggles a panel beneath it,
- * wired with `aria-expanded` and `aria-controls`. The panel stays mounted and
- * flips `hidden`, so render expensive contents conditionally yourself if you
- * need them deferred.
+ * wired with `aria-expanded` and `aria-controls`. The panel grows from the
+ * header on a spring, what lies below moves with the layout, and the indicator
+ * turns on the same spring. A press during the motion turns it from where it
+ * is. Under reduced motion, the panel fades in place. The panel stays mounted
+ * and is `hidden` while it rests closed, so render expensive contents
+ * conditionally yourself if you need them deferred.
  */
 export function Disclosure({
   summary,
@@ -142,6 +167,52 @@ export function Disclosure({
   });
   const resolvedIndicator =
     indicator === undefined ? <CaretDownIcon weight="bold" /> : indicator;
+
+  const [isShown, setIsShown] = useState(open);
+  if (open && !isShown) setIsShown(true);
+
+  const engine = useMotionEngine();
+  const progress = useMotionValue(engine, open ? 1 : 0, {
+    spring: OPEN_SPRING,
+  });
+  const panelRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const indicatorRef = useRef<HTMLSpanElement>(null);
+  const heightRef = useRef(0);
+  useBinding(panelRef, progress, {
+    // Only the block axis clips, because a child can have a negative inline
+    // margin to extend its fill past the panel.
+    pose: (at) => ({
+      height: px(Math.max(0, at) * heightRef.current),
+      "overflow-y": "clip",
+      opacity: unit(at * 2).toFixed(3),
+    }),
+    reducedPose: (at) => ({ opacity: unit(at).toFixed(3) }),
+    rest: "clear",
+  });
+  useBinding(indicatorRef, progress, {
+    pose: (at) => ({ rotate: `${(at * 180).toFixed(2)}deg` }),
+    reducedPose: () => ({}),
+    rest: "clear",
+  });
+
+  const wasOpenRef = useRef(open);
+  useLayoutEffect(() => {
+    if (wasOpenRef.current === open) return;
+    wasOpenRef.current = open;
+    const content = contentRef.current;
+    if (content === null) return;
+    // Not the `scrollHeight` of the panel: during an overshoot the panel is
+    // taller than its content, and `scrollHeight` gives that larger height.
+    heightRef.current = engine.measure(
+      () => content.getBoundingClientRect().height,
+    );
+    void progress
+      .to(open ? 1 : 0, { reduced: REDUCED_FADE })
+      .finished.then((landed) => {
+        if (landed && !open) setIsShown(false);
+      });
+  }, [engine, open, progress]);
 
   return (
     <div
@@ -171,19 +242,24 @@ export function Disclosure({
             summary. */}
         {resolvedIndicator ? (
           <span
-            css={[
-              styles.slot,
-              transition.transform,
-              open && styles.indicatorOpen,
-            ]}
+            ref={indicatorRef}
+            css={[styles.slot, open && styles.indicatorOpen]}
             aria-hidden
           >
             {resolvedIndicator}
           </span>
         ) : null}
       </button>
-      <div {...panelProps} css={panelLooks[look]}>
-        {children}
+      <div
+        {...panelProps}
+        ref={panelRef}
+        hidden={!isShown}
+        inert={!open}
+        css={!open && styles.closed}
+      >
+        <div ref={contentRef} css={[styles.content, panelLooks[look]]}>
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -223,7 +299,21 @@ const styles = stylex.create({
     color: color.fgMuted,
   },
   indicatorOpen: {
-    transform: "rotate(180deg)",
+    rotate: "180deg",
+  },
+  // The closing motion writes the height while it moves, and this holds it
+  // until `hidden` applies. No `display` here: the panel leans on `[hidden]`
+  // to collapse, and any `display` value would override that browser rule.
+  // Under reduced motion the panel fades in place, so it keeps its height.
+  closed: {
+    blockSize: { default: 0, [motionConstants.REDUCED_MOTION]: "auto" },
+    overflowY: { default: "clip", [motionConstants.REDUCED_MOTION]: "visible" },
+    opacity: { default: null, [motionConstants.REDUCED_MOTION]: 0 },
+  },
+  // A margin on the first child must stay in this box. If it collapses through
+  // the box, the clip cannot move it, and it stays until the panel is hidden.
+  content: {
+    display: "flow-root",
   },
 });
 
@@ -237,8 +327,6 @@ const triggerLooks = stylex.create({
   },
 });
 
-// No `display` here: the panel leans on `[hidden]` to collapse, and any
-// `display` value here would override that browser rule.
 const panelLooks = stylex.create({
   plain: {
     paddingBlockEnd: space._1,

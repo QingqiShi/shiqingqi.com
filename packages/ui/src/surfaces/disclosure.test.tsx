@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { Disclosure } from "./disclosure.tsx";
@@ -10,9 +10,13 @@ describe("Disclosure", () => {
     expect(screen.getByText("Passport")).not.toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "Packing list" }));
-    expect(screen.getByText("Passport")).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText("Passport")).toBeVisible();
+    });
 
     await user.click(screen.getByRole("button", { name: "Packing list" }));
-    expect(screen.getByText("Passport")).not.toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText("Passport")).not.toBeVisible();
+    });
   });
 });
