@@ -22,8 +22,8 @@ export default function Page() {
     <LegalPage title={t({ en: "Privacy policy", zh: "隐私政策" })}>
       <Text>
         {t({
-          en: "Qi Assistant (assistant.qingqi.dev) is a personal service that Qingqi Shi runs for his own use. It files the mail in the inboxes you connect into folders, and each morning it writes a report of the last 24 hours' mail with the to-dos it finds. This page says what it stores, where your data goes, and what you can do about it.",
-          zh: "Qi Assistant（assistant.qingqi.dev）是石清琪为自己使用而运营的个人服务。它把你连接的邮箱收件箱里的邮件归入文件夹，并在每天早上就过去 24 小时的邮件写一份晨报，列出其中的待办。本页说明它保存什么、你的数据去往哪里，以及你可以做什么。",
+          en: "Qi Assistant (assistant.qingqi.dev) is a mail assistant that Qingqi Shi built and runs. It is designed for anyone to use, but it is not open for sign-up yet. It files the mail in the inboxes you connect into folders, and each morning it writes a report of the last 24 hours' mail with the to-dos it finds. This page says what it stores, where your data goes, and what you can do about it.",
+          zh: "Qi Assistant（assistant.qingqi.dev）是石清琪开发并运营的邮件助手，面向所有人设计，但目前尚未开放注册。它把你连接的邮箱收件箱里的邮件归入文件夹，并在每天早上就过去 24 小时的邮件写一份晨报，列出其中的待办。本页说明它保存什么、你的数据去往哪里，以及你可以做什么。",
         })}
       </Text>
 
