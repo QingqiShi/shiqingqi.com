@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { wireframe } from "./specimen.stylex.ts";
 import { WireframeBar } from "./wireframe-bar.tsx";
 

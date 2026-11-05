@@ -6,6 +6,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
@@ -14,7 +15,7 @@ import { List } from "@tuja/ui/components/list";
 import { ListRow, type ListRowLinkProps } from "@tuja/ui/components/list-row";
 import { Text } from "@tuja/ui/components/text";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { createContext, use, useState } from "react";
 
 const FollowContext = createContext<(href: string) => void>(() => undefined);

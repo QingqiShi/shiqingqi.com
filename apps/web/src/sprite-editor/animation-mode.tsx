@@ -9,6 +9,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -19,14 +20,7 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
-import {
-  border,
-  color,
-  font,
-  rhythm,
-  shadow,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { border, font, rhythm, shadow, space } from "@tuja/ui/tokens.stylex";
 import { downloadBlob } from "@tuja/ui/utils/download-blob";
 import { useEffect, useRef, useState } from "react";
 import { drawCellCentered } from "./draw-cell-centered";

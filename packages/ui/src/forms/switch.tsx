@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { handBack } from "../effect-layer/hand-back.stylex.ts";
 import { useLiquid } from "../effect-layer/use-liquid.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
@@ -19,7 +20,6 @@ import { row, stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import {
   border,
-  color,
   controlHeight,
   controlSize,
   layer,

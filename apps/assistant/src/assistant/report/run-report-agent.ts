@@ -16,23 +16,25 @@ import type { RunCalendars } from "#src/assistant/agent/calendar/run-calendars.t
 import { sourceMailOf } from "#src/assistant/agent/calendar/source-mail-of.ts";
 import {
   createMailTools,
-  listMail,
   MAIL_TOOL_LIMITS,
-  type ListMailInput,
 } from "#src/assistant/agent/mail/create-mail-tools.ts";
+import {
+  listMail,
+  type ListMailInput,
+} from "#src/assistant/agent/mail/list-mail.ts";
 import { MailHandles } from "#src/assistant/agent/mail/mail-handles.ts";
 import type { RunMailboxes } from "#src/assistant/agent/mail/run-mailboxes.ts";
 import {
   runAgent,
   type AgentRunResult,
 } from "#src/assistant/agent/run-agent.ts";
-import {
-  createTodoTools,
-  type DeletedTodo,
-  type RejectedTodo,
-  type StoredTodo,
-  type TodoChanges,
-} from "#src/assistant/agent/todos/create-todo-tools.ts";
+import { createTodoTools } from "#src/assistant/agent/todos/create-todo-tools.ts";
+import type {
+  DeletedTodo,
+  RejectedTodo,
+  StoredTodo,
+  TodoChanges,
+} from "#src/assistant/agent/todos/types.ts";
 import type { AgentModels } from "#src/assistant/ai/get-agent-models.ts";
 import type { AgentTask, UserLocale } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";

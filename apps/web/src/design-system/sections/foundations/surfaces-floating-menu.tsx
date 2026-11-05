@@ -3,6 +3,7 @@
 import { SortAscendingIcon } from "@phosphor-icons/react/dist/ssr/SortAscending";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -13,7 +14,7 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { Specimen } from "#src/design-system/specimen.tsx";
 

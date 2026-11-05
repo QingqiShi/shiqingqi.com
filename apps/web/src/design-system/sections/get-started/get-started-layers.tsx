@@ -2,10 +2,11 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { getLocale } from "@tuja/i18n/server-locale";
+import { color } from "@tuja/ui/color.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
+import { font, rhythm } from "@tuja/ui/tokens.stylex";
 import { Fragment, type ReactNode } from "react";
 import { getDesignSystemGroupLabels } from "#src/design-system/route-copy/get-design-system-group-labels.ts";
 import { DESIGN_SYSTEM_ROUTES } from "#src/design-system/routes/design-system-routes.ts";
@@ -43,7 +44,7 @@ export function GetStartedLayers() {
         en: "The decisions, such as colour, type, layout and motion.",
         zh: "设计决策，例如颜色、文字、布局与动效。",
       }),
-      paths: ["@tuja/ui/tokens.stylex"],
+      paths: ["@tuja/ui/color.stylex", "@tuja/ui/tokens.stylex"],
     },
     {
       section: "components",

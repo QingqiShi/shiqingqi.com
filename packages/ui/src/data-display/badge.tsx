@@ -1,10 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import { outlineSurface } from "../actions/outline-surface.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { color, font, space } from "../tokens.stylex.ts";
+import { font, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
 interface BadgeProps extends Omit<

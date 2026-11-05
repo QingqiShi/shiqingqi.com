@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { UseSuspenseInfiniteQueryResult } from "@tanstack/react-query";
-import { color } from "@tuja/ui/tokens.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { VirtuosoGrid } from "react-virtuoso";
 import { Grid } from "./grid.tsx";
 import { MediaCard } from "./media-card";

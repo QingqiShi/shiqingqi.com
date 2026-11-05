@@ -3,10 +3,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { color } from "@tuja/ui/color.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
+import { font, rhythm } from "@tuja/ui/tokens.stylex";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { MoneyChange } from "../domain/money/money-change.tsx";
 import type { WeeklyReportData } from "./weekly-report-data-schema.ts";

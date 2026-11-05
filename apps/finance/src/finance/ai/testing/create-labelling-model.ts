@@ -7,11 +7,11 @@ import {
 import {
   NO_LOAN,
   NO_PAYEE,
+  tagInstructions,
   UNKNOWN_ACCOUNT,
   UNKNOWN_MEMBER,
-  newPayeeLabel,
-  tagInstructions,
-} from "../row-questions.ts";
+} from "../household-questions.ts";
+import { newPayeeLabel } from "../row-questions.ts";
 
 /** One bank row as the fake reads it from the request. */
 export interface PromptRow {

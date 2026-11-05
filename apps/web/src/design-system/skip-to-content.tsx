@@ -1,8 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
-import { color, layer, shadow, space } from "@tuja/ui/tokens.stylex";
+import { layer, shadow, space } from "@tuja/ui/tokens.stylex";
 import { DESIGN_SYSTEM_CONTENT_ID } from "#src/design-system/design-system-content-id.ts";
 
 /**

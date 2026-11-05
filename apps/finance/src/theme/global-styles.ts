@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { root } from "@tuja/ui/primitives/root.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
 import { financeTheme } from "#src/finance/theme/finance-theme.ts";
 
 // Every color token is a `light-dark()` pair, so `color-scheme` alone decides

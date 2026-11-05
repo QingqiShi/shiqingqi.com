@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { color } from "../tokens.stylex.ts";
+import { color } from "../color.stylex.ts";
 
 export const progressTokens = stylex.defineVars({
   // How much of the track the indicator covers. `Progress` sets it from

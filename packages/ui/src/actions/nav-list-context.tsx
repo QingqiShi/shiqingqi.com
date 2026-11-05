@@ -7,10 +7,10 @@ import {
   type ReactNode,
 } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { normalizeUrl } from "../shells/normalize-url.ts";
 import {
   border,
-  color,
   controlHeight,
   controlSize,
   font,

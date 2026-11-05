@@ -2,11 +2,12 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { buttonTokens } from "@tuja/ui/components/button.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, ratio } from "@tuja/ui/tokens.stylex";
+import { border, ratio } from "@tuja/ui/tokens.stylex";
 import { brand } from "#src/brand/brand.stylex.ts";
 
 interface CalculatorButtonProps {

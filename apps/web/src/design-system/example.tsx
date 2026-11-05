@@ -1,10 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { CodeBlock, type CodeToken } from "@tuja/ui/components/code-block";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
 interface ExampleProps {

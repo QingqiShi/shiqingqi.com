@@ -2,12 +2,13 @@ import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentType, CSSProperties, ReactNode } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { cluster, row } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { color, font } from "../tokens.stylex.ts";
+import { font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { BreadcrumbAnchor } from "./breadcrumb-anchor.tsx";
 

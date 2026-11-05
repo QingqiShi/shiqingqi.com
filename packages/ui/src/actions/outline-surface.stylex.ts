@@ -1,9 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "../breakpoints.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { cornerTokens } from "../primitives/corner.stylex.ts";
 import {
   border,
-  color,
   controlHeight,
   controlSize,
   font,

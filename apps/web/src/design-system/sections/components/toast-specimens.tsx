@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Text } from "@tuja/ui/components/text";
 import { Toast } from "@tuja/ui/components/toast";
@@ -9,13 +10,7 @@ import { ToastProvider, useToast } from "@tuja/ui/components/toast-provider";
 import { usePortalTarget } from "@tuja/ui/hooks/use-portal-target";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import {
-  border,
-  color,
-  controlSize,
-  rhythm,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { border, controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 
 function noop() {}

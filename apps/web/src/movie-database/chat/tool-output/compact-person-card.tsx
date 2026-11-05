@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -15,7 +16,7 @@ import {
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DepartmentLabel } from "#src/movie-database/department-label.ts";
 import { configurationQuery } from "#src/movie-database/tmdb/queries/configuration-query.ts";
 import { TmdbImage } from "#src/movie-database/tmdb/tmdb-image.tsx";

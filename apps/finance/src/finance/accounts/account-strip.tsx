@@ -3,6 +3,7 @@
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import {
   SplitViewLink,
   useSplitViewShared,
@@ -11,13 +12,7 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import {
-  border,
-  color,
-  controlSize,
-  font,
-  rhythm,
-} from "@tuja/ui/tokens.stylex";
+import { border, controlSize, font, rhythm } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import type { BalanceSheet } from "./build-balance-sheet.ts";

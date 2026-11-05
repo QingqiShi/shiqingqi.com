@@ -1,13 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { and, eq, isNotNull } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { applyTodoChanges } from "#src/assistant/agent/todos/apply-todo-changes.ts";
 import {
-  applyTodoChanges,
   readDeletedTodos,
   readOpenTodos,
   readRejectedTodos,
-  type TodoChanges,
-} from "#src/assistant/agent/todos/create-todo-tools.ts";
+} from "#src/assistant/agent/todos/read-open-todos.ts";
+import type { TodoChanges } from "#src/assistant/agent/todos/types.ts";
 import { createFakeCalendarServer } from "#src/assistant/calendar/testing/create-fake-calendar-server.ts";
 import {
   agentActions,

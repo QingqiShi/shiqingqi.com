@@ -10,6 +10,7 @@ import {
   type Ref,
 } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { EffectContainer } from "../effect-layer/effect-container.tsx";
 import { useDust } from "../effect-layer/use-dust.ts";
 import { useEffectContainer } from "../effect-layer/use-effect-container.ts";
@@ -20,7 +21,7 @@ import { useMotionEngine } from "../motion/use-motion-engine.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
-import { border, color, controlSize, space } from "../tokens.stylex.ts";
+import { border, controlSize, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { createNavListMotion } from "./create-nav-list-motion.ts";
 import {

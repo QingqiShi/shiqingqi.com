@@ -1,16 +1,10 @@
 "use client";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import {
-  border,
-  color,
-  ratio,
-  rhythm,
-  shadow,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { border, ratio, rhythm, shadow, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState } from "react";
 import { brand } from "#src/brand/brand.stylex.ts";
 import { evaluateExpression } from "#src/calculator/calculator-logic/evaluate-expression.ts";

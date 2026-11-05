@@ -5,6 +5,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
@@ -14,7 +15,7 @@ import { TextField } from "@tuja/ui/components/text-field";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
+import { font, rhythm } from "@tuja/ui/tokens.stylex";
 import { usePathname, useRouter } from "next/navigation";
 import {
   useEffect,

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./openapi": "./src/openapi.d.ts",
+    "./openapi": "./src/_generated/openapi.d.ts",
     "./types": "./src/types.ts",
     "./vector-search-filters-schema": "./src/vector-search-filters-schema.ts"
   },

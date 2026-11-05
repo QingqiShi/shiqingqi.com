@@ -43,6 +43,7 @@
     "./package.json": "./package.json",
     "./css-prop": "./src/css-prop.d.ts",
     "./types": "./src/types.ts",
+    "./color.stylex": "./src/color.stylex.ts",
     "./tokens.stylex": "./src/tokens.stylex.ts",
     "./breakpoints.stylex": "./src/breakpoints.stylex.ts",
     "./fonts.css": "./src/fonts.css",

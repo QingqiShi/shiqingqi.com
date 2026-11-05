@@ -3,10 +3,11 @@
 import { ListChecksIcon } from "@phosphor-icons/react/dist/ssr/ListChecks";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, rhythm } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { ChecklistItem } from "../report/own-todo.ts";
 
 /** How far a checklist has come, such as 2/5. Nothing when it has no steps. */

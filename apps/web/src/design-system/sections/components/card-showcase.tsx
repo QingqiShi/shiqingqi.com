@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import {
@@ -14,7 +15,7 @@ import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";

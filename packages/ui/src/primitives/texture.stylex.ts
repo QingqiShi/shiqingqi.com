@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { color, space } from "../tokens.stylex.ts";
+import { color } from "../color.stylex.ts";
+import { space } from "../tokens.stylex.ts";
 
 /** The share of the foreground the default ink takes, so a mark stays faint. */
 const DEFAULT_INK = "20%";

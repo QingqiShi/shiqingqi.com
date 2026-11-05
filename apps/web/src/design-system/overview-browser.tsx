@@ -4,6 +4,7 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGl
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { headerControlsTokens } from "@tuja/ui/components/header-controls.stylex";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
@@ -11,7 +12,7 @@ import { TextField } from "@tuja/ui/components/text-field";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, controlSize, measure, rhythm } from "@tuja/ui/tokens.stylex";
+import { controlSize, measure, rhythm } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState, type ReactNode } from "react";
 import type { DesignSystemGroupLabels } from "#src/design-system/route-copy/get-design-system-group-labels.ts";
 import { getDesignSystemRouteSections } from "#src/design-system/routes/get-design-system-route-sections.ts";

@@ -7,6 +7,7 @@ import { useQueries } from "@tanstack/react-query";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -17,7 +18,6 @@ import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
-  color,
   layer,
   measure,
   ratio,

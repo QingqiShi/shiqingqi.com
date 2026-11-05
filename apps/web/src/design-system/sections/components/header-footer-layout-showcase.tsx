@@ -1,12 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocale } from "@tuja/i18n/server-locale";
+import { color } from "@tuja/ui/color.stylex";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { HeaderFooterLayout } from "@tuja/ui/components/header-footer-layout";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { measure, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { blurStage } from "#src/design-system/blur-stage.stylex.ts";
 import {

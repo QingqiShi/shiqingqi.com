@@ -22,6 +22,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { DotsSixVerticalIcon } from "@phosphor-icons/react/dist/ssr/DotsSixVertical";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   duration,
@@ -30,13 +31,7 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import {
-  border,
-  color,
-  controlSize,
-  layer,
-  shadow,
-} from "@tuja/ui/tokens.stylex";
+import { border, controlSize, layer, shadow } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode, Ref } from "react";
 import { createPortal } from "react-dom";

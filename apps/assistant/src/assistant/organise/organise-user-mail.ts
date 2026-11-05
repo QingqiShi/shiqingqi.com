@@ -1,19 +1,15 @@
 import { eq } from "drizzle-orm";
 import { listUndoneForAgent } from "#src/assistant/activity/list-undone-for-agent.ts";
-import {
-  createCalendarTools,
-  type CalendarToolStats,
-} from "#src/assistant/agent/calendar/create-calendar-tools.ts";
+import { createCalendarTools } from "#src/assistant/agent/calendar/create-calendar-tools.ts";
 import { EventHandles } from "#src/assistant/agent/calendar/event-handles.ts";
 import { RunCalendars } from "#src/assistant/agent/calendar/run-calendars.ts";
 import { sourceMailOf } from "#src/assistant/agent/calendar/source-mail-of.ts";
-import {
-  createMailTools,
-  type MailToolStats,
-} from "#src/assistant/agent/mail/create-mail-tools.ts";
+import type { CalendarToolStats } from "#src/assistant/agent/calendar/types.ts";
+import { createMailTools } from "#src/assistant/agent/mail/create-mail-tools.ts";
 import { isInbox } from "#src/assistant/agent/mail/destination-refusal.ts";
 import { MailHandles } from "#src/assistant/agent/mail/mail-handles.ts";
 import { RunMailboxes } from "#src/assistant/agent/mail/run-mailboxes.ts";
+import type { MailToolStats } from "#src/assistant/agent/mail/types.ts";
 import {
   runAgent,
   type AgentRunResult,

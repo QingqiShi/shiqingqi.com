@@ -5,13 +5,14 @@ import { StopIcon } from "@phosphor-icons/react/dist/ssr/Stop";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, controlSize, space } from "@tuja/ui/tokens.stylex";
+import { controlSize, space } from "@tuja/ui/tokens.stylex";
 import type { AttachedMedia } from "./chat-actions-context";
 import {
   ChatTextarea,

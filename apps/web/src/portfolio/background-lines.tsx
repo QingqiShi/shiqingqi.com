@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { absoluteFill } from "@tuja/ui/primitives/layout.stylex";
-import { border, color, layer } from "@tuja/ui/tokens.stylex";
+import { border, layer } from "@tuja/ui/tokens.stylex";
 
 export function BackgroundLines() {
   return (

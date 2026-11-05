@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/tokens.stylex";
+import { color } from "@tuja/ui/color.stylex";
 
 /**
  * The fill of each `SeriesTone`: a categorical palette for charts with

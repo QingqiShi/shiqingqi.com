@@ -1,8 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, rhythm } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
 

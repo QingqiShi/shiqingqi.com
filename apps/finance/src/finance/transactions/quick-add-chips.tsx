@@ -17,6 +17,7 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Popover } from "@tuja/ui/components/popover";
 import { Text } from "@tuja/ui/components/text";
@@ -25,7 +26,7 @@ import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
-import { color, measure, space } from "@tuja/ui/tokens.stylex";
+import { measure, space } from "@tuja/ui/tokens.stylex";
 import { useState, type KeyboardEvent, type ReactNode } from "react";
 import { currencySymbol } from "../accounts/currency-symbol.ts";
 import { addDays } from "../domain/dates/add-days.ts";
@@ -41,12 +42,10 @@ import {
   type FieldMarks,
   type MarkedField,
 } from "../editor/marked-fields.ts";
+import { PAYS_DOWN_KINDS } from "../editor/pays-down-kinds.ts";
 import { rankPayees } from "../editor/rank-payees.ts";
+import { TagPickerSlot } from "../editor/tag-picker-slot.tsx";
 import { topCategories } from "../editor/top-categories.ts";
-import {
-  PAYS_DOWN_KINDS,
-  TagPickerSlot,
-} from "../editor/transaction-editor.tsx";
 import { useEditorData, type EditorData } from "../editor/use-editor-data.ts";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
 import type { AccountRow } from "../sync/row-schemas.ts";

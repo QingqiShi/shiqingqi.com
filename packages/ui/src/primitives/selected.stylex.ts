@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "../breakpoints.stylex.ts";
-import { color } from "../tokens.stylex.ts";
+import { color } from "../color.stylex.ts";
 
 // StyleX cannot read a selector from another module, and it compiles a
 // `defineConsts` key as an at-rule, so that selector does not match this

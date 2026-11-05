@@ -1,8 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { font, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
 

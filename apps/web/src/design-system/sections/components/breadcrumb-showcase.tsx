@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { getLocale } from "@tuja/i18n/server-locale";
+import { color } from "@tuja/ui/color.stylex";
 import {
   Breadcrumb,
   type BreadcrumbLinkProps,
@@ -9,7 +10,7 @@ import {
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";

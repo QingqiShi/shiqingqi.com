@@ -8,23 +8,20 @@ import { useSplitViewShared } from "@tuja/ui/components/navigation-split-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
-import { row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { bisectCenter } from "d3-array";
-import { useId, type ReactNode, type Ref } from "react";
-import { displayDay, displayDayRange } from "../domain/dates/display-day.ts";
-import { MoneyChange } from "../domain/money/money-change.tsx";
+import { useId, type ReactNode } from "react";
+import { displayDay } from "../domain/dates/display-day.ts";
 import type { ChartSeries } from "./build-chart-series.ts";
-import {
-  buildTimeSeriesGeometry,
-  type TimeSeriesGeometry,
-} from "./build-time-series-geometry.ts";
+import { buildTimeSeriesGeometry } from "./build-time-series-geometry.ts";
 import { ChartDataTable } from "./chart-data-table.tsx";
 import { ChartLegend } from "./chart-legend.tsx";
 import { chartMarks } from "./chart-marks.stylex.ts";
-import { crisp } from "./crisp.ts";
 import { plotXFromPointer } from "./plot-x-from-pointer.ts";
+import { StaticPlot } from "./static-plot.tsx";
+import { TimeSeriesPickMarks } from "./time-series-pick-marks.tsx";
+import { TimeSeriesReadout } from "./time-series-readout.tsx";
 import {
   useChartSelection,
   type ChartSelection,
@@ -88,20 +85,6 @@ const AXIS_BAND = 22;
 const BOTTOM_GAP = 18;
 const TABLE_ROWS = 24;
 const TICK_SPACING = 76;
-const AREA_DEPTH = 0.32;
-const DOT_RADIUS = 5;
-/** A dot's radius and the outer half of its ring. */
-const DOT_REACH = DOT_RADIUS + 1;
-const TICK_EDGE = 24;
-
-/** Where a label at `x` sits: within `edge` of a side, it aligns to that side and stays inside it. */
-function placeLabel(x: number, left: number, right: number, edge: number) {
-  if (x < left + edge)
-    return { x: Math.max(x, left), anchor: "start" as const };
-  if (x > right - edge)
-    return { x: Math.min(x, right), anchor: "end" as const };
-  return { x, anchor: "middle" as const };
-}
 
 function changeTone(change: number) {
   return change > 0 ? "up" : change < 0 ? "down" : "flat";
@@ -147,8 +130,6 @@ export function TimeSeriesChart({
   const titleId = useId();
   const descriptionId = useId();
   const readoutId = useId();
-  const rangeGradientId = useId();
-  const rangeClipId = useId();
   const {
     ref,
     width,
@@ -222,101 +203,25 @@ export function TimeSeriesChart({
   const from = range ? series.values[range.start] : 0;
   const change = range ? series.values[range.end] - from : 0;
   const tone = changeTone(change);
-  const day = (index: number) =>
-    displayDay(series.days[index], locale, "dayYear");
-  const rangeDays = range
-    ? displayDayRange(series.days[range.start], series.days[range.end], locale)
-    : null;
-  const marked = range
-    ? [range.start, range.end]
-    : active !== null
-      ? [active]
-      : [];
 
-  const { summary, xs, ys, trendYs, gradient } = geometry;
   const hasPoints = width > 0 && series.days.length > 0;
-  // Where the plot reaches the screen edge, the marks of the first and last
-  // day move in from the true x so that the screen does not cut the dots.
-  const markLeft = Math.min(bleed.left, DOT_REACH);
-  const markRight = width - Math.min(bleed.right, DOT_REACH);
-  const markX = (index: number) =>
-    Math.min(Math.max(xs[index], markLeft), markRight);
-  const activeTrend =
-    active !== null && trendValues ? trendValues[active] : null;
-  const extremeEdge = (textRight - textLeft) * 0.25;
-  const maxLabel = placeLabel(
-    xs[summary.maxIndex],
-    textLeft,
-    textRight,
-    extremeEdge,
-  );
-  const minLabel = placeLabel(
-    xs[summary.minIndex],
-    textLeft,
-    textRight,
-    extremeEdge,
-  );
 
   const readout = (
-    <div
+    <TimeSeriesReadout
       id={readoutId}
-      aria-live="polite"
-      css={[
-        typeRole.caption,
-        styles.readout,
-        accessory != null && styles.readoutBesideAccessory,
-        onPick && a11y.srOnly,
-      ]}
-    >
-      <div
-        css={[
-          row.item,
-          styles.readoutLayer,
-          selection !== null && styles.readoutHidden,
-        ]}
-      >
-        {restReadout}
-      </div>
-      {selection === null ? null : (
-        <div css={[row.item, styles.readoutLayer]}>
-          {range ? (
-            <>
-              <span>
-                <span css={a11y.srOnly}>
-                  {t({ en: "Change: ", zh: "变化：" })}
-                </span>
-                <MoneyChange
-                  changeMinor={change}
-                  fromMinor={from}
-                  currency={currency}
-                  tone
-                />
-              </span>
-              <span>{rangeDays}</span>
-            </>
-          ) : active === null ? null : (
-            <>
-              <span css={[typeModifier.numeric, styles.readoutValue]}>
-                {formatValue(series.values[active])}
-              </span>
-              {activeTrend === null || trend === undefined ? null : (
-                <span css={[row.inline, typeModifier.numeric]}>
-                  <span
-                    aria-hidden
-                    css={[styles.readoutKey, chartMarks.trendKey]}
-                  />
-                  <span css={a11y.srOnly}>
-                    {`${trend.label}${t({ en: ": ", zh: "：" })}`}
-                  </span>
-                  {formatValue(Math.round(activeTrend))}
-                </span>
-              )}
-              <span>{day(active)}</span>
-            </>
-          )}
-        </div>
-      )}
-    </div>
+      series={series}
+      trend={trend}
+      selection={selection}
+      range={range}
+      active={active}
+      from={from}
+      change={change}
+      formatValue={formatValue}
+      currency={currency}
+      restReadout={restReadout}
+      besideAccessory={accessory != null}
+      assistiveOnly={onPick !== undefined}
+    />
   );
 
   return (
@@ -376,92 +281,22 @@ export function TimeSeriesChart({
                 dimmed={range !== null}
                 lineRef={lineRef}
               />
-              {range ? (
-                <>
-                  <defs>
-                    <AreaGradient
-                      id={rangeGradientId}
-                      gradient={gradient}
-                      tone={tone}
-                    />
-                    <clipPath id={rangeClipId}>
-                      <rect
-                        x={xs[range.start]}
-                        y={0}
-                        width={xs[range.end] - xs[range.start]}
-                        height={height}
-                      />
-                    </clipPath>
-                  </defs>
-                  <g clipPath={`url(#${rangeClipId})`} css={toneColor[tone]}>
-                    <path d={geometry.area} fill={`url(#${rangeGradientId})`} />
-                    <path d={geometry.line} css={chartMarks.line} />
-                  </g>
-                </>
-              ) : null}
-              {marked.length === 0 ? (
-                <>
-                  <text
-                    ref={maxRef}
-                    x={maxLabel.x}
-                    y={ys[summary.maxIndex] - 8}
-                    textAnchor={maxLabel.anchor}
-                    css={[
-                      typeRole.caption,
-                      typeModifier.numeric,
-                      styles.extreme,
-                    ]}
-                  >
-                    {formatValue(summary.max)}
-                  </text>
-                  {summary.minIndex === summary.maxIndex ? null : (
-                    <text
-                      ref={minRef}
-                      x={minLabel.x}
-                      y={ys[summary.minIndex] + 8}
-                      dy="0.8em"
-                      textAnchor={minLabel.anchor}
-                      css={[
-                        typeRole.caption,
-                        typeModifier.numeric,
-                        styles.extreme,
-                      ]}
-                    >
-                      {formatValue(summary.min)}
-                    </text>
-                  )}
-                </>
-              ) : (
-                <g css={toneColor[tone]}>
-                  {marked.map((index, order) => (
-                    <line
-                      key={order}
-                      x1={crisp(markX(index))}
-                      x2={crisp(markX(index))}
-                      y1={TOP - 8}
-                      y2={plotBottom + 8}
-                      css={chartMarks.crosshair}
-                    />
-                  ))}
-                  {active !== null && trendYs ? (
-                    <circle
-                      cx={markX(active)}
-                      cy={trendYs[active]}
-                      r={4}
-                      css={[styles.trendDot, chartMarks.dotRing]}
-                    />
-                  ) : null}
-                  {marked.map((index, order) => (
-                    <circle
-                      key={order}
-                      cx={markX(index)}
-                      cy={ys[index]}
-                      r={DOT_RADIUS}
-                      css={[chartMarks.dotFill, chartMarks.dotRing]}
-                    />
-                  ))}
-                </g>
-              )}
+              <TimeSeriesPickMarks
+                geometry={geometry}
+                range={range}
+                active={active}
+                tone={tone}
+                width={width}
+                height={height}
+                bleed={bleed}
+                textLeft={textLeft}
+                textRight={textRight}
+                plotTop={TOP}
+                plotBottom={plotBottom}
+                formatValue={formatValue}
+                maxRef={maxRef}
+                minRef={minRef}
+              />
             </>
           ) : null}
         </svg>
@@ -491,112 +326,6 @@ export function TimeSeriesChart({
   );
 }
 
-function AreaGradient({
-  id,
-  gradient,
-  tone,
-}: {
-  id: string;
-  gradient: TimeSeriesGeometry["gradient"];
-  tone: keyof typeof toneColor;
-}) {
-  return (
-    <linearGradient
-      id={id}
-      gradientUnits="userSpaceOnUse"
-      x1={0}
-      x2={0}
-      y1={gradient.y1}
-      y2={gradient.y2}
-      css={toneColor[tone]}
-    >
-      {gradient.stops.map((stop, index) => (
-        <stop
-          key={index}
-          offset={stop.offset}
-          stopOpacity={stop.strength * AREA_DEPTH}
-          css={chartMarks.areaStop}
-        />
-      ))}
-    </linearGradient>
-  );
-}
-
-/** The gridlines, the date labels and the line: the parts a pick leaves as they are. */
-function StaticPlot({
-  geometry,
-  width,
-  textLeft,
-  textRight,
-  height,
-  dimmed,
-  lineRef,
-}: {
-  geometry: TimeSeriesGeometry;
-  width: number;
-  /** The span the date labels stay inside. */
-  textLeft: number;
-  textRight: number;
-  height: number;
-  dimmed: boolean;
-  /** Marks the line and its area as a form of a Shared element. */
-  lineRef: Ref<SVGGElement>;
-}) {
-  const locale = useLocale();
-  const gradientId = useId();
-  return (
-    <>
-      <defs>
-        <AreaGradient
-          id={gradientId}
-          gradient={geometry.gradient}
-          tone="flat"
-        />
-      </defs>
-      {geometry.yTicks.map((tick) => (
-        <line
-          key={tick.value}
-          x1={0}
-          x2={width}
-          y1={crisp(tick.y)}
-          y2={crisp(tick.y)}
-          css={chartMarks.gridline}
-        />
-      ))}
-      {geometry.zeroY === null ? null : (
-        <line
-          x1={0}
-          x2={width}
-          y1={crisp(geometry.zeroY)}
-          y2={crisp(geometry.zeroY)}
-          css={chartMarks.zeroLine}
-        />
-      )}
-      <g ref={lineRef} css={[toneColor.flat, dimmed && styles.dimmed]}>
-        <path d={geometry.area} fill={`url(#${gradientId})`} />
-        {geometry.trendLine ? (
-          <path d={geometry.trendLine} css={chartMarks.trendLine} />
-        ) : null}
-        <path d={geometry.line} css={chartMarks.line} />
-      </g>
-      {geometry.xTicks.map((tick) => {
-        const label = placeLabel(tick.x, textLeft, textRight, TICK_EDGE);
-        return (
-          <text
-            key={tick.epochDay}
-            x={label.x}
-            y={height - 4}
-            textAnchor={label.anchor}
-            css={[typeRole.caption, chartMarks.axisLabel]}
-          >
-            {displayDay(tick.epochDay, locale, tick.unit)}
-          </text>
-        );
-      })}
-    </>
-  );
-}
-
 const styles = stylex.create({
   figure: {
     margin: 0,
@@ -605,13 +334,6 @@ const styles = stylex.create({
   fill: {
     flexGrow: 1,
     minBlockSize: 0,
-  },
-  // The readout at rest and the readout of a pick share one cell, so that
-  // the row keeps the height of the taller one and a pick moves nothing.
-  readout: {
-    display: "grid",
-    minBlockSize: space._5,
-    color: color.fgMuted,
   },
   readoutRow: {
     display: "flex",
@@ -628,26 +350,6 @@ const styles = stylex.create({
     flexBasis: "18rem",
     minInlineSize: 0,
     maxInlineSize: "24rem",
-  },
-  readoutBesideAccessory: {
-    flexGrow: 1,
-  },
-  readoutLayer: {
-    gridArea: "1 / 1",
-    flexWrap: "wrap",
-    columnGap: rhythm.item,
-  },
-  readoutHidden: {
-    visibility: "hidden",
-  },
-  readoutValue: {
-    color: color.fg,
-    fontWeight: font.weight_6,
-  },
-  readoutKey: {
-    display: "inline-block",
-    inlineSize: space._2,
-    blockSize: "2px",
   },
   plot: {
     position: "relative",
@@ -683,19 +385,4 @@ const styles = stylex.create({
     insetBlockStart: 0,
     insetInlineStart: 0,
   },
-  dimmed: {
-    opacity: 0.4,
-  },
-  extreme: {
-    fill: color.fg,
-  },
-  trendDot: {
-    fill: color.fgMuted,
-  },
-});
-
-const toneColor = stylex.create({
-  up: { color: color.bgSuccess },
-  down: { color: color.bgDanger },
-  flat: { color: color.bgAccent },
 });

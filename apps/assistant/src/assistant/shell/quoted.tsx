@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/tokens.stylex";
+import { color } from "@tuja/ui/color.stylex";
 
 /** Header text of a mail or a title, or a stand-in when it has none. Plain text only: it is untrusted. */
 export function Quoted({ text }: { text: string }) {

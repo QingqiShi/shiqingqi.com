@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocale } from "@tuja/i18n/server-locale";
+import { color } from "@tuja/ui/color.stylex";
 import {
   Table,
   TableBody,
@@ -11,7 +12,7 @@ import {
   TableRow,
 } from "@tuja/ui/components/table";
 import { Text } from "@tuja/ui/components/text";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { border, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { showcaseBleed } from "#src/design-system/showcase-bleed.stylex.ts";

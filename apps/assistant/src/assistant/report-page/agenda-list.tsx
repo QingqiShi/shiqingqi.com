@@ -1,11 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { List } from "@tuja/ui/components/list";
 import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { AgendaItem } from "../report/types.ts";
 
 /** The `HH:mm` of a `YYYY-MM-DDTHH:mm`. */

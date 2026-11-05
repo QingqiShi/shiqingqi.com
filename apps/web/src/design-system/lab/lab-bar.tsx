@@ -5,6 +5,7 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import {
@@ -15,7 +16,7 @@ import { MenuButton } from "@tuja/ui/components/menu-button";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { font, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { Identifier } from "#src/design-system/identifier.tsx";
 import { LabBarMenu } from "./lab-bar-menu.tsx";

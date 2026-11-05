@@ -1,12 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints, pointer } from "../breakpoints.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { cornerTokens } from "../primitives/corner.stylex.ts";
 import {
   duration,
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
-import { color, controlHeight, controlSize, font } from "../tokens.stylex.ts";
+import { controlHeight, controlSize, font } from "../tokens.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
 
 // Can't use a `transition.*` preset for a compound transform+filter

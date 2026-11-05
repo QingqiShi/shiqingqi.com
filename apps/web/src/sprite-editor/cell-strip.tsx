@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
@@ -12,7 +13,7 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { border, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef, useState } from "react";
 import { drawCellCentered } from "./draw-cell-centered";
 import { prepareCanvas } from "./prepare-canvas";

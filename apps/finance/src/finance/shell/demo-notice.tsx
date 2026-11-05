@@ -5,13 +5,14 @@ import { SignOutIcon } from "@phosphor-icons/react/dist/ssr/SignOut";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Popover } from "@tuja/ui/components/popover";
 import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, controlHeight, layer } from "@tuja/ui/tokens.stylex";
+import { controlHeight, layer } from "@tuja/ui/tokens.stylex";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import {
   floatingAction,

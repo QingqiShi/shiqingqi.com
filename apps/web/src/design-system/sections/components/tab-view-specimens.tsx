@@ -7,6 +7,7 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGl
 import { SquaresFourIcon } from "@phosphor-icons/react/dist/ssr/SquaresFour";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
@@ -18,7 +19,7 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, controlSize, space } from "@tuja/ui/tokens.stylex";
+import { controlSize, space } from "@tuja/ui/tokens.stylex";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 import { Specimen } from "#src/design-system/specimen.tsx";

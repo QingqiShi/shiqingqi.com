@@ -6,10 +6,8 @@
 import "@1771technologies/lytenyte-pro/design.css";
 import "@1771technologies/lytenyte-pro/grid.css";
 import "./lytenyte-license";
-import { Grid, useClientDataSource } from "@1771technologies/lytenyte-pro";
-import { DownloadSimpleIcon } from "@phosphor-icons/react/dist/ssr/DownloadSimple";
-import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
-import { SlidersHorizontalIcon } from "@phosphor-icons/react/dist/ssr/SlidersHorizontal";
+import type { Grid } from "@1771technologies/lytenyte-pro";
+import { useClientDataSource } from "@1771technologies/lytenyte-pro";
 import * as stylex from "@stylexjs/stylex";
 import {
   useQuery,
@@ -18,196 +16,25 @@ import {
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { Button } from "@tuja/ui/components/button";
-import { Checkbox } from "@tuja/ui/components/checkbox";
-import { MenuButton } from "@tuja/ui/components/menu-button";
-import { Spinner } from "@tuja/ui/components/spinner";
-import { TextField } from "@tuja/ui/components/text-field";
-import { useReducedMotion } from "@tuja/ui/motion/use-reduced-motion";
+import { color } from "@tuja/ui/color.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import {
-  border,
-  color,
-  font,
-  rhythm,
-  shadow,
-  space,
-} from "@tuja/ui/tokens.stylex";
-import { copyTextToClipboard } from "@tuja/ui/utils/copy-text-to-clipboard";
-import { downloadBlob } from "@tuja/ui/utils/download-blob";
+import { border, rhythm, shadow, space } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { configurationQuery } from "#src/movie-database/tmdb/queries/configuration-query.ts";
 import { genresQuery } from "#src/movie-database/tmdb/queries/genres-query.ts";
 import type { MediaListItem, MediaType } from "#src/movie-database/types.ts";
-import { MediaGenresCell } from "./media-genres-cell";
-import { MediaLanguageCell } from "./media-language-cell";
-import { MediaOverviewCell } from "./media-overview-cell";
-import { MediaPopularityCell } from "./media-popularity-cell";
-import { MediaReleaseDateCell } from "./media-release-date-cell";
-import { MediaRowNumberCell } from "./media-row-number-cell";
-import { MediaRowNumberHeader } from "./media-row-number-header";
-import { MediaScoreCell } from "./media-score-cell";
+import {
+  buildColumns,
+  withUserColumnState,
+  type ColumnLabels,
+} from "./build-columns";
 import { MediaTableContext } from "./media-table-context";
-import { MediaTableHeader } from "./media-table-header";
-import { MediaTitleCell } from "./media-title-cell";
-import { MediaVotesCell } from "./media-votes-cell";
+import { MediaTableFooter } from "./media-table-footer";
+import { MediaTableGrid } from "./media-table-grid";
+import { MediaTableToolbar } from "./media-table-toolbar";
+import { downloadCsv } from "./to-delimited-cell";
 import type { MediaColumn, MediaTableSpec, MediaSortDirection } from "./types";
-
-const ROW_HEIGHT = 76;
-const HEADER_HEIGHT = 44;
-/** Distance from the bottom of the viewport that triggers the next page. */
-const LOAD_MORE_THRESHOLD = ROW_HEIGHT * 8;
-
-interface ColumnLabels {
-  readonly title: string;
-  readonly score: string;
-  readonly votes: string;
-  readonly released: string;
-  readonly genres: string;
-  readonly popularity: string;
-  readonly language: string;
-  readonly overview: string;
-}
-
-interface BuildColumnsParams {
-  readonly labels: ColumnLabels;
-  readonly locale: string;
-  readonly genreNames: ReadonlyMap<number, string>;
-  readonly languageName: (code: string) => string;
-}
-
-function buildColumns({
-  labels,
-  locale,
-  genreNames,
-  languageName,
-}: BuildColumnsParams): MediaColumn[] {
-  return [
-    {
-      id: "title",
-      name: labels.title,
-      field: "title",
-      pin: "start",
-      width: 280,
-      widthMin: 180,
-      cellRenderer: MediaTitleCell,
-      // `<`/`>` on strings compares UTF-16 code units, which buries accented
-      // Latin titles below `z` and orders Chinese titles by codepoint rather
-      // than by pinyin. Collation is the whole point of a title sort.
-      comparator: (left, right) =>
-        (left.title ?? "").localeCompare(right.title ?? "", locale),
-    },
-    {
-      id: "rating",
-      name: labels.score,
-      field: "rating",
-      type: "number",
-      width: 104,
-      cellRenderer: MediaScoreCell,
-    },
-    {
-      id: "voteCount",
-      name: labels.votes,
-      field: "voteCount",
-      type: "number",
-      width: 100,
-      cellRenderer: MediaVotesCell,
-    },
-    {
-      id: "releaseDate",
-      name: labels.released,
-      // Left as the raw ISO string: the client source compares field values
-      // with `<`/`>`, and ISO 8601 sorts chronologically as text.
-      field: "releaseDate",
-      width: 124,
-      cellRenderer: MediaReleaseDateCell,
-    },
-    {
-      id: "genres",
-      name: labels.genres,
-      // Resolved to names rather than ids so sorting, CSV export and clipboard
-      // copy all carry something a human can read.
-      field: ({ row }) =>
-        row.kind === "leaf"
-          ? (row.data.genreIds ?? [])
-              .map((id) => genreNames.get(id))
-              .filter((name) => name !== undefined)
-              .join(", ")
-          : undefined,
-      width: 208,
-      cellRenderer: MediaGenresCell,
-    },
-    {
-      id: "popularity",
-      name: labels.popularity,
-      field: "popularity",
-      type: "number",
-      width: 120,
-      cellRenderer: MediaPopularityCell,
-    },
-    {
-      id: "originalLanguage",
-      name: labels.language,
-      field: ({ row }) =>
-        row.kind === "leaf" && row.data.originalLanguage
-          ? languageName(row.data.originalLanguage)
-          : undefined,
-      width: 116,
-      cellRenderer: MediaLanguageCell,
-    },
-    {
-      id: "overview",
-      name: labels.overview,
-      field: "overview",
-      width: 420,
-      widthMin: 260,
-      widthFlex: 1,
-      unsortable: true,
-      cellRenderer: MediaOverviewCell,
-    },
-  ];
-}
-
-/**
- * Re-applies the parts of the column state the user owns — sort, visibility,
- * width and order — on top of freshly built definitions.
- *
- * The definitions have to be rebuilt when their inputs change (the date column
- * is relabelled per media type, and the genre column's `field` closes over the
- * genre map), but everything the user arranged lives in the same array. Without
- * this, loading the TV genre list would quietly undo their sort.
- */
-function withUserColumnState(
-  next: MediaColumn[],
-  previous: MediaColumn[],
-): MediaColumn[] {
-  const byId = new Map(previous.map((column) => [column.id, column]));
-  const order = new Map(previous.map((column, index) => [column.id, index]));
-  return next
-    .map((column) => {
-      const prior = byId.get(column.id);
-      // `pin` is in here because dragging a header across pane boundaries is a
-      // move *and* a pin change — carrying the order without the pin would put
-      // a column back in the frozen pane it was just dragged out of.
-      return prior
-        ? {
-            ...column,
-            sort: prior.sort,
-            hide: prior.hide,
-            width: prior.width,
-            pin: prior.pin,
-          }
-        : column;
-    })
-    .sort(
-      (left, right) =>
-        (order.get(left.id) ?? Number.MAX_SAFE_INTEGER) -
-        (order.get(right.id) ?? Number.MAX_SAFE_INTEGER),
-    );
-}
 
 /**
  * Module scope, not an inline arrow: `useClientDataSource` memoizes the whole
@@ -239,51 +66,6 @@ function matchesQuery(
   return haystack.some((part) => part?.toLowerCase().includes(query));
 }
 
-/** Exported cell values are `unknown`; render the primitives, JSON the rest. */
-function cellToText(value: unknown): string {
-  if (value === null || value === undefined) return "";
-  if (typeof value === "string") return value;
-  if (typeof value === "number" || typeof value === "boolean") {
-    return String(value);
-  }
-  return JSON.stringify(value);
-}
-
-/** Leading characters that make a spreadsheet evaluate a cell as a formula. */
-const CSV_FORMULA_LEAD = /^[=+\-@\t\r]/;
-
-/**
- * Escape one cell for a delimited export. Used for both the CSV download and
- * the tab-separated clipboard copy — the destination is a spreadsheet either
- * way, so both need the same treatment.
- */
-function toDelimitedCell(value: unknown, delimiter: string) {
-  const text = cellToText(value);
-  // TMDB titles and overviews are community-edited free text, and a cell
-  // starting with `=` is a live formula once it lands in Excel or Sheets. A
-  // leading apostrophe forces it back to text. Numbers are exempt so a
-  // negative value stays a number.
-  const safe =
-    typeof value !== "number" && CSV_FORMULA_LEAD.test(text)
-      ? `'${text}`
-      : text;
-  // A bare CR is a row separator to some readers, so it has to be quoted too.
-  return safe.includes(delimiter) || /["\n\r]/.test(safe)
-    ? `"${safe.replaceAll('"', '""')}"`
-    : safe;
-}
-
-function downloadCsv(rows: unknown[][], filename: string) {
-  const csv = rows
-    .map((row) => row.map((cell) => toDelimitedCell(cell, ",")).join(","))
-    .join("\n");
-  // The BOM keeps Excel from mangling non-ASCII titles on open.
-  const blob = new Blob([`\u{FEFF}${csv}`], {
-    type: "text/csv;charset=utf-8;",
-  });
-  downloadBlob(blob, filename);
-}
-
 interface MediaTableProps {
   queryResult: UseSuspenseInfiniteQueryResult<MediaListItem[]>;
   mediaType: MediaType;
@@ -309,7 +91,6 @@ export function MediaTable({
   const router = useRouter();
   const apiRef = useRef<Grid.API<MediaTableSpec> | null>(null);
   const [search, setSearch] = useState("");
-  const prefersReducedMotion = useReducedMotion();
 
   const {
     data: items,
@@ -469,54 +250,6 @@ export function MediaTable({
     }
   };
 
-  const events: Grid.Events<MediaTableSpec> = {
-    cell: {
-      doubleClick: ({ row, api }) => {
-        if (api.rowIsLeaf(row)) router.push(hrefFor(row.data));
-      },
-    },
-    viewport: {
-      scroll: ({ viewport }) => {
-        const remaining =
-          viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
-        if (remaining < LOAD_MORE_THRESHOLD) loadMore();
-      },
-      keyDown: ({ event, api }) => {
-        if (!(event.metaKey || event.ctrlKey)) return;
-        // `key` handles Caps Lock (`"C"`) and is the layout-correct answer
-        // wherever the layout produces Latin letters. Only when it does not —
-        // Cyrillic, Greek, Hebrew — fall back to the physical key. Checking
-        // `code` unconditionally would swallow ⌘J on Dvorak, where the key in
-        // the `KeyC` position types `j`.
-        const isCopyKey =
-          event.key.toLowerCase() === "c" ||
-          (!/^[a-z]$/i.test(event.key) && event.code === "KeyC");
-        if (!isCopyKey) return;
-        const rect = api.cellSelections().at(0);
-        if (!rect) return;
-        // Take over from the browser: its native copy would run against an
-        // empty DOM selection and leave the previous clipboard contents in
-        // place, which pastes as stale data rather than as nothing.
-        event.preventDefault();
-        void api.exportData({ rect }).then(
-          (exported) =>
-            // Tab separated so a paste lands in spreadsheet cells, escaped the
-            // same way as the CSV download — same free text, same spreadsheet.
-            copyTextToClipboard(
-              exported.data
-                .map((row) =>
-                  row.map((cell) => toDelimitedCell(cell, "\t")).join("\t"),
-                )
-                .join("\n"),
-            ),
-          // Nothing actionable to show from inside a key handler, but the
-          // rejection must not surface as an unhandled promise.
-          () => false,
-        );
-      },
-    },
-  };
-
   const exportCsv = () => {
     void apiRef.current?.exportData().then(
       (exported) => {
@@ -529,28 +262,15 @@ export function MediaTable({
     );
   };
 
-  const searchLabel = t({ en: "Search loaded titles", zh: "搜索已加载的作品" });
   const noMatchesLabel = t({
     en: "Nothing matches that search — try a different term.",
     zh: "没有匹配的结果，换个关键词试试。",
-  });
-  const columnsLabel = t({ en: "Columns", zh: "列" });
-  const exportLabel = t({ en: "Export CSV", zh: "导出 CSV" });
-  const loadMoreLabel = t({ en: "Load more", zh: "加载更多" });
-  const loadingLabel = t({ en: "Loading more titles", zh: "正在加载更多" });
-  const shownLabel = t({ en: "Shown", zh: "显示" });
-  const loadedLabel = t({ en: "Loaded", zh: "已加载" });
-  const endLabel = t({ en: "Everything loaded", zh: "已全部加载" });
-  const hintLabel = t({
-    en: "Drag to select cells, ⌘/Ctrl+C to copy, double-click a row to open it.",
-    zh: "拖拽选择单元格，⌘/Ctrl+C 复制，双击行可打开详情。",
   });
   const tableLabel =
     mediaType === "tv"
       ? t({ en: "TV shows table", zh: "电视剧表格" })
       : t({ en: "Movies table", zh: "电影表格" });
 
-  const numberFormat = new Intl.NumberFormat(locale);
   const ratingFormat = new Intl.NumberFormat(locale, {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
@@ -563,10 +283,6 @@ export function MediaTable({
     dateStyle: "medium",
     timeZone: "UTC",
   });
-
-  // LyteNyte Grid's own grid.css targets the literal class `ln-grid`, which has
-  // to coexist with the compiled StyleX classes on the same element.
-  const sx = stylex.props(styles.gridShell, styles.lyteNyteTheme);
 
   return (
     <MediaTableContext
@@ -584,68 +300,14 @@ export function MediaTable({
       }}
     >
       <section css={[corner.radius_3, styles.panel]} aria-label={tableLabel}>
-        <div css={styles.toolbar}>
-          <TextField
-            label={searchLabel}
-            labelHidden
-            size="sm"
-            type="search"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-            }}
-            placeholder={searchLabel}
-            leading={<MagnifyingGlassIcon weight="bold" />}
-            css={styles.search}
-          />
-          <div css={styles.toolbarActions}>
-            <MenuButton
-              popupRole="group"
-              position="topRight"
-              buttonProps={{
-                size: "sm",
-                icon: <SlidersHorizontalIcon weight="bold" />,
-                hideLabelOnMobile: true,
-              }}
-              menuContent={
-                <div css={styles.columnMenu}>
-                  {columns.map((column) => (
-                    <Checkbox
-                      key={column.id}
-                      size="sm"
-                      label={column.name ?? column.id}
-                      checked={!column.hide}
-                      onChange={(e) => {
-                        const visible = e.target.checked;
-                        setColumns(
-                          columns.map((candidate) =>
-                            candidate.id === column.id
-                              ? { ...candidate, hide: !visible }
-                              : candidate,
-                          ),
-                        );
-                      }}
-                    />
-                  ))}
-                </div>
-              }
-            >
-              {columnsLabel}
-            </MenuButton>
-            <Button
-              size="sm"
-              icon={<DownloadSimpleIcon weight="bold" />}
-              hideLabelOnMobile
-              // Export reads the grid API, and the grid is unmounted while
-              // the empty state is showing — there is nothing to export and
-              // an enabled button would just swallow the click.
-              disabled={visibleItems.length === 0}
-              onClick={exportCsv}
-            >
-              {exportLabel}
-            </Button>
-          </div>
-        </div>
+        <MediaTableToolbar
+          search={search}
+          onSearchChange={setSearch}
+          columns={columns}
+          onColumnsChange={setColumns}
+          exportDisabled={visibleItems.length === 0}
+          onExport={exportCsv}
+        />
 
         {visibleItems.length === 0 ? (
           <p css={styles.empty}>
@@ -653,96 +315,31 @@ export function MediaTable({
             {query ? noMatchesLabel : notFoundLabel}
           </p>
         ) : (
-          <div {...sx} className={`${sx.className ?? ""} ln-grid`}>
-            <Grid<MediaTableSpec>
-              // Remounting on a new result set is what returns the viewport
-              // to the first row and clears stale cell selections.
-              key={resultsKey}
-              ref={apiRef}
-              rowSource={rowSource}
-              columns={columns}
-              onColumnsChange={setColumns}
-              columnBase={{
-                resizable: true,
-                movable: true,
-                headerRenderer: MediaTableHeader,
-              }}
-              columnMarker={{
-                on: true,
-                width: 52,
-                cellRenderer: MediaRowNumberCell,
-                headerRenderer: MediaRowNumberHeader,
-              }}
-              rowHeight={ROW_HEIGHT}
-              headerHeight={HEADER_HEIGHT}
-              rowAlternateAttr
-              // LyteNyte does not obey reduced motion for row animations, so
-              // the grid gets the setting as a prop.
-              rowAnimate={!prefersReducedMotion}
-              cellSelectionMode="range"
-              cellSelectionExcludeMarker
-              columnDoubleClickToAutosize
-              suppressScrollFlash
-              viewportInitialHeight={520}
-              viewportInitialWidth={1140}
-              events={events}
-              styles={gridPartStyles}
-            />
-          </div>
+          <MediaTableGrid
+            apiRef={apiRef}
+            resultsKey={resultsKey}
+            rowSource={rowSource}
+            columns={columns}
+            onColumnsChange={setColumns}
+            onOpenRow={(media) => {
+              router.push(hrefFor(media));
+            }}
+            onLoadMore={loadMore}
+          />
         )}
 
-        <div css={styles.footer}>
-          <p css={styles.counts}>
-            {query && (
-              <>
-                <span css={[typeRole.overline, styles.countLabel]}>
-                  {shownLabel}
-                </span>
-                <span
-                  css={[
-                    typeRole.label,
-                    typeModifier.numeric,
-                    styles.countValue,
-                  ]}
-                >
-                  {numberFormat.format(visibleItems.length)}
-                </span>
-              </>
-            )}
-            <span css={[typeRole.overline, styles.countLabel]}>
-              {loadedLabel}
-            </span>
-            <span
-              css={[typeRole.label, typeModifier.numeric, styles.countValue]}
-            >
-              {numberFormat.format(items.length)}
-            </span>
-          </p>
-          <p css={[typeRole.caption, styles.hint]}>{hintLabel}</p>
-          <div css={styles.footerActions}>
-            {isFetchingNextPage && <Spinner size="sm" label={loadingLabel} />}
-            {hasNextPage ? (
-              <Button
-                size="sm"
-                onClick={loadMore}
-                disabled={isFetchingNextPage}
-              >
-                {loadMoreLabel}
-              </Button>
-            ) : (
-              <span css={[typeRole.caption, styles.endNote]}>{endLabel}</span>
-            )}
-          </div>
-        </div>
+        <MediaTableFooter
+          query={query}
+          visibleCount={visibleItems.length}
+          loadedCount={items.length}
+          isFetchingNextPage={isFetchingNextPage}
+          hasNextPage={hasNextPage}
+          onLoadMore={loadMore}
+        />
       </section>
     </MediaTableContext>
   );
 }
-
-// The panel draws its own border, so the viewport's would double up.
-const gridPartStyles: Grid.Style = {
-  viewport: { style: { border: "none" } },
-};
 
 const styles = stylex.create({
   panel: {
@@ -756,114 +353,11 @@ const styles = stylex.create({
     backgroundColor: color.bgSurface,
     boxShadow: shadow._3,
   },
-
-  toolbar: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    gap: rhythm.tight,
-    paddingBlock: space._2,
-    paddingInline: space._3,
-    borderBlockEndWidth: border.size_1,
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: color.border,
-    backgroundColor: color.bgSurfaceSunken,
-  },
-  search: {
-    inlineSize: { default: "100%", [breakpoints.md]: space._15 },
-  },
-  toolbarActions: {
-    display: "flex",
-    alignItems: "center",
-    gap: rhythm.tight,
-    marginInlineStart: "auto",
-  },
-  columnMenu: {
-    display: "flex",
-    flexDirection: "column",
-    gap: rhythm.tight,
-    padding: space._1,
-    minInlineSize: space._13,
-  },
-
-  gridShell: {
-    // Tall enough to feel like a workspace, short enough that the page scroll
-    // still reaches the footer on a laptop.
-    blockSize: {
-      default: "60dvh",
-      [breakpoints.md]: "calc(100dvh - 18rem)",
-    },
-    minBlockSize: "24rem",
-  },
-  lyteNyteTheme: {
-    // LyteNyte reads a small set of custom properties; mapping them onto the
-    // app's tokens is all the theming the grid needs. Every token below is a
-    // `light-dark()` value, so the grid follows the site's colour scheme with
-    // no theme class of its own.
-    "--ln-typeface": font.family,
-    "--ln-font-md": font.uiBodySmall,
-    "--ln-padding-horizontal-cell": space._2,
-    "--ln-radius-field-md": border.radius_2,
-    "--ln-bg-ui-panel": color.bgSurface,
-    "--ln-bg-row-alternate": color.bgSurfaceSunken,
-    "--ln-bg-row-hover": color.bgAccentSubtle,
-    "--ln-bg-button-light": color.bgControl,
-    "--ln-border": color.border,
-    "--ln-border-row": color.border,
-    "--ln-border-strong": color.bgNeutral,
-    "--ln-border-xstrong": color.bgNeutral,
-    "--ln-text": color.fgMuted,
-    "--ln-text-dark": color.fg,
-    "--ln-primary-50": color.bgAccent,
-    "--ln-primary-10": color.bgAccentSubtle,
-    "--ln-red-50": color.bgDanger,
-  },
-
   empty: {
     marginBlock: 0,
     paddingBlock: space._8,
     paddingInline: space._3,
     color: color.fgMuted,
     textAlign: "center",
-  },
-
-  footer: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    gap: rhythm.tight,
-    paddingBlock: space._1,
-    paddingInline: space._3,
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
-    backgroundColor: color.bgSurfaceSunken,
-  },
-  counts: {
-    display: "flex",
-    alignItems: "baseline",
-    gap: rhythm.tight,
-    margin: 0,
-  },
-  countLabel: {
-    color: color.fgMuted,
-  },
-  countValue: {
-    color: color.fg,
-    fontWeight: font.weight_6,
-  },
-  hint: {
-    display: { default: "none", [breakpoints.lg]: "block" },
-    margin: 0,
-    color: color.fgMuted,
-  },
-  footerActions: {
-    display: "flex",
-    alignItems: "center",
-    gap: rhythm.tight,
-    marginInlineStart: "auto",
-  },
-  endNote: {
-    color: color.fgMuted,
   },
 });

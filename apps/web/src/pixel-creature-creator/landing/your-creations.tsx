@@ -3,12 +3,13 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import type { SupportedLocale } from "@tuja/i18n/types";
+import { color } from "@tuja/ui/color.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useSyncExternalStore } from "react";
 import { encodeCreature } from "#src/pixel-creature-creator/creature/encode-creature.ts";
 import { getSavedCreaturesSnapshot } from "#src/pixel-creature-creator/creature/get-saved-creatures-snapshot.ts";

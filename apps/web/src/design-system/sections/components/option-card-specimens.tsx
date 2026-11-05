@@ -8,13 +8,14 @@ import { ShieldIcon } from "@phosphor-icons/react/dist/ssr/Shield";
 import { UsersThreeIcon } from "@phosphor-icons/react/dist/ssr/UsersThree";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { OptionCard, OptionCardGroup } from "@tuja/ui/components/option-card";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font } from "@tuja/ui/tokens.stylex";
+import { font } from "@tuja/ui/tokens.stylex";
 import { useState, type ReactNode } from "react";
 import { StateReadout } from "#src/design-system/showcase.tsx";
 

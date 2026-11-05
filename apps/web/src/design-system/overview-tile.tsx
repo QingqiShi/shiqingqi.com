@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
@@ -10,7 +11,7 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { IlloLayer } from "#src/design-system/foundation-illustrations/illo-layer.tsx";
 import { getFoundationIllustration } from "#src/design-system/foundation-illustrations/index.tsx";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";

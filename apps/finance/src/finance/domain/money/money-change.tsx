@@ -2,8 +2,9 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { color } from "@tuja/ui/color.stylex";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
-import { color, font } from "@tuja/ui/tokens.stylex";
+import { font } from "@tuja/ui/tokens.stylex";
 import { formatMoney } from "./format-money.ts";
 import { formatPercentChange } from "./format-percent-change.ts";
 

@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { color } from "@tuja/ui/color.stylex";
 import { gray } from "@tuja/ui/palette/gray.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
@@ -12,14 +13,7 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
-import {
-  border,
-  color,
-  font,
-  rhythm,
-  shadow,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { border, font, rhythm, shadow, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
 import {
   STAT_KEYS,

@@ -9,18 +9,16 @@ import {
   findPastTransactions,
   type SearchTransactions,
 } from "./find-past-transactions.ts";
+import { householdQuestions, type TagQuestion } from "./household-questions.ts";
+import { outcomeProbability, type Options } from "./options-of.ts";
 import { REVIEW_BELOW } from "./review-below.ts";
 import {
-  householdQuestions,
-  outcomeProbability,
   requestQuestions,
   rowQuestions,
   rowState,
   type Kind,
-  type Options,
   type PayeeChoice,
   type RowChoices,
-  type TagQuestion,
   type TransferTarget,
 } from "./row-questions.ts";
 import type { LabellingContext, RowToLabel } from "./types.ts";

@@ -3,10 +3,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { color } from "@tuja/ui/color.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
-import { color, font } from "@tuja/ui/tokens.stylex";
+import { font } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { BarChart } from "../charts/bar-chart.tsx";
 import { formatAxisMoney } from "../charts/format-axis-money.ts";

@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { useEffect, useRef, type ComponentProps } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
@@ -10,7 +11,7 @@ import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { border, color, controlSize, opacity } from "../tokens.stylex.ts";
+import { border, controlSize, opacity } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { checkboxTokens } from "./checkbox.stylex.ts";
 import { fieldStyles } from "./field-shared.stylex.ts";

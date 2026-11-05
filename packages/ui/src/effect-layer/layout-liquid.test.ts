@@ -1,15 +1,12 @@
 import type { d } from "typegpu";
 import { describe, expect, it } from "vitest";
-import { layoutLiquid, type LiquidState } from "./liquid-effect.ts";
+import { layoutLiquid, type LiquidState } from "./layout-liquid.ts";
 import type { LiquidBead } from "./liquid-layout.ts";
 import type { LiquidControl } from "./liquid-reader.ts";
 import { readFill } from "./read-element-box.ts";
-import {
-  mean,
-  simulateLiquid,
-  type LiquidParticles,
-  type LiquidSnapshot,
-} from "./step-liquid.ts";
+import type { LiquidParticles } from "./resting-liquid.ts";
+import { simulateLiquid } from "./simulate-liquid.ts";
+import { mean, type LiquidSnapshot } from "./step-liquid.ts";
 import type { EffectSettings } from "./types.ts";
 
 type Liquid = NonNullable<EffectSettings["liquid"]>;

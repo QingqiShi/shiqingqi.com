@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
@@ -11,7 +12,7 @@ import { Text } from "@tuja/ui/components/text";
 import { useEffectSticky } from "@tuja/ui/hooks/use-effect-sticky";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { border, color, layer, space } from "@tuja/ui/tokens.stylex";
+import { border, layer, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState } from "react";
 
 const ROWS = Array.from({ length: 12 }, (_, index) => index + 1);

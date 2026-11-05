@@ -1,12 +1,13 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { useDust } from "@tuja/ui/hooks/use-dust";
 import { useExtractorFan } from "@tuja/ui/hooks/use-extractor-fan";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, font, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
 

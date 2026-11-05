@@ -4,13 +4,14 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
 import { Slider } from "@tuja/ui/components/slider";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 
 /** A money readout — the figure a budget slider exists to name. */

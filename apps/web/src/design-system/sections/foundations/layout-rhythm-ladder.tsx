@@ -1,9 +1,10 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 
 interface RhythmStep {
   term: string;

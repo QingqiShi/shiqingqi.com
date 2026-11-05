@@ -6,7 +6,7 @@
  * Add, remove, or reorder a route HERE and every structural consumer follows:
  * the nav rail (`design-system-nav.tsx`), the overview grid
  * (`app/[locale]/design-system/page.tsx` and `overview-browser.tsx`), and the
- * sitemap-coverage test.
+ * sitemap (`app/sitemap.ts`).
  *
  * Localized names live in `../route-copy/`, not here. The i18n `t()` transform
  * compiles to a React hook (`useI18nTranslations`) inside client files and to a
@@ -14,8 +14,8 @@
  * calls `t()` cannot be imported by both the client nav and the server overview
  * page — one side always gets the wrong (or a build-breaking) runtime. The copy
  * is therefore resolved once on the server and passed to the client consumers as
- * props; keeping this module free of `t()` also lets the sitemap-coverage test
- * import it without pulling in the i18n runtime. `keywords` is the one string
+ * props; keeping this module free of `t()` also lets the sitemap import it
+ * without pulling in the i18n runtime. `keywords` is the one string
  * field that lives here, and it is never rendered — see its doc below.
  */
 

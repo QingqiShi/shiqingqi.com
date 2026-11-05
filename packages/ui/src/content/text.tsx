@@ -1,8 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode, Ref } from "react";
+import { color } from "../color.stylex.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
-import { color, font, measure } from "../tokens.stylex.ts";
+import { font, measure } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
 interface TextProps {

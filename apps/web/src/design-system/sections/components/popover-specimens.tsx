@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Popover } from "@tuja/ui/components/popover";
 import { Text } from "@tuja/ui/components/text";
@@ -9,7 +10,7 @@ import type { PopoverPlacement } from "@tuja/ui/hooks/use-popover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, font, measure, space } from "@tuja/ui/tokens.stylex";
+import { border, font, measure, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { StateReadout } from "#src/design-system/showcase.tsx";
 
