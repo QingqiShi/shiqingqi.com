@@ -65,7 +65,8 @@ const light = {
   // `fgMuted` the Lc 60 non-body floor. Worst case in light is
   // `bgControlSelected` (gray._90): fg 86, muted 65.
   //
-  // In dark the worst case is `bgControlSelected` (gray._20): fg 88, muted 76.
+  // In dark the worst case is gray._13, the fill of `bgControlHover` and
+  // `bgControlRaised`: fg 94, muted 82.
   // The ramp has no tone between _70 and _80, and gray._70 is under the floor
   // there, so the dark `fgMuted` is one tone louder than the light one.
   fg: gray._13,
@@ -226,7 +227,9 @@ const dark: { [key in keyof typeof light]: string } = {
   bgControl: gray._7,
   bgControlHover: gray._13,
   bgControlPressed: gray._11,
-  bgControlSelected: gray._20,
+  // The selected fill is darker than the hover fill. A selected area can be
+  // large, such as the Net worth card, and a lighter fill is too bright there.
+  bgControlSelected: gray._9,
   bgControlDisabled: gray._5,
   bgControlSunken: gray._7,
   bgControlRaised: gray._13,
