@@ -28,6 +28,13 @@ const LEADING_SAMPLES: LabSample[] = [
     imports: [{ name: "Avatar", from: "@tuja/ui/components/avatar" }],
     value: <Avatar name="Ada Lovelace" size="sm" />,
   },
+  {
+    id: "emoji",
+    label: { en: "Emoji", zh: "表情符号" },
+    code: '"🛒"',
+    imports: [],
+    value: "🛒",
+  },
 ];
 
 const TRAILING_SAMPLES: LabSample[] = [
@@ -42,13 +49,6 @@ const TRAILING_SAMPLES: LabSample[] = [
         2 to review
       </Badge>
     ),
-  },
-  {
-    id: "amount",
-    label: { en: "Amount", zh: "金额" },
-    code: '"£42.50"',
-    imports: [],
-    value: "£42.50",
   },
 ];
 
@@ -122,7 +122,45 @@ export const ListLab = defineLab({
         children: "Ada Lovelace",
         detail: "Is owed",
         leading: "avatar",
-        trailing: "amount",
+        leadingSize: "sm",
+        value: "£42.50",
+        href: HREF,
+      },
+    },
+    {
+      id: "title-only",
+      label: { en: "Name and value", zh: "名称与数值" },
+      props: {
+        children: "Groceries",
+        leading: "emoji",
+        leadingShape: "circle",
+        value: "-£42.10",
+        valueDetail: "£755.41",
+        href: HREF,
+      },
+    },
+    {
+      id: "more-lines",
+      label: { en: "More lines", zh: "更多行" },
+      props: {
+        children: "Groceries",
+        detail: "Market Street · Card",
+        extra: "Shared with Alan Turing",
+        leading: "emoji",
+        leadingShape: "circle",
+        value: "-£42.10",
+        valueDetail: "Your share £21.05",
+        href: HREF,
+      },
+    },
+    {
+      id: "wrap",
+      label: { en: "Long name", zh: "较长的名称" },
+      props: {
+        children: "alex.morgan.very.long.address@example.com",
+        detail: "Gmail · Last checked 4 Nov",
+        leading: "avatar",
+        wrap: true,
         href: HREF,
       },
     },
@@ -145,8 +183,14 @@ export const ListLab = defineLab({
   ],
   controls: [
     "children",
+    "wrap",
     "detail",
+    "extra",
     { prop: "leading", samples: LEADING_SAMPLES },
+    "leadingSize",
+    "leadingShape",
+    "value",
+    "valueDetail",
     { prop: "trailing", samples: TRAILING_SAMPLES },
     { prop: "actions", samples: ACTIONS_SAMPLES },
     "caret",

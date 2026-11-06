@@ -7,14 +7,13 @@ import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
-import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
+import { Card, CardTitle } from "@tuja/ui/components/card";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { List } from "@tuja/ui/components/list";
 import { ListRow, type ListRowLinkProps } from "@tuja/ui/components/list-row";
 import { Text } from "@tuja/ui/components/text";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { createContext, use, useState } from "react";
 
@@ -35,59 +34,6 @@ function DemoLink({ onClick, ...props }: ListRowLinkProps) {
         follow(props.href);
       }}
     />
-  );
-}
-
-/** Settings that each open a page of their own, with a count or a state. */
-export function SettingsList() {
-  const [opened, setOpened] = useState<string | null>(null);
-  const rows = [
-    {
-      id: "accounts",
-      name: t({ en: "Accounts", zh: "账户" }),
-      detail: t({ en: "4 connected", zh: "已连接 4 个" }),
-      badge: null,
-    },
-    {
-      id: "categories",
-      name: t({ en: "Categories", zh: "分类" }),
-      detail: t({
-        en: "18 categories in 5 groups",
-        zh: "5 个分组中的 18 个分类",
-      }),
-      badge: null,
-    },
-    {
-      id: "rules",
-      name: t({ en: "Rules", zh: "规则" }),
-      detail: t({ en: "Sort new transactions", zh: "整理新交易" }),
-      badge: (
-        <Badge intent="warning" size="sm">
-          {t({ en: "2 to review", zh: "2 条待查看" })}
-        </Badge>
-      ),
-    },
-  ];
-  return (
-    <div css={styles.frame}>
-      <List aria-label={t({ en: "Settings", zh: "设置" })}>
-        {rows.map((row) => (
-          <ListRow
-            key={row.id}
-            detail={row.detail}
-            trailing={row.badge}
-            onClick={() => {
-              setOpened(row.name);
-            }}
-          >
-            {row.name}
-          </ListRow>
-        ))}
-      </List>
-      <Text look="caption" tone="muted" aria-live="polite">
-        {opened ?? t({ en: "Nothing opened yet", zh: "尚未打开任何项" })}
-      </Text>
-    </div>
   );
 }
 
@@ -140,45 +86,133 @@ export function ReportList() {
   );
 }
 
-/** People in a shared budget, each with what they owe or are owed. */
-export function PeopleList() {
-  const money = new Intl.NumberFormat(useLocale(), {
-    style: "currency",
-    currency: "GBP",
-    signDisplay: "exceptZero",
-  });
-  const isOwed = t({ en: "Is owed", zh: "应收" });
-  const owes = t({ en: "Owes", zh: "应付" });
-  const settled = t({ en: "Settled up", zh: "已结清" });
-  const people = [
-    { name: "Ada Lovelace", balance: 42.5 },
-    { name: "Alan Turing", balance: -18 },
-    { name: "Grace Hopper", balance: 0 },
+/**
+ * Spending of a week, some rows with a detail line and one with a note: the
+ * names start on one line, the icons stay level with the first two lines,
+ * and the amounts line up at their end.
+ */
+export function SpendingList() {
+  const money = useMoney();
+  const rows = [
+    {
+      id: "groceries",
+      emoji: "🛒",
+      name: t({ en: "Groceries", zh: "日用杂货" }),
+      detail: t({ en: "Market Street · Card", zh: "市场街 · 银行卡" }),
+      amount: -42.1,
+    },
+    {
+      id: "coffee",
+      emoji: "☕",
+      name: t({ en: "Coffee", zh: "咖啡" }),
+      amount: -3.2,
+    },
+    {
+      id: "train",
+      emoji: "🚆",
+      name: t({ en: "Train to Leeds", zh: "去利兹的火车" }),
+      detail: t({ en: "Return · Card", zh: "往返 · 银行卡" }),
+      share: 29,
+      note: t({ en: "Shared with Alan Turing", zh: "与 Alan Turing 分摊" }),
+      amount: -58,
+    },
   ];
+  const shareText = t({ en: "Your share {amount}", zh: "你的份额 {amount}" });
   return (
     <div css={styles.frame}>
-      <List aria-label={t({ en: "Members", zh: "成员" })}>
-        {people.map((person) => (
+      <List aria-label={t({ en: "Spending", zh: "支出" })}>
+        {rows.map((row) => (
           <ListRow
-            key={person.name}
-            href={`#${person.name}`}
+            key={row.id}
+            href={`#${row.id}`}
             linkComponent={DemoLink}
-            leading={<Avatar name={person.name} size="sm" />}
-            detail={
-              person.balance > 0 ? isOwed : person.balance < 0 ? owes : settled
-            }
-            trailing={
-              <span css={[typeRole.body, typeModifier.numeric]}>
-                {money.format(person.balance)}
-              </span>
+            leading={row.emoji}
+            leadingShape="circle"
+            detail={row.detail}
+            extra={row.note}
+            value={money.signed(row.amount)}
+            valueDetail={
+              row.share === undefined
+                ? undefined
+                : shareText.replace("{amount}", money.plain(row.share))
             }
           >
-            {person.name}
+            {row.name}
           </ListRow>
         ))}
       </List>
     </div>
   );
+}
+
+/**
+ * The entries of an account inside its card: a plain list, each row with
+ * the amount over the balance after it.
+ */
+export function LedgerList() {
+  const money = useMoney();
+  const rows = [
+    {
+      id: "salary",
+      emoji: "💼",
+      name: t({ en: "Salary", zh: "工资" }),
+      amount: 2400,
+      balance: 3180.4,
+    },
+    {
+      id: "rent",
+      emoji: "🏠",
+      name: t({ en: "Rent", zh: "房租" }),
+      detail: t({ en: "Standing order", zh: "定期转账" }),
+      amount: -950,
+      balance: 780.4,
+    },
+    {
+      id: "books",
+      emoji: "📚",
+      name: t({ en: "Books", zh: "书籍" }),
+      amount: -24.99,
+      balance: 755.41,
+    },
+  ];
+  return (
+    <Card css={styles.frame}>
+      <CardTitle>{t({ en: "Current account", zh: "活期账户" })}</CardTitle>
+      <List form="plain" aria-label={t({ en: "Entries", zh: "账目" })}>
+        {rows.map((row) => (
+          <ListRow
+            key={row.id}
+            href={`#${row.id}`}
+            linkComponent={DemoLink}
+            leading={row.emoji}
+            leadingShape="circle"
+            detail={row.detail}
+            value={money.signed(row.amount)}
+            valueDetail={money.plain(row.balance)}
+          >
+            {row.name}
+          </ListRow>
+        ))}
+      </List>
+    </Card>
+  );
+}
+
+function useMoney() {
+  const locale = useLocale();
+  const signed = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "GBP",
+    signDisplay: "exceptZero",
+  });
+  const plain = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "GBP",
+  });
+  return {
+    signed: (amount: number) => signed.format(amount),
+    plain: (amount: number) => plain.format(amount),
+  };
 }
 
 /** Category groups in the order they show, each moved with two buttons. */
@@ -240,7 +274,10 @@ export function ReorderList() {
   );
 }
 
-/** Accounts beside the one that is open, as a wide screen lays them out. */
+/**
+ * Accounts beside the one that is open, as a wide screen lays them out: a
+ * dense list, as a sidebar is.
+ */
 export function ListDetailList() {
   const accounts = [
     {
@@ -264,7 +301,7 @@ export function ListDetailList() {
   return (
     <div css={styles.split}>
       <div css={styles.splitList}>
-        <List aria-label={t({ en: "Accounts", zh: "账户" })}>
+        <List density="compact" aria-label={t({ en: "Accounts", zh: "账户" })}>
           {accounts.map((account) => (
             <ListRow
               key={account.id}
