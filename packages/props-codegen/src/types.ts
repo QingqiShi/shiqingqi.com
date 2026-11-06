@@ -28,6 +28,8 @@ export interface PropDoc {
  * in `PROPS_DOCS` by its export subpath name.
  */
 export interface PropsDoc {
+  /** The export subpath name, its key in `PROPS_DOCS` — `"button"`, `"use-ripple"`. */
+  name: string;
   /** The exported function name — `"Button"`, `"useRipple"`. */
   component: string;
   /** A component takes props; a hook takes an options object, read the same way. */

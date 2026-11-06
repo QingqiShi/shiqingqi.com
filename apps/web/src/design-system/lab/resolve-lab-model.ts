@@ -1,5 +1,22 @@
 import type { SupportedLocale } from "@tuja/i18n/types";
+import type { PropDoc } from "@tuja/props-codegen/types";
 import type { LabConfig, LabControlModel, LabVariantChoice } from "./types.ts";
+
+/**
+ * The kinds of the HTML attributes Labs expose most often. The generated
+ * props documentation leaves out what a component inherits from its element,
+ * so a bare control name of one of these takes its kind from here.
+ */
+const INHERITED_ATTRIBUTE_KINDS: Readonly<
+  Partial<Record<string, PropDoc["kind"]>>
+> = {
+  disabled: "boolean",
+  required: "boolean",
+  readOnly: "boolean",
+  "aria-current": "boolean",
+  "aria-label": "string",
+  placeholder: "string",
+};
 
 /** The configuration with every word picked for the locale in front of the visitor. */
 export interface LabModel {
@@ -9,16 +26,15 @@ export interface LabModel {
 
 /**
  * Resolves a Lab's configuration for one locale, and joins each control to the
- * generated documentation for the prop it drives. A control may declare its own
- * kind instead, for an attribute the component inherits from its HTML element.
+ * generated documentation for the prop it drives. An attribute the component
+ * inherits from its HTML element takes its kind from the control, or else from
+ * `INHERITED_ATTRIBUTE_KINDS`.
  */
 export function resolveLabModel<P>(
   config: LabConfig<P>,
   locale: SupportedLocale,
 ): LabModel {
-  const docByName = new Map(
-    config.propsDoc.props.map((doc) => [doc.name, doc]),
-  );
+  const docByName = new Map(config.doc.props.map((doc) => [doc.name, doc]));
 
   return {
     variants: config.variants.map((variant) => ({
@@ -31,7 +47,11 @@ export function resolveLabModel<P>(
       const doc = docByName.get(name);
       return {
         name,
-        kind: ("kind" in spec ? spec.kind : undefined) ?? doc?.kind ?? "other",
+        kind:
+          ("kind" in spec ? spec.kind : undefined) ??
+          doc?.kind ??
+          INHERITED_ATTRIBUTE_KINDS[name] ??
+          "other",
         members: doc?.members,
         defaultValue: doc?.defaultValue,
         samples:

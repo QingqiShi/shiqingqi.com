@@ -1,25 +1,18 @@
 "use client";
 
 import { Button } from "@tuja/ui/components/button";
-import type { ComponentProps } from "react";
 import buttonDoc from "#src/_generated/props/button.json";
-import { LabCanvas } from "./lab-canvas.tsx";
+import { defineLab } from "./define-lab.tsx";
 import { labIconSamples } from "./lab-icon-samples.tsx";
-import type { LabConfig } from "./types.ts";
-
-type ButtonLabProps = ComponentProps<typeof Button>;
 
 // The label a Variant puts on the Specimen stays in English: it is printed in
 // the snippet as source, where a translated string would not be what a
 // consumer writes.
 const LABEL = "Save changes";
 
-const config: LabConfig<ButtonLabProps> = {
-  component: "button",
-  element: "Button",
-  importPath: "@tuja/ui/components/button",
-  propsDoc: buttonDoc,
-  render: (props) => <Button {...props} />,
+export const ButtonLab = defineLab({
+  doc: buttonDoc,
+  component: Button,
   variants: [
     {
       id: "primary",
@@ -82,11 +75,6 @@ const config: LabConfig<ButtonLabProps> = {
     "isActive",
     "loading",
     "hideLabelOnMobile",
-    { prop: "disabled", kind: "boolean" },
+    "disabled",
   ],
-};
-
-/** The Button Lab: a live Button on the Canvas, with its API beside it. */
-export function ButtonLab() {
-  return <LabCanvas config={config} />;
-}
+});

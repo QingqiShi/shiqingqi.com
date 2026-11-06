@@ -1,10 +1,10 @@
 import { t } from "@tuja/i18n";
 import type { ReactNode } from "react";
-import { DocArticle } from "#src/design-system/doc-article.tsx";
+import { LabArticle } from "#src/design-system/lab/lab-page.tsx";
 
 export default function ListLayout({ children }: { children: ReactNode }) {
   return (
-    <DocArticle
+    <LabArticle
       path="/design-system/components/list"
       description={t({
         en: "Rows that each open something, on one bordered surface with a divider between them. Each row is a link or a button across its whole width, at least 48px tall, with a name, an optional detail line and a caret.",
@@ -12,6 +12,6 @@ export default function ListLayout({ children }: { children: ReactNode }) {
       })}
     >
       {children}
-    </DocArticle>
+    </LabArticle>
   );
 }

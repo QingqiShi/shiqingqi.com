@@ -22,7 +22,7 @@ import { LabControls } from "./lab-controls.tsx";
 import { type LabAction, labReducer } from "./lab-reducer.ts";
 import { LabSnippet } from "./lab-snippet.tsx";
 import { labStage } from "./lab-stage.stylex.ts";
-import { renderSpecimen } from "./render-specimen.ts";
+import { renderSpecimen } from "./render-specimen.tsx";
 import { resolveLabModel } from "./resolve-lab-model.ts";
 import type { LabConfig, LabProps } from "./types.ts";
 import { useKeyboardArea } from "./use-keyboard-area.ts";
@@ -118,10 +118,10 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
   }
 
   const snippet = buildLabSnippet({
-    element: config.element,
-    importPath: config.importPath,
+    element: config.doc.component,
+    importPath: `@tuja/ui/components/${config.doc.name}`,
     props: state.props,
-    docs: config.propsDoc.props,
+    docs: config.doc.props,
     controls: model.controls,
   });
 

@@ -1,10 +1,10 @@
 import { t } from "@tuja/i18n";
 import type { ReactNode } from "react";
-import { DocArticle } from "#src/design-system/doc-article.tsx";
+import { LabArticle } from "#src/design-system/lab/lab-page.tsx";
 
 export default function ToastLayout({ children }: { children: ReactNode }) {
   return (
-    <DocArticle
+    <LabArticle
       path="/design-system/components/toast"
       description={t({
         en: "A short message about what an action did, on a capsule of Glass, with up to two actions such as Undo and a close button. ToastProvider shows one at a time at the bottom of the screen and announces it politely; useToast shows one from anywhere below it.",
@@ -12,6 +12,6 @@ export default function ToastLayout({ children }: { children: ReactNode }) {
       })}
     >
       {children}
-    </DocArticle>
+    </LabArticle>
   );
 }

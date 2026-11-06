@@ -13,8 +13,8 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { layer } from "@tuja/ui/tokens.stylex";
 import { createContext, use, useState, type ComponentProps } from "react";
 import sheetDoc from "#src/_generated/props/sheet.json";
-import { LabCanvas } from "./lab-canvas.tsx";
-import type { LabConfig, LabSample } from "./types.ts";
+import { defineLab } from "./define-lab.tsx";
+import type { LabSample } from "./types.ts";
 
 type SheetLabProps = ComponentProps<typeof Sheet>;
 
@@ -154,12 +154,9 @@ function OperableSheet(props: SheetLabProps) {
   );
 }
 
-const config: LabConfig<SheetLabProps> = {
-  component: "sheet",
-  element: "Sheet",
-  importPath: "@tuja/ui/components/sheet",
-  propsDoc: sheetDoc,
-  render: (props) => <OperableSheet {...props} />,
+export const SheetLab = defineLab({
+  doc: sheetDoc,
+  component: OperableSheet,
   variants: [
     {
       id: "short",
@@ -203,12 +200,7 @@ const config: LabConfig<SheetLabProps> = {
     { prop: "children", samples: contentSamples },
     "closeLabel",
   ],
-};
-
-/** The Sheet Lab: a button on the Canvas that opens the Sheet, with its API beside it. */
-export function SheetLab() {
-  return <LabCanvas config={config} />;
-}
+});
 
 const styles = stylex.create({
   stickyBar: {

@@ -1,10 +1,10 @@
 import { t } from "@tuja/i18n";
 import type { ReactNode } from "react";
-import { DocArticle } from "#src/design-system/doc-article.tsx";
+import { LabArticle } from "#src/design-system/lab/lab-page.tsx";
 
 export default function BadgeLayout({ children }: { children: ReactNode }) {
   return (
-    <DocArticle
+    <LabArticle
       path="/design-system/components/badge"
       description={t({
         en: "Compact status and label indicators. The six Intents plus a bordered default, at two sizes.",
@@ -12,6 +12,6 @@ export default function BadgeLayout({ children }: { children: ReactNode }) {
       })}
     >
       {children}
-    </DocArticle>
+    </LabArticle>
   );
 }

@@ -1,10 +1,10 @@
 import { t } from "@tuja/i18n";
 import type { ReactNode } from "react";
-import { DocArticle } from "#src/design-system/doc-article.tsx";
+import { LabArticle } from "#src/design-system/lab/lab-page.tsx";
 
 export default function ButtonLayout({ children }: { children: ReactNode }) {
   return (
-    <DocArticle
+    <LabArticle
       path="/design-system/components/button"
       description={t({
         en: "The primary action control, with a tactile press animation. Looks step from the default raised surface down through outline and ghost, plus primary and danger for the actions that carry weight; optional leading or icon-only content, and a busy state. For a related set of mutually exclusive choices, reach for SegmentedControl instead.",
@@ -12,6 +12,6 @@ export default function ButtonLayout({ children }: { children: ReactNode }) {
       })}
     >
       {children}
-    </DocArticle>
+    </LabArticle>
   );
 }

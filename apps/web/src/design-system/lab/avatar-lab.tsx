@@ -3,22 +3,13 @@
 import { AirplaneTakeoffIcon } from "@phosphor-icons/react/dist/ssr/AirplaneTakeoff";
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { Avatar } from "@tuja/ui/components/avatar";
-import type { ComponentProps } from "react";
 import avatarDoc from "#src/_generated/props/avatar.json";
-import { LabCanvas } from "./lab-canvas.tsx";
+import { defineLab, NONE_SAMPLE } from "./define-lab.tsx";
 import { iconSample } from "./lab-icon-samples.tsx";
-import type { LabConfig, LabSample } from "./types.ts";
-
-type AvatarLabProps = ComponentProps<typeof Avatar>;
+import type { LabSample } from "./types.ts";
 
 const BADGE_SAMPLES: LabSample[] = [
-  {
-    id: "none",
-    label: { en: "None", zh: "无" },
-    code: "",
-    imports: [],
-    value: undefined,
-  },
+  NONE_SAMPLE,
   iconSample(
     "departing",
     { en: "Departing", zh: "出发" },
@@ -46,12 +37,9 @@ const PORTRAIT =
 const NAME = "Ada Lovelace";
 const ORGANISATION = "Northwind Bank";
 
-const config: LabConfig<AvatarLabProps> = {
-  component: "avatar",
-  element: "Avatar",
-  importPath: "@tuja/ui/components/avatar",
-  propsDoc: avatarDoc,
-  render: (props) => <Avatar {...props} />,
+export const AvatarLab = defineLab({
+  doc: avatarDoc,
+  component: Avatar,
   variants: [
     {
       id: "monogramSm",
@@ -123,9 +111,4 @@ const config: LabConfig<AvatarLabProps> = {
     { prop: "badge", samples: BADGE_SAMPLES },
     "badgeLabel",
   ],
-};
-
-/** The Avatar Lab: a live Avatar on the Canvas, with its API beside it. */
-export function AvatarLab() {
-  return <LabCanvas config={config} />;
-}
+});

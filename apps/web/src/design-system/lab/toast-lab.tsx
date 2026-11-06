@@ -1,21 +1,12 @@
 "use client";
 
 import { Toast } from "@tuja/ui/components/toast";
-import type { ComponentProps } from "react";
 import toastDoc from "#src/_generated/props/toast.json";
-import { LabCanvas } from "./lab-canvas.tsx";
-import type { LabConfig } from "./types.ts";
+import { defineLab, noop } from "./define-lab.tsx";
 
-type ToastLabProps = ComponentProps<typeof Toast>;
-
-function noop() {}
-
-const config: LabConfig<ToastLabProps> = {
-  component: "toast",
-  element: "Toast",
-  importPath: "@tuja/ui/components/toast",
-  propsDoc: toastDoc,
-  render: (props) => <Toast {...props} />,
+export const ToastLab = defineLab({
+  doc: toastDoc,
+  component: Toast,
   variants: [
     {
       id: "undo",
@@ -43,9 +34,4 @@ const config: LabConfig<ToastLabProps> = {
     },
   ],
   controls: ["message"],
-};
-
-/** The Toast Lab: the toast's surface on the Canvas, with its API beside it. */
-export function ToastLab() {
-  return <LabCanvas config={config} />;
-}
+});

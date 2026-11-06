@@ -1,10 +1,10 @@
 import { t } from "@tuja/i18n";
 import type { ReactNode } from "react";
-import { DocArticle } from "#src/design-system/doc-article.tsx";
+import { LabArticle } from "#src/design-system/lab/lab-page.tsx";
 
 export default function SwitchLayout({ children }: { children: ReactNode }) {
   return (
-    <DocArticle
+    <LabArticle
       path="/design-system/components/switch"
       description={t({
         en: "A draggable, three-state toggle. Click, drag the thumb, or use the keyboard — on, off, and an indeterminate middle state, controlled or uncontrolled.",
@@ -12,6 +12,6 @@ export default function SwitchLayout({ children }: { children: ReactNode }) {
       })}
     >
       {children}
-    </DocArticle>
+    </LabArticle>
   );
 }
