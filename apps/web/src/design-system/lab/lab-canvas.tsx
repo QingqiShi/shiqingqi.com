@@ -64,7 +64,14 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
     }),
   );
 
+  // A View Transition captures the whole page, and Safari shows a blank page
+  // while it runs. One per keystroke or slider step makes input slow and
+  // makes the page flash, so only a change that is complete animates.
   const run = (action: LabAction) => {
+    if (action.type === "setProp" && action.isLive === true) {
+      dispatch(action);
+      return;
+    }
     startTransition(() => {
       dispatch(action);
     });

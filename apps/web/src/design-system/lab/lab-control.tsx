@@ -16,7 +16,8 @@ interface LabControlProps {
    * component's own default rather than an empty box.
    */
   props: LabProps;
-  onChange: (value: unknown) => void;
+  /** `isLive` marks one step of a change still in progress, such as a keystroke. */
+  onChange: (value: unknown, isLive?: boolean) => void;
 }
 
 /** Past this many options the track is too tight to read, so the list becomes a Select. */
@@ -116,7 +117,9 @@ export function LabControl({ control, props, onChange }: LabControlProps) {
         labelHidden
         readout={value}
         value={value}
-        onChange={onChange}
+        onChange={(next) => {
+          onChange(next, true);
+        }}
         onCommit={onChange}
       />
     );
@@ -129,7 +132,7 @@ export function LabControl({ control, props, onChange }: LabControlProps) {
       labelHidden
       value={typeof raw === "string" ? raw : ""}
       onChange={(event) => {
-        onChange(event.target.value);
+        onChange(event.target.value, true);
       }}
     />
   );
