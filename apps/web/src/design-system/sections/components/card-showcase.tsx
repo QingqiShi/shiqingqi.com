@@ -16,7 +16,6 @@ import { Text } from "@tuja/ui/components/text";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
@@ -111,39 +110,6 @@ export function CardShowcase() {
       <PropsTable component="card-description" />
       <PropsTable component="card-content" />
       <PropsTable component="card-footer" />
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={
-            <a
-              href="#card"
-              css={[
-                transition.colors,
-                cardSurface.base,
-                cardSurface.interactive,
-                styles.link,
-              ]}
-            >
-              <span css={[typeRole.h3, styles.title]}>{sampleTitle}</span>
-              <span css={[typeRole.bodySmall, styles.body]}>{sampleBody}</span>
-            </a>
-          }
-          doCaption={t({
-            en: "For a clickable card, render a real anchor or button and compose cardSurface — it stays focusable and is announced as a link.",
-            zh: "可点击的卡片应渲染真实的链接或按钮并组合 cardSurface——它可获得焦点并被读屏识别为链接。",
-          })}
-          dont={
-            <Card interactive css={[styles.fill, styles.lines]}>
-              <span css={[typeRole.h3, styles.title]}>{sampleTitle}</span>
-              <span css={[typeRole.bodySmall, styles.body]}>{sampleBody}</span>
-            </Card>
-          }
-          dontCaption={t({
-            en: "Don't use a bare interactive Card (a div) as a link — it isn't keyboard-focusable and screen readers won't announce it.",
-            zh: "不要把可交互的 Card（一个 div）当作链接使用——它无法通过键盘聚焦，读屏软件也不会识别它。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }

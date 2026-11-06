@@ -7,14 +7,12 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
 import {
   BespokeDemo,
   DisabledDemo,
-  GuidelineCard,
   KeyboardDemo,
   MultipleSelectDemo,
   SingleSelectDemo,
@@ -191,21 +189,6 @@ export function OptionCardShowcase() {
       <PropsTable component="option-card" />
 
       <PropsTable component="option-card-group" />
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={<GuidelineCard withIndicator />}
-          doCaption={t({
-            en: "Keep a selection mark. A mark that appears when the card is chosen is a second, non-colour cue, so the choice reads for a visitor who cannot see the accent (WCAG 1.4.1).",
-            zh: "保留选中标记。卡片被选中时出现的标记是一个不依赖颜色的第二重线索，即使访客看不出强调色，也能读出所做的选择（WCAG 1.4.1）。",
-          })}
-          dont={<GuidelineCard withIndicator={false} />}
-          dontCaption={t({
-            en: "Don't pass indicator={null} on a selectable card — the accent border becomes the only thing saying it is chosen. Reserve it for cards that merely act when pressed.",
-            zh: "不要在可选择的卡片上传入 indicator={null}——那样就只剩强调色边框在表示它被选中了。这种用法只留给按下即执行动作的卡片。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }

@@ -1,10 +1,5 @@
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Text } from "@tuja/ui/components/text";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -66,37 +61,6 @@ export function StickyControlsShowcase() {
 
       <PropsTable component="sticky-controls" />
       <PropsTable component="sticky-control-group" />
-
-      <DoDont
-        do={
-          <code css={[typeRole.bodySmall, styles.code]}>
-            {
-              "<StickyControls><StickyControlGroup>{filters}</StickyControlGroup></StickyControls>"
-            }
-          </code>
-        }
-        doCaption={t({
-          en: "Park a filter bar with StickyControls, a group per cluster of controls — one clearance and one blur, shared with the header's own control groups.",
-          zh: "用 StickyControls 停放筛选栏，每簇控件一个组——与页头自身的控件组共用同一段间距和同一套虚化。",
-        })}
-        dont={
-          <code css={[typeRole.bodySmall, styles.code]}>
-            {"<div css={styles.stickyBar}>{filters}</div>"}
-          </code>
-        }
-        dontCaption={t({
-          en: "Don't hand-roll a sticky row with a fill of its own — a surface under the controls is the treatment the progressive blur replaces.",
-          zh: "不要手写自带底色的粘性行——控件下的实底正是渐进虚化所取代的做法。",
-        })}
-      />
     </>
   );
 }
-
-const styles = stylex.create({
-  code: {
-    fontFamily: font.familyMono,
-    color: color.fg,
-    overflowWrap: "anywhere",
-  },
-});

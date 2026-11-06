@@ -2,12 +2,10 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
-import { hardCodedType } from "./hard-coded-type.stylex.ts";
 
 export function TextShowcase() {
   const runtimes = ["1:02", "12:45", "128:09"];
@@ -247,27 +245,6 @@ export function TextShowcase() {
       </Showcase>
 
       <PropsTable component="text" />
-
-      <DoDont
-        do={
-          <Text look="caption" tone="muted">
-            {t({ en: "Added 3 hours ago", zh: "3 小时前添加" })}
-          </Text>
-        }
-        doCaption={t({
-          en: "Pick a look and tone so the type role and theme own the size and colour.",
-          zh: "选择 look 与 tone，让字体角色与主题掌控字号和颜色。",
-        })}
-        dont={
-          <Text css={hardCodedType.base}>
-            {t({ en: "Added 3 hours ago", zh: "3 小时前添加" })}
-          </Text>
-        }
-        dontCaption={t({
-          en: "Hard-coded pixels and opacity skip the type roles and break dark-mode contrast.",
-          zh: "硬编码像素与透明度会绕开字体角色，并破坏深色模式的对比度。",
-        })}
-      />
     </>
   );
 }

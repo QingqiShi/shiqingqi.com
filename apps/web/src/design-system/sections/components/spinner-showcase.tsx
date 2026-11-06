@@ -7,7 +7,6 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -102,31 +101,6 @@ export function SpinnerShowcase() {
       </Showcase>
 
       <PropsTable component="spinner" />
-
-      <DoDont
-        do={
-          <Button aria-busy icon={<Spinner size="sm" aria-hidden />} disabled>
-            {savingLabel}
-          </Button>
-        }
-        doCaption={t({
-          en: "Hide the spinner (aria-hidden) when the control's aria-busy already announces the busy state.",
-          zh: "当控件的 aria-busy 已宣告繁忙状态时，隐藏 spinner（aria-hidden）。",
-        })}
-        dont={
-          <Button
-            aria-busy
-            icon={<Spinner size="sm" label={loadingLabel} />}
-            disabled
-          >
-            {savingLabel}
-          </Button>
-        }
-        dontCaption={t({
-          en: "Don't give a spinner its own label inside a busy control — screen readers announce the state twice.",
-          zh: "不要在繁忙控件内为 spinner 单独设置 label——屏幕阅读器会重复播报状态。",
-        })}
-      />
     </>
   );
 }

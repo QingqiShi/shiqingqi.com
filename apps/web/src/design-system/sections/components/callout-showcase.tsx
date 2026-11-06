@@ -1,11 +1,7 @@
 import { MegaphoneIcon } from "@phosphor-icons/react/dist/ssr/Megaphone";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Callout } from "@tuja/ui/components/callout";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { rhythm, space } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -132,39 +128,6 @@ export function CalloutShowcase() {
       </Showcase>
 
       <PropsTable component="callout" />
-
-      <DoDont
-        do={
-          <Callout
-            intent="danger"
-            title={t({ en: "Upload failed", zh: "上传失败" })}
-          >
-            {t({
-              en: "The file is larger than 25 MB. Compress it and try again.",
-              zh: "文件大于 25 MB。请压缩后重试。",
-            })}
-          </Callout>
-        }
-        doCaption={t({
-          en: "Let the tinted background, border, and icon carry the Intent, and keep the body to a sentence.",
-          zh: "让着色背景、边框与图标传达意图色，并将正文控制在一句话内。",
-        })}
-        dont={
-          <div css={styles.dontBar}>
-            <span css={[corner.radius_1, styles.dontBarStripe]} aria-hidden />
-            <span>
-              {t({
-                en: "Upload failed — the file is too large.",
-                zh: "上传失败——文件过大。",
-              })}
-            </span>
-          </div>
-        }
-        dontCaption={t({
-          en: "Don't add a leading coloured accent bar or rely on hue alone to signal status.",
-          zh: "不要添加前缘彩色装饰条，也不要仅靠色相传达状态。",
-        })}
-      />
     </>
   );
 }
@@ -173,19 +136,5 @@ const styles = stylex.create({
   // A callout needs more room than a specimen track gives it by default.
   calloutGrid: {
     gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 20rem), 1fr))",
-  },
-  // Deliberate anti-pattern for the DoDont "don't" — a leading accent stripe.
-  dontBar: {
-    display: "flex",
-    alignItems: "center",
-    gap: rhythm.tight,
-    paddingBlock: space._2,
-    paddingInline: space._3,
-  },
-  dontBarStripe: {
-    inlineSize: space._0,
-    alignSelf: "stretch",
-    minBlockSize: space._5,
-    backgroundColor: color.bgDanger,
   },
 });

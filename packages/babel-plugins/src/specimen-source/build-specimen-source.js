@@ -25,7 +25,6 @@ const {
 /** Documentation chrome that teaches the page, not the component. */
 const CHROME = new Set([
   "ApiGrid",
-  "DoDont",
   "Example",
   "GuideNote",
   "PropsTable",

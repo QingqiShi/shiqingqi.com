@@ -2,7 +2,6 @@ import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { StarIcon } from "@phosphor-icons/react/dist/ssr/Star";
 import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
@@ -71,33 +70,6 @@ export function BadgeShowcase() {
       </Showcase>
 
       <PropsTable component="badge" />
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={
-            <>
-              <Badge intent="success">
-                {t({ en: "Active", zh: "进行中" })}
-              </Badge>
-              <Badge intent="neutral">{t({ en: "Draft", zh: "草稿" })}</Badge>
-            </>
-          }
-          doCaption={t({
-            en: "Use a badge for terse, at-a-glance status or metadata.",
-            zh: "用徽章表示简洁、一目了然的状态或元信息。",
-          })}
-          dont={
-            <>
-              <Badge intent="accent">{t({ en: "All", zh: "全部" })}</Badge>
-              <Badge intent="default">{t({ en: "Movies", zh: "电影" })}</Badge>
-            </>
-          }
-          dontCaption={t({
-            en: "Don't use badges as filters or toggles — reach for a Button or segmented control that's focusable and reports state.",
-            zh: "不要把徽章当作筛选或开关——应使用可聚焦且能反馈状态的按钮或分段控件。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }

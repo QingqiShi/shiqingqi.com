@@ -1,8 +1,6 @@
 import { t } from "@tuja/i18n";
 import { Checkbox } from "@tuja/ui/components/checkbox";
 import { Text } from "@tuja/ui/components/text";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
@@ -97,36 +95,6 @@ export function CheckboxShowcase() {
       </Showcase>
 
       <PropsTable component="checkbox" />
-
-      <DoDont
-        do={
-          <div css={stack.item}>
-            <Checkbox
-              label={t({ en: "Extra cheese", zh: "加芝士" })}
-              defaultChecked
-            />
-            <Checkbox label={t({ en: "Mushrooms", zh: "蘑菇" })} />
-            <Checkbox label={t({ en: "Olives", zh: "橄榄" })} defaultChecked />
-          </div>
-        }
-        doCaption={t({
-          en: "Use checkboxes when any number of independent options can be selected together.",
-          zh: "当可以同时选择任意数量的独立选项时，使用复选框。",
-        })}
-        dont={
-          <div css={stack.item}>
-            <Checkbox label={t({ en: "Light theme", zh: "浅色主题" })} />
-            <Checkbox
-              label={t({ en: "Dark theme", zh: "深色主题" })}
-              defaultChecked
-            />
-          </div>
-        }
-        dontCaption={t({
-          en: "Don't use checkboxes for mutually exclusive choices — reach for radios or a Select instead.",
-          zh: "不要用复选框表示互斥选项——请改用单选按钮或下拉选择。",
-        })}
-      />
     </>
   );
 }

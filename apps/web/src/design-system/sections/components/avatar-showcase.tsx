@@ -3,7 +3,6 @@ import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { t } from "@tuja/i18n";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Text } from "@tuja/ui/components/text";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
@@ -170,40 +169,6 @@ export function AvatarShowcase() {
       </Showcase>
 
       <PropsTable component="avatar" />
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={
-            <Avatar
-              size="lg"
-              look="solid"
-              name={t({ en: "Ada Lovelace", zh: "阿达·洛芙莱斯" })}
-              badge={<AirplaneTakeoffIcon weight="bold" />}
-              badgeLabel={t({ en: "departing", zh: "出发" })}
-            />
-          }
-          doCaption={t({
-            en: "Keep name to the person and let badgeLabel say what the badge means. The avatar still announces as one object, and the monogram derives from her name alone.",
-            zh: "让 name 只表示这个人，由 badgeLabel 说明角标的含义。头像仍作为一个整体被朗读，字母缩写也只由姓名推导。",
-          })}
-          dont={
-            <Avatar
-              size="lg"
-              look="solid"
-              name={t({
-                en: "Ada Lovelace departing",
-                zh: "阿达·洛芙莱斯 出发",
-              })}
-              badge={<AirplaneTakeoffIcon weight="bold" />}
-              badgeLabel={t({ en: "departing", zh: "出发" })}
-            />
-          }
-          dontCaption={t({
-            en: "Don't fold the status into name — it is announced twice, and since the monogram takes the first and last words, it picks up a word that isn't part of her name.",
-            zh: "不要把状态写进 name——它会被朗读两次；而且字母缩写取自首词与末词，会取到并不属于姓名的词。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }

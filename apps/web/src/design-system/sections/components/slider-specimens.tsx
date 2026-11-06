@@ -8,7 +8,6 @@ import { color } from "@tuja/ui/color.stylex";
 import { Slider } from "@tuja/ui/components/slider";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -234,29 +233,6 @@ export function KeyboardSlider() {
       value={value}
       onChange={setValue}
       readout={count.format(value)}
-    />
-  );
-}
-
-/** The Do panel's slider: the exact figure is on screen and follows the thumb. */
-export function ReadoutSlider() {
-  const locale = useLocale();
-  const [amount, setAmount] = useState(180000);
-  const money = new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  });
-  return (
-    <Slider
-      label={t({ en: "Loan amount", zh: "贷款金额" })}
-      min={50000}
-      max={400000}
-      step={5000}
-      value={amount}
-      onChange={setAmount}
-      readout={money.format(amount)}
-      css={fill.inline}
     />
   );
 }

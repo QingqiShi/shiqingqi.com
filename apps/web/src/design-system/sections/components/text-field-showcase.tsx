@@ -1,14 +1,7 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { TextField } from "@tuja/ui/components/text-field";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { fill } from "@tuja/ui/primitives/layout.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, font, space } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
@@ -132,40 +125,6 @@ export function TextFieldShowcase() {
       </Showcase>
 
       <PropsTable component="text-field" />
-
-      <DoDont
-        do={
-          <div css={fill.inline}>
-            <TextField
-              label={t({ en: "Email", zh: "电子邮箱" })}
-              type="email"
-              placeholder="you@example.com"
-            />
-          </div>
-        }
-        doCaption={t({
-          en: "Always pass a visible label; use the placeholder only for an example of the format.",
-          zh: "始终提供可见标签；占位符仅用于示范格式。",
-        })}
-        dont={
-          <div css={fill.inline}>
-            <input
-              css={[
-                typeRole.control,
-                corner.radius_2,
-                a11y.focusRing,
-                styles.rawInput,
-              ]}
-              placeholder={t({ en: "Email", zh: "电子邮箱" })}
-              aria-label={t({ en: "Email", zh: "电子邮箱" })}
-            />
-          </div>
-        }
-        dontCaption={t({
-          en: "Don't rely on the placeholder to name the field — it disappears on input and reads poorly to assistive tech.",
-          zh: "不要用占位符来命名字段——输入后它会消失，且对辅助技术不友好。",
-        })}
-      />
     </>
   );
 }
@@ -174,16 +133,5 @@ const styles = stylex.create({
   single: {
     inlineSize: "100%",
     maxInlineSize: "26rem",
-  },
-  rawInput: {
-    inlineSize: "100%",
-    fontFamily: font.family,
-    color: color.fg,
-    backgroundColor: color.bgControl,
-    borderStyle: "solid",
-    borderWidth: border.size_1,
-    borderColor: color.border,
-    paddingBlock: space._2,
-    paddingInline: space._3,
   },
 });

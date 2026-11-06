@@ -178,52 +178,6 @@ export function PortalTargetDemo() {
   );
 }
 
-/** The "do" half of the trigger-and-panel guideline: structured content. */
-export function RepaymentSourcesDemo() {
-  const sourcesLabel = t({ en: "Repayment sources", zh: "还款来源" });
-  return (
-    <Popover
-      placement="bottom-start"
-      trigger={(triggerProps) => (
-        <Button {...triggerProps} size="sm">
-          {sourcesLabel}
-        </Button>
-      )}
-    >
-      <div css={[stack.text, styles.narrowPanel]}>
-        <Text as="span" look="bodySmall" weight="semibold">
-          {t({ en: "Two sources", zh: "两个来源" })}
-        </Text>
-        <Text look="caption" tone="muted">
-          {t({
-            en: "Payroll deductions and the annual self-assessment return.",
-            zh: "工资代扣，以及每年的自评税申报。",
-          })}
-        </Text>
-      </div>
-    </Popover>
-  );
-}
-
-/** The "don't" half of the trigger-and-panel guideline: a hint used as a tooltip. */
-export function HintDemo() {
-  const hintLabel = t({ en: "What's this?", zh: "这是什么？" });
-  return (
-    <Popover
-      placement="top"
-      trigger={(triggerProps) => (
-        <Button {...triggerProps} size="sm" look="ghost">
-          {hintLabel}
-        </Button>
-      )}
-    >
-      <Text look="caption" tone="muted">
-        {t({ en: "Sorted newest first.", zh: "按最新排序。" })}
-      </Text>
-    </Popover>
-  );
-}
-
 const styles = stylex.create({
   fill: {
     inlineSize: "100%",

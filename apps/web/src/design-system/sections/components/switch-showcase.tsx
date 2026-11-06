@@ -1,14 +1,12 @@
 import { t } from "@tuja/i18n";
 import { Switch } from "@tuja/ui/components/switch";
 import { Text } from "@tuja/ui/components/text";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
 import { LiveSwitch, SpecimenSwitch } from "./switch-specimens.tsx";
 
 export function SwitchShowcase() {
-  const switchLabel = t({ en: "Autoplay trailers", zh: "自动播放预告" });
   return (
     <>
       <Showcase label={t({ en: "States", zh: "状态" })}>
@@ -130,21 +128,6 @@ export function SwitchShowcase() {
       </Showcase>
 
       <PropsTable component="switch" />
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={<Switch defaultValue="on" label={switchLabel} />}
-          doCaption={t({
-            en: "Give every switch a name, a `label`, or an `aria-label` where the words around it already say what it does.",
-            zh: "为每个开关命名：用 `label`，或在周围文字已说明用途时用 `aria-label`。",
-          })}
-          dont={<Switch defaultValue="off" />}
-          dontCaption={t({
-            en: "Don't ship a switch unlabeled or use it to commit an action like submitting a form. That is a Button's job.",
-            zh: "不要让开关缺少标签，也不要用它来提交表单等执行动作，那是按钮的职责。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }

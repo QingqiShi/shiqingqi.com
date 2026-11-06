@@ -8,14 +8,10 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
-import type { ReactNode } from "react";
 import { blurStage } from "#src/design-system/blur-stage.stylex.ts";
-import { DoDont } from "#src/design-system/do-dont.tsx";
-import { guidelineDiagram } from "#src/design-system/guideline-diagram.stylex.ts";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
-import { WireframeBar } from "#src/design-system/specimens/wireframe-bar.tsx";
 import { BlurredDialogMock, MeltDemo } from "./progressive-blur-specimens.tsx";
 
 export function ProgressiveBlurShowcase() {
@@ -43,21 +39,6 @@ export function ProgressiveBlurShowcase() {
       </Showcase>
 
       <PropsTable component="progressive-blur" />
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={<BlurGuidelineDiagram />}
-          doCaption={t({
-            en: "Blur the page around a floating element instead of dimming it. Brightness holds, and the element keeps a crisp edge against it.",
-            zh: "在悬浮元素周围虚化页面，而不是压暗它。亮度得以保留，元素相对页面仍保持清晰的边缘。",
-          })}
-          dont={<ScrimGuidelineDiagram />}
-          dontCaption={t({
-            en: "Don't darken the page behind a floating element — the blur replaces the scrim, it does not join it.",
-            zh: "不要在悬浮元素背后压暗页面——虚化取代遮罩，而非与之叠加。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }
@@ -120,72 +101,6 @@ function BlurredPopupMock() {
   );
 }
 
-/**
- * The page both guideline diagrams stage, wireframed by hand — as
- * `PopoverDiagram` and `ModalDiagram` do on the Popover page. Each caller
- * supplies only its own treatment of the panel below the content.
- *
- * `isClipped` is for the scrim, which covers the frame corner to corner and so
- * has to be cut to its corners. The blur diagram leaves it off — a
- * squircle-cornered clip above the layers makes Chrome drop their masks.
- */
-function GuidelineDiagramFrame({
-  children,
-  isClipped,
-}: {
-  children: ReactNode;
-  isClipped?: boolean;
-}) {
-  return (
-    <div
-      css={[
-        corner.radius_2,
-        guidelineDiagram.frame,
-        isClipped && guidelineDiagram.clip,
-      ]}
-    >
-      <WireframeBar width="72%" />
-      <WireframeBar width="48%" />
-      <WireframeBar width="60%" />
-      {children}
-    </div>
-  );
-}
-
-/** The panel both diagrams float — real markup, since a wireframe bar can't show a raised surface. */
-function GuidelineDiagramPanel() {
-  return (
-    <div css={[popoverSurface.base, styles.diagramPanel]}>
-      <WireframeBar width="55%" strong />
-      <WireframeBar width="80%" />
-    </div>
-  );
-}
-
-/**
- * A miniature of a floating panel over a page. The blur itself is the real
- * `ProgressiveBlur`, since that is the one part of the pair this page cannot fake.
- */
-function BlurGuidelineDiagram() {
-  return (
-    <GuidelineDiagramFrame>
-      <ProgressiveBlur radius={10}>
-        <GuidelineDiagramPanel />
-      </ProgressiveBlur>
-    </GuidelineDiagramFrame>
-  );
-}
-
-/** The same page darkened by a scrim instead — the pattern Progressive blur replaces. */
-function ScrimGuidelineDiagram() {
-  return (
-    <GuidelineDiagramFrame isClipped>
-      <div css={guidelineDiagram.scrim} />
-      <GuidelineDiagramPanel />
-    </GuidelineDiagramFrame>
-  );
-}
-
 const styles = stylex.create({
   mockPage: {
     position: "relative",
@@ -232,16 +147,5 @@ const styles = stylex.create({
     flexGrow: 1,
     justifyContent: "space-between",
     gap: rhythm.item,
-  },
-  diagramPanel: {
-    position: "absolute",
-    insetBlockEnd: space._2,
-    insetInlineStart: space._2,
-    insetInlineEnd: space._2,
-    display: "flex",
-    flexDirection: "column",
-    gap: rhythm.tight,
-    paddingBlock: space._2,
-    paddingInline: space._2,
   },
 });

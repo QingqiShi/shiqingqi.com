@@ -331,24 +331,6 @@ export function DisabledDemo() {
   );
 }
 
-export function GuidelineCard({ withIndicator }: { withIndicator: boolean }) {
-  const [selected, setSelected] = useState(true);
-  const label = t({ en: "Pro", zh: "专业版" });
-  const description = t({ en: "Unlimited projects.", zh: "项目数量不限。" });
-  return (
-    <OptionCard
-      role="checkbox"
-      selected={selected}
-      onClick={() => {
-        setSelected(!selected);
-      }}
-      label={label}
-      description={description}
-      indicator={withIndicator ? undefined : null}
-    />
-  );
-}
-
 const styles = stylex.create({
   // A `Specimen` lays its stage out with flex, so every demo root states its own
   // width: without it a group of short labels shrinks to the widest card.

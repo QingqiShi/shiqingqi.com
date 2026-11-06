@@ -1,7 +1,5 @@
 import { t } from "@tuja/i18n";
 import { Textarea } from "@tuja/ui/components/textarea";
-import { fill } from "@tuja/ui/primitives/layout.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
@@ -88,35 +86,6 @@ export function TextareaShowcase() {
       </Showcase>
 
       <PropsTable component="textarea" />
-
-      <DoDont
-        do={
-          <div css={fill.inline}>
-            <Textarea
-              label={t({ en: "Review", zh: "评论" })}
-              autoGrow
-              defaultValue={longReview}
-            />
-          </div>
-        }
-        doCaption={t({
-          en: "Use autoGrow (or a generous rows) for open-ended text so the writer sees their whole entry.",
-          zh: "对开放式文本使用 autoGrow（或较大的 rows），让作者看到完整内容。",
-        })}
-        dont={
-          <div css={fill.inline}>
-            <Textarea
-              label={t({ en: "Review", zh: "评论" })}
-              rows={1}
-              defaultValue={longReview}
-            />
-          </div>
-        }
-        dontCaption={t({
-          en: "Don't cram long-form input into a single locked row — it hides most of what the user typed.",
-          zh: "不要把长文本塞进锁死的一行——那会隐藏用户输入的大部分内容。",
-        })}
-      />
     </>
   );
 }

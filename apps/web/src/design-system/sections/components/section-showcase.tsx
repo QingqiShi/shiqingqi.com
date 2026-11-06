@@ -2,12 +2,9 @@ import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
 import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
-import { Heading } from "@tuja/ui/components/heading";
 import { Section } from "@tuja/ui/components/section";
-import { Text } from "@tuja/ui/components/text";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
@@ -75,37 +72,6 @@ export function SectionShowcase() {
       </Showcase>
 
       <PropsTable component="section" />
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={
-            <Section
-              title={t({ en: "Cast & crew", zh: "演职人员" })}
-              icon={<UsersIcon weight="bold" />}
-              css={fill.inline}
-              description={castBody}
-            />
-          }
-          doCaption={t({
-            en: "Use a Section to label a block inside a page — the quiet heading is wayfinding, and the reader's eye stays on the content.",
-            zh: "用区块为页面内的一段内容加标签——轻量的标题用于导航，读者的注意力仍在内容上。",
-          })}
-          dont={
-            <div css={[stack.tight, fill.inline]}>
-              <Heading level={1} look="h1">
-                {t({ en: "Cast & crew", zh: "演职人员" })}
-              </Heading>
-              <Text look="bodySmall" tone="muted">
-                {castBody}
-              </Text>
-            </div>
-          }
-          dontCaption={t({
-            en: "Don't reach for Section when a block genuinely needs a prominent title — that's a Heading, and dressing one down as a section label buries it.",
-            zh: "当某段内容确实需要醒目的标题时，不要使用区块——那应当是标题组件；把它弱化成区块标签只会淹没它。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }

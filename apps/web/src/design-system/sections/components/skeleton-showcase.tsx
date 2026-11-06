@@ -6,7 +6,6 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
@@ -78,29 +77,6 @@ export function SkeletonShowcase() {
       </Showcase>
 
       <PropsTable component="skeleton" />
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={
-            <div css={[stack.tight, styles.guideCard]}>
-              <Skeleton height={80} />
-              <div css={stack.tight}>
-                <Skeleton width={120} height={12} />
-                <Skeleton width={80} height={10} />
-              </div>
-            </div>
-          }
-          doCaption={t({
-            en: "Mirror the shape and size of the content the skeleton stands in for.",
-            zh: "让骨架屏还原其所替代内容的形状与尺寸。",
-          })}
-          dont={<Skeleton width={200} height={96} />}
-          dontCaption={t({
-            en: "Don't mask a rich layout with one generic block — the swap-in jumps and previews nothing.",
-            zh: "不要用一整块通用骨架遮盖复杂布局——内容载入时会跳动，也无法预览结构。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }
@@ -126,8 +102,5 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-  },
-  guideCard: {
-    inlineSize: space._11,
   },
 });
