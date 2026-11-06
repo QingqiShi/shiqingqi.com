@@ -9,7 +9,13 @@ export interface LabState {
 
 export type LabAction =
   | { type: "selectVariant"; variantId: string }
-  | { type: "setProp"; prop: string; value: unknown }
+  | {
+      type: "setProp";
+      prop: string;
+      value: unknown;
+      /** One step of a change still in progress, such as a keystroke. */
+      isLive?: boolean;
+    }
   | { type: "reset" };
 
 /**

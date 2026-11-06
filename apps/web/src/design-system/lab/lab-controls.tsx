@@ -23,7 +23,7 @@ interface LabControlsProps {
   variants: readonly LabVariantChoice[];
   controls: readonly LabControlModel[];
   state: LabState;
-  /** Already wrapped in a transition, so every change animates the Canvas. */
+  /** Animates the Canvas for every change except a live step. */
   dispatch: (action: LabAction) => void;
 }
 
@@ -76,8 +76,13 @@ export function LabControls({
               <LabControl
                 control={control}
                 props={state.props}
-                onChange={(value) => {
-                  dispatch({ type: "setProp", prop: control.name, value });
+                onChange={(value, isLive) => {
+                  dispatch({
+                    type: "setProp",
+                    prop: control.name,
+                    value,
+                    isLive,
+                  });
                 }}
               />
             </div>
