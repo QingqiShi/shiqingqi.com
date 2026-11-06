@@ -10,6 +10,7 @@ import {
   FoundationIllustration,
   type FoundationIllustrationArt,
 } from "./foundation-illustration.tsx";
+import getStarted from "./get-started.png";
 import iconography from "./iconography.png";
 import layout from "./layout.png";
 import material from "./material.png";
@@ -19,14 +20,21 @@ import surfaces from "./surfaces.png";
 import typography from "./typography.png";
 
 /**
- * Each foundations route's card illustration; other overview cards render without
- * one. Total, so a foundation registered in `routes.ts` without an illustration
- * fails to compile rather than shipping a blank tile.
+ * Get started is not a foundation, but it is the first tile on the overview. It
+ * has art so that it is not shorter than the foundation tiles below it.
  */
-const FOUNDATION_ILLUSTRATIONS: Record<
-  DesignSystemFoundationPath,
-  FoundationIllustrationArt
-> = {
+type IllustratedPath =
+  | Extract<DesignSystemPath, "/design-system/get-started">
+  | DesignSystemFoundationPath;
+
+/**
+ * The card illustration of Get started and of each foundations route; the other
+ * overview cards render without one. Total, so a foundation registered in
+ * `routes.ts` without an illustration fails to compile rather than shipping a
+ * blank tile.
+ */
+const ILLUSTRATIONS: Record<IllustratedPath, FoundationIllustrationArt> = {
+  "/design-system/get-started": { src: getStarted },
   "/design-system/foundations/principles": {
     src: principles,
     bleeds: "inline-end",
@@ -50,7 +58,7 @@ const FOUNDATION_ILLUSTRATIONS: Record<
  * assertion because the narrow keys are a subset of the wide ones.
  */
 const BY_PATH: Partial<Record<DesignSystemPath, FoundationIllustrationArt>> =
-  FOUNDATION_ILLUSTRATIONS;
+  ILLUSTRATIONS;
 
 export function getFoundationIllustration(
   path: DesignSystemPath,
