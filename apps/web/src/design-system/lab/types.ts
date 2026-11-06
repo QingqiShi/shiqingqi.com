@@ -1,5 +1,6 @@
 import type { SupportedLocale } from "@tuja/i18n/types";
 import type { PropDoc } from "@tuja/props-codegen/types";
+import type { CodeToken } from "@tuja/ui/components/code-block";
 import type { ComponentType, ReactNode } from "react";
 
 /**
@@ -29,16 +30,38 @@ export interface LabImport {
   from: string;
   /** The binding is a type, so the import marks it `type`. */
   isType?: boolean;
+  /** The binding is the whole module — `import * as stylex`. */
+  isNamespace?: boolean;
 }
 
-/** One node a `node` prop can take, offered as an option in its control. */
+/** A declaration of the Lab module that a source uses, such as its StyleX styles. */
+export interface LabDefinition {
+  name: string;
+  tokens: readonly CodeToken[];
+}
+
+/**
+ * The source of one value, which `labSource` takes from the Babel plugin. The
+ * tokens can hold line breaks.
+ */
+export interface LabSourceCode {
+  tokens: readonly CodeToken[];
+  imports: readonly LabImport[];
+  /** The snippet prints these before the element. */
+  definitions?: readonly LabDefinition[];
+}
+
+/** One value a prop can take, offered as an option in its control. */
 export interface LabSample {
   id: string;
   label: Record<SupportedLocale, string>;
-  /** The source the snippet prints for this node — `<PlusIcon weight="bold" />`. */
-  code: string;
-  imports: readonly LabImport[];
-  value: ReactNode;
+  /**
+   * The source the snippet prints for this value — `<PlusIcon weight="bold" />`.
+   * Leave it out when `value` has a source from `labSource`.
+   */
+  code?: string;
+  imports?: readonly LabImport[];
+  value: unknown;
 }
 
 /** One curated configuration the Lab offers ready-made. */
@@ -96,6 +119,29 @@ export interface LabStateBinding<P> {
   handler: KeysOfUnion<P>;
   /** The type `useState` takes when TypeScript cannot infer it from the first value. */
   type?: { code: string; imports: readonly LabImport[] };
+  /**
+   * The value every call of the handler stands for, when the handler passes
+   * none. Sheet's `onClose` stands for `false`, so the snippet prints
+   * `onClose={() => setIsOpen(false)}`.
+   */
+  nextValue?: string | number | boolean;
+  /**
+   * The stand-in that content and `trigger` call to set the state, from
+   * `labSetter`. The Canvas connects it to the Lab's state.
+   */
+  setter?: LabSetter;
+  /**
+   * A node from `labSource` that the Canvas draws before the Specimen, such as
+   * the Button that opens a Sheet. The snippet prints it beside the element.
+   */
+  trigger?: ReactNode;
+}
+
+/** A function that sets the state of the Lab on the page. */
+export interface LabSetter<T = never> {
+  (next: T): void;
+  /** Makes the stand-in call `set`, until the returned function runs. */
+  connect: (set: (next: unknown) => void) => () => void;
 }
 
 /**

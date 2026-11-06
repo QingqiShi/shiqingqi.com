@@ -10,10 +10,8 @@ import {
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
-import {
-  importLine,
-  textOf,
-} from "#src/design-system/lab/build-lab-snippet.ts";
+import { importLine } from "#src/design-system/lab/import-parts.ts";
+import { textOf } from "#src/design-system/lab/print-lab-value.ts";
 import { showcaseBleed } from "#src/design-system/showcase-bleed.stylex.ts";
 
 const IMPORT: CodePart = {

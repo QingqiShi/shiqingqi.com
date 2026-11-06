@@ -9,6 +9,7 @@ import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
   startTransition,
+  useEffect,
   useLayoutEffect,
   useReducer,
   useRef,
@@ -122,16 +123,26 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
   // View Transition. A drag on a Slider, for example, sets the value at each
   // step.
   const { state: binding } = config;
+  const setBound = (next: unknown) => {
+    if (binding === undefined) return;
+    run({
+      type: "setProp",
+      prop: String(binding.prop),
+      value: next,
+      isLive: true,
+    });
+  };
   if (binding !== undefined) {
-    specimenProps[String(binding.handler)] = (next: unknown) => {
-      run({
-        type: "setProp",
-        prop: String(binding.prop),
-        value: next,
-        isLive: true,
-      });
-    };
+    const { nextValue } = binding;
+    specimenProps[String(binding.handler)] =
+      nextValue === undefined
+        ? setBound
+        : () => {
+            setBound(nextValue);
+          };
   }
+  const setter = binding?.setter;
+  useEffect(() => setter?.connect(setBound));
 
   const snippet = buildLabSnippet({
     element: config.doc.component,
@@ -146,6 +157,8 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
             prop: String(binding.prop),
             handler: String(binding.handler),
             type: binding.type,
+            nextValue: binding.nextValue,
+            trigger: binding.trigger,
           },
   });
 
@@ -168,6 +181,7 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
         <div css={styles.specimenArea}>
           <ViewTransition name="lab-specimen" default={labMorph}>
             <div css={styles.specimen}>
+              {binding?.trigger}
               {renderSpecimen(config, specimenProps)}
             </div>
           </ViewTransition>

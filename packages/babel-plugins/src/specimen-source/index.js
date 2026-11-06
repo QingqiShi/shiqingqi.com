@@ -1,5 +1,6 @@
 // @ts-check
 
+const { buildLabSource, LAB_SOURCE } = require("./build-lab-source");
 const { buildSpecimenSource } = require("./build-specimen-source");
 const {
   collectModuleFacts,
@@ -21,6 +22,7 @@ const { sourceAttribute, tokeniseAt } = require("./source-attribute");
  * It gives every `<Specimen>` and `<Example>` a `source` prop holding the
  * token array for its children, and every `<UsageSnippet code={…}>` the token
  * array for its code. The children show each `t()` in the reader's locale.
+ * A `labSource(value)` call gets the source of its value, for a Lab snippet.
  * The text comes from the original file rather than from the AST, so it must
  * run first: a later plugin that rewrites `t()` would otherwise decide what the
  * reader sees.
@@ -44,7 +46,8 @@ module.exports = function specimenSourcePlugin({ types: t }) {
       if (
         !code.includes("<Specimen") &&
         !code.includes("<UsageSnippet") &&
-        !code.includes("<Example")
+        !code.includes("<Example") &&
+        !code.includes(`${LAB_SOURCE}(`)
       ) {
         return;
       }
@@ -52,6 +55,9 @@ module.exports = function specimenSourcePlugin({ types: t }) {
       const facts = collectModuleFacts(t, path, code);
 
       path.traverse({
+        CallExpression(callPath) {
+          buildLabSource(t, callPath, code, facts);
+        },
         JSXElement(elementPath) {
           const opening = elementPath.node.openingElement;
           if (!t.isJSXIdentifier(opening.name)) return;

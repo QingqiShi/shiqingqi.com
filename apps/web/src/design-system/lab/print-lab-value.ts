@@ -1,6 +1,6 @@
 import type { CodeToken } from "@tuja/ui/components/code-block";
 import { isValidElement } from "react";
-import type { LabImport } from "./types.ts";
+import type { LabDefinition, LabImport, LabSourceCode } from "./types.ts";
 
 /**
  * One line of a printed value. `depth` counts the indent steps past the
@@ -12,10 +12,16 @@ export interface LabValueLine {
   tokens: CodeToken[];
 }
 
-export interface PrintedLabValue {
-  lines: LabValueLine[];
+/** What a printed value needs beside its own lines. */
+export interface LabValueNeeds {
   /** The bindings the nodes in the value need. */
   imports: LabImport[];
+  /** The declarations of the Lab module that the nodes in the value use. */
+  definitions: LabDefinition[];
+}
+
+export interface PrintedLabValue extends LabValueNeeds {
+  lines: LabValueLine[];
 }
 
 interface LabValueLayout {
@@ -38,10 +44,7 @@ const SELF_CLOSING_ELEMENT = /^<([A-Z][A-Za-z0-9]*)((?: [\w-]+="[^"]*")*) \/>$/;
 
 const STRING_ATTRIBUTE = / ([\w-]+)=("[^"]*")/g;
 
-const sources = new WeakMap<
-  object,
-  { code: string; imports: readonly LabImport[] }
->();
+const sources = new WeakMap<object, LabSourceCode>();
 
 /**
  * Gives a node inside a Variant's data, such as the icon of one option, the
@@ -52,8 +55,69 @@ export function withSource<T extends object>(
   code: string,
   imports: readonly LabImport[] = [],
 ): T {
-  sources.set(node, { code, imports });
+  sources.set(node, { tokens: sampleTokens(code), imports });
   return node;
+}
+
+/**
+ * Gives a value the source the snippet prints for it, as the Lab module
+ * writes it: a node of many lines, or a function such as a render prop. The
+ * specimen-source Babel plugin reads the source and gives the second
+ * argument. Do not write it.
+ */
+export function labSource<T>(value: T, source?: LabSourceCode): T {
+  if (source === undefined) {
+    throw new Error(
+      "labSource() has no source. The specimen-source Babel plugin gives it.",
+    );
+  }
+  if ((typeof value !== "object" && typeof value !== "function") || !value) {
+    throw new Error("labSource() takes a node or a function.");
+  }
+  sources.set(value, source);
+  return value;
+}
+
+/** The source `withSource` or `labSource` gave a value. */
+export function sourceOf(value: unknown): LabSourceCode | undefined {
+  return (typeof value === "object" || typeof value === "function") && value
+    ? sources.get(value)
+    : undefined;
+}
+
+/**
+ * A source's tokens split into lines. A line's indent becomes its depth, so
+ * the caller can print it inside the element it belongs to.
+ */
+export function sourceLines(tokens: readonly CodeToken[]): LabValueLine[] {
+  const rows: CodeToken[][] = [[]];
+  for (const [kind, text] of tokens) {
+    text.split("\n").forEach((piece, index) => {
+      if (index > 0) rows.push([]);
+      if (piece !== "") rows[rows.length - 1].push([kind, piece]);
+    });
+  }
+  return rows.map((row) => {
+    if (row.length === 0) return { depth: 0, tokens: [] };
+    const [first, ...rest] = row;
+    const indent = /^ */.exec(first[1])?.[0].length ?? 0;
+    const head = first[1].slice(indent);
+    return {
+      depth: Math.floor(indent / INDENT),
+      tokens: head === "" ? rest : [[first[0], head], ...rest],
+    };
+  });
+}
+
+/** Whether the lines are one JSX element or fragment. */
+export function isJsxLines(lines: readonly LabValueLine[]) {
+  const first = lines.at(0)?.tokens.at(0);
+  return first?.[1].startsWith("<") === true;
+}
+
+function addNeeds(needs: LabValueNeeds, source: LabSourceCode) {
+  needs.imports.push(...source.imports);
+  needs.definitions.push(...(source.definitions ?? []));
 }
 
 /** The tokens of a sample's code: an element with string attributes, or else plain text. */
@@ -108,13 +172,13 @@ function mustBreak(value: unknown) {
   );
 }
 
-function flatTokens(value: unknown, imports: LabImport[]): CodeToken[] {
+function flatTokens(value: unknown, needs: LabValueNeeds): CodeToken[] {
   if (typeof value === "string") return [["string", JSON.stringify(value)]];
   if (typeof value === "number") return [["number", String(value)]];
   if (typeof value === "boolean" || value === null || value === undefined) {
     return [["keyword", String(value)]];
   }
-  if (typeof value === "function") {
+  if (typeof value === "function" && sourceOf(value) === undefined) {
     return [
       ["punct", "()"],
       ["plain", " "],
@@ -124,14 +188,14 @@ function flatTokens(value: unknown, imports: LabImport[]): CodeToken[] {
     ];
   }
 
-  const source = typeof value === "object" ? sources.get(value) : undefined;
+  const source = sourceOf(value);
   if (source !== undefined) {
-    imports.push(...source.imports);
-    return sampleTokens(source.code);
+    addNeeds(needs, source);
+    return [...source.tokens];
   }
   if (isValidElement(value)) {
     throw new Error(
-      "A Lab Variant holds a node with no source. Give it one with withSource().",
+      "A Lab Variant holds a node with no source. Give it one with withSource() or labSource().",
     );
   }
 
@@ -145,7 +209,7 @@ function flatTokens(value: unknown, imports: LabImport[]): CodeToken[] {
               ["punct", ","],
               ["plain", " "],
             ] as const)),
-        ...flatTokens(item, imports),
+        ...flatTokens(item, needs),
       ]),
       ["punct", "]"],
     ];
@@ -165,7 +229,7 @@ function flatTokens(value: unknown, imports: LabImport[]): CodeToken[] {
               ["plain", " "],
             ] as const)),
         ...keyTokens(key),
-        ...flatTokens(entry, imports),
+        ...flatTokens(entry, needs),
       ]),
       ["plain", " "],
       ["punct", "}"],
@@ -175,22 +239,45 @@ function flatTokens(value: unknown, imports: LabImport[]): CodeToken[] {
   throw new Error(`A Lab snippet cannot print a ${typeof value}.`);
 }
 
+/**
+ * A source of many lines inside an expression. Prettier puts JSX of many lines
+ * in parentheses, and a function starts on the line its key is on.
+ */
+function sourceValueLines(lines: LabValueLine[]): LabValueLine[] {
+  if (!isJsxLines(lines)) return lines;
+  return [
+    { depth: 0, tokens: [["punct", "("]] },
+    ...lines.map((line) => ({ ...line, depth: line.depth + 1 })),
+    { depth: 0, tokens: [["punct", ")"]] },
+  ];
+}
+
 function printLines(
   value: unknown,
   layout: LabValueLayout,
-  imports: LabImport[],
+  needs: LabValueNeeds,
 ): LabValueLine[] {
-  const found: LabImport[] = [];
+  const source = sourceOf(value);
+  if (source !== undefined) {
+    addNeeds(needs, source);
+    const lines = sourceLines(source.tokens);
+    return lines.length === 1 ? lines : sourceValueLines(lines);
+  }
+
+  const found: LabValueNeeds = { imports: [], definitions: [] };
   const flat = flatTokens(value, found);
-  const fits = layout.column + lengthOf(flat) + layout.trailing <= layout.width;
+  const fits =
+    layout.column + lengthOf(flat) + layout.trailing <= layout.width &&
+    !flat.some(([, text]) => text.includes("\n"));
   const items = Array.isArray(value)
     ? value.map((item: unknown) => ({ key: null, item }))
-    : isRecord(value) && sources.get(value) === undefined
+    : isRecord(value)
       ? entriesOf(value).map(([key, item]) => ({ key, item }))
       : null;
 
   if (items === null || items.length === 0 || (fits && !mustBreak(value))) {
-    imports.push(...found);
+    needs.imports.push(...found.imports);
+    needs.definitions.push(...found.definitions);
     return [{ depth: 0, tokens: flat }];
   }
 
@@ -207,7 +294,7 @@ function printLines(
         trailing: 1,
         width: layout.width,
       },
-      imports,
+      needs,
     );
     const first = itemLines.at(0);
     const last = itemLines.at(-1);
@@ -225,13 +312,33 @@ function printLines(
 /**
  * Prints a value as the source of a JavaScript expression, the way Prettier
  * would: on one line when it fits the width, else one item or property to a
- * line. A function prints as an empty arrow function.
+ * line. A function prints as an empty arrow function, unless it has a source.
  */
 export function printLabValue(
   value: unknown,
   layout: LabValueLayout,
 ): PrintedLabValue {
-  const imports: LabImport[] = [];
-  const lines = printLines(value, layout, imports);
-  return { lines, imports };
+  const needs: LabValueNeeds = { imports: [], definitions: [] };
+  const lines = printLines(value, layout, needs);
+  return { lines, ...needs };
+}
+
+export function textOf(tokens: readonly CodeToken[]): string {
+  return tokens.map(([, text]) => text).join("");
+}
+
+export function noNeeds(): LabValueNeeds {
+  return { imports: [], definitions: [] };
+}
+
+/** The lines of a node with a source, or `null` for a value with none. */
+export function sourcedLines(
+  value: unknown,
+  needs: LabValueNeeds,
+): LabValueLine[] | null {
+  const source = sourceOf(value);
+  if (source === undefined) return null;
+  needs.imports.push(...source.imports);
+  needs.definitions.push(...(source.definitions ?? []));
+  return sourceLines(source.tokens);
 }

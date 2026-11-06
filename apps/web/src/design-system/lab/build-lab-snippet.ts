@@ -1,11 +1,25 @@
 import type { CodePart, CodeToken } from "@tuja/ui/components/code-block";
+import { importParts } from "./import-parts.ts";
+import {
+  type AttributeValue,
+  attributeValue,
+  bracedIdentifier,
+  bracedSetterCall,
+  printAttribute,
+} from "./print-attribute.ts";
 import {
   type LabValueLine,
+  type LabValueNeeds,
+  noNeeds,
   printLabValue,
   sampleTokens,
+  sourceLines,
+  sourcedLines,
+  textOf,
 } from "./print-lab-value.ts";
 import type {
   LabControlModel,
+  LabDefinition,
   LabImport,
   LabPropDoc,
   LabProps,
@@ -23,6 +37,10 @@ export interface LabSnippetState {
   prop: string;
   handler: string;
   type?: { code: string; imports: readonly LabImport[] };
+  /** The value every call of the handler stands for, when it passes none. */
+  nextValue?: string | number | boolean;
+  /** A node with a source, printed before the element in a fragment. */
+  trigger?: unknown;
 }
 
 interface BuildLabSnippetOptions {
@@ -40,201 +58,107 @@ interface BuildLabSnippetOptions {
 /** Past this the element takes one attribute per line, the way Prettier breaks it. */
 const MAX_COLUMNS = 72;
 
-/** The indent of an attribute on a line of its own. */
-const ATTRIBUTE_INDENT = 2;
+/** One indent step, as Prettier prints it. */
+const INDENT = 2;
 
 const EQUALS: readonly CodeToken[] = [["punct", "="]];
 
 const IDENTIFIER = /^[A-Za-z_$][\w$]*$/;
 
-const STRING_LITERAL = /^"[^"]*"$/;
+const FRAGMENT_OPEN: CodePart = {
+  id: "fragment-open",
+  lead: "\n\n",
+  tokens: [["punct", "<>"]],
+};
 
-function importTokens(
-  bindings: readonly LabImport[],
-  from: string,
-): CodeToken[] {
-  return [
-    ["keyword", "import"],
-    ["plain", " "],
-    ["punct", "{"],
-    ["plain", " "],
-    ...bindings.flatMap(({ name, isType }, index): CodeToken[] => [
-      ...(index === 0
-        ? []
-        : ([
-            ["punct", ","],
-            ["plain", " "],
-          ] as const)),
-      ...(isType === true
-        ? ([
-            ["keyword", "type"],
-            ["plain", " "],
-          ] as const)
-        : []),
-      [/^[A-Z]/.test(name) ? "component" : "plain", name],
-    ]),
-    ["plain", " "],
-    ["punct", "}"],
-    ["plain", " "],
-    ["keyword", "from"],
-    ["plain", " "],
-    ["string", `"${from}"`],
-    ["punct", ";"],
-  ];
-}
+const FRAGMENT_CLOSE: CodePart = {
+  id: "fragment-close",
+  lead: "\n",
+  tokens: [["punct", "</>"]],
+};
 
-export function importLine(name: string, from: string): CodeToken[] {
-  return importTokens([{ name, from }], from);
-}
-
-export function textOf(tokens: readonly CodeToken[]): string {
-  return tokens.map(([, text]) => text).join("");
-}
-
-/** What one attribute prints after its name. */
-type AttributeValue =
-  /** A `true` flag, which prints its name alone. */
-  | { kind: "flag" }
-  | { kind: "tokens"; tokens: CodeToken[] }
-  /** An array, an object or a function, printed in braces. */
-  | { kind: "expression"; value: unknown };
-
-/** The attribute's value, or `null` when the attribute is not printed at all. */
-function attributeValue(
-  value: unknown,
-  control: LabControlModel | undefined,
-  defaultValue: string | undefined,
-): AttributeValue | null {
-  if (value === undefined || value === null) return null;
-
-  if (control?.samples !== undefined) {
-    const sample = control.samples.find((choice) => choice.id === value);
-    if (sample === undefined || sample.code === "") return null;
-    if (STRING_LITERAL.test(sample.code)) {
-      return { kind: "tokens", tokens: [["string", sample.code]] };
-    }
-    return {
-      kind: "tokens",
-      tokens: [["punct", "{"], ...sampleTokens(sample.code), ["punct", "}"]],
-    };
-  }
-
-  if (typeof value === "boolean") {
-    if (value) return { kind: "flag" };
-    return defaultValue === "true"
-      ? {
-          kind: "tokens",
-          tokens: [
-            ["punct", "{"],
-            ["keyword", "false"],
-            ["punct", "}"],
-          ],
-        }
-      : null;
-  }
-
-  if (typeof value === "number") {
-    if (String(value) === defaultValue) return null;
-    return {
-      kind: "tokens",
-      tokens: [
-        ["punct", "{"],
-        ["number", String(value)],
-        ["punct", "}"],
-      ],
-    };
-  }
-
-  if (typeof value === "object" || typeof value === "function") {
-    return { kind: "expression", value };
-  }
-
-  if (typeof value !== "string" || value === "") return null;
-  const printed = `"${value}"`;
-  return printed === defaultValue
-    ? null
-    : { kind: "tokens", tokens: [["string", printed]] };
-}
-
-function bracedIdentifier(name: string): AttributeValue {
-  return {
-    kind: "tokens",
-    tokens: [
-      ["punct", "{"],
-      ["plain", name],
-      ["punct", "}"],
-    ],
-  };
-}
-
-/** The children as source: a sample's code, or the text the visitor typed. */
-function childrenTokens(
+/**
+ * The children as lines: a sample's code, a node's source, or the text the
+ * visitor typed. A fragment's own tags go, as the element holds its children.
+ */
+function childrenLines(
   value: unknown,
   sample: LabSampleChoice | undefined,
-): CodeToken[] {
-  if (sample !== undefined) {
-    return sample.code === "" ? [] : sampleTokens(sample.code);
+  needs: LabValueNeeds,
+): LabValueLine[] {
+  if (sample?.code !== undefined) {
+    needs.imports.push(...(sample.imports ?? []));
+    return sample.code === ""
+      ? []
+      : [{ depth: 0, tokens: sampleTokens(sample.code) }];
   }
-  return typeof value === "string" && value !== "" ? [["plain", value]] : [];
+  const lines = sourcedLines(
+    sample === undefined ? value : sample.value,
+    needs,
+  );
+  if (lines !== null) {
+    const first = lines.at(0);
+    const last = lines.at(-1);
+    const isFragment =
+      lines.length > 2 &&
+      first !== undefined &&
+      last !== undefined &&
+      textOf(first.tokens) === "<>" &&
+      textOf(last.tokens) === "</>";
+    return isFragment
+      ? lines.slice(1, -1).map((line) => ({ ...line, depth: line.depth - 1 }))
+      : lines;
+  }
+  return typeof value === "string" && value !== ""
+    ? [{ depth: 0, tokens: [["plain", value]] }]
+    : [];
 }
 
-interface PrintedAttribute {
-  prop: string;
-  /** Empty for a flag. */
-  lines: LabValueLine[];
-  imports: LabImport[];
-}
-
-function printAttribute(
-  prop: string,
-  value: AttributeValue,
-  indent: number,
-  width: number,
-): PrintedAttribute {
-  if (value.kind === "flag") return { prop, lines: [], imports: [] };
-  if (value.kind === "tokens") {
-    return { prop, lines: [{ depth: 0, tokens: value.tokens }], imports: [] };
-  }
-  const printed = printLabValue(value.value, {
-    indent,
-    column: indent + `${prop}={`.length,
-    trailing: "}".length,
-    width,
+/** A line's id carries its text, so a changed line plays as the old part leaving and the new one arriving. */
+function lineIds(id: string, lines: readonly LabValueLine[]) {
+  const seen = new Map<string, number>();
+  return lines.map((line) => {
+    const text = textOf(line.tokens);
+    const count = seen.get(text) ?? 0;
+    seen.set(text, count + 1);
+    return `${id}:${text}${count === 0 ? "" : `#${String(count)}`}`;
   });
-  const lines = printed.lines.map((line) => ({ ...line }));
-  const first = lines.at(0);
-  const last = lines.at(-1);
-  if (first !== undefined && last !== undefined) {
-    first.tokens = [["punct", "{"], ...first.tokens];
-    last.tokens = [...last.tokens, ["punct", "}"]];
-  }
-  return { prop, lines, imports: printed.imports };
+}
+
+function indentOf(indent: number, line: LabValueLine) {
+  return " ".repeat(indent + INDENT * line.depth);
 }
 
 /**
- * The parts of one value, a part to a line, because a part must not hold a
- * line break. A line's id carries its text, so a changed line plays as the old
- * part leaving and the new one arriving.
+ * The parts of one value that starts on a line already begun, a part to a
+ * line, because a part must not hold a line break.
  */
 function lineParts(
   id: string,
   lines: readonly LabValueLine[],
   indent: number,
 ): CodePart[] {
-  const seen = new Map<string, number>();
-  return lines.map((line, index) => {
-    const text = textOf(line.tokens);
-    const count = seen.get(text) ?? 0;
-    seen.set(text, count + 1);
-    return {
-      id: `${id}:${text}${count === 0 ? "" : `#${String(count)}`}`,
-      lead:
-        index === 0
-          ? ""
-          : `\n${" ".repeat(indent + ATTRIBUTE_INDENT * line.depth)}`,
-      tokens: line.tokens,
-    };
-  });
+  const ids = lineIds(id, lines);
+  return lines.map((line, index) => ({
+    id: ids[index],
+    lead: index === 0 ? "" : `\n${indentOf(indent, line)}`,
+    tokens: line.tokens,
+  }));
+}
+
+/** The parts of lines that each start a line of their own. */
+function blockParts(
+  id: string,
+  lines: readonly LabValueLine[],
+  indent: number,
+  firstLead = "\n",
+): CodePart[] {
+  const ids = lineIds(id, lines);
+  return lines.map((line, index) => ({
+    id: ids[index],
+    lead: `${index === 0 ? firstLead : "\n"}${indentOf(indent, line)}`,
+    tokens: line.tokens,
+  }));
 }
 
 function setterOf(name: string) {
@@ -312,6 +236,10 @@ function stateParts(
   };
 }
 
+function lineLength(lines: readonly LabValueLine[]) {
+  return lines.reduce((sum, line) => sum + textOf(line.tokens).length, 0);
+}
+
 /**
  * The snippet for what is on the Canvas, built from the Lab's state rather
  * than parsed: every run is emitted with the kind it is, so the snippet needs
@@ -359,9 +287,16 @@ export function buildLabSnippet({
         stateName !== undefined &&
         prop === state.prop
       ) {
+        const setter = setterOf(stateName);
         return [
           { prop, value: bracedIdentifier(stateName) },
-          { prop: state.handler, value: bracedIdentifier(setterOf(stateName)) },
+          {
+            prop: state.handler,
+            value:
+              state.nextValue === undefined
+                ? bracedIdentifier(setter)
+                : bracedSetterCall(setter, state.nextValue),
+          },
         ];
       }
       const value = attributeValue(
@@ -373,86 +308,98 @@ export function buildLabSnippet({
     },
   );
 
-  const sampleOf = (prop: string) =>
-    controlByName
-      .get(prop)
-      ?.samples?.find((choice) => choice.id === props[prop]);
-  const childrenSample = sampleOf("children");
-  const usedSamples = [...values.map(({ prop }) => prop), "children"].flatMap(
-    (prop) => {
-      const sample = sampleOf(prop);
-      return sample === undefined ? [] : [sample];
-    },
-  );
+  const childrenSample = controlByName
+    .get("children")
+    ?.samples?.find((choice) => choice.id === props.children);
+  const childNeeds = noNeeds();
+  const childLines = childrenLines(props.children, childrenSample, childNeeds);
 
-  const childTokens = childrenTokens(props.children, childrenSample);
-  const children = textOf(childTokens);
+  const triggerNeeds = noNeeds();
+  const triggerLines =
+    state?.trigger === undefined
+      ? null
+      : sourcedLines(state.trigger, triggerNeeds);
+  // A trigger stands beside the element, so the two go in a fragment.
+  const base = triggerLines === null ? 0 : INDENT;
+
   const open: CodeToken[] = [
     ["punct", "<"],
     ["component", element],
   ];
+  const end: CodeToken[] = [
+    ["punct", "</"],
+    ["component", element],
+    ["punct", ">"],
+  ];
 
   const inline = values.map(({ prop, value }) =>
-    printAttribute(prop, value, 0, Number.POSITIVE_INFINITY),
+    printAttribute(prop, value, base, Number.POSITIVE_INFINITY),
   );
-  const inlineLength =
+  const openLength =
+    base +
     textOf(open).length +
     inline.reduce(
       (total, { prop, lines }) =>
         total +
         ` ${prop}`.length +
         (lines.length > 0 ? 1 : 0) +
-        lines.reduce((sum, line) => sum + textOf(line.tokens).length, 0),
+        lineLength(lines),
       0,
     ) +
-    (children === "" ? " />".length : `>${children}</${element}>`.length);
-  const multiline =
-    inlineLength > MAX_COLUMNS || inline.some(({ lines }) => lines.length > 1);
-  const attributes = multiline
+    (childLines.length === 0 ? " />".length : ">".length);
+  const hasBrokenValue = inline.some(({ lines }) => lines.length > 1);
+  const fitsOneLine =
+    !hasBrokenValue &&
+    childLines.length <= 1 &&
+    openLength +
+      lineLength(childLines) +
+      (childLines.length === 0 ? 0 : textOf(end).length) <=
+      MAX_COLUMNS;
+  // Prettier breaks the attributes only when the opening tag cannot hold them,
+  // and puts children of their own lines below it.
+  const breaksAttributes =
+    !fitsOneLine &&
+    (hasBrokenValue || childLines.length === 0 || openLength > MAX_COLUMNS);
+  const attributes = breaksAttributes
     ? values.map(({ prop, value }) =>
-        printAttribute(prop, value, ATTRIBUTE_INDENT, MAX_COLUMNS),
+        printAttribute(prop, value, base + INDENT, MAX_COLUMNS),
       )
     : inline;
 
   // A value is a part of its own, right after its attribute's name part, so a
   // changed value plays as the old part leaving and the new one arriving.
+  const attributeIndent = breaksAttributes ? base + INDENT : base;
   const attributeParts: CodePart[] = attributes.flatMap(({ prop, lines }) => {
     const name: CodePart = {
       id: `attr-${prop}`,
-      lead: multiline ? `\n${" ".repeat(ATTRIBUTE_INDENT)}` : " ",
+      lead: breaksAttributes ? `\n${" ".repeat(attributeIndent)}` : " ",
       tokens: [["attr", prop], ...(lines.length > 0 ? EQUALS : [])],
     };
-    return [name, ...lineParts(name.id, lines, ATTRIBUTE_INDENT)];
+    return [name, ...lineParts(name.id, lines, attributeIndent)];
   });
 
   const close: CodePart[] =
-    children === ""
+    childLines.length === 0
       ? [
           {
             id: "close",
-            lead: multiline ? "\n" : " ",
+            lead: breaksAttributes ? `\n${" ".repeat(base)}` : " ",
             tokens: [["punct", "/>"]],
           },
         ]
       : [
           {
             id: "close",
-            lead: multiline ? "\n" : "",
+            lead: breaksAttributes ? `\n${" ".repeat(base)}` : "",
             tokens: [["punct", ">"]],
           },
-          {
-            id: "children",
-            lead: multiline ? `\n${" ".repeat(ATTRIBUTE_INDENT)}` : "",
-            tokens: childTokens,
-          },
+          ...(fitsOneLine
+            ? lineParts("children", childLines, base)
+            : blockParts("children", childLines, base + INDENT)),
           {
             id: "end",
-            lead: multiline ? "\n" : "",
-            tokens: [
-              ["punct", "</"],
-              ["component", element],
-              ["punct", ">"],
-            ],
+            lead: fitsOneLine ? "" : `\n${" ".repeat(base)}`,
+            tokens: end,
           },
         ];
 
@@ -467,28 +414,54 @@ export function buildLabSnippet({
 
   const bindings: LabImport[] = [
     { name: element, from: importPath },
-    ...usedSamples.flatMap((sample) => sample.imports),
+    ...triggerNeeds.imports,
     ...attributes.flatMap((attribute) => attribute.imports),
+    ...childNeeds.imports,
     ...statement.imports,
   ];
-  const modules = new Map<string, LabImport[]>();
-  for (const binding of bindings) {
-    const names = modules.get(binding.from) ?? [];
-    if (!names.some(({ name }) => name === binding.name)) names.push(binding);
-    modules.set(binding.from, names);
-  }
-  const imports: CodePart[] = [...modules].map(([from, names], index) => ({
-    id: `import-${from}`,
-    lead: index === 0 ? "" : "\n",
-    tokens: importTokens(names, from),
-  }));
+  const imports = importParts(bindings);
 
-  const parts: CodePart[] = [
-    ...imports,
-    ...statement.parts,
-    { id: "open", lead: "\n\n", tokens: open },
+  const definitions = new Map<string, LabDefinition>();
+  for (const definition of [
+    ...triggerNeeds.definitions,
+    ...attributes.flatMap((attribute) => attribute.definitions),
+    ...childNeeds.definitions,
+  ]) {
+    definitions.set(definition.name, definition);
+  }
+  const definitionParts = [...definitions.values()].flatMap((definition) =>
+    blockParts(
+      `definition-${definition.name}`,
+      sourceLines(definition.tokens),
+      0,
+      "\n\n",
+    ),
+  );
+
+  const elementParts: CodePart[] = [
+    {
+      id: "open",
+      lead: base === 0 ? "\n\n" : `\n${" ".repeat(base)}`,
+      tokens: open,
+    },
     ...attributeParts,
     ...close,
+  ];
+
+  // The element runs where the snippet puts it, so the styles it reads come
+  // before it.
+  const parts: CodePart[] = [
+    ...imports,
+    ...definitionParts,
+    ...statement.parts,
+    ...(triggerLines === null
+      ? elementParts
+      : [
+          FRAGMENT_OPEN,
+          ...blockParts("trigger", triggerLines, base),
+          ...elementParts,
+          FRAGMENT_CLOSE,
+        ]),
   ];
 
   const text = parts.map((part) => part.lead + textOf(part.tokens)).join("");

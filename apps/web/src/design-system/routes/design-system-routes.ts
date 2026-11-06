@@ -220,6 +220,7 @@ const ROUTES = [
     section: "components",
     category: "actions",
     path: "/design-system/components/menu-button",
+    lab: true,
     keywords: ["dropdown", "popup", "menu", "sheet", "context menu"],
   },
   // Breadcrumb sits with the Actions rather than under a Navigation heading of
@@ -253,6 +254,7 @@ const ROUTES = [
     section: "components",
     category: "actions",
     path: "/design-system/components/nav-list",
+    lab: true,
     keywords: [
       "navigation",
       "sidebar",
@@ -346,6 +348,7 @@ const ROUTES = [
     section: "components",
     category: "dataDisplay",
     path: "/design-system/components/table",
+    lab: true,
     keywords: ["data", "rows", "columns", "grid", "spreadsheet", "tabular"],
   },
   {
@@ -398,12 +401,14 @@ const ROUTES = [
     section: "components",
     category: "surfaces",
     path: "/design-system/components/card",
+    lab: true,
     keywords: ["panel", "tile", "surface", "container"],
   },
   {
     section: "components",
     category: "surfaces",
     path: "/design-system/components/section",
+    lab: true,
     keywords: ["block", "group", "fieldset"],
   },
   {
@@ -432,6 +437,7 @@ const ROUTES = [
     section: "components",
     category: "surfaces",
     path: "/design-system/components/popover",
+    lab: true,
     keywords: ["tooltip", "dropdown", "flyout", "anchored", "floating"],
   },
   {
