@@ -2,28 +2,22 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
-import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
 import { Text } from "@tuja/ui/components/text";
 import type { PopoverPlacement } from "@tuja/ui/hooks/use-popover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
-import { guidelineDiagram } from "#src/design-system/guideline-diagram.stylex.ts";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
-import { WireframeBar } from "#src/design-system/specimens/wireframe-bar.tsx";
 import {
   AnchoredPanelDemo,
   DismissalDemo,
   FlipDemo,
-  HintDemo,
   PlacementDemo,
   PortalTargetDemo,
   RailPopover,
-  RepaymentSourcesDemo,
 } from "./popover-specimens.tsx";
 
 // Grouped by side, three to a row, so the grid reads as four sides × three
@@ -42,42 +36,6 @@ const PLACEMENTS = [
   "left",
   "left-end",
 ] satisfies PopoverPlacement[];
-
-/**
- * A miniature of a popover over a page. The real component portals to a
- * viewport-fixed layer, which a guideline panel cannot host — but the panel
- * wears the component's own `popoverSurface` skin, so only the placement here
- * is drawn by hand.
- */
-function PopoverDiagram() {
-  return (
-    <div css={[corner.radius_2, guidelineDiagram.frame]}>
-      <div css={[corner.radius_1, styles.diagramTrigger]} />
-      <WireframeBar width="72%" />
-      <WireframeBar width="48%" />
-      <div css={[popoverSurface.base, styles.diagramPanel]}>
-        <WireframeBar width="55%" strong />
-        <WireframeBar width="80%" />
-      </div>
-    </div>
-  );
-}
-
-/** The same page under a sheet: dimmed, and the card floating at the bottom rather than hung. */
-function ModalDiagram() {
-  return (
-    <div css={[corner.radius_2, guidelineDiagram.frame, guidelineDiagram.clip]}>
-      <div css={[corner.radius_1, styles.diagramTrigger]} />
-      <WireframeBar width="72%" />
-      <WireframeBar width="48%" />
-      <div css={styles.diagramDim} />
-      <div css={[corner.radius_1, styles.diagramModal]}>
-        <WireframeBar width="55%" strong />
-        <WireframeBar width="80%" />
-      </div>
-    </div>
-  );
-}
 
 export function PopoverShowcase() {
   return (
@@ -203,33 +161,6 @@ export function PopoverShowcase() {
           zh: "这里的每个属性都只是薄薄地转交给底层的无界面 hook usePopover——Hooks 页面有它的文档。当弹出内容需要是别的东西时（列表框、提示气泡、你自己的面板），直接用这个 hook。",
         })}
       </ShowcaseHelper>
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={<PopoverDiagram />}
-          doCaption={t({
-            en: "Use a Popover for supporting content the reader can walk away from. The page behind stays scrollable, clickable, and undimmed.",
-            zh: "浮层适合放随时可以离开的补充内容。它后面的页面依然可滚动、可点击，也不会变暗。",
-          })}
-          dont={<ModalDiagram />}
-          dontCaption={t({
-            en: "Don't reach for one when the page has to stop. A decision that blocks everything else needs Sheet's dimmed page, focus trap, and scroll lock — a Popover deliberately has none of the three.",
-            zh: "当页面必须停下来时不要用它。会阻断其余一切的决定需要弹出面板的页面压暗、焦点捕获与滚动锁定——浮层刻意不提供这三者。",
-          })}
-        />
-        <DoDont
-          do={<RepaymentSourcesDemo />}
-          doCaption={t({
-            en: "Put structured or interactive content in it. The panel takes focus, is announced as a dialog, and Tab reaches everything inside — all of which earn their cost.",
-            zh: "把结构化或可交互的内容放进去。面板会取得焦点、以对话框身份被宣读，Tab 也能走到内部每个元素——在这里这些代价都值得。",
-          })}
-          dont={<HintDemo />}
-          dontCaption={t({
-            en: "Don't use one as a tooltip. A hint that short should never steal focus or announce itself as a dialog — put it in the control's own accessible name instead.",
-            zh: "不要把它当作提示气泡。这么短的提示不该抢走焦点，也不该以对话框身份自我宣读——把它写进控件自身的可访问名称里。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }
@@ -270,37 +201,5 @@ const styles = stylex.create({
     maxInlineSize: measure.prose,
     paddingInlineStart: space._4,
     color: color.fgMuted,
-  },
-  diagramTrigger: {
-    inlineSize: space._9,
-    blockSize: space._2,
-    backgroundColor: color.bgControlSelected,
-  },
-  diagramPanel: {
-    position: "absolute",
-    insetBlockStart: space._6,
-    insetInlineStart: space._2,
-    display: "flex",
-    flexDirection: "column",
-    gap: rhythm.tight,
-    inlineSize: "68%",
-    paddingBlock: space._2,
-    paddingInline: space._2,
-  },
-  diagramDim: {
-    position: "absolute",
-    inset: 0,
-    backgroundColor: color.bgScrim,
-  },
-  diagramModal: {
-    position: "absolute",
-    insetInline: space._0,
-    insetBlockEnd: space._0,
-    display: "flex",
-    flexDirection: "column",
-    gap: rhythm.tight,
-    paddingBlock: space._2,
-    paddingInline: space._2,
-    backgroundColor: color.bgSurface,
   },
 });

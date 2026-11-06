@@ -9,11 +9,9 @@ import { scrollbar } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
-import { WireframeBar } from "#src/design-system/specimens/wireframe-bar.tsx";
 
 export function ScrollMaskShowcase() {
   return (
@@ -63,21 +61,6 @@ export function ScrollMaskShowcase() {
       </Showcase>
 
       <PropsTable component="scroll-mask" />
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={<MaskedGuidelineDiagram />}
-          doCaption={t({
-            en: "Blur the content on its way out of view, so the region reads as continuing past its edge.",
-            zh: "让内容在移出视野时虚化，使区域读起来在边缘之外仍有延续。",
-          })}
-          dont={<ClippedGuidelineDiagram />}
-          dontCaption={t({
-            en: "Don't let the content stop at a line — a hard edge reads as the end of what there is, and nothing invites a visitor to scroll on.",
-            zh: "不要让内容在一条线上戛然而止——生硬的边缘读起来就是内容的尽头，没有任何东西邀请访客继续滚动。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }
@@ -259,47 +242,6 @@ function FittingRegion() {
   );
 }
 
-/** The rows both guideline diagrams stage — more than the frame holds, by design. */
-function GuidelineDiagramRows() {
-  return (
-    <>
-      <WireframeBar width="72%" />
-      <WireframeBar width="48%" />
-      <WireframeBar width="60%" />
-      <WireframeBar width="66%" />
-      <WireframeBar width="40%" />
-      <WireframeBar width="70%" />
-      <WireframeBar width="52%" />
-      <WireframeBar width="64%" />
-      <WireframeBar width="46%" />
-    </>
-  );
-}
-
-/** A miniature region using the real `ScrollMask`, at a radius scaled to it. */
-function MaskedGuidelineDiagram() {
-  return (
-    <ScrollMask
-      radius={6}
-      css={[corner.radius_2, styles.diagramRegion]}
-      contentCss={styles.diagramContent}
-    >
-      <GuidelineDiagramRows />
-    </ScrollMask>
-  );
-}
-
-/** The same rows clipped by overflow alone — the treatment a Scroll mask replaces. */
-function ClippedGuidelineDiagram() {
-  return (
-    <div css={[corner.radius_2, styles.diagramRegion, styles.diagramClip]}>
-      <div css={styles.diagramContent}>
-        <GuidelineDiagramRows />
-      </div>
-    </div>
-  );
-}
-
 const styles = stylex.create({
   // The bands are positioned against the root, so the root is what carries the
   // region's chrome — its corners included, which the bands and the scroller
@@ -362,29 +304,5 @@ const styles = stylex.create({
     justifyContent: "flex-end",
     paddingBlock: space._2,
     paddingInline: space._3,
-  },
-  // Shared by both diagrams, and unclipped: the masked one is a real
-  // ScrollMask, whose bands a squircle clip above them would flatten.
-  diagramRegion: {
-    inlineSize: "100%",
-    blockSize: space._10,
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.border,
-    backgroundColor: color.bgSurface,
-  },
-  // The "don't" diagram's whole subject: rows cut at a line by overflow alone.
-  diagramClip: {
-    overflow: "hidden",
-  },
-  // Grid, not a flex column: the masked diagram's scroller has a definite
-  // height, and flex would shrink these empty rows — whose min-content height
-  // is zero — until nothing was left to blur. Grid rows keep their own size and
-  // overrun the box, which is what both diagrams are here to show.
-  diagramContent: {
-    display: "grid",
-    alignContent: "start",
-    gap: rhythm.inline,
-    padding: space._2,
   },
 });

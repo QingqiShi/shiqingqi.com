@@ -4,8 +4,6 @@ import { color } from "@tuja/ui/color.stylex";
 import { Progress } from "@tuja/ui/components/progress";
 import { progressTokens } from "@tuja/ui/components/progress.stylex";
 import { Text } from "@tuja/ui/components/text";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
@@ -26,9 +24,6 @@ const renderedMarkup = `<Progress label="Checkout" value={3} max={5} aria-valuet
 />`;
 
 export function ProgressShowcase() {
-  const uploadingLabel = t({ en: "Uploading photos", zh: "正在上传照片" });
-  const connectingLabel = t({ en: "Connecting…", zh: "正在连接…" });
-
   return (
     <>
       <Showcase label={t({ en: "Values", zh: "取值" })}>
@@ -62,6 +57,12 @@ export function ProgressShowcase() {
           {t({
             en: "value is clamped to 0–max before anything reaches ARIA, and a non-finite number falls back to 0 — a bad reading can never announce a figure a screen reader is unable to interpret.",
             zh: "value 在进入 ARIA 之前会被限制在 0 到 max 之间，非有限数值则回退为 0——错误的读数不会让屏幕阅读器播报出无法解释的数字。",
+          })}
+        </Text>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "Progress has no indeterminate state, by design: a bar that cannot finish is a Spinner in the wrong clothes. Pick between the two by what you know, not by which one looks better.",
+            zh: "进度条刻意不提供不确定状态：一条走不完的进度条，只是穿错衣服的 Spinner。在两者之间选择，依据是你知道什么，而不是哪个更好看。",
           })}
         </Text>
       </Showcase>
@@ -182,45 +183,11 @@ export function ProgressShowcase() {
       </Showcase>
 
       <PropsTable component="progress" />
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })} leadsWithText>
-        <Text look="bodySmall" tone="muted">
-          {t({
-            en: "Progress has no indeterminate state, by design: a bar that cannot finish is a Spinner in the wrong clothes. Pick between the two by what you know, not by which one looks better.",
-            zh: "进度条刻意不提供不确定状态：一条走不完的进度条，只是穿错衣服的 Spinner。在两者之间选择，依据是你知道什么，而不是哪个更好看。",
-          })}
-        </Text>
-        <DoDont
-          do={
-            <div css={[stack.tight, styles.fill]}>
-              <Text look="bodySmall">{uploadingLabel}</Text>
-              <Progress value={62} label={uploadingLabel} />
-            </div>
-          }
-          doCaption={t({
-            en: "Use Progress when the total is known — the value tells the reader how much is left, and the bar announces that number.",
-            zh: "当总量已知时使用进度条——数值告诉用户还剩多少，它也会把这个数字播报出来。",
-          })}
-          dont={
-            <div css={[stack.tight, styles.fill]}>
-              <Text look="bodySmall">{connectingLabel}</Text>
-              <Progress value={80} label={connectingLabel} />
-            </div>
-          }
-          dontCaption={t({
-            en: "Don't park a bar at a made-up value for work with no measurable end — a wait of unknown length is Spinner's job.",
-            zh: "不要为没有明确终点的工作把进度条停在随手编出的数值上——长度未知的等待应交给 Spinner。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }
 
 const styles = stylex.create({
-  fill: {
-    inlineSize: "100%",
-  },
   warningIndicator: {
     [progressTokens.indicatorColor]: color.bgWarning,
   },

@@ -11,7 +11,6 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -169,54 +168,6 @@ export function BreadcrumbShowcase() {
             zh: "每个可导航的层级项都经由 linkComponent 渲染。默认是原生 <a>，会触发整页刷新；传入框架自带的链接组件——这里是 next/link——即可保留客户端导航。该插槽会收到层级项的 className 与 style，必须把两者都转发到锚点上，否则层级项会失去配色与聚焦轮廓。",
           })}
         </Text>
-      </Showcase>
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={
-            <Breadcrumb
-              items={trail}
-              label={t({
-                en: "Recommended trail example",
-                zh: "推荐路径示例",
-              })}
-            />
-          }
-          doCaption={t({
-            en: "List the page's real ancestors, root first. The last crumb is the current page, so it is announced with aria-current and never linked back to where the visitor already stands.",
-            zh: "按层级列出当前页面真实的上级路径，从根开始。最后一项是当前页面，因此带有 aria-current，也绝不会链接到访客已经身处的位置。",
-          })}
-          dont={
-            <Breadcrumb
-              items={[
-                { label: home, href: homeHref },
-                {
-                  label: t({ en: "Menu button", zh: "菜单按钮" }),
-                  href: getLocalePath(
-                    "/design-system/components/menu-button",
-                    locale,
-                  ),
-                },
-                {
-                  label: t({ en: "Switch", zh: "开关" }),
-                  href: getLocalePath(
-                    "/design-system/components/switch",
-                    locale,
-                  ),
-                },
-                { label: breadcrumb },
-              ]}
-              label={t({
-                en: "Discouraged trail example",
-                zh: "不推荐路径示例",
-              })}
-            />
-          }
-          dontCaption={t({
-            en: "Don't retrace how the visitor reached this page — Menu button and Switch are siblings of this page, not ancestors. A breadcrumb reports location, and it is not a Back control: the browser already has one.",
-            zh: "不要还原访客的浏览过程——菜单按钮与开关是本页面的同级页面，而非上级。面包屑导航表示位置，也不是返回控件：浏览器本身已经提供了返回。",
-          })}
-        />
       </Showcase>
 
       <PropsTable component="breadcrumb" />

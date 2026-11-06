@@ -6,7 +6,6 @@ import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { Text } from "@tuja/ui/components/text";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
@@ -128,31 +127,6 @@ const { open, triggerProps, panelProps } = useDisclosure();
       </Showcase>
 
       <PropsTable component="disclosure" />
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={<DisclosureHeadlessSpecimen />}
-          doCaption={t({
-            en: "When the header already holds a link, use useDisclosure and give the toggle its own button beside it.",
-            zh: "当标题行已包含链接时，使用 useDisclosure，并在旁边为开关设置独立按钮。",
-          })}
-          dont={
-            <Disclosure
-              look="card"
-              summary={t({ en: "Florence → Siena", zh: "佛罗伦萨 → 锡耶纳" })}
-              css={fill.inline}
-            >
-              <Text look="bodySmall" tone="muted">
-                {t({ en: "Route map", zh: "路线地图" })}
-              </Text>
-            </Disclosure>
-          }
-          dontCaption={t({
-            en: "Don't put a link or a button into summary — the whole header is already a button, and nesting controls breaks the markup, so screen readers announce it as one confused control.",
-            zh: "不要把链接或按钮放进 summary——整个标题行本身就是按钮，嵌套控件是无效标记，读屏软件会将其读作一个混乱的控件。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }

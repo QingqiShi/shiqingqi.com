@@ -9,7 +9,6 @@ import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
@@ -20,7 +19,6 @@ import {
   DisabledSlider,
   FieldContractSliders,
   KeyboardSlider,
-  ReadoutSlider,
 } from "./slider-specimens.tsx";
 
 interface KeyHintProps {
@@ -205,31 +203,6 @@ export function SliderShowcase() {
       </Showcase>
 
       <PropsTable component="slider" />
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={<ReadoutSlider />}
-          doCaption={t({
-            en: "Pair the track with a formatted readout whenever the exact number matters — the thumb's position alone is only an estimate.",
-            zh: "只要确切数值重要，就为轨道配一个格式化的 readout——单看滑块位置只能得到一个估计。",
-          })}
-          dont={
-            <div css={fill.inline}>
-              <Slider
-                label={t({ en: "Loan amount", zh: "贷款金额" })}
-                min={50000}
-                max={400000}
-                step={5000}
-                defaultValue={180000}
-              />
-            </div>
-          }
-          dontCaption={t({
-            en: "Don't leave the value off-screen when precision matters — a bare track tells the visitor roughly, never exactly.",
-            zh: "当精度重要时，不要让数值缺席——光秃秃的轨道只能给出大概，永远给不出确切数字。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }

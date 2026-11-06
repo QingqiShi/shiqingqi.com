@@ -1,14 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Text } from "@tuja/ui/components/text";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 import {
-  ErrorToastSpecimen,
   MessageToastSpecimen,
   ToastDemo,
   UndoToastSpecimen,
@@ -108,19 +106,6 @@ export function ToastShowcase() {
 
       <PropsTable component="toast-provider" />
       <PropsTable component="toast" />
-
-      <DoDont
-        do={<UndoToastSpecimen />}
-        doCaption={t({
-          en: "Confirm what an action did, in a few words, and offer the one step that follows from it.",
-          zh: "用几个字确认操作的结果，并提供紧随其后的那一步。",
-        })}
-        dont={<ErrorToastSpecimen />}
-        dontCaption={t({
-          en: "Don't put a problem the visitor has to fix in a toast: it goes away. Show it with a Callout where the problem is.",
-          zh: "不要把访客必须处理的问题放进提示：它会消失。在问题所在的位置用提示框显示它。",
-        })}
-      />
     </>
   );
 }

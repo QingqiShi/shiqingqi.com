@@ -1,26 +1,18 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { BookmarkIcon } from "@phosphor-icons/react/dist/ssr/Bookmark";
 import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
-import { FloppyDiskIcon } from "@phosphor-icons/react/dist/ssr/FloppyDisk";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
-import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
-import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import {
   outlineSurface,
   outlineSurfaceSize,
 } from "@tuja/ui/components/outline-surface.stylex";
-import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { controlSize } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { Example } from "#src/design-system/example.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
@@ -38,7 +30,6 @@ import NextLink from "next/link";
 export function ButtonShowcase() {
   const searchLabel = t({ en: "Search", zh: "搜索" });
   const deleteLabel = t({ en: "Delete", zh: "删除" });
-  const closeLabel = t({ en: "Close", zh: "关闭" });
 
   return (
     <>
@@ -279,30 +270,6 @@ export function ButtonShowcase() {
             />
           </Specimen>
         </SpecimenGrid>
-        <DoDont
-          do={<Button icon={<XIcon weight="bold" />} aria-label={closeLabel} />}
-          doCaption={t({
-            en: "Name an icon-only button with aria-label — required at the type level, so it cannot ship silent.",
-            zh: "为纯图标按钮提供 aria-label——类型层面强制要求，因此它不可能在无名状态下发布。",
-          })}
-          dont={
-            <div css={cluster.tight}>
-              {/* A drawing of the mistake, not the mistake itself: a real
-                  icon-only Button here would refuse to compile without an
-                  aria-label. */}
-              <span css={[corner.radius_2, styles.fauxIconOnly]} aria-hidden>
-                <FloppyDiskIcon weight="bold" />
-              </span>
-              <Text look="bodySmall" tone="muted">
-                {t({ en: "Save changes", zh: "保存更改" })}
-              </Text>
-            </div>
-          }
-          dontCaption={t({
-            en: "Don't rely on nearby visible text as the only name — a screen reader never associates it with the button the way aria-label or aria-labelledby does.",
-            zh: "不要仅依赖旁边的可见文字充当唯一名称——屏幕阅读器不会像 aria-label 或 aria-labelledby 那样把它与按钮关联起来。",
-          })}
-        />
       </Showcase>
 
       <Showcase label={t({ en: "Disabled", zh: "禁用" })}>
@@ -319,107 +286,6 @@ export function ButtonShowcase() {
       </Showcase>
 
       <PropsTable component="button" />
-
-      <GuideSection
-        title={t({ en: "When to use", zh: "何时使用" })}
-        lead={t({
-          en: "A Button is for an action taken on the page it sits on. One action carries the screen, and everything beside it steps back.",
-          zh: "按钮用于在其所在页面上执行的操作。一个操作承载整个页面，它旁边的其他操作都要退后。",
-        })}
-      >
-        <DoDont
-          do={
-            <>
-              <Button look="primary">
-                {t({ en: "Save changes", zh: "保存更改" })}
-              </Button>
-              <Button>{t({ en: "Cancel", zh: "取消" })}</Button>
-            </>
-          }
-          doCaption={t({
-            en: "One primary action per screen, with everything beside it on the default raised look.",
-            zh: "每个页面只留一个 primary 操作，旁边的其他操作都使用默认的凸起外观。",
-          })}
-          dont={
-            <>
-              <Button look="primary">
-                {t({ en: "Save changes", zh: "保存更改" })}
-              </Button>
-              <Button look="primary">
-                {t({ en: "Save and close", zh: "保存并关闭" })}
-              </Button>
-            </>
-          }
-          dontCaption={t({
-            en: "Don't give two actions the same weight — a screen with two primary buttons has none.",
-            zh: "不要让两个操作同等醒目——一个页面出现两个 primary 按钮，等于一个都没有。",
-          })}
-        />
-        <DoDont
-          do={
-            <Button look="danger" icon={<TrashIcon weight="bold" />}>
-              {t({ en: "Delete account", zh: "删除账户" })}
-            </Button>
-          }
-          doCaption={t({
-            en: "danger is for the action that destroys something.",
-            zh: "danger 用于真正具有破坏性的操作。",
-          })}
-          dont={
-            <Button look="danger" icon={<FloppyDiskIcon weight="bold" />}>
-              {t({ en: "Save changes", zh: "保存更改" })}
-            </Button>
-          }
-          dontCaption={t({
-            en: "Don't spend the colour on an ordinary action — an Intent colour appears only where it changes what the visitor does next.",
-            zh: "不要把这种颜色花在普通操作上——意图色只出现在会改变访客下一步的地方。",
-          })}
-        />
-        <DoDont
-          do={
-            <Button icon={<FloppyDiskIcon weight="bold" />}>
-              {t({ en: "Save draft", zh: "保存草稿" })}
-            </Button>
-          }
-          doCaption={t({
-            en: "The label names what the action does on this page.",
-            zh: "标签写出该操作在当前页面会做什么。",
-          })}
-          dont={<Button>{t({ en: "Back to films", zh: "返回影片" })}</Button>}
-          dontCaption={t({
-            en: "Don't go somewhere from onClick. Without href it renders a <button>, so a destination loses the link role, the new tab and the context menu. Pass href.",
-            zh: "不要在 onClick 里跳转。没有 href 时它渲染的是 <button>，目的地会因此失去链接角色、新标签页与右键菜单。请传入 href。",
-          })}
-        />
-        <DoDont
-          do={
-            <>
-              <Button size="xs" look="outline" isActive>
-                {t({ en: "Now playing", zh: "正在上映" })}
-              </Button>
-              <Button size="xs" look="outline">
-                {t({ en: "Upcoming", zh: "即将上映" })}
-              </Button>
-            </>
-          }
-          doCaption={t({
-            en: "Use a Button when the pill does something, such as filter or select. It takes focus and has a role.",
-            zh: "当胶囊形元素有实际行为时使用按钮，例如筛选或选择。它可获得焦点，并带有明确的角色。",
-          })}
-          dont={
-            <>
-              <Badge intent="accent">
-                {t({ en: "Now playing", zh: "正在上映" })}
-              </Badge>
-              <Badge>{t({ en: "Upcoming", zh: "即将上映" })}</Badge>
-            </>
-          }
-          dontCaption={t({
-            en: "Don't put a click handler on a Badge to fake a filter. A span takes no focus, and a screen reader does not announce it as a control.",
-            zh: "不要给徽章挂上点击事件来伪装筛选器。span 无法获得焦点，读屏软件也不会将其识别为控件。",
-          })}
-        />
-      </GuideSection>
 
       <GuideSection
         title={t({ en: "Choosing a Look", zh: "如何选择外观" })}
@@ -543,42 +409,7 @@ export function ButtonShowcase() {
             },
           ]}
         />
-        <DoDont
-          do={
-            <Button
-              icon={<TrashIcon weight="bold" />}
-              aria-label={t({ en: "Delete", zh: "删除" })}
-            />
-          }
-          doCaption={t({
-            en: "Pass the icon through icon and name an icon-only button with aria-label.",
-            zh: "通过 icon 传入图标，并用 aria-label 为纯图标按钮命名。",
-          })}
-          dont={
-            <Button>
-              <TrashIcon weight="bold" />
-            </Button>
-          }
-          dontCaption={t({
-            en: "Don't put a bare icon in children — the button then ships with no accessible name.",
-            zh: "不要把裸图标直接放进 children——这样按钮会缺少可访问名称。",
-          })}
-        />
       </GuideSection>
     </>
   );
 }
-
-const styles = stylex.create({
-  // Sized and coloured like the real icon-only Button it stands in for.
-  fauxIconOnly: {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    inlineSize: controlSize._9,
-    blockSize: controlSize._9,
-    fontSize: controlSize._4,
-    color: color.fgMuted,
-    backgroundColor: color.bgControl,
-  },
-});

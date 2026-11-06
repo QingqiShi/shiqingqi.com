@@ -2,7 +2,6 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Heading } from "@tuja/ui/components/heading";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -162,27 +161,6 @@ export function HeadingShowcase() {
       </Showcase>
 
       <PropsTable component="heading" />
-
-      <DoDont
-        do={
-          <Heading level={2} look="display">
-            {t({ en: "Featured this week", zh: "本周精选" })}
-          </Heading>
-        }
-        doCaption={t({
-          en: "Keep ranks in document order (h1 → h2 …), then pick any look for the size you want.",
-          zh: "让层级遵循文档顺序（h1 → h2 …），再自由选择所需字号的 look。",
-        })}
-        dont={
-          <Heading level={1} look="h4">
-            {t({ en: "Featured this week", zh: "本周精选" })}
-          </Heading>
-        }
-        dontCaption={t({
-          en: "Don't add a second h1 or pick the level by how big you want the text — set level by rank, look by size.",
-          zh: "不要新增第二个 h1，也不要按想要的字号来选层级——层级按等级定，字号按 look 定。",
-        })}
-      />
     </>
   );
 }

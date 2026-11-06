@@ -2,17 +2,12 @@ import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
-import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { align, flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -38,17 +33,6 @@ const MENU_USAGE = `import { MenuButton } from "@tuja/ui/components/menu-button"
 >
   More
 </MenuButton>`;
-
-/** No Progressive blur: a plate has nothing behind the popup to blur. */
-function SortPopup() {
-  return (
-    <div css={[popoverSurface.base, styles.popupSample]}>
-      <MenuLabel>{t({ en: "Sort by", zh: "排序方式" })}</MenuLabel>
-      <Button look="primary">{t({ en: "Newest", zh: "最新" })}</Button>
-      <Button>{t({ en: "Popular", zh: "热门" })}</Button>
-    </div>
-  );
-}
 
 export function MenuShowcase() {
   return (
@@ -108,35 +92,6 @@ export function MenuShowcase() {
           })}
         </ShowcaseHelper>
       </Showcase>
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={
-            <div css={[stack.tight, styles.guideExample]}>
-              <SortPopup />
-              <code css={[typeRole.caption, corner.radius_1, styles.roleTag]}>
-                {'popupRole="group"'}
-              </code>
-            </div>
-          }
-          doCaption={t({
-            en: 'A popup of toggle buttons is a group — set popupRole="group" so it is not announced as a menuitem list.',
-            zh: '一组切换按钮属于 group——设置 popupRole="group"，避免被宣读为菜单项列表。',
-          })}
-          dont={
-            <div css={[stack.tight, styles.guideExample]}>
-              <SortPopup />
-              <code css={[typeRole.caption, corner.radius_1, styles.roleTag]}>
-                {'popupRole="menu"'}
-              </code>
-            </div>
-          }
-          dontCaption={t({
-            en: 'Don\'t leave the default "menu" role around buttons — the popup promises arrow-key menuitem navigation that has no menuitems to move between.',
-            zh: '不要在按钮周围保留默认的 "menu" 角色——弹层承诺了方向键菜单项导航，却没有可供移动的菜单项。',
-          })}
-        />
-      </Showcase>
     </>
   );
 }
@@ -171,24 +126,5 @@ const styles = stylex.create({
   groupMenu: {
     padding: space._2,
     inlineSize: space._13,
-  },
-  popupSample: {
-    display: "flex",
-    flexDirection: "column",
-    gap: rhythm.tight,
-    padding: space._2,
-    inlineSize: "100%",
-    maxInlineSize: space._13,
-  },
-  guideExample: {
-    alignItems: "flex-start",
-    inlineSize: "100%",
-  },
-  roleTag: {
-    fontFamily: font.familyMono,
-    color: color.fgMuted,
-    backgroundColor: color.bgNeutralSubtle,
-    paddingInline: space._1,
-    paddingBlock: space._00,
   },
 });

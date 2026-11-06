@@ -13,7 +13,6 @@ import {
 } from "@tuja/ui/components/table";
 import { Text } from "@tuja/ui/components/text";
 import { border, space } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { showcaseBleed } from "#src/design-system/showcase-bleed.stylex.ts";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -311,7 +310,6 @@ function ThresholdHistoryTable() {
 }
 
 export function TableShowcase() {
-  const { money } = getFigureFormats();
   const planCaption = t({
     en: "UK student loan repayment plans, 2025/26",
     zh: "英国学生贷款还款计划，2025/26",
@@ -452,67 +450,6 @@ export function TableShowcase() {
       <PropsTable component="table-header-cell" />
 
       <PropsTable component="table-cell" />
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={
-            <Table
-              caption={t({
-                en: "Repayment thresholds",
-                zh: "还款起征点",
-              })}
-              captionVisible
-            >
-              <TableHead>
-                <TableRow>
-                  <TableHeaderCell scope="col">
-                    {t({ en: "Plan", zh: "还款计划" })}
-                  </TableHeaderCell>
-                  <TableHeaderCell scope="col" numeric>
-                    {t({ en: "Threshold", zh: "起征点" })}
-                  </TableHeaderCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <TableRow>
-                  <TableHeaderCell scope="row">
-                    {t({ en: "Plan 2", zh: "计划 2" })}
-                  </TableHeaderCell>
-                  <TableCell numeric>{money.format(28470)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableHeaderCell scope="row">
-                    {t({ en: "Plan 5", zh: "计划 5" })}
-                  </TableHeaderCell>
-                  <TableCell numeric>{money.format(25000)}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          }
-          doCaption={t({
-            en: "Use it for data that is genuinely tabular: a caption naming it, a scope on every header cell, and numeric on the columns of figures.",
-            zh: "用于确实是表格形态的数据：用 caption 为其命名，为每个标题单元格设置 scope，并为数字列设置 numeric。",
-          })}
-          dont={
-            <Table caption={t({ en: "Page layout", zh: "页面布局" })}>
-              <TableBody>
-                <TableRow>
-                  <TableCell>
-                    {t({ en: "Repayment estimate", zh: "还款估算" })}
-                  </TableCell>
-                  <TableCell align="end">
-                    {t({ en: "Start", zh: "开始" })}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          }
-          dontCaption={t({
-            en: "Don't lay a page out with a table, and don't reach for one when you need sorting, selection, virtualisation or column resizing — those are a data grid, a different component. This one is deliberately static.",
-            zh: "不要用表格来排布页面，也不要在需要排序、选择、虚拟滚动或列宽调整时使用它——那些属于数据网格，是另一个组件。本组件是刻意保持静态的。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }

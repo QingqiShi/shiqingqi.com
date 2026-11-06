@@ -1,7 +1,5 @@
 import { t } from "@tuja/i18n";
 import { Select } from "@tuja/ui/components/select";
-import { fill } from "@tuja/ui/primitives/layout.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
@@ -133,38 +131,6 @@ export function SelectShowcase() {
       </Showcase>
 
       <PropsTable component="select" />
-
-      <DoDont
-        do={
-          <div css={fill.inline}>
-            <Select
-              label={t({ en: "Sort by", zh: "排序方式" })}
-              placeholder={t({ en: "Choose an order", zh: "选择排序" })}
-              options={sortOptions}
-            />
-          </div>
-        }
-        doCaption={t({
-          en: "Use a placeholder when there's no sensible default, forcing an explicit choice.",
-          zh: "当没有合理默认值时使用占位符，促使用户做出明确选择。",
-        })}
-        dont={
-          <div css={fill.inline}>
-            <Select
-              label={t({ en: "Notifications", zh: "通知" })}
-              options={[
-                { value: "on", label: t({ en: "On", zh: "开启" }) },
-                { value: "off", label: t({ en: "Off", zh: "关闭" }) },
-              ]}
-              defaultValue="on"
-            />
-          </div>
-        }
-        dontCaption={t({
-          en: "Don't use a Select for a simple two-state toggle — reach for a Switch or Checkbox.",
-          zh: "不要用下拉选择表示简单的两态开关——请改用 Switch 或复选框。",
-        })}
-      />
     </>
   );
 }

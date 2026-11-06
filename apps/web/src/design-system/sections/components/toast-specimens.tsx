@@ -124,18 +124,6 @@ export function WrappingToastSpecimen() {
   );
 }
 
-/** The anti-pattern for the guidelines: an error a toast takes away. */
-export function ErrorToastSpecimen() {
-  return (
-    <Toast
-      message={t({
-        en: "Payment failed. Update your card to keep your plan.",
-        zh: "付款失败。更新银行卡即可保留套餐。",
-      })}
-    />
-  );
-}
-
 const styles = stylex.create({
   demo: {
     inlineSize: "100%",

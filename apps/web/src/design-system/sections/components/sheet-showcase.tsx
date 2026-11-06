@@ -1,11 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
-import { Text } from "@tuja/ui/components/text";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
+import { space } from "@tuja/ui/tokens.stylex";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -51,40 +46,6 @@ export function SheetShowcase() {
       </Showcase>
 
       <PropsTable component="sheet" />
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={
-            <div css={[corner.radius_3, styles.dialogSample]}>
-              <span css={[typeRole.body, styles.dialogClose]} aria-hidden>
-                {"×"}
-              </span>
-              <Text as="span" look="bodySmall" weight="semibold">
-                {t({ en: "Archive this list?", zh: "归档这个清单？" })}
-              </Text>
-              <div css={[corner.radius_1, styles.dialogBar]} />
-              <div css={[corner.radius_1, styles.dialogBarShort]} />
-            </div>
-          }
-          doCaption={t({
-            en: "Always name the dialog with aria-label or aria-labelledby so it's announced on open.",
-            zh: "始终用 aria-label 或 aria-labelledby 为对话框命名，以便打开时被宣读。",
-          })}
-          dont={
-            <div css={[corner.radius_3, styles.dialogSample]}>
-              <span css={[typeRole.body, styles.dialogClose]} aria-hidden>
-                {"×"}
-              </span>
-              <div css={[corner.radius_1, styles.dialogBar]} />
-              <div css={[corner.radius_1, styles.dialogBarShort]} />
-            </div>
-          }
-          dontCaption={t({
-            en: "Don't rely on the close button alone — an unnamed dialog gives screen-reader users no context.",
-            zh: "不要只依赖关闭按钮——未命名的对话框无法为屏幕阅读器用户提供上下文。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }
@@ -96,37 +57,5 @@ const styles = stylex.create({
     inlineSize: space._13,
     maxInlineSize: "100%",
     blockSize: space._14,
-  },
-  // No `alignItems`: the specimen takes the full width so its code panel does
-  // too.
-  dialogSample: {
-    position: "relative",
-    display: "flex",
-    flexDirection: "column",
-    gap: rhythm.tight,
-    inlineSize: "100%",
-    padding: space._3,
-    paddingInlineEnd: space._6,
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.border,
-    backgroundColor: color.bgSurface,
-  },
-  dialogClose: {
-    position: "absolute",
-    insetBlockStart: space._2,
-    insetInlineEnd: space._2,
-    color: color.fgMuted,
-    lineHeight: font.lineHeight_0,
-  },
-  dialogBar: {
-    blockSize: space._1,
-    inlineSize: "100%",
-    backgroundColor: color.bgNeutralSubtle,
-  },
-  dialogBarShort: {
-    blockSize: space._1,
-    inlineSize: "60%",
-    backgroundColor: color.bgNeutralSubtle,
   },
 });

@@ -3,7 +3,6 @@ import { ListIcon } from "@phosphor-icons/react/dist/ssr/List";
 import { RowsIcon } from "@phosphor-icons/react/dist/ssr/Rows";
 import { t } from "@tuja/i18n";
 import { Text } from "@tuja/ui/components/text";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
@@ -179,36 +178,6 @@ import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";`}
       </Showcase>
 
       <PropsTable component="segmented-control" />
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={<ViewControl options={viewOptions} />}
-          doCaption={t({
-            en: "Two to four mutually exclusive views of the same content, all readable at a glance.",
-            zh: "同一内容的二至四种互斥视图，一眼即可全部读完。",
-          })}
-          dont={
-            <ViewControl
-              options={[
-                { value: "grid", label: t({ en: "Grid", zh: "网格" }) },
-                { value: "list", label: t({ en: "List", zh: "列表" }) },
-                { value: "compact", label: t({ en: "Compact", zh: "紧凑" }) },
-                { value: "table", label: t({ en: "Table", zh: "表格" }) },
-                { value: "gallery", label: t({ en: "Gallery", zh: "画廊" }) },
-                {
-                  value: "timeline",
-                  label: t({ en: "Timeline", zh: "时间线" }),
-                },
-                { value: "map", label: t({ en: "Map", zh: "地图" }) },
-              ]}
-            />
-          }
-          dontCaption={t({
-            en: "Don't keep adding segments — past four the labels crush, the track outgrows small screens, and the set belongs in a Select.",
-            zh: "不要不断增加分段——超过四个后标签会被挤压，轨道在小屏幕上放不下，这样的选项集应改用下拉选择。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }

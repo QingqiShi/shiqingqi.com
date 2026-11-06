@@ -1,13 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Divider } from "@tuja/ui/components/divider";
 import { Text } from "@tuja/ui/components/text";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { border, controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
+import { controlSize, rhythm } from "@tuja/ui/tokens.stylex";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
@@ -130,44 +127,6 @@ export function DividerShowcase() {
       </Showcase>
 
       <PropsTable component="divider" />
-
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <DoDont
-          do={
-            <div css={[stack.item, styles.fullWidth]}>
-              <Text look="bodySmall" tone="muted">
-                {t({ en: "Overview", zh: "概览" })}
-              </Text>
-              <Divider look="subtle" />
-              <Text look="bodySmall" tone="muted">
-                {t({ en: "Cast & crew", zh: "演职人员" })}
-              </Text>
-            </div>
-          }
-          doCaption={t({
-            en: "Separate related content with a subtle rule; save bold or decorative for real transitions.",
-            zh: "用柔和分隔线分隔相关内容；强烈或装饰样式留给真正的段落转换。",
-          })}
-          dont={
-            <div css={[corner.radius_3, styles.dontCard]}>
-              <Divider
-                orientation="vertical"
-                look="decorative"
-                css={[corner.radius_1, styles.dontBar]}
-              />
-              <div css={[flex.col, styles.dontCardBody]}>
-                <Text look="bodySmall" tone="muted">
-                  {t({ en: "Action", zh: "动作" })}
-                </Text>
-              </div>
-            </div>
-          }
-          dontCaption={t({
-            en: "Don't run a vertical decorative divider down a card's leading edge as a category accent.",
-            zh: "不要在卡片前缘用垂直装饰分隔线作为分类色条。",
-          })}
-        />
-      </Showcase>
     </>
   );
 }
@@ -187,23 +146,5 @@ const styles = stylex.create({
     blockSize: "3px",
     borderRadius: "2px",
     cornerShape: "squircle",
-  },
-  dontCard: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "stretch",
-    gap: rhythm.tight,
-    padding: space._3,
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.border,
-    backgroundColor: color.bgSurface,
-    minBlockSize: space._9,
-  },
-  dontCardBody: {
-    justifyContent: "center",
-  },
-  dontBar: {
-    inlineSize: "4px",
   },
 });

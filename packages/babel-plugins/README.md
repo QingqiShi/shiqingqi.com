@@ -83,7 +83,7 @@ module.exports = {
 For a `<Specimen>` or an `<Example>`, from its children:
 
 1. The children, printed from the original text.
-2. Documentation chrome dropped: `ApiGrid`, `DoDont`, `Example`, `GuideNote`,
+2. Documentation chrome dropped: `ApiGrid`, `Example`, `GuideNote`,
    `PropsTable`, `ShowcaseHelper`, `UsageSnippet`.
 3. `t({ en: "Primary", zh: "主要" })` unwrapped to the English it stands for —
    `Primary` as a JSX child, `"Primary"` anywhere else. In an `<Example>`, the
