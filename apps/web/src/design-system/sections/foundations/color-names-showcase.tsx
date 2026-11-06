@@ -1,6 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
@@ -10,36 +12,10 @@ import {
 
 export function ColorNamesShowcase() {
   const parts = [
-    {
-      part: "bg",
-      span: placement.bg,
-      slot: t({ en: "Paints", zh: "绘制" }),
-      others: t({ en: "or fg, border", zh: "或 fg、border" }),
-    },
-    {
-      part: "Control",
-      span: placement.control,
-      slot: t({ en: "Element", zh: "元素" }),
-      others: t({
-        en: "or Canvas, Surface, an Intent",
-        zh: "或 Canvas、Surface、意图色",
-      }),
-    },
-    {
-      part: "Strong",
-      span: placement.strong,
-      slot: t({ en: "Variant, if any", zh: "变体，可省" }),
-      others: t({ en: "or Subtle, Sunken", zh: "或 Subtle、Sunken" }),
-    },
-    {
-      part: "Selected",
-      span: placement.selected,
-      slot: t({ en: "State, if any", zh: "状态，可省" }),
-      others: t({
-        en: "or Hover, Pressed, Disabled",
-        zh: "或 Hover、Pressed、Disabled",
-      }),
-    },
+    { part: "bg", slot: t({ en: "Paints", zh: "绘制" }) },
+    { part: "Control", slot: t({ en: "Element", zh: "元素" }) },
+    { part: "Strong", slot: t({ en: "Variant, if any", zh: "变体，可省" }) },
+    { part: "Selected", slot: t({ en: "State, if any", zh: "状态，可省" }) },
   ];
 
   return (
@@ -49,20 +25,20 @@ export function ColorNamesShowcase() {
         zh: "说出元素，令牌随之而定。",
       })}
       lead={t({
-        en: "Every colour token in @tuja/ui/color.stylex reads in one order: what it paints, the element, then any variant and state. Each holds a light and a dark value, so one style paints both themes.",
-        zh: "@tuja/ui/color.stylex 中的每个颜色令牌都按同一顺序命名：绘制什么、什么元素，再加上变体与状态。每个令牌都同时含有浅色与深色值，因此一份样式即可绘制两种主题。",
+        en: "Every colour token in @tuja/ui/color.stylex reads in one order: what it paints (bg, fg, border), the element (Canvas, Surface, Control, an Intent), then any variant and state. Each holds a light and a dark value, so one style paints both themes.",
+        zh: "@tuja/ui/color.stylex 中的每个颜色令牌都按同一顺序命名：绘制什么（bg、fg、border）、什么元素（Canvas、Surface、Control、意图色），再加上变体与状态。每个令牌都同时含有浅色与深色值，因此一份样式即可绘制两种主题。",
       })}
     >
-      <div css={styles.container}>
+      <figure css={[cardSurface.base, styles.card]}>
         <ol
           css={styles.parts}
           aria-label={parts.map(({ part }) => part).join("")}
         >
-          {parts.map(({ part, span, slot, others }, index) => {
+          {parts.map(({ part, slot }, index) => {
             const isAbove = index % 2 === 0;
             return (
-              <li key={part} css={[styles.part, span]}>
-                <span css={[typeRole.fluidH1, styles.word]}>{part}</span>
+              <li key={part} css={styles.part}>
+                <span css={styles.word}>{part}</span>
                 <span
                   aria-hidden
                   css={[
@@ -76,16 +52,13 @@ export function ColorNamesShowcase() {
                     isAbove ? styles.labelAbove : styles.labelBelow,
                   ]}
                 >
-                  <span css={[typeRole.bodySmall, styles.slot]}>{slot}</span>
-                  <span css={[typeRole.bodySmall, styles.others]}>
-                    {others}
-                  </span>
+                  <span css={[typeRole.label, styles.slot]}>{slot}</span>
                 </span>
               </li>
             );
           })}
         </ol>
-      </div>
+      </figure>
       <GuideNote>
         {t({
           en: "Text on a filled element takes fgOn and that element, such as fgOnControlStrong, not fg.",
@@ -103,77 +76,74 @@ export function ColorNamesShowcase() {
 }
 
 const styles = stylex.create({
-  container: {
+  card: {
     containerType: "inline-size",
+    margin: 0,
+    paddingBlock: { default: space._8, [breakpoints.md]: space._9 },
+    paddingInline: space._5,
   },
   parts: {
     display: "grid",
-    gridTemplateColumns: "repeat(4, max-content) minmax(0, 1fr)",
+    gridTemplateColumns: "repeat(4, max-content)",
     gridTemplateRows: "repeat(5, auto)",
+    justifyContent: "center",
     margin: 0,
     padding: 0,
     listStyle: "none",
   },
   part: {
     display: "grid",
-    gridTemplateColumns: "subgrid",
     gridTemplateRows: "subgrid",
     gridRow: "1 / -1",
   },
   word: {
-    gridColumn: "1",
     gridRow: "3",
     fontFamily: font.familyMono,
-    fontSize: "min(2.5rem, 7cqi)",
+    fontSize: "min(1.5rem, 7cqi)",
+    fontWeight: font.weight_4,
+    lineHeight: font.lineHeight_3,
     color: color.fg,
     whiteSpace: "nowrap",
   },
   bracket: {
-    gridColumn: "1",
     blockSize: space._1,
+    marginInline: rhythm.inline,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.fgMuted,
+    borderColor: color.fg,
   },
   bracketAbove: {
     gridRow: "2",
-    marginBlockEnd: rhythm.tight,
+    marginBlockEnd: rhythm.inline,
     borderBlockEndWidth: 0,
   },
   bracketBelow: {
     gridRow: "4",
-    marginBlockStart: rhythm.tight,
+    marginBlockStart: rhythm.inline,
     borderBlockStartWidth: 0,
   },
   label: {
     display: "flex",
-    flexDirection: "column",
-    gridColumn: "1 / -1",
-    contain: "inline-size",
-    paddingInlineEnd: rhythm.item,
+    justifyContent: "center",
+    inlineSize: 0,
+    minInlineSize: "100%",
   },
   labelAbove: {
     gridRow: "1",
-    alignSelf: "end",
+    alignItems: "flex-end",
     paddingBlockEnd: rhythm.tight,
   },
   labelBelow: {
     gridRow: "5",
+    alignItems: "flex-start",
     paddingBlockStart: rhythm.tight,
   },
   slot: {
-    fontWeight: font.weight_6,
+    flexShrink: 0,
+    maxInlineSize: "max(100%, 6em)",
+    fontWeight: font.weight_5,
     color: color.fg,
+    textAlign: "center",
+    textWrap: "balance",
   },
-  others: {
-    wordBreak: "keep-all",
-    color: color.fgMuted,
-  },
-});
-
-const placement = stylex.create({
-  bg: { gridColumn: "1 / 3" },
-  control: { gridColumn: "2 / 4" },
-  strong: { gridColumn: "3 / -1" },
-  selected: { gridColumn: "4 / -1" },
 });
