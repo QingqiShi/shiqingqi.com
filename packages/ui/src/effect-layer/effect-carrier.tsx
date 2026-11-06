@@ -36,7 +36,7 @@ export interface EffectCarrierProps {
    * this Effect carrier, also when its element is portalled out, until an
    * `EffectCarrier` inside declares another.
    *
-   * @zh 内容。其中任意层级的效果 hook 都在这个效果载体上绘制效果，即使它的元素被传送到外面；直到内部的另一个 `EffectCarrier` 声明别的载体为止。
+   * @zh 内容。其中任意层级的效果 Hook 都在这个效果载体上绘制效果，即使它的元素被传送到外面；直到内部的另一个 `EffectCarrier` 声明别的载体为止。
    */
   children: ReactNode;
 }

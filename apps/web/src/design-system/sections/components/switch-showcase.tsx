@@ -107,7 +107,7 @@ export function SwitchShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: 'By default the thumb is plain and solid at rest. While a pointer is over the switch, a light lands on its top edge and leans towards the pointer. When it is pressed or toggled, it melts into water, pours across the track, flows on for a moment after it arrives and sets solid again, as the effect prop below describes. effect="none" keeps the plain thumb and track, and so does a switch without an EffectLayerProvider or WebGPU.',
-            zh: '默认情况下，滑块在静止时是普通的实心块。指针停在开关上时，光落在它的上缘，并偏向指针。按下或切换时，它融化成水并涌过轨道，到位后继续流动片刻，再重新凝固，详见下方的 effect 属性。设置 effect="none" 会保留普通的滑块与轨道；没有 EffectLayerProvider 或 WebGPU 时也是如此。',
+            zh: '默认情况下，滑块在静止时是普通的实心块。指针停在开关上时，光落在它的上缘，并偏向指针。按下或切换时，它融化成水并涌过轨道，到位后继续流动片刻，再重新凝固，详见下方的 effect prop。设置 effect="none" 会保留普通的滑块与轨道；没有 EffectLayerProvider 或 WebGPU 时也是如此。',
           })}
         </Text>
         <SpecimenGrid>

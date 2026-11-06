@@ -20,7 +20,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     path: "/design-system/foundations/customization",
     description: t({
       en: "Three ways to change a @tuja/ui component, from a prop to your own element, in the order to try them.",
-      zh: "改变 @tuja/ui 组件的三种方式，从一个属性到你自己的元素，按应当尝试的顺序排列。",
+      zh: "改变 @tuja/ui 组件的三种方式，从一个 prop 到你自己的元素，按应当尝试的顺序排列。",
     }),
   });
 }
@@ -31,14 +31,14 @@ export default function CustomizationPage() {
       path="/design-system/foundations/customization"
       description={t({
         en: "Three ways to change a component: its props, your styles, or your own element. Each leaves more of the work to you, so stop at the first one that does the job.",
-        zh: "改变组件有三种方式：它的属性、你的样式，或你自己的元素。每一种都比上一种留给你更多的工作，所以用第一种能完成任务的方式即可。",
+        zh: "改变组件有三种方式：它的 prop、你的样式，或你自己的元素。每一种都比上一种留给你更多的工作，所以用第一种能完成任务的方式即可。",
       })}
     >
       <GuideSection
-        title={t({ en: "Start with props.", zh: "先从属性开始。" })}
+        title={t({ en: "Start with props.", zh: "先从 prop 开始。" })}
         lead={t({
           en: "Props choose a size or a look, or put your content in a fixed place, such as trailing. The component keeps the styles, the ARIA and the keyboard.",
-          zh: "属性可以选择尺寸或外观，也可以把你的内容放在固定的位置，例如 trailing。样式、ARIA 与键盘操作依然由组件负责。",
+          zh: "prop 可以选择尺寸或外观，也可以把你的内容放在固定的位置，例如 trailing。样式、ARIA 与键盘操作依然由组件负责。",
         })}
       >
         <CustomizationContentExample />
@@ -113,7 +113,7 @@ export default function CustomizationPage() {
         <GuideNote>
           {t({
             en: "For the behaviour, a hook brings state, ARIA and keyboard. Every hook is on ",
-            zh: "行为交给钩子，它提供状态、ARIA 与键盘操作。全部钩子都在",
+            zh: "行为交给 Hook，它提供状态、ARIA 与键盘操作。全部 Hook 都在",
           })}
           <DocLink path="/design-system/hooks" />
           {t({ en: ".", zh: "页面。" })}

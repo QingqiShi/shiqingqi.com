@@ -149,7 +149,7 @@ export function SegmentedControlShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: 'By default the indicator is plain and solid at rest. While a pointer is over the control, a light lands on its top edge and leans towards the pointer. When you select a segment, by pointer or by arrow key, it melts into water, pours there, flows on for a moment after it arrives and sets solid again, as the effect prop below describes. The labels stay over it. effect="none" keeps the plain Glass indicator, and so does a control without an EffectLayerProvider or WebGPU.',
-            zh: '默认情况下，指示块在静止时是普通的实心块。指针停在控件上时，光落在它的上缘，并偏向指针。你用指针或方向键选择分段时，它会融化成水并涌向该分段，到位后继续流动片刻，再重新凝固，详见下方的 effect 属性。标签始终位于其上。设置 effect="none" 会保留普通的玻璃指示块；没有 EffectLayerProvider 或 WebGPU 时也是如此。',
+            zh: '默认情况下，指示块在静止时是普通的实心块。指针停在控件上时，光落在它的上缘，并偏向指针。你用指针或方向键选择分段时，它会融化成水并涌向该分段，到位后继续流动片刻，再重新凝固，详见下方的 effect prop。标签始终位于其上。设置 effect="none" 会保留普通的玻璃指示块；没有 EffectLayerProvider 或 WebGPU 时也是如此。',
           })}
         </Text>
       </Showcase>

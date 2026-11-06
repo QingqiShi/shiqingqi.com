@@ -54,7 +54,7 @@ export function GetStartedLayers() {
           {labCount}
           {t({
             en: " of them have a Lab, where you change props live.",
-            zh: " 个有实验室，可以实时改动属性。",
+            zh: " 个有实验室，可以实时改动 prop。",
           })}
         </>
       ),
@@ -64,7 +64,7 @@ export function GetStartedLayers() {
       section: "buildingBlocks",
       what: t({
         en: "Primitives, hooks, and the WebGPU effect layer.",
-        zh: "原语、钩子与 WebGPU 效果层。",
+        zh: "原语、Hook 与 WebGPU 效果层。",
       }),
       paths: ["@tuja/ui/primitives/stack.stylex", "@tuja/ui/hooks/use-ripple"],
     },

@@ -146,7 +146,7 @@ type TabViewProps = TabViewBaseProps &
          * With a plain `<a>`, pass `null`: the current item then follows `items`,
          * no skeleton shows, and an item has none.
          *
-         * @zh 视图渲染在每个目标页链接内部的组件，让路由器的 hook 能读取该链接的导航是否处于 pending 状态。使用原生 `<a>` 时请传入 `null`：此时当前项跟随 `items`，不显示骨架屏，各项也不带骨架屏。
+         * @zh 视图渲染在每个目标页链接内部的组件，让路由器的 Hook 能读取该链接的导航是否处于 pending 状态。使用原生 `<a>` 时请传入 `null`：此时当前项跟随 `items`，不显示骨架屏，各项也不带骨架屏。
          */
         linkStatus: ComponentType<TabLinkStatusProps>;
         /**

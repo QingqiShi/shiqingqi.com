@@ -30,7 +30,7 @@ export function EffectContainerShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Attach the ref from useEffectContainer to an element and wrap its content in EffectContainer, and the effects inside act only on each other. Each effect hook belongs to the nearest EffectContainer above it in the React tree, or else to the page. Dust in a card goes only to the Extractor fans in that card, and a fan on the page cannot reach in. Nothing crosses the edge in either direction.",
-            zh: "把 useEffectContainer 返回的 ref 挂到一个元素上，再用 EffectContainer 包住它的内容，里面的效果就只会彼此作用。每个效果 hook 都属于 React 树中在它之上最近的 EffectContainer，没有时则属于页面。卡片里的灰尘只会被同一张卡片里的抽风机吸走，页面上的抽风机也伸不进来。任何东西都不会从任一方向越过边缘。",
+            zh: "把 useEffectContainer 返回的 ref 挂到一个元素上，再用 EffectContainer 包住它的内容，里面的效果就只会彼此作用。每个效果 Hook 都属于 React 树中在它之上最近的 EffectContainer，没有时则属于页面。卡片里的灰尘只会被同一张卡片里的抽风机吸走，页面上的抽风机也伸不进来。任何东西都不会从任一方向越过边缘。",
           })}
         </Text>
         <Text look="bodySmall" tone="muted">

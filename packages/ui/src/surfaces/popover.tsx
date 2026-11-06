@@ -23,7 +23,7 @@ interface PopoverBaseProps {
    * the anchor ref, open state, and ARIA. A callback, not a node, since
    * cloning can't type an injected ref and `aria-*` without `any`.
    *
-   * @zh 渲染打开浮层的元素。把传入的属性展开到该元素上——它们带着锚点 ref、打开状态和 ARIA 连线。
+   * @zh 渲染打开浮层的元素。把传入的 props 展开到该元素上——它们带着锚点 ref、打开状态和 ARIA 连线。
    */
   trigger: (props: PopoverTriggerProps) => ReactNode;
   /**

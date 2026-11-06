@@ -9,14 +9,14 @@ export interface EffectContainerProps {
    * The ref from `useEffectContainer`, attached to the container element.
    * The effect hooks inside take the scope it holds.
    *
-   * @zh `useEffectContainer` 返回的 ref，挂在容器元素上。里面的效果 hook 会进入它所持有的作用域。
+   * @zh `useEffectContainer` 返回的 ref，挂在容器元素上。里面的效果 Hook 会进入它所持有的作用域。
    */
   value: EffectContainerRef;
   /**
    * The content of the container. Each effect hook in it, at any depth, is
    * in the container's scope, also when its element is portalled out.
    *
-   * @zh 容器的内容。其中任意层级的效果 hook 都属于该容器的作用域，即使它的元素被传送到容器之外。
+   * @zh 容器的内容。其中任意层级的效果 Hook 都属于该容器的作用域，即使它的元素被传送到容器之外。
    */
   children: ReactNode;
 }

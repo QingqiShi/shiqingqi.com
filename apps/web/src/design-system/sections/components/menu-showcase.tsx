@@ -88,7 +88,7 @@ export function MenuShowcase() {
         <ShowcaseHelper>
           {t({
             en: 'Two conventions live inside menuContent rather than on a prop: caption a group of controls with MenuLabel, and mark one role="menuitem" child with data-menu-autofocus="true" to choose where focus lands when a menu opens.',
-            zh: 'menuContent 内部有两项约定，而非通过属性表达：用 MenuLabel 为一组控件添加标题；给某个 role="menuitem" 子元素标上 data-menu-autofocus="true"，以决定菜单打开时焦点落在哪里。',
+            zh: 'menuContent 内部有两项约定，而非通过 prop 表达：用 MenuLabel 为一组控件添加标题；给某个 role="menuitem" 子元素标上 data-menu-autofocus="true"，以决定菜单打开时焦点落在哪里。',
           })}
         </ShowcaseHelper>
       </Showcase>

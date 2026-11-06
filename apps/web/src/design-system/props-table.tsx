@@ -57,7 +57,7 @@ export function PropsTable({ component }: PropsTableProps) {
   const requiredLabel = t({ en: "Required", zh: "必填" });
   const deprecatedLabel = t({ en: "Deprecated", zh: "已弃用" });
   const title = `${doc.component} ${
-    isHook ? t({ en: "options", zh: "选项" }) : t({ en: "props", zh: "属性" })
+    isHook ? t({ en: "options", zh: "选项" }) : t({ en: "props", zh: "props" })
   }`;
 
   return (
@@ -78,7 +78,7 @@ export function PropsTable({ component }: PropsTableProps) {
                 >
                   {isHook
                     ? t({ en: "Option", zh: "选项" })
-                    : t({ en: "Prop", zh: "属性" })}
+                    : t({ en: "Prop", zh: "Prop" })}
                 </TableHeaderCell>
                 <TableHeaderCell
                   scope="col"

@@ -115,7 +115,7 @@ function PlacementSpecimen() {
   });
   const detail = t({
     en: "Scroll until the trigger nears the top edge and the side flips to bottom. Expand or collapse this panel and the placement runs again — the hook watches the popup's own size as well as the trigger's.",
-    zh: "向下滚动，触发元素接近顶边时它会翻到下方。展开或收起这块面板，定位也会重新计算——钩子既观察触发元素的尺寸，也观察弹出层自身的尺寸。",
+    zh: "向下滚动，触发元素接近顶边时它会翻到下方。展开或收起这块面板，定位也会重新计算——Hook 既观察触发元素的尺寸，也观察弹出层自身的尺寸。",
   });
   return (
     <div css={[stack.item, styles.alignStart]}>
@@ -171,7 +171,7 @@ export function UsePopoverSection() {
       <ShowcaseHelper>
         {t({
           en: "The headless layer beneath `Popover`, which is this hook plus a portal and the shared surface skin: it owns the open state, the placement, the dismissal rules, and the ARIA wiring, then hands back `triggerProps` and `contentProps` to spread onto your own elements. Placement is measured against the viewport rather than the trigger's corner — the side flips when it would overflow, both axes shift to stay on screen, and it re-places on scroll, on window resize, and whenever the trigger or the popup itself changes size. It moves focus into the popup on open and gives it back to the trigger on close, but it never traps focus and never locks scroll. Reach for it when the popup has to be something other than a padded surface — the element is yours to render, and it must be `position: fixed`, because the hook writes `top`/`left` straight to the node.",
-          zh: "`Popover` 之下的无头层——`Popover` 就是这个钩子加上 portal 与共享的表面皮肤：它负责开合状态、定位、关闭时机与 ARIA 关联，再把 `triggerProps` 与 `contentProps` 交还给你，由你铺到自己的元素上。定位以视口为准，而非贴着触发元素的角落——放不下时会翻到对侧，两个轴向都会平移以留在屏幕内，并在滚动、窗口尺寸变化，以及触发元素或弹出层自身尺寸变化时重新定位。打开时它把焦点移入弹出层，关闭时再交还给触发元素，但它既不困陷焦点，也不锁定滚动。当弹出层需要的不是一块带内边距的表面时就用它——元素由你渲染，并且必须是 `position: fixed`，因为钩子会把 `top`/`left` 直接写到节点上。",
+          zh: "`Popover` 之下的无头层——`Popover` 就是这个 Hook 加上 portal 与共享的表面皮肤：它负责开合状态、定位、关闭时机与 ARIA 关联，再把 `triggerProps` 与 `contentProps` 交还给你，由你铺到自己的元素上。定位以视口为准，而非贴着触发元素的角落——放不下时会翻到对侧，两个轴向都会平移以留在屏幕内，并在滚动、窗口尺寸变化，以及触发元素或弹出层自身尺寸变化时重新定位。打开时它把焦点移入弹出层，关闭时再交还给触发元素，但它既不困陷焦点，也不锁定滚动。当弹出层需要的不是一块带内边距的表面时就用它——元素由你渲染，并且必须是 `position: fixed`，因为 Hook 会把 `top`/`left` 直接写到节点上。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={hooksSpecimen.tracks}>

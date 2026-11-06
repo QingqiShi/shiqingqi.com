@@ -24,7 +24,7 @@ export default function IconographyPage() {
       path="/design-system/foundations/iconography"
       description={t({
         en: "@tuja/ui draws its icons with Phosphor and takes yours through icon slots: props such as a Button's icon.",
-        zh: "@tuja/ui 用 Phosphor 绘制图标，并通过图标插槽接收你的图标，插槽就是 Button 的 icon 这类属性。",
+        zh: "@tuja/ui 用 Phosphor 绘制图标，并通过图标插槽接收你的图标，插槽就是 Button 的 icon 这类 prop。",
       })}
     >
       <IconographyShowcase />

@@ -79,7 +79,7 @@ export function LabBarMenu({
           tone="muted"
           css={typeRole.overline}
         >
-          {t({ en: "Props", zh: "属性" })}
+          {t({ en: "Props", zh: "Props" })}
         </Text>
         <div css={stack.rows}>
           {controls.map((control) => (

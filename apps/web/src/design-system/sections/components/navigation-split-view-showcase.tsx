@@ -66,7 +66,7 @@ export function NavigationSplitViewShowcase() {
         <GuideNote>
           {t({
             en: 'The prop is stacked, with "drawer", "page" or "hidden". With "drawer", the page scrolls the content.',
-            zh: '对应的属性是 stacked，取值为 "drawer"、"page" 或 "hidden"。取 "drawer" 时，由页面滚动内容。',
+            zh: '对应的 prop 是 stacked，取值为 "drawer"、"page" 或 "hidden"。取 "drawer" 时，由页面滚动内容。',
           })}
         </GuideNote>
         <GuideNote>
