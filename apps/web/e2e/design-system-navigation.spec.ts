@@ -61,7 +61,7 @@ test.describe("on a phone", () => {
 
     await menu.click();
     await expect(drawer).toBeVisible();
-    await expect(drawer.getByRole("link", { name: "Home" })).toBeVisible();
+    await expect(drawer.getByRole("link", { name: "Home" })).toBeInViewport();
     await waitForMotionToSettle(page);
     await page.keyboard.press("Escape");
     await expect(drawer).toBeHidden();

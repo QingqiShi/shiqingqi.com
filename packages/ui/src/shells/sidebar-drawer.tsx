@@ -315,7 +315,9 @@ const styles = stylex.create({
   drawerOnPage: {
     position: { default: "fixed", [BESIDE]: "sticky" },
     insetBlockStart: { default: 0, [BESIDE]: islandTokens.insetBlockStart },
-    alignSelf: "flex-start",
+    // Only beside the content. On the fixed drawer, the start alignment would
+    // size it to its content, not the screen, so its nav could not scroll.
+    alignSelf: { default: null, [BESIDE]: "flex-start" },
     blockSize: {
       default: null,
       [BESIDE]: `calc(100dvh - ${islandTokens.insetBlockStart} - ${islandTokens.insetBlockEnd})`,
