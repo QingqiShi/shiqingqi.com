@@ -61,6 +61,7 @@ export function resolveLabModel<P>(
                 label: sample.label[locale],
               }))
             : undefined,
+        range: "range" in spec ? spec.range : undefined,
       };
     }),
   };

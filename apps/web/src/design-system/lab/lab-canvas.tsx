@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { useMediaQuery } from "@tuja/ui/hooks/use-media-query";
 import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -148,9 +149,10 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
             </div>
           </ViewTransition>
         </div>
-        <div css={styles.snippet}>
+        {/* A Specimen can contain a Disclosure. When it opens, the snippet moves. */}
+        <FlowBlock css={styles.snippet}>
           <LabSnippet snippet={snippet} />
-        </div>
+        </FlowBlock>
       </div>
       <LabControls
         variants={model.variants}

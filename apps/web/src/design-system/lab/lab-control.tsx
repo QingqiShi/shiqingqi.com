@@ -32,7 +32,7 @@ const OMITTED = "";
  * however they like without the control losing its name.
  */
 export function LabControl({ control, props, onChange }: LabControlProps) {
-  const { name, kind, members, defaultValue, samples } = control;
+  const { name, kind, members, defaultValue, samples, range } = control;
   const raw = props[name];
 
   if (samples !== undefined) {
@@ -55,18 +55,28 @@ export function LabControl({ control, props, onChange }: LabControlProps) {
   }
 
   if (kind === "enum") {
+    // The value of an option is a string. Thus a number member goes in the
+    // option as text, and changes back to the number when the visitor selects it.
+    const memberByValue = new Map(
+      (members ?? []).map((member) => [String(member), member]),
+    );
     // A prop with no default is omitted until the visitor picks a value, so
     // the list needs an option that means exactly that.
     const options = [
       ...(defaultValue === undefined
         ? [{ value: OMITTED, label: t({ en: "Default", zh: "默认" }) }]
         : []),
-      ...(members ?? []).map((member) => ({ value: member, label: member })),
+      ...[...memberByValue.keys()].map((member) => ({
+        value: member,
+        label: member,
+      })),
     ];
     const value =
-      typeof raw === "string" ? raw : (unquote(defaultValue) ?? OMITTED);
+      typeof raw === "string" || typeof raw === "number"
+        ? String(raw)
+        : (unquote(defaultValue) ?? OMITTED);
     const select = (next: string) => {
-      onChange(next === OMITTED ? undefined : next);
+      onChange(memberByValue.get(next));
     };
     if (options.length <= MAX_SEGMENTS) {
       return (
@@ -108,14 +118,20 @@ export function LabControl({ control, props, onChange }: LabControlProps) {
   }
 
   if (kind === "number") {
+    const isOmitted = typeof raw !== "number" && defaultValue === undefined;
     const value =
-      typeof raw === "number" ? raw : Number(unquote(defaultValue) ?? 0);
+      typeof raw === "number"
+        ? raw
+        : Number(unquote(defaultValue) ?? range?.min ?? 0);
     return (
       <Slider
         size="sm"
         label={name}
         labelHidden
-        readout={value}
+        min={range?.min}
+        max={range?.max}
+        step={range?.step}
+        readout={isOmitted ? t({ en: "Default", zh: "默认" }) : value}
         value={value}
         onChange={(next) => {
           onChange(next, true);
