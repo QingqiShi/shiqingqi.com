@@ -30,8 +30,6 @@ The pages are in `apps/web/src/app/[locale]/design-system/foundations/`. Many of
 
 Before you say that a component follows or breaks a principle, read that principle on the page. Correct tokens do not show that a result follows a principle, so do not judge from memory or from the tokens. Then check each lead of the principle against the running component: open it, press it, interrupt it.
 
-**Space (空间感) is not about gaps.** It says that what opens grows from what was tapped and returns there when it closes, that motion has weight, and that context stays in view. Gaps belong to "Give gaps a rhythm" under Harmony and to the Layout page. An earlier session read Space as spacing, and its review checked the wrong things.
-
 ## Motion
 
 **Choose the mechanism.**
