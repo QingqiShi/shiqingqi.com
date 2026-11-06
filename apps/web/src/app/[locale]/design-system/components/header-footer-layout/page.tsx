@@ -20,13 +20,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default function HeaderFooterLayoutPage() {
   return (
-    <DocPage
-      path="/design-system/components/header-footer-layout"
-      description={t({
-        en: "The shell of a reading page: floating controls, a centred column and an optional footer.",
-        zh: "阅读页的骨架：悬浮控件、居中的内容列与可选的页脚。",
-      })}
-    >
+    <DocPage path="/design-system/components/header-footer-layout">
       <HeaderFooterLayoutShowcase />
     </DocPage>
   );

@@ -1,59 +1,16 @@
 import { t } from "@tuja/i18n";
-import { CodeBlock, type CodeToken } from "@tuja/ui/components/code-block";
+import { CodeBlock } from "@tuja/ui/components/code-block";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
   GuideNote,
   GuideSection,
 } from "#src/design-system/guide/guide-section.tsx";
-import { importLine } from "#src/design-system/lab/import-parts.ts";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { showcaseBleed } from "#src/design-system/showcase-bleed.stylex.ts";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
-import { CodeBlockPartsControl } from "./code-block-specimens.tsx";
-
-/**
- * One import line, one comment, and one lowercase tag around a component
- * with an attribute, a string, a number, and a property access: every kind
- * `TOKEN_KINDS` names, in one snippet.
- */
-const RUNS: readonly CodeToken[] = [
-  ...importLine("Progress", "@tuja/ui/components/progress"),
-  ["plain", "\n\n"],
-  ["comment", "// Reports how far the upload has got."],
-  ["plain", "\n"],
-  ["punct", "<"],
-  ["tag", "div"],
-  ["plain", " "],
-  ["attr", "className"],
-  ["punct", "="],
-  ["string", '"upload"'],
-  ["punct", ">"],
-  ["plain", "\n  "],
-  ["punct", "<"],
-  ["component", "Progress"],
-  ["plain", " "],
-  ["attr", "value"],
-  ["punct", "="],
-  ["punct", "{"],
-  ["number", "42"],
-  ["punct", "}"],
-  ["plain", " "],
-  ["attr", "label"],
-  ["punct", "="],
-  ["punct", "{"],
-  ["plain", "upload"],
-  ["punct", "."],
-  ["property", "name"],
-  ["punct", "}"],
-  ["plain", " "],
-  ["punct", "/>"],
-  ["plain", "\n"],
-  ["punct", "</"],
-  ["tag", "div"],
-  ["punct", ">"],
-];
+import { CODE_RUNS, CodeBlockPartsControl } from "./code-block-specimens.tsx";
 
 export function CodeBlockShowcase() {
   return (
@@ -67,7 +24,7 @@ export function CodeBlockShowcase() {
         </ShowcaseHelper>
         <Specimen caption={t({ en: "every kind", zh: "全部类型" })}>
           <CodeBlock
-            source={RUNS}
+            source={CODE_RUNS}
             label={t({ en: "Code", zh: "代码" })}
             css={showcaseBleed.region}
             contentCss={showcaseBleed.content}

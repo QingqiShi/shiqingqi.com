@@ -9,17 +9,12 @@ import { SquaresFourIcon } from "@phosphor-icons/react/dist/ssr/SquaresFour";
 import * as stylex from "@stylexjs/stylex";
 import { NavGroup } from "@tuja/ui/components/nav-group";
 import { NavLink } from "@tuja/ui/components/nav-link";
-import { NavList, type NavListLinkProps } from "@tuja/ui/components/nav-list";
+import { NavList } from "@tuja/ui/components/nav-list";
 import { space } from "@tuja/ui/tokens.stylex";
-import {
-  createContext,
-  use,
-  useState,
-  type ComponentProps,
-  type ReactNode,
-} from "react";
+import { type ComponentProps, type ReactNode, useState } from "react";
 import navListDoc from "#src/_generated/props/nav-list.json";
 import { defineLab } from "./define-lab.tsx";
+import { FollowContext, FollowLink } from "./follow-link.tsx";
 import { markCurrent } from "./mark-current.ts";
 import { labSource } from "./print-lab-value.ts";
 import type { LabSample } from "./types.ts";
@@ -86,23 +81,6 @@ const CONTENT_SAMPLES: LabSample[] = [
     ),
   },
 ];
-
-const FollowContext = createContext<(href: string) => void>(() => undefined);
-
-/** Follows a link by making it current, so the Lab stays on its page. */
-function FollowLink({ onClick, ...props }: NavListLinkProps) {
-  const follow = use(FollowContext);
-  return (
-    <a
-      {...props}
-      onClick={(event) => {
-        onClick?.(event);
-        event.preventDefault();
-        follow(props.href);
-      }}
-    />
-  );
-}
 
 /**
  * A NavList sits in the consumer's own `<nav>`, which names the landmark, and

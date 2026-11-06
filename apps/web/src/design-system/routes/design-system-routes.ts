@@ -189,6 +189,7 @@ const ROUTES = [
     section: "components",
     category: "content",
     path: "/design-system/components/code-block",
+    lab: true,
     keywords: ["code", "snippet", "syntax", "source", "usage", "runs"],
   },
   {
@@ -444,6 +445,7 @@ const ROUTES = [
     section: "components",
     category: "surfaces",
     path: "/design-system/components/progressive-blur",
+    lab: true,
     keywords: ["backdrop", "blur", "frosted", "scrim", "floating", "dim"],
   },
   // Directly under Progressive blur, which it is one case of: the same
@@ -453,6 +455,7 @@ const ROUTES = [
     section: "components",
     category: "surfaces",
     path: "/design-system/components/scroll-mask",
+    lab: true,
     keywords: [
       "fade",
       "edge fade",
@@ -468,6 +471,7 @@ const ROUTES = [
     section: "components",
     category: "surfaces",
     path: "/design-system/components/sticky-controls",
+    lab: true,
     keywords: [
       "sticky",
       "filter bar",
@@ -492,12 +496,14 @@ const ROUTES = [
     section: "components",
     category: "shells",
     path: "/design-system/components/header-footer-layout",
+    lab: true,
     keywords: ["shell", "header", "footer", "page", "reading"],
   },
   {
     section: "components",
     category: "shells",
     path: "/design-system/components/tab-view",
+    lab: true,
     keywords: [
       "shell",
       "tabs",
@@ -517,6 +523,7 @@ const ROUTES = [
     section: "components",
     category: "shells",
     path: "/design-system/components/navigation-split-view",
+    lab: true,
     keywords: [
       "master detail",
       "list detail",

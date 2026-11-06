@@ -22,11 +22,12 @@ import { labBar } from "./lab-bar.stylex.ts";
 import { LabBar } from "./lab-bar.tsx";
 import { LabControls } from "./lab-controls.tsx";
 import { type LabAction, labReducer } from "./lab-reducer.ts";
+import { LabScene } from "./lab-scene.tsx";
 import { LabSnippet } from "./lab-snippet.tsx";
 import { labStage } from "./lab-stage.stylex.ts";
 import { renderSpecimen } from "./render-specimen.tsx";
 import { resolveLabModel } from "./resolve-lab-model.ts";
-import type { LabConfig, LabProps } from "./types.ts";
+import type { LabConfig, LabControlModel, LabProps } from "./types.ts";
 import { useKeyboardArea } from "./use-keyboard-area.ts";
 
 interface LabCanvasProps<P> {
@@ -69,7 +70,8 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
   // A View Transition captures the whole page, and Safari shows a blank page
   // while it runs. One per keystroke or slider step makes input slow and
   // makes the page flash, so only a change that is complete animates.
-  const run = (action: LabAction) => {
+  const run = (next: LabAction) => {
+    const action = withReplaced(next, model.controls);
     if (action.type === "setProp" && action.isLive === true) {
       dispatch(action);
       return;
@@ -180,9 +182,20 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
       >
         <div css={styles.specimenArea}>
           <ViewTransition name="lab-specimen" default={labMorph}>
-            <div css={styles.specimen}>
+            <div
+              css={[
+                styles.specimen,
+                config.scene !== undefined && styles.specimenInScene,
+              ]}
+            >
               {binding?.trigger}
-              {renderSpecimen(config, specimenProps)}
+              {config.scene === undefined ? (
+                renderSpecimen(config, specimenProps)
+              ) : (
+                <LabScene kind={config.scene}>
+                  {renderSpecimen(config, specimenProps)}
+                </LabScene>
+              )}
             </div>
           </ViewTransition>
         </div>
@@ -207,6 +220,27 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
       )}
     </div>
   );
+}
+
+/**
+ * A value for a prop that `replaces` others leaves them out, so the Specimen
+ * never takes two props that the component takes one of. A sample with no
+ * value leaves the prop out, and so keeps the others.
+ */
+function withReplaced(
+  action: LabAction,
+  controls: readonly LabControlModel[],
+): LabAction {
+  if (action.type !== "setProp") return action;
+  const control = controls.find(({ name }) => name === action.prop);
+  if (control?.replaces === undefined) return action;
+  const value =
+    control.samples === undefined
+      ? action.value
+      : control.samples.find(({ id }) => id === action.value)?.value;
+  return value === undefined
+    ? action
+    : { ...action, replaces: control.replaces };
 }
 
 const styles = stylex.create({
@@ -268,6 +302,9 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+  },
+  specimenInScene: {
+    inlineSize: "100%",
   },
   snippet: {
     inlineSize: "100%",

@@ -45,7 +45,10 @@ function buildLabSource(t, callPath, code, facts) {
   const definitions = new Map();
   collectNames(t, argument, callPath, facts, imports, definitions);
 
-  const tokens = tokeniseAt(dedentTail(code.slice(start, end)), callPath);
+  const text = dedentTail(code.slice(start, end));
+  const tokens = t.isObjectExpression(argument.node)
+    ? unwrapParens(tokeniseAt(`(${text})`, callPath))
+    : tokeniseAt(text, callPath);
   call.arguments.push(
     t.objectExpression([
       t.objectProperty(t.identifier("tokens"), tokensExpression(t, tokens)),
@@ -150,6 +153,25 @@ function isStylexCreate(t, init) {
     t.isMemberExpression(init.callee) &&
     t.isIdentifier(init.callee.property, { name: "create" })
   );
+}
+
+/**
+ * The tokens of a source without the parentheses around it. An object literal
+ * at the start of a statement reads as a block, so it is tokenised in
+ * parentheses.
+ *
+ * @param {import("./token-kinds").CodeToken[]} tokens
+ */
+function unwrapParens(tokens) {
+  const inner = tokens.map(
+    ([kind, text]) =>
+      /** @type {import("./token-kinds").CodeToken} */ ([kind, text]),
+  );
+  const first = inner[0];
+  const last = inner[inner.length - 1];
+  first[1] = first[1].slice(1);
+  last[1] = last[1].slice(0, -1);
+  return inner.filter(([, text]) => text !== "");
 }
 
 /**

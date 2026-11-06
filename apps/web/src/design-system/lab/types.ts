@@ -68,8 +68,14 @@ export interface LabSample {
 export interface LabVariant<P> {
   id: string;
   label: Record<SupportedLocale, string>;
-  props: Partial<P>;
+  props: LabVariantProps<P>;
 }
+
+/**
+ * The props of a Variant. A prop with samples takes the id of one, whatever
+ * the type of the value that the sample holds.
+ */
+export type LabVariantProps<P> = { [K in keyof P]?: P[K] | string };
 
 /**
  * Every key of every branch of a union. `T extends T` makes the conditional
@@ -97,6 +103,11 @@ export type LabControlSpec<P> =
       kind?: PropDoc["kind"];
       /** The range of a `number` control. Without it the control runs 0–100 in steps of 1. */
       range?: LabNumberRange;
+      /**
+       * The props that the component takes in place of this one, such as
+       * CodeBlock's `source` for `parts`. A value for this prop leaves them out.
+       */
+      replaces?: readonly KeysOfUnion<P>[];
     };
 
 /** The values a `number` control offers. */
@@ -168,7 +179,18 @@ export interface LabConfig<P> {
   variants: NoInfer<readonly LabVariant<P>[]>;
   controls: NoInfer<readonly LabControlSpec<P>[]>;
   state?: NoInfer<LabStateBinding<P>>;
+  /** The box the Specimen needs around it to show what it does. */
+  scene?: LabSceneKind;
 }
+
+/**
+ * A box around the Specimen that the snippet leaves out. `"scroll"`: a box
+ * that scrolls, with rows after the Specimen. `"backdrop"`: a page of text for
+ * the Specimen to float over. `"frame"`: a screen, wide or as narrow as a
+ * phone, for a shell that scrolls its own columns. `"page"`: the same screen,
+ * which scrolls, for a shell that the page scrolls.
+ */
+export type LabSceneKind = "scroll" | "backdrop" | "frame" | "page";
 
 /** One sample with its label resolved for the locale in front of the visitor. */
 export interface LabSampleChoice extends Omit<LabSample, "label"> {
@@ -195,4 +217,6 @@ export interface LabControlModel {
   defaultValue?: string;
   samples?: readonly LabSampleChoice[];
   range?: LabNumberRange;
+  /** The props that a value for this one leaves out. */
+  replaces?: readonly string[];
 }

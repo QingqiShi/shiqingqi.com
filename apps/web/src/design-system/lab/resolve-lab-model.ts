@@ -62,6 +62,7 @@ export function resolveLabModel<P>(
               }))
             : undefined,
         range: "range" in spec ? spec.range : undefined,
+        replaces: "replaces" in spec ? spec.replaces?.map(String) : undefined,
       };
     }),
   };
