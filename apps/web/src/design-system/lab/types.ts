@@ -27,6 +27,8 @@ export interface LabImport {
   name: string;
   /** The module it comes from, exactly as the repo imports it. */
   from: string;
+  /** The binding is a type, so the import marks it `type`. */
+  isType?: boolean;
 }
 
 /** One node a `node` prop can take, offered as an option in its control. */
@@ -82,6 +84,21 @@ export interface LabNumberRange {
 }
 
 /**
+ * A prop pair the component's owner holds in state, such as `value` and
+ * `onChange`. The Lab holds the value: the handler on the Specimen sets it, so
+ * the Specimen stays operable and the panel follows. The snippet prints the
+ * `useState` line and the pair a reader would write.
+ */
+export interface LabStateBinding<P> {
+  /** The prop that takes the state — `value`. */
+  prop: KeysOfUnion<P>;
+  /** The handler the component calls with the next value — `onChange`. */
+  handler: KeysOfUnion<P>;
+  /** The type `useState` takes when TypeScript cannot infer it from the first value. */
+  type?: { code: string; imports: readonly LabImport[] };
+}
+
+/**
  * What the Lab reads from one generated props document. A configuration
  * imports the JSON directly, so the client loads the document of its own
  * component only.
@@ -104,6 +121,7 @@ export interface LabConfig<P> {
   component: ComponentType<P>;
   variants: NoInfer<readonly LabVariant<P>[]>;
   controls: NoInfer<readonly LabControlSpec<P>[]>;
+  state?: NoInfer<LabStateBinding<P>>;
 }
 
 /** One sample with its label resolved for the locale in front of the visitor. */

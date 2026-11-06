@@ -1,4 +1,3 @@
-import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
@@ -16,13 +15,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default function PagerPage() {
   return (
-    <DocPage
-      path="/design-system/components/pager"
-      description={t({
-        en: "The previous and next links at the end of a page in a sequence, so a reader can go on without a trip back to the menu.",
-        zh: "连续页面末尾的上一页与下一页链接，读者不必回到菜单就能继续读下去。",
-      })}
-    >
+    <DocPage path="/design-system/components/pager">
       <PagerShowcase />
     </DocPage>
   );

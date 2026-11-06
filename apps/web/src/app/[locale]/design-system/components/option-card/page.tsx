@@ -1,4 +1,3 @@
-import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
@@ -16,13 +15,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default function OptionCardPage() {
   return (
-    <DocPage
-      path="/design-system/components/option-card"
-      description={t({
-        en: "The card-sized answer to a question: an icon, a label, a description, and a selection mark on one tappable surface — a radiogroup when only one answer is right, independent checkboxes when several are.",
-        zh: "以卡片作答的选择控件：图标、标签、说明与选中标记同处一个可点击的表面——只有一个答案时是单选组，可以多选时则是各自独立的复选框。",
-      })}
-    >
+    <DocPage path="/design-system/components/option-card">
       <OptionCardShowcase />
     </DocPage>
   );

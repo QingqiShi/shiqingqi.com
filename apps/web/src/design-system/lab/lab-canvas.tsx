@@ -118,12 +118,35 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
     specimenProps[control.name] = sample?.value;
   }
 
+  // A change from the Specimen is a live step, so that it does not start a
+  // View Transition. A drag on a Slider, for example, sets the value at each
+  // step.
+  const { state: binding } = config;
+  if (binding !== undefined) {
+    specimenProps[String(binding.handler)] = (next: unknown) => {
+      run({
+        type: "setProp",
+        prop: String(binding.prop),
+        value: next,
+        isLive: true,
+      });
+    };
+  }
+
   const snippet = buildLabSnippet({
     element: config.doc.component,
     importPath: `@tuja/ui/components/${config.doc.name}`,
     props: state.props,
     docs: config.doc.props,
     controls: model.controls,
+    state:
+      binding === undefined
+        ? undefined
+        : {
+            prop: String(binding.prop),
+            handler: String(binding.handler),
+            type: binding.type,
+          },
   });
 
   return (
