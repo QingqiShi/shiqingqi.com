@@ -26,7 +26,7 @@ import { reviewReason, type ReviewReason } from "./review-reason.ts";
 import type { TransactionLookups } from "./select-transaction-lookups.ts";
 import { shownAmount } from "./shown-amount.ts";
 import { TransactionFace } from "./transaction-face.tsx";
-import { TransactionMetaLine } from "./transaction-meta-line.tsx";
+import { hasMetaLine, TransactionMetaLine } from "./transaction-meta-line.tsx";
 import { useDescribeTransaction } from "./use-describe-transaction.ts";
 import { useReviewReasonText } from "./use-review-reason-text.ts";
 
@@ -154,6 +154,7 @@ export function TransactionListRow({
   const showReviewBadge = inReview && !reviewMode;
   const reason =
     reviewMode && inReview ? reviewReason(row, entries, lookups) : null;
+  const metaLine = { meta, isExpected, showReviewBadge, isPending };
 
   return (
     <div css={styles.row} data-transaction-row={row.id}>
@@ -176,13 +177,12 @@ export function TransactionListRow({
           subtitle={subtitle}
           trailing={countedText}
         >
-          {reason === null ? null : <ReviewReasonCaption reason={reason} />}
-          <TransactionMetaLine
-            meta={meta}
-            isExpected={isExpected}
-            showReviewBadge={showReviewBadge}
-            isPending={isPending}
-          />
+          {reason === null && !hasMetaLine(metaLine) ? undefined : (
+            <>
+              {reason === null ? null : <ReviewReasonCaption reason={reason} />}
+              <TransactionMetaLine {...metaLine} />
+            </>
+          )}
         </TransactionFace>
       </a>
       {isExpected ? (

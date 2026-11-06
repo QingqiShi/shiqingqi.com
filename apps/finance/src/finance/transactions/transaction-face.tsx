@@ -18,6 +18,7 @@ interface TransactionFaceProps {
   amountMuted?: boolean;
   subtitle: string;
   trailing?: ReactNode;
+  /** The lines under the subtitle. Leave it out when there are none: a face of only a title centres the title on its icon. */
   children?: ReactNode;
 }
 
@@ -33,51 +34,78 @@ export function TransactionFace({
   // A row with a trailing slot is always two lines high, also when the slot is
   // empty. Thus the amounts and the trailing content of a list stay in line.
   const hasTrailing = trailing !== undefined;
+  const hasDetail =
+    subtitle !== "" || (children !== undefined && children !== null);
+  const titleText = (
+    <span css={[typeRole.body, truncate.base, styles.title]}>{title}</span>
+  );
+  const amountText = (
+    <span
+      css={[
+        typeRole.body,
+        typeModifier.numeric,
+        styles.amount,
+        amountMuted && styles.muted,
+      ]}
+    >
+      {amount}
+    </span>
+  );
+  const trailingText = hasTrailing ? (
+    <span
+      css={[
+        flex.row,
+        typeRole.caption,
+        typeModifier.numeric,
+        styles.second,
+        styles.trailing,
+      ]}
+    >
+      {trailing}
+    </span>
+  ) : null;
   return (
-    <span css={[flex.row, plainList.row, styles.face]}>
-      <span css={[corner.radius_round, flex.center, styles.icon]} aria-hidden>
+    <span
+      css={[flex.row, plainList.row, styles.face, hasDetail && align.start]}
+    >
+      <span
+        css={[
+          corner.radius_round,
+          flex.center,
+          styles.icon,
+          hasDetail && styles.iconOnHead,
+        ]}
+        aria-hidden
+      >
         {icon}
       </span>
-      <span css={[flex.col, styles.main]}>
-        <span css={[flex.between, styles.line]}>
-          <span css={[typeRole.body, truncate.base, styles.title]}>
-            {title}
+      {hasDetail ? (
+        <span css={[flex.col, styles.main]}>
+          <span css={[flex.between, styles.line]}>
+            {titleText}
+            {amountText}
           </span>
-          <span
-            css={[
-              typeRole.body,
-              typeModifier.numeric,
-              styles.amount,
-              amountMuted && styles.muted,
-            ]}
-          >
-            {amount}
-          </span>
-        </span>
-        <span css={[flex.row, align.start, styles.line]}>
-          <span css={[flex.col, styles.main]}>
-            {subtitle === "" ? null : (
-              <span css={[typeRole.bodySmall, truncate.base, styles.muted]}>
-                {subtitle}
-              </span>
-            )}
-            {children}
-          </span>
-          {hasTrailing ? (
-            <span
-              css={[
-                flex.row,
-                typeRole.caption,
-                typeModifier.numeric,
-                styles.second,
-                styles.trailing,
-              ]}
-            >
-              {trailing}
+          <span css={[flex.row, align.start, styles.line]}>
+            <span css={[flex.col, styles.main]}>
+              {subtitle === "" ? null : (
+                <span css={[typeRole.bodySmall, truncate.base, styles.muted]}>
+                  {subtitle}
+                </span>
+              )}
+              {children}
             </span>
-          ) : null}
+            {trailingText}
+          </span>
         </span>
-      </span>
+      ) : (
+        <span css={[flex.between, styles.main, styles.line]}>
+          {titleText}
+          <span css={[flex.col, align.end, styles.end]}>
+            {amountText}
+            {trailingText}
+          </span>
+        </span>
+      )}
     </span>
   );
 }
@@ -105,7 +133,6 @@ export function transactionIcon(
 const styles = stylex.create({
   face: {
     gap: rhythm.item,
-    alignItems: "flex-start",
     paddingBlock: transactionFaceTokens.paddingBlock,
     minInlineSize: 0,
   },
@@ -115,6 +142,9 @@ const styles = stylex.create({
     blockSize: transactionFaceTokens.icon,
     backgroundColor: color.bgSurfaceSunken,
     fontSize: controlSize._5,
+  },
+  iconOnHead: {
+    marginBlockStart: transactionFaceTokens.iconOffset,
   },
   initial: {
     color: color.fgMuted,
@@ -140,6 +170,9 @@ const styles = stylex.create({
   },
   muted: {
     color: color.fgMuted,
+  },
+  end: {
+    flexShrink: 0,
   },
   trailing: {
     flexShrink: 0,

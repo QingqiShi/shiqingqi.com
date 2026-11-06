@@ -54,6 +54,7 @@ const styles = stylex.create({
   icon: {
     width: transactionFaceTokens.icon,
     height: transactionFaceTokens.icon,
+    marginBlockStart: transactionFaceTokens.iconOffset,
   },
   lines: {
     display: "flex",
