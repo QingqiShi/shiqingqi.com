@@ -28,7 +28,7 @@ jobs:
         task: [test, format, lint, tsc]
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6.1.0
+      - uses: pnpm/action-setup@v6.1.1
       - uses: actions/setup-node@v7
         with:
           node-version: '24'
