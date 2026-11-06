@@ -4,14 +4,22 @@ import { FloppyDiskIcon } from "@phosphor-icons/react/dist/ssr/FloppyDisk";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { NONE_SAMPLE } from "./define-lab.tsx";
+import { withSource } from "./print-lab-value.ts";
 import type { LabSample } from "./types.ts";
 
 const ICON_MODULE = "@phosphor-icons/react/dist/ssr";
 
 /**
- * One Phosphor Icon as a sample, at the weight of the package's own control
- * glyphs, with the import its snippet has to print.
+ * One Phosphor Icon at the weight of the package's own control glyphs, with
+ * the source and the import its snippet has to print.
  */
+export function iconNode(name: string, module: string, NodeIcon: Icon) {
+  return withSource(<NodeIcon weight="bold" />, `<${name} weight="bold" />`, [
+    { name, from: `${ICON_MODULE}/${module}` },
+  ]);
+}
+
+/** One Phosphor Icon as a sample. */
 export function iconSample(
   id: string,
   label: { en: string; zh: string },
@@ -24,7 +32,7 @@ export function iconSample(
     label,
     code: `<${name} weight="bold" />`,
     imports: [{ name, from: `${ICON_MODULE}/${module}` }],
-    value: <SampleIcon weight="bold" />,
+    value: iconNode(name, module, SampleIcon),
   };
 }
 

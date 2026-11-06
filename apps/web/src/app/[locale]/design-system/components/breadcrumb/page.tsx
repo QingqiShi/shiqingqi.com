@@ -1,4 +1,3 @@
-import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
@@ -16,13 +15,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default function BreadcrumbPage() {
   return (
-    <DocPage
-      path="/design-system/components/breadcrumb"
-      description={t({
-        en: "The trail of ancestor pages above the current one: a named nav landmark, a link to every level that has a page, and the current page rendered as text rather than as a link to itself.",
-        zh: "当前页面之上的上级路径：一个具名的 nav 地标、指向每个有页面的层级的链接，而当前页面渲染为文本，而非指向自身的链接。",
-      })}
-    >
+    <DocPage path="/design-system/components/breadcrumb">
       <BreadcrumbShowcase />
     </DocPage>
   );

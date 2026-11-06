@@ -229,12 +229,14 @@ const ROUTES = [
     section: "components",
     category: "actions",
     path: "/design-system/components/breadcrumb",
+    lab: true,
     keywords: ["trail", "navigation", "path", "hierarchy", "back", "crumbs"],
   },
   {
     section: "components",
     category: "actions",
     path: "/design-system/components/pager",
+    lab: true,
     keywords: [
       "pagination",
       "previous",
@@ -279,6 +281,7 @@ const ROUTES = [
     section: "components",
     category: "forms",
     path: "/design-system/components/select",
+    lab: true,
     keywords: ["dropdown", "picker", "combobox", "options", "form"],
   },
   {
@@ -299,6 +302,7 @@ const ROUTES = [
     section: "components",
     category: "forms",
     path: "/design-system/components/segmented-control",
+    lab: true,
     keywords: ["tabs", "toggle group", "radio", "switcher", "form"],
   },
   // Directly under Segmented control, which it is the roomy form of: the same
@@ -307,12 +311,14 @@ const ROUTES = [
     section: "components",
     category: "forms",
     path: "/design-system/components/option-card",
+    lab: true,
     keywords: ["radio", "choice", "tile", "picker", "selectable", "form"],
   },
   {
     section: "components",
     category: "forms",
     path: "/design-system/components/slider",
+    lab: true,
     keywords: ["range", "track", "thumb", "scrub", "form"],
   },
   // Avatar and Badge are the inert markers that label a thing or report its
