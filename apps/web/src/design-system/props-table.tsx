@@ -2,27 +2,37 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocale } from "@tuja/i18n/server-locale";
 import type { SupportedLocale } from "@tuja/i18n/types";
-import type { PropDoc } from "@tuja/props-codegen/types";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import type { PropDoc, PropsDoc } from "@tuja/props-codegen/types";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
-import { Badge } from "@tuja/ui/components/badge";
+import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { codeRun } from "@tuja/ui/components/code-run.stylex";
+import { FlowBlock } from "@tuja/ui/components/flow-block";
 import {
   Table,
-  TableBody,
-  TableCell,
   TableHead,
   TableHeaderCell,
   TableRow,
 } from "@tuja/ui/components/table";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { TableDisclosureTrigger } from "@tuja/ui/components/table-disclosure-trigger";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import {
+  border,
+  controlHeight,
+  font,
+  measure,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { Fragment, type ReactNode } from "react";
 import { PROPS_DOCS } from "#src/_generated/props/index.ts";
-import { definitionRows } from "./definition-rows.stylex.ts";
+import { firstSentence } from "./first-sentence.ts";
 import { Identifier } from "./identifier.tsx";
+import { PropAnchors } from "./prop-anchors.tsx";
+import { PropRow } from "./prop-row.tsx";
 import { Showcase } from "./showcase.tsx";
+import { typeTokens, type TypeTokenKind } from "./type-tokens.ts";
 
 interface PropsTableProps {
   /**
@@ -35,131 +45,209 @@ interface PropsTableProps {
 /**
  * One component's props, or one hook's options, read from the generated
  * documents rather than written by hand: the summary of each prop's own JSDoc,
- * localised by the page's locale. A table from `md` up, where the columns let a
- * reader scan one prop against the next; a labelled block per prop below that,
- * which reads better on a phone than a table scrolling sideways.
+ * localised by the page's locale. Each prop is one row of one line: its name,
+ * its type and the first sentence of its description. A press on the row
+ * opens the whole description under it. On a narrow screen the table scrolls
+ * sideways under the column of names.
  */
 export function PropsTable({ component }: PropsTableProps) {
   const doc = PROPS_DOCS[component];
   const locale = getLocale();
   const isHook = doc.kind === "hook";
+  const requiredLabel = t({ en: "Required", zh: "必填" });
+  const deprecatedLabel = t({ en: "Deprecated", zh: "已弃用" });
   const title = `${doc.component} ${
     isHook ? t({ en: "options", zh: "选项" }) : t({ en: "props", zh: "属性" })
   }`;
-  const propLabel = isHook
-    ? t({ en: "Option", zh: "选项" })
-    : t({ en: "Prop", zh: "属性" });
-  const typeLabel = t({ en: "Type", zh: "类型" });
-  const defaultLabel = t({ en: "Default", zh: "默认值" });
-  const descriptionLabel = t({ en: "Description", zh: "说明" });
 
   return (
-    <Showcase label={title} frame="plain" breakout>
-      <div css={styles.tableView}>
-        <Table
-          caption={title}
-          css={styles.table}
-          containerCss={styles.tableContainer}
-        >
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell scope="col" css={styles.nameColumn}>
-                {propLabel}
-              </TableHeaderCell>
-              <TableHeaderCell scope="col" css={styles.typeColumn}>
-                {typeLabel}
-              </TableHeaderCell>
-              <TableHeaderCell scope="col" css={styles.defaultColumn}>
-                {defaultLabel}
-              </TableHeaderCell>
-              <TableHeaderCell scope="col">{descriptionLabel}</TableHeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {doc.props.map((prop) => (
-              <TableRow key={prop.name}>
-                <TableHeaderCell scope="row" css={styles.nameCell}>
-                  <PropName prop={prop} />
+    <Showcase label={title} frame="plain">
+      <PropAnchors css={styles.frame}>
+        <FlowBlock surface css={cardSurface.base}>
+          <Table
+            caption={title}
+            stickyColumn
+            css={styles.table}
+            containerCss={styles.region}
+          >
+            <TableHead>
+              <TableRow>
+                <TableHeaderCell
+                  scope="col"
+                  css={[typeRole.caption, styles.headCell]}
+                >
+                  {isHook
+                    ? t({ en: "Option", zh: "选项" })
+                    : t({ en: "Prop", zh: "属性" })}
                 </TableHeaderCell>
-                <TableCell>
-                  <PropType prop={prop} />
-                </TableCell>
-                <TableCell>
-                  {prop.defaultValue === undefined ? (
-                    <span css={styles.noDefault} aria-hidden>
-                      –
-                    </span>
-                  ) : (
-                    <code css={[typeRole.caption, styles.code]}>
-                      <Identifier>{prop.defaultValue}</Identifier>
-                    </code>
-                  )}
-                </TableCell>
-                <TableCell css={styles.descriptionCell}>
-                  <Prose text={describe(prop, locale)} />
-                </TableCell>
+                <TableHeaderCell
+                  scope="col"
+                  css={[typeRole.caption, styles.headCell]}
+                >
+                  {t({ en: "Type", zh: "类型" })}
+                </TableHeaderCell>
+                <TableHeaderCell
+                  scope="col"
+                  css={[typeRole.caption, styles.headCell]}
+                >
+                  {t({ en: "Description", zh: "说明" })}
+                </TableHeaderCell>
+                <td css={[styles.headCell, styles.caretColumn]} />
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-
-      <dl css={[definitionRows.list, styles.stackView]}>
-        {doc.props.map((prop) => (
-          <div key={prop.name} css={definitionRows.row}>
-            <dt css={typeRole.body}>
-              <PropName prop={prop} />
-            </dt>
-            <dd
-              css={[
-                typeRole.bodySmall,
-                stack.text,
-                definitionRows.definition,
-                styles.stackFields,
-              ]}
-            >
-              <div
-                css={[
-                  cluster.tight,
-                  styles.stackField,
-                  prop.kind === "enum" &&
-                    prop.members !== undefined &&
-                    styles.tokenField,
-                ]}
-              >
-                <span css={[typeRole.caption, styles.stackLabel]}>
-                  {typeLabel}
-                </span>
-                <PropType prop={prop} />
-              </div>
-              {prop.defaultValue === undefined ? null : (
-                <div css={[cluster.tight, styles.stackField]}>
-                  <span css={[typeRole.caption, styles.stackLabel]}>
-                    {defaultLabel}
-                  </span>
-                  <code css={[typeRole.caption, styles.code]}>
-                    {prop.defaultValue}
-                  </code>
-                </div>
-              )}
-              <Prose text={describe(prop, locale)} />
-            </dd>
-          </div>
-        ))}
-      </dl>
+            </TableHead>
+            {doc.props.map((prop) => {
+              const id = propRowId(component, prop.name);
+              const description = describe(prop, locale);
+              return (
+                <PropRow
+                  key={prop.name}
+                  id={id}
+                  name={
+                    <>
+                      <TableDisclosureTrigger css={styles.name}>
+                        {prop.name}
+                      </TableDisclosureTrigger>
+                      {prop.required ? (
+                        <span css={[typeRole.caption, styles.mark]}>
+                          {requiredLabel}
+                        </span>
+                      ) : null}
+                      {prop.deprecated === undefined ? null : (
+                        <span
+                          css={[
+                            typeRole.caption,
+                            styles.mark,
+                            styles.deprecated,
+                          ]}
+                        >
+                          {deprecatedLabel}
+                        </span>
+                      )}
+                    </>
+                  }
+                  type={<PropType prop={prop} />}
+                  summary={setInlineCode(firstSentence(description))}
+                  fullType={
+                    <p css={styles.fullType}>
+                      <PropType prop={prop} wraps />
+                    </p>
+                  }
+                >
+                  <PropDescription
+                    component={component}
+                    doc={doc}
+                    prop={prop}
+                    description={description}
+                  />
+                </PropRow>
+              );
+            })}
+          </Table>
+        </FlowBlock>
+      </PropAnchors>
 
       {doc.extendsHtml === undefined ? null : (
         // Two fragments around the element name: the name is the one part of
         // the sentence that is not translated.
-        <p css={[typeRole.bodySmall, styles.inherited]}>
+        <FlowBlock css={[typeRole.bodySmall, styles.inherited]}>
           {t({ en: "Also accepts every ", zh: "同时接受 " })}
-          <code
-            css={[typeRole.caption, styles.code]}
-          >{`<${doc.extendsHtml}>`}</code>
+          <code css={styles.code}>{`<${doc.extendsHtml}>`}</code>
           {t({ en: " attribute.", zh: " 元素的原生属性。" })}
-        </p>
+        </FlowBlock>
       )}
     </Showcase>
+  );
+}
+
+/**
+ * The fragment of one row. A page can show the props of more than one
+ * component, so the component's subpath leads it: `button-prop-size`.
+ */
+function propRowId(component: string, name: string) {
+  return `${component}-prop-${name}`;
+}
+
+/**
+ * The runs a type may wrap after: between the members of a union, and
+ * between the arguments of a generic or the keys of an object.
+ */
+const BREAKS_AFTER = new Set(["|", ",", ";", "<"]);
+
+const NO_BREAK_SPACE = " ";
+
+const tokenStyles = {
+  string: codeRun.string,
+  number: codeRun.number,
+  keyword: codeRun.keyword,
+  type: codeRun.component,
+  label: codeRun.property,
+  name: codeRun.plain,
+  punct: null,
+  space: null,
+} satisfies Record<TypeTokenKind, unknown>;
+
+/**
+ * The type, coloured by the kind of each run as code is on the rest of the
+ * site, with the punctuation quiet. A default that is one member of the union
+ * is set bold in it, and says so to a screen reader; any other default follows
+ * the type as a quiet `= value`. In the row it stays on one line; in the panel
+ * it `wraps` after a `|` or another separator.
+ */
+function PropType({ prop, wraps = false }: { prop: PropDoc; wraps?: boolean }) {
+  const { defaultValue } = prop;
+  const tokens = typeTokens(prop.type);
+  const defaultHint = t({ en: " (default)", zh: "（默认值）" });
+  const defaultAt =
+    defaultValue === undefined
+      ? -1
+      : tokens.findIndex(([, text]) => text === defaultValue);
+
+  return (
+    <code css={[styles.code, wraps && styles.wrappingType]}>
+      {tokens.map(([kind, text], index) => {
+        const key = `${String(index)}${text}`;
+        if (kind === "space") {
+          const isBreak =
+            wraps && BREAKS_AFTER.has(tokens[index - 1]?.[1] ?? "");
+          return isBreak ? (
+            <Fragment key={key}>
+              <wbr />{" "}
+            </Fragment>
+          ) : (
+            <Fragment key={key}>{wraps ? NO_BREAK_SPACE : " "}</Fragment>
+          );
+        }
+        const run =
+          wraps && (kind === "type" || kind === "name" || kind === "label") ? (
+            <Identifier>{text}</Identifier>
+          ) : (
+            text
+          );
+        return (
+          <span
+            key={key}
+            css={[
+              kind === "punct" ? styles.punct : tokenStyles[kind],
+              index === defaultAt && styles.defaultMember,
+            ]}
+          >
+            {run}
+            {index === defaultAt ? (
+              <span css={a11y.srOnly}>{defaultHint}</span>
+            ) : null}
+          </span>
+        );
+      })}
+      {defaultValue === undefined || defaultAt !== -1 ? null : (
+        <span css={styles.punct}>
+          {" "}
+          <span css={a11y.srOnly}>{t({ en: "Default", zh: "默认值" })}</span>
+          {"="}
+          {NO_BREAK_SPACE}
+          {wraps ? <Identifier>{defaultValue}</Identifier> : defaultValue}
+        </span>
+      )}
+    </code>
   );
 }
 
@@ -169,181 +257,151 @@ function describe(prop: PropDoc, locale: SupportedLocale) {
   return translated === "" ? prop.description.en : translated;
 }
 
-function PropName({ prop }: { prop: PropDoc }) {
-  return (
-    <span css={[cluster.tight, styles.nameLine]}>
-      <span css={styles.name}>
-        <Identifier>{prop.name}</Identifier>
-      </span>
-      {prop.required ? (
-        <Badge intent="accent" size="sm">
-          {t({ en: "Required", zh: "必填" })}
-        </Badge>
-      ) : null}
-      {prop.deprecated === undefined ? null : (
-        <Badge intent="warning" size="sm">
-          {t({ en: "Deprecated", zh: "已弃用" })}
-        </Badge>
-      )}
-    </span>
-  );
+interface PropDescriptionProps {
+  component: string;
+  doc: PropsDoc;
+  prop: PropDoc;
+  description: string;
 }
 
-/** A union of string literals reads as a list; anything else as one expression. */
-function PropType({ prop }: { prop: PropDoc }) {
-  if (prop.kind === "enum" && prop.members !== undefined) {
-    return (
-      <span css={[cluster.tight, styles.typeList]}>
-        {prop.members.map((member) => (
-          <code
-            key={member}
-            css={[typeRole.caption, corner.radius_1, styles.typeToken]}
-          >
-            {JSON.stringify(member)}
-          </code>
-        ))}
-      </span>
-    );
-  }
-  return (
-    <code css={[typeRole.caption, styles.code]}>
-      {breakAtUnions(prop.type)}
-    </code>
+/**
+ * A JSDoc summary: paragraphs split on a blank line, backticks set as code.
+ * Code that names another prop of the same component links to its row.
+ */
+function PropDescription({
+  component,
+  doc,
+  prop,
+  description,
+}: PropDescriptionProps) {
+  const names = new Set(
+    doc.props.map(({ name }) => name).filter((name) => name !== prop.name),
   );
-}
-
-/** A JSDoc summary: paragraphs split on a blank line, backticks set as code. */
-function Prose({ text }: { text: string }) {
-  const paragraphs = text.split("\n\n").filter((paragraph) => paragraph !== "");
+  const paragraphs = description
+    .split("\n\n")
+    .filter((paragraph) => paragraph !== "");
   return (
     <>
-      {paragraphs.map((paragraph, index) => (
-        <p
-          key={paragraph}
-          css={[styles.paragraph, index > 0 && styles.nextParagraph]}
-        >
-          {setInlineCode(paragraph)}
+      {paragraphs.map((paragraph) => (
+        <p key={paragraph} css={styles.paragraph}>
+          {setInlineCode(paragraph, (code) =>
+            names.has(code) ? propRowId(component, code) : undefined,
+          )}
         </p>
       ))}
     </>
   );
 }
 
-/**
- * Wrap opportunities after each `|`, so a long type breaks between members, and
- * at the seams of a name too long for its column.
- */
-function breakAtUnions(type: string): ReactNode {
-  let at = 0;
-  return type.split("|").map((part, index) => {
-    const key = at;
-    at += part.length + 1;
-    return (
-      <Fragment key={key}>
-        {index > 0 ? (
-          <>
-            |<wbr />
-          </>
-        ) : null}
-        <Identifier>{part}</Identifier>
-      </Fragment>
-    );
-  });
-}
-
-function setInlineCode(paragraph: string): ReactNode {
+function setInlineCode(
+  paragraph: string,
+  linkFor: (code: string) => string | undefined = () => undefined,
+): ReactNode {
   let at = 0;
   return paragraph.split("`").map((part, index) => {
     const key = at;
     at += part.length + 1;
-    return index % 2 === 1 ? (
-      <code key={key} css={[typeRole.caption, styles.code]}>
+    if (index % 2 === 0) return <Fragment key={key}>{part}</Fragment>;
+    const target = linkFor(part);
+    return target === undefined ? (
+      <code key={key} css={[styles.code, styles.inlineCode]}>
         {part}
       </code>
     ) : (
-      <Fragment key={key}>{part}</Fragment>
+      <a key={key} href={`#${target}`} css={[a11y.focusRing, styles.codeLink]}>
+        <code css={[styles.code, styles.inlineCode]}>{part}</code>
+      </a>
     );
   });
 }
 
 const styles = stylex.create({
-  tableView: {
-    display: { default: "none", [breakpoints.md]: "block" },
-    minInlineSize: 0,
+  frame: {
+    marginBlockStart: rhythm.tight,
   },
-  tableContainer: {
-    // The scroll region is the table's own surface, so a table too wide for the
-    // page scrolls inside it rather than setting the page adrift.
-    maxInlineSize: "100%",
+  // Inside the card's border, so its corner follows the card's.
+  region: {
+    borderRadius: `calc(${border.radius_3} - ${border.size_1})`,
+    cornerShape: "squircle",
   },
+  // Wide enough for each column to read on a phone, where it scrolls.
   table: {
-    tableLayout: "fixed",
+    minInlineSize: "38rem",
   },
-  nameColumn: {
-    inlineSize: "18%",
+  headCell: {
+    blockSize: controlHeight.md,
+    paddingBlock: 0,
+    verticalAlign: "middle",
+    whiteSpace: "nowrap",
+    fontWeight: font.weight_5,
   },
-  typeColumn: {
-    inlineSize: "20%",
-  },
-  defaultColumn: {
-    inlineSize: "12%",
-  },
-  nameCell: {
-    verticalAlign: "top",
-  },
-  descriptionCell: {
-    color: color.fgMuted,
-  },
-  nameLine: {
-    minInlineSize: 0,
+  // The caret's column takes only its own width, and the head's rule.
+  caretColumn: {
+    inlineSize: "1px",
+    boxShadow: `inset 0 calc(-1 * ${border.size_1}) 0 ${color.border}`,
   },
   name: {
+    whiteSpace: "nowrap",
     fontFamily: font.familyMono,
     fontWeight: font.weight_6,
+    letterSpacing: font.trackingNormal,
     color: color.fg,
+  },
+  mark: {
+    marginInlineStart: rhythm.tight,
+    fontWeight: font.weight_5,
+    color: color.fgMuted,
+  },
+  deprecated: {
+    color: color.fgWarning,
   },
   code: {
     fontFamily: font.familyMono,
-    color: color.fgMuted,
-  },
-  typeList: {
-    minInlineSize: 0,
-  },
-  typeToken: {
-    fontFamily: font.familyMono,
+    letterSpacing: font.trackingNormal,
     color: color.fg,
-    backgroundColor: color.bgControl,
-    paddingInline: space._1,
-    paddingBlock: space._00,
   },
-  noDefault: {
+  // A name breaks at its own seams, and a run with no seam at any point, so
+  // the whole type shows in the panel.
+  wrappingType: {
+    overflowWrap: "anywhere",
+  },
+  fullType: {
+    margin: 0,
+    marginBlockEnd: rhythm.tight,
+  },
+  punct: {
     color: color.fgMuted,
+  },
+  defaultMember: {
+    fontWeight: font.weight_7,
+  },
+  // A code span is one word: `aria-label` must not break at its hyphen.
+  inlineCode: {
+    whiteSpace: "nowrap",
+  },
+  codeLink: {
+    color: color.fg,
+    textDecorationLine: "underline",
+    textDecorationColor: {
+      default: color.border,
+      ":hover": { default: null, [pointer.canHover]: color.fgMuted },
+      ":focus-visible": color.fgMuted,
+    },
+    textDecorationThickness: border.size_1,
+    textUnderlineOffset: space._0,
   },
   paragraph: {
     margin: 0,
+    maxInlineSize: measure.prose,
+    marginBlockEnd: {
+      default: rhythm.tight,
+      ":last-child": 0,
+    },
   },
-  nextParagraph: {
-    marginBlockStart: rhythm.tight,
-  },
-  stackView: {
-    display: { default: "flex", [breakpoints.md]: "none" },
-  },
-  stackFields: {
-    color: color.fgMuted,
-  },
-  // The type tokens of an enum are chips, so the row is a box.
-  tokenField: {
-    marginBlockEnd: rhythm.tight,
-  },
-  stackField: {
-    alignItems: "baseline",
-    minInlineSize: 0,
-  },
-  stackLabel: {
-    color: color.fgMuted,
-  },
+  // With the section's gap, this sets the note a group apart from the table.
   inherited: {
     margin: 0,
+    marginBlockStart: rhythm.item,
     color: color.fgMuted,
   },
 });

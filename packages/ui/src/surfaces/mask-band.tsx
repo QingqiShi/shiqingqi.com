@@ -50,8 +50,11 @@ export function MaskBand({ css, edge, radius, isShown }: MaskBandProps) {
 }
 
 const styles = stylex.create({
+  // A plane of its own, which paints as `auto` would, so a block below
+  // that moves as a panel opens passes over it.
   band: {
     position: "absolute",
+    zIndex: 0,
     pointerEvents: "none",
   },
   hidden: {

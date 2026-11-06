@@ -428,8 +428,8 @@ export function TableShowcase() {
       >
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "The table always sits in its own horizontally scrolling region, so a wide table scrolls inside its box and the page never scrolls sideways. The region is focusable, which is what makes the overflow reachable from the keyboard (WCAG 2.1.1), and it takes its accessible name from the same caption. Tab to it, then scroll with the arrow keys. The region below is capped narrow so it overflows on any screen.",
-            zh: "表格始终位于自己的横向滚动区域内，因此宽表格只在自身的盒子里滚动，页面永远不会横向滚动。该区域可获得焦点，这正是溢出内容能通过键盘访问的原因（WCAG 2.1.1），其可访问名称同样来自 caption。用 Tab 聚焦后，即可用方向键滚动。下方的区域被特意收窄，因此在任何屏幕上都会溢出。",
+            en: "The table always sits in its own horizontally scrolling region, so a wide table scrolls inside its box and the page never scrolls sideways. While the table overflows, the region is focusable, which is what makes the overflow reachable from the keyboard (WCAG 2.1.1), and it takes its accessible name from the same caption. Tab to it, then scroll with the arrow keys. A table that fits adds no tab stop. The region below is capped narrow so it overflows on any screen.",
+            zh: "表格始终位于自己的横向滚动区域内，因此宽表格只在自身的盒子里滚动，页面永远不会横向滚动。表格溢出时，该区域可获得焦点，这正是溢出内容能通过键盘访问的原因（WCAG 2.1.1），其可访问名称同样来自 caption。用 Tab 聚焦后，即可用方向键滚动。放得下的表格不会多出一个 Tab 停靠点。下方的区域被特意收窄，因此在任何屏幕上都会溢出。",
           })}
         </Text>
         <Specimen caption="constrained">
@@ -450,6 +450,10 @@ export function TableShowcase() {
       <PropsTable component="table-header-cell" />
 
       <PropsTable component="table-cell" />
+
+      <PropsTable component="table-disclosure" />
+
+      <PropsTable component="table-disclosure-trigger" />
     </>
   );
 }
