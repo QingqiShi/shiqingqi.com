@@ -8,6 +8,11 @@
     "pwa-icons": "./src/generate-hashed-icons.mjs"
   },
   "scripts": {
-    "lint": "eslint --max-warnings 0 ."
+    "lint": "eslint --max-warnings 0 .",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.5",
+    "vitest": "catalog:"
   }
 }
