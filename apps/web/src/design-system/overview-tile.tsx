@@ -29,8 +29,8 @@ interface OverviewTileProps {
 
 /**
  * One card in the design-system overview grid: copy, a stretched link, and
- * either a generated picture for Get started and the foundation routes or a
- * live specimen for a component route — nothing for the rest.
+ * either a live specimen for a component route or a generated picture for any
+ * other route.
  *
  * It owns the whole tile rather than leaving the markup inline on the overview
  * page because the pieces are load-bearing on each other: the z-index ladder

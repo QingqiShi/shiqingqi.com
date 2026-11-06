@@ -27,7 +27,7 @@ export type FoundationIllustrationArt = {
 };
 
 /**
- * A foundation card's render, held bottom-right in one fixed box so renders of
+ * An overview tile's render, held bottom-right in one fixed box so renders of
  * different shapes read as one set. At rest it is drained to greyscale and
  * held back; engaging the tile brings back its colour and leans it towards the
  * pointer.

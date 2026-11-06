@@ -52,12 +52,12 @@ export type DesignSystemView = "docs" | "lab";
 export type DesignSystemPath = (typeof DESIGN_SYSTEM_ROUTES)[number]["path"];
 
 /**
- * Just the foundations paths, so the illustration map can be total over them and
- * a new foundation without art fails to compile.
+ * Just the paths of the given sections, so the illustration map can be total
+ * over them and a new route there without art fails to compile.
  */
-export type DesignSystemFoundationPath = Extract<
+export type DesignSystemSectionPath<S extends DesignSystemSectionId> = Extract<
   (typeof DESIGN_SYSTEM_ROUTES)[number],
-  { section: "foundations" }
+  { section: S }
 >["path"];
 
 export interface DesignSystemRouteGroup {

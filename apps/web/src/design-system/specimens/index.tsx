@@ -54,9 +54,9 @@ interface ComponentSpecimen {
 /**
  * Maps each components route to the specimen
  * shown in its overview tile. The counterpart to `foundation-illustrations/`:
- * foundations get a generated picture because a token has no rendered form,
- * whereas a component does — so these are the real components, rendered live,
- * and they cannot drift from the thing they advertise. The ones that cannot
+ * the other tiles get a generated picture because a token or a hook has no
+ * rendered form, whereas a component does — so these are the real components,
+ * rendered live, and they cannot drift from the thing they advertise. The ones that cannot
  * render their real form inside a tile (Sheet, Menu button, the four page
  * shells, Progressive blur and Sticky controls)
  * fall back to a miniature drawn from the same tokens; each specimen's own doc

@@ -1,37 +1,40 @@
 import type { ReactElement } from "react";
 import type {
-  DesignSystemFoundationPath,
   DesignSystemPath,
+  DesignSystemSectionPath,
 } from "#src/design-system/routes/types.ts";
 import accessibility from "./accessibility.png";
 import color from "./color.png";
 import customization from "./customization.png";
+import effectLayer from "./effect-layer.png";
 import {
   FoundationIllustration,
   type FoundationIllustrationArt,
 } from "./foundation-illustration.tsx";
 import getStarted from "./get-started.png";
+import hooks from "./hooks.png";
 import iconography from "./iconography.png";
 import layout from "./layout.png";
 import material from "./material.png";
 import motion from "./motion.png";
+import primitives from "./primitives.png";
 import principles from "./principles.png";
 import surfaces from "./surfaces.png";
 import typography from "./typography.png";
 
 /**
- * Get started is not a foundation, but it is the first tile on the overview. It
- * has art so that it is not shorter than the foundation tiles below it.
+ * Of the overview section only Get started has a tile, so it is named here
+ * rather than taking its whole section.
  */
 type IllustratedPath =
   | Extract<DesignSystemPath, "/design-system/get-started">
-  | DesignSystemFoundationPath;
+  | DesignSystemSectionPath<"foundations" | "buildingBlocks">;
 
 /**
- * The card illustration of Get started and of each foundations route; the other
- * overview cards render without one. Total, so a foundation registered in
- * `routes.ts` without an illustration fails to compile rather than shipping a
- * blank tile.
+ * The card illustration of each overview tile that is not a component; the
+ * component tiles show a live specimen instead. Total, so a foundation or
+ * building block registered in `design-system-routes.ts` without an
+ * illustration fails to compile rather than shipping a blank tile.
  */
 const ILLUSTRATIONS: Record<IllustratedPath, FoundationIllustrationArt> = {
   "/design-system/get-started": { src: getStarted },
@@ -51,6 +54,9 @@ const ILLUSTRATIONS: Record<IllustratedPath, FoundationIllustrationArt> = {
   "/design-system/foundations/iconography": { src: iconography },
   "/design-system/foundations/motion": { src: motion },
   "/design-system/foundations/accessibility": { src: accessibility },
+  "/design-system/primitives": { src: primitives },
+  "/design-system/hooks": { src: hooks },
+  "/design-system/effect-layer": { src: effectLayer },
 };
 
 /**
