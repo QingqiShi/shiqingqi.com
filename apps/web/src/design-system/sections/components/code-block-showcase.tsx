@@ -5,7 +5,7 @@ import {
   GuideNote,
   GuideSection,
 } from "#src/design-system/guide/guide-section.tsx";
-import { importLine } from "#src/design-system/lab/build-lab-snippet.ts";
+import { importLine } from "#src/design-system/lab/import-parts.ts";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { showcaseBleed } from "#src/design-system/showcase-bleed.stylex.ts";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";

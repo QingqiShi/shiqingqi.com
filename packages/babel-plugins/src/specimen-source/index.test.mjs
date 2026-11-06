@@ -1,5 +1,5 @@
 import { createRequire } from "node:module";
-import { transformSync } from "@babel/core";
+import { transformSync, traverse } from "@babel/core";
 import { describe, expect, it } from "vitest";
 
 const require = createRequire(import.meta.url);
@@ -283,6 +283,130 @@ export function HooksShowcase() {
 function SpecimenCell({ caption }: { caption: string }) {
   return <Text>Cell: {caption}</Text>;
 }`);
+    });
+  });
+
+  describe("Lab sources", () => {
+    /**
+     * The source the plugin gives the first `labSource()` call, read back
+     * from the generated argument.
+     * @param {string} code
+     */
+    function labSourceOf(code) {
+      const result = transformSync(code, {
+        filename: "lab.tsx",
+        parserOpts: { plugins: ["typescript", "jsx"] },
+        plugins: [pluginPath],
+        configFile: false,
+        babelrc: false,
+        ast: true,
+        code: false,
+      });
+      /** @type {unknown} */
+      let found;
+      traverse(result?.ast ?? undefined, {
+        CallExpression(path) {
+          const { callee, arguments: args } = path.node;
+          if (found !== undefined) return;
+          if (callee.type !== "Identifier" || callee.name !== "labSource") {
+            return;
+          }
+          const second = args[1];
+          if (second === undefined) return;
+          found = evaluate(second);
+        },
+      });
+      return /** @type {{ tokens: [string, string][], imports: unknown[], definitions: { name: string, tokens: [string, string][] }[] }} */ (
+        found
+      );
+    }
+
+    /**
+     * @param {import("@babel/types").Node} node
+     * @returns {unknown}
+     */
+    function evaluate(node) {
+      if (node.type === "StringLiteral" || node.type === "BooleanLiteral") {
+        return node.value;
+      }
+      if (node.type === "ArrayExpression") {
+        return node.elements.map((element) =>
+          element === null ? null : evaluate(element),
+        );
+      }
+      if (node.type === "ObjectExpression") {
+        return Object.fromEntries(
+          node.properties.map((property) => {
+            if (
+              property.type !== "ObjectProperty" ||
+              property.key.type !== "Identifier"
+            ) {
+              throw new Error("Unexpected property");
+            }
+            return [property.key.name, evaluate(property.value)];
+          }),
+        );
+      }
+      throw new Error(`Unexpected ${node.type}`);
+    }
+
+    /** @param {[string, string][]} tokens */
+    const text = (tokens) => tokens.map(([, one]) => one).join("");
+
+    const LAB_IMPORTS = `import * as stylex from "@stylexjs/stylex";
+import { Button } from "@tuja/ui/components/button";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
+import { labSetter, labSource } from "./define-lab.tsx";
+`;
+
+    it("gives the value's source, its imports and the styles it uses", () => {
+      const source = labSourceOf(`${LAB_IMPORTS}
+const setIsOpen = labSetter();
+
+const panel = stylex.create({ narrow: { inlineSize: space._13 } });
+
+export const sample = {
+  value: labSource(
+    <div css={[stack.item, panel.narrow]}>
+      <Button onClick={() => setIsOpen(false)}>Done</Button>
+    </div>,
+  ),
+};
+`);
+      expect(text(source.tokens)).toBe(
+        [
+          "<div css={[stack.item, panel.narrow]}>",
+          "  <Button onClick={() => setIsOpen(false)}>Done</Button>",
+          "</div>",
+        ].join("\n"),
+      );
+      expect(source.imports).toEqual([
+        { name: "stack", from: "@tuja/ui/primitives/stack.stylex" },
+        { name: "stylex", from: "@stylexjs/stylex", isNamespace: true },
+        { name: "space", from: "@tuja/ui/tokens.stylex" },
+        { name: "Button", from: "@tuja/ui/components/button" },
+      ]);
+      expect(
+        source.definitions.map((one) => [one.name, text(one.tokens)]),
+      ).toEqual([
+        [
+          "panel",
+          "const panel = stylex.create({ narrow: { inlineSize: space._13 } });",
+        ],
+      ]);
+    });
+
+    it("fails the build on a name a reader cannot import", () => {
+      expect(() =>
+        labSourceOf(`${LAB_IMPORTS}
+function Prompt() {
+  return <Button>Archive</Button>;
+}
+
+export const value = labSource(<Prompt />);
+`),
+      ).toThrow(/"Prompt"/);
     });
   });
 });

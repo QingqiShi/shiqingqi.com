@@ -1,6 +1,6 @@
 import { t } from "@tuja/i18n";
 import { CodeBlock, type CodeToken } from "@tuja/ui/components/code-block";
-import { importLine } from "#src/design-system/lab/build-lab-snippet.ts";
+import { importLine } from "#src/design-system/lab/import-parts.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 const SOURCE: readonly CodeToken[] = [

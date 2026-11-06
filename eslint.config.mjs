@@ -277,6 +277,17 @@ export default defineConfig([
       "restricted/class-component": "off",
     },
   },
+  {
+    // A Lab sample is the code that the reader copies, so it cannot read the
+    // Lab state. Thus the Lab finds the followed link in the sample and
+    // changes its `current`.
+    files: ["apps/web/src/design-system/lab/mark-current.ts"],
+    rules: {
+      "@eslint-react/no-children-map": "off",
+      "@eslint-react/no-children-to-array": "off",
+      "@eslint-react/no-clone-element": "off",
+    },
+  },
   // A `declare module "react"` augmentation must use the same type parameter
   // names as the React declaration (TS2428). Thus `T` stays unused.
   {
