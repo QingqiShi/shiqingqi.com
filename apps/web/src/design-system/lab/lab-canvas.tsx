@@ -25,6 +25,7 @@ import { labStage } from "./lab-stage.stylex.ts";
 import { renderSpecimen } from "./render-specimen.ts";
 import { resolveLabModel } from "./resolve-lab-model.ts";
 import type { LabConfig, LabProps } from "./types.ts";
+import { useKeyboardArea } from "./use-keyboard-area.ts";
 
 interface LabCanvasProps<P> {
   config: LabConfig<P>;
@@ -50,6 +51,7 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
   const isCompact = !useMediaQuery(MD_MEDIA_QUERY, true);
   const stageRef = useRef<HTMLDivElement>(null);
   const [stageBlockStart, setStageBlockStart] = useState<number | null>(null);
+  const area = useKeyboardArea();
   const model = resolveLabModel(config, locale);
 
   const reduce = labReducer(config.variants);
@@ -90,6 +92,13 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
     };
   }, [isCompact]);
 
+  // An on-screen keyboard covers the foot of the screen, and the browser
+  // scrolls the bar's field above it, which takes the Specimen off the top.
+  // While it shows, the stage starts where the visible area does and takes
+  // what is left of it above the bar.
+  const keyboardArea =
+    isCompact && area !== null && stageBlockStart !== null ? area : null;
+
   // A sample-driven prop holds the sample's id, which is what the snippet and
   // the controls read. The Specimen needs the node the id stands for.
   const specimenProps: LabProps = { ...state.props };
@@ -117,6 +126,12 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
           styles.stage,
           stageBlockStart !== null &&
             styles.stageBlockStart(`${String(stageBlockStart)}px`),
+          keyboardArea !== null &&
+            stageBlockStart !== null &&
+            styles.stageAboveKeyboard(
+              `${String(Math.max(0, keyboardArea.top - stageBlockStart))}px`,
+              `${String(keyboardArea.height)}px`,
+            ),
         ]}
       >
         <div css={styles.specimenArea}>
@@ -190,6 +205,10 @@ const styles = stylex.create({
   },
   stageBlockStart: (blockStart: string) => ({
     [labStage.blockStart]: blockStart,
+  }),
+  stageAboveKeyboard: (offset: string, visibleHeight: string) => ({
+    paddingBlockStart: offset,
+    minBlockSize: `calc(${offset} + ${visibleHeight} - ${labBar.clearance} - ${space._4})`,
   }),
   specimenArea: {
     display: "flex",
