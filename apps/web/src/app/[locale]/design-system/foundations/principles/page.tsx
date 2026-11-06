@@ -127,15 +127,15 @@ export default function PrinciplesPage() {
         zh: "让空间真实可感。",
       }),
       overview: t({
-        en: "An interface is a place people move through. When things move with weight and come from somewhere, people build a picture of that place without thinking about it.",
-        zh: "界面是用户穿行其中的空间。当事物的运动带有分量、有来有去，用户便能不假思索地在脑中构建出这个空间。",
+        en: "An interface is a place people move through, where everything has a position of its own. When things move with weight and come from somewhere, people build a picture of that place without thinking about it.",
+        zh: "界面是用户穿行其中的空间，每个元素都有自己的位置。当事物的运动带有分量、有来有去，用户便能不假思索地在脑中构建出这个空间。",
       }),
       details: [
         {
           lead: t({ en: "Show where things come from.", zh: "展示来龙去脉。" }),
           text: t({
-            en: "Let what opens grow from what was tapped, and return there when it closes, so people can trace every change.",
-            zh: "让展开的内容从被点按的地方生长出来，关闭时再回到那里，使每一次变化都有迹可循。",
+            en: "Let anything that appears, moves, resizes or leaves travel from where it starts to where it ends, and back the same way, so people can trace every change.",
+            zh: "元素出现、移动、改变尺寸或消失时，都让它从起点出发、到达终点，复原时沿原路返回，使每一次变化都有迹可循。",
           }),
         },
         {
@@ -144,15 +144,15 @@ export default function PrinciplesPage() {
             zh: "像真实物体一样运动。",
           }),
           text: t({
-            en: "Give every motion weight and a little bounce, and let people interrupt it at any time.",
-            zh: "让每个动效都带有分量和些许回弹，并允许用户随时打断。",
+            en: "Give every motion weight and a little bounce. Keep what people drag under their pointer or finger, and let them interrupt any motion and drag on from where it is.",
+            zh: "让每个动效都带有分量和些许回弹。拖动的内容紧随指针或手指，任何动效都可随时打断，并从当前位置接着拖动。",
           }),
         },
         {
           lead: t({ en: "Keep context in view.", zh: "让上下文保持可见。" }),
           text: t({
-            en: "Let what lies beneath show through a floating surface, so people never lose their place.",
-            zh: "让下层内容透过浮动的界面隐约可见，用户便不会迷失位置。",
+            en: "Let what lies beneath show through a floating surface, and keep what people are looking at still as things around it change, so they never lose their place.",
+            zh: "让下层内容透过浮动的界面隐约可见；周围变化时，正在看的内容留在原处，用户便不会迷失位置。",
           }),
         },
       ],
