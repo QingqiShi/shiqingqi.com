@@ -26,7 +26,19 @@ export function attributeValue(
   control: LabControlModel | undefined,
   defaultValue: string | undefined,
 ): AttributeValue | null {
-  if (value === undefined || value === null) return null;
+  if (value === undefined) return null;
+  // A prop that takes `null` on purpose, such as `linkStatus`, must print
+  // it, also when `null` is the default. The props type can need it.
+  if (value === null) {
+    return {
+      kind: "tokens",
+      tokens: [
+        ["punct", "{"],
+        ["keyword", "null"],
+        ["punct", "}"],
+      ],
+    };
+  }
 
   if (control?.samples !== undefined) {
     const sample = control.samples.find((choice) => choice.id === value);

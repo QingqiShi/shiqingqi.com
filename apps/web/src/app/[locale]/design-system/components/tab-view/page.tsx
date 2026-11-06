@@ -1,4 +1,3 @@
-import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
@@ -16,13 +15,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default function TabViewPage() {
   return (
-    <DocPage
-      path="/design-system/components/tab-view"
-      description={t({
-        en: "The frame of an app with a few top-level destinations, which you declare once.",
-        zh: "适用于只有少数几个顶层目标页的应用框架。目标页只需声明一次。",
-      })}
-    >
+    <DocPage path="/design-system/components/tab-view">
       <TabViewShowcase />
     </DocPage>
   );

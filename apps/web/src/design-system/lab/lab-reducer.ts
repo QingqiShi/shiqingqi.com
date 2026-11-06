@@ -15,6 +15,8 @@ export type LabAction =
       value: unknown;
       /** One step of a change still in progress, such as a keystroke. */
       isLive?: boolean;
+      /** The props that the component takes in place of this one. */
+      replaces?: readonly string[];
     }
   | { type: "reset" };
 
@@ -39,9 +41,13 @@ export function labReducer<P>(variants: readonly LabVariant<P>[]) {
         };
       }
       case "setProp": {
+        const replaced = new Set(action.replaces);
+        const kept = Object.entries(state.props).filter(
+          ([prop]) => !replaced.has(prop),
+        );
         return {
           ...state,
-          props: { ...state.props, [action.prop]: action.value },
+          props: { ...Object.fromEntries(kept), [action.prop]: action.value },
         };
       }
       case "reset": {

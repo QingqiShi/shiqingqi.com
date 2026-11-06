@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import type { ReactNode, Ref } from "react";
+import type { ComponentProps, ReactNode, Ref } from "react";
 import { color } from "../color.stylex.ts";
 import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
 import {
@@ -156,16 +156,15 @@ export function Popover({
     "aria-labelledby": labelledByTrigger,
     ...restContentProps
   } = contentProps;
-  const coverRef = useEffectCover();
   const { ref: flowRef, skin } = useFlowBlock({ surface: true, place });
-  const contentMergedRef = mergeRefs(ref, contentRef, coverRef, flowRef);
+  const contentMergedRef = mergeRefs(ref, contentRef, flowRef);
 
   return (
     <>
       {trigger(triggerProps)}
       {open ? (
         <Portal target={portalTarget}>
-          <div
+          <PopoverContent
             {...restContentProps}
             ref={contentMergedRef}
             aria-label={ariaLabel}
@@ -183,11 +182,27 @@ export function Popover({
           >
             {children}
             {skin}
-          </div>
+          </PopoverContent>
         </Portal>
       ) : null}
     </>
   );
+}
+
+interface PopoverContentProps extends Omit<
+  ComponentProps<"div">,
+  "className" | "style"
+> {
+  css: StyleProp;
+}
+
+/**
+ * The fixed box of the content. It declares its Effect cover inside the
+ * portal, so the cover is on the viewport, as the box is.
+ */
+function PopoverContent({ ref, css, ...props }: PopoverContentProps) {
+  const coverRef = useEffectCover();
+  return <div {...props} ref={mergeRefs(ref, coverRef)} css={css} />;
 }
 
 const styles = stylex.create({

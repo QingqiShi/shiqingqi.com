@@ -14,6 +14,48 @@ import { importLine } from "#src/design-system/lab/import-parts.ts";
 import { textOf } from "#src/design-system/lab/print-lab-value.ts";
 import { showcaseBleed } from "#src/design-system/showcase-bleed.stylex.ts";
 
+/**
+ * One import line, one comment, and one lowercase tag around a component
+ * with an attribute, a string, a number, and a property access: every kind
+ * `TOKEN_KINDS` names, in one snippet.
+ */
+export const CODE_RUNS: readonly CodeToken[] = [
+  ...importLine("Progress", "@tuja/ui/components/progress"),
+  ["plain", "\n\n"],
+  ["comment", "// Reports how far the upload has got."],
+  ["plain", "\n"],
+  ["punct", "<"],
+  ["tag", "div"],
+  ["plain", " "],
+  ["attr", "className"],
+  ["punct", "="],
+  ["string", '"upload"'],
+  ["punct", ">"],
+  ["plain", "\n  "],
+  ["punct", "<"],
+  ["component", "Progress"],
+  ["plain", " "],
+  ["attr", "value"],
+  ["punct", "="],
+  ["punct", "{"],
+  ["number", "42"],
+  ["punct", "}"],
+  ["plain", " "],
+  ["attr", "label"],
+  ["punct", "="],
+  ["punct", "{"],
+  ["plain", "upload"],
+  ["punct", "."],
+  ["property", "name"],
+  ["punct", "}"],
+  ["plain", " "],
+  ["punct", "/>"],
+  ["plain", "\n"],
+  ["punct", "</"],
+  ["tag", "div"],
+  ["punct", ">"],
+];
+
 const IMPORT: CodePart = {
   id: "import",
   lead: "",
@@ -73,7 +115,7 @@ const ICON_VALUE: readonly CodeToken[] = [
  * keeps the same id — and so the same box — across the last two states,
  * because its value never changes between them.
  */
-const STATES = {
+export const BUTTON_SNIPPET_STATES = {
   default: [IMPORT, OPEN, CLOSE, CHILDREN, END],
   primary: [
     IMPORT,
@@ -95,7 +137,7 @@ const STATES = {
   ],
 } satisfies Record<string, readonly CodePart[]>;
 
-type StateId = keyof typeof STATES;
+type StateId = keyof typeof BUTTON_SNIPPET_STATES;
 
 /** Holds which of the three states is on show — `CodeBlock` is controlled by contract. */
 export function CodeBlockPartsControl() {
@@ -117,7 +159,7 @@ export function CodeBlockPartsControl() {
         ]}
       />
       <CodeBlock
-        parts={STATES[stateId]}
+        parts={BUTTON_SNIPPET_STATES[stateId]}
         label={t({ en: "Code", zh: "代码" })}
         css={showcaseBleed.region}
         contentCss={showcaseBleed.content}

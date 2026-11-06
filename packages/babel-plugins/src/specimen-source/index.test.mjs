@@ -397,6 +397,21 @@ export const sample = {
       ]);
     });
 
+    it("reads an object literal as an expression, not a block", () => {
+      const source = labSourceOf(`${LAB_IMPORTS}
+export const value = labSource({
+  label: "Inbox",
+  node: <Button>Add</Button>,
+});
+`);
+      expect(text(source.tokens)).toBe(
+        ["{", '  label: "Inbox",', "  node: <Button>Add</Button>,", "}"].join(
+          "\n",
+        ),
+      );
+      expect(source.tokens[0]).toEqual(["punct", "{"]);
+    });
+
     it("fails the build on a name a reader cannot import", () => {
       expect(() =>
         labSourceOf(`${LAB_IMPORTS}
