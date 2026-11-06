@@ -4,6 +4,7 @@ export const SETTINGS_SECTIONS = [
   "organise",
   "mailboxes",
   "capture",
+  "preferences",
 ] as const;
 
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number];

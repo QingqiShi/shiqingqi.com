@@ -4,6 +4,7 @@ import type { Icon } from "@phosphor-icons/react";
 import { DeviceMobileIcon } from "@phosphor-icons/react/dist/ssr/DeviceMobile";
 import { EnvelopeSimpleIcon } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";
 import { NewspaperIcon } from "@phosphor-icons/react/dist/ssr/Newspaper";
+import { SlidersHorizontalIcon } from "@phosphor-icons/react/dist/ssr/SlidersHorizontal";
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
@@ -21,6 +22,7 @@ const ICONS: Record<SettingsSection, Icon> = {
   organise: SparkleIcon,
   mailboxes: EnvelopeSimpleIcon,
   capture: DeviceMobileIcon,
+  preferences: SlidersHorizontalIcon,
 };
 
 export function useSettingsSectionLabels(): Record<SettingsSection, string> {
@@ -29,6 +31,7 @@ export function useSettingsSectionLabels(): Record<SettingsSection, string> {
     organise: t({ en: "Organise", zh: "整理" }),
     mailboxes: t({ en: "Mailboxes", zh: "邮箱" }),
     capture: t({ en: "Add from your phone", zh: "从手机添加" }),
+    preferences: t({ en: "Preferences", zh: "偏好设置" }),
   };
 }
 
