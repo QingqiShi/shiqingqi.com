@@ -7,28 +7,20 @@ import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { List } from "@tuja/ui/components/list";
-import { ListRow, type ListRowLinkProps } from "@tuja/ui/components/list-row";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { ComponentProps } from "react";
 import listRowDoc from "#src/_generated/props/list-row.json";
-import { LabCanvas } from "./lab-canvas.tsx";
-import type { LabConfig, LabSample } from "./types.ts";
+import { defineLab, InertLink, NONE_SAMPLE } from "./define-lab.tsx";
+import type { LabSample } from "./types.ts";
 
 type ListRowLabProps = Extract<
   ComponentProps<typeof ListRow>,
   { href: string }
 >;
 
-const NONE: LabSample = {
-  id: "none",
-  label: { en: "None", zh: "无" },
-  code: "",
-  imports: [],
-  value: undefined,
-};
-
 const LEADING_SAMPLES: LabSample[] = [
-  NONE,
+  NONE_SAMPLE,
   {
     id: "avatar",
     label: { en: "Avatar", zh: "头像" },
@@ -39,7 +31,7 @@ const LEADING_SAMPLES: LabSample[] = [
 ];
 
 const TRAILING_SAMPLES: LabSample[] = [
-  NONE,
+  NONE_SAMPLE,
   {
     id: "badge",
     label: { en: "Badge", zh: "徽标" },
@@ -80,7 +72,7 @@ function MoveButtons() {
 }
 
 const ACTIONS_SAMPLES: LabSample[] = [
-  NONE,
+  NONE_SAMPLE,
   {
     id: "move",
     label: { en: "Move up and down", zh: "上移与下移" },
@@ -89,19 +81,6 @@ const ACTIONS_SAMPLES: LabSample[] = [
     value: <MoveButtons />,
   },
 ];
-
-/** Keeps the Lab on its page when the visitor follows the row. */
-function InertLink({ onClick, ...props }: ListRowLinkProps) {
-  return (
-    <a
-      {...props}
-      onClick={(event) => {
-        onClick?.(event);
-        event.preventDefault();
-      }}
-    />
-  );
-}
 
 /**
  * A ListRow only draws its surface and dividers inside a List, so the Canvas
@@ -117,12 +96,9 @@ function ListedRow(props: ListRowLabProps) {
 
 const HREF = "/settings/rules";
 
-const config: LabConfig<ListRowLabProps> = {
-  component: "list-row",
-  element: "ListRow",
-  importPath: "@tuja/ui/components/list-row",
-  propsDoc: listRowDoc,
-  render: (props) => <ListedRow {...props} />,
+export const ListLab = defineLab({
+  doc: listRowDoc,
+  component: ListedRow,
   variants: [
     {
       id: "default",
@@ -176,12 +152,7 @@ const config: LabConfig<ListRowLabProps> = {
     "caret",
     { prop: "aria-current", kind: "boolean" },
   ],
-};
-
-/** The List Lab: a live ListRow in a List on the Canvas, with its API beside it. */
-export function ListLab() {
-  return <LabCanvas config={config} />;
-}
+});
 
 const styles = stylex.create({
   list: {

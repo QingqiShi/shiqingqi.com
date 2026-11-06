@@ -1,10 +1,10 @@
 import { t } from "@tuja/i18n";
 import type { ReactNode } from "react";
-import { DocArticle } from "#src/design-system/doc-article.tsx";
+import { LabArticle } from "#src/design-system/lab/lab-page.tsx";
 
 export default function AvatarLayout({ children }: { children: ReactNode }) {
   return (
-    <DocArticle
+    <LabArticle
       path="/design-system/components/avatar"
       description={t({
         en: "A medallion standing for one person or organisation: their portrait or logo when there is one, a monogram derived from their name when there isn't, and an optional corner badge for what they're doing. A person is a circle; an organisation is a rounded square.",
@@ -12,6 +12,6 @@ export default function AvatarLayout({ children }: { children: ReactNode }) {
       })}
     >
       {children}
-    </DocArticle>
+    </LabArticle>
   );
 }

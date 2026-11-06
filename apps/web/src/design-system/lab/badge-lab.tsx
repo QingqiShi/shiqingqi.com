@@ -1,24 +1,17 @@
 "use client";
 
 import { Badge } from "@tuja/ui/components/badge";
-import type { ComponentProps } from "react";
 import badgeDoc from "#src/_generated/props/badge.json";
-import { LabCanvas } from "./lab-canvas.tsx";
-import type { LabConfig } from "./types.ts";
-
-type BadgeLabProps = ComponentProps<typeof Badge>;
+import { defineLab } from "./define-lab.tsx";
 
 // The label a Variant puts on the Specimen stays in English: it is printed in
 // the snippet as source, where a translated string would not be what a
 // consumer writes.
 const LABEL = "New";
 
-const config: LabConfig<BadgeLabProps> = {
-  component: "badge",
-  element: "Badge",
-  importPath: "@tuja/ui/components/badge",
-  propsDoc: badgeDoc,
-  render: (props) => <Badge {...props} />,
+export const BadgeLab = defineLab({
+  doc: badgeDoc,
+  component: Badge,
   variants: [
     {
       id: "default",
@@ -57,9 +50,4 @@ const config: LabConfig<BadgeLabProps> = {
     },
   ],
   controls: ["children", "intent", "size"],
-};
-
-/** The Badge Lab: a live Badge on the Canvas, with its API beside it. */
-export function BadgeLab() {
-  return <LabCanvas config={config} />;
-}
+});

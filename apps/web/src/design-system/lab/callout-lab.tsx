@@ -1,21 +1,12 @@
 "use client";
 
 import { Callout } from "@tuja/ui/components/callout";
-import type { ComponentProps } from "react";
 import calloutDoc from "#src/_generated/props/callout.json";
-import { LabCanvas } from "./lab-canvas.tsx";
-import type { LabConfig } from "./types.ts";
+import { defineLab, noop } from "./define-lab.tsx";
 
-type CalloutLabProps = ComponentProps<typeof Callout>;
-
-function noop() {}
-
-const config: LabConfig<CalloutLabProps> = {
-  component: "callout",
-  element: "Callout",
-  importPath: "@tuja/ui/components/callout",
-  propsDoc: calloutDoc,
-  render: (props) => <Callout {...props} />,
+export const CalloutLab = defineLab({
+  doc: calloutDoc,
+  component: Callout,
   variants: [
     {
       id: "info",
@@ -86,9 +77,4 @@ const config: LabConfig<CalloutLabProps> = {
     },
   ],
   controls: ["title", "children", "intent"],
-};
-
-/** The Callout Lab: a live Callout on the Canvas, with its API beside it. */
-export function CalloutLab() {
-  return <LabCanvas config={config} />;
-}
+});

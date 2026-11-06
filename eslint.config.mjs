@@ -291,7 +291,7 @@ export default defineConfig([
   // A Lab lets the visitor pair props that the component's types forbid.
   // Thus the Specimen's props do not have the component's prop type.
   {
-    files: ["apps/web/src/design-system/lab/render-specimen.ts"],
+    files: ["apps/web/src/design-system/lab/render-specimen.tsx"],
     rules: {
       "restricted/type-assertion": "off",
     },

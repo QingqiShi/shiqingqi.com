@@ -1,10 +1,10 @@
 import { t } from "@tuja/i18n";
 import type { ReactNode } from "react";
-import { DocArticle } from "#src/design-system/doc-article.tsx";
+import { LabArticle } from "#src/design-system/lab/lab-page.tsx";
 
 export default function SheetLayout({ children }: { children: ReactNode }) {
   return (
-    <DocArticle
+    <LabArticle
       path="/design-system/components/sheet"
       description={t({
         en: "A modal card over the dimmed page. On a phone it floats at the bottom of the screen and a drag down puts it away; on a tablet or a desktop it sits in the centre. It owns the dimmed page, the focus trap, the scroll lock, Escape and the close button; you supply the content and the localised close label.",
@@ -12,6 +12,6 @@ export default function SheetLayout({ children }: { children: ReactNode }) {
       })}
     >
       {children}
-    </DocArticle>
+    </LabArticle>
   );
 }

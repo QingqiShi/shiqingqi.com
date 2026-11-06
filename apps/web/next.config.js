@@ -72,15 +72,7 @@ module.exports = async (phase) => {
           "/design-system/components/anchor-button",
           "/design-system/components/button",
         ],
-        [
-          "/design-system/components/anchor-button/lab",
-          "/design-system/components/button/lab",
-        ],
         ["/design-system/components/chip", "/design-system/components/button"],
-        [
-          "/design-system/components/chip/lab",
-          "/design-system/components/button/lab",
-        ],
         [
           "/design-system/components/tab-bar",
           "/design-system/components/tab-view",
@@ -121,11 +113,17 @@ module.exports = async (phase) => {
         ["/api/finance/:path*", "/api/:path*"],
       ];
       return [
+        // `:rest*` also matches an empty rest. Thus one rule sends a moved
+        // page and each page below it, such as its Lab, to the new path.
         ...moved.flatMap(([source, destination]) => [
-          { source, destination, permanent: true },
           {
-            source: `/zh${source}`,
-            destination: `/zh${destination}`,
+            source: `${source}/:rest*`,
+            destination: `${destination}/:rest*`,
+            permanent: true,
+          },
+          {
+            source: `/zh${source}/:rest*`,
+            destination: `/zh${destination}/:rest*`,
             permanent: true,
           },
         ]),

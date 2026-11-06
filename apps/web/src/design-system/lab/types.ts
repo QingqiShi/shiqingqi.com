@@ -1,6 +1,6 @@
 import type { SupportedLocale } from "@tuja/i18n/types";
 import type { PropDoc } from "@tuja/props-codegen/types";
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 
 /**
  * The props a Lab holds for its Specimen. Loosely typed because a control only
@@ -65,24 +65,36 @@ export type LabControlSpec<P> =
       /** The nodes a `node` prop can take. Without them the prop takes text. */
       samples?: readonly LabSample[];
       /**
-       * Declares the kind of an attribute the component inherits from its HTML
-       * element, which the generated props documentation does not carry.
+       * Sets the kind of the control. Use it for an inherited HTML attribute
+       * that the generated props documentation does not carry and the Lab
+       * does not know, or for a documented prop whose kind is `"other"`.
        */
       kind?: PropDoc["kind"];
     };
 
-/** Everything one component's Lab needs to draw itself. */
-export interface LabConfig<P> {
+/**
+ * What the Lab reads from one generated props document. A configuration
+ * imports the JSON directly, so the client loads the document of its own
+ * component only.
+ */
+export interface LabPropsDoc {
   /** The export subpath of the component — `"button"`. */
-  component: string;
+  name: string;
   /** The element name the snippet prints — `"Button"`. */
-  element: string;
-  importPath: string;
-  /** The generated documentation for `component`, imported by the config. */
-  propsDoc: { props: readonly LabPropDoc[] };
-  render: (props: P) => ReactNode;
-  variants: readonly LabVariant<P>[];
-  controls: readonly LabControlSpec<P>[];
+  component: string;
+  props: readonly LabPropDoc[];
+}
+
+/**
+ * Everything one component's Lab needs to draw itself. The Specimen is
+ * `component` with the Lab's props on it. A Specimen that needs more, such as
+ * its own state or a wrapper, takes a local component that adds it.
+ */
+export interface LabConfig<P> {
+  doc: LabPropsDoc;
+  component: ComponentType<P>;
+  variants: NoInfer<readonly LabVariant<P>[]>;
+  controls: NoInfer<readonly LabControlSpec<P>[]>;
 }
 
 /** One sample with its label resolved for the locale in front of the visitor. */

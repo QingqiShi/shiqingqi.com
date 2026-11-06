@@ -3,18 +3,10 @@ import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { FloppyDiskIcon } from "@phosphor-icons/react/dist/ssr/FloppyDisk";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
+import { NONE_SAMPLE } from "./define-lab.tsx";
 import type { LabSample } from "./types.ts";
 
 const ICON_MODULE = "@phosphor-icons/react/dist/ssr";
-
-/** The option that leaves the prop out altogether. */
-const NONE: LabSample = {
-  id: "none",
-  label: { en: "None", zh: "无" },
-  code: "",
-  imports: [],
-  value: undefined,
-};
 
 /**
  * One Phosphor Icon as a sample, at the weight of the package's own control
@@ -38,7 +30,7 @@ export function iconSample(
 
 /** The Icons a component's `icon` prop offers in its Lab. */
 export const labIconSamples: LabSample[] = [
-  NONE,
+  NONE_SAMPLE,
   iconSample("plus", { en: "Plus", zh: "加号" }, "PlusIcon", "Plus", PlusIcon),
   iconSample(
     "arrowRight",

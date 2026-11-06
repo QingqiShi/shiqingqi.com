@@ -134,6 +134,7 @@ export function collectPropsDoc(
 
   const tag = context.htmlTags.at(0);
   return {
+    name: entry.name,
     component: entry.component,
     kind: entry.kind,
     source: path.relative(repoRoot, entry.file),

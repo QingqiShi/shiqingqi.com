@@ -51,6 +51,12 @@ export type DesignSystemView = "docs" | "lab";
 /** Union of every registered path — lets consumers type copy maps for exhaustiveness. */
 export type DesignSystemPath = (typeof DESIGN_SYSTEM_ROUTES)[number]["path"];
 
+/** The path of every route that sets `lab: true`. */
+export type DesignSystemLabPath = Extract<
+  (typeof DESIGN_SYSTEM_ROUTES)[number],
+  { lab: true }
+>["path"];
+
 /**
  * Just the paths of the given sections, so the illustration map can be total
  * over them and a new route there without art fails to compile.

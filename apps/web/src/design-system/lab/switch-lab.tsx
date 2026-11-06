@@ -4,8 +4,7 @@ import { Switch } from "@tuja/ui/components/switch";
 import type { ComponentProps } from "react";
 import { useState } from "react";
 import switchDoc from "#src/_generated/props/switch.json";
-import { LabCanvas } from "./lab-canvas.tsx";
-import type { LabConfig } from "./types.ts";
+import { defineLab } from "./define-lab.tsx";
 
 type SwitchLabProps = ComponentProps<typeof Switch>;
 
@@ -32,12 +31,9 @@ function OperableSwitch({ value, ...rest }: SwitchLabProps) {
   return <Switch {...rest} value={state} onChange={setState} />;
 }
 
-const config: LabConfig<SwitchLabProps> = {
-  component: "switch",
-  element: "Switch",
-  importPath: "@tuja/ui/components/switch",
-  propsDoc: switchDoc,
-  render: (props) => <OperableSwitch {...props} />,
+export const SwitchLab = defineLab({
+  doc: switchDoc,
+  component: OperableSwitch,
   variants: [
     {
       id: "off",
@@ -69,10 +65,5 @@ const config: LabConfig<SwitchLabProps> = {
       },
     },
   ],
-  controls: ["size", "value", "effect", { prop: "disabled", kind: "boolean" }],
-};
-
-/** The Switch Lab: a live Switch on the Canvas, with its API beside it. */
-export function SwitchLab() {
-  return <LabCanvas config={config} />;
-}
+  controls: ["size", "value", "effect", "disabled"],
+});

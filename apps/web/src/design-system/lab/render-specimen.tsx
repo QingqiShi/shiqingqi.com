@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import type { LabConfig, LabProps } from "./types.ts";
 
 /**
@@ -8,5 +9,6 @@ import type { LabConfig, LabProps } from "./types.ts";
  * here.
  */
 export function renderSpecimen<P>(config: LabConfig<P>, props: LabProps) {
-  return config.render(props as P);
+  const { component: Component } = config;
+  return <Component {...(props as P & JSX.IntrinsicAttributes)} />;
 }
