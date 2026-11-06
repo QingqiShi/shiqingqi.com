@@ -523,7 +523,6 @@ export default defineConfig([
       // thumbnail scale, a poster title as artwork, one glyph of a family,
       // each step of a fluid scale side by side, or a token name that must
       // fit on one line.
-      "apps/web/src/design-system/foundation-illustrations/**",
       "apps/web/src/design-system/sections/examples/typeset-poster.tsx",
       "apps/web/src/design-system/sections/foundations/{families-showcase,viewport-scale-specimen,container-scale-specimen,color-names-showcase}.tsx",
       // The calculator sizes its keys and its readout to its container.

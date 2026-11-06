@@ -53,7 +53,7 @@ interface ComponentSpecimen {
 
 /**
  * Maps each components route to the specimen
- * shown in its overview tile. The counterpart to `foundation-illustrations/`:
+ * shown in its overview tile. The counterpart to `tile-illustrations/`:
  * the other tiles get a generated picture because a token or a hook has no
  * rendered form, whereas a component does — so these are the real components,
  * rendered live, and they cannot drift from the thing they advertise. The ones that cannot
