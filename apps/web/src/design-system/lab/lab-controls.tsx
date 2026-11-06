@@ -59,7 +59,7 @@ export function LabControls({
 
       <section css={stack.tight}>
         <Text as="span" look="caption" tone="muted" css={typeRole.overline}>
-          {t({ en: "Props", zh: "属性" })}
+          {t({ en: "Props", zh: "Props" })}
         </Text>
         <div css={stack.item}>
           {controls.map((control) => (

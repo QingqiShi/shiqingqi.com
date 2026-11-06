@@ -127,7 +127,7 @@ export function ProgressShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "label is required and becomes the accessible name. The component writes role, the name and every aria-value* attribute after the caller's props, so a stray aria-label or aria-valuenow at the callsite cannot replace what the bar actually reports.",
-            zh: "label 为必填，并成为可访问名称。组件在调用方属性之后才写入 role、名称以及全部 aria-value* 属性，因此调用处误传的 aria-label 或 aria-valuenow 无法替换进度条真正报告的内容。",
+            zh: "label 为必填，并成为可访问名称。组件在调用方 props 之后才写入 role、名称以及全部 aria-value* 属性，因此调用处误传的 aria-label 或 aria-valuenow 无法替换进度条真正报告的内容。",
           })}
         </Text>
         <UsageSnippet

@@ -46,7 +46,7 @@ interface MenuButtonBaseProps {
   /**
    * Props forwarded to the trigger `Button` (e.g. `icon`, `look`, `disabled`).
    *
-   * @zh 转发给触发 `Button` 的属性（例如 `icon`、`look`、`disabled`）。
+   * @zh 转发给触发 `Button` 的 props（例如 `icon`、`look`、`disabled`）。
    */
   buttonProps: Partial<ButtonFormProps>;
   /**

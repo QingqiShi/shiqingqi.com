@@ -66,7 +66,7 @@ export function AccessibilityShowcase() {
         title={t({ en: "Write for the ear.", zh: "为耳朵而写。" })}
         lead={t({
           en: "@tuja/ui ships no copy, so every name and message a screen reader reads is a prop you pass. An error is read at once and interrupts, while a status waits for a pause: save the address below with and without an @.",
-          zh: "@tuja/ui 不含任何文案，读屏软件朗读的每个名称和消息都是你传入的属性。错误一出现就会被朗读并打断当前内容，状态消息则会等到停顿时再读：在下面分别保存带 @ 和不带 @ 的地址试试。",
+          zh: "@tuja/ui 不含任何文案，读屏软件朗读的每个名称和消息都是你传入的 prop。错误一出现就会被朗读并打断当前内容，状态消息则会等到停顿时再读：在下面分别保存带 @ 和不带 @ 的地址试试。",
         })}
       >
         <Stage>

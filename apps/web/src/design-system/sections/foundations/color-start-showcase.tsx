@@ -17,7 +17,7 @@ export function ColorStartShowcase() {
       })}
       lead={t({
         en: "Where a component offers a choice of colour, it is a prop that sets the fill, the text and any edge together. Name a token only when you build or restyle an element yourself.",
-        zh: "组件提供颜色选择时，这个选择就是一个属性，同时设定填充、文字与边缘（如果有）。只有自行构建或改写元素样式时，才需要写出令牌。",
+        zh: "组件提供颜色选择时，这个选择就是一个 prop，同时设定填充、文字与边缘（如果有）。只有自行构建或改写元素样式时，才需要写出令牌。",
       })}
     >
       <Example>
@@ -35,7 +35,7 @@ export function ColorStartShowcase() {
       <GuideNote>
         {t({
           en: "To recolour one component, use its css prop or its Tokens, as in ",
-          zh: "要给某个组件换颜色，请用它的 css 属性或令牌，见",
+          zh: "要给某个组件换颜色，请用它的 css prop 或令牌，见",
         })}
         <DocLink path="/design-system/foundations/customization" />
         {t({ en: ".", zh: "。" })}

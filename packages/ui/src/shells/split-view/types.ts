@@ -278,7 +278,7 @@ export type NavigationSplitViewProps = NavigationSplitViewBaseProps &
          * `skeleton` and no `"page"` sidebar. A view of one pane needs it only
          * for a `SplitViewLink` in its content.
          *
-         * @zh 视图渲染在每个 `SplitViewLink` 内部的组件，让路由器的 hook 能读取该链接的导航是否处于 pending 状态。内容由你自己持有时传入 `null`，此时不要传入 `skeleton` 和 `"page"` 侧栏。只有一栏的视图只有内容中有 `SplitViewLink` 时才需要它。
+         * @zh 视图渲染在每个 `SplitViewLink` 内部的组件，让路由器的 Hook 能读取该链接的导航是否处于 pending 状态。内容由你自己持有时传入 `null`，此时不要传入 `skeleton` 和 `"page"` 侧栏。只有一栏的视图只有内容中有 `SplitViewLink` 时才需要它。
          */
         linkStatus: ComponentType<TabLinkStatusProps>;
         /**

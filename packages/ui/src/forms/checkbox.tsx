@@ -59,7 +59,7 @@ interface CheckboxProps extends Omit<
    * Renders the mixed/partial ("dash") state. Reflected onto the DOM node's
    * `.indeterminate` property via a ref effect since it has no HTML attribute.
    *
-   * @zh 渲染混合/部分选中的横线状态；由于没有对应的 HTML 属性，通过 `ref` 效果反映到 DOM 节点的 `.indeterminate` 属性。
+   * @zh 渲染混合/部分选中的横线状态；由于没有对应的 HTML 属性，通过 `ref` Effect 反映到 DOM 节点的 `.indeterminate` 属性。
    */
   indeterminate?: boolean;
   /**

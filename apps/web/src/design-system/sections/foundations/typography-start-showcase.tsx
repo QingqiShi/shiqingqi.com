@@ -42,7 +42,7 @@ export function TypographyStartShowcase() {
           })}
         </GuideNote>
         <GuideNote>
-          {t({ en: "Every prop is on the pages for ", zh: "全部属性见" })}
+          {t({ en: "Every prop is on the pages for ", zh: "全部 prop 见" })}
           <DocLink path="/design-system/components/text" />
           {t({ en: " and ", zh: "与" })}
           <DocLink path="/design-system/components/heading" />

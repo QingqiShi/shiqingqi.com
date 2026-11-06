@@ -49,7 +49,7 @@ interface TableDisclosureBaseProps extends Omit<
    * StyleX styles merged over the summary row's own. Other props go on that
    * row too, such as an `id` that a link can point at.
    *
-   * @zh 合并在摘要行自身样式之上的 StyleX 样式。其他属性同样落在这一行上，例如供链接指向的 `id`。
+   * @zh 合并在摘要行自身样式之上的 StyleX 样式。其他 props 同样落在这一行上，例如供链接指向的 `id`。
    */
   css?: StyleProp;
   /**

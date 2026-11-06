@@ -26,7 +26,7 @@ interface DisclosureBaseProps extends Omit<
    * decoration only. Drop to the `useDisclosure` hook for a header that holds
    * its own link, which would nest a control inside a button.
    *
-   * @zh 标题内容——整行都是触发器，因此这里应只放文本与装饰。若标题需要承载自己的链接，请改用 `useDisclosure` 钩子，否则会把控件嵌套进按钮里。
+   * @zh 标题内容——整行都是触发器，因此这里应只放文本与装饰。若标题需要承载自己的链接，请改用 `useDisclosure` Hook，否则会把控件嵌套进按钮里。
    */
   summary: ReactNode;
   /**

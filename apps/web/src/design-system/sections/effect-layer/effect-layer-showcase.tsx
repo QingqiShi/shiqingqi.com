@@ -102,7 +102,7 @@ export function EffectLayerShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Each effect has a hook of its own that registers its element the same way, so an element with an effect needs no useEffectBoundary as well. To give one element two effects, merge their refs with mergeRefs.",
-            zh: "每个效果都有自己的 hook，以同样的方式登记元素，因此带有效果的元素不必再使用 useEffectBoundary。要让一个元素同时拥有两个效果，用 mergeRefs 合并它们的 ref。",
+            zh: "每个效果都有自己的 Hook，以同样的方式登记元素，因此带有效果的元素不必再使用 useEffectBoundary。要让一个元素同时拥有两个效果，用 mergeRefs 合并它们的 ref。",
           })}
         </Text>
       </Showcase>

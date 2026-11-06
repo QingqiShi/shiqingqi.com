@@ -158,7 +158,7 @@ export function PopoverShowcase() {
       <ShowcaseHelper>
         {t({
           en: "Every prop above is a thin pass-through to usePopover, the headless hook underneath — the Hooks page documents it. Reach for the hook when the popup has to be something other than this surface: a listbox, a tooltip, a panel of your own.",
-          zh: "这里的每个属性都只是薄薄地转交给底层的无界面 hook usePopover——Hooks 页面有它的文档。当弹出内容需要是别的东西时（列表框、提示气泡、你自己的面板），直接用这个 hook。",
+          zh: "这里的每个 prop 都只是薄薄地转交给底层的无界面 Hook usePopover——Hook 页面有它的文档。当弹出内容需要是别的东西时（列表框、提示气泡、你自己的面板），直接用这个 Hook。",
         })}
       </ShowcaseHelper>
     </>

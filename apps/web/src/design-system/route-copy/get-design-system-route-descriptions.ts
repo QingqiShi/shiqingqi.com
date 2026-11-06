@@ -133,7 +133,7 @@ export function getDesignSystemRouteDescriptions(): Record<
     }),
     "/design-system/components/disclosure": t({
       en: "An expand and collapse section, with a headless hook beneath it.",
-      zh: "展开与折叠区块，底层提供无头钩子。",
+      zh: "展开与折叠区块，底层提供无头 Hook。",
     }),
     "/design-system/components/spinner": t({
       en: "An indeterminate loading indicator that respects reduced motion.",
@@ -225,7 +225,7 @@ export function getDesignSystemRouteDescriptions(): Record<
     }),
     "/design-system/hooks": t({
       en: "Headless React hooks — controlled state, dialog focus, tactile press, and radiogroups.",
-      zh: "无头 React 钩子——受控状态、对话框焦点、触感按压与单选组。",
+      zh: "无头 React Hook——受控状态、对话框焦点、触感按压与单选组。",
     }),
     "/design-system/effect-layer": t({
       en: "Effects drawn with WebGPU over the page, around the elements that register for them. Experimental.",

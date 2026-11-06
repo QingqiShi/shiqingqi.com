@@ -91,7 +91,7 @@ export function IconographyShowcase() {
         <GuideNote>
           {t({
             en: "The css prop works on HTML elements and @tuja/ui components, not on an icon: spread stylex.props.",
-            zh: "css 属性只对 HTML 元素和 @tuja/ui 组件生效，对图标无效：请展开 stylex.props。",
+            zh: "css prop 只对 HTML 元素和 @tuja/ui 组件生效，对图标无效：请展开 stylex.props。",
           })}
         </GuideNote>
       </GuideSection>
