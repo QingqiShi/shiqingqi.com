@@ -5,7 +5,7 @@ import {
   resolveTypeDeclaration,
   unwrapParens,
 } from "./collect-from-type-node.ts";
-import type { PropDoc } from "./types.ts";
+import type { EnumMember, PropDoc } from "./types.ts";
 
 /** Type references whose text alone says the prop holds renderable content. */
 const NODE_TYPES = new Set([
@@ -19,16 +19,21 @@ export function normalizeSpace(text: string): string {
   return text.replace(/\s+/g, " ").trim();
 }
 
-/** The string-literal members a type node names, following local aliases. */
-function stringLiteralMembersOf(
+/** The literal members a type node names, following local aliases. */
+function literalMembersOf(
   node: ts.TypeNode | undefined,
   checker: ts.TypeChecker,
   visited: Set<ts.Node>,
-): string[] | undefined {
+): EnumMember[] | undefined {
   node = unwrapParens(node);
   if (!node) return undefined;
   if (ts.isLiteralTypeNode(node)) {
-    return ts.isStringLiteral(node.literal) ? [node.literal.text] : undefined;
+    if (ts.isStringLiteral(node.literal)) return [node.literal.text];
+    if (ts.isNumericLiteral(node.literal)) return [Number(node.literal.text)];
+    return undefined;
+  }
+  if (ts.isTemplateLiteralTypeNode(node)) {
+    return templateLiteralMembersOf(node, checker);
   }
   if (
     node.kind === ts.SyntaxKind.UndefinedKeyword ||
@@ -37,9 +42,9 @@ function stringLiteralMembersOf(
     return [];
   }
   if (ts.isUnionTypeNode(node)) {
-    const members: string[] = [];
+    const members: EnumMember[] = [];
     for (const constituent of node.types) {
-      const resolved = stringLiteralMembersOf(constituent, checker, visited);
+      const resolved = literalMembersOf(constituent, checker, visited);
       if (!resolved) return undefined;
       members.push(...resolved);
     }
@@ -56,7 +61,26 @@ function stringLiteralMembersOf(
     return undefined;
   }
   visited.add(declaration);
-  return stringLiteralMembersOf(declaration.type, checker, visited);
+  return literalMembersOf(declaration.type, checker, visited);
+}
+
+/**
+ * The strings a template literal type expands to — `` `${Side}-${Align}` ``
+ * over two finite unions. A hole of `string` or `number` leaves the set
+ * infinite, which the checker keeps as a template literal type, not a literal.
+ */
+function templateLiteralMembersOf(
+  node: ts.TemplateLiteralTypeNode,
+  checker: ts.TypeChecker,
+): string[] | undefined {
+  const type = checker.getTypeFromTypeNode(node);
+  const constituents = type.isUnion() ? type.types : [type];
+  const members: string[] = [];
+  for (const constituent of constituents) {
+    if (!constituent.isStringLiteral()) return undefined;
+    members.push(constituent.value);
+  }
+  return members;
 }
 
 function isFunctionTypeNode(node: ts.TypeNode | undefined): boolean {
@@ -70,7 +94,7 @@ function isFunctionTypeNode(node: ts.TypeNode | undefined): boolean {
 function kindOf(
   nodes: readonly (ts.TypeNode | undefined)[],
   typeText: string,
-  members: string[] | undefined,
+  members: EnumMember[] | undefined,
 ): PropDoc["kind"] {
   if (members && members.length > 0) return "enum";
   if (nodes.some(isFunctionTypeNode)) return "function";
@@ -186,7 +210,7 @@ export function mergeRecords(
   return sortProps(props);
 }
 
-function printMembers(members: readonly string[]): string {
+function printMembers(members: readonly EnumMember[]): string {
   return members.map((member) => JSON.stringify(member)).join(" | ");
 }
 
@@ -229,14 +253,14 @@ function printGroupType(group: readonly MemberRecord[]): string {
     .join(" | ");
 }
 
-/** The string-literal members of every branch, when every branch has them. */
+/** The literal members of every branch, when every branch has them. */
 function enumMembersOf(
   nodes: readonly (ts.TypeNode | undefined)[],
   checker: ts.TypeChecker,
-): string[] | undefined {
-  const members: string[] = [];
+): EnumMember[] | undefined {
+  const members: EnumMember[] = [];
   for (const node of nodes) {
-    const branch = stringLiteralMembersOf(node, checker, new Set());
+    const branch = literalMembersOf(node, checker, new Set());
     if (!branch) return undefined;
     for (const member of branch) {
       if (!members.includes(member)) members.push(member);

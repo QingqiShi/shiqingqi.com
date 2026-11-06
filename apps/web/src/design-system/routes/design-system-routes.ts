@@ -175,12 +175,14 @@ const ROUTES = [
     section: "components",
     category: "content",
     path: "/design-system/components/text",
+    lab: true,
     keywords: ["body", "copy", "paragraph", "prose", "label"],
   },
   {
     section: "components",
     category: "content",
     path: "/design-system/components/heading",
+    lab: true,
     keywords: ["title", "h1", "h2", "headline"],
   },
   {
@@ -263,12 +265,14 @@ const ROUTES = [
     section: "components",
     category: "forms",
     path: "/design-system/components/text-field",
+    lab: true,
     keywords: ["input", "field", "search box", "form"],
   },
   {
     section: "components",
     category: "forms",
     path: "/design-system/components/textarea",
+    lab: true,
     keywords: ["multiline", "input", "auto grow", "form"],
   },
   {
@@ -281,6 +285,7 @@ const ROUTES = [
     section: "components",
     category: "forms",
     path: "/design-system/components/checkbox",
+    lab: true,
     keywords: ["tick", "checkmark", "indeterminate", "form"],
   },
   {
@@ -355,6 +360,7 @@ const ROUTES = [
     section: "components",
     category: "feedback",
     path: "/design-system/components/spinner",
+    lab: true,
     keywords: ["loader", "loading", "progress", "busy"],
   },
   // Beside Spinner on purpose: the pair is one decision, and reading them apart
@@ -363,12 +369,14 @@ const ROUTES = [
     section: "components",
     category: "feedback",
     path: "/design-system/components/progress",
+    lab: true,
     keywords: ["bar", "loading", "percent", "determinate", "meter"],
   },
   {
     section: "components",
     category: "feedback",
     path: "/design-system/components/skeleton",
+    lab: true,
     keywords: ["placeholder", "loading", "shimmer", "ghost"],
   },
   {
@@ -396,6 +404,7 @@ const ROUTES = [
     section: "components",
     category: "surfaces",
     path: "/design-system/components/disclosure",
+    lab: true,
     keywords: ["accordion", "collapse", "expand", "details", "summary"],
   },
   {
@@ -461,6 +470,7 @@ const ROUTES = [
     section: "components",
     category: "surfaces",
     path: "/design-system/components/divider",
+    lab: true,
     keywords: ["separator", "rule", "hr", "line"],
   },
   // The Shells. A Tab view holds an app's few top-level destinations, a

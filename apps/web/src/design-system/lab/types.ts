@@ -17,7 +17,7 @@ export type LabProps = Record<string, unknown>;
 export interface LabPropDoc {
   name: string;
   kind: string;
-  members?: string[];
+  members?: readonly (string | number)[];
   defaultValue?: string;
 }
 
@@ -70,7 +70,16 @@ export type LabControlSpec<P> =
        * does not know, or for a documented prop whose kind is `"other"`.
        */
       kind?: PropDoc["kind"];
+      /** The range of a `number` control. Without it the control runs 0–100 in steps of 1. */
+      range?: LabNumberRange;
     };
+
+/** The values a `number` control offers. */
+export interface LabNumberRange {
+  min: number;
+  max: number;
+  step?: number;
+}
 
 /**
  * What the Lab reads from one generated props document. A configuration
@@ -117,8 +126,9 @@ export interface LabControlModel {
   name: string;
   kind: string;
   /** The values an `enum` prop takes. */
-  members?: readonly string[];
+  members?: readonly (string | number)[];
   /** The prop's default, printed as source text — `'"md"'`. */
   defaultValue?: string;
   samples?: readonly LabSampleChoice[];
+  range?: LabNumberRange;
 }

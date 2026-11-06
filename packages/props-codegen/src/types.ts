@@ -1,3 +1,6 @@
+/** One value of an `enum` prop: a string or a number literal. */
+export type EnumMember = string | number;
+
 /**
  * One documented prop of a `@tuja/ui` component, read from the component's own
  * TypeScript declaration. Inherited HTML attributes never appear here — the
@@ -11,8 +14,8 @@ export interface PropDoc {
   /** Which control documents this prop, and which control can drive it. */
   kind:
     "enum" | "boolean" | "number" | "string" | "node" | "function" | "other";
-  /** The string-literal members, when `kind` is `"enum"`. */
-  members?: string[];
+  /** The literal members, when `kind` is `"enum"`. */
+  members?: EnumMember[];
   /** False when the prop is optional in any declaration that contributes it. */
   required: boolean;
   /** The default, printed as source text — `'"md"'`. */
