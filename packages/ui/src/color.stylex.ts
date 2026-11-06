@@ -56,7 +56,9 @@ const darkIntentTone = {
   info: blue._70,
   success: green._70,
   warning: orange._70,
-  danger: red._70,
+  // Danger does not use _70 like the other Intents. The owner is colour-blind,
+  // and red._70 looks pink-grey to them, not red.
+  danger: red._50,
 };
 
 const light = {
@@ -271,11 +273,15 @@ const dark: { [key in keyof typeof light]: string } = {
   fgOnWarning: gray._0,
 
   bgDanger: darkIntentTone.danger,
-  bgDangerHover: red._80,
+  // The label on red._50 is white, not black: APCA gives Lc 58 for white and
+  // Lc 51 for black. No tone of the ramp lets either clear Lc 60. The hover is
+  // darker, because a lighter fill decreases the contrast of the white label.
+  bgDangerHover: red._40,
   bgDangerSubtle: `rgba(${red_rgb._50}, 0.14)`,
   borderDanger: darkIntentTone.danger,
-  fgDanger: red._80,
-  fgOnDanger: gray._0,
+  // red._60 is under the Lc 60 floor on gray._13, so the text is red._70.
+  fgDanger: red._70,
+  fgOnDanger: gray._100,
 
   bgNeutral: gray._20,
   bgNeutralHover: gray._30,
