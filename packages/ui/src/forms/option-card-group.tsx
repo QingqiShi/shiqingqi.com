@@ -4,7 +4,10 @@ import {
   MultipleSelectGroup,
   type MultipleSelectProps,
 } from "./multiple-select-group.tsx";
-import type { OptionCardLook } from "./option-card.tsx";
+import type {
+  OptionCardDescriptionLines,
+  OptionCardLook,
+} from "./option-card.tsx";
 import {
   SingleSelectGroup,
   type SingleSelectProps,
@@ -48,6 +51,15 @@ export interface OptionCardGroupBaseProps<TValue extends string> extends Omit<
    * @zh 撑满宽度的行式堆叠，或每张卡片最小 9rem、自动换行的居中方块网格。
    */
   look?: OptionCardLook;
+  /**
+   * Makes every card the same height: the label truncates to one line, and
+   * the description clamps to this many lines and keeps their height when it
+   * is shorter. A row then centres its selection mark. Leave it out for cards
+   * of natural height, whose marks sit in the top-end corner.
+   *
+   * @zh 让所有卡片等高：标签截断为一行，说明最多显示这么多行，较短时也保留这些行的高度。此时行式卡片的选中标记垂直居中。不传则卡片保持自然高度，选中标记位于右上角。
+   */
+  descriptionLines?: OptionCardDescriptionLines;
   /**
    * StyleX overrides merged over the group — composed last so a caller wins.
    *
@@ -93,8 +105,9 @@ type OptionCardGroupProps<TValue extends string> =
  * driven by an options array, single-select by default and
  * `selection="multiple"` for independent toggles.
  *
- * For a card carrying bespoke content, render `OptionCard` yourself and drive
- * it with `useRadioGroup` for the same keyboard model.
+ * For a card carrying bespoke content, render `OptionCard`s yourself in an
+ * `OptionCardStack`, and drive them with `useRadioGroup` for the same keyboard
+ * model.
  */
 export function OptionCardGroup<TValue extends string>(
   props: OptionCardGroupProps<TValue>,

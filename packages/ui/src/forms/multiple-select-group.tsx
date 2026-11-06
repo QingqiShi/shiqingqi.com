@@ -1,11 +1,10 @@
 "use client";
 
-import { stack } from "../primitives/stack.stylex.ts";
-import { groupStyles } from "./option-card-group.stylex.ts";
 import type {
   OptionCardGroupBaseProps,
   OptionCardGroupNaming,
 } from "./option-card-group.tsx";
+import { OptionCardStack } from "./option-card-stack.tsx";
 import { OptionCard } from "./option-card.tsx";
 
 /** @internal */
@@ -30,6 +29,7 @@ export function MultipleSelectGroup<TValue extends string>({
   value,
   onChange,
   look = "row",
+  descriptionLines,
   selection: _selection,
   css,
   ref,
@@ -40,13 +40,15 @@ export function MultipleSelectGroup<TValue extends string>({
   const selectedValues = new Set(value);
 
   return (
-    <div
+    <OptionCardStack
       {...restProps}
       ref={ref}
       role="group"
       aria-label={ariaLabel}
       aria-labelledby={ariaLabelledBy}
-      css={[look === "row" ? stack.item : groupStyles.tile, css]}
+      look={look}
+      descriptionLines={descriptionLines}
+      css={css}
     >
       {options.map((option) => (
         <OptionCard
@@ -67,6 +69,6 @@ export function MultipleSelectGroup<TValue extends string>({
           }}
         />
       ))}
-    </div>
+    </OptionCardStack>
   );
 }

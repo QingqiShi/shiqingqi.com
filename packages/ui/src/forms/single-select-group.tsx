@@ -1,12 +1,11 @@
 "use client";
 
 import { useRadioGroup } from "../hooks/use-radio-group.ts";
-import { stack } from "../primitives/stack.stylex.ts";
-import { groupStyles } from "./option-card-group.stylex.ts";
 import type {
   OptionCardGroupBaseProps,
   OptionCardGroupNaming,
 } from "./option-card-group.tsx";
+import { OptionCardStack } from "./option-card-stack.tsx";
 import { OptionCard } from "./option-card.tsx";
 
 /** @internal */
@@ -48,6 +47,7 @@ export function SingleSelectGroup<TValue extends string>({
   value,
   onChange,
   look = "row",
+  descriptionLines,
   selection: _selection,
   css,
   ref,
@@ -66,13 +66,15 @@ export function SingleSelectGroup<TValue extends string>({
   });
 
   return (
-    <div
+    <OptionCardStack
       {...restProps}
       ref={ref}
       role="radiogroup"
       aria-label={ariaLabel}
       aria-labelledby={ariaLabelledBy}
-      css={[look === "row" ? stack.item : groupStyles.tile, css]}
+      look={look}
+      descriptionLines={descriptionLines}
+      css={css}
     >
       {options.map((option) => (
         <OptionCard
@@ -86,6 +88,6 @@ export function SingleSelectGroup<TValue extends string>({
           description={option.description}
         />
       ))}
-    </div>
+    </OptionCardStack>
   );
 }
