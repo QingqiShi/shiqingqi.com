@@ -2,7 +2,7 @@ import type { LanguageModel } from "ai";
 import "server-only";
 import { getAnthropicProvider } from "./get-anthropic-provider";
 
-const MODEL_ID = "claude-sonnet-4-6";
+const MODEL_ID = "claude-sonnet-5-5";
 
 let model: LanguageModel | null = null;
 

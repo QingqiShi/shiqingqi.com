@@ -84,35 +84,6 @@ describe("mapToolOutputToMediaItems", () => {
     });
   });
 
-  describe("semantic_search", () => {
-    it("maps semantic search results", () => {
-      const output = [
-        {
-          id: "vec-1",
-          score: 0.95,
-          tmdbId: 100,
-          mediaType: "movie",
-          title: "Interstellar",
-          posterPath: "/interstellar.jpg",
-          voteAverage: 8.7,
-          overview: "Space exploration",
-        },
-      ];
-
-      const items = mapToolOutputToMediaItems("semantic_search", output);
-
-      expect(items).toEqual([
-        {
-          id: 100,
-          title: "Interstellar",
-          posterPath: "/interstellar.jpg",
-          rating: 8.7,
-          mediaType: "movie",
-        },
-      ]);
-    });
-  });
-
   describe("person_credits", () => {
     it("skips entries without numeric id", () => {
       const output = [

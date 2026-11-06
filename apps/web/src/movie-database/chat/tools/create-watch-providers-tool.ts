@@ -17,8 +17,8 @@ export const watchProvidersInputSchema = z.object({
     .optional()
     .describe(
       "ISO 3166-1 country code (2 letters, e.g. US, GB, DE). " +
-        "Infer from user locale or mentioned country. Defaults to US. " +
-        "Ignored when provider_name is set.",
+        'Use the "User Country" from the system prompt, or US when it is "unknown". ' +
+        "A country the user names comes first. Ignored when provider_name is set.",
     ),
   provider_name: z
     .string()
@@ -32,9 +32,14 @@ export const watchProvidersInputSchema = z.object({
 
 const TOOL_DESCRIPTION =
   "Get watch provider (streaming/rent/buy) availability for a movie or TV show. " +
-  "Use this when the user asks where to watch something, whether it's on a specific platform, " +
-  "or about streaming availability. Infer the region from the user's locale. " +
-  "Set provider_name to search across all regions for a specific platform.";
+  "Use it when the user asks where to watch something, whether it is on a specific platform, " +
+  "or about streaming availability. " +
+  "With a region, it returns the providers in that country: " +
+  "then call present_watch_providers with { id, media_type, region } to show them as a card. " +
+  "With provider_name, it searches all regions for that platform: " +
+  "then call present_provider_regions with { id, media_type, provider_name }, " +
+  "and mention the user's own country first if it is in the list. " +
+  "The card shows the details, so your text should add to it, not repeat it.";
 
 type MovieWatchResponse = ResponseType<
   "/3/movie/{movie_id}/watch/providers",

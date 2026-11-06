@@ -19,6 +19,7 @@ import { ToolActivityGroup } from "#src/movie-database/chat/tool-output/tool-act
 import { ToolVisualOutput } from "#src/movie-database/chat/tool-output/tool-visual-output.tsx";
 import { CompactionNotice } from "./compaction-notice";
 import { SmoothedMarkdownContent } from "./smoothed-markdown-content";
+import { toDisplayParts } from "./to-display-parts";
 
 interface ChatMessageProps {
   message: UIMessage;
@@ -35,6 +36,7 @@ export function ChatMessage({
 }: ChatMessageProps) {
   const isUser = message.role === "user";
   const [releasedTextParts, setReleasedTextParts] = useState(1);
+  const parts = isUser ? message.parts : toDisplayParts(message.parts);
 
   const {
     toolParts,
@@ -44,7 +46,7 @@ export function ChatMessage({
     textPartCount,
     textPartIndexes,
     textPartTrailingBuffers,
-  } = deriveMessageData(message.parts, message.role);
+  } = deriveMessageData(parts, message.role);
 
   if (!hasVisibleContent) return null;
 
@@ -56,7 +58,7 @@ export function ChatMessage({
         isUser ? styles.userBubble : styles.assistantBubble,
       ]}
     >
-      {message.parts.map((part, index) => {
+      {parts.map((part, index) => {
         const key = partKeys[index];
         if (isTextUIPart(part)) {
           const currentTextIndex = textPartIndexes[index];
@@ -113,6 +115,7 @@ export function ChatMessage({
         }
 
         if (isReasoningUIPart(part)) {
+          if (part.text.length === 0) return null;
           return (
             <p
               key={key}
@@ -245,7 +248,11 @@ export function deriveMessageData(
               : part.text.length;
           if (visibleLength > 0) hasVisibleContent = true;
         }
-      } else if (!hasVisibleContent && isReasoningUIPart(part)) {
+      } else if (
+        !hasVisibleContent &&
+        isReasoningUIPart(part) &&
+        part.text.length > 0
+      ) {
         hasVisibleContent = true;
       }
     }

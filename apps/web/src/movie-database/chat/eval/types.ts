@@ -34,6 +34,8 @@ export interface MultiTurnEvalCase {
 export interface ToolCallSummary {
   toolName: string;
   args: unknown;
+  /** "Title (media_type:id)" for each title the call returned, so the judge can check redundant lookups. */
+  returnedTitles?: string[];
 }
 
 export interface ChatResponse {

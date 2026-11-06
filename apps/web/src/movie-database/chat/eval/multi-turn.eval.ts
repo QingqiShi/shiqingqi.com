@@ -19,12 +19,17 @@ const cases: MultiTurnEvalCase[] = [
       "The final response includes thriller movie recommendations",
       "The assistant adjusted its recommendations toward more recent titles",
     ],
-    requireToolCall: "semantic_search",
+    requireToolCall: "present_media",
   },
 ];
 
 describe("Multi-turn", () => {
-  it.each(cases)("$name", async (evalCase) => {
-    await runMultiTurnEval(evalCase);
-  });
+  it.each(cases)(
+    "$name",
+    async (evalCase) => {
+      await runMultiTurnEval(evalCase);
+    },
+    // Each turn can take five model steps, so two turns need more than the default timeout.
+    240_000,
+  );
 });

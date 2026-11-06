@@ -35,9 +35,7 @@
     "test:e2e": "playwright test",
     "test:e2e:serve": "PORT=$(node ../../scripts/get-worktree-port.mjs) tsx e2e/serve-e2e.ts",
     "eval": "vitest run --config vitest.eval.config.mts",
-    "eval:dev": "vitest --config vitest.eval.config.mts",
-    "ingest:vector": "tsx ../../packages/vector-ingest/src/ingest.ts",
-    "verify:vector": "tsx ../../packages/vector-ingest/src/verify.ts"
+    "eval:dev": "vitest --config vitest.eval.config.mts"
   },
   "dependencies": {
     "@1771technologies/lytenyte-pro": "^2.2.1",
@@ -52,7 +50,6 @@
     "@tuja/ui": "workspace:*",
     "@upstash/ratelimit": "^2.2.0",
     "@upstash/redis": "^1.40.0",
-    "@upstash/vector": "catalog:",
     "ai": "^7.0.154",
     "next": "catalog:",
     "posthog-js": "^1.438.24",
@@ -87,7 +84,6 @@
     "@tuja/system-palette-codegen": "workspace:*",
     "@tuja/tmdb-codegen": "workspace:*",
     "@tuja/tsconfig": "workspace:*",
-    "@tuja/vector-ingest": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

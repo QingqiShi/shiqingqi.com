@@ -21,17 +21,23 @@ function getJudgeModel(): LanguageModel {
 
 const SYSTEM_PROMPT = `You are an evaluation judge for an AI movie recommendation assistant.
 Given a user message, assistant response, and evaluation criteria, judge if ALL criteria are met.
-Respond with ONLY valid JSON: { "pass": boolean, "reasoning": string }
+Respond with ONLY valid JSON: { "reasoning": string, "pass": boolean }. Reason through every criterion first, then set pass to match your reasoning.
 Do not include any other text outside the JSON.`;
 
+// The reasoning comes before the verdict, so that the model decides after it reasons.
 const judgeSchema = z.object({
-  pass: z.boolean(),
   reasoning: z.string(),
+  pass: z.boolean(),
 });
 
 function formatToolCalls(toolCalls: ToolCallSummary[]) {
   return toolCalls
-    .map((tc) => `- ${tc.toolName}(${JSON.stringify(tc.args)})`)
+    .map((tc) => {
+      const call = `- ${tc.toolName}(${JSON.stringify(tc.args)})`;
+      return tc.returnedTitles
+        ? `${call}\n  returned: ${tc.returnedTitles.join("; ") || "nothing"}`
+        : call;
+    })
     .join("\n");
 }
 
