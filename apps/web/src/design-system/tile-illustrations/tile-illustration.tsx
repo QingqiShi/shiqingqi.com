@@ -20,7 +20,7 @@ const WIDE_TILE = "@container (min-width: 340px)";
 const LEAN = { x: 6, y: 3 };
 const ENGAGED_SCALE = 1.12;
 
-export type FoundationIllustrationArt = {
+export type TileIllustrationArt = {
   src: StaticImageData;
   /** The card edge that the art runs off, so its flat cut edge sits on that edge. */
   bleeds?: "inline-end" | "block-end";
@@ -32,10 +32,7 @@ export type FoundationIllustrationArt = {
  * held back; engaging the tile brings back its colour and leans it towards the
  * pointer.
  */
-export function FoundationIllustration({
-  src,
-  bleeds,
-}: FoundationIllustrationArt) {
+export function TileIllustration({ src, bleeds }: TileIllustrationArt) {
   const inlineSize = (blockSize: number) =>
     String(
       Math.min(

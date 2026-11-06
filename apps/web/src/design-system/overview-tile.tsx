@@ -12,10 +12,10 @@ import {
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { IlloLayer } from "#src/design-system/foundation-illustrations/illo-layer.tsx";
-import { getFoundationIllustration } from "#src/design-system/foundation-illustrations/index.tsx";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
 import { getComponentSpecimen } from "#src/design-system/specimens/index.tsx";
+import { IlloLayer } from "#src/design-system/tile-illustrations/illo-layer.tsx";
+import { getTileIllustration } from "#src/design-system/tile-illustrations/index.tsx";
 import { Link } from "#src/links/link.tsx";
 import { tileMarker } from "./overview-tile.stylex.ts";
 
@@ -45,7 +45,7 @@ export function OverviewTile({
   label,
   description,
 }: OverviewTileProps) {
-  const illustration = getFoundationIllustration(path);
+  const illustration = getTileIllustration(path);
   const specimen = getComponentSpecimen(path);
 
   return (
@@ -189,7 +189,7 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceSunken,
   },
   // At rest the specimen is drained of colour and held back, then returns to
-  // full strength when the tile is engaged — the same move the foundation
+  // full strength when the tile is engaged — the same move the tile
   // illustrations make going grey -> gold, so both halves of the overview behave
   // alike. It is what lets the copy lead: nineteen live components each carrying
   // their own hue, at full strength all at once, is a field of competing colour

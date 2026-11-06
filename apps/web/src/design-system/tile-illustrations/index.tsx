@@ -7,10 +7,6 @@ import accessibility from "./accessibility.png";
 import color from "./color.png";
 import customization from "./customization.png";
 import effectLayer from "./effect-layer.png";
-import {
-  FoundationIllustration,
-  type FoundationIllustrationArt,
-} from "./foundation-illustration.tsx";
 import getStarted from "./get-started.png";
 import hooks from "./hooks.png";
 import iconography from "./iconography.png";
@@ -20,6 +16,10 @@ import motion from "./motion.png";
 import primitives from "./primitives.png";
 import principles from "./principles.png";
 import surfaces from "./surfaces.png";
+import {
+  TileIllustration,
+  type TileIllustrationArt,
+} from "./tile-illustration.tsx";
 import typography from "./typography.png";
 
 /**
@@ -36,7 +36,7 @@ type IllustratedPath =
  * building block registered in `design-system-routes.ts` without an
  * illustration fails to compile rather than shipping a blank tile.
  */
-const ILLUSTRATIONS: Record<IllustratedPath, FoundationIllustrationArt> = {
+const ILLUSTRATIONS: Record<IllustratedPath, TileIllustrationArt> = {
   "/design-system/get-started": { src: getStarted },
   "/design-system/foundations/principles": {
     src: principles,
@@ -63,12 +63,12 @@ const ILLUSTRATIONS: Record<IllustratedPath, FoundationIllustrationArt> = {
  * The same map widened, so the overview can ask about any route. Sound without an
  * assertion because the narrow keys are a subset of the wide ones.
  */
-const BY_PATH: Partial<Record<DesignSystemPath, FoundationIllustrationArt>> =
+const BY_PATH: Partial<Record<DesignSystemPath, TileIllustrationArt>> =
   ILLUSTRATIONS;
 
-export function getFoundationIllustration(
+export function getTileIllustration(
   path: DesignSystemPath,
 ): ReactElement | undefined {
   const art = BY_PATH[path];
-  return art ? <FoundationIllustration {...art} /> : undefined;
+  return art ? <TileIllustration {...art} /> : undefined;
 }
