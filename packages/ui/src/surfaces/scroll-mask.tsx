@@ -76,6 +76,15 @@ interface ScrollMaskProps extends Omit<
    */
   startChrome?: ReactNode;
   /**
+   * Blurs the start edge while the region can scroll back to it. Turn it off
+   * where content stays pinned at that edge inside the scroller, such as a
+   * sticky first column, which then marks the edge itself.
+   *
+   * @default true
+   * @zh 区域可以滚回起始边时，在起始边虚化。如果有内容在滚动元素内固定在这条边上，例如固定的第一列，请关闭它，由该内容自己标出这条边。
+   */
+  startMask?: boolean;
+  /**
    * Chrome pinned over the region's end edge — a pinned footer or action bar.
    * The mirror of `startChrome`; the content between the slots grows to fill
    * the scrollport, so end chrome stays pinned even while the content is too
@@ -168,6 +177,7 @@ export function ScrollMask({
   radius = 8,
   depth = space._5,
   startChrome,
+  startMask = true,
   endChrome,
   endChromeCss,
   scrollButtons,
@@ -349,7 +359,7 @@ export function ScrollMask({
         ]}
         edge={isHorizontal ? "inline-start" : "block-start"}
         radius={radius}
-        isShown={showStartMask}
+        isShown={startMask && showStartMask}
       />
       <MaskBand
         css={[

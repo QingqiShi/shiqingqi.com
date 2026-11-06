@@ -6,7 +6,7 @@ import { typeRole } from "../primitives/type.stylex.ts";
 import { space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { TableScroller } from "./table-scroller.tsx";
-import { tableTokens } from "./table.stylex.ts";
+import { tableMarker, tableTokens } from "./table.stylex.ts";
 
 interface TableProps extends Omit<
   ComponentProps<"table">,
@@ -33,6 +33,16 @@ interface TableProps extends Omit<
    * @zh 在各行从下方滚过时，将 `TableHead` 固定在滚动容器顶部。它固定的对象是容器，因此请通过 `containerCss` 为容器设定高度，否则不会有任何内容从表头下方滚过。
    */
   stickyHeader?: boolean;
+  /**
+   * Holds the first column at the start edge while the other columns scroll
+   * sideways under it, so each row keeps its label in view. While they pass
+   * under it, a line marks its edge in place of the blur at the start edge.
+   * Its cells take an opaque fill, `tableTokens.stickyFill`, which is the
+   * surface colour unless you set it.
+   *
+   * @zh 在其他列横向滚动、从其下方经过时，把第一列固定在起始边，让每一行的标签始终可见。其他列从其下方经过时，由一条线标出它的边缘，取代起始边的虚化。这一列的单元格使用不透明的填充 `tableTokens.stickyFill`，默认是表面颜色，可自行设置。
+   */
+  stickyColumn?: boolean;
   /**
    * StyleX overrides for the scroll region's root, composed last — where a
    * height or a width cap goes.
@@ -73,6 +83,7 @@ export function Table({
   caption,
   captionVisible = false,
   stickyHeader = false,
+  stickyColumn = false,
   containerCss,
   contentCss,
   css,
@@ -86,13 +97,16 @@ export function Table({
     <TableScroller
       labelledBy={captionId}
       scrollsBlock={stickyHeader}
+      stickyColumn={stickyColumn}
       containerCss={containerCss}
       contentCss={contentCss}
     >
       <table
         {...restProps}
         ref={ref}
+        data-sticky-column={stickyColumn || undefined}
         css={[
+          tableMarker,
           typeRole.bodySmall,
           styles.table,
           stickyHeader && styles.stickyHead,
@@ -117,6 +131,8 @@ export { TableFoot } from "./table-foot.tsx";
 export { TableRow } from "./table-row.tsx";
 export { TableHeaderCell } from "./table-header-cell.tsx";
 export { TableCell } from "./table-cell.tsx";
+export { TableDisclosure } from "./table-disclosure.tsx";
+export { TableDisclosureTrigger } from "./table-disclosure-trigger.tsx";
 
 const styles = stylex.create({
   // Re-stated here, not left to the token default: a nested plain table would

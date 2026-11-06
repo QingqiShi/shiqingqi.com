@@ -187,6 +187,8 @@
     "./components/table": "./src/data-display/table.tsx",
     "./components/table-body": "./src/data-display/table-body.tsx",
     "./components/table-cell": "./src/data-display/table-cell.tsx",
+    "./components/table-disclosure": "./src/data-display/table-disclosure.tsx",
+    "./components/table-disclosure-trigger": "./src/data-display/table-disclosure-trigger.tsx",
     "./components/table-foot": "./src/data-display/table-foot.tsx",
     "./components/table-head": "./src/data-display/table-head.tsx",
     "./components/table-header-cell": "./src/data-display/table-header-cell.tsx",

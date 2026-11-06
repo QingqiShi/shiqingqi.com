@@ -6,6 +6,7 @@ import { border, font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { alignStyles, styles as cellStyles } from "./table-cell.stylex.ts";
 import type { TableCellAlignment } from "./table-cell.tsx";
+import { tableMarker, tableTokens } from "./table.stylex.ts";
 
 // The native `align` attribute on `<td>`/`<th>` is deprecated and
 // presentational. The design system reuses the name for logical alignment.
@@ -62,6 +63,11 @@ export function TableHeaderCell({
   );
 }
 
+const HEAD_RULE = `inset 0 calc(-1 * ${border.size_1}) 0 ${color.border}`;
+
+/** `Table` sets this attribute while its first column sticks. */
+const STICKY_COLUMN = ":is([data-sticky-column])";
+
 const styles = stylex.create({
   // A shadow, not a border: browsers drop a stuck sticky head's collapsed
   // border, wherever declared, leaving nothing under it. An inset shadow
@@ -72,7 +78,14 @@ const styles = stylex.create({
     color: color.fgMuted,
     // `calc`, not a bare minus: the token is a `var()`, and `-var(...)` is not
     // a valid length, so the declaration is dropped.
-    boxShadow: `inset 0 calc(-1 * ${border.size_1}) 0 ${color.border}`,
+    boxShadow: {
+      default: HEAD_RULE,
+      ":first-child": {
+        default: HEAD_RULE,
+        [stylex.when.ancestor(STICKY_COLUMN, tableMarker)]:
+          `${HEAD_RULE}, ${tableTokens.columnEdge}`,
+      },
+    },
     borderBlockEndWidth: {
       default: null,
       "@media (forced-colors: active)": border.size_1,

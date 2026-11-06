@@ -3,7 +3,7 @@ import { color } from "@tuja/ui/color.stylex";
 import { border, rhythm } from "@tuja/ui/tokens.stylex";
 
 /**
- * The row anatomy `GuideList` and the stacked `PropsTable` share. Inside a row
+ * The row anatomy `GuideList` and the menu specimens share. Inside a row
  * the term, value and note are lines of text in one item, so they take no gap.
  * A rule separates two rows, with `rhythm.item` on each side of it and no space
  * past the first or the last row. Compose `definition` after `stack.text`.

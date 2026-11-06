@@ -83,6 +83,10 @@ function paintsSurface(style: CSSStyleDeclaration) {
 const clips = (style: CSSStyleDeclaration) =>
   style.overflowX !== "visible" || style.overflowY !== "visible";
 
+/** While a panel opens or closes, a skin paints the surface of a flow block. */
+const hasFlowSkin = (node: Element) =>
+  node.querySelector(":scope > [data-flow-skin]") !== null;
+
 /**
  * The nearest ancestor that paints a surface or clips, and its padding box.
  * A Scroll mask that paints its own surface fades at its own edge, and the
@@ -102,7 +106,7 @@ function visualContainerOf(masked: Element) {
     node = node.parentElement
   ) {
     const style = getComputedStyle(node);
-    if (!paintsSurface(style) && !clips(style)) continue;
+    if (!paintsSurface(style) && !clips(style) && !hasFlowSkin(node)) continue;
     const rect = node.getBoundingClientRect();
     const border = (side: Side) =>
       Number.parseFloat(style.getPropertyValue(`border-${side}-width`)) || 0;
