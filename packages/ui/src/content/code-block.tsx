@@ -174,13 +174,9 @@ function leave(
   place: Place,
 ) {
   const ghost = document.createElement("span");
-  const props = stylex.props(
-    styles.box,
-    styles.ghost,
-    styles.at(place.left, place.top),
-  );
-  ghost.className = props.className ?? "";
-  Object.assign(ghost.style, props.style);
+  ghost.className = stylex.props(styles.box, styles.ghost).className ?? "";
+  ghost.style.left = `${String(place.left)}px`;
+  ghost.style.top = `${String(place.top)}px`;
   ghost.setAttribute("aria-hidden", "true");
   for (const [kind, text] of tokens) {
     const run = document.createElement("span");
@@ -427,8 +423,4 @@ const styles = stylex.create({
     position: "absolute",
     pointerEvents: "none",
   },
-  at: (left: number, top: number) => ({
-    left: `${String(left)}px`,
-    top: `${String(top)}px`,
-  }),
 });
