@@ -1,22 +1,32 @@
 import type { Attachment } from "postal-mime";
+import { MAIL_IMAGE_PATH } from "#src/assistant/mail/images/mail-image-path.ts";
+import type { MailImageLinks } from "#src/assistant/mail/images/make-mail-image-links.ts";
+import { rewriteMailImages } from "#src/assistant/mail/images/rewrite-mail-images.ts";
 
 /** Inline images of one mail, as base64, up to this much: more makes the page slow to load. */
 const INLINE_IMAGE_BUDGET = 4 * 1024 * 1024;
 
 /**
- * Nothing loads from the network: no tracking pixel, remote image, font or
- * style sheet. Inline styles and images that the page puts in as data URLs
- * stay. The frame's sandbox already stops scripts and forms.
+ * The frame loads images from the app's image route only, which fetches web
+ * images for it; no other request goes out, so no font or style sheet loads.
+ * Inline styles and images that the page puts in as data URLs stay. The
+ * frame's sandbox already stops scripts and forms. The source is the route's
+ * full URL, because the frame's origin is opaque and `'self'` does not match
+ * the app.
  */
-const MAIL_FRAME_CSP = [
-  "default-src 'none'",
-  "img-src data:",
-  "media-src data:",
-  "font-src data:",
-  "style-src 'unsafe-inline'",
-  "base-uri 'none'",
-  "form-action 'none'",
-].join("; ");
+function mailFrameCsp(imageOrigin: string | null) {
+  return [
+    "default-src 'none'",
+    imageOrigin
+      ? `img-src data: ${imageOrigin}${MAIL_IMAGE_PATH}`
+      : "img-src data:",
+    "media-src data:",
+    "font-src data:",
+    "style-src 'unsafe-inline'",
+    "base-uri 'none'",
+    "form-action 'none'",
+  ].join("; ");
+}
 
 /*
  * Most HTML mail sets its own text colours for a white page, as mail apps
@@ -67,17 +77,17 @@ function inlineImages(attachments: readonly Attachment[]) {
   return images;
 }
 
-/** True when the mail asks for images or styles from the web, which the frame does not load. */
-export function hasRemoteContent(html: string) {
-  return /(?:src|background)\s*=\s*["']?\s*(?:https?:)?\/\/|url\(\s*["']?\s*(?:https?:)?\/\//i.test(
-    html,
-  );
-}
-
-const UNSAFE_TAG = /<(?:meta|link|base|iframe)\b[^>]*>/gi;
+/*
+ * The sender writes the HTML and it can be 10 MB, so each pattern here must
+ * take linear time. Thus a tag with no `>` goes to the end of the mail, and a
+ * run of whitespace matches only from its first character.
+ */
+const UNSAFE_TAG = /<(?:meta|link|base|iframe)\b[^>]*(?:>|$)/gi;
 const UNSAFE_TAG_START = /<(?=(?:meta|link|base|iframe)\b)/gi;
 const REMOVAL_PASSES = 8;
-const INDENT_REPLACEMENT_CHARS = />[\s\uFFFD]*\uFFFD[\s\uFFFD]*</g;
+const LINK_TAG = /<(?:a|area|form)\b[^>]*/gi;
+const TARGET_ATTRIBUTE = /(?<!\s)\s+target\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
+const SPACE_BETWEEN_TAGS = />[\s\uFFFD]*</g;
 
 /*
  * Some senders damage the indentation between tags and leave U+FFFD there.
@@ -85,7 +95,8 @@ const INDENT_REPLACEMENT_CHARS = />[\s\uFFFD]*\uFFFD[\s\uFFFD]*</g;
  * A U+FFFD in real text stays, because it shows real damage.
  */
 function withoutIndentReplacementChars(html: string) {
-  return html.replace(INDENT_REPLACEMENT_CHARS, (run) =>
+  if (!html.includes("\uFFFD")) return html;
+  return html.replace(SPACE_BETWEEN_TAGS, (run) =>
     run.replaceAll("\uFFFD", ""),
   );
 }
@@ -109,32 +120,46 @@ function withoutUnsafeTags(html: string) {
   return result.replace(UNSAFE_TAG_START, "&lt;");
 }
 
+export interface MailFrame {
+  /** The `srcdoc` of the frame. */
+  document: string;
+  /** Web images that load through the app. */
+  proxiedImages: number;
+  /** Web images that do not load, because there are no `imageLinks`. */
+  unloadedImages: number;
+  /** Tracking pixels taken out. */
+  blockedTrackers: number;
+}
+
 /**
  * The document of the frame that shows an HTML mail, for `srcdoc`. Its own
  * head comes first, so its CSP, referrer policy and base target win over the
  * mail's: the first `<base>` of a document counts, and each CSP adds limits.
- * The mail's links lose their `target`, so that each opens in a new tab.
+ * The mail's links lose their `target`, so that each opens in a new tab. With
+ * no `imageLinks`, web images stay as they are and do not load, and the
+ * tracking pixels still go.
  */
 export function mailFrameDocument(
   html: string,
   attachments: readonly Attachment[],
-): string {
+  imageLinks: MailImageLinks | null,
+): MailFrame {
   const images = inlineImages(attachments);
-  const body = withoutUnsafeTags(
-    withoutIndentReplacementChars(html)
-      .replace(
-        /cid:([^"'\s)>]+)/gi,
-        (match, id: string) => images.get(cidOf(decoded(id))) ?? match,
-      )
-      .replace(
-        /(<(?:a|area|form)\b[^>]*?)\s+target\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi,
-        "$1",
-      ),
+  const withInlineImages = withoutIndentReplacementChars(html)
+    .replace(
+      /cid:([^"'\s)>]+)/gi,
+      (match, id: string) => images.get(cidOf(decoded(id))) ?? match,
+    )
+    .replace(LINK_TAG, (tag) => tag.replace(TARGET_ATTRIBUTE, ""));
+  const rewritten = rewriteMailImages(
+    withInlineImages,
+    imageLinks?.link ?? null,
   );
-  return [
+  const body = withoutUnsafeTags(rewritten.html);
+  const document = [
     "<!doctype html><html><head>",
     '<meta charset="utf-8">',
-    `<meta http-equiv="Content-Security-Policy" content="${MAIL_FRAME_CSP}">`,
+    `<meta http-equiv="Content-Security-Policy" content="${mailFrameCsp(imageLinks?.origin ?? null)}">`,
     '<meta name="referrer" content="no-referrer">',
     '<meta http-equiv="x-dns-prefetch-control" content="off">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
@@ -144,4 +169,10 @@ export function mailFrameDocument(
     body,
     "</body></html>",
   ].join("");
+  return {
+    document,
+    proxiedImages: rewritten.proxied,
+    unloadedImages: rewritten.unloaded,
+    blockedTrackers: rewritten.trackers,
+  };
 }

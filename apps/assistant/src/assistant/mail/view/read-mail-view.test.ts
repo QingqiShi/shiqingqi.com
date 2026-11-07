@@ -56,6 +56,7 @@ describe("readMailView", () => {
       mailDeps({ connector: mail.connector }),
       accountId,
       MESSAGE_ID,
+      Promise.resolve(null),
     );
 
     expect(result?.kind).toBe("found");
@@ -80,6 +81,7 @@ describe("readMailView", () => {
       mailDeps({ connector: mail.connector }),
       accountId,
       MESSAGE_ID,
+      Promise.resolve(null),
     );
 
     expect(result).toBeNull();

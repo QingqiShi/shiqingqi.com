@@ -6,6 +6,7 @@ import { isValidLocale } from "@tuja/i18n/validate-locale";
 import { NextResponse, type NextRequest } from "next/server";
 import { i18nRouter } from "next-i18n-router";
 import { assistantProxy } from "#src/assistant/http/assistant-proxy.ts";
+import { MAIL_IMAGE_PATH } from "#src/assistant/mail/images/mail-image-path.ts";
 import { ALLOWED_REFERER } from "#src/constants.ts";
 import { i18nConfig } from "#src/i18n/i18n-config.ts";
 
@@ -90,8 +91,12 @@ const CAPTURE_PATH = "/api/todos/capture";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  // The mail frame has an opaque origin and sends no Referer. The handler
+  // checks the signature of the link instead, and a link can only fetch one
+  // image that this app put in a mail page.
   if (
     pathname === CAPTURE_PATH ||
+    pathname === MAIL_IMAGE_PATH ||
     pathname.startsWith(CRON_PATH_PREFIX) ||
     OAUTH_CALLBACK_PATH.test(pathname)
   ) {
