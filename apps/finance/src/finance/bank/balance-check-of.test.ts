@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { computeBalanceDays } from "../domain/balance/compute-balance-days.ts";
 import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";
-import { balanceCheckOf, ledgerBalanceAt } from "./balance-check-of.ts";
+import {
+  balanceCheckOf,
+  entriesBehindDifference,
+  ledgerBalanceAt,
+} from "./balance-check-of.ts";
 
 const link = {
   bankBalanceMinor: -500,
@@ -41,5 +45,19 @@ describe("balanceCheckOf", () => {
 
     expect(check?.oursMinor).toBe(-800);
     expect(ledgerBalanceAt(undefined, "2026-10-08")).toBe(0);
+  });
+});
+
+describe("entriesBehindDifference", () => {
+  it("keeps only the Entries whose removal moves our balance toward the bank's", () => {
+    const amountOf = (amountMinor: number) => amountMinor;
+
+    expect(
+      entriesBehindDifference(14787, [-3141, -1800, 5000], amountOf),
+    ).toEqual({ behind: [5000], unexplainedMinor: 9787 });
+    expect(entriesBehindDifference(-300, [-200, 900], amountOf)).toEqual({
+      behind: [-200],
+      unexplainedMinor: -100,
+    });
   });
 });
