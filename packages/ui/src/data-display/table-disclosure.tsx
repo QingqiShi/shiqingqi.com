@@ -22,7 +22,7 @@ import { border } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { styles as cellStyles } from "./table-cell.stylex.ts";
 import { TableDisclosureContext } from "./table-disclosure-context.ts";
-import { tableTokens } from "./table.stylex.ts";
+import { tableMarker, tableTokens } from "./table.stylex.ts";
 
 interface TableDisclosureBaseProps extends Omit<
   ComponentProps<"tr">,
@@ -163,6 +163,7 @@ export function TableDisclosure({
         {...restProps}
         ref={mergeRefs(ref, rowRef)}
         onClick={onRowClick}
+        data-row-fill
         css={[styles.row, open ? fills.open : fills.closed, css]}
       >
         <TableDisclosureContext value={triggerProps}>
@@ -254,28 +255,22 @@ const styles = stylex.create({
   },
 });
 
-// One object for each state: a custom property with a plain value in one
-// style and a conditional value in another loses the conditional value.
+/** `Table` sets this attribute while its first column sticks. */
+const STICKY_COLUMN = ":is([data-sticky-column])";
+
+// The sticky cell takes the fill of the row. Thus in a sticky column, the row
+// is opaque also at rest.
 const fills = stylex.create({
   closed: {
     backgroundColor: {
       default: null,
-      ":hover": { default: null, [pointer.canHover]: color.bgCanvas },
-    },
-    [tableTokens.stickyFill]: {
-      default: null,
+      [stylex.when.ancestor(STICKY_COLUMN, tableMarker)]:
+        tableTokens.stickyFill,
       ":hover": { default: null, [pointer.canHover]: color.bgCanvas },
     },
   },
   open: {
     backgroundColor: {
-      default: color.bgSurfaceSunken,
-      ":hover": {
-        default: color.bgSurfaceSunken,
-        [pointer.canHover]: color.bgCanvas,
-      },
-    },
-    [tableTokens.stickyFill]: {
       default: color.bgSurfaceSunken,
       ":hover": {
         default: color.bgSurfaceSunken,
