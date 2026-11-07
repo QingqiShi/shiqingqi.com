@@ -12,12 +12,13 @@ import {
   type MailboxDeps,
 } from "#src/assistant/mail/accounts/open-mailbox-session.ts";
 import { ownAccount } from "#src/assistant/mail/accounts/own-account.ts";
+import type { MailImageLinks } from "#src/assistant/mail/images/make-mail-image-links.ts";
 import type {
   MailAddress,
   MailboxSession,
 } from "#src/assistant/mail/imap/types.ts";
 import { findMailAnywhere } from "./find-mail-anywhere.ts";
-import { hasRemoteContent, mailFrameDocument } from "./mail-frame-document.ts";
+import { type MailFrame, mailFrameDocument } from "./mail-frame-document.ts";
 
 /** The most of a mail the page reads; a larger mail shows cut off. */
 const MAX_MAIL_BYTES = 10 * 1024 * 1024;
@@ -29,15 +30,7 @@ export interface MailView {
   cc: MailAddress[];
   sentAt: Date | null;
   folder: string;
-  body:
-    | {
-        kind: "html";
-        /** The `srcdoc` of the frame. */
-        document: string;
-        /** The mail asks for images from the web, which the page does not load. */
-        remoteContentBlocked: boolean;
-      }
-    | { kind: "text"; text: string };
+  body: ({ kind: "html" } & MailFrame) | { kind: "text"; text: string };
   attachments: string[];
   /** The mail is larger than the page reads, so its end is missing. */
   truncated: boolean;
@@ -90,6 +83,7 @@ async function readFound(
   session: MailboxSession,
   messageId: string,
   likely: string | null,
+  imageLinks: Promise<MailImageLinks | null>,
 ): Promise<MailView | null> {
   const found = await findMailAnywhere(session, messageId, {
     maxBytes: MAX_MAIL_BYTES,
@@ -113,8 +107,7 @@ async function readFound(
     body: html
       ? {
           kind: "html",
-          document: mailFrameDocument(html, parsed.attachments),
-          remoteContentBlocked: hasRemoteContent(html),
+          ...mailFrameDocument(html, parsed.attachments, await imageLinks),
         }
       : { kind: "text", text: parsed.text ?? "" },
     attachments: parsed.attachments.flatMap((attachment) =>
@@ -132,6 +125,7 @@ export async function readMailView(
   deps: MailboxDeps | null,
   accountId: string,
   messageId: string,
+  imageLinks: Promise<MailImageLinks | null>,
 ): Promise<MailViewResult | null> {
   const stored = (
     await scope.db
@@ -154,7 +148,7 @@ export async function readMailView(
   let session: MailboxSession | null = null;
   try {
     session = await openMailboxSession(scope.db, scope.userId, stored, deps);
-    const mail = await readFound(session, messageId, await likely);
+    const mail = await readFound(session, messageId, await likely, imageLinks);
     return mail
       ? { kind: "found", account, mail }
       : { kind: "not-found", account };

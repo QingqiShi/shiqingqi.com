@@ -57,6 +57,15 @@ module.exports = async (phase) => {
           value: "DENY",
         },
         {
+          key: "Permissions-Policy",
+          value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+        },
+      ];
+
+      // The mail image route sets these two headers itself, and a header in
+      // this list replaces the same header of a route handler.
+      const documentPolicyHeaders = [
+        {
           key: "Content-Security-Policy",
           value: "frame-ancestors 'none'",
         },
@@ -64,16 +73,16 @@ module.exports = async (phase) => {
           key: "Referrer-Policy",
           value: "origin-when-cross-origin",
         },
-        {
-          key: "Permissions-Policy",
-          value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
-        },
       ];
 
       return [
         {
           source: "/(.*)",
           headers: securityHeaders,
+        },
+        {
+          source: "/((?!api/mail-image$).*)",
+          headers: documentPolicyHeaders,
         },
         {
           source: "/fonts/haffer-1/:file*",

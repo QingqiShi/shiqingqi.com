@@ -76,6 +76,49 @@ function TextBody({ text }: { text: string }) {
   );
 }
 
+/** How the mail's web images load, when it has any. */
+function ImagesNotice({
+  proxied,
+  unloaded,
+  trackers,
+}: {
+  proxied: number;
+  unloaded: number;
+  trackers: number;
+}) {
+  const sentences = [
+    proxied > 0
+      ? t({
+          en: "Images load through the app, so the sender does not see your IP address or device.",
+          zh: "图片经由本应用加载，发件人看不到你的 IP 地址和设备。",
+        })
+      : null,
+    unloaded > 0
+      ? t({
+          en: "Images from the web are not loaded, so the sender cannot tell that you opened this mail.",
+          zh: "网络图片未加载，发件人因此无法知道你打开了这封邮件。",
+        })
+      : null,
+    trackers === 1
+      ? t({
+          en: "1 tracking image was blocked.",
+          zh: "已拦截 1 张跟踪图片。",
+        })
+      : trackers > 1
+        ? t({
+            en: "{count} tracking images were blocked.",
+            zh: "已拦截 {count} 张跟踪图片。",
+          }).replace("{count}", String(trackers))
+        : null,
+  ].filter((sentence) => sentence !== null);
+  if (sentences.length === 0) return null;
+  return (
+    <Text as="p" look="caption" tone="muted">
+      {sentences.join(t({ en: " ", zh: "" }))}
+    </Text>
+  );
+}
+
 function FoundMail({
   mail,
   formatter,
@@ -126,14 +169,11 @@ function FoundMail({
       ) : null}
       {mail.body.kind === "html" ? (
         <div css={stack.tight}>
-          {mail.body.remoteContentBlocked ? (
-            <Text as="p" look="caption" tone="muted">
-              {t({
-                en: "Images from the web are not loaded, so the sender cannot tell that you opened this mail.",
-                zh: "网络图片未加载，发件人因此无法知道你打开了这封邮件。",
-              })}
-            </Text>
-          ) : null}
+          <ImagesNotice
+            proxied={mail.body.proxiedImages}
+            unloaded={mail.body.unloadedImages}
+            trackers={mail.body.blockedTrackers}
+          />
           <iframe
             title={t({ en: "Mail content", zh: "邮件内容" })}
             srcDoc={mail.body.document}
