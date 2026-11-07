@@ -18,9 +18,9 @@ import {
   type TodoCreator,
 } from "#src/assistant/db/schema.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
+import { mailViewPath } from "#src/assistant/mail/view/mail-view-path.ts";
 import { startsAfter, waitsAfter } from "./dates-in-order.ts";
 import type { RepeatRule } from "./next-occurrence.ts";
-import { openMailHref } from "./open-mail-href.ts";
 import {
   checklistOfTodo,
   ownTodo,
@@ -97,29 +97,20 @@ export interface ReportView {
   repliedTodos: TodoView[];
 }
 
+/** Links each mail source to the page that shows it, while its account is still connected. */
 async function hrefMaker({ db, userId }: UserScope) {
-  const accounts = new Map(
+  const accounts = new Set(
     (
       await db
-        .select({
-          id: mailAccounts.id,
-          provider: mailAccounts.provider,
-          address: mailAccounts.address,
-        })
+        .select({ id: mailAccounts.id })
         .from(mailAccounts)
         .where(eq(mailAccounts.userId, userId))
-    ).map((account) => [account.id, account]),
+    ).map((account) => account.id),
   );
-  return (source: MailSource | null) => {
-    const account = source ? accounts.get(source.accountId) : undefined;
-    return source && account
-      ? openMailHref({
-          provider: account.provider,
-          accountAddress: account.address,
-          messageId: source.messageId,
-        })
+  return (source: MailSource | null) =>
+    source && accounts.has(source.accountId)
+      ? mailViewPath(source.accountId, source.messageId)
       : null;
-  };
 }
 
 const todoColumns = {

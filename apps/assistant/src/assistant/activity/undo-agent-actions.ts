@@ -20,10 +20,7 @@ import type {
   MailboxFolder,
   MailboxSession,
 } from "#src/assistant/mail/imap/types.ts";
-import {
-  isSyntheticMessageId,
-  parseMailSafely,
-} from "#src/assistant/mail/parse/parse-mail.ts";
+import { uidWithMessageId } from "#src/assistant/mail/view/find-mail-anywhere.ts";
 import { TODO_UNDO_REFUSALS, undoTodoAction } from "./undo-todo-action.ts";
 
 export interface UndoDeps extends MailboxDeps {
@@ -76,7 +73,6 @@ class Refused extends Error {
 
 const SEEN = "\\Seen";
 const FLAGGED = "\\Flagged";
-const HEADER_BYTES = 16 * 1024;
 
 const FLAG_UNDO = {
   mark_read: { flag: SEEN, set: false },
@@ -157,19 +153,11 @@ class UndoMailbox {
   ) {
     if (!(await this.has(path))) return null;
     const uidValidity = await this.select(path, true);
-    const candidates =
-      hint.uid && hint.uidValidity === uidValidity ? [hint.uid] : [];
-    if (!isSyntheticMessageId(messageId)) {
-      candidates.push(...(await this.session.searchUids({ messageId })));
-    }
-    for (const uid of new Set(candidates)) {
-      const message = (
-        await this.session.fetchMessages([uid], HEADER_BYTES)
-      ).at(0);
-      if (!message) continue;
-      if ((await parseMailSafely(message)).messageId === messageId) return uid;
-    }
-    return null;
+    return uidWithMessageId(
+      this.session,
+      messageId,
+      hint.uid && hint.uidValidity === uidValidity ? [hint.uid] : [],
+    );
   }
 }
 
