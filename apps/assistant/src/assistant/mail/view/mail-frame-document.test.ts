@@ -25,4 +25,13 @@ describe("mailFrameDocument", () => {
       "&lt;",
     );
   });
+
+  it("drops replacement characters that sit between tags and keeps those in text", () => {
+    const part = mailPart(
+      "<table>\n<tr>\n\uFFFD\uFFFD\uFFFD <td>Caf\uFFFD</td>\n\uFFFD\uFFFD </tr>\n</table>",
+    );
+
+    expect(part).toContain("<tr>\n <td>Caf\uFFFD</td>\n </tr>");
+    expect(part.match(/\uFFFD/g)).toHaveLength(1);
+  });
 });

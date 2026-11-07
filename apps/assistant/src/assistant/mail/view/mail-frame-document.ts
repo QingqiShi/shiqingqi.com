@@ -77,6 +77,18 @@ export function hasRemoteContent(html: string) {
 const UNSAFE_TAG = /<(?:meta|link|base|iframe)\b[^>]*>/gi;
 const UNSAFE_TAG_START = /<(?=(?:meta|link|base|iframe)\b)/gi;
 const REMOVAL_PASSES = 8;
+const INDENT_REPLACEMENT_CHARS = />[\s\uFFFD]*\uFFFD[\s\uFFFD]*</g;
+
+/*
+ * Some senders damage the indentation between tags and leave U+FFFD there.
+ * A browser moves text out of a table, so each run would show above it.
+ * A U+FFFD in real text stays, because it shows real damage.
+ */
+function withoutIndentReplacementChars(html: string) {
+  return html.replace(INDENT_REPLACEMENT_CHARS, (run) =>
+    run.replaceAll("\uFFFD", ""),
+  );
+}
 
 /*
  * These tags can load from the network past the CSP: a refresh `<meta>`
@@ -109,7 +121,7 @@ export function mailFrameDocument(
 ): string {
   const images = inlineImages(attachments);
   const body = withoutUnsafeTags(
-    html
+    withoutIndentReplacementChars(html)
       .replace(
         /cid:([^"'\s)>]+)/gi,
         (match, id: string) => images.get(cidOf(decoded(id))) ?? match,
