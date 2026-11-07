@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { listSurface } from "@tuja/ui/components/list.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
@@ -38,7 +39,10 @@ export function ReportRankedList({
         )}
         {aside}
       </div>
-      <ol aria-labelledby={titleId} css={stack.rows}>
+      <ol
+        aria-labelledby={titleId}
+        css={[stack.rows, listSurface.plain, listSurface.compact]}
+      >
         {children}
       </ol>
     </div>

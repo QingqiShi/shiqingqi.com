@@ -1,6 +1,5 @@
 "use client";
 
-import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
@@ -8,17 +7,18 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
 import { Card } from "@tuja/ui/components/card";
 import { Heading } from "@tuja/ui/components/heading";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
 import {
   SplitViewLink,
   UnlessStacked,
 } from "@tuja/ui/components/navigation-split-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { Ref } from "react";
 import { Link } from "#src/links/link.tsx";
 import { MoneyChange } from "../domain/money/money-change.tsx";
@@ -255,51 +255,38 @@ function NeedsALook({
             />
           ) : null,
         )}
-        {reviewCount === 0 ? null : (
-          <CheckLink
-            href={financeHref(
-              { screen: "transactions", filters: { review: true } },
-              locale,
+        {reviewCount === 0 && expectedCount === 0 ? null : (
+          <List>
+            {reviewCount === 0 ? null : (
+              <ListRow
+                href={financeHref(
+                  { screen: "transactions", filters: { review: true } },
+                  locale,
+                )}
+                linkComponent={Link}
+              >
+                {reviewCount === 1
+                  ? oneReview
+                  : manyReview.replace("{count}", count(reviewCount))}
+              </ListRow>
             )}
-          >
-            {reviewCount === 1
-              ? oneReview
-              : manyReview.replace("{count}", count(reviewCount))}
-          </CheckLink>
-        )}
-        {expectedCount === 0 ? null : (
-          <CheckLink
-            href={financeHref(
-              { screen: "transactions", filters: { expected: true } },
-              locale,
+            {expectedCount === 0 ? null : (
+              <ListRow
+                href={financeHref(
+                  { screen: "transactions", filters: { expected: true } },
+                  locale,
+                )}
+                linkComponent={Link}
+              >
+                {expectedCount === 1
+                  ? oneExpected
+                  : manyExpected.replace("{count}", count(expectedCount))}
+              </ListRow>
             )}
-          >
-            {expectedCount === 1
-              ? oneExpected
-              : manyExpected.replace("{count}", count(expectedCount))}
-          </CheckLink>
+          </List>
         )}
       </div>
     </Card>
-  );
-}
-
-function CheckLink({ href, children }: { href: string; children: string }) {
-  return (
-    <Link
-      href={href}
-      {...stylex.props(
-        flex.between,
-        typeRole.bodySmall,
-        corner.radius_3,
-        a11y.touchRow,
-        quietSurface.interactive,
-        styles.check,
-      )}
-    >
-      {children}
-      <CaretRightIcon weight="bold" aria-hidden />
-    </Link>
   );
 }
 
@@ -374,14 +361,5 @@ const styles = stylex.create({
   loss: {
     insetInlineEnd: "50%",
     backgroundColor: color.bgDanger,
-  },
-  check: {
-    gap: rhythm.tight,
-    paddingBlock: space._1,
-    paddingInline: space._2,
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.border,
-    fontWeight: font.weight_4,
   },
 });

@@ -1,11 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
+import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { dayHeader } from "../transactions/day-header.stylex.ts";
-import { TransactionFaceSkeleton } from "../transactions/transaction-face-skeleton.tsx";
-import { transactionFaceTokens } from "../transactions/transaction-face.stylex.ts";
+import { TransactionRowSkeleton } from "../transactions/transaction-row-skeleton.tsx";
 
 /** How many entries each day of the skeleton holds. */
 const DAY_ENTRIES = [1, 2, 1, 2];
@@ -31,13 +31,12 @@ export function AccountLedgerSkeleton() {
               </div>
             </div>
           </div>
-          <div css={styles.entries}>
+          <div css={[listSurface.plain, styles.entries]}>
             {Array.from({ length: entries }, (_, entry) => (
-              <TransactionFaceSkeleton
+              <TransactionRowSkeleton
                 key={entry}
                 lines={ENTRY_LINES}
                 trailing={ENTRY_TRAILING}
-                css={styles.entry}
               />
             ))}
           </div>
@@ -55,9 +54,5 @@ const styles = stylex.create({
   },
   entries: {
     paddingBlockStart: space._0,
-  },
-  entry: {
-    boxSizing: "border-box",
-    blockSize: transactionFaceTokens.twoLines,
   },
 });

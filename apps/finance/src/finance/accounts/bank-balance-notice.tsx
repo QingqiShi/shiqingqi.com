@@ -8,6 +8,7 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
+import { listSurface } from "@tuja/ui/components/list.stylex";
 import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -168,53 +169,53 @@ function UnbackedEntryList({
               zh: "银行没有显示这些交易。重复的请删除，真实的请保留。",
             })}
           </p>
-          <ul css={styles.list}>
+          <ul css={[listSurface.rows, listSurface.plain]}>
             {shown.map(({ entry, transaction }) => {
               const description = describe(transaction, accountId);
               const { title } = description;
               return (
-                <li key={entry.id} css={row.tight}>
-                  <div css={styles.entry}>
-                    <LedgerEntryLink
-                      transaction={transaction}
-                      description={description}
-                      amountMinor={entry.amountMinor}
-                      currency={link.currency}
-                      trailing={displayDay(entry.date, locale, "day")}
-                      href={url.hrefOf({
-                        account: accountId,
-                        tx: transaction.id,
-                      })}
-                      isSelected={url.tx === transaction.id}
-                    />
-                  </div>
-                  <Button
-                    size="sm"
-                    look="ghost"
-                    css={styles.keep}
-                    aria-label={`${keepLabel} ${title}, ${displayDay(entry.date, locale, "dayYear")}, ${formatMoney(entry.amountMinor, link.currency, locale, { signDisplay: "exceptZero" })}`}
-                    onClick={() => void view.keep(transaction.id)}
-                  >
-                    {keepLabel}
-                  </Button>
-                  <Button
-                    size="sm"
-                    look="ghost"
-                    icon={<TrashIcon weight="bold" />}
-                    aria-label={`${deleteLabel} ${title}, ${displayDay(entry.date, locale, "dayYear")}, ${formatMoney(entry.amountMinor, link.currency, locale, { signDisplay: "exceptZero" })}`}
-                    onClick={() => {
-                      runUndoable(
-                        [
-                          {
-                            name: "deleteTransaction",
-                            args: { id: transaction.id },
-                          },
-                        ],
-                        { message: deletedLabel },
-                      );
-                    }}
-                  />
-                </li>
+                <LedgerEntryLink
+                  key={entry.id}
+                  transaction={transaction}
+                  description={description}
+                  amountMinor={entry.amountMinor}
+                  currency={link.currency}
+                  trailing={displayDay(entry.date, locale, "day")}
+                  href={url.hrefOf({
+                    account: accountId,
+                    tx: transaction.id,
+                  })}
+                  isSelected={url.tx === transaction.id}
+                  actions={
+                    <>
+                      <Button
+                        size="sm"
+                        look="ghost"
+                        aria-label={`${keepLabel} ${title}, ${displayDay(entry.date, locale, "dayYear")}, ${formatMoney(entry.amountMinor, link.currency, locale, { signDisplay: "exceptZero" })}`}
+                        onClick={() => void view.keep(transaction.id)}
+                      >
+                        {keepLabel}
+                      </Button>
+                      <Button
+                        size="sm"
+                        look="ghost"
+                        icon={<TrashIcon weight="bold" />}
+                        aria-label={`${deleteLabel} ${title}, ${displayDay(entry.date, locale, "dayYear")}, ${formatMoney(entry.amountMinor, link.currency, locale, { signDisplay: "exceptZero" })}`}
+                        onClick={() => {
+                          runUndoable(
+                            [
+                              {
+                                name: "deleteTransaction",
+                                args: { id: transaction.id },
+                              },
+                            ],
+                            { message: deletedLabel },
+                          );
+                        }}
+                      />
+                    </>
+                  }
+                />
               );
             })}
           </ul>
@@ -361,17 +362,5 @@ const styles = stylex.create({
   muted: {
     margin: 0,
     color: color.fgMuted,
-  },
-  list: {
-    margin: 0,
-    padding: 0,
-    listStyle: "none",
-  },
-  entry: {
-    flexGrow: 1,
-    minInlineSize: 0,
-  },
-  keep: {
-    flexShrink: 0,
   },
 });

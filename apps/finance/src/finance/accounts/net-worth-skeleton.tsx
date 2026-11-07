@@ -19,7 +19,6 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { controlHeight, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { FinanceAddButton } from "../shell/finance-add-button.tsx";
-import type { AccountRowForm } from "./account-row.tsx";
 import type { NetWorthHeadlineForm } from "./net-worth-headline.tsx";
 
 const GROUP_ROWS = [3, 4];
@@ -137,7 +136,7 @@ function ActionsSkeleton({ flush = false }: { flush?: boolean }) {
   );
 }
 
-function GroupsSkeleton({ form }: { form: AccountRowForm }) {
+function GroupsSkeleton({ form }: { form: "sidebar" | "card" }) {
   return (
     <div css={stack.group}>
       {GROUP_ROWS.map((rows, group) => {
@@ -158,14 +157,10 @@ function GroupsSkeleton({ form }: { form: AccountRowForm }) {
               />
             </>
           );
-          return form === "card" ? (
+          return (
             <li key={index} css={listSurface.item}>
               <div css={listSurface.row}>{account}</div>
             </li>
-          ) : (
-            <div key={index} css={styles.account}>
-              {account}
-            </div>
           );
         });
         return (
@@ -174,7 +169,12 @@ function GroupsSkeleton({ form }: { form: AccountRowForm }) {
               <Skeleton width="4rem" height="1rem" />
               <Skeleton width="5rem" height="1rem" />
             </div>
-            {form === "card" ? <List>{accounts}</List> : <div>{accounts}</div>}
+            <List
+              form={form === "card" ? "card" : "plain"}
+              density={form === "card" ? "regular" : "compact"}
+            >
+              {accounts}
+            </List>
           </div>
         );
       })}
@@ -222,13 +222,6 @@ const styles = stylex.create({
   groupHeader: {
     justifyContent: "space-between",
     blockSize: "2.125rem",
-  },
-  account: {
-    display: "flex",
-    alignItems: "center",
-    gap: rhythm.item,
-    blockSize: "3.5rem",
-    paddingInline: space._2,
   },
   grow: {
     flexGrow: 1,

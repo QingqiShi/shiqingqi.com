@@ -1,10 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
+import { listRowSizes, listSurface } from "@tuja/ui/components/list.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { plainList } from "@tuja/ui/primitives/layout.stylex";
-import { rhythm } from "@tuja/ui/tokens.stylex";
+import { font, rhythm } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
-import { transactionFaceTokens } from "./transaction-face.stylex.ts";
 
 /** One line of text in a skeleton, as a block of its size. */
 export interface SkeletonLine {
@@ -12,8 +11,8 @@ export interface SkeletonLine {
   height: string;
 }
 
-interface TransactionFaceSkeletonProps {
-  /** The lines under the icon's side, from the title down. */
+interface TransactionRowSkeletonProps {
+  /** The lines beside the icon, from the title down. */
   lines: readonly SkeletonLine[];
   /** The lines at the end, from the amount down. */
   trailing: readonly SkeletonLine[];
@@ -21,14 +20,17 @@ interface TransactionFaceSkeletonProps {
   css?: StyleProp;
 }
 
-/** A `TransactionFace` before it shows: the icon and each line, as blocks. */
-export function TransactionFaceSkeleton({
+/**
+ * A Transaction's `ListRow` before it shows: the icon and each line, as
+ * blocks. Put it in a list with `listSurface.plain`, as the rows are.
+ */
+export function TransactionRowSkeleton({
   lines,
   trailing,
   css,
-}: TransactionFaceSkeletonProps) {
+}: TransactionRowSkeletonProps) {
   return (
-    <div css={[plainList.row, styles.face, css]}>
+    <div css={[listSurface.row, listSurface.withMedia, styles.row, css]}>
       <Skeleton css={[corner.radius_round, styles.icon]} />
       <div css={[styles.lines, styles.grow]}>
         {lines.map((line, index) => (
@@ -44,17 +46,19 @@ export function TransactionFaceSkeleton({
   );
 }
 
+const headLines = `calc((${font.uiBody} + ${font.uiBodySmall}) * ${font.lineHeightBody})`;
+
 const styles = stylex.create({
-  face: {
-    display: "flex",
+  row: {
     alignItems: "flex-start",
     gap: rhythm.item,
-    paddingBlock: transactionFaceTokens.paddingBlock,
   },
+  // A ListRow centres its icon on the title and the first detail line.
   icon: {
-    width: transactionFaceTokens.icon,
-    height: transactionFaceTokens.icon,
-    marginBlockStart: transactionFaceTokens.iconOffset,
+    flexShrink: 0,
+    inlineSize: listRowSizes.media_md,
+    blockSize: listRowSizes.media_md,
+    marginBlockStart: `calc((${headLines} - ${listRowSizes.media_md}) / 2)`,
   },
   lines: {
     display: "flex",

@@ -3,7 +3,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
 import { ListRow } from "@tuja/ui/components/list-row";
@@ -11,11 +10,7 @@ import {
   SplitViewLink,
   useSplitViewShared,
 } from "@tuja/ui/components/navigation-split-view";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
@@ -24,20 +19,15 @@ import type { AccountLine } from "./build-balance-sheet.ts";
 import { institutionIconUrl } from "./institution-icon-url.ts";
 import { VALUATION_KINDS } from "./valuation-kinds.ts";
 
-export type AccountRowForm = "sidebar" | "card";
-
 interface AccountRowProps {
-  /**
-   * `"sidebar"` wraps the name and never cuts it. `"card"` is a row of a
-   * `List`.
-   */
-  form: AccountRowForm;
   line: AccountLine;
   baseCurrency: string;
   href: string;
   isSelected: boolean;
   /** The initials that mark the account, the same as in the strip. */
   initials: string;
+  /** Whether the row shows that it opens in place of the list. */
+  caret: boolean;
 }
 
 /**
@@ -47,12 +37,12 @@ interface AccountRowProps {
  * account.
  */
 export function AccountRow({
-  form,
   line,
   baseCurrency,
   href,
   isSelected,
   initials,
+  caret,
 }: AccountRowProps) {
   const locale = useLocale();
   const accountName = useAccountDisplayName();
@@ -79,7 +69,6 @@ export function AccountRow({
       )}`,
     );
   }
-  const differs = account.currency !== baseCurrency;
   const avatar = (
     <span ref={avatarRef} css={styles.avatar}>
       <Avatar
@@ -93,14 +82,7 @@ export function AccountRow({
   );
   const factLine =
     facts.length > 0 || line.hidden !== null ? (
-      <span
-        css={[
-          row.inline,
-          form === "sidebar" && typeRole.caption,
-          styles.facts,
-          form === "sidebar" && styles.muted,
-        ]}
-      >
+      <span css={[row.inline, styles.facts]}>
         {line.hidden === null ? null : (
           <Badge size="sm" intent="neutral">
             {line.hidden === "closed"
@@ -111,105 +93,38 @@ export function AccountRow({
         <span css={styles.factText}>{facts.join(" · ")}</span>
       </span>
     ) : null;
-  const amounts = (
-    <span css={styles.amounts}>
-      <span
-        css={[
-          form === "sidebar" ? typeRole.bodySmall : typeRole.body,
-          typeModifier.numeric,
-          styles.balance,
-        ]}
-      >
-        {formatMoney(line.balance, account.currency, locale)}
-      </span>
-      {differs ? (
-        <span css={[typeRole.caption, typeModifier.numeric, styles.converted]}>
-          {`≈ ${formatMoney(line.baseBalance, baseCurrency, locale)}`}
-        </span>
-      ) : null}
-    </span>
-  );
-
-  if (form === "card") {
-    return (
-      <ListRow
-        href={href}
-        linkComponent={SplitViewLink}
-        aria-current={isSelected ? "true" : undefined}
-        leading={avatar}
-        detail={factLine}
-        trailing={amounts}
-      >
-        {name}
-      </ListRow>
-    );
-  }
 
   return (
-    <li css={styles.item}>
-      <SplitViewLink
-        href={href}
-        aria-current={isSelected ? "true" : undefined}
-        {...stylex.props(corner.radius_3, quietSurface.interactive, styles.row)}
-      >
-        {avatar}
-        <span css={styles.main}>
-          <span css={[typeRole.bodySmall, styles.name]}>{name}</span>
-          {factLine}
-        </span>
-        {amounts}
-      </SplitViewLink>
-    </li>
+    <ListRow
+      href={href}
+      linkComponent={SplitViewLink}
+      aria-current={isSelected ? "true" : undefined}
+      caret={caret}
+      leading={avatar}
+      detail={factLine}
+      value={formatMoney(line.balance, account.currency, locale)}
+      valueDetail={
+        account.currency === baseCurrency
+          ? null
+          : `≈ ${formatMoney(line.baseBalance, baseCurrency, locale)}`
+      }
+    >
+      {name}
+    </ListRow>
   );
 }
 
 const styles = stylex.create({
-  item: {
-    display: "flex",
-  },
-  row: {
-    display: "flex",
-    alignItems: "center",
-    gap: rhythm.tight,
-    flexGrow: 1,
-    minInlineSize: 0,
-    paddingBlock: space._1,
-    paddingInline: space._2,
-  },
   avatar: {
     display: "flex",
     flexShrink: 0,
   },
-  main: {
-    display: "flex",
-    flexDirection: "column",
-    flexGrow: 1,
-    minInlineSize: 0,
-  },
-  name: {
-    fontWeight: font.weight_5,
-  },
   facts: {
     minInlineSize: 0,
-  },
-  muted: {
-    color: color.fgMuted,
   },
   factText: {
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
-  },
-  converted: {
-    color: color.fgMuted,
-  },
-  amounts: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end",
-    flexShrink: 0,
-  },
-  balance: {
-    fontWeight: font.weight_5,
   },
 });

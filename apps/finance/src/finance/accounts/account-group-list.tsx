@@ -16,7 +16,7 @@ import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useId, useState } from "react";
 import { formatMoney } from "../domain/money/format-money.ts";
-import { AccountRow, type AccountRowForm } from "./account-row.tsx";
+import { AccountRow } from "./account-row.tsx";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
 import { useAccountInitials } from "./use-account-initials.ts";
 import { useCollapsedGroups } from "./use-collapsed-groups.ts";
@@ -44,8 +44,7 @@ export function AccountGroupList({
   selectedAccountId,
 }: AccountGroupListProps) {
   const locale = useLocale();
-  const form: AccountRowForm =
-    useSplitViewColumn()?.column === "sidebar" ? "sidebar" : "card";
+  const form = useSplitViewColumn()?.column === "sidebar" ? "plain" : "card";
   const initials = useAccountInitials(sheet);
   const { collapsed, toggle } = useCollapsedGroups();
   const [showHidden, setShowHidden] = useState(false);
@@ -61,7 +60,7 @@ export function AccountGroupList({
   );
 
   return (
-    <div css={form === "sidebar" ? stack.item : stack.group}>
+    <div css={form === "plain" ? stack.item : stack.group}>
       {sheet.sections.map((section) => {
         const lines = showHidden
           ? section.lines
@@ -72,12 +71,12 @@ export function AccountGroupList({
         const rows = lines.map((line) => (
           <AccountRow
             key={line.account.id}
-            form={form}
             line={line}
             baseCurrency={baseCurrency}
             href={accountHref(line.account.id)}
             isSelected={selectedAccountId === line.account.id}
             initials={initials.get(line.account.id) ?? ""}
+            caret={form === "card"}
           />
         ));
         return (
@@ -88,7 +87,7 @@ export function AccountGroupList({
             css={styles.section}
           >
             <Disclosure
-              css={form === "sidebar" && styles.group}
+              css={form === "plain" && styles.group}
               open={!collapsed.has(section.group.id)}
               onOpenChange={(open) => {
                 toggle(section.group.id, open);
@@ -116,12 +115,14 @@ export function AccountGroupList({
                 >
                   {emptyGroup}
                 </p>
-              ) : form === "sidebar" ? (
-                <ul role="list" css={styles.rows}>
-                  {rows}
-                </ul>
               ) : (
-                <List css={styles.body}>{rows}</List>
+                <List
+                  form={form}
+                  density={form === "plain" ? "compact" : "regular"}
+                  css={form === "card" && styles.body}
+                >
+                  {rows}
+                </List>
               )}
             </Disclosure>
           </section>
@@ -178,14 +179,6 @@ const styles = stylex.create({
   },
   body: {
     marginBlockStart: rhythm.tight,
-  },
-  rows: {
-    display: "flex",
-    flexDirection: "column",
-    marginBlock: 0,
-    marginInline: `calc(-1 * ${space._2})`,
-    padding: 0,
-    listStyle: "none",
   },
   empty: {
     margin: 0,

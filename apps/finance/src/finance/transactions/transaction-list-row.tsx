@@ -6,13 +6,14 @@ import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
+import { ListRow, type ListRowLinkProps } from "@tuja/ui/components/list-row";
+import { listRowSizes, listRowTokens } from "@tuja/ui/components/list.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
-import type { MouseEvent } from "react";
+import { createContext, type MouseEvent, use } from "react";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
 import type {
@@ -25,7 +26,6 @@ import { isInReview } from "./is-in-review.ts";
 import { reviewReason, type ReviewReason } from "./review-reason.ts";
 import type { TransactionLookups } from "./select-transaction-lookups.ts";
 import { shownAmount } from "./shown-amount.ts";
-import { TransactionFace } from "./transaction-face.tsx";
 import { hasMetaLine, TransactionMetaLine } from "./transaction-meta-line.tsx";
 import { useDescribeTransaction } from "./use-describe-transaction.ts";
 import { useReviewReasonText } from "./use-review-reason-text.ts";
@@ -61,6 +61,27 @@ function ReviewReasonCaption({ reason }: { reason: ReviewReason }) {
   const reasonText = useReviewReasonText();
   return (
     <span css={[typeRole.caption, styles.muted]}>{reasonText(reason)}</span>
+  );
+}
+
+const TransactionLinkContext = createContext<{
+  id: string;
+  onOpen: (id: string) => void;
+} | null>(null);
+
+/** The row's link: a plain click opens the Transaction in the list's own way, and a modified click is left to the browser. */
+function TransactionLink(props: ListRowLinkProps) {
+  const target = use(TransactionLinkContext);
+  return (
+    <a
+      {...props}
+      data-transaction-id={target?.id}
+      onClick={(event) => {
+        if (target === null || !isPlainClick(event)) return;
+        event.preventDefault();
+        target.onOpen(target.id);
+      }}
+    />
   );
 }
 
@@ -157,34 +178,32 @@ export function TransactionListRow({
   const metaLine = { meta, isExpected, showReviewBadge, isPending };
 
   return (
-    <div css={styles.row} data-transaction-row={row.id}>
-      <a
-        href={actions.hrefFor(row.id)}
-        aria-current={isSelected ? "true" : undefined}
-        data-transaction-id={row.id}
-        onClick={(event) => {
-          if (!isPlainClick(event)) return;
-          event.preventDefault();
-          actions.onOpen(row.id);
-        }}
-        css={[quietSurface.interactive, corner.radius_3, styles.link]}
-      >
-        <TransactionFace
-          icon={icon}
-          title={title}
-          amount={amount}
-          amountMuted={isExpected}
-          subtitle={subtitle}
-          trailing={countedText}
+    <div data-transaction-row={row.id}>
+      <TransactionLinkContext value={{ id: row.id, onOpen: actions.onOpen }}>
+        <ListRow
+          href={actions.hrefFor(row.id)}
+          linkComponent={TransactionLink}
+          aria-current={isSelected ? "true" : undefined}
+          caret={false}
+          leading={icon}
+          leadingShape="circle"
+          detail={subtitle}
+          extra={
+            reason === null && !hasMetaLine(metaLine) ? null : (
+              <>
+                {reason === null ? null : (
+                  <ReviewReasonCaption reason={reason} />
+                )}
+                <TransactionMetaLine {...metaLine} />
+              </>
+            )
+          }
+          value={isExpected ? <span css={styles.muted}>{amount}</span> : amount}
+          valueDetail={countedText}
         >
-          {reason === null && !hasMetaLine(metaLine) ? undefined : (
-            <>
-              {reason === null ? null : <ReviewReasonCaption reason={reason} />}
-              <TransactionMetaLine {...metaLine} />
-            </>
-          )}
-        </TransactionFace>
-      </a>
+          {title}
+        </ListRow>
+      </TransactionLinkContext>
       {isExpected ? (
         <div css={[cluster.tight, styles.actions]}>
           <Button
@@ -247,17 +266,11 @@ export function TransactionListRow({
 }
 
 const styles = stylex.create({
-  row: {
-    paddingBlock: space._00,
-  },
-  link: {
-    display: "block",
-  },
   muted: {
     color: color.fgMuted,
   },
   actions: {
-    paddingInlineStart: `calc(2.25rem + ${rhythm.item} + ${space._2})`,
+    paddingInlineStart: `calc(${listRowSizes.media_md} + ${rhythm.item} + ${listRowTokens.rowPaddingInline})`,
     paddingBlockEnd: space._1,
   },
   selectWrap: {

@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { listSurface } from "@tuja/ui/components/list.stylex";
 import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
@@ -80,7 +81,7 @@ export function TransactionList({
   const scrollParent = useSplitViewColumn()?.scroller;
   if (scrollParent === null) return null;
   return (
-    <div css={[plainList.list, styles.list]}>
+    <div css={[plainList.list, listSurface.plain, styles.list]}>
       <Virtuoso
         key={scrollParent ? "master" : "window"}
         ref={virtuosoRef}

@@ -1,19 +1,16 @@
 "use client";
 
-import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { TabViewLink } from "@tuja/ui/components/tab-view";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { animate } from "@tuja/ui/primitives/motion.stylex";
-import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { font, rhythm } from "@tuja/ui/tokens.stylex";
 import type { AnalyticsIndex } from "../analytics/types.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { fromEpochDay } from "../domain/dates/to-epoch-day.ts";
@@ -22,7 +19,6 @@ import { financeHref } from "../navigation/finance-href.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { selectEntriesByTransaction } from "../store/select-entries-by-transaction.ts";
 import { selectTagIdsByTransaction } from "../store/select-tag-ids-by-transaction.ts";
-import { TransactionFace } from "../transactions/transaction-face.tsx";
 import { useDescribeTransaction } from "../transactions/use-describe-transaction.ts";
 import { useTransactionLookups } from "../transactions/use-transaction-lookups.ts";
 import { largestFirst, type MonthDay } from "./build-month-view.ts";
@@ -88,7 +84,7 @@ export function MonthDayDetail({ day, index, currency }: MonthDayDetailProps) {
       {day.rows.length === 0 ? (
         <p css={[typeRole.bodySmall, styles.muted, styles.hint]}>{nothing}</p>
       ) : (
-        <ul css={[plainList.list, stack.text]}>
+        <List form="plain">
           {shownRows.map((row) => {
             const id = index.transactionIds[row];
             const transaction = transactions.get(id);
@@ -99,60 +95,50 @@ export function MonthDayDetail({ day, index, currency }: MonthDayDetailProps) {
               accountId: null,
             });
             return (
-              <li key={id}>
-                <TabViewLink
-                  href={financeHref({ screen: "transactions", id }, locale)}
-                  {...stylex.props(
-                    corner.radius_3,
-                    quietSurface.interactive,
-                    styles.link,
-                  )}
-                >
-                  <TransactionFace
-                    icon={description.icon}
-                    title={description.title}
-                    subtitle={description.subtitle}
-                    amount={formatMoney(
-                      Math.round(index.amounts[row]),
-                      currency,
-                      locale,
-                      { signDisplay: "exceptZero" },
-                    )}
-                  />
-                </TabViewLink>
-              </li>
+              <ListRow
+                key={id}
+                href={financeHref({ screen: "transactions", id }, locale)}
+                linkComponent={TabViewLink}
+                caret={false}
+                leading={description.icon}
+                leadingShape="circle"
+                detail={description.subtitle}
+                value={formatMoney(
+                  Math.round(index.amounts[row]),
+                  currency,
+                  locale,
+                  { signDisplay: "exceptZero" },
+                )}
+              >
+                {description.title}
+              </ListRow>
             );
           })}
           {hiddenCount > 0 ? (
-            <li>
-              <TabViewLink
-                href={financeHref(
-                  {
-                    screen: "transactions",
-                    filters: { from: dayKey, to: dayKey },
-                  },
-                  locale,
-                )}
-                {...stylex.props(
-                  flex.between,
-                  typeRole.bodySmall,
-                  corner.radius_3,
-                  quietSurface.interactive,
-                  styles.more,
-                )}
-              >
-                {t({
-                  en: "See all in Activity",
-                  zh: "在交易中查看全部",
-                })}
-                <span css={[flex.row, typeModifier.numeric, styles.moreCount]}>
+            <ListRow
+              href={financeHref(
+                {
+                  screen: "transactions",
+                  filters: { from: dayKey, to: dayKey },
+                },
+                locale,
+              )}
+              linkComponent={TabViewLink}
+              trailing={
+                <span
+                  css={[typeRole.bodySmall, typeModifier.numeric, styles.muted]}
+                >
                   {`+${hiddenCount.toLocaleString(locale)}`}
-                  <CaretRightIcon weight="bold" aria-hidden />
                 </span>
-              </TabViewLink>
-            </li>
+              }
+            >
+              {t({
+                en: "See all in Activity",
+                zh: "在交易中查看全部",
+              })}
+            </ListRow>
           ) : null}
-        </ul>
+        </List>
       )}
     </div>
   );
@@ -164,7 +150,6 @@ const styles = stylex.create({
     alignItems: "baseline",
     justifyContent: "space-between",
     gap: rhythm.item,
-    paddingInline: space._2,
   },
   heading: {
     margin: 0,
@@ -172,22 +157,8 @@ const styles = stylex.create({
   },
   hint: {
     margin: 0,
-    paddingInline: space._2,
   },
   muted: {
     color: color.fgMuted,
-  },
-  link: {
-    display: "block",
-    paddingInline: space._2,
-  },
-  more: {
-    gap: rhythm.tight,
-    paddingBlock: space._2,
-    paddingInline: `calc(2 * ${space._2})`,
-    color: color.fgMuted,
-  },
-  moreCount: {
-    gap: rhythm.tight,
   },
 });

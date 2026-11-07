@@ -5,6 +5,7 @@ import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
+import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -74,7 +75,14 @@ export function RankedBreakdown({
           {empty}
         </Text>
       ) : (
-        <List {...stylex.props(stack.rows, plainList.list)}>
+        <List
+          {...stylex.props(
+            stack.rows,
+            plainList.list,
+            listSurface.plain,
+            listSurface.compact,
+          )}
+        >
           {shown.map((item) => (
             <RankedRow
               key={item.key}

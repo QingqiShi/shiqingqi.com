@@ -18,7 +18,7 @@ test.describe("Net worth at 1440 px", () => {
     session: _session,
   }) => {
     await openNetWorth(page);
-    await page.getByRole("link", { name: /^Alex Current Northbank/ }).click();
+    await page.getByRole("link", { name: /^Alex Current .*Northbank/ }).click();
     await expect(page).toHaveURL(/[?&]account=/);
     const account = page.getByRole("region", { name: "Alex Current" });
     await expect(
