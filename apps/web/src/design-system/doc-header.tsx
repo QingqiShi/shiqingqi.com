@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { headerControlsTokens } from "@tuja/ui/components/header-controls.stylex";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -10,7 +11,7 @@ import { getDesignSystemRouteLabel } from "#src/design-system/route-copy/get-des
 import { hasDesignSystemLab } from "#src/design-system/routes/has-design-system-lab.ts";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
 import { DocBreadcrumb } from "./doc-breadcrumb.tsx";
-import { DocHeaderColumn, DocsViewOnly } from "./doc-header-column.tsx";
+import { readingColumn } from "./reading-column.stylex.ts";
 
 interface DocHeaderProps {
   /**
@@ -19,38 +20,45 @@ interface DocHeaderProps {
    * disagrees with.
    */
   path: DesignSystemPath;
-  /** The opening paragraph, under the title. The Lab view hides it. */
+  /** The opening paragraph, under the title. */
   description?: ReactNode;
 }
 
 /**
  * The header both of a route's views share: where the page sits, what it is
  * called, what it is about, and — where the route has a Lab — the switch
- * between the two views. `DocArticle` places it above the view. The description
- * belongs to the documentation view, so the Lab view hides it.
+ * between the two views. `DocArticle` places it above the view. It is the same
+ * in both views, so nothing in it moves when the view switches.
  */
 export function DocHeader({ path, description }: DocHeaderProps) {
   return (
-    <DocHeaderColumn docsPath={path}>
+    <header css={[stack.item, styles.header]}>
       <DocBreadcrumb path={path} />
       <div data-prose css={stack.tight}>
-        <div css={[cluster.item, justify.between]}>
+        <div css={[cluster.item, justify.between, styles.titleRow]}>
           <h1 css={[typeRole.subDisplay, styles.title]}>
             {getDesignSystemRouteLabel(path)}
           </h1>
           {hasDesignSystemLab(path) ? <LabViewSwitch docsPath={path} /> : null}
         </div>
         {description == null ? null : (
-          <DocsViewOnly docsPath={path}>
-            <p css={[typeRole.body, styles.description]}>{description}</p>
-          </DocsViewOnly>
+          <p css={[typeRole.body, styles.description]}>{description}</p>
         )}
       </div>
-    </DocHeaderColumn>
+    </header>
   );
 }
 
 const styles = stylex.create({
+  header: {
+    maxInlineSize: readingColumn.inlineSize,
+    marginInline: "auto",
+  },
+  // A drawer's menu button floats over this row once the breadcrumb scrolls
+  // away. Without this padding, the button covers the view switch.
+  titleRow: {
+    paddingInlineEnd: headerControlsTokens.inlineEndClearance,
+  },
   title: {
     margin: 0,
     color: color.fg,
