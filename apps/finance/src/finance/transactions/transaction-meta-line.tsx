@@ -18,6 +18,16 @@ interface TransactionMetaLineProps {
   isPending?: boolean;
 }
 
+/** Whether `TransactionMetaLine` shows anything for these props. */
+export function hasMetaLine({
+  meta,
+  isExpected,
+  showReviewBadge = false,
+  isPending = false,
+}: TransactionMetaLineProps) {
+  return meta !== "" || isExpected || showReviewBadge || isPending;
+}
+
 /** The line under a Transaction's subtitle: its status badges, the account and the Tags. */
 export function TransactionMetaLine({
   meta,
@@ -25,7 +35,7 @@ export function TransactionMetaLine({
   showReviewBadge = false,
   isPending = false,
 }: TransactionMetaLineProps) {
-  if (meta === "" && !isExpected && !showReviewBadge && !isPending) {
+  if (!hasMetaLine({ meta, isExpected, showReviewBadge, isPending })) {
     return null;
   }
   return (

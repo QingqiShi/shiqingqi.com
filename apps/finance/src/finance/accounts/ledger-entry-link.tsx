@@ -9,7 +9,10 @@ import type { ReactNode } from "react";
 import { formatMoney } from "../domain/money/format-money.ts";
 import type { TransactionRow } from "../sync/row-schemas.ts";
 import { TransactionFace } from "../transactions/transaction-face.tsx";
-import { TransactionMetaLine } from "../transactions/transaction-meta-line.tsx";
+import {
+  hasMetaLine,
+  TransactionMetaLine,
+} from "../transactions/transaction-meta-line.tsx";
 import type { TransactionRowDescription } from "../transactions/use-describe-transaction.ts";
 
 interface LedgerEntryLinkProps {
@@ -53,7 +56,12 @@ export function LedgerEntryLink({
         amountMuted={isExpected}
         trailing={trailing}
       >
-        <TransactionMetaLine meta={description.meta} isExpected={isExpected} />
+        {hasMetaLine({ meta: description.meta, isExpected }) ? (
+          <TransactionMetaLine
+            meta={description.meta}
+            isExpected={isExpected}
+          />
+        ) : undefined}
       </TransactionFace>
     </SplitViewLink>
   );
