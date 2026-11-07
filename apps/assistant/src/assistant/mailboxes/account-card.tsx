@@ -3,7 +3,7 @@ import { t } from "@tuja/i18n";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
-import { listSurface } from "@tuja/ui/components/list.stylex";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -103,33 +103,26 @@ export function AccountCard({
   reconnectHref: string | null;
 }) {
   return (
-    <li css={listSurface.item}>
-      <div css={[listSurface.row, styles.row]}>
+    <ListRow
+      wrap
+      leading={
         <Avatar
           name={PROVIDER_NAMES[account.provider]}
           shape="square"
           aria-hidden
-          css={styles.avatar}
         />
-        <div css={[stack.tight, styles.main]}>
-          <div css={stack.text}>
-            <div css={styles.title}>
-              <Text weight="medium" css={styles.address}>
-                {account.address}
-              </Text>
-              <StatusBadge status={account.status} />
-            </div>
-            <Text look="bodySmall" tone="muted">
-              {PROVIDER_NAMES[account.provider]}
-              {" · "}
-              {account.lastSyncedAt
-                ? t({
-                    en: "Last checked {date}",
-                    zh: "上次检查 {date}",
-                  }).replace("{date}", formatDate(account.lastSyncedAt))
-                : t({ en: "Not checked yet", zh: "尚未检查" })}
-            </Text>
-          </div>
+      }
+      detail={`${PROVIDER_NAMES[account.provider]} · ${
+        account.lastSyncedAt
+          ? t({
+              en: "Last checked {date}",
+              zh: "上次检查 {date}",
+            }).replace("{date}", formatDate(account.lastSyncedAt))
+          : t({ en: "Not checked yet", zh: "尚未检查" })
+      }`}
+      extra={
+        <div css={[stack.tight, styles.extra]}>
+          <StatusBadge status={account.status} />
           {account.lastErrorCode ? (
             <div css={stack.text}>
               <ErrorText code={account.lastErrorCode} />
@@ -165,33 +158,18 @@ export function AccountCard({
             <AccountActions accountId={account.id} />
           </div>
         </div>
-      </div>
-    </li>
+      }
+    >
+      {account.address}
+    </ListRow>
   );
 }
 
 const styles = stylex.create({
-  row: {
+  extra: {
     alignItems: "flex-start",
-    paddingBlock: space._3,
-  },
-  avatar: {
-    flexShrink: 0,
-  },
-  main: {
-    flexGrow: 1,
-    minInlineSize: 0,
-  },
-  title: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    justifyContent: "space-between",
-    columnGap: rhythm.item,
-    rowGap: rhythm.inline,
-  },
-  address: {
-    minInlineSize: 0,
+    paddingBlockStart: rhythm.inline,
+    paddingBlockEnd: space._1,
   },
   actions: {
     display: "flex",

@@ -4,13 +4,12 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { List } from "@tuja/ui/components/list";
-import { listSurface } from "@tuja/ui/components/list.stylex";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { ToastProvider, useToast } from "@tuja/ui/components/toast-provider";
 import { toastTokens } from "@tuja/ui/components/toast.stylex";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { measure, rhythm } from "@tuja/ui/tokens.stylex";
+import { measure } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { assistantFetch } from "../http/assistant-fetch.ts";
@@ -124,16 +123,11 @@ function Entries({ todos }: { todos: readonly RejectedTodoEntry[] }) {
   return (
     <List css={styles.list}>
       {shown.map((entry) => (
-        <li key={entry.id} css={listSurface.item}>
-          <div css={[listSurface.row, styles.row]}>
-            <div css={[stack.text, styles.text]}>
-              <Text>{entry.title}</Text>
-              {entry.note ? (
-                <Text look="bodySmall" tone="muted">
-                  {entry.note}
-                </Text>
-              ) : null}
-            </div>
+        <ListRow
+          key={entry.id}
+          wrap
+          detail={entry.note}
+          actions={
             <Button
               size="sm"
               look="ghost"
@@ -144,8 +138,10 @@ function Entries({ todos }: { todos: readonly RejectedTodoEntry[] }) {
             >
               {copy.remove}
             </Button>
-          </div>
-        </li>
+          }
+        >
+          {entry.title}
+        </ListRow>
       ))}
     </List>
   );
@@ -170,13 +166,6 @@ export function RejectedTodoList({
 const styles = stylex.create({
   list: {
     maxInlineSize: measure.form,
-  },
-  row: {
-    gap: rhythm.item,
-  },
-  text: {
-    flexGrow: 1,
-    minInlineSize: 0,
   },
   toasts: {
     [toastTokens.clearance]: tabViewTokens.barClearance,

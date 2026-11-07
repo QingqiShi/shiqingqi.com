@@ -8,7 +8,7 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { List } from "@tuja/ui/components/list";
-import { listSurface } from "@tuja/ui/components/list.stylex";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
@@ -100,24 +100,13 @@ function TokenRow({
   const notUsed = t({ en: "Not used yet", zh: "还没有使用" });
 
   return (
-    <li css={listSurface.item}>
-      <div css={[listSurface.row, styles.row]}>
-        <div css={[stack.text, styles.rowText]}>
-          <Text>
-            {created.replace(
-              "{time}",
-              formatReminderTime(entry.createdAt, place),
-            )}
-          </Text>
-          <Text look="bodySmall" tone="muted">
-            {entry.lastUsedAt
-              ? used.replace(
-                  "{time}",
-                  formatReminderTime(entry.lastUsedAt, place),
-                )
-              : notUsed}
-          </Text>
-        </div>
+    <ListRow
+      detail={
+        entry.lastUsedAt
+          ? used.replace("{time}", formatReminderTime(entry.lastUsedAt, place))
+          : notUsed
+      }
+      actions={
         <Button
           size="sm"
           look={confirming ? "danger" : "ghost"}
@@ -130,8 +119,10 @@ function TokenRow({
             ? t({ en: "Revoke for good", zh: "确认撤销" })
             : t({ en: "Revoke", zh: "撤销" })}
         </Button>
-      </div>
-    </li>
+      }
+    >
+      {created.replace("{time}", formatReminderTime(entry.createdAt, place))}
+    </ListRow>
   );
 }
 
@@ -363,13 +354,6 @@ export function CaptureSettings(props: {
 const styles = stylex.create({
   tokens: {
     maxInlineSize: measure.form,
-  },
-  row: {
-    gap: rhythm.item,
-  },
-  rowText: {
-    flexGrow: 1,
-    minInlineSize: 0,
   },
   copyLine: {
     display: "flex",
