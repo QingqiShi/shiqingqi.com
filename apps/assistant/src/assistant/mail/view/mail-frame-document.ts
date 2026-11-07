@@ -31,12 +31,17 @@ function mailFrameCsp(imageOrigin: string | null) {
 /*
  * Most HTML mail sets its own text colours for a white page, as mail apps
  * show it, so the frame is a white page in dark mode too.
+ *
+ * `height: auto` is only for an image with a `width` attribute. A style
+ * sheet overrides the `height` attribute, so an image with only a `height`
+ * attribute then shows at the size of its file.
  */
 const FRAME_STYLE = `
 :root { color-scheme: light; }
 html { background: #fff; color: #1f1f1f; padding: 8px; }
 body { margin: 8px; font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow-wrap: break-word; }
-img { max-width: 100%; height: auto; }
+img { max-width: 100%; }
+img[width] { height: auto; }
 table { max-width: 100%; }
 pre { white-space: pre-wrap; }
 a { color: #0b57d0; }
