@@ -545,6 +545,18 @@ export default defineConfig([
       "@tuja/require-type-role": "error",
     },
   },
+  // The density of a List sets the type size of its rows through
+  // `listRowTokens`. These tokens change the size and the line height
+  // together, from one type role to the next.
+  {
+    files: ["packages/ui/src/data-display/list-row.tsx"],
+    rules: {
+      "@tuja/require-type-role": [
+        "error",
+        { sizeTokenGroups: ["listRowTokens"] },
+      ],
+    },
+  },
   // StyleX 0.19 types these properties but its eslint allowlist does not
   // carry them yet. `propLimits` puts them back for the one package that uses
   // them, so a stray one elsewhere still errors.
