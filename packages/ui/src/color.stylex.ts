@@ -100,6 +100,17 @@ const light = {
   bgSurfaceSunken: gray._98,
   bgSurfaceRaised: gray._100,
   bgSurfaceFade: gray._95,
+  // A surface that the visitor can choose, such as an option card. Each state
+  // is one step further from the page: rest, hover, selected, selected hover.
+  // The selected edge is louder than `border`, so the selection does not rest
+  // on the fill alone.
+  bgSurfaceHover: gray._95,
+  bgSurfaceSelected: gray._90,
+  // The palette has no step between the selected fill and the next step. That
+  // step is too heavy, and in dark it is the colour of the selected edge. Thus
+  // this token mixes the two steps.
+  bgSurfaceSelectedHover: `color-mix(in oklab, ${gray._90}, ${gray._80})`,
+  borderSurfaceSelected: gray._50,
 
   // A bright control stays light in both themes (a slider thumb).
   // Inverse flips the theme (tooltips, snackbars). Scrim dims the page behind
@@ -221,6 +232,10 @@ const dark: { [key in keyof typeof light]: string } = {
   bgSurfaceSunken: gray._2,
   bgSurfaceRaised: gray._7,
   bgSurfaceFade: gray._5,
+  bgSurfaceHover: gray._9,
+  bgSurfaceSelected: gray._13,
+  bgSurfaceSelectedHover: `color-mix(in oklab, ${gray._13}, ${gray._20})`,
+  borderSurfaceSelected: gray._20,
 
   bgControlBright: gray._80,
   bgInverse: gray._92,
@@ -311,6 +326,10 @@ export const color = stylex.defineVars({
   bgSurfaceSunken: `light-dark(${light.bgSurfaceSunken}, ${dark.bgSurfaceSunken})`,
   bgSurfaceRaised: `light-dark(${light.bgSurfaceRaised}, ${dark.bgSurfaceRaised})`,
   bgSurfaceFade: `light-dark(${light.bgSurfaceFade}, ${dark.bgSurfaceFade})`,
+  bgSurfaceHover: `light-dark(${light.bgSurfaceHover}, ${dark.bgSurfaceHover})`,
+  bgSurfaceSelected: `light-dark(${light.bgSurfaceSelected}, ${dark.bgSurfaceSelected})`,
+  bgSurfaceSelectedHover: `light-dark(${light.bgSurfaceSelectedHover}, ${dark.bgSurfaceSelectedHover})`,
+  borderSurfaceSelected: `light-dark(${light.borderSurfaceSelected}, ${dark.borderSurfaceSelected})`,
 
   bgControlBright: `light-dark(${light.bgControlBright}, ${dark.bgControlBright})`,
   bgInverse: `light-dark(${light.bgInverse}, ${dark.bgInverse})`,

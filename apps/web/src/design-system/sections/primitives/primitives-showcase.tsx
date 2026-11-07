@@ -71,8 +71,8 @@ function SelectedSection() {
       token: "selected.marked",
       meta: "borderAccent · bgAccentSubtle · hover",
       description: t({
-        en: "The accent border and tint, for a choice that decides what the visitor does next, such as a picked option card. Give the element a border width.",
-        zh: "强调色边框与浅色底，用于决定访客下一步的选择，例如选中的选项卡片。请为元素设置边框宽度。",
+        en: "The accent border and tint, for a choice that decides what the visitor does next. Give the element a border width.",
+        zh: "强调色边框与浅色底，用于决定访客下一步的选择。请为元素设置边框宽度。",
       }),
     },
     {

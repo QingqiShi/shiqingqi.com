@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { OptionCardGroup } from "./option-card.tsx";
+import { OptionCard, OptionCardGroup } from "./option-card.tsx";
 
 type Plan = "plan1" | "plan2" | "plan5";
 
@@ -128,5 +128,29 @@ describe("OptionCardGroup", () => {
     for (const card of screen.getAllByRole("radio")) {
       expect(card).toHaveAttribute("type", "button");
     }
+  });
+});
+
+describe("OptionCard", () => {
+  it("is a toggle button only when it is given a selected state", () => {
+    render(
+      <>
+        <OptionCard label="Dark theme" selected />
+        <OptionCard label="Light theme" selected={false} />
+        <OptionCard label="Start over" />
+      </>,
+    );
+
+    expect(screen.getByRole("button", { name: "Dark theme" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(screen.getByRole("button", { name: "Light theme" })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    expect(
+      screen.getByRole("button", { name: "Start over" }),
+    ).not.toHaveAttribute("aria-pressed");
   });
 });
