@@ -73,11 +73,10 @@ interface LabPageProps {
 }
 
 /**
- * The Lab view: the Canvas, a step below the header the route's `layout.tsx`
- * renders. It takes the Shell's content width rather than the reading column,
- * because the Lab has nothing to read — the title stands over the Canvas and
- * the view switch over the controls. The description stays on the
- * documentation view.
+ * The Lab view: the Canvas, under the header the route's `layout.tsx` renders.
+ * It takes the Shell's content width rather than the reading column, because
+ * the Lab has nothing to read. It starts where the documentation view does, so
+ * a switch between the two views moves nothing above it.
  */
 export function LabPage({ lab: Lab }: LabPageProps) {
   return (
@@ -89,6 +88,6 @@ export function LabPage({ lab: Lab }: LabPageProps) {
 
 const styles = stylex.create({
   page: {
-    marginBlockStart: rhythm.item,
+    marginBlockStart: rhythm.section,
   },
 });
