@@ -15,6 +15,7 @@ import {
   insertAccount,
   insertUser,
 } from "#src/assistant/mail/testing/insert-account.ts";
+import { mailViewPath } from "#src/assistant/mail/view/mail-view-path.ts";
 import { readReport } from "../report/read-report.ts";
 import type {
   MorningReportContentV1,
@@ -100,7 +101,7 @@ describe("ReportView", () => {
     expect(screen.getByText(/Pay Example 120 GBP/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open mail" })).toHaveAttribute(
       "href",
-      "message://%3Cinvoice%40example.com%3E",
+      mailViewPath(accountId, "<invoice@example.com>"),
     );
     expect(screen.getByText(/4 mails were too many/)).toBeInTheDocument();
     expect(screen.getByText("Three newsletters.")).toBeInTheDocument();

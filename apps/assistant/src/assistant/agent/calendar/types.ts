@@ -10,6 +10,6 @@ export interface SourceMail {
   messageId: string;
   subject: string;
   sender: string;
-  /** Opens the mail, such as a `message:` link; null when there is none. */
+  /** The full URL of the app's page for the mail; null when there is none. */
   href: string | null;
 }
