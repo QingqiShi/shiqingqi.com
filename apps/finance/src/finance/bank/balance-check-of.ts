@@ -42,3 +42,23 @@ export function ledgerBalanceAt(
 ) {
   return series ? balanceAt(series, day) : 0;
 }
+
+/**
+ * Of the Entries no bank row backs, those that can be behind the difference,
+ * and the part of our excess they do not explain. Only an Entry whose amount
+ * has the sign of our excess moves our balance toward the bank's when it goes.
+ */
+export function entriesBehindDifference<T>(
+  ourExcessMinor: number,
+  unbacked: readonly T[],
+  amountOf: (entry: T) => number,
+): { behind: T[]; unexplainedMinor: number } {
+  const behind = unbacked.filter(
+    (entry) => Math.sign(amountOf(entry)) === Math.sign(ourExcessMinor),
+  );
+  const explainedMinor = behind.reduce(
+    (sum, entry) => sum + amountOf(entry),
+    0,
+  );
+  return { behind, unexplainedMinor: ourExcessMinor - explainedMinor };
+}

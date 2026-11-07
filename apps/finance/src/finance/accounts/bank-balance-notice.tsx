@@ -99,8 +99,10 @@ export function BankBalanceSummary({
 /**
  * "Bank says £X · we say £Y", and the Entries no bank row backs, oldest
  * first: each is a payment the bank has not posted yet, a duplicate to
- * delete here, or a real payment the bank left out, to keep here. What they
- * do not explain is older than the bank's records, or the bank left it out.
+ * delete here, or a real payment the bank left out, to keep here. Where our
+ * balance is above the bank's, what they do not explain is money out that the
+ * ledger lacks; where it is below, it is older than the bank's records, or the
+ * bank left it out.
  */
 export function BankBalanceNotice({ link }: { link: BankLinkRow }) {
   const locale = useLocale();
@@ -146,6 +148,14 @@ function UnbackedEntryList({
   const restOlderLabel = t({
     en: "The bank's transactions don't explain the rest: it is older than them, or the bank left a transaction out.",
     zh: "银行的交易记录解释不了其余差额：可能早于银行记录，也可能银行漏了交易。",
+  });
+  const missingOutLabel = t({
+    en: "The bank counts money out that the ledger doesn't have, such as a charge not yet in the bank's transactions. Add it to the ledger.",
+    zh: "银行余额里有账本没有的支出，比如还没出现在银行交易记录里的扣款。请把它记到账本上。",
+  });
+  const restMissingOutLabel = t({
+    en: "The rest is money out that the bank counts and the ledger doesn't have, such as a charge not yet in the bank's transactions. Add it to the ledger.",
+    zh: "其余差额是银行算了、账本没有的支出，比如还没出现在银行交易记录里的扣款。请把它记到账本上。",
   });
   const deleteLabel = t({ en: "Delete", zh: "删除" });
   const deletedLabel = t({ en: "Deleted", zh: "已删除" });
@@ -238,7 +248,13 @@ function UnbackedEntryList({
       ) : null}
       {view.unexplainedMinor === 0 ? null : (
         <p css={[typeRole.bodySmall, styles.muted]}>
-          {rows.length > 0 ? restOlderLabel : olderLabel}
+          {view.unexplainedMinor > 0
+            ? rows.length > 0
+              ? restMissingOutLabel
+              : missingOutLabel
+            : rows.length > 0
+              ? restOlderLabel
+              : olderLabel}
         </p>
       )}
     </>

@@ -3,6 +3,7 @@ import { useToast } from "@tuja/ui/components/toast-provider";
 import { useEffect, useState } from "react";
 import {
   balanceCheckOf,
+  entriesBehindDifference,
   ledgerBalanceAt,
   type BalanceCheck,
 } from "../bank/balance-check-of.ts";
@@ -23,7 +24,7 @@ interface UnbackedRow {
 
 export interface BalanceCheckView {
   check: BalanceCheck;
-  /** The Entries behind the difference that no bank row backs, oldest first; null while the server reads them. */
+  /** The Entries behind the difference that no bank row backs, oldest first: only those whose amount has the sign of our excess. Null while the server reads them. */
   unbacked: UnbackedRow[] | null;
   /** The part of our excess over the bank that the unbacked Entries do not explain. */
   unexplainedMinor: number;
@@ -187,14 +188,15 @@ export function useBalanceCheck(link: BankLinkRow): BalanceCheckView | null {
         ? [{ entry, transaction }]
         : [];
     }) ?? null;
-  const explainedMinor = (unbacked ?? []).reduce(
-    (sum, row) => sum + row.entry.amountMinor,
-    0,
+  const { behind, unexplainedMinor } = entriesBehindDifference(
+    check.ourExcessMinor,
+    unbacked ?? [],
+    (row) => row.entry.amountMinor,
   );
   return {
     check,
-    unbacked,
-    unexplainedMinor: check.ourExcessMinor - explainedMinor,
+    unbacked: unbacked === null ? null : behind,
+    unexplainedMinor,
     keep,
   };
 }
