@@ -9,6 +9,8 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { buttonTokens } from "@tuja/ui/components/button.stylex";
+import { ListRow } from "@tuja/ui/components/list-row";
+import { listSurface } from "@tuja/ui/components/list.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -30,7 +32,6 @@ import { selectTransactionsByAccount } from "../store/select-transactions-by-acc
 import type { AccountRow, ValuationRow } from "../sync/row-schemas.ts";
 import { DayHeader } from "../transactions/day-header.tsx";
 import { DayTotals } from "../transactions/day-totals.tsx";
-import { TransactionFace } from "../transactions/transaction-face.tsx";
 import {
   buildAccountLedger,
   type LedgerEntryItem,
@@ -109,17 +110,16 @@ export function AccountLedger({ account, today }: AccountLedgerProps) {
   const removedLabel = t({ en: "Balance removed", zh: "余额记录已删除" });
 
   const entryLink = (item: LedgerEntryItem, trailing: ReactNode) => (
-    <li key={`e:${item.transaction.id}`}>
-      <LedgerEntryLink
-        transaction={item.transaction}
-        description={describe(item.transaction, account.id)}
-        amountMinor={item.amountMinor}
-        currency={account.currency}
-        trailing={trailing}
-        href={url.hrefOf({ account: account.id, tx: item.transaction.id })}
-        isSelected={url.tx === item.transaction.id}
-      />
-    </li>
+    <LedgerEntryLink
+      key={`e:${item.transaction.id}`}
+      transaction={item.transaction}
+      description={describe(item.transaction, account.id)}
+      amountMinor={item.amountMinor}
+      currency={account.currency}
+      trailing={trailing}
+      href={url.hrefOf({ account: account.id, tx: item.transaction.id })}
+      isSelected={url.tx === item.transaction.id}
+    />
   );
 
   return (
@@ -143,37 +143,38 @@ export function AccountLedger({ account, today }: AccountLedgerProps) {
                   locale={locale}
                 />
               </DayHeader>
-              <ol css={[styles.list, styles.dayList]}>
+              <ol css={[listSurface.rows, listSurface.plain, styles.dayList]}>
                 {day.items.map((item) =>
                   item.type === "valuation" ? (
-                    <li key={`v:${item.valuation.id}`}>
-                      <TransactionFace
-                        icon={<ScalesIcon weight="bold" />}
-                        title={sourceLabels[item.valuation.source]}
-                        subtitle={valuationCaption(item.changeMinor)}
-                        amount={money(item.valuation.amountMinor)}
-                        trailing={
-                          <Button
-                            size="sm"
-                            look="ghost"
-                            icon={<TrashIcon weight="bold" />}
-                            aria-label={`${removeLabel} ${displayDay(item.day, locale, "dayYear")}`}
-                            css={styles.remove}
-                            onClick={() => {
-                              runUndoable(
-                                [
-                                  {
-                                    name: "deleteValuation",
-                                    args: { id: item.valuation.id },
-                                  },
-                                ],
-                                { message: removedLabel },
-                              );
-                            }}
-                          />
-                        }
-                      />
-                    </li>
+                    <ListRow
+                      key={`v:${item.valuation.id}`}
+                      leading={<ScalesIcon weight="bold" aria-hidden />}
+                      leadingShape="circle"
+                      detail={valuationCaption(item.changeMinor)}
+                      value={money(item.valuation.amountMinor)}
+                      valueDetail={
+                        <Button
+                          size="sm"
+                          look="ghost"
+                          icon={<TrashIcon weight="bold" />}
+                          aria-label={`${removeLabel} ${displayDay(item.day, locale, "dayYear")}`}
+                          css={styles.remove}
+                          onClick={() => {
+                            runUndoable(
+                              [
+                                {
+                                  name: "deleteValuation",
+                                  args: { id: item.valuation.id },
+                                },
+                              ],
+                              { message: removedLabel },
+                            );
+                          }}
+                        />
+                      }
+                    >
+                      {sourceLabels[item.valuation.source]}
+                    </ListRow>
                   ) : (
                     entryLink(
                       item,
@@ -228,11 +229,6 @@ export function AccountLedger({ account, today }: AccountLedgerProps) {
 }
 
 const styles = stylex.create({
-  list: {
-    margin: 0,
-    padding: 0,
-    listStyle: "none",
-  },
   dayList: {
     paddingBlockStart: space._0,
   },

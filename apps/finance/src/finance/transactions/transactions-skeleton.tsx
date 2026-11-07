@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Heading } from "@tuja/ui/components/heading";
+import { listSurface } from "@tuja/ui/components/list.stylex";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -12,7 +13,7 @@ import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlHeight, rhythm } from "@tuja/ui/tokens.stylex";
 import { FinanceAddButton } from "../shell/finance-add-button.tsx";
-import { TransactionFaceSkeleton } from "./transaction-face-skeleton.tsx";
+import { TransactionRowSkeleton } from "./transaction-row-skeleton.tsx";
 
 const NARROW_FILTERS = ["5rem", "6rem", "4.25rem"];
 const WIDE_FILTERS = [
@@ -88,14 +89,14 @@ function ListSkeleton() {
           </div>
         </div>
       </div>
-      <div css={plainList.list}>
+      <div css={[plainList.list, listSurface.plain]}>
         <Skeleton width="100%" height="2.625rem" css={corner.radius_3} />
         <div css={[plainList.row, styles.day]}>
           <Skeleton width="8rem" height="1.125rem" />
           <Skeleton width="7rem" height="1rem" />
         </div>
         {Array.from({ length: ROWS }, (_, index) => (
-          <TransactionFaceSkeleton
+          <TransactionRowSkeleton
             key={index}
             lines={ROW_LINES}
             trailing={ROW_TRAILING}

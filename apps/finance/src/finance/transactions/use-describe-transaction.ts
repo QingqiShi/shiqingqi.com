@@ -6,7 +6,7 @@ import {
   type TransactionDescription,
 } from "./describe-transaction.ts";
 import type { TransactionLookups } from "./select-transaction-lookups.ts";
-import { transactionIcon } from "./transaction-face.tsx";
+import { transactionIcon } from "./transaction-icon.tsx";
 import { useTransactionKindLabels } from "./use-transaction-kind-labels.ts";
 
 export interface TransactionRowDescription extends TransactionDescription {

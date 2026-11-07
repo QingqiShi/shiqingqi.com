@@ -2,13 +2,9 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { TabViewLink } from "@tuja/ui/components/tab-view";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { plainList } from "@tuja/ui/primitives/layout.stylex";
-import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { chartMarks } from "../charts/chart-marks.stylex.ts";
 import { seriesKey } from "../charts/series-marks.stylex.ts";
@@ -32,9 +28,9 @@ interface RankedRowProps {
 }
 
 /**
- * One line of a ranked breakdown: a name, its amount, and a bar for its size
- * against the largest line. It links to a list, picks a Category, or only
- * reads.
+ * One line of a ranked breakdown, a row of a list: a name, its amount, and a
+ * bar for its size against the largest line. It links to a list, picks a
+ * Category, or only reads.
  */
 export function RankedRow({
   label,
@@ -47,18 +43,9 @@ export function RankedRow({
   onSelect,
   isSelected = false,
 }: RankedRowProps) {
-  const body = (
-    <>
-      <span css={styles.name}>
-        {tone ? (
-          <span aria-hidden css={[styles.swatch, seriesKey[tone]]} />
-        ) : null}
-        <span css={[typeRole.bodySmall, styles.label]}>{label}</span>
-      </span>
-      <span css={[typeRole.bodySmall, typeModifier.numeric, styles.value]}>
-        {value}
-      </span>
-      <span css={[styles.track, !detail && styles.trackWide]} aria-hidden>
+  const bar = (
+    <span aria-hidden css={styles.trackBox}>
+      <span css={styles.track}>
         <span
           css={[
             styles.bar,
@@ -76,58 +63,54 @@ export function RankedRow({
           />
         )}
       </span>
-      {detail ? (
-        <span css={[typeRole.caption, typeModifier.numeric, styles.detail]}>
-          {detail}
-        </span>
-      ) : null}
-    </>
+    </span>
   );
-  const interactive = [
-    corner.radius_2,
-    quietSurface.interactive,
-    plainList.row,
-    styles.row,
-  ];
+  const name = tone ? (
+    <span css={styles.name}>
+      <span aria-hidden css={[styles.swatch, seriesKey[tone]]} />
+      <span css={styles.label}>{label}</span>
+    </span>
+  ) : (
+    label
+  );
+  const parts = {
+    caret: false,
+    detail: bar,
+    value,
+    valueDetail: detail ? <span css={styles.detail}>{detail}</span> : null,
+  };
 
-  return (
-    <li>
-      {href !== undefined ? (
-        <TabViewLink href={href} {...stylex.props(interactive)}>
-          {body}
-        </TabViewLink>
-      ) : onSelect ? (
-        <button
-          type="button"
-          aria-pressed={isSelected}
-          onClick={onSelect}
-          css={[buttonReset.base, interactive]}
-        >
-          {body}
-        </button>
-      ) : (
-        <div css={[plainList.row, styles.row]}>{body}</div>
-      )}
-    </li>
-  );
+  if (href !== undefined) {
+    return (
+      <ListRow {...parts} href={href} linkComponent={TabViewLink}>
+        {name}
+      </ListRow>
+    );
+  }
+  if (onSelect) {
+    return (
+      <ListRow {...parts} onClick={onSelect} aria-pressed={isSelected}>
+        {name}
+      </ListRow>
+    );
+  }
+  return <ListRow {...parts}>{name}</ListRow>;
 }
 
 const styles = stylex.create({
-  row: {
-    display: "grid",
-    gridTemplateColumns: "minmax(0, 1fr) auto",
-    alignItems: "center",
-    columnGap: rhythm.item,
-    rowGap: rhythm.inline,
-    inlineSize: "100%",
-    paddingBlock: space._1,
-    textAlign: "start",
-  },
+  // The swatch is part of the name and not the row's leading item, so that it
+  // stays on the name line and the bar starts under it.
   name: {
     display: "flex",
     alignItems: "center",
     gap: rhythm.tight,
+  },
+  // The swatch has no baseline, so the label gives the name its baseline.
+  label: {
+    alignSelf: "baseline",
     minInlineSize: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   },
   swatch: {
     flexShrink: 0,
@@ -136,15 +119,11 @@ const styles = stylex.create({
     borderRadius: "2px",
     cornerShape: "round",
   },
-  label: {
-    minInlineSize: 0,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
-  value: {
-    fontWeight: font.weight_5,
-    textAlign: "end",
+  // The detail line clips what overflows it, so the box holds the mark that
+  // reaches over the track.
+  trackBox: {
+    display: "block",
+    paddingBlock: space._0,
   },
   track: {
     position: "relative",
@@ -153,9 +132,6 @@ const styles = stylex.create({
     borderRadius: "2px",
     cornerShape: "round",
     backgroundColor: color.bgNeutralSubtle,
-  },
-  trackWide: {
-    gridColumn: "1 / -1",
   },
   bar: {
     display: "block",
@@ -175,9 +151,11 @@ const styles = stylex.create({
   at: (fraction: number) => ({
     insetInlineStart: `${String(fraction * 100)}%`,
   }),
+  // The facts take one width in every row, so that the tracks of a list are
+  // one length and their bars compare.
   detail: {
+    display: "inline-block",
     minInlineSize: "9rem",
     textAlign: "end",
-    color: color.fgMuted,
   },
 });

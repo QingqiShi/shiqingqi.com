@@ -2,13 +2,12 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { color } from "@tuja/ui/color.stylex";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import type { ReactNode } from "react";
 import { formatMoney } from "../domain/money/format-money.ts";
 import type { TransactionRow } from "../sync/row-schemas.ts";
-import { TransactionFace } from "../transactions/transaction-face.tsx";
 import {
   hasMetaLine,
   TransactionMetaLine,
@@ -21,14 +20,17 @@ interface LedgerEntryLinkProps {
   /** In `currency`. */
   amountMinor: number;
   currency: string;
+  /** Under the amount, such as the balance after the Entry. */
   trailing: ReactNode;
   /** Opens the Transaction in the column after the Ledger. */
   href: string;
   /** Whether the Transaction is open in that column now. */
   isSelected: boolean;
+  /** Buttons beside the row, outside the link. */
+  actions?: ReactNode;
 }
 
-/** One Entry of a Ledger. It opens its Transaction in the column after the Ledger. */
+/** One Entry of a Ledger, a row of a list. It opens its Transaction in the column after the Ledger. */
 export function LedgerEntryLink({
   transaction,
   description,
@@ -37,38 +39,41 @@ export function LedgerEntryLink({
   trailing,
   href,
   isSelected,
+  actions,
 }: LedgerEntryLinkProps) {
   const locale = useLocale();
   const isExpected = transaction.status === "expected";
+  const amount = formatMoney(amountMinor, currency, locale, {
+    signDisplay: "exceptZero",
+  });
   return (
-    <SplitViewLink
+    <ListRow
       href={href}
+      linkComponent={SplitViewLink}
       aria-current={isSelected ? "true" : undefined}
-      {...stylex.props(corner.radius_3, quietSurface.interactive, styles.link)}
-    >
-      <TransactionFace
-        icon={description.icon}
-        title={description.title}
-        subtitle={description.subtitle}
-        amount={formatMoney(amountMinor, currency, locale, {
-          signDisplay: "exceptZero",
-        })}
-        amountMuted={isExpected}
-        trailing={trailing}
-      >
-        {hasMetaLine({ meta: description.meta, isExpected }) ? (
+      caret={false}
+      leading={description.icon}
+      leadingShape="circle"
+      detail={description.subtitle}
+      extra={
+        hasMetaLine({ meta: description.meta, isExpected }) ? (
           <TransactionMetaLine
             meta={description.meta}
             isExpected={isExpected}
           />
-        ) : undefined}
-      </TransactionFace>
-    </SplitViewLink>
+        ) : null
+      }
+      value={isExpected ? <span css={styles.muted}>{amount}</span> : amount}
+      valueDetail={trailing}
+      actions={actions}
+    >
+      {description.title}
+    </ListRow>
   );
 }
 
 const styles = stylex.create({
-  link: {
-    display: "block",
+  muted: {
+    color: color.fgMuted,
   },
 });

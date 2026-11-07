@@ -6,6 +6,7 @@ import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
 import { Heading } from "@tuja/ui/components/heading";
+import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
@@ -209,7 +210,14 @@ export function CategoryBreakdown({
               zh: "按回车查看交易。",
             })}
           />
-          <ul css={[stack.rows, plainList.list]}>
+          <ul
+            css={[
+              stack.rows,
+              plainList.list,
+              listSurface.plain,
+              listSurface.compact,
+            ]}
+          >
             {view.rows.map((item) => {
               const change =
                 item.previous === null || item.previous === 0

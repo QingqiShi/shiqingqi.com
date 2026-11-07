@@ -5,13 +5,14 @@ import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
 import { Heading } from "@tuja/ui/components/heading";
+import { ListRow } from "@tuja/ui/components/list-row";
+import { listSurface } from "@tuja/ui/components/list.stylex";
 import { TabViewLink } from "@tuja/ui/components/tab-view";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { plainList, truncate } from "@tuja/ui/primitives/layout.stylex";
-import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
+import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { font } from "@tuja/ui/tokens.stylex";
 import { useId, useRef } from "react";
 import { transactionsBehind } from "../analytics/transactions-behind.ts";
 import { useAnalyticsNames } from "../analytics/use-analytics-names.ts";
@@ -65,7 +66,7 @@ export function TopPayees({
           {t({ en: "No payees this month.", zh: "本月没有商家记录。" })}
         </p>
       ) : (
-        <ol ref={listRef} css={[plainList.list, stack.text]}>
+        <ol ref={listRef} css={[plainList.list, listSurface.plain]}>
           {view.payees.map((payee) => {
             const name = names.payee(payee.payeeId);
             const emoji =
@@ -73,24 +74,21 @@ export function TopPayees({
                 ? ""
                 : names.category(payee.categoryId).emoji;
             return (
-              <li key={payee.payeeId}>
-                <TabViewLink
-                  href={financeHref(
-                    transactionsBehind({
-                      from,
-                      to,
-                      kind: "spending",
-                      member: null,
-                      payeeId: payee.payeeId,
-                    }),
-                    locale,
-                  )}
-                  {...stylex.props(
-                    corner.radius_3,
-                    quietSurface.interactive,
-                    styles.row,
-                  )}
-                >
+              <ListRow
+                key={payee.payeeId}
+                href={financeHref(
+                  transactionsBehind({
+                    from,
+                    to,
+                    kind: "spending",
+                    member: null,
+                    payeeId: payee.payeeId,
+                  }),
+                  locale,
+                )}
+                linkComponent={TabViewLink}
+                caret={false}
+                leading={
                   <span
                     aria-hidden
                     css={[
@@ -102,29 +100,15 @@ export function TopPayees({
                   >
                     {emoji || initialsOf(name)}
                   </span>
-                  <span css={[stack.text, styles.text]}>
-                    <span css={[typeRole.body, truncate.base, styles.name]}>
-                      {name}
-                    </span>
-                    <span
-                      css={[
-                        typeRole.caption,
-                        typeModifier.numeric,
-                        styles.muted,
-                      ]}
-                    >
-                      {`${payee.count.toLocaleString(locale)} ${
-                        payee.count === 1 ? one : many
-                      }`}
-                    </span>
-                  </span>
-                  <span
-                    css={[typeRole.body, typeModifier.numeric, styles.amount]}
-                  >
-                    {wholeMoney(payee.value, currency, locale, "auto")}
-                  </span>
-                </TabViewLink>
-              </li>
+                }
+                leadingSize="lg"
+                detail={`${payee.count.toLocaleString(locale)} ${
+                  payee.count === 1 ? one : many
+                }`}
+                value={wholeMoney(payee.value, currency, locale, "auto")}
+              >
+                {name}
+              </ListRow>
             );
           })}
         </ol>
@@ -143,33 +127,13 @@ const styles = stylex.create({
   muted: {
     color: color.fgMuted,
   },
-  row: {
-    display: "flex",
-    alignItems: "center",
-    gap: rhythm.item,
-    paddingBlock: space._1,
-    paddingInline: space._1,
-    marginInline: `calc(-1 * ${space._1})`,
-  },
   tile: {
     display: "flex",
-    flexShrink: 0,
     alignItems: "center",
     justifyContent: "center",
-    inlineSize: "2.75rem",
-    blockSize: "2.75rem",
+    inlineSize: "100%",
+    blockSize: "100%",
     color: color.fg,
     fontWeight: font.weight_7,
-  },
-  text: {
-    flexGrow: 1,
-    minInlineSize: 0,
-  },
-  name: {
-    fontWeight: font.weight_5,
-  },
-  amount: {
-    flexShrink: 0,
-    fontWeight: font.weight_6,
   },
 });
