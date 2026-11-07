@@ -8,10 +8,11 @@ import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
+import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { border } from "@tuja/ui/tokens.stylex";
+import { border, controlHeight } from "@tuja/ui/tokens.stylex";
 import type { MailProvider } from "#src/assistant/db/schema.ts";
 import type { MailAddress } from "#src/assistant/mail/imap/types.ts";
 import type {
@@ -208,6 +209,72 @@ function Problem({
   );
 }
 
+function SkeletonLine({
+  width,
+  delay,
+  look,
+}: {
+  width: string;
+  delay: number;
+  look: "bodySmall" | "caption";
+}) {
+  return (
+    <Text as="p" look={look}>
+      <Skeleton width={width} height="1lh" delay={delay} />
+    </Text>
+  );
+}
+
+/** The mail page before it can show: the header lines over the body frame. */
+export function MailPageSkeleton() {
+  return (
+    <NavigationSplitView
+      content={{
+        label: t({ en: "Mail", zh: "邮件" }),
+        node: (
+          <div css={stack.group} aria-busy>
+            <header css={stack.item}>
+              <Heading level={1} look="h3">
+                <Skeleton width="min(28rem, 100%)" height="1lh" />
+              </Heading>
+              <div css={stack.text}>
+                <SkeletonLine
+                  look="bodySmall"
+                  width="min(16rem, 70%)"
+                  delay={0}
+                />
+                <SkeletonLine
+                  look="bodySmall"
+                  width="min(20rem, 85%)"
+                  delay={100}
+                />
+                <SkeletonLine
+                  look="bodySmall"
+                  width="min(14rem, 60%)"
+                  delay={200}
+                />
+              </div>
+              <div css={cluster.tight}>
+                <Skeleton width="8rem" height={controlHeight.sm} />
+              </div>
+            </header>
+            <div css={stack.tight}>
+              <SkeletonLine
+                look="caption"
+                width="min(32rem, 90%)"
+                delay={300}
+              />
+              <div css={[corner.radius_3, styles.frame, styles.frameSkeleton]}>
+                <Skeleton fill />
+              </div>
+            </div>
+          </div>
+        ),
+      }}
+    />
+  );
+}
+
 /** One mail, read live from the mailbox, or why it cannot show. */
 export function MailPageView({
   result,
@@ -261,5 +328,8 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
+  },
+  frameSkeleton: {
+    overflow: "hidden",
   },
 });
