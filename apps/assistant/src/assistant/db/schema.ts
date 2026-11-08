@@ -212,8 +212,6 @@ export const todos = pgTable(
     position: integer("position").notNull().generatedByDefaultAsIdentity(),
     /** How it comes back when it is done. Only the owner sets this. */
     repeat: jsonb("repeat").$type<RepeatRule>(),
-    /** The time that the owner asked to be reminded. Only the owner sets this. */
-    remindAt: timestamp("remind_at", { withTimezone: true }),
     /** Who or what it waits on. A to-do waits while this is set. */
     waitingOn: text("waiting_on"),
     /** The day that a to-do that waits comes back to the list for today. */
@@ -222,10 +220,6 @@ export const todos = pgTable(
     waitingSince: timestamp("waiting_since", { withTimezone: true }),
     /** Why the report agent made it wait or ended the wait; null when the owner did the last of these. */
     waitingNote: text("waiting_note"),
-    /** A later time for the same reminder, which does not move the time of the next occurrence. */
-    snoozedUntil: timestamp("snoozed_until", { withTimezone: true }),
-    /** When the reminder cron took this reminder. It sends each one once. */
-    remindedAt: timestamp("reminded_at", { withTimezone: true }),
     /** The login of the event that holds time for it. It is set while it has one. */
     calendarAccountId: uuid("calendar_account_id").references(
       () => mailAccounts.id,
@@ -286,11 +280,6 @@ export const todos = pgTable(
       .on(t.userId, t.createdAt)
       .where(sql`${t.doneAt} is null`),
     index("todos_report_idx").on(t.createdReportId),
-    index("todos_reminder_idx")
-      .on(t.userId)
-      .where(
-        sql`${t.remindAt} is not null and ${t.remindedAt} is null and ${t.doneAt} is null and ${t.deletedAt} is null`,
-      ),
     index("todos_calendar_over_idx")
       .on(t.userId, t.calendarStart)
       .where(
