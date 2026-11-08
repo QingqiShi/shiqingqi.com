@@ -24,10 +24,8 @@ import { useTodoStore } from "./todo-store-provider.tsx";
 
 /** The dates that a selection can move to. The popover mounts it when it opens. */
 function BulkDateActions({
-  canTakeDateOff,
   onPick,
 }: {
-  canTakeDateOff: boolean;
   onPick: (date: string | null) => void;
 }) {
   const { today, locale } = useTodoStore();
@@ -52,15 +50,13 @@ function BulkDateActions({
             {label}
           </MenuAction>
         ))}
-        {canTakeDateOff ? (
-          <MenuAction
-            onClick={() => {
-              onPick(null);
-            }}
-          >
-            {t({ en: "No date", zh: "不设日期" })}
-          </MenuAction>
-        ) : null}
+        <MenuAction
+          onClick={() => {
+            onPick(null);
+          }}
+        >
+          {t({ en: "No date", zh: "不设日期" })}
+        </MenuAction>
       </div>
       <form
         css={[cluster.tight, styles.dateForm]}
@@ -156,9 +152,6 @@ export function TodoBulkBar({
             )}
           >
             <BulkDateActions
-              canTakeDateOff={chosen.every(
-                ({ repeat }) => repeat === null || repeat.kind === "after-done",
-              )}
               onPick={(date) => {
                 setDateOpen(false);
                 moveMany(ids, date);

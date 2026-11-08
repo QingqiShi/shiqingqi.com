@@ -143,74 +143,6 @@ describe("the checklist of a to-do", () => {
     ]);
   });
 
-  it("gives the next occurrence the steps with no ticks, and takes them away on a reopen", async () => {
-    const [first] = await db
-      .insert(todos)
-      .values({
-        userId: owner,
-        title: "Pay rent",
-        dueDate: "2026-11-05",
-        repeat: { kind: "monthly", every: 1, day: 5 },
-      })
-      .returning();
-    await addStep(first.id, "Check the amount", true);
-    await addStep(first.id, "Send it");
-    const nextId = randomUUID();
-
-    await handlers.update(request("PATCH", { done: true, nextId }), first.id);
-
-    expect(await checklist(nextId)).toEqual([
-      ["Check the amount", false],
-      ["Send it", false],
-    ]);
-    expect(await checklist(first.id)).toEqual([
-      ["Check the amount", true],
-      ["Send it", false],
-    ]);
-
-    await handlers.update(request("PATCH", { done: false }), first.id);
-
-    expect(
-      await db.$count(
-        todoChecklistItems,
-        eq(todoChecklistItems.todoId, nextId),
-      ),
-    ).toBe(0);
-    expect(await checklist(first.id)).toEqual([
-      ["Check the amount", true],
-      ["Send it", false],
-    ]);
-  });
-
-  it("takes the ticks away on a skip, and its undo gives them back", async () => {
-    const [todo] = await db
-      .insert(todos)
-      .values({
-        userId: owner,
-        title: "Pay rent",
-        dueDate: "2026-11-05",
-        repeat: { kind: "monthly", every: 1, day: 5 },
-      })
-      .returning();
-    const ticked = await addStep(todo.id, "Check the amount", true);
-
-    await handlers.moveOccurrence(
-      request("PUT", { dueDate: "2026-12-05", startDate: null }),
-      todo.id,
-    );
-    expect(await checklist(todo.id)).toEqual([["Check the amount", false]]);
-
-    await handlers.moveOccurrence(
-      request("PUT", {
-        dueDate: "2026-11-05",
-        startDate: null,
-        ticked: [ticked],
-      }),
-      todo.id,
-    );
-    expect(await checklist(todo.id)).toEqual([["Check the amount", true]]);
-  });
-
   describe("waiting", () => {
     const put = (todoId: string, body: unknown) =>
       handlers.changeWaiting(request("PUT", body), todoId);
@@ -318,7 +250,7 @@ describe("the checklist of a to-do", () => {
       const { id } = await insertTodo(owner);
       await put(id, { waitingOn: "Alice", followUpDate: null });
 
-      await handlers.bulk(request("POST", { action: "done", todos: [{ id }] }));
+      await handlers.bulk(request("POST", { action: "done", ids: [id] }));
       await handlers.bulk(request("POST", { action: "reopen", ids: [id] }));
 
       expect(await stored(id)).toMatchObject({

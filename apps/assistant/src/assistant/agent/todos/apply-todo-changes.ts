@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { and, eq, inArray, isNull, lt, or } from "drizzle-orm";
 import {
   agentActions,
@@ -6,10 +5,6 @@ import {
   type TodoActionKind,
 } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
-import {
-  addNextOccurrence,
-  occurrenceColumns,
-} from "#src/assistant/report/add-next-occurrence.ts";
 import { datesInOrder } from "#src/assistant/report/dates-in-order.ts";
 import { ownTodo } from "#src/assistant/report/own-todo.ts";
 import {
@@ -49,8 +44,7 @@ function waitOf(row: {
  * row is read again under a lock, so a field that the owner set during the run
  * stays as the owner set it, and dates that no longer fit the owner's stay as they
  * are. A wait that the owner began during the run does not end by a mail from
- * before it. Closing a repeating to-do also makes its next occurrence, from the
- * day of the report.
+ * before it.
  */
 export async function applyTodoChanges(
   tx: Pick<AssistantDb, "insert" | "select" | "update">,
@@ -59,7 +53,6 @@ export async function applyTodoChanges(
     reportId,
     runId,
     now,
-    today,
     changes,
   }: {
     userId: string;
@@ -67,8 +60,6 @@ export async function applyTodoChanges(
     /** The agent run that made the changes. */
     runId: string;
     now: Date;
-    /** The owner's local date, `YYYY-MM-DD`. */
-    today: string;
     changes: TodoChanges;
   },
 ) {
@@ -253,15 +244,8 @@ export async function applyTodoChanges(
               ),
         ),
       )
-      .returning(occurrenceColumns);
+      .returning({ title: todos.title });
     for (const row of closed) {
-      await addNextOccurrence(tx, {
-        userId,
-        closed: row,
-        nextId: randomUUID(),
-        doneOn: today,
-        now,
-      });
       const before = stored.get(id);
       actions.push({
         kind: "complete_todo",

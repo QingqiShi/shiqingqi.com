@@ -11,7 +11,6 @@ import {
   type TodoActionKind,
 } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
-import { takeBackNextOccurrence } from "#src/assistant/report/add-next-occurrence.ts";
 import { datesInOrder } from "#src/assistant/report/dates-in-order.ts";
 
 /** Why the undo of a change to a to-do did not happen. Nothing changed for it. */
@@ -90,7 +89,6 @@ async function undoAdd(scope: Scope, todoId: string): Promise<Result> {
   if (
     row.ownerEditedFields.length > 0 ||
     row.doneAt ||
-    row.repeat ||
     row.calendarAccountId ||
     steps.length > 0
   ) {
@@ -148,9 +146,8 @@ async function undoWait(
 }
 
 /**
- * The to-do opens again with the wait that the completion ended, and takes the
- * place of its next occurrence as when the owner reopens one. A later close is
- * not the agent's, so it stays.
+ * The to-do opens again with the wait that the completion ended. A later close
+ * is not the agent's, so it stays.
  */
 async function undoCompletion(
   scope: Scope,
@@ -160,15 +157,10 @@ async function undoCompletion(
   if (!row || row.deletedAt) return { refusal: "todo-gone" };
   if (!row.doneAt) return UNDONE;
   if (row.doneAt.toISOString() !== doneAt) return { refusal: "todo-changed" };
-  const series = row.nextTodoId
-    ? await takeBackNextOccurrence(scope.tx, scope, row.nextTodoId)
-    : {};
   await writeRow(scope, todoId, {
-    ...series,
     ...storedWait(before),
     doneAt: null,
     doneReason: null,
-    nextTodoId: null,
   });
   return UNDONE;
 }

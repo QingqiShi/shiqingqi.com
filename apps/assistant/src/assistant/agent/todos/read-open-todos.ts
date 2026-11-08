@@ -22,7 +22,6 @@ export function readOpenTodos(scope: UserScope): Promise<StoredTodo[]> {
       detail: todos.detail,
       dueDate: todos.dueDate,
       startDate: todos.startDate,
-      repeat: todos.repeat,
       waitingOn: todos.waitingOn,
       followUpDate: todos.followUpDate,
       waitingSince: todos.waitingSince,

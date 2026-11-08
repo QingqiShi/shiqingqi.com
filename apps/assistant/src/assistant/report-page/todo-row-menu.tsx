@@ -20,7 +20,6 @@ import { mergeRefs } from "@tuja/ui/utils/merge-refs";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { datesInOrder } from "../report/dates-in-order.ts";
 import { addDays } from "../report/local-day-bounds.ts";
-import { nextOccurrenceDates } from "../report/next-occurrence.ts";
 import { CalendarSlotSheet } from "./calendar-slot-sheet.tsx";
 import { checklistProgress } from "./checklist-progress.tsx";
 import { formatListDay, formatSlotTime } from "./format-day.ts";
@@ -130,7 +129,6 @@ function TodoRowActions({
     remove,
     removeSlot,
     setWaiting,
-    skipOccurrence,
     today,
     locale,
     timeZone,
@@ -200,27 +198,13 @@ function TodoRowActions({
           >
             {t({ en: "Pick a date…", zh: "选择日期…" })}
           </MenuAction>
-          {todo.dueDate !== null &&
-          (todo.repeat === null || todo.repeat.kind === "after-done") ? (
+          {todo.dueDate !== null ? (
             <MenuAction
               onClick={closeThen(() => {
                 edit(todo.id, { dueDate: null });
               })}
             >
               {t({ en: "No date", zh: "不设日期" })}
-            </MenuAction>
-          ) : null}
-          {todo.repeat && !waiting ? (
-            <MenuAction
-              trailing={formatListDay(
-                nextOccurrenceDates(todo.repeat, todo, today).dueDate,
-                locale,
-              )}
-              onClick={closeThen(() => {
-                skipOccurrence(todo.id);
-              })}
-            >
-              {t({ en: "Skip this one", zh: "跳过这一次" })}
             </MenuAction>
           ) : null}
           {startDates.length > 0 ? (
@@ -295,13 +279,6 @@ function TodoRowActions({
               {t({ en: "Add to calendar…", zh: "加入日历…" })}
             </MenuAction>
           ) : null}
-          <MenuAction
-            onClick={closeThen(() => {
-              onEdit("repeat");
-            })}
-          >
-            {t({ en: "Repeat…", zh: "重复…" })}
-          </MenuAction>
           <MenuAction
             trailing={checklistProgress(todo.checklist)}
             onClick={closeThen(() => {

@@ -32,8 +32,6 @@ function page(
     detail: null,
     dueDate: null,
     startDate: null,
-    repeat: null,
-    nextId: null,
     calendarSlot: null,
     checklist: [],
     waitingOn: null,

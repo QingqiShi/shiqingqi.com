@@ -370,7 +370,6 @@ export async function buildMorningReport(
           reportId: row.id,
           runId: agent.run.runId,
           now: builtAt,
-          today: localDate,
           changes,
         });
       }

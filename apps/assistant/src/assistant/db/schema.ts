@@ -20,7 +20,6 @@ import {
 import type { AgentRunProgress } from "../agent/agent-activity.ts";
 import type { TodoChanges } from "../agent/todos/types.ts";
 import type { AgentStepRecord, AgentUsage } from "../agent/types.ts";
-import type { RepeatRule } from "../report/next-occurrence.ts";
 import type {
   MorningReportContent,
   MorningReportContentV2,
@@ -210,8 +209,6 @@ export const todos = pgTable(
     startDate: date("start_date", { mode: "string" }),
     /** Where the owner put it in the list. A new row takes the next value, so it goes last. */
     position: integer("position").notNull().generatedByDefaultAsIdentity(),
-    /** How it comes back when it is done. Only the owner sets this. */
-    repeat: jsonb("repeat").$type<RepeatRule>(),
     /** Who or what it waits on. A to-do waits while this is set. */
     waitingOn: text("waiting_on"),
     /** The day that a to-do that waits comes back to the list for today. */
@@ -232,10 +229,6 @@ export const todos = pgTable(
     calendarEtag: text("calendar_etag"),
     calendarStart: timestamp("calendar_start", { withTimezone: true }),
     calendarEnd: timestamp("calendar_end", { withTimezone: true }),
-    /** The occurrence that closing this one made. */
-    nextTodoId: uuid("next_todo_id").references((): AnyPgColumn => todos.id, {
-      onDelete: "set null",
-    }),
     sourceAccountId: uuid("source_account_id").references(
       () => mailAccounts.id,
       { onDelete: "set null" },
@@ -314,8 +307,8 @@ export const todos = pgTable(
 );
 
 /**
- * One step of a to-do's checklist. Only the owner writes these. A next occurrence
- * keeps the ids of the steps that it copies, so an id is unique only in its to-do.
+ * One step of a to-do's checklist. Only the owner writes these. An id is unique
+ * only in its to-do.
  */
 export const todoChecklistItems = pgTable(
   "todo_checklist_items",

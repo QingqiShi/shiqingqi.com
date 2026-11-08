@@ -1,5 +1,4 @@
 import type { TodoCreator } from "#src/assistant/db/schema.ts";
-import type { RepeatRule } from "../report/next-occurrence.ts";
 import type { ChecklistItem } from "../report/own-todo.ts";
 import type { TodoView } from "../report/read-report.ts";
 
@@ -16,10 +15,7 @@ export interface TodoItemData {
   detail: string | null;
   dueDate: string | null;
   startDate: string | null;
-  repeat: RepeatRule | null;
   calendarSlot: CalendarSlot | null;
-  /** The occurrence that closing this one made. */
-  nextId: string | null;
   /** Who or what it waits on. */
   waitingOn: string | null;
   followUpDate: string | null;
@@ -54,12 +50,10 @@ export function toTodoItemData(
     detail: todo.detail,
     dueDate: todo.dueDate,
     startDate: todo.startDate,
-    repeat: todo.repeat,
     calendarSlot: todo.calendarSlot && {
       start: todo.calendarSlot.start.toISOString(),
       end: todo.calendarSlot.end.toISOString(),
     },
-    nextId: todo.nextId,
     waitingOn: todo.waitingOn,
     followUpDate: todo.followUpDate,
     waitingNote: todo.waitingNote,

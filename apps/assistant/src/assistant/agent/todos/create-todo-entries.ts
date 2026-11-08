@@ -1,4 +1,3 @@
-import { repeatRuleText } from "#src/assistant/report/next-occurrence.ts";
 import { ToolRefusal } from "../agent-tool.ts";
 import type { NewTodo, StoredTodo } from "./types.ts";
 
@@ -47,10 +46,6 @@ export function createTodoEntries({
     return entry.kind === "stored" ? entry.todo.ownerEditedFields : [];
   }
 
-  function repeatOf(entry: Entry) {
-    return entry.kind === "stored" ? entry.todo.repeat : null;
-  }
-
   function waitingSinceOf({ todo }: Entry) {
     return todo.waitingSince ? new Date(todo.waitingSince) : null;
   }
@@ -71,14 +66,12 @@ export function createTodoEntries({
   }
 
   function view(key: string, entry: Entry) {
-    const repeat = repeatOf(entry);
     return {
       todo: key,
       title: entry.todo.title,
       detail: entry.todo.detail,
       dueDate: entry.todo.dueDate,
       startDate: entry.todo.startDate,
-      repeats: repeat && repeatRuleText(repeat),
       waitingOn: entry.todo.waitingOn ?? null,
       waitingSince: waitingSinceOf(entry)?.toISOString() ?? null,
       followUpDate: entry.todo.followUpDate ?? null,
@@ -95,7 +88,6 @@ export function createTodoEntries({
     open,
     takeChange,
     ownerSet,
-    repeatOf,
     waitingSinceOf,
     replyTime,
     view,

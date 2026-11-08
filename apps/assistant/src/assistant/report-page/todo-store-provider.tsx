@@ -27,7 +27,7 @@ import { useTodoRowActions } from "./use-todo-row-actions.ts";
 import { useTodoSlotActions } from "./use-todo-slot-actions.ts";
 import { useTodoStepActions } from "./use-todo-step-actions.ts";
 
-export type TodoEdit = Omit<OwnerTodoChange, "done" | "nextId">;
+export type TodoEdit = Omit<OwnerTodoChange, "done">;
 
 export interface TodoStore {
   rows: TodoRows;
@@ -45,8 +45,6 @@ export interface TodoStore {
   add: (todo: { title: string; dueDate: string | null }) => void;
   edit: (id: string, edit: TodoEdit) => void;
   setDone: (id: string, done: boolean) => void;
-  /** Moves a repeating to-do on to its next occurrence, and this one counts as neither done nor deleted. */
-  skipOccurrence: (id: string) => void;
   remove: (id: string) => void;
   /** Makes a to-do wait, changes its wait or ends it. */
   setWaiting: (id: string, change: WaitingChange) => void;
@@ -163,7 +161,6 @@ function Store({
     rows,
     run,
     today,
-    locale,
     slotRelease,
     showDeleted,
   });

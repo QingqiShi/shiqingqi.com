@@ -42,7 +42,6 @@ export async function applyChanges(
       reportId: report.id,
       runId: run.id,
       now: NOW,
-      today: NOW.toISOString().slice(0, 10),
       changes,
     }),
   );

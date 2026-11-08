@@ -1,12 +1,6 @@
-import { randomUUID } from "node:crypto";
-import { and, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
-import { todoChecklistItems, todos } from "#src/assistant/db/schema.ts";
+import { and, eq, inArray, isNotNull, sql } from "drizzle-orm";
+import { todos } from "#src/assistant/db/schema.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
-import {
-  addNextOccurrence,
-  occurrenceColumns,
-  takeBackNextOccurrence,
-} from "./add-next-occurrence.ts";
 import { changeDueDates } from "./change-due-dates.ts";
 import { changeWaiting, restoreWaiting } from "./change-waiting.ts";
 import {
@@ -18,10 +12,7 @@ import {
   restoreTodos,
 } from "./close-todos.ts";
 import { datesInOrder } from "./dates-in-order.ts";
-import { localClock } from "./due-report-date.ts";
-import type { RepeatRule } from "./next-occurrence.ts";
 import { liveTodo, ownTodo } from "./own-todo.ts";
-import { readReportSettings } from "./read-report-settings.ts";
 import { placesInOrder } from "./rearrange.ts";
 import { withOwnerFields } from "./with-owner-field.ts";
 
@@ -40,9 +31,6 @@ export interface OwnerTodoChange {
   detail?: string | null;
   dueDate?: string | null;
   startDate?: string | null;
-  repeat?: RepeatRule | null;
-  /** The id of the next occurrence when this closes a repeating to-do. The page makes it, as it does for a new to-do. */
-  nextId?: string;
 }
 
 /** Why a change of an existing to-do did not happen. */
@@ -72,12 +60,9 @@ async function addTodo(
   return added.length > 0;
 }
 
-/** The fields that a change makes the owner's. A rule decides the dates, so it makes the due date the owner's. */
+/** The fields that a change makes the owner's. */
 function fieldsOwnerSets(change: OwnerTodoChange) {
-  return PLAIN_FIELDS.filter(
-    (field) =>
-      change[field] !== undefined || (field === "dueDate" && change.repeat),
-  );
+  return PLAIN_FIELDS.filter((field) => change[field] !== undefined);
 }
 
 /** Changes a to-do of the owner's, or says why it did not. */
@@ -87,18 +72,12 @@ async function changeTodo(
   change: OwnerTodoChange,
   now: Date,
 ): Promise<TodoRefusal | null> {
-  const { done, nextId, ...edit } = change;
+  const { done, ...edit } = change;
   const fields = fieldsOwnerSets(change);
-  const timeZone =
-    done === true ? (await readReportSettings(scope)).timeZone : null;
   return scope.db.transaction(async (tx) => {
     const row = (
       await tx
-        .select({
-          ...occurrenceColumns,
-          doneAt: todos.doneAt,
-          nextTodoId: todos.nextTodoId,
-        })
+        .select({ dueDate: todos.dueDate, startDate: todos.startDate })
         .from(todos)
         .where(liveTodo(scope, todoId))
         .for("update")
@@ -106,28 +85,10 @@ async function changeTodo(
     if (!row) return "not-found";
     const { startDate = row.startDate, dueDate = row.dueDate } = edit;
     if (!datesInOrder({ startDate, dueDate })) return "start-after-due";
-    if (timeZone !== null && row.doneAt === null) {
-      const added = await addNextOccurrence(tx, {
-        userId: scope.userId,
-        closed: { ...row, ...edit },
-        nextId: nextId ?? randomUUID(),
-        doneOn: localClock(now, timeZone).date,
-        now,
-      });
-      if (!added) return "id-taken";
-    }
-    const series =
-      done === false && row.doneAt !== null && row.nextTodoId !== null
-        ? {
-            ...(await takeBackNextOccurrence(tx, scope, row.nextTodoId)),
-            nextTodoId: null,
-          }
-        : {};
     await tx
       .update(todos)
       .set({
         ...edit,
-        ...series,
         ...(fields.length > 0
           ? { ownerEditedFields: withOwnerFields(fields) }
           : {}),
@@ -141,51 +102,6 @@ async function changeTodo(
       })
       .where(liveTodo(scope, todoId));
     return null;
-  });
-}
-
-/**
- * Moves an open repeating to-do to other dates of its series, to skip an
- * occurrence or to undo that. The rule moved the dates, not the owner, so
- * `owner_edited_fields` stays as it is. The steps in `ticked` are ticked and the
- * others are not, because each occurrence has its own ticks.
- */
-async function moveOccurrence(
-  scope: UserScope,
-  todoId: string,
-  {
-    ticked,
-    ...dates
-  }: {
-    dueDate: string | null;
-    startDate: string | null;
-    ticked: readonly string[];
-  },
-  now: Date,
-): Promise<boolean> {
-  return scope.db.transaction(async (tx) => {
-    const moved = await tx
-      .update(todos)
-      .set({ ...dates, updatedAt: now })
-      .where(
-        and(
-          liveTodo(scope, todoId),
-          isNull(todos.doneAt),
-          isNotNull(todos.repeat),
-        ),
-      )
-      .returning({ id: todos.id });
-    if (moved.length === 0) return false;
-    await tx
-      .update(todoChecklistItems)
-      .set({ done: inArray(todoChecklistItems.id, [...ticked]) })
-      .where(
-        and(
-          eq(todoChecklistItems.userId, scope.userId),
-          eq(todoChecklistItems.todoId, todoId),
-        ),
-      );
-    return true;
   });
 }
 
@@ -277,7 +193,6 @@ export const ownerTodos = {
   change: changeTodo,
   changeWaiting,
   restoreWaiting,
-  moveOccurrence,
   delete: deleteTodo,
   restore: restoreTodo,
   changeDueDates,
