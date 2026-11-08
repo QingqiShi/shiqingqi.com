@@ -5,7 +5,6 @@ import type { UserScope } from "#src/assistant/db/types.ts";
 import {
   addNextOccurrence,
   occurrenceColumns,
-  reminderWrite,
   takeBackNextOccurrence,
 } from "./add-next-occurrence.ts";
 import { changeDueDates } from "./change-due-dates.ts";
@@ -42,8 +41,6 @@ export interface OwnerTodoChange {
   dueDate?: string | null;
   startDate?: string | null;
   repeat?: RepeatRule | null;
-  /** An ISO time. */
-  remindAt?: string | null;
   /** The id of the next occurrence when this closes a repeating to-do. The page makes it, as it does for a new to-do. */
   nextId?: string;
 }
@@ -53,15 +50,6 @@ export type TodoRefusal = "not-found" | "start-after-due" | "id-taken";
 
 /** The fields of `todos` that a change of `OwnerTodoChange` can set. A wait is written on its own. */
 const PLAIN_FIELDS = ["title", "detail", "dueDate", "startDate"] as const;
-
-const SNOOZE_MS = 60 * 60 * 1000;
-
-/** The columns of a `remindAt` that a request sent; none when it sent none. */
-function sentReminder(remindAt: string | null | undefined, now: Date) {
-  return remindAt === undefined
-    ? {}
-    : reminderWrite(remindAt === null ? null : new Date(remindAt), now);
-}
 
 /** Stores a to-do that the owner wrote. False when that id is taken. */
 async function addTodo(
@@ -99,8 +87,7 @@ async function changeTodo(
   change: OwnerTodoChange,
   now: Date,
 ): Promise<TodoRefusal | null> {
-  const { done, nextId, remindAt, ...fieldEdit } = change;
-  const edit = { ...fieldEdit, ...sentReminder(remindAt, now) };
+  const { done, nextId, ...edit } = change;
   const fields = fieldsOwnerSets(change);
   const timeZone =
     done === true ? (await readReportSettings(scope)).timeZone : null;
@@ -125,7 +112,6 @@ async function changeTodo(
         closed: { ...row, ...edit },
         nextId: nextId ?? randomUUID(),
         doneOn: localClock(now, timeZone).date,
-        timeZone,
         now,
       });
       if (!added) return "id-taken";
@@ -168,13 +154,11 @@ async function moveOccurrence(
   scope: UserScope,
   todoId: string,
   {
-    remindAt,
     ticked,
     ...dates
   }: {
     dueDate: string | null;
     startDate: string | null;
-    remindAt?: string;
     ticked: readonly string[];
   },
   now: Date,
@@ -182,7 +166,7 @@ async function moveOccurrence(
   return scope.db.transaction(async (tx) => {
     const moved = await tx
       .update(todos)
-      .set({ ...dates, ...sentReminder(remindAt, now), updatedAt: now })
+      .set({ ...dates, updatedAt: now })
       .where(
         and(
           liveTodo(scope, todoId),
@@ -203,33 +187,6 @@ async function moveOccurrence(
       );
     return true;
   });
-}
-
-/**
- * Asks for the reminder of an open to-do again in an hour. False when the user
- * has no such to-do, or it has no reminder.
- */
-async function snoozeReminder(
-  scope: UserScope,
-  todoId: string,
-  now: Date,
-): Promise<boolean> {
-  const snoozed = await scope.db
-    .update(todos)
-    .set({
-      snoozedUntil: new Date(now.getTime() + SNOOZE_MS),
-      remindedAt: null,
-      updatedAt: now,
-    })
-    .where(
-      and(
-        liveTodo(scope, todoId),
-        isNull(todos.doneAt),
-        isNotNull(todos.remindAt),
-      ),
-    )
-    .returning({ id: todos.id });
-  return snoozed.length > 0;
 }
 
 /** Hides a to-do of the owner's. False when the user has no such to-do. */
@@ -321,7 +278,6 @@ export const ownerTodos = {
   changeWaiting,
   restoreWaiting,
   moveOccurrence,
-  snoozeReminder,
   delete: deleteTodo,
   restore: restoreTodo,
   changeDueDates,

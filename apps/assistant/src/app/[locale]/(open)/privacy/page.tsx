@@ -35,8 +35,8 @@ export default function Page() {
       >
         <Text>
           {t({
-            en: "It connects to your iCloud, Gmail or Outlook mailbox over IMAP. When you turn on organising in the settings (it is off at first), an AI agent goes through your inbox every 15 minutes. It reads the headers of each message, and a second model, which cannot change your mailbox, reads the text of the messages the agent needs to understand. The agent then moves each message into one of your folders, a new folder or the Junk folder. It can also rename your folders, merge them, and delete a folder once it is empty. It cannot delete or send mail, and it never moves mail into the Trash.",
-            zh: "它通过 IMAP 连接你的 iCloud、Gmail 或 Outlook 邮箱。如果你在设置中开启整理（默认关闭），AI 智能体每 15 分钟处理一遍收件箱：它读取每封邮件的邮件头；需要了解内容的邮件，由另一个无法改动你邮箱的模型读取正文。然后智能体把每封邮件移到你的某个文件夹、一个新文件夹或垃圾邮件箱。它还可以重命名、合并你的文件夹，并删除已经清空的文件夹。它无法删除或发送邮件，也从不把邮件移到废纸篓。",
+            en: "It connects to your iCloud, Gmail or Outlook mailbox over IMAP. When you turn on organising in the settings (it is off at first), an AI agent goes through your inbox every 30 minutes. It reads the headers of each message, and a second model, which cannot change your mailbox, reads the text of the messages the agent needs to understand. The agent then moves each message into one of your folders, a new folder or the Junk folder. It can also rename your folders, merge them, and delete a folder once it is empty. It cannot delete or send mail, and it never moves mail into the Trash.",
+            zh: "它通过 IMAP 连接你的 iCloud、Gmail 或 Outlook 邮箱。如果你在设置中开启整理（默认关闭），AI 智能体每 30 分钟处理一遍收件箱：它读取每封邮件的邮件头；需要了解内容的邮件，由另一个无法改动你邮箱的模型读取正文。然后智能体把每封邮件移到你的某个文件夹、一个新文件夹或垃圾邮件箱。它还可以重命名、合并你的文件夹，并删除已经清空的文件夹。它无法删除或发送邮件，也从不把邮件移到废纸篓。",
           })}
         </Text>
         <Text>
@@ -74,8 +74,8 @@ export default function Page() {
         </Text>
         <Text>
           {t({
-            en: "Morning reports and to-dos: the words that the AI model and you wrote, which can name a sender or a subject, a to-do's due and start dates, how it repeats, when to remind you, its checklist and which steps you ticked, who or what it waits on and when to follow up, the time it holds on your calendar and where that event is, whether it is done, why the report closed it or changed its wait, and which of its parts you changed. A to-do that you delete is hidden but stays stored, so that the report does not add it again, with your note if you said that it should not have been added. For a line that links to a message, it keeps the mailbox and the message's ID, so that the link opens the message in your mailbox.",
-            zh: "晨报和待办：AI 模型和你写下的文字（其中可能提到某个发件人或主题）、待办的到期日和开始日期、它如何重复、何时提醒你、它的清单以及你勾选了哪些步骤、它在等谁或等什么以及何时跟进、它在你日历上占用的时间和该日程的位置、它是否已完成、晨报关闭它或改变其等待状态的原因，以及你改过它的哪些部分。你删除的待办会被隐藏，但仍然保存，这样晨报就不会再次添加它；如果你说明它不该被添加，也会保存你写的说明。对于链接到某封邮件的条目，它保存所在邮箱和该邮件的 ID，以便链接能在你的邮箱中打开这封邮件。",
+            en: "Morning reports and to-dos: the words that the AI model and you wrote, which can name a sender or a subject, a to-do's due and start dates, how it repeats, its checklist and which steps you ticked, who or what it waits on and when to follow up, the time it holds on your calendar and where that event is, whether it is done, why the report closed it or changed its wait, and which of its parts you changed. A to-do that you delete is hidden but stays stored, so that the report does not add it again, with your note if you said that it should not have been added. For a line that links to a message, it keeps the mailbox and the message's ID, so that the link opens the message in your mailbox.",
+            zh: "晨报和待办：AI 模型和你写下的文字（其中可能提到某个发件人或主题）、待办的到期日和开始日期、它如何重复、它的清单以及你勾选了哪些步骤、它在等谁或等什么以及何时跟进、它在你日历上占用的时间和该日程的位置、它是否已完成、晨报关闭它或改变其等待状态的原因，以及你改过它的哪些部分。你删除的待办会被隐藏，但仍然保存，这样晨报就不会再次添加它；如果你说明它不该被添加，也会保存你写的说明。对于链接到某封邮件的条目，它保存所在邮箱和该邮件的 ID，以便链接能在你的邮箱中打开这封邮件。",
           })}
         </Text>
         <Text>
@@ -97,8 +97,8 @@ export default function Page() {
         </Text>
         <Text>
           {t({
-            en: "The services that run the assistant: Vercel hosts the app and Neon hosts its database, both in London. Apple, Google and Microsoft receive the requests to your own mailbox, and Apple those to your iCloud Calendar. Your browser's push service (from Apple, Google or Mozilla) delivers the morning notification and to-do reminders, encrypted, with a to-do's title and the start of its detail.",
-            zh: "运行 Qi Assistant 的服务：Vercel 托管应用，Neon 托管数据库，均位于伦敦。Apple、Google 和 Microsoft 接收对你自己邮箱的请求，Apple 还接收对你 iCloud 日历的请求。你浏览器的推送服务（来自 Apple、Google 或 Mozilla）负责发送早间通知和待办提醒，内容经过加密，包含待办的标题和详情的开头。",
+            en: "The services that run the assistant: Vercel hosts the app and Neon hosts its database, both in London. Apple, Google and Microsoft receive the requests to your own mailbox, and Apple those to your iCloud Calendar. Your browser's push service (from Apple, Google or Mozilla) delivers the morning notification.",
+            zh: "运行 Qi Assistant 的服务：Vercel 托管应用，Neon 托管数据库，均位于伦敦。Apple、Google 和 Microsoft 接收对你自己邮箱的请求，Apple 还接收对你 iCloud 日历的请求。你浏览器的推送服务（来自 Apple、Google 或 Mozilla）负责发送早间通知。",
           })}
         </Text>
         <Text>

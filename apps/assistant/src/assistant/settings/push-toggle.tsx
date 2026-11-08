@@ -115,10 +115,10 @@ export function PushToggle({ publicKey }: { publicKey: string | null }) {
   return (
     <div css={[stack.tight, styles.toggle]}>
       <Switch
-        label={t({ en: "Notifications", zh: "通知" })}
+        label={t({ en: "Morning notification", zh: "早间通知" })}
         description={t({
-          en: "When the morning report is ready, and at the time you set on a to-do, this device gets a notification. On iPhone and iPad, notifications work only in the app on the Home Screen: in Safari, tap Share, then Add to Home Screen, open the app from there and turn this on.",
-          zh: "晨报写好后，以及到了你为待办设定的时间，这台设备会收到一条通知。在 iPhone 和 iPad 上，只有添加到主屏幕的应用才能收到通知：在 Safari 中点“分享”，再点“添加到主屏幕”，然后从主屏幕打开应用并在这里开启。",
+          en: "When the morning report is ready, this device gets a notification. On iPhone and iPad, notifications work only in the app on the Home Screen: in Safari, tap Share, then Add to Home Screen, open the app from there and turn this on.",
+          zh: "晨报写好后，这台设备会收到一条通知。在 iPhone 和 iPad 上，只有添加到主屏幕的应用才能收到通知：在 Safari 中点“分享”，再点“添加到主屏幕”，然后从主屏幕打开应用并在这里开启。",
         })}
         value={state === "on" ? "on" : "off"}
         disabled={

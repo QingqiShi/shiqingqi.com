@@ -59,8 +59,8 @@ export function formatShortWeekday(weekday: number, locale: string): string {
   }).format(dateOfLocalDate(`2024-01-0${String(weekday)}`));
 }
 
-/** A time in the owner's zone for a reminder: "15:00" today, else "4 Nov, 15:00". */
-export function formatReminderTime(
+/** A time in the owner's zone: "15:00" today, else "4 Nov, 15:00". */
+export function formatTimeInZone(
   time: string,
   {
     today,
@@ -96,8 +96,8 @@ export function formatSlotTime(
           hourCycle: "h23",
           timeZone,
         }).format(new Date(end))
-      : formatReminderTime(end, place);
-  return `${formatReminderTime(start, place)}–${ending}`;
+      : formatTimeInZone(end, place);
+  return `${formatTimeInZone(start, place)}–${ending}`;
 }
 
 /** Whole days from one `YYYY-MM-DD` to another. */

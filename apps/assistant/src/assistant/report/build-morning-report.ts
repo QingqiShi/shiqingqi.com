@@ -371,7 +371,6 @@ export async function buildMorningReport(
           runId: agent.run.runId,
           now: builtAt,
           today: localDate,
-          timeZone: settings.timeZone,
           changes,
         });
       }

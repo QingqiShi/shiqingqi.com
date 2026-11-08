@@ -17,10 +17,6 @@ export interface TodoItemData {
   dueDate: string | null;
   startDate: string | null;
   repeat: RepeatRule | null;
-  /** The ISO time that the owner asked to be reminded. */
-  remindAt: string | null;
-  /** The ISO time of the next reminder; null when none will go out. */
-  nextReminderAt: string | null;
   calendarSlot: CalendarSlot | null;
   /** The occurrence that closing this one made. */
   nextId: string | null;
@@ -59,8 +55,6 @@ export function toTodoItemData(
     dueDate: todo.dueDate,
     startDate: todo.startDate,
     repeat: todo.repeat,
-    remindAt: todo.remindAt?.toISOString() ?? null,
-    nextReminderAt: todo.nextReminderAt?.toISOString() ?? null,
     calendarSlot: todo.calendarSlot && {
       start: todo.calendarSlot.start.toISOString(),
       end: todo.calendarSlot.end.toISOString(),

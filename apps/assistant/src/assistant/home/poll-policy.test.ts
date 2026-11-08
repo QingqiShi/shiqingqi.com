@@ -3,7 +3,7 @@ import { pollDelayMs } from "./poll-delay-ms.ts";
 import { refreshAfterPoll } from "./refresh-after-poll.ts";
 import type { HomeRun, HomeStatus } from "./types.ts";
 
-const DUE = "2026-11-02T09:15:00.000Z";
+const DUE = "2026-11-02T09:30:00.000Z";
 const dueMs = Date.parse(DUE);
 
 function statusWith(overrides: Partial<HomeStatus> = {}): HomeStatus {
@@ -17,7 +17,7 @@ function statusWith(overrides: Partial<HomeStatus> = {}): HomeStatus {
   };
 }
 
-function runOf(id: string, startedAt = "2026-11-02T09:14:00.000Z"): HomeRun {
+function runOf(id: string, startedAt = "2026-11-02T09:29:00.000Z"): HomeRun {
   return {
     id,
     task: "organise",

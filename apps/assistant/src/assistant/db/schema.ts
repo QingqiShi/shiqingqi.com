@@ -366,7 +366,7 @@ export const captureTokens = pgTable(
   (t) => [index("capture_tokens_user_idx").on(t.userId)],
 );
 
-/** One device that gets the morning report notification and to-do reminders. */
+/** One device that gets the morning report notification. */
 export const pushSubscriptions = pgTable(
   "push_subscriptions",
   {

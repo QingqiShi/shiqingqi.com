@@ -22,7 +22,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 import { assistantFetch } from "../http/assistant-fetch.ts";
-import { formatReminderTime } from "../report-page/format-day.ts";
+import { formatTimeInZone } from "../report-page/format-day.ts";
 import { SettingsSection } from "./settings-section.tsx";
 
 interface CaptureTokenEntry {
@@ -103,7 +103,7 @@ function TokenRow({
     <ListRow
       detail={
         entry.lastUsedAt
-          ? used.replace("{time}", formatReminderTime(entry.lastUsedAt, place))
+          ? used.replace("{time}", formatTimeInZone(entry.lastUsedAt, place))
           : notUsed
       }
       actions={
@@ -121,7 +121,7 @@ function TokenRow({
         </Button>
       }
     >
-      {created.replace("{time}", formatReminderTime(entry.createdAt, place))}
+      {created.replace("{time}", formatTimeInZone(entry.createdAt, place))}
     </ListRow>
   );
 }

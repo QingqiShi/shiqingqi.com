@@ -91,7 +91,6 @@ async function undoAdd(scope: Scope, todoId: string): Promise<Result> {
     row.ownerEditedFields.length > 0 ||
     row.doneAt ||
     row.repeat ||
-    row.remindAt ||
     row.calendarAccountId ||
     steps.length > 0
   ) {

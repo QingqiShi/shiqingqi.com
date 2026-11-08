@@ -48,10 +48,6 @@ export interface TodoView {
   dueDate: string | null;
   startDate: string | null;
   repeat: RepeatRule | null;
-  /** The time that the owner asked to be reminded. */
-  remindAt: Date | null;
-  /** When the next reminder goes out; null when none will. */
-  nextReminderAt: Date | null;
   /** The time that it holds on the calendar. */
   calendarSlot: { start: Date; end: Date } | null;
   /** The occurrence that closing this one made. */
@@ -120,12 +116,9 @@ const todoColumns = {
   dueDate: todos.dueDate,
   startDate: todos.startDate,
   repeat: todos.repeat,
-  remindAt: todos.remindAt,
   calendarAccountId: todos.calendarAccountId,
   calendarStart: todos.calendarStart,
   calendarEnd: todos.calendarEnd,
-  snoozedUntil: todos.snoozedUntil,
-  remindedAt: todos.remindedAt,
   nextTodoId: todos.nextTodoId,
   waitingOn: todos.waitingOn,
   followUpDate: todos.followUpDate,
@@ -156,8 +149,6 @@ function toTodoView(
     dueDate: row.dueDate,
     startDate: row.startDate,
     repeat: row.repeat,
-    remindAt: row.remindAt,
-    nextReminderAt: row.remindedAt ? null : (row.snoozedUntil ?? row.remindAt),
     calendarSlot:
       row.calendarAccountId && row.calendarStart && row.calendarEnd
         ? { start: row.calendarStart, end: row.calendarEnd }

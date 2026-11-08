@@ -25,7 +25,7 @@ interface OrganiseTotals {
   calendarChanges: number;
 }
 
-/** The 15-minute cron: runs the organise agent for every user who turned organising on. */
+/** The 30-minute cron: runs the organise agent for every user who turned organising on. */
 export function makeOrganiseCron(
   dependencies: UserCronDependencies & {
     getOrganiseDeps: () => OrganiseDeps | null;

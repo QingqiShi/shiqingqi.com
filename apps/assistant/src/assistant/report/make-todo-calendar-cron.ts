@@ -17,7 +17,7 @@ interface FreeSlotTotals {
 }
 
 /**
- * The 15-minute cron: frees the time on the calendar that closed and deleted
+ * The 30-minute cron: frees the time on the calendar that closed and deleted
  * to-dos still hold. It covers a calendar that gave no answer when the owner
  * closed the to-do, and each to-do that the report agent closed.
  */
