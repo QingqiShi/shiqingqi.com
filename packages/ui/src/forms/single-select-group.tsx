@@ -1,12 +1,14 @@
 "use client";
 
 import { useRadioGroup } from "../hooks/use-radio-group.ts";
+import { mergeRefs } from "../merge-refs.ts";
 import type {
   OptionCardGroupBaseProps,
   OptionCardGroupNaming,
 } from "./option-card-group.tsx";
 import { OptionCardStack } from "./option-card-stack.tsx";
 import { OptionCard } from "./option-card.tsx";
+import { PlateCardContext, usePlateGroup } from "./use-plate-group.tsx";
 
 /** @internal */
 export type SingleSelectProps<TValue extends string> =
@@ -64,29 +66,31 @@ export function SingleSelectGroup<TValue extends string>({
     value,
     onChange,
   });
+  const plate = usePlateGroup(value);
 
   return (
     <OptionCardStack
       {...restProps}
-      ref={ref}
+      ref={mergeRefs(ref, plate.groupRef)}
       role="radiogroup"
       aria-label={ariaLabel}
       aria-labelledby={ariaLabelledBy}
       look={look}
       descriptionLines={descriptionLines}
-      css={css}
+      css={[plate.groupCss, css]}
     >
       {options.map((option) => (
-        <OptionCard
-          key={option.value}
-          {...getOptionProps(option.value)}
-          selected={option.value === value}
-          disabled={option.disabled}
-          look={look}
-          icon={option.icon}
-          label={option.label}
-          description={option.description}
-        />
+        <PlateCardContext key={option.value} value={plate.cardOf(option.value)}>
+          <OptionCard
+            {...getOptionProps(option.value)}
+            selected={option.value === value}
+            disabled={option.disabled}
+            look={look}
+            icon={option.icon}
+            label={option.label}
+            description={option.description}
+          />
+        </PlateCardContext>
       ))}
     </OptionCardStack>
   );

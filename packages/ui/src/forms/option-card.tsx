@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import {
+  use,
   useEffectEvent,
   useId,
   useLayoutEffect,
@@ -19,6 +20,7 @@ import { typeRole } from "../primitives/type.stylex.ts";
 import { cardSurface } from "../surfaces/card.stylex.ts";
 import { border, font, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
+import { plateStyles } from "./option-card-plate.stylex.ts";
 import {
   optionCardGroupMarker,
   optionCardMark,
@@ -27,6 +29,7 @@ import {
 } from "./option-card.stylex.ts";
 import { SelectionMark } from "./selection-mark.tsx";
 import { PRESS_SINK, useOptionCardPress } from "./use-option-card-press.ts";
+import { PlateCardContext, PlateWindow } from "./use-plate-group.tsx";
 
 export type OptionCardLook = "row" | "tile";
 
@@ -155,6 +158,7 @@ export function OptionCard({
     .filter((value) => value !== undefined)
     .join(" ");
 
+  const plate = use(PlateCardContext);
   const cardRef = useRef<HTMLButtonElement>(null);
   const markRef = useRef<HTMLSpanElement>(null);
   const press = useOptionCardPress({
@@ -185,14 +189,20 @@ export function OptionCard({
 
   const resolvedIndicator =
     indicator === undefined
-      ? role && <SelectionMark role={role} selected={selected ?? false} />
+      ? role && (
+          <SelectionMark
+            role={role}
+            selected={plate ? plate.arrived : (selected ?? false)}
+            fillGrows={plate !== null}
+          />
+        )
       : indicator;
 
   return (
     <button
       {...restProps}
       {...press.handlers}
-      ref={mergeRefs(ref, cardRef, pond.ref)}
+      ref={mergeRefs(ref, cardRef, pond.ref, plate?.ref)}
       type={type}
       role={role}
       disabled={disabled}
@@ -211,6 +221,8 @@ export function OptionCard({
         cardSurface.base,
         cardSurface.interactive,
         optionCardSurface.base,
+        plate && plateStyles.facade,
+        plate && (plate.arrived ? plateStyles.frameArrived : plateStyles.frame),
         optionCardMarker,
         styles[look],
         Boolean(resolvedIndicator) &&
@@ -218,6 +230,7 @@ export function OptionCard({
         css,
       ]}
     >
+      {plate?.windowed ? <PlateWindow plate={plate} /> : null}
       {icon ? (
         <span
           css={[
