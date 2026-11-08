@@ -104,7 +104,7 @@ export function InstallGuide() {
         </Heading>
         <Text>
           {t({
-            en: "Open Claude Code. At the bottom of the Miao pane, Miao asks whether you want to see it on your phone too (手机上也想看小苗？). Choose 同步到手机 (Sync to phone), then sign in on the page that opens (or sign up) and confirm: that links your Mac to your Buddy account. A few minutes later, Miao wakes up on your page.",
+            en: "Open Claude Code. At the bottom of the Miao pane, Miao asks: “See Miao on your phone too?” Choose “Sync to phone”, then sign in on the page that opens (or sign up) and confirm: that links your Mac to your Buddy account. A few minutes later, Miao wakes up on your page.",
             zh: "打开 Claude Code，小苗会问「手机上也想看小苗？」。点「同步到手机」，在打开的网页里登录（没有账号就注册一个）并确认，Mac 就连上了你的搭子账号。几分钟后，小苗就在你的页面上醒来。",
           })}
         </Text>
