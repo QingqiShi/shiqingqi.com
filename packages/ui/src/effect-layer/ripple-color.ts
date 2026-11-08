@@ -48,8 +48,23 @@ export function oklabToSrgb(lab: Vector): Vector {
  *
  * @internal
  */
-export function isLightBackdrop(backdrop: EffectColor) {
+export function isLightBackdrop(backdrop: Vector | EffectColor) {
   return srgbToOklab([backdrop[0], backdrop[1], backdrop[2]])[0] > 0.5;
+}
+
+/**
+ * The sRGB colour that `fill`, with its alpha, shows over an opaque
+ * `backdrop`.
+ *
+ * @internal
+ */
+export function shownOver(fill: EffectColor, backdrop: EffectColor): Vector {
+  const alpha = fill[3];
+  return [
+    fill[0] * alpha + backdrop[0] * (1 - alpha),
+    fill[1] * alpha + backdrop[1] * (1 - alpha),
+    fill[2] * alpha + backdrop[2] * (1 - alpha),
+  ];
 }
 
 /**
@@ -62,12 +77,7 @@ export function isLightBackdrop(backdrop: EffectColor) {
  * @internal
  */
 export function rippleColor(fill: EffectColor, backdrop: EffectColor): Vector {
-  const alpha = fill[3];
-  const shown: Vector = [
-    fill[0] * alpha + backdrop[0] * (1 - alpha),
-    fill[1] * alpha + backdrop[1] * (1 - alpha),
-    fill[2] * alpha + backdrop[2] * (1 - alpha),
-  ];
+  const shown = shownOver(fill, backdrop);
   const ring = srgbToOklab(shown);
   const page = srgbToOklab([backdrop[0], backdrop[1], backdrop[2]]);
   const chromaDifference = Math.hypot(ring[1] - page[1], ring[2] - page[2]);
