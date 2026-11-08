@@ -517,13 +517,14 @@ export interface EffectData<Schema extends d.AnyWgslData> {
 
 /**
  * A value that an `EffectData` of `Schema` writes. It is `d.InferInput`, but
- * an array is an array of values, not a typed array of their words.
+ * an array is any list of values, such as a `Float32Array` of `f32`, not a
+ * typed array of their words.
  *
  * @internal
  */
 export type EffectInput<Schema> =
   Schema extends d.WgslArray<infer Element>
-    ? readonly EffectInput<Element>[]
+    ? ArrayLike<EffectInput<Element>>
     : Schema extends d.WgslStruct<infer Props>
       ? { [Key in keyof Props]: EffectInput<Props[Key]> }
       : d.InferInput<Schema>;

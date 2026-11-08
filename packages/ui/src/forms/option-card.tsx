@@ -1,8 +1,17 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { useId, type ComponentProps, type ReactNode } from "react";
+import {
+  useEffectEvent,
+  useId,
+  useLayoutEffect,
+  useRef,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
 import { color } from "../color.stylex.ts";
+import { usePond } from "../effect-layer/use-pond.ts";
+import { mergeRefs } from "../merge-refs.ts";
 import { flex, grow, shrink } from "../primitives/flex.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
@@ -17,6 +26,7 @@ import {
   optionCardSurface,
 } from "./option-card.stylex.ts";
 import { SelectionMark } from "./selection-mark.tsx";
+import { PRESS_SINK, useOptionCardPress } from "./use-option-card-press.ts";
 
 export type OptionCardLook = "row" | "tile";
 
@@ -127,6 +137,10 @@ export function OptionCard({
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
   "aria-describedby": ariaDescribedBy,
+  onPointerDown,
+  onPointerUp,
+  onPointerCancel,
+  onPointerLeave,
   ...restProps
 }: OptionCardProps) {
   const id = useId();
@@ -141,6 +155,34 @@ export function OptionCard({
     .filter((value) => value !== undefined)
     .join(" ");
 
+  const cardRef = useRef<HTMLButtonElement>(null);
+  const markRef = useRef<HTMLSpanElement>(null);
+  const press = useOptionCardPress({
+    cardRef,
+    disabled: disabled ?? false,
+    onPointerDown,
+    onPointerUp,
+    onPointerCancel,
+    onPointerLeave,
+  });
+  const pond = usePond({ pressDelay: PRESS_SINK });
+  // A key that changes the selection gives no pointer press, so the stone
+  // drops at the mark.
+  const dropAtMark = useEffectEvent(() => {
+    if (
+      document.activeElement === cardRef.current &&
+      !press.pressedSinceKey()
+    ) {
+      pond.dropAtCentreOf(markRef.current);
+    }
+  });
+  const selectedBeforeRef = useRef(selected);
+  useLayoutEffect(() => {
+    if (selectedBeforeRef.current === selected) return;
+    selectedBeforeRef.current = selected;
+    dropAtMark();
+  }, [selected]);
+
   const resolvedIndicator =
     indicator === undefined
       ? role && <SelectionMark role={role} selected={selected ?? false} />
@@ -149,7 +191,8 @@ export function OptionCard({
   return (
     <button
       {...restProps}
-      ref={ref}
+      {...press.handlers}
+      ref={mergeRefs(ref, cardRef, pond.ref)}
       type={type}
       role={role}
       disabled={disabled}
@@ -218,6 +261,7 @@ export function OptionCard({
       </span>
       {resolvedIndicator ? (
         <span
+          ref={markRef}
           css={[
             styles.indicator,
             look === "row" ? styles.indicatorRow : styles.indicatorTile,

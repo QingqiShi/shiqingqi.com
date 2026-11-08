@@ -38,6 +38,7 @@ const [
   { dustSimulation },
   { liquidShader },
   { liquidSimulation },
+  { pondShader },
   { ringLightShader },
   { rippleShader },
 ] = await Promise.all([
@@ -47,6 +48,7 @@ const [
   import("../src/effect-layer/dust-simulation.ts"),
   import("../src/effect-layer/liquid-shader.ts"),
   import("../src/effect-layer/liquid-simulation.ts"),
+  import("../src/effect-layer/pond-shader.ts"),
   import("../src/effect-layer/ring-light-shader.ts"),
   import("../src/effect-layer/ripple-shader.ts"),
 ]);
@@ -59,6 +61,7 @@ type Pipeline =
 const PIPELINES: Record<string, Pipeline> = {
   ripple: rippleShader,
   ringLight: ringLightShader,
+  pond: pondShader,
   blackHole: blackHoleShader,
   liquid: liquidShader,
   liquidSimulation: { compute: liquidSimulation },

@@ -53,7 +53,13 @@ export function SelectionMark({
   const shown = useMotionValue(engine, selected ? 1 : 0, {
     spring: MARK_SPRING,
   });
-  useBinding(shownRef, shown, { pose: markPose, reducedPose: reducedMarkPose });
+  useBinding(shownRef, shown, {
+    pose: markPose,
+    reducedPose: reducedMarkPose,
+    // The card's pond bends the mark through an SVG filter on the card, and
+    // WebKit does not draw the card while the mark moves on the compositor.
+    renderer: "frame",
+  });
   useLayoutEffect(() => {
     const target = selected ? 1 : 0;
     if (shown.target === target) return;

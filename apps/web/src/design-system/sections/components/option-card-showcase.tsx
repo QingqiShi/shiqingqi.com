@@ -109,6 +109,12 @@ export function OptionCardShowcase() {
             zh: "这是默认形态。该组为 WAI-ARIA 单选组，每张卡片是一个单选项，并且整组必须有自己的名称——类型层面要求 aria-label 与 aria-labelledby 二选一，因此无名称的组根本无法交付。",
           })}
         </Text>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "A pressed card gives way under the finger, and rings run across it like water: its own content bends, and inside an EffectLayerProvider with WebGPU, light plays on the rings. With a key, the rings start at the mark. Under reduced motion the card stays still.",
+            zh: "按下的卡片会在指尖下微微下沉，涟漪像水一样漫过卡片：卡片自身的内容随之弯折；在带有 WebGPU 的 EffectLayerProvider 之内，涟漪上还会泛起光。用键盘选择时，涟漪从标记处开始。在减少动态效果的设置下，卡片保持静止。",
+          })}
+        </Text>
       </Showcase>
 
       <Showcase label={t({ en: "Multiple selection", zh: "多选" })}>

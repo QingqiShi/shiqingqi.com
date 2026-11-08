@@ -2,6 +2,7 @@ import { blackHoleEffect } from "./black-hole-effect.ts";
 import { dustEffect } from "./dust-effect.ts";
 import { EFFECT_ROLES, type EffectRole } from "./effect-roles.ts";
 import { liquidEffect } from "./liquid-effect.ts";
+import { pondEffect } from "./pond-effect.ts";
 import { ringLightEffect } from "./ring-light-effect.ts";
 import { rippleEffect } from "./ripple-effect.ts";
 import type { Effect } from "./types.ts";
@@ -20,6 +21,7 @@ const ROLE_EFFECTS = new Map<EffectRole, Effect>([
   ["lightBeam", blackHoleEffect],
   ["liquid", liquidEffect],
   ["ringLight", ringLightEffect],
+  ["pond", pondEffect],
 ]);
 
 /**

@@ -45,6 +45,7 @@ const effectLayerTypegpuModules = [
   "debug-shader",
   "dust-shader",
   "liquid-shader",
+  "pond-shader",
   "ring-light-shader",
   "ripple-shader",
   "dust-page-position",
