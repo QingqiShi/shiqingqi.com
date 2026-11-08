@@ -22,6 +22,6 @@ export const brand = stylex.defineVars({
   nottingham: `light-dark(${cyan._30}, ${cyan._60})`,
   spotify: green._60,
   studentLoan: `light-dark(${green._50}, ${green._60})`,
-  pixelCreatureCreator: `light-dark(${purple._50}, ${purple._70})`,
+  buddy: `light-dark(${purple._50}, ${purple._70})`,
   finance: `light-dark(${mint._50}, ${mint._60})`,
 });

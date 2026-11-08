@@ -10,6 +10,7 @@ module.exports = async (phase) => {
         ).getLocalDevOrigins()
       : [];
   const { FINANCE_ORIGIN } = await import("./src/finance-origin.mjs");
+  const { BUDDY_ORIGIN } = await import("./src/buddy-origin.mjs");
   /** @type {import('next').NextConfig} */
   const nextConfig = {
     reactStrictMode: true,
@@ -112,6 +113,14 @@ module.exports = async (phase) => {
         ["/zh/finance/:path*", "/zh/:path*"],
         ["/api/finance/:path*", "/api/:path*"],
       ];
+      // Buddy replaced the pixel creature creator and the sprite editor.
+      const buddyMoved = ["/pixel-creature-creator", "/sprite-editor"].flatMap(
+        (source) => [
+          [source, "/"],
+          [`/en${source}`, "/"],
+          [`/zh${source}`, "/zh"],
+        ],
+      );
       return [
         // `:rest*` also matches an empty rest. Thus one rule sends a moved
         // page and each page below it, such as its Lab, to the new path.
@@ -130,6 +139,11 @@ module.exports = async (phase) => {
         ...financeMoved.map(([source, destination]) => ({
           source,
           destination: `${FINANCE_ORIGIN}${destination}`,
+          permanent: true,
+        })),
+        ...buddyMoved.map(([source, destination]) => ({
+          source: `${source}/:rest*`,
+          destination: `${BUDDY_ORIGIN}${destination}`,
           permanent: true,
         })),
       ];

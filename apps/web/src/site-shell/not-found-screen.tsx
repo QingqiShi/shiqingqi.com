@@ -1,7 +1,7 @@
 import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
-import { GhostIcon } from "@phosphor-icons/react/dist/ssr/Ghost";
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
+import { PlantIcon } from "@phosphor-icons/react/dist/ssr/Plant";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
@@ -23,6 +23,7 @@ import {
   rhythm,
   space,
 } from "@tuja/ui/tokens.stylex";
+import { BUDDY_ORIGIN } from "#src/buddy-origin.mjs";
 import { Link } from "#src/links/link.tsx";
 import { SiteHeaderFooterLayout } from "./site-header-footer-layout.tsx";
 
@@ -60,12 +61,12 @@ export function NotFoundScreen() {
       }),
     },
     {
-      href: getLocalePath("/pixel-creature-creator", locale),
-      icon: <GhostIcon weight="fill" aria-hidden="true" />,
-      name: t({ en: "Pixel Creature Creator", zh: "像素生物创造器" }),
+      href: `${BUDDY_ORIGIN}${getLocalePath("/", locale)}`,
+      icon: <PlantIcon weight="fill" aria-hidden="true" />,
+      name: t({ en: "Buddy", zh: "搭子" }),
       description: t({
-        en: "Build a tiny pixel creature, name it, and conjure its lore.",
-        zh: "搭建一个小像素生物，给它取名，并召唤它的传说。",
+        en: "Your Claude pet, live on your phone: a little sprout that grows as you code.",
+        zh: "你的 Claude 宠物，在手机上实时看：一棵随你写代码长大的小苗。",
       }),
     },
     {

@@ -15,10 +15,6 @@ const SITE_PATHS = [
   "/education/altrincham-grammar-school-for-boys",
   "/movie-database",
   "/calculator",
-  "/pixel-creature-creator",
-  "/pixel-creature-creator/create",
-  "/pixel-creature-creator/c",
-  "/sprite-editor",
 ];
 
 function toAbsoluteUrl(path: string, locale: SupportedLocale): string {
