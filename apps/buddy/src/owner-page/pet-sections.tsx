@@ -8,7 +8,7 @@ import { Heading } from "@tuja/ui/components/heading";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import {
@@ -27,7 +27,7 @@ import {
 } from "#src/pet/build-view.ts";
 import { capsuleSvg, levelOf } from "#src/pet/capsule-svg.ts";
 import { fillTemplate } from "#src/pet/fill-template.ts";
-import { formatTokens, formatUsd, withCommas } from "#src/pet/format-tokens.ts";
+import { withCommas } from "#src/pet/format-tokens.ts";
 import {
   githubHeatmap,
   heatmapSvg,
@@ -37,6 +37,7 @@ import { mergesSvg } from "#src/pet/merges-svg.ts";
 import { trendSvg } from "#src/pet/trend-svg.ts";
 import type { PetCopy, PublicPetState, Range } from "#src/pet/types.ts";
 import { Drawing } from "./drawing.tsx";
+import { PetTiles } from "./pet-tiles.tsx";
 import { useContentWidth } from "./use-content-width.ts";
 
 type View = ReturnType<typeof buildView>;
@@ -53,9 +54,10 @@ type PetSectionsProps = {
 };
 
 /**
- * What the owner comes back for, in the order it matters: the usage limits, then growth, then
- * the records, quieter. A section with nothing to show is not there. From `md` the limits and
- * growth share a column beside the records.
+ * What the owner comes back for, in the order it matters: the usage limits, then the records of
+ * the range, then the whole history, quieter. A section with nothing to show is not there. From
+ * `md` the records of the range take the second column, and the history goes below the limits, so
+ * that the two columns are near the same height.
  */
 export function PetSections({
   state,
@@ -69,57 +71,49 @@ export function PetSections({
 }: PetSectionsProps) {
   const [width, measureRef] = useContentWidth();
   const days = buildDays(state, today, range);
-  const recent = buildDays(state, today, "30");
-  const growth = tilesInputFor(recent, width, copy);
+  const tiles = tilesInputFor(days, width, copy);
   const trend = trendDays(days);
   const used = usedText(days, copy);
   const hasLimits = view.windows.length > 0;
-  const hasRecords =
-    trend.length >= 2 ||
-    days.merged.prs > 0 ||
-    (state.firstDay !== null && used !== null) ||
-    state.github !== null;
+  const hasRange = tiles !== null || trend.length >= 2 || days.merged.prs > 0;
+  const hasHistory =
+    (state.firstDay !== null && used !== null) || state.github !== null;
+  const isTwoColumns = hasLimits && hasRange;
 
   return (
-    <div css={[styles.grid, hasRecords && hasLimits && styles.twoColumns]}>
-      <div ref={measureRef} css={stack.group}>
+    <div css={[styles.grid, isTwoColumns && styles.twoColumns]}>
+      <div
+        ref={measureRef}
+        css={[stack.group, isTwoColumns && styles.limitsArea]}
+      >
         {hasLimits ? (
           <LimitsSection view={view} width={width} copy={copy} />
         ) : null}
-        {growth === null ? null : (
-          <Section title={t({ en: "Growth", zh: "成长" })}>
-            <dl css={styles.figures}>
-              <Figure
-                label={copy.tiles.streak}
-                value={String(growth.streak)}
-                unit={copy.tiles.streakUnit}
-              />
-              <Figure
-                label={copy.view.tokensRecent}
-                value={formatTokens(growth.tokens)}
-              />
-            </dl>
-          </Section>
-        )}
       </div>
-      {hasRecords ? (
-        <div css={stack.group}>
+      {hasRange ? (
+        <div css={[stack.group, isTwoColumns && styles.rangeArea]}>
           <Section
             title={t({ en: "Records", zh: "记录" })}
             aside={
-              <SegmentedControl
-                aria-label={t({ en: "Range", zh: "时间范围" })}
-                size="sm"
-                value={range}
-                onChange={onRangeChange}
-                options={[
-                  { value: "30", label: t({ en: "30 days", zh: "30 天" }) },
-                  { value: "all", label: t({ en: "All", zh: "全部" }) },
-                ]}
-              />
+              <div css={styles.rangeBar}>
+                <Text as="span" look="caption" tone="muted" css={styles.aside}>
+                  {rangeText(days, copy)}
+                </Text>
+                <SegmentedControl
+                  aria-label={t({ en: "Range", zh: "时间范围" })}
+                  size="sm"
+                  value={range}
+                  onChange={onRangeChange}
+                  options={[
+                    { value: "30", label: t({ en: "30 days", zh: "30 天" }) },
+                    { value: "all", label: t({ en: "All", zh: "全部" }) },
+                  ]}
+                />
+              </div>
             }
           >
             <div css={stack.group}>
+              {tiles === null ? null : <PetTiles tiles={tiles} copy={copy} />}
               {trend.length < 2 ? null : (
                 <Record title={t({ en: "Daily tokens", zh: "每日 token" })}>
                   <Drawing
@@ -158,54 +152,55 @@ export function PetSections({
                   />
                 </Record>
               )}
-              {state.firstDay === null || used === null ? null : (
-                <Record
-                  title={t({ en: "Claude usage", zh: "Claude 使用" })}
-                  aside={used}
-                >
-                  <Drawing
-                    svg={heatmapSvg(
-                      { width, today, isIntro: isFirstData, copy },
-                      usageHeatmap(state.days, state.firstDay),
-                    )}
-                    alt={fillTemplate(
-                      t({
-                        en: "Claude usage, {used}",
-                        zh: "Claude 使用，{used}",
-                      }),
-                      { used },
-                    )}
-                  />
-                </Record>
-              )}
-              {state.github === null ? null : (
-                <Record
-                  title={t({
-                    en: "GitHub contributions",
-                    zh: "GitHub 贡献",
-                  })}
-                  aside={githubText(state.github.total, copy)}
-                >
-                  <Drawing
-                    svg={heatmapSvg(
-                      { width, today, isIntro: isFirstData, copy },
-                      githubHeatmap(state.github.start, state.github.levels),
-                    )}
-                    alt={fillTemplate(
-                      t({
-                        en: "GitHub contributions, {total}",
-                        zh: "GitHub 贡献，{total}",
-                      }),
-                      { total: githubText(state.github.total, copy) },
-                    )}
-                  />
-                </Record>
-              )}
-              {days.totals === null ? null : (
-                <CostLine days={days} copy={copy} />
-              )}
             </div>
           </Section>
+        </div>
+      ) : null}
+      {hasHistory ? (
+        <div css={[stack.group, isTwoColumns && styles.historyArea]}>
+          {state.firstDay === null || used === null ? null : (
+            <Record
+              title={t({ en: "Claude usage", zh: "Claude 使用" })}
+              aside={used}
+            >
+              <Drawing
+                svg={heatmapSvg(
+                  { width, today, isIntro: isFirstData, copy },
+                  usageHeatmap(state.days, state.firstDay),
+                )}
+                alt={fillTemplate(
+                  t({
+                    en: "Claude usage, {used}",
+                    zh: "Claude 使用，{used}",
+                  }),
+                  { used },
+                )}
+              />
+            </Record>
+          )}
+          {state.github === null ? null : (
+            <Record
+              title={t({
+                en: "GitHub contributions",
+                zh: "GitHub 贡献",
+              })}
+              aside={githubText(state.github.total, copy)}
+            >
+              <Drawing
+                svg={heatmapSvg(
+                  { width, today, isIntro: isFirstData, copy },
+                  githubHeatmap(state.github.start, state.github.levels),
+                )}
+                alt={fillTemplate(
+                  t({
+                    en: "GitHub contributions, {total}",
+                    zh: "GitHub 贡献，{total}",
+                  }),
+                  { total: githubText(state.github.total, copy) },
+                )}
+              />
+            </Record>
+          )}
         </div>
       ) : null}
     </div>
@@ -274,72 +269,6 @@ function LimitsSection({
         })}
       </div>
     </Section>
-  );
-}
-
-/** What the range cost at API prices, and how much of it the cache saved. */
-function CostLine({
-  days,
-  copy,
-}: {
-  days: ReturnType<typeof buildDays>;
-  copy: PetCopy;
-}) {
-  const totals = days.totals;
-  if (totals === null) return null;
-  const todayUsd = days.state.days.find((d) => d.day === days.today)?.costUsd;
-  const cost =
-    todayUsd === undefined || todayUsd <= 0
-      ? fillTemplate(
-          t({
-            en: "{range}: {cost} at API prices · {hit} cache hits",
-            zh: "{range}：按 API 价格折算 {cost} · 缓存命中 {hit}",
-          }),
-          {
-            range: rangeText(days, copy),
-            cost: formatUsd(totals.costUsd),
-            hit: `${(totals.cacheHitRate * 100).toFixed(1)}%`,
-          },
-        )
-      : fillTemplate(
-          t({
-            en: "{range}: {cost} at API prices, {today} today · {hit} cache hits",
-            zh: "{range}：按 API 价格折算 {cost}，今天 {today} · 缓存命中 {hit}",
-          }),
-          {
-            range: rangeText(days, copy),
-            cost: formatUsd(totals.costUsd),
-            today: `+${formatUsd(todayUsd)}`,
-            hit: `${(totals.cacheHitRate * 100).toFixed(1)}%`,
-          },
-        );
-
-  return (
-    <Text look="caption" tone="muted">
-      {cost}
-    </Text>
-  );
-}
-
-function Figure({
-  label,
-  value,
-  unit,
-}: {
-  label: string;
-  value: string;
-  unit?: string;
-}) {
-  return (
-    <div css={styles.figure}>
-      <dt css={[typeRole.caption, styles.figureLabel]}>{label}</dt>
-      <dd css={styles.figureValue}>
-        <span css={[typeRole.h1, typeModifier.numeric]}>{value}</span>
-        {unit === undefined ? null : (
-          <span css={[typeRole.label, styles.figureUnit]}>{unit}</span>
-        )}
-      </dd>
-    </div>
   );
 }
 
@@ -416,6 +345,23 @@ const styles = stylex.create({
       default: "minmax(0, 1fr)",
       [breakpoints.md]: "minmax(0, 1fr) minmax(0, 1fr)",
     },
+    gridTemplateRows: {
+      default: null,
+      [breakpoints.md]: "auto 1fr",
+    },
+    gridTemplateAreas: {
+      default: null,
+      [breakpoints.md]: '"limits range" "history range"',
+    },
+  },
+  limitsArea: {
+    gridArea: { default: null, [breakpoints.md]: "limits" },
+  },
+  rangeArea: {
+    gridArea: { default: null, [breakpoints.md]: "range" },
+  },
+  historyArea: {
+    gridArea: { default: null, [breakpoints.md]: "history" },
   },
   between: {
     display: "flex",
@@ -434,27 +380,10 @@ const styles = stylex.create({
   danger: {
     color: color.fgDanger,
   },
-  figures: {
-    display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    gap: rhythm.item,
-    margin: 0,
-  },
-  figure: {
+  rangeBar: {
     display: "flex",
-    flexDirection: "column",
-    gap: rhythm.inline,
-  },
-  figureLabel: {
-    color: color.fgMuted,
-  },
-  figureValue: {
-    display: "flex",
-    alignItems: "baseline",
-    gap: rhythm.inline,
-    margin: 0,
-  },
-  figureUnit: {
-    color: color.fgMuted,
+    alignItems: "center",
+    gap: rhythm.tight,
+    minInlineSize: 0,
   },
 });
