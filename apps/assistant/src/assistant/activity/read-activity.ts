@@ -17,7 +17,7 @@ import {
 import type { UserScope } from "#src/assistant/db/types.ts";
 import { localClock } from "#src/assistant/report/due-report-date.ts";
 
-/** How many runs one page of the activity reads: about two days of runs every 15 minutes. */
+/** How many runs one page of the activity reads: about four days of runs every 30 minutes. */
 export const ACTIVITY_PAGE_RUNS = 200;
 
 /** A run still `running` after this has outlived its function (at most 800 s): it was cut off. */

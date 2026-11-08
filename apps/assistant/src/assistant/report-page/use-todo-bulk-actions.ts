@@ -48,7 +48,6 @@ export function useTodoBulkActions({
   run,
   today,
   locale,
-  timeZone,
   slotRelease,
   showDeleted,
 }: {
@@ -56,7 +55,6 @@ export function useTodoBulkActions({
   run: RunTodoOp;
   today: string;
   locale: string;
-  timeZone: string;
   slotRelease: ReleaseSlots;
   showDeleted: ShowDeleted;
 }): Pick<
@@ -109,7 +107,7 @@ export function useTodoBulkActions({
     closeMany: (ids) => {
       const closing = rows
         .filter((row) => ids.includes(row.id) && isOpen(row))
-        .map((row) => ({ id: row.id, next: nextRowOf(row, today, timeZone) }));
+        .map((row) => ({ id: row.id, next: nextRowOf(row, today) }));
       if (closing.length === 0) return;
       const doneAt = new Date().toISOString();
       let closed: readonly string[] = [];

@@ -38,7 +38,6 @@ export async function applyChanges(
     .returning();
   await db.transaction((tx) =>
     applyTodoChanges(tx, {
-      timeZone: "UTC",
       userId,
       reportId: report.id,
       runId: run.id,

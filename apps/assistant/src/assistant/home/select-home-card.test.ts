@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { selectHomeCard } from "./select-home-card.ts";
 import type { HomeRun, HomeStatus } from "./types.ts";
 
-const DUE = "2026-11-02T09:15:00.000Z";
+const DUE = "2026-11-02T09:30:00.000Z";
 const dueMs = Date.parse(DUE);
 
 function statusWith(overrides: Partial<HomeStatus> = {}): HomeStatus {
@@ -16,7 +16,7 @@ function statusWith(overrides: Partial<HomeStatus> = {}): HomeStatus {
   };
 }
 
-function runOf(id: string, startedAt = "2026-11-02T09:14:00.000Z"): HomeRun {
+function runOf(id: string, startedAt = "2026-11-02T09:29:00.000Z"): HomeRun {
   return {
     id,
     task: "organise",
@@ -58,7 +58,7 @@ describe("selectHomeCard", () => {
     expect(selectHomeCard(old, dueMs + 89_999)).toEqual(checking);
     expect(selectHomeCard(old, dueMs + 90_000)).toEqual({ kind: "none" });
 
-    const polled = statusWith({ nextOrganiseAt: "2026-11-02T09:30:00.000Z" });
+    const polled = statusWith({ nextOrganiseAt: "2026-11-02T10:00:00.000Z" });
     expect(selectHomeCard(polled, dueMs + 30_000)).toEqual(checking);
     expect(selectHomeCard(polled, dueMs + 90_000)).toEqual({ kind: "none" });
   });

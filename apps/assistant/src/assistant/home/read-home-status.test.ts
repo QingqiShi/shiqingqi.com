@@ -115,7 +115,7 @@ describe("readHomeStatus", () => {
 
     await insertAccount(db, owner);
     expect((await statusOf(owner)).nextOrganiseAt).toBe(
-      "2026-11-02T10:15:00.000Z",
+      "2026-11-02T10:30:00.000Z",
     );
   });
 

@@ -1,5 +1,5 @@
 /** The interval of the organise cron in `vercel.json`. */
-export const ORGANISE_INTERVAL_MINUTES = 15;
+export const ORGANISE_INTERVAL_MINUTES = 30;
 
 /** The next time the organise cron is due, strictly after `now`. */
 export function nextOrganiseAt(now: Date): Date {

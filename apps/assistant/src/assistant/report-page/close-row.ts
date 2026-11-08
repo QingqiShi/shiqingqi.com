@@ -1,8 +1,4 @@
-import type { RepeatRule } from "../report/next-occurrence.ts";
-import {
-  nextOccurrenceDates,
-  nextOccurrenceReminder,
-} from "../report/next-occurrence.ts";
+import { nextOccurrenceDates } from "../report/next-occurrence.ts";
 import type { ChecklistItem } from "../report/own-todo.ts";
 import type { TodoOp } from "./patch-row.ts";
 import { isOpen, slotIsAhead, type TodoItemData } from "./to-todo-item-data.ts";
@@ -68,45 +64,14 @@ export function reopenRow(id: string): TodoOp {
   };
 }
 
-/** The reminder of a row after a change of its time. A time that has passed goes out no more, as on the server. */
-export function reminderFields(remindAt: string | null) {
-  return {
-    remindAt,
-    nextReminderAt:
-      remindAt !== null && Date.parse(remindAt) > Date.now() ? remindAt : null,
-  };
-}
-
-/** The dates and the reminder of the occurrence after this one. */
-export function nextOccurrenceFields(
-  row: TodoItemData,
-  rule: RepeatRule,
-  today: string,
-  timeZone: string,
-) {
-  const dates = nextOccurrenceDates(rule, row, today);
-  return {
-    ...dates,
-    ...reminderFields(
-      row.remindAt &&
-        nextOccurrenceReminder(new Date(row.remindAt), {
-          dueDate: row.dueDate,
-          nextDueDate: dates.dueDate,
-          timeZone,
-        }).toISOString(),
-    ),
-  };
-}
-
 export function nextRowOf(
   row: TodoItemData,
   today: string,
-  timeZone: string,
 ): (TodoItemData & { dueDate: string }) | null {
   return row.repeat && isOpen(row)
     ? {
         ...row,
-        ...nextOccurrenceFields(row, row.repeat, today, timeZone),
+        ...nextOccurrenceDates(row.repeat, row, today),
         id: crypto.randomUUID(),
         calendarSlot: null,
         checklist: withTicks(row.checklist, []),

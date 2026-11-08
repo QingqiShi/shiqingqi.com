@@ -10,13 +10,13 @@ import {
 const next = (now: string) => nextOrganiseAt(new Date(now)).toISOString();
 
 describe("nextOrganiseAt", () => {
-  it("is strictly after now, also on a quarter hour", () => {
-    expect(next("2026-11-02T10:15:00.000Z")).toBe("2026-11-02T10:30:00.000Z");
-    expect(next("2026-11-02T10:14:59.999Z")).toBe("2026-11-02T10:15:00.000Z");
+  it("is strictly after now, also on a half hour", () => {
+    expect(next("2026-11-02T10:30:00.000Z")).toBe("2026-11-02T11:00:00.000Z");
+    expect(next("2026-11-02T10:29:59.999Z")).toBe("2026-11-02T10:30:00.000Z");
   });
 
   it("goes over the hour and the day", () => {
-    expect(next("2026-11-02T23:45:00.001Z")).toBe("2026-11-03T00:00:00.000Z");
+    expect(next("2026-11-02T23:30:00.001Z")).toBe("2026-11-03T00:00:00.000Z");
   });
 
   it("matches the organise cron in vercel.json", () => {

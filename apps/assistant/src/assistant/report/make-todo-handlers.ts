@@ -71,7 +71,6 @@ const changeBody = z
     dueDate: localDate.nullable().optional(),
     startDate: localDate.nullable().optional(),
     repeat: repeatRule.nullable().optional(),
-    remindAt: instant.nullable().optional(),
     nextId: z.uuid().optional(),
   })
   .refine((body) => Object.keys(body).length > 0);
@@ -79,7 +78,6 @@ const occurrenceBody = z
   .strictObject({
     dueDate: localDate.nullable(),
     startDate: localDate.nullable(),
-    remindAt: instant.optional(),
     ticked: z.array(z.uuid()).max(todoLimits.orderedTodos).default([]),
   })
   .refine(datesInOrder);
@@ -319,9 +317,6 @@ export function makeTodoHandlers(
         );
         return earlier ? assistantJson({ earlier }) : notFound();
       }),
-
-    /** Asks for a to-do's reminder again later. */
-    snoozeReminder: onTodo(ownerTodos.snoozeReminder),
 
     delete: (request: Request, todoId: string) =>
       withSession(request, async (scope, now) => {

@@ -66,7 +66,6 @@ export async function closeTodos(
           closed: row,
           nextId: nextIdOf.get(row.id) ?? randomUUID(),
           doneOn: localClock(now, timeZone).date,
-          timeZone,
           now,
         });
         if (!added) tx.rollback();

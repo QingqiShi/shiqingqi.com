@@ -10,12 +10,6 @@ import { Textarea } from "@tuja/ui/components/textarea";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
-import {
-  formatLocalTime,
-  instantOf,
-  localTimeAt,
-  parseLocalTime,
-} from "../calendar/ics/instant-of.ts";
 import { datesInOrder } from "../report/dates-in-order.ts";
 import { firstOccurrence, sameRepeatRule } from "../report/next-occurrence.ts";
 import { todoLimits } from "../report/todo-limits.ts";
@@ -32,13 +26,7 @@ import type { TodoItemSortable } from "./todo-item.tsx";
 import { useTodoStore, type TodoEdit } from "./todo-store-provider.tsx";
 
 export type TodoEditFocus =
-  | "title"
-  | "checklist"
-  | "dueDate"
-  | "startDate"
-  | "remindAt"
-  | "repeat"
-  | "waitingOn";
+  "title" | "checklist" | "dueDate" | "startDate" | "repeat" | "waitingOn";
 
 function openDatePicker(field: HTMLInputElement) {
   try {
@@ -48,28 +36,22 @@ function openDatePicker(field: HTMLInputElement) {
   }
 }
 
-/** A date or a date and time, or none. It takes the focus and opens its picker when the menu asked for it. */
+/** A date, or none. It takes the focus and opens its picker when the menu asked for it. */
 function DateField({
-  type = "date",
   label,
-  clearLabel,
   value,
   max,
   error,
   autoPick,
   onChange,
 }: {
-  type?: "date" | "datetime-local";
   label: string;
-  clearLabel?: string;
   value: string;
   max?: string;
   error?: string;
   autoPick: boolean;
   onChange: (value: string) => void;
 }) {
-  const noDate = t({ en: "No date", zh: "不设日期" });
-
   const fieldRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -81,13 +63,13 @@ function DateField({
     <div css={[cluster.tight, styles.dateRow]}>
       <TextField
         ref={fieldRef}
-        type={type}
+        type="date"
         label={label}
         value={value}
         max={max}
         error={error}
         autoFocus={autoPick}
-        css={type === "date" ? styles.dateField : styles.dateTimeField}
+        css={styles.dateField}
         onChange={(event) => {
           onChange(event.target.value);
         }}
@@ -101,7 +83,7 @@ function DateField({
             onChange("");
           }}
         >
-          {clearLabel ?? noDate}
+          {t({ en: "No date", zh: "不设日期" })}
         </Button>
       ) : null}
     </div>
@@ -120,16 +102,11 @@ export function TodoEditor({
   sortable?: TodoItemSortable;
   onClose: () => void;
 }) {
-  const { edit, remove, setWaiting, addStep, today, locale, timeZone } =
-    useTodoStore();
-  const savedRemindAt = todo.remindAt
-    ? formatLocalTime(localTimeAt(Date.parse(todo.remindAt), timeZone), true)
-    : "";
+  const { edit, remove, setWaiting, addStep, today, locale } = useTodoStore();
   const [title, setTitle] = useState(todo.title);
   const [detail, setDetail] = useState(todo.detail ?? "");
   const [dueDate, setDueDate] = useState(todo.dueDate ?? "");
   const [startDate, setStartDate] = useState(todo.startDate ?? "");
-  const [remindAt, setRemindAt] = useState(savedRemindAt);
   const [repeat, setRepeat] = useState(() =>
     repeatDraftOf(todo.repeat, todo.dueDate ?? today),
   );
@@ -139,15 +116,10 @@ export function TodoEditor({
   const [titleError, setTitleError] = useState("");
   const [repeatError, setRepeatError] = useState("");
   const [startError, setStartError] = useState("");
-  const [remindError, setRemindError] = useState("");
   const titleRequired = t({ en: "Give it a title.", zh: "请填写标题。" });
   const startAfterDue = t({
     en: "It cannot start after it is due.",
     zh: "开始日期不能晚于到期日。",
-  });
-  const remindPassed = t({
-    en: "That time has passed. Pick a later one.",
-    zh: "这个时间已经过去了，请选择更晚的时间。",
   });
   const badInterval = t({
     en: "Give a whole number from 1 to {max}.",
@@ -174,17 +146,6 @@ export function TodoEditor({
       return;
     }
     const change: TodoEdit = {};
-    if (remindAt !== savedRemindAt) {
-      const instant = remindAt
-        ? instantOf(parseLocalTime(remindAt), timeZone)
-        : null;
-      if (instant !== null && instant <= Date.now()) {
-        setRemindError(remindPassed);
-        return;
-      }
-      change.remindAt =
-        instant === null ? null : new Date(instant).toISOString();
-    }
     if (nextTitle !== todo.title) change.title = nextTitle;
     if (nextDetail !== todo.detail) change.detail = nextDetail;
     if (nextDueDate !== todo.dueDate) change.dueDate = nextDueDate;
@@ -276,26 +237,6 @@ export function TodoEditor({
           }}
         />
         <div css={stack.tight}>
-          <DateField
-            type="datetime-local"
-            label={t({ en: "Remind me", zh: "提醒我" })}
-            clearLabel={t({ en: "No reminder", zh: "不提醒" })}
-            value={remindAt}
-            error={remindError || undefined}
-            autoPick={focus === "remindAt"}
-            onChange={(value) => {
-              setRemindAt(value);
-              setRemindError("");
-            }}
-          />
-          <Text as="p" look="caption" tone="muted">
-            {t({
-              en: "Time in {zone}. It goes to each device with notifications on.",
-              zh: "时区：{zone}。提醒会发到每台开启了通知的设备。",
-            }).replace("{zone}", timeZone)}
-          </Text>
-        </div>
-        <div css={stack.tight}>
           <TextField
             label={t({ en: "Waiting on", zh: "在等" })}
             value={waitingOn}
@@ -374,9 +315,6 @@ const styles = stylex.create({
   },
   dateField: {
     inlineSize: "11rem",
-  },
-  dateTimeField: {
-    inlineSize: "15rem",
   },
   actions: {
     justifyContent: "flex-start",

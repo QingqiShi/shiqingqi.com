@@ -23,11 +23,7 @@ import { addDays } from "../report/local-day-bounds.ts";
 import { nextOccurrenceDates } from "../report/next-occurrence.ts";
 import { CalendarSlotSheet } from "./calendar-slot-sheet.tsx";
 import { checklistProgress } from "./checklist-progress.tsx";
-import {
-  formatListDay,
-  formatReminderTime,
-  formatSlotTime,
-} from "./format-day.ts";
+import { formatListDay, formatSlotTime } from "./format-day.ts";
 import { viewOfTodo } from "./group-open-todos.ts";
 import { nextWeekStart } from "./parse-todo-date.ts";
 import { isOpen, slotIsAhead, type TodoItemData } from "./to-todo-item-data.ts";
@@ -283,22 +279,6 @@ function TodoRowActions({
               {t({ en: "Stop waiting", zh: "不再等待" })}
             </MenuAction>
           ) : null}
-          <MenuAction
-            trailing={
-              todo.nextReminderAt
-                ? formatReminderTime(todo.nextReminderAt, {
-                    today,
-                    locale,
-                    timeZone,
-                  })
-                : undefined
-            }
-            onClick={closeThen(() => {
-              onEdit("remindAt");
-            })}
-          >
-            {t({ en: "Remind me…", zh: "提醒我…" })}
-          </MenuAction>
           {todo.calendarSlot ? (
             <MenuAction
               trailing={formatSlotTime(todo.calendarSlot, {

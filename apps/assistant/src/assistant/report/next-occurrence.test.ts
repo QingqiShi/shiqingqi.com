@@ -5,7 +5,6 @@ import {
   nextOccurrenceDates,
   sameRepeatRule,
   type RepeatRule,
-  nextOccurrenceReminder,
 } from "./next-occurrence.ts";
 
 function walk(rule: RepeatRule, from: string, count: number) {
@@ -154,38 +153,6 @@ describe("firstOccurrence", () => {
     expect(
       firstOccurrence({ kind: "after-done", days: 7 }, "2026-11-02"),
     ).toBeNull();
-  });
-});
-
-describe("nextOccurrenceReminder", () => {
-  it("keeps the time on the owner's clock when the clocks change", () => {
-    expect(
-      nextOccurrenceReminder(new Date("2026-10-24T14:00:00Z"), {
-        dueDate: "2026-10-24",
-        nextDueDate: "2026-10-31",
-        timeZone: "Europe/London",
-      }).toISOString(),
-    ).toBe("2026-10-31T15:00:00.000Z");
-  });
-
-  it("stays as many days before the due date, by the owner's dates", () => {
-    expect(
-      nextOccurrenceReminder(new Date("2026-11-27T22:00:00Z"), {
-        dueDate: "2026-11-30",
-        nextDueDate: "2026-12-31",
-        timeZone: "Asia/Shanghai",
-      }).toISOString(),
-    ).toBe("2026-12-28T22:00:00.000Z");
-  });
-
-  it("falls on the next due date when there was no due date to count from", () => {
-    expect(
-      nextOccurrenceReminder(new Date("2026-11-02T09:30:00Z"), {
-        dueDate: null,
-        nextDueDate: "2026-11-09",
-        timeZone: "UTC",
-      }).toISOString(),
-    ).toBe("2026-11-09T09:30:00.000Z");
   });
 });
 

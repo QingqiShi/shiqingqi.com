@@ -34,7 +34,7 @@ export interface TodoStore {
   /** The user's local date, `YYYY-MM-DD`. */
   today: string;
   locale: string;
-  /** The owner's time zone, which a reminder's time is read in. */
+  /** The owner's time zone, which the times of the page are read in. */
   timeZone: string;
   /** Every open to-do of the user, also those not on this page. */
   openCount: number;
@@ -164,7 +164,6 @@ function Store({
     run,
     today,
     locale,
-    timeZone,
     slotRelease,
     showDeleted,
   });
@@ -173,7 +172,6 @@ function Store({
     run,
     today,
     locale,
-    timeZone,
     slotRelease,
     showDeleted,
   });

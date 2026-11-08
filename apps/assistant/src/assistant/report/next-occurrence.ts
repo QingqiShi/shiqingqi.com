@@ -1,9 +1,3 @@
-import {
-  addDays as addWallClockDays,
-  formatLocalTime,
-  instantOf,
-  localTimeAt,
-} from "#src/assistant/calendar/ics/instant-of.ts";
 import { addDays } from "./local-day-bounds.ts";
 
 /**
@@ -115,29 +109,6 @@ export function nextOccurrenceDates(
         ? addDays(next, (epochOf(startDate) - epochOf(dueDate)) / DAY_MS)
         : null,
   };
-}
-
-/**
- * The reminder of the occurrence due on `nextDueDate`: the same time on the
- * owner's clock, as many days before the due date. Without a due date to count
- * from, it falls on the next due date.
- */
-export function nextOccurrenceReminder(
-  remindAt: Date,
-  {
-    dueDate,
-    nextDueDate,
-    timeZone,
-  }: { dueDate: string | null; nextDueDate: string; timeZone: string },
-): Date {
-  const clock = localTimeAt(remindAt.getTime(), timeZone);
-  const from = dueDate ?? formatLocalTime(clock, false);
-  return new Date(
-    instantOf(
-      addWallClockDays(clock, (epochOf(nextDueDate) - epochOf(from)) / DAY_MS),
-      timeZone,
-    ),
-  );
 }
 
 /**

@@ -8,7 +8,6 @@ import { isAssistantConfigured } from "#src/assistant/db/is-assistant-configured
 import { ASSISTANT_PATH_HEADER } from "#src/assistant/http/constants.ts";
 import { AppFrame } from "#src/assistant/shell/app-frame.tsx";
 import { NotConfigured } from "#src/assistant/shell/not-configured.tsx";
-import { RefreshOnTodosChanged } from "#src/pwa/refresh-on-todos-changed.tsx";
 
 export default async function Layout({
   children,
@@ -26,10 +25,5 @@ export default async function Layout({
     locale,
     safeNextPath((await headers()).get(ASSISTANT_PATH_HEADER)),
   );
-  return (
-    <>
-      <RefreshOnTodosChanged />
-      <AppFrame>{children}</AppFrame>
-    </>
-  );
+  return <AppFrame>{children}</AppFrame>;
 }

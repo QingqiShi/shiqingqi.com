@@ -97,7 +97,6 @@ async function applyChanges(changes: Partial<TodoChanges>) {
       runId: run.id,
       now: NOW,
       today: "2026-11-02",
-      timeZone: "UTC",
       changes: { ...NO_CHANGES, ...changes },
     }),
   );

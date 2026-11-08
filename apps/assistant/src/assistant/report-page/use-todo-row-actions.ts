@@ -6,16 +6,10 @@ import type {
   WaitingChange,
 } from "../report/change-waiting.ts";
 import { datesInOrder } from "../report/dates-in-order.ts";
+import { nextOccurrenceDates } from "../report/next-occurrence.ts";
 import type { OwnerTodoChange } from "../report/owner-todos.ts";
 import { rearrange } from "../report/rearrange.ts";
-import {
-  closeRow,
-  nextOccurrenceFields,
-  nextRowOf,
-  reminderFields,
-  reopenRow,
-  withTicks,
-} from "./close-row.ts";
+import { closeRow, nextRowOf, reopenRow, withTicks } from "./close-row.ts";
 import { formatListDay } from "./format-day.ts";
 import { viewOfTodo } from "./group-open-todos.ts";
 import {
@@ -68,7 +62,6 @@ export function useTodoRowActions({
   run,
   today,
   locale,
-  timeZone,
   slotRelease,
   showDeleted,
 }: {
@@ -76,7 +69,6 @@ export function useTodoRowActions({
   run: RunTodoOp;
   today: string;
   locale: string;
-  timeZone: string;
   slotRelease: ReleaseSlots;
   showDeleted: ShowDeleted;
 }): Pick<
@@ -139,14 +131,11 @@ export function useTodoRowActions({
 
   function sendOccurrence(
     id: string,
-    fields: Pick<
-      TodoItemData,
-      "dueDate" | "startDate" | "remindAt" | "nextReminderAt" | "calendarSlot"
-    >,
+    fields: Pick<TodoItemData, "dueDate" | "startDate" | "calendarSlot">,
     ticked: readonly string[],
     onAnswer?: (response: Response) => Promise<void>,
   ) {
-    const { dueDate, startDate, remindAt } = fields;
+    const { dueDate, startDate } = fields;
     const patchDates = patchRow(id, fields);
     const patchTicks = patchChecklist(id, (steps) => withTicks(steps, ticked));
     run(
@@ -154,12 +143,7 @@ export function useTodoRowActions({
       async () => {
         const response = await assistantFetch(`/api/todos/${id}/occurrence`, {
           method: "PUT",
-          body: JSON.stringify({
-            dueDate,
-            startDate,
-            remindAt: remindAt ?? undefined,
-            ticked,
-          }),
+          body: JSON.stringify({ dueDate, startDate, ticked }),
         });
         await onAnswer?.(response);
       },
@@ -176,8 +160,6 @@ export function useTodoRowActions({
         dueDate,
         startDate: null,
         repeat: null,
-        remindAt: null,
-        nextReminderAt: null,
         calendarSlot: null,
         nextId: null,
         waitingOn: null,
@@ -205,16 +187,7 @@ export function useTodoRowActions({
         rows.find((row) => row.id === id),
         edit,
       );
-      sendTodoChange(
-        id,
-        patchRow(id, {
-          ...change,
-          ...(change.remindAt === undefined
-            ? {}
-            : reminderFields(change.remindAt)),
-        }),
-        change,
-      );
+      sendTodoChange(id, patchRow(id, change), change);
     },
     setDone: (id, done) => {
       if (!done) {
@@ -223,7 +196,7 @@ export function useTodoRowActions({
         return;
       }
       const row = rows.find((entry) => entry.id === id);
-      const next = row ? nextRowOf(row, today, timeZone) : null;
+      const next = row ? nextRowOf(row, today) : null;
       const release = slotRelease(row ? [row] : []);
       const closedToast: WordedToast = {
         message: next
@@ -248,7 +221,7 @@ export function useTodoRowActions({
     skipOccurrence: (id) => {
       const row = rows.find((entry) => entry.id === id);
       if (!row?.repeat) return;
-      const moved = nextOccurrenceFields(row, row.repeat, today, timeZone);
+      const moved = nextOccurrenceDates(row.repeat, row, today);
       const release = slotRelease([row]);
       const skippedToast: WordedToast = {
         message: copy.skipped.replace(
@@ -263,8 +236,6 @@ export function useTodoRowActions({
               {
                 dueDate: row.dueDate,
                 startDate: row.startDate,
-                remindAt: row.remindAt,
-                nextReminderAt: row.nextReminderAt,
                 calendarSlot: null,
               },
               row.checklist.filter((step) => step.done).map((step) => step.id),
