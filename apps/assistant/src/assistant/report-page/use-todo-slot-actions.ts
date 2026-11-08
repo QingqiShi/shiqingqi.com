@@ -5,23 +5,17 @@ import {
 } from "@tuja/ui/components/toast-provider";
 import { AssistantApiError } from "../http/assistant-api-error.ts";
 import { assistantFetch } from "../http/assistant-fetch.ts";
-import type { SlotOutcome } from "../report/todo-calendar-slots.ts";
 import { formatSlotTime } from "./format-day.ts";
 import { patchRow, type TodoRows } from "./patch-row.ts";
 import { isOpen, slotIsAhead, type CalendarSlot } from "./to-todo-item-data.ts";
 import type { TodoStore, WordedToast } from "./todo-store-provider.tsx";
 import type { RunTodoOp } from "./use-optimistic-todos.ts";
 
-/** What became of the time that a change's to-dos held, when the change ended them. */
-interface FreedSlot {
-  id: string;
-  outcome: SlotOutcome;
-}
-
+/** The to-dos whose event a close or a delete took off the calendar. */
 async function freedSlotsIn(response: Response) {
   if (response.status === 204) return [];
-  const body = (await response.json()) as { calendar?: FreedSlot[] };
-  return body.calendar ?? [];
+  const body = (await response.json()) as { freed?: string[] };
+  return body.freed ?? [];
 }
 
 function slotPath(id: string) {
@@ -106,21 +100,17 @@ export function useTodoSlotActions({
       en: "{count} times are free on your calendar",
       zh: "日历上的 {count} 段时间已空出",
     }),
-    slotStays: t({
-      en: "Your calendar did not answer, so {time} stays there until it does",
-      zh: "日历没有响应，{time} 暂时还在日历上，稍后会再试",
+    closeSilent: t({
+      en: "Your calendar did not answer, so the to-do is still open. Try again later.",
+      zh: "日历没有响应，待办没有关闭，请稍后再试。",
     }),
-    slotsStay: t({
-      en: "Your calendar did not answer, so {count} times stay there until it does",
-      zh: "日历没有响应，{count} 段时间暂时还在日历上，稍后会再试",
+    deleteSilent: t({
+      en: "Your calendar did not answer, so the to-do was not deleted. Try again later.",
+      zh: "日历没有响应，待办没有删除，请稍后再试。",
     }),
-    slotKept: t({
-      en: "{time} changed in your calendar, so it stays there as it is",
-      zh: "{time} 在日历里被改过，所以保留原样",
-    }),
-    slotsKept: t({
-      en: "{count} times changed in your calendar, so they stay there as they are",
-      zh: "{count} 段时间在日历里被改过，所以保留原样",
+    reconnectCalendar: t({
+      en: "Reconnect your calendar first: the to-do holds time on it.",
+      zh: "请重新连接日历：这个待办在日历上占着时间。",
     }),
   };
 
@@ -238,42 +228,31 @@ export function useTodoSlotActions({
 
   /**
    * The time on the calendar of to-dos that a change ends. The server frees it
-   * after it stores the change. `tell` says what became of it, in place of the
-   * change's toast, and `addBack` puts back what was freed, for the Undo.
+   * with the change, or refuses the change. `tell` says what was freed, in place
+   * of the change's toast, `addBack` puts it back, for the Undo, and
+   * `refusalToast` says why the change did not happen.
    */
-  function slotRelease(held: TodoRows) {
+  function slotRelease(held: TodoRows, change: "close" | "delete") {
     const ahead = held.flatMap(({ id, calendarSlot }) =>
       calendarSlot && slotIsAhead(calendarSlot, Date.now())
         ? [{ id, slot: calendarSlot }]
         : [],
     );
-    let freed: readonly FreedSlot[] = [];
+    let freed: readonly string[] = [];
     let undone = false;
-    const slotsWith = (outcome: SlotOutcome) =>
-      ahead.filter(({ id }) =>
-        freed.some((entry) => entry.id === id && entry.outcome === outcome),
-      );
     return {
-      tell: async (response: Response, change: WordedToast) => {
+      tell: async (response: Response, worded: WordedToast) => {
         freed = await freedSlotsIn(response);
-        if (undone || freed.length === 0) return;
-        const silent = slotsWith("unreachable");
-        const kept = slotsWith("changed");
-        const [slots, one, many] =
-          silent.length > 0
-            ? [silent, copy.slotStays, copy.slotsStay]
-            : kept.length > 0
-              ? [kept, copy.slotKept, copy.slotsKept]
-              : [slotsWith("freed"), copy.slotFreed, copy.slotsFreed];
-        if (slots.length === 0) return;
+        const slots = ahead.filter(({ id }) => freed.includes(id));
+        if (undone || slots.length === 0) return;
         const calendar =
           slots.length === 1
-            ? one.replace("{time}", slotText(slots[0].slot))
-            : many.replace("{count}", String(slots.length));
+            ? copy.slotFreed.replace("{time}", slotText(slots[0].slot))
+            : copy.slotsFreed.replace("{count}", String(slots.length));
         showToast({
-          ...change,
+          ...worded,
           message: copy.afterFreed
-            .replace("{change}", change.message)
+            .replace("{change}", worded.message)
             .replace("{calendar}", calendar),
         });
       },
@@ -283,14 +262,26 @@ export function useTodoSlotActions({
           const send = slotAdd(id, slot);
           run(
             patchRow(id, { calendarSlot: slot }),
-            () =>
-              freed.some(
-                (entry) => entry.id === id && entry.outcome === "freed",
-              )
-                ? send()
-                : Promise.resolve(),
+            () => (freed.includes(id) ? send() : Promise.resolve()),
             calendarRefusalToast,
           );
+        }
+      },
+      refusalToast: (error: unknown, retry: () => void): ToastOptions => {
+        switch (error instanceof AssistantApiError ? error.code : null) {
+          case "calendar-unreachable":
+            return {
+              message:
+                change === "close" ? copy.closeSilent : copy.deleteSilent,
+              action: { label: copy.retry, onAction: retry },
+            };
+          case "calendar-disconnected":
+            return { message: copy.reconnectCalendar };
+          default:
+            return {
+              message: copy.failed,
+              action: { label: copy.retry, onAction: retry },
+            };
         }
       },
     };

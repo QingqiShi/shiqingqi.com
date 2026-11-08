@@ -134,6 +134,13 @@
       "when": 1794180907667,
       "tag": "0018_drop_todo_repeat",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794181719436,
+      "tag": "0019_drop_todo_calendar_over_idx",
+      "breakpoints": true
     }
   ]
 }

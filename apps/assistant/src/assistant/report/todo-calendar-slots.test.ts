@@ -1,13 +1,15 @@
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { CalendarRequestError } from "#src/assistant/calendar/caldav/calendar-request-error.ts";
+import type { CalendarConnector } from "#src/assistant/calendar/caldav/types.ts";
 import { buildEventIcs } from "#src/assistant/calendar/ics/build-event-ics.ts";
 import { parseLocalTime } from "#src/assistant/calendar/ics/instant-of.ts";
 import {
   createFakeCalendarServer,
   type FakeCalendarServer,
 } from "#src/assistant/calendar/testing/create-fake-calendar-server.ts";
-import { todos, userSettings } from "#src/assistant/db/schema.ts";
+import { mailAccounts, todos, userSettings } from "#src/assistant/db/schema.ts";
 import {
   createTestDb,
   type TestDb,
@@ -17,7 +19,6 @@ import {
   insertUser,
   mailDeps,
 } from "#src/assistant/mail/testing/insert-account.ts";
-import { makeTodoCalendarCron } from "./make-todo-calendar-cron.ts";
 import { makeTodoHandlers } from "./make-todo-handlers.ts";
 import { listTodos } from "./read-report.ts";
 
@@ -334,18 +335,16 @@ describe("a to-do that ends while it holds time", () => {
       request("PATCH", { done: true }),
       closing.id,
     );
-    expect(await closed.json()).toEqual({
-      calendar: [{ id: closing.id, outcome: "freed" }],
-    });
+    expect(await closed.json()).toEqual({ freed: [closing.id] });
     expect(server.events(calendarUrl)).toEqual([]);
     expect((await stored(closing.id)).calendarHref).toBeNull();
+    expect((await stored(closing.id)).doneAt).toEqual(NOW);
 
     const deleting = await todoWithSlot();
     const deleted = await handlers.delete(request("DELETE"), deleting.id);
-    expect(await deleted.json()).toEqual({
-      calendar: [{ id: deleting.id, outcome: "freed" }],
-    });
+    expect(await deleted.json()).toEqual({ freed: [deleting.id] });
     expect(server.events(calendarUrl)).toEqual([]);
+    expect((await stored(deleting.id)).deletedAt).toEqual(NOW);
   });
 
   it("frees the time of many in one request", async () => {
@@ -355,21 +354,15 @@ describe("a to-do that ends while it holds time", () => {
     await addSlot(second.id, LATER);
 
     const response = await handlers.bulk(
-      request("POST", {
-        action: "done",
-        ids: [first.id, second.id],
-      }),
+      request("POST", { action: "done", ids: [first.id, second.id] }),
     );
 
     const body = (await response.json()) as {
       closed: string[];
-      calendar: { outcome: string }[];
+      freed: string[];
     };
     expect(body.closed).toHaveLength(2);
-    expect(body.calendar.map(({ outcome }) => outcome)).toEqual([
-      "freed",
-      "freed",
-    ]);
+    expect(body.freed.toSorted()).toEqual([first.id, second.id].toSorted());
     expect(server.events(calendarUrl)).toEqual([]);
   });
 
@@ -386,35 +379,132 @@ describe("a to-do that ends while it holds time", () => {
     expect((await stored(id)).calendarHref).toBe(event.url);
   });
 
-  it("stores the change when the calendar fails, and the cron frees the time later", async () => {
+  it("keeps the to-do open and its event in place when the calendar fails", async () => {
     const { id, event } = await todoWithSlot();
     server.state.failNextWrites = 1;
 
-    const closed = await handlers.update(request("PATCH", { done: true }), id);
-
-    expect(closed.status).toBe(200);
-    expect(await closed.json()).toEqual({
-      calendar: [{ id, outcome: "unreachable" }],
-    });
-    expect((await stored(id)).doneAt).toEqual(NOW);
-    expect((await stored(id)).calendarHref).toBe(event.url);
-    expect(server.events(calendarUrl)).toEqual([event]);
-
-    const cron = await makeTodoCalendarCron({
-      isConfigured: () => true,
-      getDb: () => db,
-      getCronSecret: () => "secret",
-      now: () => NOW,
-      getCalendarDeps: calendarDeps,
-    })(
-      new Request(`${ORIGIN}/api/cron/todo-calendar`, {
-        headers: { Authorization: "Bearer secret" },
-      }),
+    const closed = await handlers.update(
+      request("PATCH", { done: true, title: "Write the long essay" }),
+      id,
     );
 
-    expect(await cron.json()).toMatchObject({ freed: 1 });
-    expect(server.events(calendarUrl)).toEqual([]);
-    expect((await stored(id)).calendarHref).toBeNull();
+    expect(closed.status).toBe(502);
+    expect(await closed.json()).toEqual({ error: "calendar-unreachable" });
+    expect(await stored(id)).toMatchObject({
+      doneAt: null,
+      title: "Write the essay",
+      calendarHref: event.url,
+    });
+    expect(server.events(calendarUrl)).toEqual([event]);
+
+    server.state.failNextWrites = 1;
+    const deleted = await handlers.delete(request("DELETE"), id);
+    expect(deleted.status).toBe(502);
+    expect((await stored(id)).deletedAt).toBeNull();
+  });
+
+  it("closes or deletes none of many when one event cannot be freed", async () => {
+    const first = await insertTodo();
+    const second = await insertTodo();
+    await addSlot(first.id);
+    await addSlot(second.id, LATER);
+    const events = server.events(calendarUrl);
+
+    for (const action of ["done", "delete"]) {
+      server.state.failNextWrites = 1;
+      const response = await handlers.bulk(
+        request("POST", { action, ids: [first.id, second.id] }),
+      );
+
+      expect(response.status).toBe(502);
+      for (const { id } of [first, second]) {
+        expect(await stored(id)).toMatchObject({
+          doneAt: null,
+          deletedAt: null,
+        });
+        expect((await stored(id)).calendarHref).not.toBeNull();
+      }
+      expect(server.events(calendarUrl)).toEqual(events);
+    }
+  });
+
+  it("asks for a new connect when no login to the calendar works, and changes nothing", async () => {
+    const { id, event } = await todoWithSlot();
+    const offline = makeTodoHandlers({
+      isConfigured: () => true,
+      getDb: () => db,
+      getCalendarDeps: () => null,
+      getSession: () =>
+        Promise.resolve({ sessionId: randomUUID(), userId: owner }),
+      now: () => NOW,
+    });
+
+    const closed = await offline.update(request("PATCH", { done: true }), id);
+
+    expect(closed.status).toBe(409);
+    expect(await closed.json()).toEqual({ error: "calendar-disconnected" });
+    expect((await stored(id)).doneAt).toBeNull();
+    expect(server.events(calendarUrl)).toEqual([event]);
+
+    await db
+      .update(mailAccounts)
+      .set({ status: "reconnect" })
+      .where(eq(mailAccounts.id, accountId));
+    const deleted = await handlers.delete(request("DELETE"), id);
+    expect(await deleted.json()).toEqual({ error: "calendar-disconnected" });
+    expect((await stored(id)).deletedAt).toBeNull();
+  });
+
+  it("says that the calendar did not answer when its login fails on the network", async () => {
+    const { id, event } = await todoWithSlot();
+    const downHandlers = makeTodoHandlers({
+      isConfigured: () => true,
+      getDb: () => db,
+      getCalendarDeps: () => ({
+        ...calendarDeps(),
+        calendarConnector: () => Promise.reject(new Error("fetch failed")),
+      }),
+      getSession: () =>
+        Promise.resolve({ sessionId: randomUUID(), userId: owner }),
+      now: () => NOW,
+    });
+
+    const closed = await downHandlers.update(
+      request("PATCH", { done: true }),
+      id,
+    );
+
+    expect(await closed.json()).toEqual({ error: "calendar-unreachable" });
+    expect((await stored(id)).doneAt).toBeNull();
+    expect(server.events(calendarUrl)).toEqual([event]);
+  });
+
+  it("closes a to-do whose event is gone from the calendar already", async () => {
+    const { id } = await todoWithSlot();
+    const goneConnector: CalendarConnector = async (auth) => ({
+      ...(await server.connector(auth)),
+      deleteEvent: () =>
+        Promise.reject(new CalendarRequestError("DELETE", 404)),
+    });
+    const goneHandlers = makeTodoHandlers({
+      isConfigured: () => true,
+      getDb: () => db,
+      getCalendarDeps: () => ({
+        ...calendarDeps(),
+        calendarConnector: goneConnector,
+      }),
+      getSession: () =>
+        Promise.resolve({ sessionId: randomUUID(), userId: owner }),
+      now: () => NOW,
+    });
+
+    const closed = await goneHandlers.update(
+      request("PATCH", { done: true }),
+      id,
+    );
+
+    expect(await closed.json()).toEqual({ freed: [id] });
+    expect(await stored(id)).toMatchObject({ doneAt: NOW, calendarHref: null });
   });
 
   it("leaves an event that changed, and the to-do lets it go", async () => {
@@ -424,9 +514,7 @@ describe("a to-do that ends while it holds time", () => {
 
     const deleted = await handlers.delete(request("DELETE"), id);
 
-    expect(await deleted.json()).toEqual({
-      calendar: [{ id, outcome: "changed" }],
-    });
+    expect(deleted.status).toBe(204);
     expect(server.events(calendarUrl)).toEqual([changed]);
     expect((await stored(id)).calendarHref).toBeNull();
     expect((await stored(id)).deletedAt).toEqual(NOW);

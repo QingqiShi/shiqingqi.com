@@ -92,14 +92,19 @@ export function useTodoRowActions({
     op: TodoOp,
     change: OwnerTodoChange,
     onAnswer?: (response: Response) => Promise<void>,
+    refusalToast?: Parameters<RunTodoOp>[2],
   ) {
-    run(op, async () => {
-      const response = await assistantFetch(`/api/todos/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify(change),
-      });
-      await onAnswer?.(response);
-    });
+    run(
+      op,
+      async () => {
+        const response = await assistantFetch(`/api/todos/${id}`, {
+          method: "PATCH",
+          body: JSON.stringify(change),
+        });
+        await onAnswer?.(response);
+      },
+      refusalToast,
+    );
   }
 
   function reopen(id: string) {
@@ -150,7 +155,7 @@ export function useTodoRowActions({
         return;
       }
       const row = rows.find((entry) => entry.id === id);
-      const release = slotRelease(row ? [row] : []);
+      const release = slotRelease(row ? [row] : [], "close");
       const closedToast: WordedToast = {
         message: copy.done,
         action: {
@@ -166,6 +171,7 @@ export function useTodoRowActions({
         closeRow(id, new Date().toISOString()),
         { done: true },
         (response) => release.tell(response, closedToast),
+        release.refusalToast,
       );
       showToast(closedToast);
     },
@@ -173,7 +179,7 @@ export function useTodoRowActions({
       const row = rows.find((entry) => entry.id === id);
       if (!row) return;
       const index = rows.indexOf(row);
-      const release = slotRelease([row]);
+      const release = slotRelease([row], "delete");
       const deletedToast = showDeleted([row], copy.deleted, () => {
         run(
           (list) =>
@@ -192,6 +198,7 @@ export function useTodoRowActions({
           });
           await release.tell(response, deletedToast);
         },
+        release.refusalToast,
       );
     },
     setWaiting: (id, change) => {

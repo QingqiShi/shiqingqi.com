@@ -71,6 +71,7 @@ function todosOnPage(report: Report): TodoItemData[] {
   for (const todo of [
     ...report.todos,
     ...report.doneTodos,
+    ...report.keptOpenTodos,
     ...report.waitingTodos,
     ...report.repliedTodos,
   ]) {
@@ -256,6 +257,17 @@ export function ReportView({
         headingLevel={sectionLevel}
         title={doneTitle}
         ids={idsOf(report.doneTodos)}
+      />
+    ) : null,
+    report.keptOpenTodos.length > 0 ? (
+      <ReportTodoSection
+        key="kept-open"
+        headingLevel={sectionLevel}
+        title={t({
+          en: "Done, says the mail, but still open: the calendar did not free its time",
+          zh: "邮件显示已完成，但日历没能释放占用的时间，所以仍未关闭",
+        })}
+        ids={idsOf(report.keptOpenTodos)}
       />
     ) : null,
   ].filter((section) => section !== null);

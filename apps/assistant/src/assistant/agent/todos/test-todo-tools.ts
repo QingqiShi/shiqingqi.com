@@ -43,6 +43,7 @@ export async function applyChanges(
       runId: run.id,
       now: NOW,
       changes,
+      calendar: null,
     }),
   );
 }

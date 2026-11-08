@@ -83,6 +83,8 @@ export interface ReportView {
   agenda: AgendaItem[] | null;
   /** The to-dos this report closed that are still closed. */
   doneTodos: TodoView[];
+  /** The to-dos this report meant to close that are still open, because the calendar did not free their slot. */
+  keptOpenTodos: TodoView[];
   /** The to-dos this report made wait that still wait, and that no line of `needsAction` shows. */
   waitingTodos: TodoView[];
   /** The to-dos this report moved back to open because the reply came, and that no line of `needsAction` shows. */
@@ -217,6 +219,11 @@ export async function toReportView(
   const closedRows = await rowsOf(
     content.version === 2 ? content.doneTodos.map((todo) => todo.id) : [],
   );
+  const keptOpenRows = await rowsOf(
+    content.version === 2
+      ? (content.keptOpenTodos ?? []).map((todo) => todo.id)
+      : [],
+  );
   const madeToWait = content.version === 2 ? content.waitingTodoIds : undefined;
   const replied = content.version === 2 ? content.repliedTodoIds : undefined;
   const shownLines = lines.filter(({ todo }) => !notYet(todo));
@@ -227,6 +234,9 @@ export async function toReportView(
       row.doneAt === null &&
       !linked.has(row.id) &&
       !created.some((own) => own.id === row.id),
+  );
+  const keptOpen = keptOpenRows.filter(
+    (row) => row.doneAt === null && !linked.has(row.id),
   );
   return {
     ...report,
@@ -244,6 +254,7 @@ export async function toReportView(
     doneTodos: closedRows
       .filter((row) => row.doneAt !== null)
       .map((row) => toTodoView(row, hrefOf)),
+    keptOpenTodos: keptOpen.map((row) => toTodoView(row, hrefOf)),
     waitingTodos: (await rowsOf(madeToWait ?? []))
       .filter(
         (row) => row.doneAt === null && row.waitingOn !== null && unshown(row),
