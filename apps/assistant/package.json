@@ -59,7 +59,7 @@
     "@babel/preset-env": "catalog:",
     "@babel/preset-react": "catalog:",
     "@babel/preset-typescript": "catalog:",
-    "@electric-sql/pglite": "0.5.14",
+    "@electric-sql/pglite": "0.5.15",
     "@next/env": "catalog:",
     "@serwist/cli": "catalog:",
     "@stylexjs/postcss-plugin": "^0.19.1",
