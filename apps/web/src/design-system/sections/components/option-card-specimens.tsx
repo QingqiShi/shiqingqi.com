@@ -10,7 +10,11 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
-import { OptionCard, OptionCardGroup } from "@tuja/ui/components/option-card";
+import {
+  OptionCard,
+  OptionCardGroup,
+  OptionCardStack,
+} from "@tuja/ui/components/option-card";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -55,8 +59,8 @@ export function SingleSelectDemo() {
       value: "enterprise",
       label: t({ en: "Enterprise", zh: "企业版" }),
       description: t({
-        en: "Single sign-on, an audit log, and a named contact.",
-        zh: "单点登录、审计日志，并配备专属联系人。",
+        en: "Single sign-on, an audit log, and a named contact who knows your account, replies within one working day, and joins your calls when you plan a large change.",
+        zh: "单点登录、审计日志，并配备一位熟悉您账户的专属联系人：在一个工作日内回复，在您规划重大改动时也会参加您的会议，帮您一起把方案定下来。",
       }),
     },
   ];
@@ -72,6 +76,46 @@ export function SingleSelectDemo() {
         {plan}
       </StateReadout>
     </div>
+  );
+}
+
+export function EqualHeightDemo({ lines }: { lines: 1 | 2 }) {
+  const [plan, setPlan] = useState<Plan>("pro");
+  const options: DemoOption<Plan>[] = [
+    {
+      value: "free",
+      label: t({ en: "Free", zh: "免费" }),
+      description: t({
+        en: "One project and community support.",
+        zh: "一个项目，社区支持。",
+      }),
+    },
+    {
+      value: "pro",
+      label: t({ en: "Pro", zh: "专业版" }),
+      description: t({
+        en: "Unlimited projects, daily backups that are kept for thirty days, and a preview of every branch that you push, so that a reviewer can open the change before it ships.",
+        zh: "项目数量不限，每日备份并保留三十天，每次推送的分支都会生成预览，审阅者可以在上线前先打开查看这次改动，并直接在预览上留下意见。",
+      }),
+    },
+    {
+      value: "enterprise",
+      label: t({ en: "Enterprise", zh: "企业版" }),
+      description: t({
+        en: "Single sign-on for every member, an audit log that is kept for two years, a named contact who replies within one hour on any working day, a review of your set-up each quarter, and a contract that your legal team can read and change before anyone signs it.",
+        zh: "为每位成员提供单点登录，审计日志保留两年，配备一位在任何工作日都会在一小时内回复的专属联系人，每个季度为您复查一次配置，并提供一份在任何人签署之前都可以由贵方法务团队审阅和修改的合同，其中的每一项条款都可以和我们逐条协商，直到双方都满意为止。",
+      }),
+    },
+  ];
+  return (
+    <OptionCardGroup
+      aria-label={t({ en: "Plan", zh: "套餐" })}
+      options={options}
+      value={plan}
+      onChange={setPlan}
+      descriptionLines={lines}
+      css={fill.inline}
+    />
   );
 }
 
@@ -207,17 +251,17 @@ export function SlotsDemo() {
   const includedLabel = t({ en: "Included", zh: "已包含" });
   const addLabel = t({ en: "Add", zh: "添加" });
   const included = (
-    <Badge intent="accent" size="sm">
+    <Badge intent="neutral" size="sm">
       {includedLabel}
     </Badge>
   );
   const add = (
-    <Badge intent="neutral" size="sm">
+    <Badge intent="default" size="sm">
       {addLabel}
     </Badge>
   );
   return (
-    <div css={[stack.item, styles.fill]}>
+    <OptionCardStack css={styles.fill}>
       <SlotCard label={t({ en: "Label only", zh: "仅标签" })} />
       <SlotCard
         label={t({ en: "Label and description", zh: "标签与说明" })}
@@ -235,7 +279,7 @@ export function SlotsDemo() {
         icon={<ShieldIcon weight="bold" />}
         indicator={(selected) => (selected ? included : add)}
       />
-    </div>
+    </OptionCardStack>
   );
 }
 
@@ -270,10 +314,10 @@ export function BespokeDemo() {
     onChange: setPlan,
   });
   return (
-    <div
+    <OptionCardStack
       role="radiogroup"
       aria-label={t({ en: "Plan", zh: "套餐" })}
-      css={[stack.item, styles.fill]}
+      css={styles.fill}
     >
       {cards.map((card) => (
         <OptionCard
@@ -287,7 +331,7 @@ export function BespokeDemo() {
           <span css={[typeRole.label, styles.price]}>{card.price}</span>
         </OptionCard>
       ))}
-    </div>
+    </OptionCardStack>
   );
 }
 
@@ -339,6 +383,6 @@ const styles = stylex.create({
   },
   price: {
     fontWeight: font.weight_6,
-    color: color.fgAccent,
+    color: color.fg,
   },
 });

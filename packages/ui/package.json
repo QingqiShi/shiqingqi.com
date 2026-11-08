@@ -157,6 +157,7 @@
     "./components/navigation-split-view.stylex": "./src/shells/navigation-split-view.stylex.ts",
     "./components/option-card": "./src/forms/option-card.tsx",
     "./components/option-card-group": "./src/forms/option-card-group.tsx",
+    "./components/option-card-stack": "./src/forms/option-card-stack.tsx",
     "./components/option-card.stylex": "./src/forms/option-card.stylex.ts",
     "./components/outline-surface.stylex": "./src/actions/outline-surface.stylex.ts",
     "./components/pager": "./src/actions/pager.tsx",

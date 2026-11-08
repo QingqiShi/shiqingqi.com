@@ -4,17 +4,24 @@ import * as stylex from "@stylexjs/stylex";
 import { useId, type ComponentProps, type ReactNode } from "react";
 import { color } from "../color.stylex.ts";
 import { flex, grow, shrink } from "../primitives/flex.stylex.ts";
-import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { cardSurface } from "../surfaces/card.stylex.ts";
-import { rhythm, space } from "../tokens.stylex.ts";
+import { border, font, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
-import { optionCardSurface } from "./option-card.stylex.ts";
+import {
+  optionCardGroupMarker,
+  optionCardMark,
+  optionCardMarker,
+  optionCardSurface,
+} from "./option-card.stylex.ts";
 import { SelectionMark } from "./selection-mark.tsx";
 
 export type OptionCardLook = "row" | "tile";
+
+/** How many lines a description takes in a set of cards of the same height. */
+export type OptionCardDescriptionLines = 1 | 2;
 
 /**
  * Whether the card is one of a mutually exclusive set or an independent
@@ -40,10 +47,9 @@ interface OptionCardOwnProps {
    */
   description?: ReactNode;
   /**
-   * Decorative leading graphic, rendered `aria-hidden`. Tints to the accent
-   * colour once the card is selected.
+   * Decorative leading graphic, rendered `aria-hidden`.
    *
-   * @zh 前置的装饰性图形，以 `aria-hidden` 渲染。卡片被选中后会染上强调色。
+   * @zh 前置的装饰性图形，以 `aria-hidden` 渲染。
    */
   icon?: ReactNode;
   /**
@@ -54,9 +60,11 @@ interface OptionCardOwnProps {
    */
   indicator?: ReactNode;
   /**
-   * Paints the card as chosen, and supplies `aria-checked` when `role` is set.
+   * Whether the card is chosen. It sets `aria-checked` when `role` is set, and
+   * `aria-pressed` when it is not, and the look follows that attribute. Leave
+   * it out for a card that only acts when pressed, so it is not a toggle.
    *
-   * @zh 把卡片绘制为已选中状态；设置了 `role` 时同时提供 `aria-checked`。
+   * @zh 卡片是否已选中。设置了 `role` 时它提供 `aria-checked`，未设置时提供 `aria-pressed`，外观随该属性变化。若卡片只是按下即执行动作，则不要传入，以免它成为切换按钮。
    */
   selected?: boolean;
   /**
@@ -106,7 +114,7 @@ export function OptionCard({
   description,
   icon,
   indicator,
-  selected = false,
+  selected,
   look = "row",
   children,
   role,
@@ -115,6 +123,7 @@ export function OptionCard({
   css,
   ref,
   "aria-checked": ariaChecked,
+  "aria-pressed": ariaPressed,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
   "aria-describedby": ariaDescribedBy,
@@ -134,7 +143,7 @@ export function OptionCard({
 
   const resolvedIndicator =
     indicator === undefined
-      ? role && <SelectionMark role={role} selected={selected} />
+      ? role && <SelectionMark role={role} selected={selected ?? false} />
       : indicator;
 
   return (
@@ -144,7 +153,8 @@ export function OptionCard({
       type={type}
       role={role}
       disabled={disabled}
-      aria-checked={ariaChecked ?? (role && selected)}
+      aria-checked={ariaChecked ?? (role && (selected ?? false))}
+      aria-pressed={ariaPressed ?? (role === undefined ? selected : undefined)}
       aria-label={ariaLabel}
       // A caller's own name wins; otherwise the label names the card, keeping
       // the description and any children out of it.
@@ -157,11 +167,11 @@ export function OptionCard({
         buttonReset.base,
         cardSurface.base,
         cardSurface.interactive,
-        transition.colors,
         optionCardSurface.base,
+        optionCardMarker,
         styles[look],
-        selected && optionCardSurface.selected,
-        disabled === true && optionCardSurface.disabled,
+        Boolean(resolvedIndicator) &&
+          (look === "row" ? styles.rowWithIndicator : styles.tileWithIndicator),
         css,
       ]}
     >
@@ -171,21 +181,35 @@ export function OptionCard({
             flex.inlineCenter,
             shrink._0,
             styles.icon,
-            selected && styles.iconSelected,
+            look === "row" && styles.titleLine,
           ]}
           aria-hidden
         >
           {icon}
         </span>
       ) : null}
-      <span css={[stack.text, grow._1, styles.text]}>
-        <span id={labelId} css={typeRole.h4}>
+      <span
+        css={[
+          stack.text,
+          grow._1,
+          styles.text,
+          look === "tile" && styles.tileText,
+        ]}
+      >
+        <span
+          id={labelId}
+          css={[typeRole.bodySmall, styles.label, styles.labelLines]}
+        >
           {label}
         </span>
         {hasDescription ? (
           <span
             id={descriptionId}
-            css={[typeRole.bodySmall, styles.description]}
+            css={[
+              typeRole.bodySmall,
+              styles.description,
+              styles.descriptionLines,
+            ]}
           >
             {description}
           </span>
@@ -194,7 +218,10 @@ export function OptionCard({
       </span>
       {resolvedIndicator ? (
         <span
-          css={[styles.indicator, look === "tile" && styles.indicatorTile]}
+          css={[
+            styles.indicator,
+            look === "row" ? styles.indicatorRow : styles.indicatorTile,
+          ]}
           aria-hidden
         >
           {resolvedIndicator}
@@ -205,46 +232,152 @@ export function OptionCard({
 }
 
 export { OptionCardGroup } from "./option-card-group.tsx";
+export { OptionCardStack } from "./option-card-stack.tsx";
+
+// The label's line box: `typeRole.bodySmall` is `uiBodySmall × lineHeightBody`.
+const labelLineBox = `calc(${font.uiBodySmall} * ${font.lineHeightBody})`;
+
+// `OptionCardStack` sets this attribute when its cards have the same height.
+const EQUAL = "[data-description-lines]";
+const ONE_LINE = "[data-description-lines='1']";
+const TWO_LINES = "[data-description-lines='2']";
+
+// The mark has two placements. A tile, and a row by default, put the mark in
+// the top-end corner: its centre is the centre of the card's corner arc. The
+// marks then align from card to card when the heights are different. A row in a
+// group that sets `descriptionLines` puts the mark at the vertical centre of
+// the card.
+const cornerCentre = `calc(${optionCardMark.cornerCentre} - ${border.size_1})`;
+const markEdgeInset = `calc(${cornerCentre} - ${optionCardMark.size} / 2)`;
+const cornerPaddingStart = `calc(${cornerCentre} - ${labelLineBox} / 2)`;
+const centredPadding = `calc((${cornerPaddingStart} + ${space._1}) / 2)`;
 
 const styles = stylex.create({
   row: {
     display: "flex",
     alignItems: "center",
     gap: rhythm.tight,
-    padding: space._3,
+    padding: space._2,
   },
   tile: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     gap: rhythm.tight,
-    padding: space._3,
+    padding: space._2,
     textAlign: "center",
+  },
+  // In the corner placement, the label's first line centres on the corner
+  // centre, beside the indicator.
+  rowWithIndicator: {
+    paddingBlockStart: {
+      default: cornerPaddingStart,
+      [stylex.when.ancestor(EQUAL, optionCardGroupMarker)]: centredPadding,
+    },
+    paddingBlockEnd: {
+      default: space._1,
+      [stylex.when.ancestor(EQUAL, optionCardGroupMarker)]: centredPadding,
+    },
+    paddingInlineEnd: markEdgeInset,
+  },
+  // The indicator sits in the corner, out of the flow, so the same space on
+  // both sides keeps the label clear of it and centred.
+  tileWithIndicator: {
+    paddingInline: `calc(${cornerCentre} + ${optionCardMark.size} / 2 + ${rhythm.tight})`,
   },
   icon: {
     color: color.fgMuted,
   },
-  // A quieter second cue that the card is chosen, so color isn't the icon's
-  // only signal.
-  iconSelected: {
-    color: color.fgAccent,
-  },
   text: {
     minInlineSize: 0,
   },
+  // A tile is narrow, so a word longer than the tile breaks rather than run
+  // out of the tile and under the indicator.
+  tileText: {
+    overflowWrap: "anywhere",
+  },
+  // Haffer has no 500 face, so a medium weight shows as 400. Use 600.
+  label: {
+    fontWeight: font.weight_6,
+  },
   description: {
     color: color.fgMuted,
+  },
+  // `truncate.base` cannot apply only under an ancestor, so these are its
+  // values.
+  labelLines: {
+    overflow: {
+      default: null,
+      [stylex.when.ancestor(EQUAL, optionCardGroupMarker)]: "hidden",
+    },
+    textOverflow: {
+      default: null,
+      [stylex.when.ancestor(EQUAL, optionCardGroupMarker)]: "ellipsis",
+    },
+    whiteSpace: {
+      default: null,
+      [stylex.when.ancestor(EQUAL, optionCardGroupMarker)]: "nowrap",
+    },
+  },
+  // A short description keeps the height of the full line count, so that the
+  // labels align from card to card.
+  descriptionLines: {
+    display: {
+      default: null,
+      [stylex.when.ancestor(EQUAL, optionCardGroupMarker)]: "-webkit-box",
+    },
+    WebkitBoxOrient: {
+      default: null,
+      [stylex.when.ancestor(EQUAL, optionCardGroupMarker)]: "vertical",
+    },
+    WebkitLineClamp: {
+      default: null,
+      [stylex.when.ancestor(ONE_LINE, optionCardGroupMarker)]: 1,
+      [stylex.when.ancestor(TWO_LINES, optionCardGroupMarker)]: 2,
+    },
+    overflow: {
+      default: null,
+      [stylex.when.ancestor(EQUAL, optionCardGroupMarker)]: "hidden",
+    },
+    overflowWrap: {
+      default: null,
+      [stylex.when.ancestor(EQUAL, optionCardGroupMarker)]: "anywhere",
+    },
+    minBlockSize: {
+      default: null,
+      [stylex.when.ancestor(ONE_LINE, optionCardGroupMarker)]: labelLineBox,
+      [stylex.when.ancestor(TWO_LINES, optionCardGroupMarker)]:
+        `calc(2 * ${labelLineBox})`,
+    },
   },
   indicator: {
     display: "inline-flex",
     flexShrink: 0,
     alignSelf: "center",
   },
+  // A row's icon centres on the label's first line, not on the card, so it
+  // stays beside the label when the description wraps.
+  titleLine: {
+    alignSelf: "flex-start",
+    alignItems: "center",
+    minBlockSize: labelLineBox,
+  },
+  indicatorRow: {
+    alignItems: "center",
+    alignSelf: {
+      default: "flex-start",
+      [stylex.when.ancestor(EQUAL, optionCardGroupMarker)]: "center",
+    },
+    minBlockSize: {
+      default: labelLineBox,
+      [stylex.when.ancestor(EQUAL, optionCardGroupMarker)]: null,
+    },
+  },
   // A tile stacks its content, so the indicator moves out of the flow and into
   // the corner rather than sitting under the label.
   indicatorTile: {
     position: "absolute",
-    insetBlockStart: space._1,
-    insetInlineEnd: space._1,
+    insetBlockStart: markEdgeInset,
+    insetInlineEnd: markEdgeInset,
   },
 });

@@ -13,6 +13,7 @@ import { Specimen } from "#src/design-system/specimen.tsx";
 import {
   BespokeDemo,
   DisabledDemo,
+  EqualHeightDemo,
   KeyboardDemo,
   MultipleSelectDemo,
   SingleSelectDemo,
@@ -128,8 +129,23 @@ export function OptionCardShowcase() {
         </Specimen>
         <Text look="bodySmall" tone="muted">
           {t({
-            en: 'look="tile" stacks each card and moves the selection mark into the corner, and the group becomes a grid that fits as many cards per line as the space allows. Reach for it when the labels are short; a row keeps a long description readable.',
-            zh: 'look="tile" 会让每张卡片纵向堆叠，并把选中标记移到角落，整组则变为网格，一行放得下多少张就放多少张。标签简短时用它；说明较长时行式更易读。',
+            en: 'look="tile" stacks each card, with the selection mark in the corner, and the group becomes a grid that fits as many cards per line as the space allows. Reach for it when the labels are short; a row keeps a long description readable.',
+            zh: 'look="tile" 会让每张卡片纵向堆叠，选中标记位于角落，整组则变为网格，一行放得下多少张就放多少张。标签简短时用它；说明较长时行式更易读。',
+          })}
+        </Text>
+      </Showcase>
+
+      <Showcase label={t({ en: "Height", zh: "高度" })}>
+        <Specimen caption="descriptionLines={1}">
+          <EqualHeightDemo lines={1} />
+        </Specimen>
+        <Specimen caption="descriptionLines={2}">
+          <EqualHeightDemo lines={2} />
+        </Specimen>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "By default each card is as tall as its text, and a row puts its mark in the corner, so the marks line up across cards of different heights. descriptionLines makes every card the same height: the label keeps one line and the description that many, cut with an ellipsis, and a row centres its mark. A screen reader still reads the full text.",
+            zh: "默认情况下，每张卡片的高度随文本而定，行式卡片把标记放在角落，因此高度不同的卡片之间标记依然对齐。descriptionLines 让所有卡片等高：标签只保留一行，说明保留指定的行数，超出部分以省略号截断，行式卡片的标记则垂直居中。屏幕阅读器仍会朗读完整文本。",
           })}
         </Text>
       </Showcase>
@@ -168,8 +184,8 @@ export function OptionCardShowcase() {
         </Specimen>
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "When a card needs to carry more than an options array can express, drop a layer: render OptionCard yourself, pass the extra content as children, and spread useRadioGroup's getOptionProps() to keep the same keyboard model. Children sit under the description and stay out of the accessible name.",
-            zh: "当卡片需要承载 options 数组表达不了的内容时，就下沉一层：自行渲染 OptionCard，把额外内容作为 children 传入，并展开 useRadioGroup 的 getOptionProps() 以保持相同的键盘模型。children 位于说明下方，且不会进入可访问名称。",
+            en: "When a card needs to carry more than an options array can express, drop a layer: render OptionCard yourself inside an OptionCardStack, which places the selection marks as OptionCardGroup does, pass the extra content as children, and spread useRadioGroup's getOptionProps() to keep the same keyboard model. Children sit under the description and stay out of the accessible name.",
+            zh: "当卡片需要承载 options 数组表达不了的内容时，就下沉一层：在 OptionCardStack 中自行渲染 OptionCard，它会像 OptionCardGroup 一样摆放选中标记；再把额外内容作为 children 传入，并展开 useRadioGroup 的 getOptionProps() 以保持相同的键盘模型。children 位于说明下方，且不会进入可访问名称。",
           })}
         </Text>
       </Showcase>
@@ -189,6 +205,8 @@ export function OptionCardShowcase() {
       <PropsTable component="option-card" />
 
       <PropsTable component="option-card-group" />
+
+      <PropsTable component="option-card-stack" />
     </>
   );
 }

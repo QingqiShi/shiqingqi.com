@@ -20,9 +20,9 @@ export const selectedTokens = stylex.defineVars({
  * The accent look of the selected state, read from the ARIA state already on
  * the element: `aria-pressed`, `aria-checked` or `aria-selected` set to `true`,
  * or any `aria-current` other than `false`. Set the attribute and the look
- * follows. Use it for a choice that decides what the visitor does next, such
- * as a picked option card. An item that only has to stand out from its
- * siblings takes `quietSurface.interactive`.
+ * follows. Use it for a choice that decides what the visitor does next. An
+ * item that only has to stand out from its siblings takes
+ * `quietSurface.interactive`.
  *
  * `marked` owns the element's `backgroundColor`, including its hover, and its
  * `borderColor`. Set the rest background through `selectedTokens.rest`, not on

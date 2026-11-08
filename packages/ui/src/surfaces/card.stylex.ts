@@ -42,6 +42,10 @@ export const cardSurface = stylex.create({
         default: null,
         [pointer.canHover]: color.bgControlHover,
       },
+      ":active": {
+        default: color.bgControlPressed,
+        [pointer.canHover]: color.bgControlPressed,
+      },
     },
     outlineWidth: border.size_2,
     outlineStyle: "solid",

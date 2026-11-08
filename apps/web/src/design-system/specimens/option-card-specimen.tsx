@@ -7,8 +7,8 @@ import { space } from "@tuja/ui/tokens.stylex";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**
- * Two rows, the first chosen — the smallest arrangement in which the accent ring
- * and the filled dot read as a choice rather than as a lone card.
+ * Two rows, the first chosen — the smallest arrangement in which the selected
+ * edge and the filled dot read as a choice rather than as a lone card.
  *
  * A plain `role="radiogroup"` wrapper rather than `OptionCardGroup`, which is
  * controlled by contract and would need an `onChange` a server component cannot
@@ -42,6 +42,5 @@ export function OptionCardSpecimen() {
 const styles = stylex.create({
   card: {
     paddingBlock: space._1,
-    paddingInline: space._2,
   },
 });
