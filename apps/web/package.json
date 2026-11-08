@@ -49,7 +49,7 @@
     "@tuja/tmdb-types": "workspace:*",
     "@tuja/ui": "workspace:*",
     "@upstash/ratelimit": "^2.2.0",
-    "@upstash/redis": "^1.40.0",
+    "@upstash/redis": "^1.41.0",
     "ai": "^7.0.162",
     "next": "catalog:",
     "posthog-js": "^1.442.1",
