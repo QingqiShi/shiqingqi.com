@@ -39,14 +39,20 @@ function reducedMarkPose(shown: number): Styles {
  * selection reads without relying on colour (WCAG 1.4.1). The dot or tick
  * grows from the centre of the mark on the spring, and shrinks back
  * into it.
+ *
+ * With `fillGrows`, the ring does not follow the card's ARIA state: the fill
+ * grows in with the dot, so that the mark can wait for the plate of its
+ * group.
  * @internal
  */
 export function SelectionMark({
   role,
   selected,
+  fillGrows = false,
 }: {
   role: OptionCardRole;
   selected: boolean;
+  fillGrows?: boolean;
 }) {
   const shownRef = useRef<HTMLSpanElement>(null);
   const engine = useMotionEngine();
@@ -66,6 +72,8 @@ export function SelectionMark({
     shown.to(target, { reduced: REDUCED_FADE });
   }, [selected, shown]);
 
+  // The nested-corner rule: the card radius minus the 8px inset of the mark.
+  const outline = role === "radio" ? corner.radius_round : corner.radius_2;
   return (
     <span
       css={[
@@ -73,39 +81,57 @@ export function SelectionMark({
         shrink._0,
         transition.colors,
         markStyles.base,
-        // The nested-corner rule: the card radius minus the 8px inset of the
-        // mark.
-        role === "radio" ? corner.radius_round : corner.radius_2,
-        optionCardPart.mark,
+        outline,
+        fillGrows ? markStyles.ring : optionCardPart.mark,
       ]}
     >
-      {role === "radio" ? (
-        <span
-          ref={shownRef}
-          css={[corner.radius_round, markStyles.dot, optionCardPart.markShown]}
-        />
-      ) : (
-        <span
-          ref={shownRef}
+      <span
+        ref={shownRef}
+        css={[
+          flex.inlineCenter,
+          markStyles.shown,
+          outline,
+          fillGrows && markStyles.fill,
+          !selected && markStyles.hidden,
+        ]}
+      >
+        {role === "radio" ? (
+          <span css={[corner.radius_round, markStyles.dot]} />
+        ) : (
           // The caption size does not scale, as the mark does not. It makes
           // the tick three quarters of the mark.
-          css={[typeRole.caption, flex.inlineCenter, optionCardPart.markShown]}
-        >
-          <CheckIcon weight="bold" />
-        </span>
-      )}
+          <span css={[typeRole.caption, flex.inlineCenter]}>
+            <CheckIcon weight="bold" />
+          </span>
+        )}
+      </span>
     </span>
   );
 }
 
 const markStyles = stylex.create({
   base: {
+    position: "relative",
     boxSizing: "border-box",
     inlineSize: optionCardMark.size,
     blockSize: optionCardMark.size,
     borderWidth: border.size_1,
     borderStyle: "solid",
     color: color.bgSurface,
+  },
+  ring: {
+    borderColor: color.borderControl,
+  },
+  // It covers the ring, so that a fill can rise past it.
+  shown: {
+    position: "absolute",
+    inset: `calc(-1 * ${border.size_1})`,
+  },
+  fill: {
+    backgroundColor: color.fg,
+  },
+  hidden: {
+    transform: "scale(0)",
   },
   dot: {
     inlineSize: `calc(${optionCardMark.size} / 2)`,

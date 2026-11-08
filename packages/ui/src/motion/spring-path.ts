@@ -31,11 +31,19 @@ export function restingPath(value: number, velocity = 0): MotionPath {
   return { at: () => state, settleTime: 0, target: value };
 }
 
-/** Damping ratios this close to 1 take the critically damped solution. */
-const CRITICAL_BAND = 1e-4;
+/**
+ * Damping ratios this close to 1 take the critically damped solution.
+ *
+ * @internal
+ */
+export const CRITICAL_BAND = 1e-4;
 
-/** The displacement from the target, and the velocity, of a free spring. */
-function freeMotion(
+/**
+ * The displacement from the target, and the velocity, of a free spring.
+ *
+ * @internal
+ */
+export function freeMotion(
   omega: number,
   zeta: number,
   x0: number,

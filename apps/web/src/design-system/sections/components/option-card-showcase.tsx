@@ -105,8 +105,8 @@ export function OptionCardShowcase() {
         </Specimen>
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "The default. The group is a WAI-ARIA radiogroup, each card a radio, and the group needs a name of its own — one of aria-label or aria-labelledby is required at the type level, so an unnamed group cannot ship.",
-            zh: "这是默认形态。该组为 WAI-ARIA 单选组，每张卡片是一个单选项，并且整组必须有自己的名称——类型层面要求 aria-label 与 aria-labelledby 二选一，因此无名称的组根本无法交付。",
+            en: "The default. The group is a WAI-ARIA radiogroup, each card a radio, and the group needs a name of its own — one of aria-label or aria-labelledby is required at the type level, so an unnamed group cannot ship. The selected fill is one plate behind the cards: it springs to the new card as if behind windows, and the mark fills in when it arrives.",
+            zh: "这是默认形态。该组为 WAI-ARIA 单选组，每张卡片是一个单选项，并且整组必须有自己的名称——类型层面要求 aria-label 与 aria-labelledby 二选一，因此无名称的组根本无法交付。选中的填充是卡片后方的一整块底板：它像在一排窗户后面一样弹性移到新卡片，到位时标记随之填满。",
           })}
         </Text>
         <Text look="bodySmall" tone="muted">

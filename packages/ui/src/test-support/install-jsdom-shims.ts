@@ -77,6 +77,8 @@ function createMediaQueryList(query: string): MediaQueryList {
  *   its own, returning a minimal, always non-matching `MediaQueryList`.
  * - `Element.prototype.getAnimations`, which lists no animation, because
  *   jsdom runs none. A test defines it on an element to run one there.
+ * - `DOMMatrix`, defined only when missing, as the identity for any
+ *   transform, because jsdom has no layout that a transform could move.
  */
 export function installJsdomShims() {
   Element.prototype.checkVisibility = function checkVisibility(
@@ -98,5 +100,20 @@ export function installJsdomShims() {
 
   if (typeof window.matchMedia === "undefined") {
     window.matchMedia = createMediaQueryList;
+  }
+
+  if (typeof globalThis.DOMMatrix === "undefined") {
+    Object.defineProperty(globalThis, "DOMMatrix", {
+      configurable: true,
+      writable: true,
+      value: class IdentityMatrix {
+        a = 1;
+        b = 0;
+        c = 0;
+        d = 1;
+        e = 0;
+        f = 0;
+      },
+    });
   }
 }

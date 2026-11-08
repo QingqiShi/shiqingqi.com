@@ -109,12 +109,4 @@ export const optionCardPart = stylex.create({
       [stylex.when.ancestor(SELECTED, optionCardMarker)]: color.fg,
     },
   },
-  // Before the motion binds, this hides the dot or tick of a mark that is not
-  // selected, as in the server render.
-  markShown: {
-    transform: {
-      default: "scale(0)",
-      [stylex.when.ancestor(SELECTED, optionCardMarker)]: "none",
-    },
-  },
 });
