@@ -1,4 +1,4 @@
-`shiqingqi.com` is a pnpm monorepo: `apps/web` ships qingqi.dev, `apps/finance` ships Finance at finance.qingqi.dev, `apps/trip-planner` is a private trip reader, and `packages/*` are the `@tuja/*` internals. The design system is `@tuja/ui` in `packages/ui`.
+`shiqingqi.com` is a pnpm monorepo: `apps/web` ships qingqi.dev, `apps/finance` ships Finance at finance.qingqi.dev, `apps/buddy` ships Buddy (搭子), the owner's live Claude pet, at buddy.qingqi.dev, `apps/trip-planner` is a private trip reader, and `packages/*` are the `@tuja/*` internals. The design system is `@tuja/ui` in `packages/ui`.
 
 # Gotchas
 

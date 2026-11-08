@@ -46,6 +46,8 @@ apps/finance/.finance-outbox/
 
 # Assistant local dev database (PGlite data directory)
 apps/assistant/.assistant-db/
+apps/buddy/.buddy-db/
+apps/buddy/.buddy-outbox/
 
 # Generated i18n bundles
 **/src/_generated/i18n/

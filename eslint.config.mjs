@@ -369,6 +369,7 @@ export default defineConfig([
       "apps/web/src/**",
       "apps/finance/src/**",
       "apps/assistant/src/**",
+      "apps/buddy/src/**",
       "packages/ui/src/**",
     ],
     ignores: [
@@ -376,6 +377,7 @@ export default defineConfig([
       "apps/web/src/testing/**",
       "apps/finance/src/testing/**",
       "apps/assistant/src/testing/**",
+      "apps/buddy/src/testing/**",
       "packages/ui/src/test-setup.ts",
       "packages/ui/src/test-support/**",
     ],
@@ -412,6 +414,7 @@ export default defineConfig([
       "apps/web/src/**/*.{ts,tsx}",
       "apps/finance/src/**/*.{ts,tsx}",
       "apps/assistant/src/**/*.{ts,tsx}",
+      "apps/buddy/src/**/*.{ts,tsx}",
     ],
     ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],
     rules: {
@@ -591,6 +594,7 @@ export default defineConfig([
       "apps/web/src/**/*.stylex.ts",
       "apps/finance/src/**/*.stylex.ts",
       "apps/assistant/src/**/*.stylex.ts",
+      "apps/buddy/src/**/*.stylex.ts",
     ],
     rules: {
       "@tuja/only-stylex-exports": "error",
@@ -652,6 +656,7 @@ export default defineConfig([
       "apps/web/src/links/link.tsx",
       "apps/finance/src/links/link.tsx",
       "apps/assistant/src/links/link.tsx",
+      "apps/buddy/src/links/link.tsx",
     ],
     rules: {
       "no-restricted-imports": [

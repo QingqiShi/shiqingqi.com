@@ -2,5 +2,6 @@
 apps/web/.env.local
 apps/finance/.env.local
 apps/assistant/.env.local
+apps/buddy/.env.local
 apps/trip-planner/.env.local
 apps/web/.vercel/project.json
