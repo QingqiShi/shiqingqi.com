@@ -1,9 +1,10 @@
 import { d, std } from "typegpu";
 import { FLAG_SEE_THROUGH } from "./liquid-instance-value.ts";
 import type { Surface } from "./liquid-surface.ts";
+import { refractionOffset, TO_LIGHT } from "./refraction-offset.ts";
 import { targetLayout } from "./target-layout.ts";
 import { frameDir, type Liquid, type Track } from "./to-track-frame.ts";
-import { trackAt } from "./track-at.ts";
+import { seenAt } from "./track-at.ts";
 
 /** The body's dome: a spherical cap this high, as a share of the radius. */
 const DOME = 0.85;
@@ -37,8 +38,6 @@ const SHADE = 0.05;
  */
 const MELT_WIDTH = 0.6;
 
-/** @internal */
-export const TO_LIGHT = std.normalize(d.vec3f(-0.42, -0.66, 0.62));
 const TO_LIGHT_FLAT = std.normalize(TO_LIGHT.xy);
 const HALFWAY = std.normalize(TO_LIGHT.add(d.vec3f(0, 0, 1)));
 const GLEAM_HALFWAY = std.normalize(
@@ -73,14 +72,25 @@ const domeAt = (depth: number, radius: number, outward: d.v2f) => {
   const sinTheta = r / sphere;
   const cosTheta = std.sqrt(1 - sinTheta * sinTheta);
   const cosRim = std.sqrt(1 - (radius * radius) / (sphere * sphere));
-  const theta = std.asin(sinTheta);
-  const phi = std.asin(sinTheta / INDEX);
+  const normal = d.vec3f(outward.mul(sinTheta), cosTheta);
   return Dome({
-    normal: d.vec3f(outward.mul(sinTheta), cosTheta),
-    bend: outward.mul(-height * std.tan(theta - phi)),
+    normal,
+    bend: refractionOffset(normal, height, INDEX),
     height: height / top,
     rim: std.pow((1 - cosTheta) / (1 - cosRim), RIM_POWER),
   });
+};
+
+/**
+ * Where the light that leaves a point of the surface for the eye came
+ * through the track, from that point: the bend of the dome over it, in
+ * CSS px.
+ *
+ * @internal
+ */
+export const bendAt = (surface: Surface, radius: number) => {
+  "use gpu";
+  return domeAt(-surface.signedDistance, radius, surface.outward).bend;
 };
 
 /**
@@ -115,9 +125,9 @@ export const solidBody = (liquid: Liquid, distance: number, above: number) => {
 };
 
 /**
- * A drop of water over the track: the track as it shows through the dome,
- * lit by a thin rim, a highlight and a caustic, and solid as far as it has
- * set.
+ * A drop of water over the track: the track and its labels as they show
+ * through the dome, lit by a thin rim, a highlight and a caustic, and solid
+ * as far as it has set.
  */
 const lens = (
   liquid: Liquid,
@@ -141,7 +151,7 @@ const lens = (
   const band = (depth / radius - CAUSTIC_DEPTH) / CAUSTIC_WIDTH;
   // Water in front of the page does not darken it.
   const dry = (liquid.flags & FLAG_SEE_THROUGH) !== 0;
-  const behind = trackAt(liquid, track, page.add(dome.bend)).mul(
+  const behind = seenAt(liquid, track, page.add(dome.bend)).mul(
     std.select(WET, 1, dry) * (1 + away * std.exp(-band * band) * CAUSTIC),
   );
   let color = behind.mul(

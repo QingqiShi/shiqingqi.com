@@ -8,6 +8,7 @@ import {
   useState,
   type RefCallback,
 } from "react";
+import { EFFECT_OMIT } from "../effect-layer/effect-content.ts";
 import { boundedBounceSpring } from "../motion/bounded-bounce-spring.ts";
 import type { MotionEngine } from "../motion/create-motion-engine.ts";
 import {
@@ -359,8 +360,8 @@ export function usePlateGroup(value: string) {
 
 const HIDDEN: Styles = { transform: "none", opacity: "0" };
 
-// The card's pond bends the plate through an SVG filter on the card, and
-// WebKit does not draw the card while the plate moves on the compositor.
+// WebKit does not draw the cards of the group while the plate moves on the
+// compositor.
 const RENDERER = "frame";
 
 const CORNERS = [
@@ -452,7 +453,7 @@ function PlateBand({
  */
 export function PlateWindow({ plate }: { plate: PlateCard }) {
   return (
-    <span css={plateStyles.layer} aria-hidden>
+    <span css={plateStyles.layer} aria-hidden {...{ [EFFECT_OMIT]: "" }}>
       <PlateBand band="across" plate={plate} />
       <PlateBand band="down" plate={plate} />
       {CORNERS.map((corner) => (

@@ -4,6 +4,7 @@ import {
   type PointerEvent,
   type Ref,
 } from "react";
+import { EFFECT_CONTENT, EFFECT_OMIT } from "../effect-layer/effect-content.ts";
 import {
   LIQUID_INDICATOR,
   LIQUID_SEGMENT,
@@ -15,6 +16,7 @@ import { useMotionEngine } from "../motion/use-motion-engine.ts";
 import { createSegmentHover } from "./create-segment-hover.ts";
 import { DRAG_THRESHOLD, indexAt } from "./index-at.ts";
 import {
+  segmentMarker,
   segmentSurfaces,
   segmentTrack,
   segmentTrackMarker,
@@ -207,8 +209,12 @@ function useSegmentDrag(orientation: SegmentOrientation) {
   };
 }
 
-const INDICATOR = { "aria-hidden": "true", [LIQUID_INDICATOR]: "" } as const;
-const SEGMENT = { [LIQUID_SEGMENT]: "" };
+const INDICATOR = {
+  "aria-hidden": "true",
+  [LIQUID_INDICATOR]: "",
+  [EFFECT_OMIT]: "",
+} as const;
+const SEGMENT = { [LIQUID_SEGMENT]: "", [EFFECT_OMIT]: "surface" };
 
 /** @internal */
 export interface SegmentTrackOptions<T extends HTMLElement> {
@@ -248,9 +254,12 @@ export interface SegmentTrackOptions<T extends HTMLElement> {
  * A Segment track: the press, the drag, the indicator and the liquid
  * effect of a track of segments, shared by `SegmentedControl`, `TabBar` and
  * the rail of `TabView`. It writes the attributes that the liquid effect
- * reads. Spread `props` on the track with `css`, render the indicator with
+ * reads, and the ones that give the effect layer a snapshot of the
+ * segments, without the indicator, the hover fill and the segments' own
+ * surfaces. Spread `props` on the track with `css`, render the indicator with
  * `indicator` and `indicatorCss` as the first child of the track, and give
- * each segment `segment(index)` and `segmentCss(index)`. `shown` is the
+ * each segment `segment(index)` and `segmentCss(index)`, and each visible
+ * child of a segment `contentCss`. `shown` is the
  * segment that looks selected: the selected one, or while a press is on,
  * the one under the indicator. With `hoverSurface`, render a hover fill with
  * `hover` and `hoverCss` before the indicator.
@@ -290,6 +299,7 @@ export function useSegmentTrack<T extends HTMLElement>({
     shown,
     props: {
       ref: mergeRefs<T>(ref, effect === "liquid" ? liquidRef : undefined),
+      [EFFECT_CONTENT]: "",
       ...(vertical ? { [LIQUID_VERTICAL]: "" } : {}),
       onPointerDown: (event: PointerEvent<T>) => {
         handlers.onPointerDown?.(event);
@@ -349,13 +359,19 @@ export function useSegmentTrack<T extends HTMLElement>({
           : segmentTrack.at(inset.start, inset.end)),
       drag.index !== null && segmentTrack.dragged,
     ],
-    hover: { "aria-hidden": "true", ref: hover.ref } as const,
+    hover: {
+      "aria-hidden": "true",
+      [EFFECT_OMIT]: "",
+      ref: hover.ref,
+    } as const,
     hoverCss: segmentTrack.hover,
     segment: (_index: number) => SEGMENT,
     segmentCss: (index: number) => [
+      segmentMarker,
       hoverSurface && !isHoverDrawn && segmentTrack.hoverFill,
       drag.pressed !== null && segmentTrack.held,
       index === shown && segmentTrack.shown,
     ],
+    contentCss: segmentTrack.content,
   };
 }

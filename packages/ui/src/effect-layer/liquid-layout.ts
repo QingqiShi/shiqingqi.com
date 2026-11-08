@@ -65,6 +65,7 @@ export const LiquidInstance = d.struct({
   ringOff: d.vec4f,
   ringOn: d.vec4f,
   corner: d.vec2f,
+  owned: d.vec2f,
   leaving: d.vec3f,
 });
 

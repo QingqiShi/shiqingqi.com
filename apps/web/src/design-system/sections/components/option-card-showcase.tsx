@@ -111,8 +111,8 @@ export function OptionCardShowcase() {
         </Text>
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "A pressed card gives way under the finger, and rings run across it like water: its own content bends, and inside an EffectLayerProvider with WebGPU, light plays on the rings. With a key, the rings start at the mark. Under reduced motion the card stays still.",
-            zh: "按下的卡片会在指尖下微微下沉，涟漪像水一样漫过卡片：卡片自身的内容随之弯折；在带有 WebGPU 的 EffectLayerProvider 之内，涟漪上还会泛起光。用键盘选择时，涟漪从标记处开始。在减少动态效果的设置下，卡片保持静止。",
+            en: "A pressed card gives way under the finger. Inside an EffectLayerProvider with WebGPU, rings then run across it like water: its text bends under them, and light plays on them. With a key, the rings start at the mark. Under reduced motion the card stays still.",
+            zh: "按下的卡片会在指尖下微微下沉。在带有 WebGPU 的 EffectLayerProvider 之内，涟漪随后像水一样漫过卡片：文字在涟漪下弯折，涟漪上泛起光。用键盘选择时，涟漪从标记处开始。在减少动态效果的设置下，卡片保持静止。",
           })}
         </Text>
       </Showcase>

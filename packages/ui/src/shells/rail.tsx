@@ -101,13 +101,13 @@ function RailTrack({
                   a11y.focusRingInset,
                 )}
               >
-                <span css={styles.icon} aria-hidden>
+                <span css={[styles.icon, track.contentCss]} aria-hidden>
                   <item.icon weight={isShown ? "fill" : "bold"} />
                   {item.badge ? (
                     <span css={styles.badge}>{item.badge}</span>
                   ) : null}
                 </span>
-                <span css={styles.label}>{item.label}</span>
+                <span css={[styles.label, track.contentCss]}>{item.label}</span>
                 {item.status === undefined ? null : (
                   <>
                     {" "}

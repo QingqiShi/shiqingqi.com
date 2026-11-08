@@ -25,9 +25,7 @@ export interface PondView {
 }
 
 /**
- * The water that shows in this frame, or `null` before the first frame of
- * rings shows. Each call in one frame gives the same water, so that the bend
- * and the light on it show the same frame of rings.
+ * The water at the time of this frame, or `null` while no ring runs.
  *
  * @internal
  */
@@ -37,8 +35,8 @@ const runs = new Map<Element, ShowPond>();
 let wake = () => {};
 
 /**
- * The rings that run in each element, so that the effect layer can light
- * the water that bends the element.
+ * The rings that run in each element, so that the effect layer can bend
+ * the element's content through the water and light it.
  *
  * @internal
  */

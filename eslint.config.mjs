@@ -48,6 +48,7 @@ const effectLayerTypegpuModules = [
   "pond-shader",
   "ring-light-shader",
   "ripple-shader",
+  "content-at",
   "dust-page-position",
   "edge-point",
   "effect-clip",
@@ -57,6 +58,7 @@ const effectLayerTypegpuModules = [
   "liquid-surface",
   "lit-edge",
   "pcg",
+  "refraction-offset",
   "to-track-frame",
   "track-at",
 ];

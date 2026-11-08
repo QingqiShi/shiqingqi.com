@@ -14,6 +14,7 @@ import { createBinding } from "./create-binding.ts";
 import { createInstancedDraw } from "./create-instanced-draw.ts";
 import { createPackedBuffer } from "./create-packed-buffer.ts";
 import { createStorageBuffer } from "./create-storage-buffer.ts";
+import type { ContentMode } from "./effect-content.ts";
 import { roleBits } from "./effect-roles.ts";
 import { layoutLiquid, type LiquidState } from "./layout-liquid.ts";
 import {
@@ -24,7 +25,10 @@ import type {
   LiquidBead as LiquidBeadSchema,
   LiquidStep as LiquidStepSchema,
 } from "./liquid-layout.ts";
+import type { LiquidControl } from "./liquid-reader.ts";
 import { markEffectDrawn } from "./mark-effect-drawn.ts";
+import { ownedStops } from "./owned-stops.ts";
+import { segmentOf } from "./pill-at.ts";
 import type { LiquidBody } from "./resting-liquid.ts";
 import { dispatch } from "./set-bind-group.ts";
 import type { LiquidSnapshot } from "./step-liquid.ts";
@@ -72,6 +76,64 @@ function pointerFromLeft(
     : null;
 }
 
+/**
+ * How the liquid draws the content of an indicator's track, such as its
+ * labels: it covers the content where it can draw the track under it, on a
+ * track that is opaque, or that has no fill and shows the page. It cannot
+ * draw a translucent track such as Glass, so there it owns the content.
+ */
+const contentModeOf = ({ thumb, under }: LiquidControl): ContentMode | null =>
+  thumb ? null : under[3] === 0 || under[3] >= 0.99 ? "cover" : "own";
+
+/**
+ * How near the liquid comes to a segment, in rest radii, before it owns the
+ * segment's content. It reads its particles a frame or so late, and this
+ * covers how far they move in that time.
+ */
+const OWN_MARGIN = 1;
+
+const NO_CONTENT = { content: undefined, stops: null, owned: undefined };
+
+/**
+ * The content the liquid draws on `control` in `mode`, and the stops whose
+ * segments it owns, kept from `before`, with where they start and end along
+ * the track in CSS px from the origin, as `LiquidInstanceRecord` takes them.
+ */
+function liquidContent(
+  frame: EffectFrame,
+  record: EffectElementRecord,
+  control: LiquidControl,
+  mode: ContentMode | null,
+  extent: readonly [number, number],
+  before: readonly [number, number] | null,
+) {
+  if (mode === null) {
+    return NO_CONTENT;
+  }
+  if (mode === "cover") {
+    return frame.drawContent(record, mode)
+      ? { ...NO_CONTENT, content: mode }
+      : NO_CONTENT;
+  }
+  const { stops, radius, segments = [] } = control;
+  const kept = ownedStops(stops, extent, before, OWN_MARGIN);
+  if (
+    kept === null ||
+    !frame.drawContent(record, mode, segments.slice(kept[0], kept[1] + 1))
+  ) {
+    return NO_CONTENT;
+  }
+  const [first, last] = kept;
+  return {
+    content: mode,
+    stops: kept,
+    owned: [
+      segmentOf(stops[first])[0] * radius,
+      segmentOf(stops[last])[1] * radius,
+    ] as const,
+  };
+}
+
 /** A copy of the simulation buffer on its way back to the CPU. */
 interface Readback {
   readonly buffer: GPUBuffer;
@@ -96,6 +158,14 @@ interface Stepped {
  * its own only then. At rest it draws nothing over the control's own surface,
  * unless a pointer is over the control or presses it: then it draws a lit
  * edge. It asks for frames only while something moves.
+ *
+ * While it draws over the track of an indicator, the liquid shows the
+ * content of the track bent through the water, from its snapshot, as
+ * `contentModeOf` chooses: it covers the content of the page under the
+ * melted liquid, or on a translucent track it draws the content of each
+ * segment that the liquid comes near in place of the page's, until the
+ * liquid leaves it. Until the snapshot is ready, the content of the page
+ * shows through the liquid.
  *
  * The particles live on the GPU, in a slot of the simulation buffer for
  * each control, where a compute pass moves them each frame the liquid
@@ -251,6 +321,8 @@ export const liquidEffect: Effect = {
     }));
 
     const states = new Map<number, LiquidState>();
+    /** The stops whose segments each liquid owns the content of. */
+    const owning = new Map<number, readonly [number, number]>();
     const drawn = new Set<Element>();
     let instances: readonly LiquidInstanceRecord[] = [];
     let liquidElements: readonly Element[] = [];
@@ -302,7 +374,20 @@ export const liquidEffect: Effect = {
           }
           kept.add(id);
           states.set(id, laid.state);
-          nextInstances.push(laid.instance);
+          const { content, stops, owned } = liquidContent(
+            frame,
+            record,
+            control,
+            laid.drawn ? contentModeOf(control) : null,
+            laid.extent,
+            owning.get(id) ?? null,
+          );
+          if (stops === null) {
+            owning.delete(id);
+          } else {
+            owning.set(id, stops);
+          }
+          nextInstances.push({ ...laid.instance, content, owned });
           animating ||= laid.animating;
           fading ||= laid.fading;
           if (laid.seed) {
@@ -317,6 +402,7 @@ export const liquidEffect: Effect = {
           if (!kept.has(id)) {
             states.delete(id);
             latest.delete(id);
+            owning.delete(id);
             const slot = slots.get(id);
             if (slot !== undefined) {
               slots.delete(id);

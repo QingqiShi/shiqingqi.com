@@ -46,6 +46,9 @@ export const EffectPage = d.struct({
  *   ancestors takes the colour out of what it paints. Each effect passes
  *   what it draws for the element through `effectGrayscale`, so the effect
  *   is as grey as the element.
+ * - `content` is where the snapshot of the element's content is in
+ *   `effectContent`: left, top, width and height, as a share of the
+ *   texture, or zero when it has none. `contentAt` reads it.
  *
  * @internal
  */
@@ -59,6 +62,7 @@ export const EffectElement = d.struct({
   id: d.u32,
   scope: d.u32,
   grayscale: d.f32,
+  content: d.vec4f,
 });
 
 /**
@@ -82,8 +86,10 @@ export const EffectRange = d.vec2u;
 
 /**
  * Group 0 of every effect's pipelines, render or compute: the page this
- * frame, every registered element, every scope, and the elements of each
- * scope on each carrier, as `effectRange` reads them.
+ * frame, every registered element, every scope, the elements of each scope
+ * on each carrier, as `effectRange` reads them, and one texture that holds
+ * the snapshot of the content of each element that has one, with its
+ * sampler.
  *
  * @internal
  */
@@ -96,5 +102,7 @@ export const pageLayout = tgpu
     },
     effectScopes: { storage: d.arrayOf(EffectScope), visibility: ALL_STAGES },
     effectRanges: { storage: d.arrayOf(EffectRange), visibility: ALL_STAGES },
+    effectContent: { texture: d.texture2d(d.f32), visibility: ["fragment"] },
+    effectContentSampler: { sampler: "filtering", visibility: ["fragment"] },
   })
   .$idx(0);

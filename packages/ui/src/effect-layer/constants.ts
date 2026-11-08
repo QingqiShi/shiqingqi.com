@@ -12,6 +12,13 @@ export const GPU_BUFFER_USAGE = {
 } as const;
 
 /** @internal */
+export const GPU_TEXTURE_USAGE = {
+  COPY_DST: 0x02,
+  TEXTURE_BINDING: 0x04,
+  RENDER_ATTACHMENT: 0x10,
+} as const;
+
+/** @internal */
 export const GPU_SHADER_STAGE = {
   VERTEX: 0x1,
   FRAGMENT: 0x2,
@@ -33,3 +40,10 @@ export const PREMULTIPLIED_BLEND: GPUBlendState = {
   color: { srcFactor: "one", dstFactor: "one-minus-src-alpha" },
   alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha" },
 };
+
+/**
+ * The most device pixels for each CSS px that the effect layer draws at.
+ *
+ * @internal
+ */
+export const MAX_PIXEL_RATIO = 2;

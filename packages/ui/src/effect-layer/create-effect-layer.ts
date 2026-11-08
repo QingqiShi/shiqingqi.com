@@ -25,12 +25,13 @@ import {
 } from "../motion/prefers-reduced-motion.ts";
 import { carrierOf } from "./carrier-of.ts";
 import { bandGeometry } from "./compute-bands.ts";
-import { PREMULTIPLIED_BLEND } from "./constants.ts";
+import { MAX_PIXEL_RATIO, PREMULTIPLIED_BLEND } from "./constants.ts";
 import {
   createBindGroup,
   createBinding,
   type EffectBindGroup,
 } from "./create-binding.ts";
+import { createContentSnapshots } from "./create-content-snapshots.ts";
 import type { EffectRegistry } from "./create-effect-registry.ts";
 import { createFrameClock } from "./create-frame-clock.ts";
 import { createFrameScheduler } from "./create-frame-scheduler.ts";
@@ -72,7 +73,6 @@ import type {
   EffectSetup,
 } from "./types.ts";
 
-const MAX_PIXEL_RATIO = 2;
 const MAX_DELTA_SECONDS = 0.1;
 
 interface ConfiguredCanvas extends CarrierSurface {
@@ -134,11 +134,14 @@ export function createEffectLayer(
   const elementBuffer = createPackedBuffer(device, EffectElement);
   const scopeBuffer = createPackedBuffer(device, EffectScope);
   const rangeBuffer = createPackedBuffer(device, EffectRange);
+  const snapshots = createContentSnapshots(device, requestFrame);
   const pageBinding = createBinding(device, pageLayout, () => ({
     effectPage: pageUniform,
     effectElements: elementBuffer.buffer,
     effectScopes: scopeBuffer.buffer,
     effectRanges: rangeBuffer.buffer,
+    effectContent: snapshots.view(),
+    effectContentSampler: snapshots.sampler,
   }));
   let pageBackdrop: EffectColor | null = null;
   let canvasNeeds: readonly CanvasNeed[] | null = null;
@@ -349,8 +352,11 @@ export function createEffectLayer(
    * page's backdrop, changed since the last frame.
    */
   function writePage(plan: ScopePlan) {
+    snapshots.sync(plan.elements);
     const elementsChanged = elementBuffer.write(
-      plan.elements.map(effectElementValue),
+      plan.elements.map((record) =>
+        effectElementValue(record, snapshots.placeOf(record)),
+      ),
     );
     const scopesChanged = scopeBuffer.write(plan.scopes.map(effectScopeValue));
     const rangesChanged = rangeBuffer.write(effectRangeValues(plan.scopes));
@@ -491,6 +497,7 @@ export function createEffectLayer(
       pointer: pointer.read(scrollX, scrollY, now),
       pageBindGroup: pageBinding(),
       targets: passes.map(({ target }) => target),
+      drawContent: snapshots.draw,
     };
     pageUniform.write(
       effectPageValue({
@@ -516,6 +523,7 @@ export function createEffectLayer(
         wakeTime = Math.min(wakeTime, next);
       }
     }
+    snapshots.settle();
     frames.wake(startTime + wakeTime * 1000);
     // Report again after the updates. An effect can stop to hold a carrier
     // in this frame, and this frame can be the last one.
@@ -553,6 +561,7 @@ export function createEffectLayer(
     elementBuffer.destroy();
     scopeBuffer.destroy();
     rangeBuffer.destroy();
+    snapshots.destroy();
   }
 
   return { setCanvases, setEffects, destroy };

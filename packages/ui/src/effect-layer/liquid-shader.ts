@@ -10,12 +10,18 @@ import {
   instancedQuadIn,
   instancedQuadVarying,
 } from "./element-quad.ts";
-import { FLAG_COVER, FLAG_SEE_THROUGH } from "./liquid-instance-value.ts";
+import {
+  FLAG_COVER,
+  FLAG_COVERS_CONTENT,
+  FLAG_OWNS_CONTENT,
+  FLAG_SEE_THROUGH,
+} from "./liquid-instance-value.ts";
 import { LiquidInstance, liquidLayout } from "./liquid-layout.ts";
-import { liquidLens, solidAt, solidBody, TO_LIGHT } from "./liquid-lens.ts";
-import { liquidSurface } from "./liquid-surface.ts";
+import { bendAt, liquidLens, solidAt, solidBody } from "./liquid-lens.ts";
+import { liquidSurface, type LiquidSurface } from "./liquid-surface.ts";
 import { litEdge, over } from "./lit-edge.ts";
 import { pageLayout } from "./page-layout.ts";
+import { TO_LIGHT } from "./refraction-offset.ts";
 import { targetLayout } from "./target-layout.ts";
 import {
   frameDir,
@@ -25,7 +31,7 @@ import {
   type Liquid,
   type Track,
 } from "./to-track-frame.ts";
-import { coverAt, trackAt } from "./track-at.ts";
+import { coverAt, trackAt, trackContentAt } from "./track-at.ts";
 
 /**
  * The most of the page that the set part of a body in front of it covers,
@@ -84,14 +90,66 @@ const restShadow = (
   return 1 - (1 - ring) * (1 - near) * (1 - far);
 };
 
+/** How far the liquid's surface swells past its rest shape now, in CSS px. */
+const spreadOf = (liquid: Liquid) => {
+  "use gpu";
+  return liquid.spread * (1 - liquid.firm);
+};
+
 /**
- * The liquid over `under`, as much of it as `shown`, with as much of its
- * lit edge as `edgeLit`.
+ * How solid the body is at a point, from 0 where it is water to 1 where it
+ * has set. The solid part is the rest shape, so that the field's bumps do
+ * not show in it: about the rest place while the body is calm, and about
+ * the centre of the body's mass once it moves, so the melt moves with it.
+ */
+const solidOf = (liquid: Liquid, page: d.v2f, spread: number) => {
+  "use gpu";
+  const solidCentre = std.mix(
+    liquid.centre,
+    d.vec2f(liquid.restX, 0),
+    liquid.calm,
+  );
+  const toCentre = page.sub(liquid.origin.add(solidCentre));
+  const toCore = d.vec2f(
+    std.max(std.abs(toCentre.x) - liquid.span, 0),
+    toCentre.y,
+  );
+  const inward = std.saturate(
+    1 - std.length(toCore) / (liquid.radius + spread),
+  );
+  return solidAt(inward, liquid.firm);
+};
+
+/**
+ * The content of the track that the liquid owns, premultiplied: bent
+ * through the water, and plain where the body has set and outside it. It
+ * owns only the segments in `owned`, and the page draws the others.
+ */
+const ownedContent = (liquid: Liquid, page: d.v2f, found: LiquidSurface) => {
+  "use gpu";
+  const along = page.x - liquid.origin.x;
+  if (along < liquid.owned.x || along > liquid.owned.y) {
+    return d.vec4f(0);
+  }
+  const pixel = targetLayout.$.effectTarget.pixelScale.x;
+  const coverage = std.saturate(0.5 - found.surface.signedDistance * pixel);
+  let bend = d.vec2f(0);
+  if (coverage > 0) {
+    const water = 1 - solidOf(liquid, page, spreadOf(liquid));
+    bend = bendAt(found.surface, found.radius).mul(coverage * water);
+  }
+  return trackContentAt(liquid, page.add(bend));
+};
+
+/**
+ * The liquid over `under`, with its surface at this point in `found`, as
+ * much of it as `shown`, with as much of its lit edge as `edgeLit`.
  */
 const drawBody = (
   liquid: Liquid,
   track: Track,
   page: d.v2f,
+  found: LiquidSurface,
   under: d.v4f,
   shown: number,
   edgeLit: number,
@@ -103,8 +161,7 @@ const drawBody = (
   const melted = 1 - firm;
   let acc = d.vec4f(under);
 
-  const spread = liquid.spread * melted;
-  const found = liquidSurface(liquid, page, spread);
+  const spread = spreadOf(liquid);
   const surface = found.surface;
   const distance = surface.signedDistance;
 
@@ -124,24 +181,7 @@ const drawBody = (
     acc = over(d.vec4f(0, 0, 0, shadow), acc);
 
     if (coverage > 0) {
-      // The solid part is the rest shape, so that the field's bumps do not
-      // show in it: about the rest place while the body is calm, and about
-      // the centre of the body's mass once it moves, so the melt moves with
-      // it.
-      const solidCentre = std.mix(
-        liquid.centre,
-        d.vec2f(liquid.restX, 0),
-        liquid.calm,
-      );
-      const toCentre = page.sub(liquid.origin.add(solidCentre));
-      const toCore = d.vec2f(
-        std.max(std.abs(toCentre.x) - liquid.span, 0),
-        toCentre.y,
-      );
-      const inward = std.saturate(
-        1 - std.length(toCore) / (liquid.radius + spread),
-      );
-      const solid = solidAt(inward, firm);
+      const solid = solidOf(liquid, page, spread);
       let above = d.f32(0);
       if (solid > 0 && liquid.edge.w > 0) {
         above = liquidSurface(liquid, page.sub(pageUp(liquid)), spread).surface
@@ -187,6 +227,13 @@ const drawBody = (
           ),
           alpha,
         );
+        if ((liquid.flags & FLAG_COVERS_CONTENT) !== 0) {
+          // The melted liquid draws the content bent through it from its
+          // snapshot, so it covers the content of the page under it. As it
+          // sets, it goes back to the see-through surface above, which the
+          // control's own surface replaces at rest without a jump.
+          layer = std.mix(d.vec4f(body, 1), layer, solid);
+        }
       }
       acc = over(layer.mul(coverage * shown), acc);
     }
@@ -236,27 +283,53 @@ const liquidFragment = tgpu.fragmentFn({
   const onTrack = std.saturate(
     0.5 - (effectElementDistance(track, page) + std.max(inset, 0)) * pixel,
   );
-  if (onTrack <= 0) {
+  const owns = (liquid.flags & FLAG_OWNS_CONTENT) !== 0;
+  if (onTrack <= 0 && !owns) {
     return d.vec4f(0);
   }
-  const clip = onTrack * effectClip(track.scope, onPage);
+  const found = liquidSurface(liquid, page, spreadOf(liquid));
+  let content = d.vec4f(0);
+  if (owns) {
+    content = ownedContent(liquid, page, found);
+  }
 
   let acc = d.vec4f(0);
-  if ((liquid.flags & FLAG_COVER) !== 0) {
-    acc = d.vec4f(coverAt(liquid, track, page), 1).mul(liquid.body);
+  if (onTrack > 0) {
+    if ((liquid.flags & FLAG_COVER) !== 0) {
+      acc = d.vec4f(coverAt(liquid, track, page), 1).mul(liquid.body);
+    }
+    const fading = liquid.leaving.z;
+    if (fading > 0) {
+      const leaving = LiquidInstance(liquid);
+      leaving.restX = liquid.leaving.x;
+      leaving.centre = d.vec2f(liquid.leaving.x, 0);
+      leaving.span = liquid.leaving.y;
+      leaving.calm = 1;
+      leaving.beadCount = 0;
+      acc = drawBody(
+        leaving,
+        track,
+        page,
+        liquidSurface(leaving, page, spreadOf(leaving)),
+        acc,
+        fading,
+        liquid.edgeLit * fading,
+      );
+    }
+    acc = drawBody(
+      liquid,
+      track,
+      page,
+      found,
+      acc,
+      liquid.body,
+      liquid.edgeLit,
+    );
   }
-  const fading = liquid.leaving.z;
-  if (fading > 0) {
-    const leaving = LiquidInstance(liquid);
-    leaving.restX = liquid.leaving.x;
-    leaving.centre = d.vec2f(liquid.leaving.x, 0);
-    leaving.span = liquid.leaving.y;
-    leaving.calm = 1;
-    leaving.beadCount = 0;
-    acc = drawBody(leaving, track, page, acc, fading, liquid.edgeLit * fading);
-  }
-  acc = drawBody(liquid, track, page, acc, liquid.body, liquid.edgeLit);
-  return d.vec4f(effectGrayscale(acc.xyz, track.grayscale), acc.w).mul(clip);
+  acc = over(acc.mul(onTrack), content);
+  return d
+    .vec4f(effectGrayscale(acc.xyz, track.grayscale), acc.w)
+    .mul(effectClip(track.scope, onPage));
 });
 
 /**

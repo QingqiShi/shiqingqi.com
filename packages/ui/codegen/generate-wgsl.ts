@@ -269,28 +269,40 @@ function renderLayout(
     if (entry === null) {
       throw new Error(`${name}.${key}: an empty entry needs a binding.`);
     }
-    let type: string;
-    let stages: readonly ("compute" | "vertex" | "fragment")[];
+    const mutable = "storage" in entry && entry.access === "mutable";
+    const stages =
+      entry.visibility ?? (mutable ? MUTABLE_STAGES : READONLY_STAGES);
+    const bound =
+      "uniform" in entry || "storage" in entry
+        ? `{ buffer: resources.${key}.buffer }`
+        : `resources.${key}`;
+    let resource: string;
     if ("uniform" in entry) {
-      type = "uniform";
-      stages = entry.visibility ?? READONLY_STAGES;
+      resource = `buffer: { type: "uniform" }`;
     } else if ("storage" in entry) {
-      const mutable = entry.access === "mutable";
-      type = mutable ? "storage" : "read-only-storage";
-      stages = entry.visibility ?? (mutable ? MUTABLE_STAGES : READONLY_STAGES);
+      resource = `buffer: { type: ${JSON.stringify(mutable ? "storage" : "read-only-storage")} }`;
+    } else if ("texture" in entry) {
+      const { dimension, multisampled, bindingSampleType } = entry.texture;
+      resource = `texture: ${JSON.stringify({
+        sampleType: entry.sampleType ?? bindingSampleType[0],
+        viewDimension: dimension,
+        multisampled,
+      })}`;
+    } else if ("sampler" in entry) {
+      resource = `sampler: ${JSON.stringify({ type: entry.sampler })}`;
     } else {
-      throw new Error(`${name}.${key}: only a buffer can be an entry.`);
+      throw new Error(
+        `${name}.${key}: only a buffer, a sampled texture or a sampler can be an entry.`,
+      );
     }
     const visibility = Object.entries(STAGES)
       .filter(([stage]) => stages.some((given) => given === stage))
       .map(([, flag]) => `GPU_SHADER_STAGE.${flag}`)
       .join(" | ");
     entries.push(
-      `{ binding: ${String(binding)}, visibility: ${visibility}, buffer: { type: ${JSON.stringify(type)} } },`,
+      `{ binding: ${String(binding)}, visibility: ${visibility}, ${resource} },`,
     );
-    bindings.push(
-      `{ binding: ${String(binding)}, resource: { buffer: resources.${key}.buffer } },`,
-    );
+    bindings.push(`{ binding: ${String(binding)}, resource: ${bound} },`);
   }
   return [
     `export const ${name}: EffectLayout<(typeof ${source}.${name})["entries"]> = {`,

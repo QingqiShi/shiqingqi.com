@@ -22,21 +22,26 @@ const LIGHTING = {
 interface Shown {
   readonly elementIndex: number;
   readonly view: PondView;
+  readonly content: boolean;
   readonly lighting: (typeof LIGHTING)[keyof typeof LIGHTING];
 }
 
 const sameShown = (next: readonly Shown[], previous: readonly Shown[]) =>
   next.length === previous.length &&
   next.every(
-    ({ elementIndex, view, lighting }, index) =>
+    ({ elementIndex, view, content, lighting }, index) =>
       elementIndex === previous[index].elementIndex &&
       view === previous[index].view &&
+      content === previous[index].content &&
       lighting === previous[index].lighting,
   );
 
 /**
- * The effect behind `usePond`: the light on the water of each element whose
- * rings run, in the frame of rings that bends its content.
+ * The effect behind `usePond`: the water of each element whose rings run.
+ * It owns the element's content while the rings run, and draws it from the
+ * snapshot, bent through the water, with the light on the water over it.
+ * Until the snapshot is ready, it draws only the light, and the page draws
+ * the content flat.
  *
  * @internal
  */
@@ -67,6 +72,7 @@ export const pondEffect: Effect = {
             next.push({
               elementIndex: index,
               view,
+              content: frame.drawContent(record, "own"),
               lighting: isLightBackdrop(shownOver(record.fill, backdrop))
                 ? LIGHTING.light
                 : LIGHTING.dark,
@@ -75,9 +81,10 @@ export const pondEffect: Effect = {
         }
         if (!sameShown(next, shown)) {
           buffer.write(
-            next.map(({ elementIndex, view, lighting }) => ({
+            next.map(({ elementIndex, view, content, lighting }) => ({
               element: elementIndex,
               stoneCount: view.stones.length,
+              content: content ? 1 : 0,
               glint: lighting.glint,
               shade: lighting.shade,
               size: [view.width, view.height],

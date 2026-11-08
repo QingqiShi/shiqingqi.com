@@ -1,3 +1,4 @@
+import type { ContentMode } from "./effect-content.ts";
 import type { LiquidInstance } from "./liquid-layout.ts";
 import type { EffectInput } from "./types.ts";
 
@@ -13,6 +14,10 @@ export const FLAG_SEE_THROUGH = 2;
 export const FLAG_LIGHT_BODY = 4;
 /** @internal */
 export const FLAG_VERTICAL = 8;
+/** @internal */
+export const FLAG_COVERS_CONTENT = 16;
+/** @internal */
+export const FLAG_OWNS_CONTENT = 32;
 
 /**
  * A ring inside the edge of a track: its colour off and on, sRGB-encoded with
@@ -111,13 +116,30 @@ export interface LiquidInstanceRecord {
    * length, in CSS px, and how much of it the effect draws. None at 0.
    */
   readonly leaving: readonly [number, number, number];
+  /**
+   * How the liquid draws the content of the track, such as its labels, from
+   * its snapshot, or none: then the content of the page shows through the
+   * liquid. With `"cover"`, the melted liquid draws the track and its
+   * content bent through itself, and covers the content of the page under
+   * it. With `"own"`, it draws the content of the segments in `owned`, bent
+   * where the liquid is and plain elsewhere, under itself, in place of the
+   * page's.
+   */
+  readonly content?: ContentMode | undefined;
+  /**
+   * Where the segments whose content the liquid owns start and end along
+   * the track, in CSS px from the origin.
+   */
+  readonly owned?: readonly [number, number] | undefined;
 }
 
 const flagsOf = (liquid: LiquidInstanceRecord) =>
   (liquid.cover ? FLAG_COVER : 0) |
   (liquid.seeThrough ? FLAG_SEE_THROUGH : 0) |
   (liquid.lightBody ? FLAG_LIGHT_BODY : 0) |
-  (liquid.vertical === true ? FLAG_VERTICAL : 0);
+  (liquid.vertical === true ? FLAG_VERTICAL : 0) |
+  (liquid.content === "cover" ? FLAG_COVERS_CONTENT : 0) |
+  (liquid.content === "own" ? FLAG_OWNS_CONTENT : 0);
 
 /**
  * `liquids[index]` for one control's liquid.
@@ -160,6 +182,7 @@ export function liquidInstanceValue(
       liquid.corner === undefined
         ? [0, 0]
         : [liquid.corner.radius, liquid.corner.exponent],
+    owned: liquid.owned ?? [0, 0],
     leaving: liquid.leaving,
   };
 }

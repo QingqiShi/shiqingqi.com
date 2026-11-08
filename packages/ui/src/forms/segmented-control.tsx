@@ -275,11 +275,16 @@ export function SegmentedControl<TValue extends string>({
           ]}
         >
           {option.icon ? (
-            <span css={styles.icon} aria-hidden>
+            <span css={[styles.icon, track.contentCss]} aria-hidden>
               {option.icon}
             </span>
           ) : null}
-          <span css={hideLabels ? a11y.srOnly : [truncate.base, styles.label]}>
+          <span
+            css={[
+              hideLabels ? a11y.srOnly : [truncate.base, styles.label],
+              track.contentCss,
+            ]}
+          >
             {option.label}
           </span>
           {option.selectedIcon ? (
@@ -287,6 +292,7 @@ export function SegmentedControl<TValue extends string>({
               css={[
                 styles.selectedIconSpot,
                 option.value === value && styles.selectedIconSpotShown,
+                track.contentCss,
               ]}
               aria-hidden
             >
