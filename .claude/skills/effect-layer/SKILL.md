@@ -1,6 +1,6 @@
 ---
 name: effect-layer
-description: How elements join the @tuja/ui WebGPU effect layer. Consult before you add or move an effect hook (useRipple, useLiquid, useRingLight, useDust, useLightBeam, useBlackHole, useExtractorFan, useEffectBoundary, useEffectContainer, useEffectCover, useEffectSticky, useScrollRegion), before you make a fixed, sticky or scrolling surface that can hold controls with effects (Switch, SegmentedControl, TabView, Toast), and before you add a <canvas> element anywhere in packages/ui.
+description: How elements join the @tuja/ui WebGPU effect layer. Consult before you add or move an effect hook (useRipple, useLiquid, useRingLight, useDust, useLightBeam, useBlackHole, useExtractorFan, useEffectBoundary, useEffectContainer, useEffectCover, useEffectSticky, useScrollRegion), before you make a fixed, sticky or scrolling surface that can hold controls with effects (Switch, SegmentedControl, TabView, Toast), before an effect draws or bends the content of an element (data-effect-content, contentAt), and before you add a <canvas> element anywhere in packages/ui.
 ---
 
 # Effect layer
@@ -70,6 +70,52 @@ does not choose the `<canvas>` element.
   it again after each scroll, one frame late.
 - Each Scroll region with `<canvas>` elements holds two bands in memory.
   There is no limit on how many show at one time.
+
+## Give an effect the content
+
+An effect can draw the content of an element from a snapshot, bent through
+its own surface. The liquid bends the labels of a SegmentedControl, the
+TabView rail and the TabBar this way, and `usePond` bends the content of an
+OptionCard. Both read the content with `contentAt` and bend it with
+`refractionOffset`. Without WebGPU, nothing bends.
+
+- Put `data-effect-content` on the element that the effect hook registers.
+  The snapshot holds its children in their places, without the element's
+  own fill, border, shadow and outline: the surface under the content.
+- Put `data-effect-omit` on each part that the effect draws itself: with no
+  value for a part and all of its content, such as an indicator or a hover
+  fill, and with `"surface"` for a part whose own fill, border, shadow and
+  outline go but whose content stays, such as a segment.
+- Also put `data-effect-omit` with no value on each part that moves in each
+  frame while the effect draws, such as the selected fill of an OptionCard
+  or its selection mark. A snapshot takes some frames, so it cannot follow
+  that motion. The page draws such a part, and the effect does not bend it.
+- The effect chooses the mode. With `"cover"`, it can draw the surface under
+  the content, so it draws over the content of the page where it needs to.
+  With `"own"`, it cannot draw that surface, such as Glass, so it draws the
+  content of the parts that it names, or of the whole element, and each of
+  them has `data-effect-content-drawn` while it does. Hide the children of a
+  marked part then with `filter: opacity(0)`, and keep the part's own fill
+  and focus ring. The snapshot does not copy `filter`. Any other way to hide
+  the content hides it in the snapshot too.
+- The snapshot copies the computed styles of each element. It does not copy
+  pseudo-elements, `filter`, `background-image` or `box-shadow`, and it
+  shows each child without the child's own transform. It is in the px of the
+  element without the element's own transform, and the effect draws it in
+  the transformed box, so the element can move and scale, such as an
+  OptionCard that sinks under the finger.
+- In an effect, call `frame.drawContent(record, mode, parts)` in `update`
+  in each frame that it draws over the content. In `"own"` mode, name only
+  the parts that the effect reaches, such as the segments near the liquid,
+  so the page draws the others, and keep a part until the effect has left
+  it. It returns `false` while the element has no snapshot: then draw
+  nothing of the content. In the shader,
+  `contentAt(element, page)` reads the content at a page point. Read it at
+  the point plus the effect's own bend, such as `refractionOffset` of the
+  effect's surface.
+- The layer draws the snapshot again when the content, a stylesheet, a font
+  or the theme changes, and in each frame that an effect draws while a
+  transition in the content runs. Do not ask for a snapshot yourself.
 
 ## Why
 

@@ -1,4 +1,5 @@
 import { d, std, tgpu } from "typegpu";
+import { contentAt } from "./content-at.ts";
 import { effectClip } from "./effect-clip.ts";
 import { effectElementDistance } from "./effect-element-distance.ts";
 import {
@@ -7,10 +8,10 @@ import {
   instancedQuadIn,
   instancedQuadVarying,
 } from "./element-quad.ts";
-import { TO_LIGHT } from "./liquid-lens.ts";
 import { pageLayout } from "./page-layout.ts";
 import { pondLayout } from "./pond-layout.ts";
 import { POND, PROFILE_STEP } from "./pond.ts";
+import { TO_LIGHT, refractionOffset } from "./refraction-offset.ts";
 
 const MIN_ALPHA = 1 / 512;
 /**
@@ -62,12 +63,13 @@ const slopeAt = (instance: number, stone: number, distance: number) => {
 };
 
 /**
- * The light on the water of one instance at a pixel. The height of the
- * water is the sum of the rings of its stones, and so are its slope and its
- * curve. The slope tilts the surface: the slopes that face the light glint,
- * and the slopes that face away are in shade. The light is the liquid's, so
- * the water belongs with it. It fades out over the shore, as the bend does,
- * and nothing shows outside the element.
+ * The water of one instance at a pixel. The height of the water is the sum
+ * of the rings of its stones, and so are its slope and its curve. The slope
+ * tilts the surface: it bends the element's content under it, when the pond
+ * owns the content, and the slopes that face the light glint over it, and
+ * the slopes that face away are in shade. The light is the liquid's, so the
+ * water belongs with it. The tilt fades out over the shore, and nothing
+ * shows outside the element.
  */
 const pondFragment = tgpu.fragmentFn({
   in: instancedQuadVarying,
@@ -130,13 +132,22 @@ const pondFragment = tgpu.fragmentFn({
     pond.shade *
     std.saturate(-facing / SHADE_FULL) *
     std.exp(-steep * steep * SHADE_SPREAD);
-  let alpha = glint + shade * (1 - glint);
+  const light = glint + shade * (1 - glint);
+  let content = d.vec4f(0);
+  if (pond.content !== 0) {
+    content = contentAt(
+      pond.element,
+      page.add(refractionOffset(normal, d.f32(POND.depth), POND.index)),
+    );
+  }
+  const alpha = light + content.w * (1 - light);
   if (alpha < MIN_ALPHA) {
     return d.vec4f(0);
   }
   const clip = effectClip(element.scope, page);
-  alpha *= clip;
-  return d.vec4f(d.vec3f(glint * clip), alpha);
+  return d
+    .vec4f(content.xyz.mul(1 - light).add(d.vec3f(glint)), alpha)
+    .mul(clip);
 });
 
 /**

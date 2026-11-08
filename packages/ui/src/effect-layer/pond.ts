@@ -12,8 +12,8 @@ export const POND = {
   wavelength: 150,
   amplitude: 6.5,
   /**
-   * How deep the content lies under the surface. A tilted surface bends
-   * what lies under it by `depth * (1 - 1 / index)` times its slope.
+   * How deep the content lies under the surface, and the index of
+   * refraction of the water, for `refractionOffset`.
    */
   depth: 150,
   index: 1.33,
@@ -43,9 +43,6 @@ export const STONE_SLOTS = POND.stones + 1;
 
 /** How long the train of rings is: past this, its crests are gone. */
 const TRAIN = POND.wavelength * 2.5;
-
-/** @internal */
-export const POND_BEND = POND.depth * (1 - 1 / POND.index);
 
 /** @internal */
 export const PROFILE_STEP = 0.5;
@@ -96,16 +93,6 @@ export function pondEnd(x: number, y: number, width: number, height: number) {
 }
 
 /**
- * The distance from the touch point inside which the water is calm again at
- * `time`, because the train of rings has passed.
- *
- * @internal
- */
-export function calmWithin(time: number) {
-  return Math.max(0, POND.speed * time - TRAIN);
-}
-
-/**
  * The slope of the water at `time`, outward from the touch point, at each
  * `PROFILE_STEP` of distance from it, as far as the front: the radial
  * derivative of the height. Near the end of the pond, at `end`, the rings
@@ -132,19 +119,4 @@ export function slopeProfile(time: number, end: number) {
     behind = ahead;
   }
   return profile;
-}
-
-/**
- * The slope in `profile` at `distance`, between its entries.
- *
- * @internal
- */
-export function slopeAt(profile: Float32Array, distance: number) {
-  const place = distance / PROFILE_STEP;
-  const below = Math.floor(place);
-  if (below + 1 >= profile.length) return 0;
-  const share = place - below;
-  return (
-    (profile[below] ?? 0) * (1 - share) + (profile[below + 1] ?? 0) * share
-  );
 }

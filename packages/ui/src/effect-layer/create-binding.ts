@@ -10,7 +10,7 @@ type Sized<Schema> = Schema extends ((
   ? Array
   : Schema;
 
-type BufferFor<Entry> = Entry extends {
+type ResourceFor<Entry> = Entry extends {
   readonly uniform: infer Schema extends d.AnyWgslData;
 }
   ? EffectBuffer<Schema, "uniform">
@@ -18,15 +18,20 @@ type BufferFor<Entry> = Entry extends {
     ? Sized<Schema> extends infer Array extends d.AnyWgslData
       ? EffectBuffer<Array, "storage">
       : never
-    : never;
+    : Entry extends { readonly texture: unknown }
+      ? GPUTextureView
+      : Entry extends { readonly sampler: unknown }
+        ? GPUSampler
+        : never;
 
 /**
- * The buffer of each entry of a TypeGPU bind group layout with `Entries`.
+ * The resource of each entry of a TypeGPU bind group layout with `Entries`:
+ * a buffer, a texture view or a sampler.
  *
  * @internal
  */
 export type BindGroupInput<Entries> = {
-  readonly [Key in keyof Entries]: BufferFor<Entries[Key]>;
+  readonly [Key in keyof Entries]: ResourceFor<Entries[Key]>;
 };
 
 /**

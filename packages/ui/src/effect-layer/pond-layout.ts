@@ -5,8 +5,7 @@ import { EFFECT_GROUP } from "./target-layout.ts";
 /**
  * One stone in a pond: where it landed, in the element's own px, and the
  * first `count` entries of the slope of its rings, outward from `origin`,
- * at each `PROFILE_STEP` of distance: the same slope that bends the
- * element's content in the frame that shows.
+ * at each `PROFILE_STEP` of distance.
  *
  * @internal
  */
@@ -18,7 +17,8 @@ export const PondStone = d.struct({
 
 /**
  * One element whose water shows rings this frame: a quad over it, which
- * lights the water at each pixel inside it.
+ * draws the element's content bent through the water and lights the water
+ * at each pixel inside it.
  *
  * - `size` is the size of the element, in its own px, before a transform
  *   scales it.
@@ -26,12 +26,15 @@ export const PondStone = d.struct({
  *   `stoneCount` entries of `stones`.
  * - `glint` and `shade` are how much the slopes that face the light and
  *   face away from it show on the element's fill.
+ * - `content` is 1 while the pond owns the element's content, so it draws
+ *   it from the snapshot, and 0 while the page still draws it.
  *
  * @internal
  */
 export const PondInstance = d.struct({
   element: d.u32,
   stoneCount: d.u32,
+  content: d.u32,
   glint: d.f32,
   shade: d.f32,
   size: d.vec2f,

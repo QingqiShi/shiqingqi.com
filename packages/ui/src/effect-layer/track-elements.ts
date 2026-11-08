@@ -15,7 +15,7 @@ import {
   type RegionPlace,
   type ScrollRegionWatch,
 } from "./create-scroll-region.ts";
-import { EFFECT_DRAWN_ATTRIBUTE } from "./mark-effect-drawn.ts";
+import { EFFECT_MARKS } from "./effect-content.ts";
 import type { EffectColor } from "./parse-css-color.ts";
 import { readPageBackdrop } from "./plan-scopes.ts";
 import {
@@ -224,7 +224,7 @@ export function trackElements(
         );
       } else if (
         target instanceof Element &&
-        record.attributeName !== EFFECT_DRAWN_ATTRIBUTE
+        !EFFECT_MARKS.has(record.attributeName ?? "")
       ) {
         // The change can start a transition before an event tells about it.
         followWhere(target, ({ element }) => target.contains(element));

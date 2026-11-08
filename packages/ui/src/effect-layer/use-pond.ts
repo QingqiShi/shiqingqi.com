@@ -13,19 +13,18 @@ const POND_ROLE = roleBits(["pond"]);
  * stone where it lands, and a cancelled press calms the water. Rings travel
  * out from where each stone lands and fade out over the shore. The rings of
  * a new stone add to the rings that run already, as on water. Water is seen
- * through, so the rings show first as they bend the element's own content,
- * through a CSS filter that is on the element only while they run. The
- * effect layer lights the same water: the slopes that face the light glint,
- * and the slopes that face away are in shade. Outside an
- * `EffectLayerProvider`, or without WebGPU, the content still bends, with
- * no light. Under reduced motion nothing happens.
+ * through: the effect layer draws the element's content bent through the
+ * rings, from its content snapshot, and lights the same water, so that the
+ * slopes that face the light glint and the slopes that face away are in
+ * shade. Outside an `EffectLayerProvider`, without WebGPU, or under reduced
+ * motion, nothing shows.
  *
- * The element needs a box of its own, so not `display: contents`, and must
- * not have a `filter` of its own. While the rings run, it contains its paint,
- * so nothing in it may show outside its padding box. Nothing on it or in it
- * may move on the compositor, such as a Web Animation of a `transform` or an
- * `opacity`: WebKit does not draw an element with an SVG filter then. Bind a
- * motion on it or in it with `renderer: "frame"`.
+ * The element needs `data-effect-content`, and `data-effect-omit` on each
+ * part of its content that moves each frame, such as a fill that slides
+ * under it. While the rings run, the element has
+ * `data-effect-content-drawn`: then hide each other child with
+ * `filter: opacity(0)`, and keep the element's own fill, border and focus
+ * ring. The rings do not bend those, because they fade out over the shore.
  *
  * `pressDelay` is the time in seconds from a press to the first ring, for
  * an element that first gives way under the finger.
@@ -52,7 +51,6 @@ export function usePond({ pressDelay = 0 }: { pressDelay?: number } = {}) {
     pondRef.current = element;
     dropStone({
       element,
-      box,
       loop: engine.loop,
       x: ((clientX - box.left) * element.offsetWidth) / box.width,
       y: ((clientY - box.top) * element.offsetHeight) / box.height,

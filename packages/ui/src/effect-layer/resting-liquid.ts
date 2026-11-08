@@ -113,6 +113,14 @@ export const MAX_PARTICLE_COUNT = 225;
 export const KERNEL_REACH = 0.42;
 
 /**
+ * The reach of a particle in the drawn field, as a share of the rest
+ * radius: wider than the simulation's, so that the surface is smooth.
+ *
+ * @internal
+ */
+export const FIELD_REACH = KERNEL_REACH * 1.5;
+
+/**
  * The disk the particles fill at rest, inside the wall by one particle.
  *
  * @internal

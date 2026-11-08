@@ -38,13 +38,17 @@ export const POINTER_PRESENT = 1;
 /** @internal */
 export const POINTER_PRESSED = 2;
 
+const NO_CONTENT = [0, 0, 0, 0] as const;
+
 /**
- * `effectElements[index]` for an element of `EffectFrame.elements`.
+ * `effectElements[index]` for an element of `EffectFrame.elements`, with
+ * the place of the snapshot of its content, or none.
  *
  * @internal
  */
 export function effectElementValue(
   element: EffectElementRecord,
+  content: readonly [number, number, number, number] = NO_CONTENT,
 ): EffectInput<typeof EffectElement> {
   return {
     rect: [element.x, element.y, element.width, element.height],
@@ -56,6 +60,7 @@ export function effectElementValue(
     id: element.id,
     scope: element.scopeIndex,
     grayscale: element.grayscale,
+    content,
   };
 }
 

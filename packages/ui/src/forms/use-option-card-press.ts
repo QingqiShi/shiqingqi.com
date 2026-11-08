@@ -72,8 +72,8 @@ export function useOptionCardPress<T extends HTMLElement>({
     pose: pressPose,
     reducedPose: noPose,
     rest: "clear",
-    // The card's pond bends it through an SVG filter, and WebKit does not
-    // draw the card while it moves on the compositor.
+    // The pond draws the card's content in the place of the card that the
+    // effect layer measures. The card must move on the same frames.
     renderer: "frame",
   });
   const sinceKeyRef = useRef<AbortController | null>(null);

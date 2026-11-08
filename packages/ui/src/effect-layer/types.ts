@@ -3,6 +3,7 @@ import type { Band, ScissorRect } from "./compute-bands.ts";
 import type { EffectBindGroup } from "./create-binding.ts";
 import type { RegisteredRegion } from "./create-effect-registry.ts";
 import type { CarrierClock, MeasureContext } from "./create-element-tracker.ts";
+import type { ContentMode } from "./effect-content.ts";
 import type { LiquidControl } from "./liquid-reader.ts";
 import type { EffectColor } from "./parse-css-color.ts";
 import type { ElementBox } from "./read-element-box.ts";
@@ -281,6 +282,21 @@ export interface EffectFrame {
   readonly pageBindGroup: EffectBindGroup;
   /** Every pass of this frame. */
   readonly targets: readonly EffectTarget[];
+  /**
+   * Tells that the effect draws over the content of `element` in this
+   * frame, from the snapshot that `contentAt` reads, and whether it can:
+   * `false` while the element has no snapshot. Call it in `update`, in
+   * each frame that the effect draws over the content. While an effect
+   * draws, the snapshot follows each transition in the content. In
+   * `"own"` mode, each of `parts`, or the element when there are none, has
+   * `EFFECT_CONTENT_DRAWN` for this frame, so that it hides its own
+   * content, and the effect draws that content in its place.
+   */
+  readonly drawContent: (
+    element: EffectElementRecord,
+    mode: ContentMode,
+    parts?: readonly Element[],
+  ) => boolean;
 }
 
 /**

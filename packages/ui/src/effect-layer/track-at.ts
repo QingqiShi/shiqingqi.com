@@ -1,7 +1,9 @@
 import { d, std } from "typegpu";
+import { contentAt } from "./content-at.ts";
 import { effectElementDistance } from "./effect-element-distance.ts";
+import { FLAG_COVERS_CONTENT } from "./liquid-instance-value.ts";
 import { targetLayout } from "./target-layout.ts";
-import type { Liquid, Track } from "./to-track-frame.ts";
+import { toTrackFrame, type Liquid, type Track } from "./to-track-frame.ts";
 
 /**
  * How far the on fill rises ahead under the liquid along the track and
@@ -78,4 +80,31 @@ export const trackAt = (liquid: Liquid, track: Track, page: d.v2f) => {
     liquid.backdrop,
     std.smoothstep(0, 1, edge),
   );
+};
+
+/**
+ * The content of the track, such as its labels, at a point in the track's
+ * frame, from its snapshot.
+ *
+ * @internal
+ */
+export const trackContentAt = (liquid: Liquid, page: d.v2f) => {
+  "use gpu";
+  return contentAt(liquid.element, toTrackFrame(liquid, page));
+};
+
+/**
+ * The track at a point with its content over it, as the liquid shows it
+ * through itself where it covers the content, or else the track alone.
+ *
+ * @internal
+ */
+export const seenAt = (liquid: Liquid, track: Track, page: d.v2f) => {
+  "use gpu";
+  const fill = trackAt(liquid, track, page);
+  if ((liquid.flags & FLAG_COVERS_CONTENT) === 0) {
+    return fill;
+  }
+  const content = trackContentAt(liquid, page);
+  return fill.mul(1 - content.w).add(content.xyz);
 };

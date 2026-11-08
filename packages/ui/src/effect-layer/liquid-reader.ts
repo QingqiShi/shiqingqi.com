@@ -70,6 +70,11 @@ export interface LiquidControl {
    * Else it runs along it.
    */
   readonly vertical?: boolean;
+  /**
+   * The element of each stop, whose content the liquid can own, as
+   * `EffectFrame.drawContent` takes its parts. A Switch has none.
+   */
+  readonly segments?: readonly Element[];
 }
 
 /**
@@ -220,9 +225,8 @@ function readSegments(
   // mirrored over the diagonal, so the code below reads only the horizontal case.
   const frame = vertical ? turn : (rect: Box) => rect;
   const side = vertical ? TURNED_SIDES : SIDES;
-  const boxes = [...segmentsOf(element)].map((segment) =>
-    frame(rectOf(segment)),
-  );
+  const segments = [...segmentsOf(element)];
+  const boxes = segments.map((segment) => frame(rectOf(segment)));
   const first = boxes.at(0);
   const radius = (first?.height ?? 0) / 2;
   if (first === undefined || indicator === null || !(radius > 0)) {
@@ -286,6 +290,7 @@ function readSegments(
     edge: readEdge(look.boxShadow),
     spread: px(own[`padding${side.top}`]),
     vertical,
+    segments,
   };
 }
 

@@ -62,8 +62,8 @@ export function SelectionMark({
   useBinding(shownRef, shown, {
     pose: markPose,
     reducedPose: reducedMarkPose,
-    // The card's pond bends the mark through an SVG filter on the card, and
-    // WebKit does not draw the card while the mark moves on the compositor.
+    // WebKit does not draw the cards of a group while the mark moves on the
+    // compositor.
     renderer: "frame",
   });
   useLayoutEffect(() => {

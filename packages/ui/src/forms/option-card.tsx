@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { color } from "../color.stylex.ts";
+import { EFFECT_CONTENT, EFFECT_OMIT } from "../effect-layer/effect-content.ts";
 import { usePond } from "../effect-layer/use-pond.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { flex, grow, shrink } from "../primitives/flex.stylex.ts";
@@ -203,6 +204,7 @@ export function OptionCard({
       {...restProps}
       {...press.handlers}
       ref={mergeRefs(ref, cardRef, pond.ref, plate?.ref)}
+      {...{ [EFFECT_CONTENT]: "" }}
       type={type}
       role={role}
       disabled={disabled}
@@ -238,6 +240,7 @@ export function OptionCard({
             shrink._0,
             styles.icon,
             look === "row" && styles.titleLine,
+            styles.pondContent,
           ]}
           aria-hidden
         >
@@ -250,6 +253,7 @@ export function OptionCard({
           grow._1,
           styles.text,
           look === "tile" && styles.tileText,
+          styles.pondContent,
         ]}
       >
         <span
@@ -280,6 +284,10 @@ export function OptionCard({
             look === "row" ? styles.indicatorRow : styles.indicatorTile,
           ]}
           aria-hidden
+          // The mark animates when the selection changes, and a snapshot
+          // cannot follow that motion. Thus the page draws the mark, and
+          // the pond does not bend it.
+          {...{ [EFFECT_OMIT]: "" }}
         >
           {resolvedIndicator}
         </span>
@@ -298,6 +306,9 @@ const labelLineBox = `calc(${font.uiBodySmall} * ${font.lineHeightBody})`;
 const EQUAL = "[data-description-lines]";
 const ONE_LINE = "[data-description-lines='1']";
 const TWO_LINES = "[data-description-lines='2']";
+// The effect layer sets this attribute on the card while its pond draws the
+// content.
+const CONTENT_DRAWN_BY_POND = ":is([data-effect-content-drawn])";
 
 // The mark has two placements. A tile, and a row by default, put the mark in
 // the top-end corner: its centre is the centre of the card's corner arc. The
@@ -405,6 +416,15 @@ const styles = stylex.create({
       [stylex.when.ancestor(ONE_LINE, optionCardGroupMarker)]: labelLineBox,
       [stylex.when.ancestor(TWO_LINES, optionCardGroupMarker)]:
         `calc(2 * ${labelLineBox})`,
+    },
+  },
+  // The content snapshot does not copy `filter`, so the pond still draws
+  // the content that this hides.
+  pondContent: {
+    filter: {
+      default: null,
+      [stylex.when.ancestor(CONTENT_DRAWN_BY_POND, optionCardMarker)]:
+        "opacity(0)",
     },
   },
   indicator: {

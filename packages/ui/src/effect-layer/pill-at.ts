@@ -19,6 +19,16 @@ export function pillAt(stops: readonly Pill[], index: number): Pill {
 }
 
 /**
+ * Where the segment of the pill of `target` and `span` starts and ends along
+ * the track, in rest radii: one rest radius past the pill on each side.
+ *
+ * @internal
+ */
+export function segmentOf({ target, span }: Pill): readonly [number, number] {
+  return [target - span - 1, target + span + 1];
+}
+
+/**
  * Which way the liquid pours to `position` from `from`: an end stop always pours to that end.
  *
  * @internal

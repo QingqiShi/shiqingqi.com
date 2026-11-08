@@ -34,6 +34,14 @@ export const selectedSurface = stylex.defineVars({
 export const segmentTrackMarker = stylex.defineMarker();
 
 /**
+ * Marks each segment of a Segment track, so its content can hide while the
+ * effect layer draws it.
+ *
+ * @internal
+ */
+export const segmentMarker = stylex.defineMarker();
+
+/**
  * The selected surface of a Segment track: the fill and the edge that the
  * indicator paints, and that the shown segment paints where the indicator
  * cannot show.
@@ -50,6 +58,8 @@ const NO_ANCHOR_POSITIONING = "@supports not (anchor-name: --x)";
 /** The effect layer sets this attribute on the track while it draws the indicator. */
 const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
 const NOT_DRAWN_BY_EFFECT = ":not([data-effect-drawn] *)";
+/** The effect layer sets this attribute on a segment while it draws its content. */
+const CONTENT_DRAWN_BY_EFFECT = ":is([data-effect-content-drawn])";
 /** The motion engine sets this attribute on a box while it moves it. */
 const MOVED = ":is([data-moving])";
 
@@ -79,7 +89,9 @@ export const segmentSurfaces = stylex.create({
  * segment: `indicator` on the indicator, `shown` on the segment that looks
  * selected and `track` on the track, so only its own segments can be the
  * anchor. Where there is no anchor positioning, the indicator does not show,
- * so the shown segment paints the surface itself there. A track can also have
+ * so the shown segment paints the surface itself there. `content` goes on
+ * each child of a segment, so it hides while the effect draws it, and the
+ * segment keeps its own fill and focus ring. A track can also have
  * one hover fill under its indicator, on the motion of `createSegmentHover`:
  * `hover` on the fill, and `hoverFill` on each segment until the motion starts.
  *
@@ -192,6 +204,13 @@ export const segmentTrack = stylex.create({
     transition: {
       default: null,
       [stylex.when.ancestor(MOVED, movingMarker)]: "none",
+    },
+  },
+  content: {
+    filter: {
+      default: null,
+      [stylex.when.ancestor(CONTENT_DRAWN_BY_EFFECT, segmentMarker)]:
+        "opacity(0)",
     },
   },
   // On the segments while a press holds the indicator under the pointer, so

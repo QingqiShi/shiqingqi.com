@@ -3,14 +3,9 @@ import { effectElementDistance } from "./effect-element-distance.ts";
 import { liquidLayout } from "./liquid-layout.ts";
 import { NECK_REACH } from "./move-beads.ts";
 import { EffectElement, pageLayout } from "./page-layout.ts";
-import { KERNEL_REACH } from "./resting-liquid.ts";
+import { FIELD_REACH } from "./resting-liquid.ts";
 import type { Liquid } from "./to-track-frame.ts";
 
-/**
- * The reach of a particle in the drawn field, as a share of the rest
- * radius: wider than the simulation's, so that the surface is smooth.
- */
-const FIELD_REACH = KERNEL_REACH * 1.5;
 /**
  * The field's value on the surface: where the liquid at rest has the
  * thumb's radius, measured on the simulation's rest state.
@@ -31,8 +26,12 @@ export type Surface = d.Infer<typeof Surface>;
 /**
  * The liquid's surface, with the radius of the dome over it, which runs
  * from the body's to a bead's through the neck between them.
+ *
+ * @internal
  */
-const LiquidSurface = d.struct({ surface: Surface, radius: d.f32 });
+export const LiquidSurface = d.struct({ surface: Surface, radius: d.f32 });
+/** @internal */
+export type LiquidSurface = d.Infer<typeof LiquidSurface>;
 
 /**
  * The particles' field at a page point, with its gradient. The particles

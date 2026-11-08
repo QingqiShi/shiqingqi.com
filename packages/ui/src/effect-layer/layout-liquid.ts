@@ -12,12 +12,16 @@ import type {
   LiquidBead as LiquidBeadSchema,
   LiquidStep as LiquidStepSchema,
 } from "./liquid-layout.ts";
-import type { LiquidControl } from "./liquid-reader.ts";
-import { beadRadius } from "./move-beads.ts";
+import type { LiquidControl, Pill } from "./liquid-reader.ts";
+import { beadRadius, NECK_REACH } from "./move-beads.ts";
 import { paletteOf } from "./palette-of.ts";
 import type { EffectColor } from "./parse-css-color.ts";
-import { headingTo, leanTowards, pillAt } from "./pill-at.ts";
-import { restingLiquid, type LiquidBody } from "./resting-liquid.ts";
+import { headingTo, leanTowards, pillAt, segmentOf } from "./pill-at.ts";
+import {
+  FIELD_REACH,
+  restingLiquid,
+  type LiquidBody,
+} from "./resting-liquid.ts";
 import {
   NO_EDGE_LIGHT,
   stepEdgeLight,
@@ -129,6 +133,43 @@ function handAlpha(
 }
 
 /**
+ * How calm the drawn surface is before its rest shape can show where no
+ * particle is, as `LiquidInstanceRecord.calm` gives it. The surface is the
+ * field's until then, and the field is held to one radius outside the body.
+ */
+const HALF_CALM = 0.25;
+
+/**
+ * How far along the track `body` draws, in rest radii from the origin: its
+ * particles with the reach of their field, the rest shapes in `pills` that
+ * show, and its beads with the necks to them, each with `spread` round it.
+ */
+function extentOf(
+  body: LiquidBody,
+  pills: readonly Pill[],
+  spread: number,
+): readonly [number, number] {
+  let from = Number.POSITIVE_INFINITY;
+  let to = Number.NEGATIVE_INFINITY;
+  const reach = FIELD_REACH * body.scale + spread;
+  for (const x of body.x) {
+    from = Math.min(from, x - reach);
+    to = Math.max(to, x + reach);
+  }
+  for (const pill of pills) {
+    const [start, end] = segmentOf(pill);
+    from = Math.min(from, start - spread);
+    to = Math.max(to, end + spread);
+  }
+  for (const bead of body.beads) {
+    const around = beadRadius(bead) * (1 + NECK_REACH) + spread;
+    from = Math.min(from, bead.x - around);
+    to = Math.max(to, bead.x + around);
+  }
+  return [from, to];
+}
+
+/**
  * Steps one control's liquid and lays it out on the page. It rests in the
  * pill of the stop at `position`, or where a drag holds it, and there the
  * control draws its own solid surface. While a pointer is over the control
@@ -172,6 +213,11 @@ export function layoutLiquid(
   instance: LiquidInstanceRecord;
   /** The effect draws the surface, so the control hides its own. */
   drawn: boolean;
+  /**
+   * How far along the track the liquid draws, from its least x to its
+   * greatest, in rest radii from the origin.
+   */
+  extent: readonly [number, number];
   /** Something moves, so the next frame must follow. */
   animating: boolean;
   /** The step for the GPU to run on the body's slot this frame, or `null`. */
@@ -357,6 +403,7 @@ export function layoutLiquid(
   // A track with no fill of its own shows the page.
   const under = control.under[3] > 0 ? control.under : backdrop;
   const { solid, lightBody } = paletteOf(control, under);
+  const calm = body.calm * body.calm;
   return {
     state: {
       body,
@@ -378,6 +425,14 @@ export function layoutLiquid(
     seed,
     fading: fade !== null,
     drawn: active && handFrom === null,
+    extent: extentOf(
+      body,
+      [
+        ...(calm >= HALF_CALM ? [{ target, span }] : []),
+        ...(fade === null ? [] : [fade]),
+      ],
+      control.spread / radius,
+    ),
     animating:
       !body.settled ||
       rise.level !== riseGoal ||
@@ -393,7 +448,7 @@ export function layoutLiquid(
       // The drawn surface keeps the liquid's own shape for most of the
       // time the body takes to calm, and rounds into the rest shape at
       // the end.
-      calm: body.calm * body.calm,
+      calm,
       originX,
       originY,
       restX: target * radius,
