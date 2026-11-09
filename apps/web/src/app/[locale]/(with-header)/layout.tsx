@@ -5,7 +5,7 @@ import { SiteHeaderFooterLayout } from "#src/site-shell/site-header-footer-layou
 
 /**
  * Route group for the header-only surfaces — the tool pages (calculator,
- * sprite editor, and friends). They share the site's floating header controls
+ * playground, and friends). They share the site's floating header controls
  * but carry no footer, so they use SiteHeaderFooterLayout without a footer
  * slot. Content-and-footer surfaces (the home page and detail pages) and the
  * movie database, whose header controls sit on the wide page column, own their

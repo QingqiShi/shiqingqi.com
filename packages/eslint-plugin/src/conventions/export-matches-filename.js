@@ -2,8 +2,8 @@
  * ESLint rule: export-matches-filename
  *
  * A file is named after the thing it exports: `merge-refs.ts` exports
- * `mergeRefs`, `option-card.tsx` exports `OptionCard`, `featured-creatures.ts`
- * exports `FEATURED_CREATURES`. Both sides are normalised — every
+ * `mergeRefs`, `option-card.tsx` exports `OptionCard`, `design-system-paths.ts`
+ * exports `DESIGN_SYSTEM_PATHS`. Both sides are normalised — every
  * non-alphanumeric character is stripped and the rest is lowercased — so the
  * case convention of the export is free.
  *

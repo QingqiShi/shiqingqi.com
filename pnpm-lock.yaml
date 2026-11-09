@@ -866,9 +866,6 @@ importers:
       '@tuja/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@upstash/ratelimit':
-        specifier: ^2.2.0
-        version: 2.2.0(@upstash/redis@1.40.0)
       '@upstash/redis':
         specifier: ^1.40.0
         version: 1.40.0

@@ -1,10 +1,9 @@
 import { CalculatorIcon } from "@phosphor-icons/react/dist/ssr/Calculator";
 import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
-import { GhostIcon } from "@phosphor-icons/react/dist/ssr/Ghost";
 import { GraduationCapIcon } from "@phosphor-icons/react/dist/ssr/GraduationCap";
-import { GridFourIcon } from "@phosphor-icons/react/dist/ssr/GridFour";
 import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
 import { PiggyBankIcon } from "@phosphor-icons/react/dist/ssr/PiggyBank";
+import { PlantIcon } from "@phosphor-icons/react/dist/ssr/Plant";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
@@ -21,6 +20,7 @@ import CitadelLogo from "#src/brand/citadel-logo.tsx";
 import NottinghamLogo from "#src/brand/nottingham-logo.tsx";
 import SpotifyLogo from "#src/brand/spotify-logo.tsx";
 import WtcLogo from "#src/brand/wtc-logo.tsx";
+import { BUDDY_ORIGIN } from "#src/buddy-origin.mjs";
 import { FINANCE_ORIGIN } from "#src/finance-origin.mjs";
 import { EducationCard } from "#src/portfolio/education-card.tsx";
 import { ExperienceCard } from "#src/portfolio/experience-card.tsx";
@@ -80,26 +80,14 @@ export default async function Home(props: PageProps) {
               scroll
             />
             <ProjectCard
-              icon={GhostIcon}
-              href={getLocalePath("/pixel-creature-creator", locale)}
-              css={[styles.card, styles.pixelCreatureCreator]}
-              name={t({ en: "Pixel Creature Creator", zh: "像素生物创造器" })}
+              icon={PlantIcon}
+              href={`${BUDDY_ORIGIN}${getLocalePath("/", locale)}`}
+              css={[styles.card, styles.buddy]}
+              name={t({ en: "Buddy", zh: "搭子" })}
               description={t({
-                en: "Build a tiny pixel creature, name it, and conjure its lore.",
-                zh: "搭建一个小像素生物，给它取名，并召唤它的传说。",
+                en: "Your Claude pet, live on your phone: a little sprout that grows as you code.",
+                zh: "你的 Claude 宠物，在手机上实时看：一棵随你写代码长大的小苗。",
               })}
-              scroll
-            />
-            <ProjectCard
-              icon={GridFourIcon}
-              href={getLocalePath("/sprite-editor", locale)}
-              css={[styles.card, styles.spriteEditor]}
-              name={t({ en: "Sprite Editor", zh: "像素编辑器" })}
-              description={t({
-                en: "Slice sprite sheets, clean up pixels, and assemble animation frames.",
-                zh: "切分精灵表、清理像素并组装动画帧。",
-              })}
-              scroll
             />
             <ProjectCard
               icon={PiggyBankIcon}
@@ -297,13 +285,10 @@ const styles = stylex.create({
   studentLoan: {
     [projectCardTokens.brand]: brand.studentLoan,
   },
-  pixelCreatureCreator: {
-    [projectCardTokens.brand]: brand.pixelCreatureCreator,
+  buddy: {
+    [projectCardTokens.brand]: brand.buddy,
   },
   finance: {
     [projectCardTokens.brand]: brand.finance,
-  },
-  spriteEditor: {
-    [projectCardTokens.brand]: brand.pixelCreatureCreator,
   },
 });
