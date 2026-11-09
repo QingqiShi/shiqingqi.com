@@ -11,10 +11,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/hooks",
-    description: t({
-      en: "Headless React hooks — controlled state, dialog focus, anchored popover placement, tactile press, and roving-tabindex radiogroups — for controls you build yourself.",
-      zh: "无头 React Hook——受控状态、对话框焦点、锚定弹出层定位、触感按压与 roving-tabindex 单选组——用于你自己构建的控件。",
-    }),
   });
 }
 

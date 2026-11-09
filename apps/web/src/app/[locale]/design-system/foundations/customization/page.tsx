@@ -18,10 +18,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/foundations/customization",
-    description: t({
-      en: "Three ways to change a @tuja/ui component, from a prop to your own element, in the order to try them.",
-      zh: "改变 @tuja/ui 组件的三种方式，从一个 prop 到你自己的元素，按应当尝试的顺序排列。",
-    }),
   });
 }
 

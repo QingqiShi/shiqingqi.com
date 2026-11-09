@@ -1,4 +1,3 @@
-import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
@@ -11,10 +10,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/components/select",
-    description: t({
-      en: "A labelled wrapper around a native select with a themed chevron, config-layer options, a placeholder, and an error state.",
-      zh: "对原生 select 的带标签封装，配有主题化下拉箭头、配置式选项、占位提示与错误状态。",
-    }),
   });
 }
 

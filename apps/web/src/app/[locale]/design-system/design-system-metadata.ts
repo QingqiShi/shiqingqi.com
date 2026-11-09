@@ -2,6 +2,7 @@ import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import type { Metadata } from "next";
 import { BASE_URL } from "#src/constants.ts";
+import { getDesignSystemRouteDescriptions } from "#src/design-system/route-copy/get-design-system-route-descriptions.ts";
 import { getDesignSystemRouteLabel } from "#src/design-system/route-copy/get-design-system-route-label.ts";
 import type {
   DesignSystemPath,
@@ -16,9 +17,9 @@ import type {
  * route's registered name, and composes against the layout's
  * `%s | Design System | Qingqi Shi` template.
  *
- * Passing an optional localised `description` enriches the entry with a meta
- * description plus matching Open Graph and Twitter cards. Callers that omit it
- * keep the prior title-and-alternates-only output unchanged.
+ * The documentation view also takes the route's registered description, with
+ * matching Open Graph and Twitter cards, so the overview tile and the meta
+ * description cannot drift apart.
  */
 export function designSystemMetadata(options: {
   locale: SupportedLocale;
@@ -28,9 +29,10 @@ export function designSystemMetadata(options: {
   view?: DesignSystemView;
   /** Overrides the route's registered name, which the Lab appends its own word to. */
   title?: string;
-  description?: string;
 }): Metadata {
-  const { locale, path, view = "docs", description } = options;
+  const { locale, path, view = "docs" } = options;
+  const description =
+    view === "docs" ? getDesignSystemRouteDescriptions()[path] : undefined;
   const title = options.title ?? getDesignSystemRouteLabel(path);
   const viewPath = view === "lab" ? `${path}/lab` : path;
   const url = (forLocale: SupportedLocale) =>

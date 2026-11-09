@@ -41,10 +41,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/foundations/principles",
-    description: t({
-      en: "Restraint, clarity, space, harmony, inclusion and delight: the principles behind every token and component in the system.",
-      zh: "克制、清晰、空间感、和谐、包容与愉悦：系统中每个令牌和组件背后的原则。",
-    }),
   });
 }
 

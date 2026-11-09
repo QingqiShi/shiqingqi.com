@@ -12,10 +12,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/foundations/accessibility",
-    description: t({
-      en: "How the components work with a keyboard, touch and a screen reader, and what you supply or add yourself.",
-      zh: "组件如何配合键盘、触摸与读屏软件，以及哪些部分需要你提供或自行补上。",
-    }),
   });
 }
 

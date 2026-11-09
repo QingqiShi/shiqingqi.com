@@ -11,10 +11,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/foundations/motion",
-    description: t({
-      en: "Animate your own elements to match the components: one spring with a mass for each role, the CSS presets and easing.spring, the motion engine, and reduced motion.",
-      zh: "让你自己的元素与组件动得一致：一个弹簧与各角色的质量、CSS 预设与 easing.spring、动效引擎，以及减弱动效。",
-    }),
   });
 }
 

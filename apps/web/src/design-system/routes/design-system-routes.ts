@@ -8,6 +8,15 @@
  * (`app/[locale]/design-system/page.tsx` and `overview-browser.tsx`), and the
  * sitemap (`app/sitemap.ts`).
  *
+ * To add a page: add its entry here, its name to
+ * `get-design-system-route-labels.ts`, its one sentence to
+ * `get-design-system-route-descriptions.ts` (the overview tile, the link cards
+ * and the page's meta description all read it), its art to
+ * `tile-illustrations/` for a Foundations or Components route, and its
+ * `page.tsx`, which passes the same path to `designSystemMetadata` and
+ * `DocPage`. Those maps are total over `DesignSystemPath`, so a missed step or
+ * a misspelled path fails to compile.
+ *
  * Localized names live in `../route-copy/`, not here. The i18n `t()` transform
  * compiles to a React hook (`useI18nTranslations`) inside client files and to a
  * `server-only` lookup (`__i18n_lookup`) inside server files, so a module that

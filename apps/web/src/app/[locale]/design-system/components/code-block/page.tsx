@@ -1,4 +1,3 @@
-import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
@@ -11,10 +10,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/components/code-block",
-    description: t({
-      en: "The syntax-highlighted code component: coloured runs grouped into parts, each a box of its own, so a documentation page's usage sample and the Lab's live snippet share one component.",
-      zh: "带语法高亮的代码组件：将彩色片段按 part 分组，每个 part 各占一格，因此文档页面的用法示例与 Lab 的实时代码片段共用同一个组件。",
-    }),
   });
 }
 
