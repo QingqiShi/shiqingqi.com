@@ -1,4 +1,5 @@
 import { and, eq, inArray, isNotNull, sql } from "drizzle-orm";
+import type { CalendarDeps } from "#src/assistant/agent/calendar/run-calendars.ts";
 import { todos } from "#src/assistant/db/schema.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
 import { changeDueDates } from "./change-due-dates.ts";
@@ -6,7 +7,10 @@ import { changeWaiting, restoreWaiting } from "./change-waiting.ts";
 import {
   closeTodos,
   deleteTodos,
+  freeSlotsOf,
   notDeleted,
+  orCloseFailure,
+  type CloseFailure,
   rejectTodos,
   reopenTodos,
   restoreTodos,
@@ -65,58 +69,64 @@ function fieldsOwnerSets(change: OwnerTodoChange) {
   return PLAIN_FIELDS.filter((field) => change[field] !== undefined);
 }
 
-/** Changes a to-do of the owner's, or says why it did not. */
-async function changeTodo(
+/**
+ * Changes a to-do of the owner's, or says why it did not. A close also frees its
+ * slot, and gives the ids whose event it deleted.
+ */
+function changeTodo(
   scope: UserScope,
+  calendar: CalendarDeps | null,
   todoId: string,
   change: OwnerTodoChange,
   now: Date,
-): Promise<TodoRefusal | null> {
+): Promise<TodoRefusal | CloseFailure | { freed: string[] }> {
   const { done, ...edit } = change;
   const fields = fieldsOwnerSets(change);
-  return scope.db.transaction(async (tx) => {
-    const row = (
+  return orCloseFailure(
+    scope.db.transaction(async (tx) => {
+      const row = (
+        await tx
+          .select({ dueDate: todos.dueDate, startDate: todos.startDate })
+          .from(todos)
+          .where(liveTodo(scope, todoId))
+          .for("update")
+      ).at(0);
+      if (!row) return "not-found";
+      const { startDate = row.startDate, dueDate = row.dueDate } = edit;
+      if (!datesInOrder({ startDate, dueDate })) return "start-after-due";
+      const freed =
+        done === true
+          ? await freeSlotsOf(tx, scope.userId, calendar, [todoId], now)
+          : [];
       await tx
-        .select({ dueDate: todos.dueDate, startDate: todos.startDate })
-        .from(todos)
-        .where(liveTodo(scope, todoId))
-        .for("update")
-    ).at(0);
-    if (!row) return "not-found";
-    const { startDate = row.startDate, dueDate = row.dueDate } = edit;
-    if (!datesInOrder({ startDate, dueDate })) return "start-after-due";
-    await tx
-      .update(todos)
-      .set({
-        ...edit,
-        ...(fields.length > 0
-          ? { ownerEditedFields: withOwnerFields(fields) }
-          : {}),
-        ...(done === true
-          ? {
-              doneAt: sql`coalesce(${todos.doneAt}, ${now.toISOString()}::timestamptz)`,
-            }
-          : {}),
-        ...(done === false ? { doneAt: null, doneReason: null } : {}),
-        updatedAt: now,
-      })
-      .where(liveTodo(scope, todoId));
-    return null;
-  });
+        .update(todos)
+        .set({
+          ...edit,
+          ...(fields.length > 0
+            ? { ownerEditedFields: withOwnerFields(fields) }
+            : {}),
+          ...(done === true
+            ? {
+                doneAt: sql`coalesce(${todos.doneAt}, ${now.toISOString()}::timestamptz)`,
+              }
+            : {}),
+          ...(done === false ? { doneAt: null, doneReason: null } : {}),
+          updatedAt: now,
+        })
+        .where(liveTodo(scope, todoId));
+      return { freed };
+    }),
+  );
 }
 
-/** Hides a to-do of the owner's. False when the user has no such to-do. */
-async function deleteTodo(
+/** Hides a to-do of the owner's and frees its slot. False when the user has no such to-do. */
+function deleteTodo(
   scope: UserScope,
+  calendar: CalendarDeps | null,
   todoId: string,
   now: Date,
-): Promise<boolean> {
-  const deleted = await scope.db
-    .update(todos)
-    .set({ deletedAt: now, updatedAt: now })
-    .where(liveTodo(scope, todoId))
-    .returning({ id: todos.id });
-  return deleted.length > 0;
+) {
+  return deleteTodos(scope, calendar, [todoId], now);
 }
 
 /** Brings a deleted to-do back. False when the user has no such deleted to-do. */

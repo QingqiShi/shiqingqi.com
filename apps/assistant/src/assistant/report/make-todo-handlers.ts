@@ -9,14 +9,11 @@ import {
   guardRequest,
   type RequestGuardDependencies,
 } from "#src/assistant/http/guard-request.ts";
+import type { CloseFailure } from "./close-todos.ts";
 import { datesInOrder } from "./dates-in-order.ts";
 import { ownerChecklist } from "./owner-checklist.ts";
 import { ownerTodos, type TodoRefusal } from "./owner-todos.ts";
-import {
-  freeSlotsOfClosedTodos,
-  todoCalendarSlots,
-  type SlotRefusal,
-} from "./todo-calendar-slots.ts";
+import { todoCalendarSlots, type SlotRefusal } from "./todo-calendar-slots.ts";
 import { todoLimits } from "./todo-limits.ts";
 
 const title = z.string().trim().min(1).max(todoLimits.titleChars);
@@ -147,10 +144,22 @@ const invalidBody = () =>
   assistantJson({ error: "invalid-body" }, { status: 400 });
 const notFound = () => assistantJson({ error: "not-found" }, { status: 404 });
 const saved = (found: boolean) => (found ? assistantNoContent() : notFound());
-const refused = (refusal: TodoRefusal) =>
-  refusal === "not-found"
-    ? notFound()
-    : assistantJson({ error: refusal }, { status: 409 });
+const refused = (refusal: TodoRefusal | CloseFailure) => {
+  if (refusal === "not-found") return notFound();
+  return assistantJson(
+    { error: refusal },
+    { status: refusal === "calendar-unreachable" ? 502 : 409 },
+  );
+};
+
+/** The answer to a close or a delete: the to-dos whose event it deleted, for an undo. */
+const closedAnswer = (
+  freed: readonly string[],
+  body: Record<string, unknown> = {},
+) =>
+  freed.length === 0 && Object.keys(body).length === 0
+    ? assistantNoContent()
+    : assistantJson(freed.length === 0 ? body : { ...body, freed });
 
 const refusedSlot = (refusal: SlotRefusal) => {
   if (refusal === "not-found") return notFound();
@@ -197,15 +206,6 @@ export function makeTodoHandlers(
         isTodoId(todoId) ? saved(await write(scope, todoId, now)) : notFound(),
       );
 
-  /** The answer to a write that can end a to-do: what became of the time it held, when it held any. */
-  const calendarAnswer = (
-    calendar: readonly unknown[],
-    body: Record<string, unknown> = {},
-  ) =>
-    calendar.length === 0 && Object.keys(body).length === 0
-      ? assistantNoContent()
-      : assistantJson(calendar.length === 0 ? body : { ...body, calendar });
-
   return {
     add: (request: Request) =>
       withSession(request, async (scope, now) => {
@@ -222,15 +222,16 @@ export function makeTodoHandlers(
         const body = await readBody(request, changeBody);
         if (!body.success) return invalidBody();
         if (!isTodoId(todoId)) return notFound();
-        const refusal = await ownerTodos.change(scope, todoId, body.data, now);
-        if (refusal) return refused(refusal);
-        return body.data.done === true
-          ? calendarAnswer(
-              await freeSlotsOfClosedTodos(scope, deps.getCalendarDeps(), now, [
-                todoId,
-              ]),
-            )
-          : assistantNoContent();
+        const changed = await ownerTodos.change(
+          scope,
+          deps.getCalendarDeps(),
+          todoId,
+          body.data,
+          now,
+        );
+        return typeof changed === "string"
+          ? refused(changed)
+          : closedAnswer(changed.freed);
       }),
 
     /** Makes a to-do wait, changes its wait or ends it, and answers with what it was. Or puts that back. */
@@ -261,12 +262,16 @@ export function makeTodoHandlers(
     delete: (request: Request, todoId: string) =>
       withSession(request, async (scope, now) => {
         if (!isTodoId(todoId)) return notFound();
-        if (!(await ownerTodos.delete(scope, todoId, now))) return notFound();
-        return calendarAnswer(
-          await freeSlotsOfClosedTodos(scope, deps.getCalendarDeps(), now, [
-            todoId,
-          ]),
+        const deleted = await ownerTodos.delete(
+          scope,
+          deps.getCalendarDeps(),
+          todoId,
+          now,
         );
+        if (deleted === false) return notFound();
+        return typeof deleted === "string"
+          ? refused(deleted)
+          : closedAnswer(deleted.freed);
       }),
 
     restore: onTodo(ownerTodos.restore),
@@ -296,33 +301,31 @@ export function makeTodoHandlers(
         const { data } = body;
         switch (data.action) {
           case "done": {
-            const closed = await ownerTodos.closeMany(scope, data.ids, now);
-            return closed === false
-              ? notFound()
-              : calendarAnswer(
-                  await freeSlotsOfClosedTodos(
-                    scope,
-                    deps.getCalendarDeps(),
-                    now,
-                    closed,
-                  ),
-                  { closed },
-                );
+            const closed = await ownerTodos.closeMany(
+              scope,
+              deps.getCalendarDeps(),
+              data.ids,
+              now,
+            );
+            if (closed === false) return notFound();
+            return typeof closed === "string"
+              ? refused(closed)
+              : closedAnswer(closed.freed, { closed: closed.closed });
           }
           case "reopen":
             return saved(await ownerTodos.reopenMany(scope, data.ids, now));
-          case "delete":
-            if (!(await ownerTodos.deleteMany(scope, data.ids, now))) {
-              return notFound();
-            }
-            return calendarAnswer(
-              await freeSlotsOfClosedTodos(
-                scope,
-                deps.getCalendarDeps(),
-                now,
-                data.ids,
-              ),
+          case "delete": {
+            const deleted = await ownerTodos.deleteMany(
+              scope,
+              deps.getCalendarDeps(),
+              data.ids,
+              now,
             );
+            if (deleted === false) return notFound();
+            return typeof deleted === "string"
+              ? refused(deleted)
+              : closedAnswer(deleted.freed);
+          }
           case "restore":
             return saved(await ownerTodos.restoreMany(scope, data.ids, now));
           case "reject":

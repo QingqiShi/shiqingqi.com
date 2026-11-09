@@ -1,4 +1,4 @@
-import { and, eq, gt, inArray, isNotNull, isNull, ne, or } from "drizzle-orm";
+import { and, eq, isNull, ne } from "drizzle-orm";
 import {
   RunCalendars,
   type CalendarDeps,
@@ -22,17 +22,14 @@ import type { UserScope } from "#src/assistant/db/types.ts";
 import { ownTodo } from "./own-todo.ts";
 import { readReportSettings } from "./read-report-settings.ts";
 
-/** The longest that one owner's action waits for the calendar. The to-do's own change is stored by then. */
-const CALENDAR_TIMEOUT_MS = 20_000;
+/** The longest that one owner's action waits for the calendar. */
+export const CALENDAR_TIMEOUT_MS = 20_000;
 
 /** A time that the owner sets aside. */
 export interface SlotTime {
   start: Date;
   end: Date;
 }
-
-/** What became of the event of a to-do that is over. */
-export type SlotOutcome = "freed" | "changed" | "unreachable";
 
 /** Why a write of a slot did not happen. The to-do stays as it was, and only `gone` takes its slot away. */
 export type SlotRefusal =
@@ -59,7 +56,7 @@ const slotColumns = {
 };
 
 /** The columns of a to-do that holds no time. */
-const NO_SLOT = {
+export const NO_SLOT = {
   calendarAccountId: null,
   calendarUrl: null,
   calendarHref: null,
@@ -335,7 +332,7 @@ async function moveSlot(
  * Deletes the event only when it is as the app left it. A session deletes with
  * no condition when it gets no etag, so a row with no etag counts as changed.
  */
-async function deleteIfUnchanged(
+export async function deleteIfUnchanged(
   session: CalendarSession,
   href: string,
   etag: string | null,
@@ -345,6 +342,7 @@ async function deleteIfUnchanged(
     await session.deleteEvent(href, etag);
     return "freed";
   } catch (error) {
+    if (isStatus(error, 404)) return "freed";
     if (!isStatus(error, 412)) throw error;
     return (await session.getEvent(href)) ? "changed" : "freed";
   }
@@ -407,62 +405,6 @@ async function adoptSlot(
       );
     return null;
   });
-}
-
-type SlotRow = NonNullable<Awaited<ReturnType<typeof readSlot>>>;
-
-/**
- * Takes these to-dos' events off the calendar, each with the etag the app knows.
- * An event that changed is the owner's now: it stays, and the to-do lets it go.
- * This never throws, because the to-do's own change is stored already. A row
- * with no answer keeps its slot, and `freeSlotsOfClosedTodos` tries it again.
- */
-async function freeEvents(
-  scope: UserScope,
-  deps: Deps,
-  rows: readonly SlotRow[],
-): Promise<{ id: string; outcome: SlotOutcome }[]> {
-  if (rows.length === 0) return [];
-  const outcomes = new Map<string, SlotOutcome>();
-  await reach(async () => {
-    const { sessions } = await openCalendars(scope, deps);
-    for (const { id, accountId, href, etag } of rows) {
-      const session = accountId ? sessions.get(accountId) : undefined;
-      if (!session || !href) continue;
-      outcomes.set(id, await deleteIfUnchanged(session, href, etag));
-      await clearSlot(scope, id, href);
-    }
-  });
-  return rows.map(({ id }) => ({
-    id,
-    outcome: outcomes.get(id) ?? "unreachable",
-  }));
-}
-
-/**
- * Frees the time that closed and deleted to-dos still hold in the future. A slot
- * that has begun stays as a record of the time spent. Only rows with such a slot
- * need a login. With `todoIds`, it looks at those to-dos only.
- */
-export async function freeSlotsOfClosedTodos(
-  scope: UserScope,
-  deps: Deps,
-  now: Date,
-  todoIds?: readonly string[],
-) {
-  const rows = await scope.db
-    .select(slotColumns)
-    .from(todos)
-    .where(
-      and(
-        eq(todos.userId, scope.userId),
-        isNotNull(todos.calendarAccountId),
-        gt(todos.calendarStart, now),
-        or(isNotNull(todos.doneAt), isNotNull(todos.deletedAt)),
-        todoIds ? inArray(todos.id, [...todoIds]) : undefined,
-      ),
-    );
-  return freeEvents(scope, deps, rows);
 }
 
 /** True when the owner can put a to-do on a calendar. */

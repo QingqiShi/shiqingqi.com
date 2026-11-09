@@ -273,11 +273,6 @@ export const todos = pgTable(
       .on(t.userId, t.createdAt)
       .where(sql`${t.doneAt} is null`),
     index("todos_report_idx").on(t.createdReportId),
-    index("todos_calendar_over_idx")
-      .on(t.userId, t.calendarStart)
-      .where(
-        sql`${t.calendarAccountId} is not null and (${t.doneAt} is not null or ${t.deletedAt} is not null)`,
-      ),
     check("todos_start_not_after_due", sql`${t.startDate} <= ${t.dueDate}`),
     check(
       "todos_calendar_slot_whole",

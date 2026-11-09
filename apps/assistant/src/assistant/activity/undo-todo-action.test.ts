@@ -97,6 +97,7 @@ async function applyChanges(changes: Partial<TodoChanges>) {
       runId: run.id,
       now: NOW,
       changes: { ...NO_CHANGES, ...changes },
+      calendar: null,
     }),
   );
   return run.id;
@@ -151,7 +152,13 @@ describe("undo of an add", () => {
   it("leaves a to-do that the owner has made their own", async () => {
     const added = newTodo("Sign the form");
     const runId = await applyChanges({ added: [added] });
-    await ownerTodos.change(scope, added.id, { dueDate: "2026-11-09" }, NOW);
+    await ownerTodos.change(
+      scope,
+      null,
+      added.id,
+      { dueDate: "2026-11-09" },
+      NOW,
+    );
 
     expect((await undo(runId))?.at(0)).toMatchObject({
       undone: false,
@@ -190,7 +197,7 @@ describe("undo of an add", () => {
   it("keeps the owner's delete as the owner's", async () => {
     const added = newTodo("Sign the form");
     const runId = await applyChanges({ added: [added] });
-    await ownerTodos.delete(scope, added.id, NOW);
+    await ownerTodos.delete(scope, null, added.id, NOW);
 
     await undo(runId);
 
@@ -224,7 +231,13 @@ describe("undo of an update", () => {
     const runId = await applyChanges({
       updated: [{ id: todo.id, edit, reason: "It moved." }],
     });
-    await ownerTodos.change(scope, todo.id, { dueDate: "2026-11-05" }, NOW);
+    await ownerTodos.change(
+      scope,
+      null,
+      todo.id,
+      { dueDate: "2026-11-05" },
+      NOW,
+    );
 
     await undo(runId);
 
@@ -259,7 +272,13 @@ describe("undo of an update", () => {
         { id: todo.id, edit: { dueDate: "2026-11-10" }, reason: "It moved." },
       ],
     });
-    await ownerTodos.change(scope, todo.id, { startDate: "2026-11-08" }, NOW);
+    await ownerTodos.change(
+      scope,
+      null,
+      todo.id,
+      { startDate: "2026-11-08" },
+      NOW,
+    );
 
     expect((await undo(runId))?.at(0)).toMatchObject({
       refusal: "todo-changed",
@@ -303,8 +322,8 @@ describe("undo of a completion", () => {
     const runId = await applyChanges({
       done: [{ ...done(todo.id) }],
     });
-    await ownerTodos.change(scope, todo.id, { done: false }, NOW);
-    await ownerTodos.change(scope, todo.id, { done: true }, LATER);
+    await ownerTodos.change(scope, null, todo.id, { done: false }, NOW);
+    await ownerTodos.change(scope, null, todo.id, { done: true }, LATER);
 
     expect((await undo(runId))?.at(0)).toMatchObject({
       undone: false,

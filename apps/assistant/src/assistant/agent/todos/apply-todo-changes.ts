@@ -1,10 +1,16 @@
 import { and, eq, inArray, isNull, lt, or } from "drizzle-orm";
+import type { CalendarDeps } from "#src/assistant/agent/calendar/run-calendars.ts";
 import {
   agentActions,
   todos,
   type TodoActionKind,
 } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
+import {
+  freeSlotsOf,
+  orCloseFailure,
+  type CloseFailure,
+} from "#src/assistant/report/close-todos.ts";
 import { datesInOrder } from "#src/assistant/report/dates-in-order.ts";
 import { ownTodo } from "#src/assistant/report/own-todo.ts";
 import {
@@ -44,16 +50,18 @@ function waitOf(row: {
  * row is read again under a lock, so a field that the owner set during the run
  * stays as the owner set it, and dates that no longer fit the owner's stay as they
  * are. A wait that the owner began during the run does not end by a mail from
- * before it.
+ * before it. A close also frees the to-do's slot. When that fails, that one
+ * to-do stays open and the rest of the changes go on; the result names it.
  */
 export async function applyTodoChanges(
-  tx: Pick<AssistantDb, "insert" | "select" | "update">,
+  tx: AssistantDb,
   {
     userId,
     reportId,
     runId,
     now,
     changes,
+    calendar,
   }: {
     userId: string;
     reportId: string;
@@ -61,8 +69,10 @@ export async function applyTodoChanges(
     runId: string;
     now: Date;
     changes: TodoChanges;
+    calendar: CalendarDeps | null;
   },
-) {
+): Promise<{ keptOpen: { id: string; failure: CloseFailure }[] }> {
+  const keptOpen: { id: string; failure: CloseFailure }[] = [];
   const actions: {
     kind: TodoActionKind;
     reason: string;
@@ -229,22 +239,39 @@ export async function applyTodoChanges(
     });
   }
   for (const { id, reason, mailAt } of changes.done) {
-    const closed = await tx
-      .update(todos)
-      .set({ ...NOT_WAITING, doneAt: now, doneReason: reason, updatedAt: now })
-      .where(
-        and(
-          stillOpen,
-          eq(todos.id, id),
-          mailAt === undefined
-            ? isNull(todos.waitingSince)
-            : or(
-                isNull(todos.waitingSince),
-                lt(todos.waitingSince, new Date(mailAt)),
-              ),
-        ),
-      )
-      .returning({ title: todos.title });
+    const closed = await orCloseFailure(
+      tx.transaction(async (savepoint) => {
+        const rows = await savepoint
+          .update(todos)
+          .set({
+            ...NOT_WAITING,
+            doneAt: now,
+            doneReason: reason,
+            updatedAt: now,
+          })
+          .where(
+            and(
+              stillOpen,
+              eq(todos.id, id),
+              mailAt === undefined
+                ? isNull(todos.waitingSince)
+                : or(
+                    isNull(todos.waitingSince),
+                    lt(todos.waitingSince, new Date(mailAt)),
+                  ),
+            ),
+          )
+          .returning({ title: todos.title });
+        if (rows.length > 0) {
+          await freeSlotsOf(savepoint, userId, calendar, [id], now);
+        }
+        return rows;
+      }),
+    );
+    if (typeof closed === "string") {
+      keptOpen.push({ id, failure: closed });
+      continue;
+    }
     for (const row of closed) {
       const before = stored.get(id);
       actions.push({
@@ -271,4 +298,5 @@ export async function applyTodoChanges(
       })),
     );
   }
+  return { keptOpen };
 }

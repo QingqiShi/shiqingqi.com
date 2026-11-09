@@ -1,3 +1,5 @@
+import type { CloseFailure } from "./close-todos.ts";
+
 /** The mail a line or a to-do came from: enough to open it in the owner's mail app, nothing of its content. */
 export interface MailSource {
   accountId: string;
@@ -87,6 +89,8 @@ export interface MorningReportContentV2 {
   unreadMailboxes: { accountId: string; address: string }[];
   /** Open to-dos the agent closed because the mail shows they are done. */
   doneTodos: { id: string; title: string; reason: string }[];
+  /** To-dos the agent closed that stay open, because their slot on the calendar could not be freed. Older reports do not have this. */
+  keptOpenTodos?: { id: string; title: string; failure: CloseFailure }[];
   /** Open to-dos the agent made wait. Older reports do not have this. */
   waitingTodoIds?: string[];
   /** To-dos the agent moved back to open because the reply came. Older reports do not have this. */

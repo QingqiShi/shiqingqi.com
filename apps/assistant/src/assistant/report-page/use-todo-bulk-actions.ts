@@ -109,6 +109,7 @@ export function useTodoBulkActions({
       let closed: readonly string[] = [];
       const release = slotRelease(
         rows.filter((row) => ids.includes(row.id) && isOpen(row)),
+        "close",
       );
       const closedToast: WordedToast = {
         message: copy.doneMany.replace("{count}", String(closing.length)),
@@ -124,15 +125,19 @@ export function useTodoBulkActions({
           },
         },
       };
-      run(inOrder(closing.map((id) => closeRow(id, doneAt))), async () => {
-        const response = await sendBulk({
-          action: "done",
-          ids: closing,
-        });
-        const body = (await response.clone().json()) as { closed: string[] };
-        closed = body.closed;
-        await release.tell(response, closedToast);
-      });
+      run(
+        inOrder(closing.map((id) => closeRow(id, doneAt))),
+        async () => {
+          const response = await sendBulk({
+            action: "done",
+            ids: closing,
+          });
+          const body = (await response.clone().json()) as { closed: string[] };
+          closed = body.closed;
+          await release.tell(response, closedToast);
+        },
+        release.refusalToast,
+      );
       showToast(closedToast);
     },
     removeMany: (ids) => {
@@ -141,7 +146,10 @@ export function useTodoBulkActions({
       );
       if (removing.length === 0) return;
       const removedIds = removing.map(({ row }) => row.id);
-      const release = slotRelease(removing.map(({ row }) => row));
+      const release = slotRelease(
+        removing.map(({ row }) => row),
+        "delete",
+      );
       const deletedToast = showDeleted(
         removing.map(({ row }) => row),
         copy.deletedMany.replace("{count}", String(removing.length)),
@@ -169,6 +177,7 @@ export function useTodoBulkActions({
           });
           await release.tell(response, deletedToast);
         },
+        release.refusalToast,
       );
     },
     moveMany: (ids, dueDate) => {

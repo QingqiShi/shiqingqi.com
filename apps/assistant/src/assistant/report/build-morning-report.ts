@@ -365,13 +365,37 @@ export async function buildMorningReport(
       ).at(0);
       if (!row) return null;
       if (agent && changes) {
-        await applyTodoChanges(tx, {
+        const { keptOpen } = await applyTodoChanges(tx, {
           userId,
           reportId: row.id,
           runId: agent.run.runId,
           now: builtAt,
           changes,
+          calendar: {
+            calendarConnector: deps.calendarConnector,
+            auth: deps.mail.auth,
+          },
         });
+        if (keptOpen.length > 0) {
+          const failureOf = new Map(
+            keptOpen.map(({ id, failure }) => [id, failure]),
+          );
+          await tx
+            .update(morningReports)
+            .set({
+              content: {
+                ...content,
+                doneTodos: content.doneTodos.filter(
+                  ({ id }) => !failureOf.has(id),
+                ),
+                keptOpenTodos: content.doneTodos.flatMap(({ id, title }) => {
+                  const failure = failureOf.get(id);
+                  return failure ? [{ id, title, failure }] : [];
+                }),
+              },
+            })
+            .where(eq(morningReports.id, row.id));
+        }
       }
       return row;
     });

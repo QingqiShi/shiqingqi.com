@@ -1,0 +1,1 @@
+DROP INDEX "todos_calendar_over_idx";
