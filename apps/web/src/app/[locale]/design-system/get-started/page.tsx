@@ -20,10 +20,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/get-started",
-    description: t({
-      en: "What @tuja/ui is, how it is organised, and where to go for what you want.",
-      zh: "@tuja/ui 是什么、如何组织，以及想要什么该去哪里。",
-    }),
   });
 }
 

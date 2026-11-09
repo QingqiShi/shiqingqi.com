@@ -1,4 +1,3 @@
-import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
@@ -11,10 +10,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/components/scroll-mask",
-    description: t({
-      en: "The progressive blur at the edge of a scroll region: content blurs on its way out of view rather than stopping at a line. Vertical or horizontal, with the radius and the depth set per region.",
-      zh: "滚动区域边缘的渐进虚化：内容在移出视野时逐渐虚化，而不是在一条线上戛然而止。支持纵向与横向，虚化半径与深度按区域设定。",
-    }),
   });
 }
 

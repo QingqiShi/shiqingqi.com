@@ -1,4 +1,3 @@
-import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
@@ -11,10 +10,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/components/checkbox",
-    description: t({
-      en: "A labelled checkbox built on a native input, with a tri-state indeterminate dash, description, and inline error.",
-      zh: "基于原生 input 的带标签复选框，支持三态的中间横线状态、说明文字与内联错误提示。",
-    }),
   });
 }
 

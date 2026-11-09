@@ -11,10 +11,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/primitives",
-    description: t({
-      en: "Composable StyleX primitives — flex, layout, motion, reset, and accessibility — for building your own element when no component fits.",
-      zh: "可组合的 StyleX 原语——flex、布局、动效、重置与无障碍——在没有合适组件、需要自行构建元素时使用。",
-    }),
   });
 }
 

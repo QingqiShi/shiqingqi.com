@@ -60,8 +60,8 @@ export function getDesignSystemRouteDescriptions(): Record<
       zh: "在颜色与边框之上的纹理、淡彩与玻璃。",
     }),
     "/design-system/foundations/iconography": t({
-      en: "Adding Phosphor, icon slots, sizing, colour and weight.",
-      zh: "加入 Phosphor、图标插槽、尺寸、颜色与字重。",
+      en: "Where the icons come from, how a slot takes one, how text sizes it, and the weight to match.",
+      zh: "图标从哪里来、插槽如何接收图标、文字如何决定图标大小，以及相配的字重。",
     }),
     "/design-system/foundations/motion": t({
       en: "Transition presets, the spring and its roles, the motion engine, and reduced motion.",
@@ -220,12 +220,12 @@ export function getDesignSystemRouteDescriptions(): Record<
       zh: "侧栏、内容与所选项的详情并排显示；在手机上，详情在面板中打开。",
     }),
     "/design-system/primitives": t({
-      en: "Composable StyleX primitives — flex, layout, motion, reset, and accessibility.",
-      zh: "可组合的 StyleX 原语——flex、布局、动效、重置与无障碍。",
+      en: "Composable StyleX primitives for flex, layout, motion, reset and accessibility, for an element no component fits.",
+      zh: "可组合的 StyleX 原语，涵盖 flex、布局、动效、重置与无障碍，用于没有合适组件的元素。",
     }),
     "/design-system/hooks": t({
-      en: "Headless React hooks — controlled state, dialog focus, tactile press, and radiogroups.",
-      zh: "无头 React Hook——受控状态、对话框焦点、触感按压与单选组。",
+      en: "Headless React hooks for controlled state, dialog focus, popover placement, tactile press and radiogroups.",
+      zh: "无头 React Hook，涵盖受控状态、对话框焦点、弹出层定位、触感按压与单选组。",
     }),
     "/design-system/effect-layer": t({
       en: "Effects drawn with WebGPU over the page, around the elements that register for them. Experimental.",

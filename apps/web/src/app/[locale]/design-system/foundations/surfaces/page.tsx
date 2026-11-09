@@ -12,10 +12,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/foundations/surfaces",
-    description: t({
-      en: "How a surface in @tuja/ui takes its skin, its corner and its shadow, and how a floating surface sets itself apart from the page.",
-      zh: "@tuja/ui 中的表面如何选用外观、圆角与阴影，以及悬浮的表面如何与页面区分开来。",
-    }),
   });
 }
 

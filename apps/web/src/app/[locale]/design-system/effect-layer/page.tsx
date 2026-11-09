@@ -17,10 +17,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/effect-layer",
-    description: t({
-      en: "Set up EffectLayerProvider, register elements, and draw effects that CSS cannot draw well — Ripple, Dust and Black hole — with WebGPU over the page. Experimental.",
-      zh: "设置 EffectLayerProvider、登记元素，并用 WebGPU 在页面之上绘制 CSS 难以画好的效果——涟漪、灰尘与黑洞。仍在实验中。",
-    }),
   });
 }
 

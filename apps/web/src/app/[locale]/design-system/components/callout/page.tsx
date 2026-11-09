@@ -1,4 +1,3 @@
-import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
@@ -11,10 +10,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/components/callout",
-    description: t({
-      en: "An inline message box with six Intents, a built-in icon, an optional title, and a dismiss affordance — the tinted surface, border, and icon carry the Intent, never a leading accent bar.",
-      zh: "行内消息框，提供六种意图色、内置图标、可选标题与关闭控件——由着色背景、边框与图标传达意图色，绝不使用前缘装饰条。",
-    }),
   });
 }
 

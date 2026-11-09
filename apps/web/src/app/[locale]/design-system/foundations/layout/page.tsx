@@ -19,10 +19,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/foundations/layout",
-    description: t({
-      en: "Which length to use where, when the layout changes with the screen, how long a line of prose runs, and how surfaces stack.",
-      zh: "哪种长度用在哪里，布局何时随屏幕变化，一行正文多长，以及表面如何层叠。",
-    }),
   });
 }
 

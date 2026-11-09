@@ -1,4 +1,3 @@
-import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
@@ -11,10 +10,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/components/toast",
-    description: t({
-      en: "A short message on a capsule of Glass about what an action did, with an optional Undo and a close button. One shows at a time at the bottom of the screen, springs up as it arrives, and a Ring light runs once round its edge.",
-      zh: "玻璃胶囊上的一条短消息，告知某个操作的结果，可附带撤销与关闭按钮。屏幕底部一次只显示一条，出现时弹起，环形光沿边缘跑一圈。",
-    }),
   });
 }
 
