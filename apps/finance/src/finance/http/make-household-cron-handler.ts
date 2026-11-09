@@ -1,7 +1,7 @@
+import { isCronAuthorised } from "@tuja/server-auth/is-cron-authorised";
 import { listHouseholdIds } from "../db/list-household-ids.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { financeJson } from "./finance-json.ts";
-import { isCronAuthorised } from "./is-cron-authorised.ts";
 
 export interface HouseholdCronDependencies {
   isConfigured: () => boolean;

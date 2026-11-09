@@ -1,0 +1,28 @@
+{
+  "name": "@tuja/next-links",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The Next.js links the apps share: a Link that prefetches only on intent, and the RouterLink that @tuja/ui views render.",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.tsx"
+  },
+  "scripts": {
+    "build:tsc": "tsc --noEmit",
+    "lint": "eslint --max-warnings 0 ."
+  },
+  "peerDependencies": {
+    "next": ">=16",
+    "react": ">=19.3.0 <20"
+  },
+  "dependencies": {
+    "@tuja/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@tuja/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:"
+  }
+}

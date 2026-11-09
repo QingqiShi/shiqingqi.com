@@ -33,7 +33,13 @@ module.exports = async (phase) => {
       // changes the colour tokens in it (see apps/web/next.config.js).
       lightningCssFeatures: { exclude: ["light-dark"] },
     },
-    transpilePackages: ["@tuja/i18n", "@tuja/ui"],
+    transpilePackages: [
+      "@tuja/dev-tools",
+      "@tuja/i18n",
+      "@tuja/next-links",
+      "@tuja/server-auth",
+      "@tuja/ui",
+    ],
     outputFileTracingRoot: path.resolve(__dirname, "../.."),
     async headers() {
       const securityHeaders = [

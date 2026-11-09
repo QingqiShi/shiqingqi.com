@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { serializeCookie } from "@tuja/server-auth/serialize-cookie";
 import { z } from "zod";
-import { serializeCookie } from "./serialize-cookie.ts";
 
 /**
  * An HttpOnly cookie on the auth routes that holds a signed, expiring

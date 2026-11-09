@@ -5,6 +5,7 @@ import type {
   PublicKeyCredentialCreationOptionsJSON,
   PublicKeyCredentialRequestOptionsJSON,
 } from "@simplewebauthn/server";
+import { createSoftwareAuthenticator } from "@tuja/server-auth/testing/create-software-authenticator";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ACCOUNT_NAME_PATTERN } from "../account-name-pattern.ts";
 import { accounts, passkeys } from "../db/schema.ts";
@@ -22,7 +23,6 @@ import {
   createAuthTestClient,
   TEST_ORIGIN,
 } from "./testing/create-auth-test-client.ts";
-import { createSoftwareAuthenticator } from "./testing/create-software-authenticator.ts";
 
 type Authenticator = ReturnType<typeof createSoftwareAuthenticator>;
 type Client = ReturnType<typeof createAuthTestClient>;

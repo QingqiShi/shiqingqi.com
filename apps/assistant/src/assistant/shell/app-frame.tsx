@@ -9,6 +9,7 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { normalizePath } from "@tuja/i18n/normalize-path";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { Link, LinkStatus } from "@tuja/next-links/link";
 import {
   TabView,
   TabViewLink,
@@ -20,7 +21,6 @@ import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { controlSize } from "@tuja/ui/tokens.stylex";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Link, LinkStatus } from "#src/links/link.tsx";
 import { AssistantLogo } from "../pwa/assistant-logo.tsx";
 import { ReportsSkeleton } from "../report-page/reports-skeleton.tsx";
 import { TodosSkeleton } from "../report-page/todos-skeleton.tsx";

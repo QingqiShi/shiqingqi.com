@@ -1,7 +1,7 @@
+import { signInPath } from "@tuja/server-auth/sign-in-path";
 import { NextResponse, type NextRequest } from "next/server";
 import { assistantSessionCookie } from "../auth/assistant-session-cookie.ts";
 import { resolveSession } from "../auth/resolve-session.ts";
-import { signInPath } from "../auth/sign-in-path.ts";
 import { getAssistantDb } from "../db/get-assistant-db.ts";
 import { isAssistantConfigured } from "../db/is-assistant-configured.ts";
 import type { AssistantDb } from "../db/types.ts";

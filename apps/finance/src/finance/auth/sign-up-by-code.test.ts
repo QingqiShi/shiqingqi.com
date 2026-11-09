@@ -1,9 +1,9 @@
+import { createSoftwareAuthenticator } from "@tuja/server-auth/testing/create-software-authenticator";
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import { households } from "#src/finance/db/schema.ts";
 import { readOutbox } from "../email/make-outbox-email-sender.ts";
 import { createAuthTestClient } from "./testing/create-auth-test-client.ts";
-import { createSoftwareAuthenticator } from "./testing/create-software-authenticator.ts";
 import {
   acceptInvite,
   codeIn,

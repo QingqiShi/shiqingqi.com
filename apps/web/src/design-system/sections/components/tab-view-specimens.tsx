@@ -7,6 +7,7 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGl
 import { SquaresFourIcon } from "@phosphor-icons/react/dist/ssr/SquaresFour";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { Link, LinkStatus } from "@tuja/next-links/link";
 import { color } from "@tuja/ui/color.stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Heading } from "@tuja/ui/components/heading";
@@ -23,7 +24,6 @@ import { controlSize, space } from "@tuja/ui/tokens.stylex";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 import { Specimen } from "#src/design-system/specimen.tsx";
-import { Link, LinkStatus } from "#src/links/link.tsx";
 import { DeviceFrame, DeviceFramePlaceholder } from "./device-frame.tsx";
 
 /** The search param the demo reads, named so it clashes with nothing else on the page. */

@@ -1,4 +1,6 @@
 import { randomUUID } from "node:crypto";
+import { generateToken } from "@tuja/server-auth/generate-token";
+import { hashToken } from "@tuja/server-auth/hash-token";
 import { and, eq, isNull } from "drizzle-orm";
 import { lookups } from "#src/finance/db/lookups.ts";
 import { invites } from "#src/finance/db/schema.ts";
@@ -6,8 +8,6 @@ import {
   type FinanceAppDb,
   withHousehold,
 } from "#src/finance/db/with-household.ts";
-import { generateToken } from "./generate-token.ts";
-import { hashToken } from "./hash-token.ts";
 
 const EMAIL_RECOVERY_LIFETIME_MS = 30 * 60 * 1000;
 

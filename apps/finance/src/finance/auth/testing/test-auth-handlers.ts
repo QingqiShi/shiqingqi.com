@@ -5,6 +5,7 @@ import type {
   PublicKeyCredentialCreationOptionsJSON,
   PublicKeyCredentialRequestOptionsJSON,
 } from "@simplewebauthn/server";
+import { createSoftwareAuthenticator } from "@tuja/server-auth/testing/create-software-authenticator";
 import { afterEach, beforeEach, expect, it } from "vitest";
 import {
   createTestDb,
@@ -26,7 +27,6 @@ import {
   createAuthTestClient,
   TEST_ORIGIN,
 } from "./create-auth-test-client.ts";
-import { createSoftwareAuthenticator } from "./create-software-authenticator.ts";
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 

@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
+import { generateToken } from "@tuja/server-auth/generate-token";
+import { hashToken } from "@tuja/server-auth/hash-token";
 import { and, eq, isNull } from "drizzle-orm";
 import type { RepositoryScope } from "#src/finance/db/repositories/types.ts";
 import { invites, members } from "#src/finance/db/schema.ts";
-import { generateToken } from "./generate-token.ts";
-import { hashToken } from "./hash-token.ts";
 
 const INVITE_LIFETIME_MS = 7 * 24 * 60 * 60 * 1000;
 

@@ -1,10 +1,10 @@
+import { isSameOrigin } from "@tuja/server-auth/is-same-origin";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import type { OwnerPetState, PublicPetState } from "#src/pet/types.ts";
 import { readSession } from "../auth/read-session.ts";
 import { accounts } from "../db/schema.ts";
 import type { BuddyDb } from "../db/types.ts";
-import { isSameOrigin } from "../http/is-same-origin.ts";
 import { machineStore } from "../machines/machine-store.ts";
 import type { MachineRegistry } from "../machines/make-machine-registry.ts";
 

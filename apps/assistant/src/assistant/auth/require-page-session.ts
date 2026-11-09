@@ -1,8 +1,8 @@
 import type { SupportedLocale } from "@tuja/i18n/types";
+import { signInPath } from "@tuja/server-auth/sign-in-path";
 import { redirect } from "next/navigation";
 import "server-only";
 import { getPageSession } from "./get-page-session.ts";
-import { signInPath } from "./sign-in-path.ts";
 import type { AssistantSession } from "./types.ts";
 
 /**

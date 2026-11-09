@@ -1,8 +1,8 @@
 import { randomUUID, timingSafeEqual } from "node:crypto";
+import { generateToken } from "@tuja/server-auth/generate-token";
+import { hashToken } from "@tuja/server-auth/hash-token";
 import { and, desc, eq, lt, lte, or, sql } from "drizzle-orm";
 import { z } from "zod";
-import { generateToken } from "#src/assistant/auth/generate-token.ts";
-import { hashToken } from "#src/assistant/auth/hash-token.ts";
 import { captureTokens } from "#src/assistant/db/schema.ts";
 import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
 

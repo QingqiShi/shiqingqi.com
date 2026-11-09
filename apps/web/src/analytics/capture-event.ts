@@ -1,4 +1,4 @@
-import { posthogClient } from "./posthog-client";
+import { posthogClient } from "@tuja/analytics/posthog-client";
 import type { AnalyticsEvents } from "./types";
 
 // Product events sent before initPostHog's import resolves are dropped, and

@@ -1,6 +1,6 @@
+import { isSameOrigin } from "@tuja/server-auth/is-same-origin";
 import type { AssistantSession } from "../auth/types.ts";
 import { assistantJson } from "./assistant-json.ts";
-import { isSameOrigin } from "./is-same-origin.ts";
 
 export interface RequestGuardDependencies {
   isConfigured: () => boolean;

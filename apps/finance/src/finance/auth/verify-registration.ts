@@ -4,10 +4,10 @@ import {
   type AuthenticationResponseJSON,
   type RegistrationResponseJSON,
 } from "@simplewebauthn/server";
+import { uuidToBytes } from "@tuja/server-auth/uuid-to-bytes";
 import { z } from "zod";
 import { passkeys } from "#src/finance/db/schema.ts";
 import type { FinanceAppDb } from "#src/finance/db/with-household.ts";
-import { uuidToBytes } from "../ids/uuid-to-bytes.ts";
 import { HttpError, type Context } from "./make-auth-route-kit.ts";
 
 const RP_NAME = "Finance";

@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { Link } from "@tuja/next-links/link";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
@@ -16,7 +17,6 @@ import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
 import { getComponentSpecimen } from "#src/design-system/specimens/index.tsx";
 import { IlloLayer } from "#src/design-system/tile-illustrations/illo-layer.tsx";
 import { getTileIllustration } from "#src/design-system/tile-illustrations/index.tsx";
-import { Link } from "#src/links/link.tsx";
 import { tileMarker } from "./overview-tile.stylex.ts";
 
 interface OverviewTileProps {

@@ -1,7 +1,7 @@
+import { isCronAuthorised } from "@tuja/server-auth/is-cron-authorised";
 import { listUserIds } from "../db/list-user-ids.ts";
 import type { AssistantDb } from "../db/types.ts";
 import { assistantJson } from "./assistant-json.ts";
-import { isCronAuthorised } from "./is-cron-authorised.ts";
 
 export interface UserCronDependencies {
   isConfigured: () => boolean;

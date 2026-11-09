@@ -1,0 +1,29 @@
+{
+  "name": "@tuja/analytics",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The PostHog setup the apps share: init, the client handle, exception capture and noise filters.",
+  "type": "module",
+  "exports": {
+    "./posthog-init": "./src/posthog-init.tsx",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "build:tsc": "tsc --noEmit",
+    "lint": "eslint --max-warnings 0 .",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "react": ">=19.3.0 <20"
+  },
+  "dependencies": {
+    "posthog-js": "^1.442.1"
+  },
+  "devDependencies": {
+    "@tuja/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "react": "catalog:",
+    "vitest": "catalog:"
+  }
+}

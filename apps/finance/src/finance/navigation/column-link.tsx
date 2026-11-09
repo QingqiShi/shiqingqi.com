@@ -1,8 +1,8 @@
 "use client";
 
+import { Link } from "@tuja/next-links/link";
 import { useRouter } from "next/navigation";
 import type { ComponentProps } from "react";
-import { Link } from "#src/links/link.tsx";
 import { writeInBrowser } from "./finance-navigator.ts";
 
 /**

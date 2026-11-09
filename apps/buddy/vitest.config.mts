@@ -1,3 +1,4 @@
+import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { reactCompilerVitePlugins } from "@tuja/babel-plugins/react-compiler";
@@ -5,6 +6,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 import { babelPlugins } from "./babel-plugins.mjs";
 
+const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const domTests = ["src/**/*.test.tsx", "src/**/*.dom.test.ts"];
 
@@ -55,7 +57,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: "dom",
-          environment: "./src/testing/test-environment.ts",
+          environment: require.resolve("@tuja/test-support/jsdom-web-storage"),
           setupFiles: ["./src/testing/test-setup.ts"],
           include: domTests,
         },
@@ -84,10 +86,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "#src": path.resolve(__dirname, "./src"),
-      "server-only": path.resolve(
-        __dirname,
-        "./src/testing/test-stubs/server-only.ts",
-      ),
+      "server-only": require.resolve("@tuja/test-support/server-only-stub"),
     },
   },
 });

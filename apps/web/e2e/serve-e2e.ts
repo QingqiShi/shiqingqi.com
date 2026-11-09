@@ -3,7 +3,7 @@ import { buildIfStale } from "./build-if-stale.ts";
 
 const env = {
   ...process.env,
-  // Exercises the real posthog.init() path (see src/analytics/init-post-hog.ts)
+  // Exercises the real posthog.init() path (see @tuja/analytics/init-post-hog)
   // without sending anything: the host never resolves, so nothing leaves
   // the machine, but a crash in init still fails the suite. NEXT_PUBLIC_*
   // is inlined at build time, so these only take effect via the local

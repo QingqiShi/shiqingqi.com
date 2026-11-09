@@ -4,6 +4,8 @@ import {
   verifyRegistrationResponse,
   type PublicKeyCredentialRequestOptionsJSON,
 } from "@simplewebauthn/server";
+import { createSoftwareAuthenticator } from "@tuja/server-auth/testing/create-software-authenticator";
+import { uuidToBytes } from "@tuja/server-auth/uuid-to-bytes";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { passkeys, sessions, users } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
@@ -13,8 +15,6 @@ import {
   createAuthTestClient,
   TEST_ORIGIN,
 } from "./testing/create-auth-test-client.ts";
-import { createSoftwareAuthenticator } from "./testing/create-software-authenticator.ts";
-import { uuidToBytes } from "./uuid-to-bytes.ts";
 
 type Authenticator = ReturnType<typeof createSoftwareAuthenticator>;
 type Client = ReturnType<typeof createAuthTestClient>;

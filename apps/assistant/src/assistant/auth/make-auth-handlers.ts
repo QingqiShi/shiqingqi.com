@@ -3,11 +3,15 @@ import {
   verifyAuthenticationResponse,
   type AuthenticationResponseJSON,
 } from "@simplewebauthn/server";
+import { getRequestOrigin } from "@tuja/server-auth/get-request-origin";
+import { isSameOrigin } from "@tuja/server-auth/is-same-origin";
+import { needsSecureCookie } from "@tuja/server-auth/needs-secure-cookie";
+import { readRequestCookie } from "@tuja/server-auth/read-request-cookie";
+import { uuidToBytes } from "@tuja/server-auth/uuid-to-bytes";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { passkeys } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
-import { isSameOrigin } from "../http/is-same-origin.ts";
 import {
   assistantChallengeCookie,
   type ChallengePayload,
@@ -15,12 +19,8 @@ import {
 import { assistantSessionCookie } from "./assistant-session-cookie.ts";
 import { createSession } from "./create-session.ts";
 import { deleteSession } from "./delete-session.ts";
-import { getRequestOrigin } from "./get-request-origin.ts";
-import { needsSecureCookie } from "./needs-secure-cookie.ts";
 import { passkeyRpId } from "./passkey-rp-id.ts";
-import { readRequestCookie } from "./read-request-cookie.ts";
 import { resolveSession } from "./resolve-session.ts";
-import { uuidToBytes } from "./uuid-to-bytes.ts";
 
 export interface AuthHandlerDeps {
   /** Null when the app has no database. */

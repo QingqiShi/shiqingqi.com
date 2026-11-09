@@ -1,6 +1,6 @@
 import "server-only";
+import { getOriginFromHeaders } from "@tuja/server-auth/get-request-origin";
 import { headers } from "next/headers";
-import { getOriginFromHeaders } from "#src/assistant/auth/get-request-origin.ts";
 import { isAllowedAssistantOrigin } from "#src/assistant/auth/is-allowed-assistant-origin.ts";
 import {
   makeMailImageLinks,

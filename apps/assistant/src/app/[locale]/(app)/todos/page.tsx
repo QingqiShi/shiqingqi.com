@@ -1,12 +1,12 @@
 import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
+import { safeNextPath } from "@tuja/server-auth/sign-in-path";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { safeNextPath } from "#src/assistant/auth/sign-in-path.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
 import { ASSISTANT_PATH_HEADER } from "#src/assistant/http/constants.ts";

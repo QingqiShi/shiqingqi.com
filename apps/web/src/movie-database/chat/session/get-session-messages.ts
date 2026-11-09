@@ -1,6 +1,6 @@
+import { getRedisClient } from "@tuja/server-clients/get-redis-client";
 import type { UIMessage } from "ai";
 import "server-only";
-import { getRedisClient } from "#src/redis/get-redis-client.ts";
 import { KEY_PREFIX } from "./constants";
 
 export async function getSessionMessages(

@@ -1,3 +1,4 @@
+import { createSoftwareAuthenticator } from "@tuja/server-auth/testing/create-software-authenticator";
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import {
@@ -15,7 +16,6 @@ import {
   createAuthTestClient,
   TEST_ORIGIN,
 } from "./testing/create-auth-test-client.ts";
-import { createSoftwareAuthenticator } from "./testing/create-software-authenticator.ts";
 import {
   acceptInvite,
   advance,

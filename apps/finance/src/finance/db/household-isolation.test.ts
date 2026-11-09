@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { hashToken } from "@tuja/server-auth/hash-token";
 import {
   eq,
   getTableColumns,
@@ -10,7 +11,6 @@ import {
 import { getTableConfig, PgTable, type PgColumn } from "drizzle-orm/pg-core";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { z } from "zod";
-import { hashToken } from "../auth/hash-token.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
 import { pullChanges } from "../sync/pull-changes.ts";
 import { streamBootstrap } from "../sync/stream-bootstrap.ts";

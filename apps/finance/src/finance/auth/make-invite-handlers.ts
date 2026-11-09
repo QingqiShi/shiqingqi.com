@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { normaliseEmail } from "@tuja/server-auth/normalise-email";
 import { and, eq, gt, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { invites, passkeys, sessions, users } from "#src/finance/db/schema.ts";
@@ -8,7 +9,6 @@ import {
   type FinanceAppDb,
 } from "#src/finance/db/with-household.ts";
 import { buildVerificationEmail } from "../email/build-verification-email.ts";
-import { normaliseEmail } from "../email/normalise-email.ts";
 import { bindUserToMember } from "./bind-user-to-member.ts";
 import { createInvite } from "./create-invite.ts";
 import { lookupInvite } from "./lookup-invite.ts";

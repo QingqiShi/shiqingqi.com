@@ -1,9 +1,9 @@
 "use client";
 
 import { t } from "@tuja/i18n";
+import { RouterLink, type RoutingProps } from "@tuja/next-links/router-link";
 import { Anchor as UiAnchor } from "@tuja/ui/components/anchor";
 import type { ComponentProps } from "react";
-import { RouterLink, type RoutingProps } from "./router-link.tsx";
 
 type AnchorProps = Omit<
   ComponentProps<typeof UiAnchor>,

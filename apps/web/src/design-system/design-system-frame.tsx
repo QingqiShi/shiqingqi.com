@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { Link, LinkStatus } from "@tuja/next-links/link";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { splitViewTokens } from "@tuja/ui/components/navigation-split-view.stylex";
@@ -12,7 +13,6 @@ import { usePathname, useRouter } from "next/navigation";
 import type { ComponentProps, ReactNode } from "react";
 import { DESIGN_SYSTEM_CONTENT_ID } from "#src/design-system/design-system-content-id.ts";
 import { DocPageSkeleton } from "#src/design-system/doc-page-skeleton.tsx";
-import { Link, LinkStatus } from "#src/links/link.tsx";
 
 interface DesignSystemFrameProps {
   sidebar: ReactNode;

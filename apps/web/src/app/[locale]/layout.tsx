@@ -1,15 +1,15 @@
+import { PostHogInit } from "@tuja/analytics/posthog-init";
 import { I18nProvider } from "@tuja/i18n/i18n-provider";
 import { setLocale } from "@tuja/i18n/server-locale";
 import { isValidLocale } from "@tuja/i18n/validate-locale";
+import { RouterLink } from "@tuja/next-links/router-link";
 import { EffectLayerProvider } from "@tuja/ui/components/effect-layer-provider";
 import { LinkProvider } from "@tuja/ui/components/link-provider";
 import { PortalTargetProvider } from "@tuja/ui/components/portal-target-provider";
 import { root } from "@tuja/ui/primitives/root.stylex";
 import type { Viewport } from "next";
 import { notFound } from "next/navigation";
-import { PostHogInit } from "#src/analytics/posthog-init.tsx";
 import { htmlLang } from "#src/i18n/i18n-config.ts";
-import { RouterLink } from "#src/links/router-link.tsx";
 import { SerwistProvider } from "#src/pwa/serwist-provider.tsx";
 import { BackOverrideProvider } from "#src/site-shell/back-override-provider.tsx";
 import { InlineScript } from "#src/site-shell/inline-script.tsx";

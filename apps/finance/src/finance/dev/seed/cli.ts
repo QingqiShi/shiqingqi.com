@@ -1,6 +1,9 @@
+import {
+  readCliOptions,
+  readIntegerOption,
+} from "@tuja/dev-tools/read-cli-options";
 import { Pool } from "pg";
 import { assertLocalDatabaseUrl } from "../assert-local-database-url.ts";
-import { readCliOptions, readIntegerOption } from "../read-cli-options.ts";
 import { seedDevDatabase } from "./seed-dev-database.ts";
 import { SYNTHETIC_HOUSEHOLD_DEFAULTS } from "./seed-synthetic-household.ts";
 

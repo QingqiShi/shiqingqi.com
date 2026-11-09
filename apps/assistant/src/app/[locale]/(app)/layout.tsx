@@ -1,9 +1,9 @@
 import { setLocale } from "@tuja/i18n/server-locale";
 import { validateLocale } from "@tuja/i18n/validate-locale";
+import { safeNextPath } from "@tuja/server-auth/sign-in-path";
 import { headers } from "next/headers";
 import { connection } from "next/server";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { safeNextPath } from "#src/assistant/auth/sign-in-path.ts";
 import { isAssistantConfigured } from "#src/assistant/db/is-assistant-configured.ts";
 import { ASSISTANT_PATH_HEADER } from "#src/assistant/http/constants.ts";
 import { AppFrame } from "#src/assistant/shell/app-frame.tsx";

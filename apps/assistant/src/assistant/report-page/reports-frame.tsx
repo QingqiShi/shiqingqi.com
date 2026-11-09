@@ -3,11 +3,11 @@
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { Link, LinkStatus } from "@tuja/next-links/link";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { useRouter, useSelectedLayoutSegments } from "next/navigation";
 import type { ReactNode } from "react";
-import { Link, LinkStatus } from "#src/links/link.tsx";
 import type { ReportListItem } from "../report/read-report.ts";
 import { formatDay } from "./format-day.ts";
 import { ReportBodySkeleton } from "./report-body-skeleton.tsx";

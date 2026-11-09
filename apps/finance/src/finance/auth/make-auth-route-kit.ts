@@ -1,3 +1,6 @@
+import { getRequestOrigin } from "@tuja/server-auth/get-request-origin";
+import { isSameOrigin } from "@tuja/server-auth/is-same-origin";
+import { needsSecureCookie } from "@tuja/server-auth/needs-secure-cookie";
 import { z } from "zod";
 import { findPostgresError } from "#src/finance/db/find-postgres-error.ts";
 import { VERIFIED_EMAIL_KEY } from "#src/finance/db/schema.ts";
@@ -5,15 +8,12 @@ import type { FinanceDb } from "#src/finance/db/types.ts";
 import { resolveClientIp } from "#src/http/resolve-client-ip.ts";
 import type { FinanceEmailSender } from "../email/types.ts";
 import { retryAfterSeconds } from "../http/check-rate-limit.ts";
-import { isSameOrigin } from "../http/is-same-origin.ts";
 import type {
   FinanceRateLimitBucket,
   FinanceRateLimitResult,
   LimitFinanceRequest,
   RefundFinanceRequest,
 } from "../http/types.ts";
-import { getRequestOrigin } from "./get-request-origin.ts";
-import { needsSecureCookie } from "./needs-secure-cookie.ts";
 import { passkeyRpId } from "./passkey-rp-id.ts";
 
 export interface AuthHandlerDeps {

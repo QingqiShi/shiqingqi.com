@@ -1,4 +1,5 @@
 import { defaultCache } from "@serwist/next/worker";
+import { withLocaleRobustPageCaching } from "@tuja/pwa-runtime-caching/with-locale-robust-page-caching";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
 import { Serwist } from "serwist";
 import { FINANCE_PAGES_CACHE } from "#src/pwa/runtime-caching/finance-pages-cache.ts";
@@ -6,7 +7,6 @@ import { FINANCE_REPORTS_CACHE } from "#src/pwa/runtime-caching/finance-reports-
 import { financeRuntimeCaching } from "#src/pwa/runtime-caching/finance-runtime-caching.ts";
 import { isFinancePrecacheMessage } from "#src/pwa/runtime-caching/is-finance-precache-message.ts";
 import { precacheFinancePages } from "#src/pwa/runtime-caching/precache-finance-pages.ts";
-import { withLocaleRobustPageCaching } from "#src/pwa/runtime-caching/with-locale-robust-page-caching.ts";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {

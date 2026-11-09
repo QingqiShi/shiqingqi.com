@@ -1,9 +1,9 @@
+import { readRequestCookie } from "@tuja/server-auth/read-request-cookie";
 import {
   financeChallengeCookie,
   type ChallengePayload,
 } from "./finance-challenge-cookie.ts";
 import { HttpError, type Context } from "./make-auth-route-kit.ts";
-import { readRequestCookie } from "./read-request-cookie.ts";
 
 function hasPurpose<P extends ChallengePayload["purpose"]>(
   payload: ChallengePayload,

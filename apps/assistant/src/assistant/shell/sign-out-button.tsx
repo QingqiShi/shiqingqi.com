@@ -3,10 +3,10 @@
 import { SignOutIcon } from "@phosphor-icons/react/dist/ssr/SignOut";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { signInPath } from "@tuja/server-auth/sign-in-path";
 import { Button } from "@tuja/ui/components/button";
 import { useState } from "react";
 import { passkeyClient } from "../auth/passkey-client.ts";
-import { signInPath } from "../auth/sign-in-path.ts";
 
 export function SignOutButton() {
   const locale = useLocale();

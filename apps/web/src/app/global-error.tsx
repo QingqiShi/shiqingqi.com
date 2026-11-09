@@ -1,7 +1,7 @@
 "use client";
 
+import { captureException } from "@tuja/analytics/capture-exception";
 import { useEffect } from "react";
-import { captureException } from "#src/analytics/capture-exception.ts";
 
 /**
  * Global error boundary for the entire application.

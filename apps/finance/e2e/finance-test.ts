@@ -7,6 +7,7 @@ import {
   type Locator,
   type Page,
 } from "@playwright/test";
+import { isPortOpen } from "@tuja/dev-tools/is-port-open";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { z } from "zod";
@@ -21,7 +22,6 @@ import {
   asFinanceApp,
   withHousehold,
 } from "../src/finance/db/with-household.ts";
-import { isPortOpen } from "../src/finance/dev/is-port-open.ts";
 import { seedDemoHousehold } from "../src/finance/dev/seed/seed-demo-household.ts";
 import {
   seedSyntheticHousehold,
