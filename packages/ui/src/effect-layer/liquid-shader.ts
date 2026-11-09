@@ -136,7 +136,7 @@ const ownedContent = (liquid: Liquid, page: d.v2f, found: LiquidSurface) => {
   let bend = d.vec2f(0);
   if (coverage > 0) {
     const water = 1 - solidOf(liquid, page, spreadOf(liquid));
-    bend = bendAt(found.surface, found.radius).mul(coverage * water);
+    bend = bendAt(liquid, found.surface, found.radius).mul(coverage * water);
   }
   return trackContentAt(liquid, page.add(bend));
 };

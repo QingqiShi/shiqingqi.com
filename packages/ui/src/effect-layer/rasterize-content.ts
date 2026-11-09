@@ -151,6 +151,22 @@ const NO_SURFACE =
   "background-color:transparent;border-color:transparent;box-shadow:none;outline:none;";
 
 /**
+ * Each copy keeps the width of its element on the page, but the image can
+ * lay out text a little wider, such as with a fallback font. Text that the
+ * page shows whole then stays whole in the copy, and is not cut to an
+ * ellipsis.
+ */
+const WHOLE_TEXT = "overflow:visible;text-overflow:clip;";
+
+function fitsWhole(element: Element, style: CSSStyleDeclaration) {
+  return (
+    style.textOverflow !== "clip" &&
+    style.textOverflow !== "" &&
+    element.scrollWidth <= element.clientWidth
+  );
+}
+
+/**
  * A copy of `element` and of its content, each element with its computed
  * styles, and the copy of `element` also with `extraStyle`. It leaves out
  * what `EFFECT_OMIT` marks, and adds each font family that the copy uses to
@@ -185,6 +201,7 @@ function copyWithStyles(
       "style",
       inlineStyleOf(style) +
         (original.getAttribute(EFFECT_OMIT) === "surface" ? NO_SURFACE : "") +
+        (fitsWhole(original, style) ? WHOLE_TEXT : "") +
         (index === 0 ? extraStyle : ""),
     );
   });

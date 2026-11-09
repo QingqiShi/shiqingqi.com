@@ -58,12 +58,29 @@ const Dome = d.struct({
 });
 
 /**
+ * How much of the dome's bend shows as the body calms. The calm surface is
+ * the rest pill, whose dome slopes only across a long pill and so stretches
+ * the labels across it. The water goes flat as it calms, so the bend is gone
+ * before the pill shows.
+ */
+const flatness = (calm: number) => {
+  "use gpu";
+  const left = 1 - std.saturate(calm);
+  return left * left;
+};
+
+/**
  * The dome of water over a point `depth` inside the surface of a body of
  * `radius`: a spherical cap, with the way light takes through it. The ray
  * bends towards the normal as it enters the water, so the track shows
  * magnified.
  */
-const domeAt = (depth: number, radius: number, outward: d.v2f) => {
+const domeAt = (
+  depth: number,
+  radius: number,
+  outward: d.v2f,
+  calm: number,
+) => {
   "use gpu";
   const top = DOME * radius;
   const sphere = (radius * radius + top * top) / (2 * top);
@@ -75,7 +92,7 @@ const domeAt = (depth: number, radius: number, outward: d.v2f) => {
   const normal = d.vec3f(outward.mul(sinTheta), cosTheta);
   return Dome({
     normal,
-    bend: refractionOffset(normal, height, INDEX),
+    bend: refractionOffset(normal, height, INDEX).mul(flatness(calm)),
     height: height / top,
     rim: std.pow((1 - cosTheta) / (1 - cosRim), RIM_POWER),
   });
@@ -88,9 +105,10 @@ const domeAt = (depth: number, radius: number, outward: d.v2f) => {
  *
  * @internal
  */
-export const bendAt = (surface: Surface, radius: number) => {
+export const bendAt = (liquid: Liquid, surface: Surface, radius: number) => {
   "use gpu";
-  return domeAt(-surface.signedDistance, radius, surface.outward).bend;
+  return domeAt(-surface.signedDistance, radius, surface.outward, liquid.calm)
+    .bend;
 };
 
 /**
@@ -143,7 +161,7 @@ const lens = (
     return d.vec3f(solidColor);
   }
   const depth = -surface.signedDistance;
-  const dome = domeAt(depth, radius, surface.outward);
+  const dome = domeAt(depth, radius, surface.outward, liquid.calm);
   const normal = dome.normal;
   const away = std.saturate(
     -std.dot(surface.outward, frameDir(liquid, d.vec3f(TO_LIGHT_FLAT, 0)).xy),
