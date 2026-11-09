@@ -1,9 +1,9 @@
 "use client";
 
+import { captureException } from "@tuja/analytics/capture-exception";
 import { gray } from "@tuja/ui/palette/gray.stylex";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
-import { captureException } from "#src/analytics/capture-exception.ts";
 import { FINANCE_LIGHT_CANVAS } from "#src/finance/theme/finance-theme.ts";
 
 const copy = {

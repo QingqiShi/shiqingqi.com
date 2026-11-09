@@ -1,3 +1,4 @@
+import { hashToken } from "@tuja/server-auth/hash-token";
 import { eq } from "drizzle-orm";
 import { lookups } from "#src/finance/db/lookups.ts";
 import { sessions } from "#src/finance/db/schema.ts";
@@ -7,7 +8,6 @@ import {
   type FinanceAppDb,
 } from "#src/finance/db/with-household.ts";
 import { financeSessionCookie } from "./finance-session-cookie.ts";
-import { hashToken } from "./hash-token.ts";
 import type { FinanceSession } from "./types.ts";
 
 const REFRESH_AFTER_MS = 7 * 24 * 60 * 60 * 1000;

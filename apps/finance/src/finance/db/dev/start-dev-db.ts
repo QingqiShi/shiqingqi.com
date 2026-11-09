@@ -1,9 +1,9 @@
 import path from "node:path";
 import { PGlite } from "@electric-sql/pglite";
+import { servePglite } from "@tuja/dev-tools/serve-pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import { FINANCE_MIGRATIONS_FOLDER } from "../finance-migrations-folder.ts";
-import { servePglite } from "./serve-pglite.ts";
 
 export const DEV_DB_DIR = path.resolve(
   import.meta.dirname,

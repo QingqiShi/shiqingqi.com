@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { captureException } from "@tuja/analytics/capture-exception";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { align, justify } from "@tuja/ui/primitives/flex.stylex";
@@ -9,7 +10,6 @@ import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
-import { captureException } from "#src/analytics/capture-exception.ts";
 
 // Error boundaries render outside the normal provider tree — the i18n
 // ClientTranslationsProvider is not guaranteed to sit above them — so this

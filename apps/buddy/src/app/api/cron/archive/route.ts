@@ -1,6 +1,6 @@
+import { isCronAuthorised } from "@tuja/server-auth/is-cron-authorised";
 import { archiveCareCounts } from "#src/server/archive/archive-care-counts.ts";
 import { archiveUsageDays } from "#src/server/archive/archive-usage-days.ts";
-import { isCronAuthorised } from "#src/server/cron/is-cron-authorised.ts";
 import { getBuddyDb } from "#src/server/db/get-buddy-db.ts";
 import { getMachineRegistry } from "#src/server/machines/get-machine-registry.ts";
 import { getBuddyBackend } from "#src/server/store/get-buddy-backend.ts";

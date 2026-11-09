@@ -1,0 +1,23 @@
+{
+  "name": "@tuja/server-clients",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Server-only clients for Anthropic and Upstash Redis, created once from the environment.",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "build:tsc": "tsc --noEmit",
+    "lint": "eslint --max-warnings 0 ."
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.96",
+    "@upstash/redis": "^1.40.0"
+  },
+  "devDependencies": {
+    "@tuja/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -1,17 +1,17 @@
+import { getRequestOrigin } from "@tuja/server-auth/get-request-origin";
+import { isSameOrigin } from "@tuja/server-auth/is-same-origin";
+import { needsSecureCookie } from "@tuja/server-auth/needs-secure-cookie";
+import { readRequestCookie } from "@tuja/server-auth/read-request-cookie";
 import { z } from "zod";
 import type { BuddyDb } from "#src/server/db/types.ts";
 import type { BuddyEmailSender } from "../email/types.ts";
-import { isSameOrigin } from "../http/is-same-origin.ts";
 import {
   buddyChallengeCookie,
   type ChallengePayload,
 } from "./buddy-challenge-cookie.ts";
 import { buddySessionCookie } from "./buddy-session-cookie.ts";
 import { createSession } from "./create-session.ts";
-import { getRequestOrigin } from "./get-request-origin.ts";
-import { needsSecureCookie } from "./needs-secure-cookie.ts";
 import { passkeyRpId } from "./passkey-rp-id.ts";
-import { readRequestCookie } from "./read-request-cookie.ts";
 
 /** A group of auth routes that share one rate limit. */
 export type AuthRateLimitBucket =

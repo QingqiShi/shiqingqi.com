@@ -51,7 +51,14 @@ module.exports = async (phase) => {
       // `useLightningcss`. Turbopack does not need it, so ignore the warning.
       lightningCssFeatures: { exclude: ["light-dark"] },
     },
-    transpilePackages: ["@tuja/i18n", "@tuja/ui"],
+    transpilePackages: [
+      "@tuja/analytics",
+      "@tuja/i18n",
+      "@tuja/next-links",
+      "@tuja/pwa-runtime-caching",
+      "@tuja/server-clients",
+      "@tuja/ui",
+    ],
     outputFileTracingRoot: path.resolve(__dirname, "../.."),
     turbopack: {
       rules: {

@@ -3,13 +3,13 @@
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { Link, LinkStatus } from "@tuja/next-links/link";
 import { Heading } from "@tuja/ui/components/heading";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import type { ReactNode } from "react";
-import { Link, LinkStatus } from "#src/links/link.tsx";
 import { SignOutButton } from "../shell/sign-out-button.tsx";
 import { SettingsMenu, useSettingsSectionLabels } from "./settings-menu.tsx";
 import { SettingsSectionSkeleton } from "./settings-section-skeleton.tsx";

@@ -1,6 +1,6 @@
+import { serializeCookie } from "@tuja/server-auth/serialize-cookie";
 import type { z } from "zod";
 import { makeSeal } from "./make-seal.ts";
-import { serializeCookie } from "./serialize-cookie.ts";
 
 export function makeSealedCookie<T>({
   name,

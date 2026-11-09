@@ -1,9 +1,9 @@
 import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
+import { getRequestOrigin } from "@tuja/server-auth/get-request-origin";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { getRequestOrigin } from "#src/assistant/auth/get-request-origin.ts";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
 import { captureTokenStore } from "#src/assistant/report/capture-token-store.ts";

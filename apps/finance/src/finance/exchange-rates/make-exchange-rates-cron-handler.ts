@@ -1,7 +1,7 @@
+import { isCronAuthorised } from "@tuja/server-auth/is-cron-authorised";
 import { listHouseholdIds } from "../db/list-household-ids.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { financeJson } from "../http/finance-json.ts";
-import { isCronAuthorised } from "../http/is-cron-authorised.ts";
 import {
   collectHouseholdPairs,
   refreshExchangeRates,

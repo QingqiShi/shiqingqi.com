@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { Link } from "@tuja/next-links/link";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
@@ -16,7 +17,6 @@ import {
   space,
 } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
-import { Link } from "#src/links/link.tsx";
 import { sceneInk } from "#src/pet/scene-ink.stylex.ts";
 
 type Side = "start" | "end";

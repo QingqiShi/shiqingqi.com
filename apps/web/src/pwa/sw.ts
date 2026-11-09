@@ -1,7 +1,7 @@
 import { defaultCache } from "@serwist/next/worker";
+import { withLocaleRobustPageCaching } from "@tuja/pwa-runtime-caching/with-locale-robust-page-caching";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
 import { Serwist } from "serwist";
-import { withLocaleRobustPageCaching } from "#src/pwa/runtime-caching/with-locale-robust-page-caching.ts";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {

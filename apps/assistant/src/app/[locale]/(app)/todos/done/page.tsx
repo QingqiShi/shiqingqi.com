@@ -3,6 +3,7 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
+import { RouterLink } from "@tuja/next-links/router-link";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
@@ -20,7 +21,6 @@ import {
 import { DoneArchive } from "#src/assistant/report-page/done-archive.tsx";
 import { toTodoItemData } from "#src/assistant/report-page/to-todo-item-data.ts";
 import { TodoStoreProvider } from "#src/assistant/report-page/todo-store-provider.tsx";
-import { RouterLink } from "#src/links/router-link.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);

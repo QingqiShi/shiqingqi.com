@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
+import { generateToken } from "@tuja/server-auth/generate-token";
+import { hashToken } from "@tuja/server-auth/hash-token";
 import { and, eq, lte } from "drizzle-orm";
 import { sessions } from "#src/server/db/schema.ts";
 import type { BuddyDb } from "#src/server/db/types.ts";
 import { buddySessionCookie } from "./buddy-session-cookie.ts";
-import { generateToken } from "./generate-token.ts";
-import { hashToken } from "./hash-token.ts";
 
 interface CreateSessionInput {
   userId: string;

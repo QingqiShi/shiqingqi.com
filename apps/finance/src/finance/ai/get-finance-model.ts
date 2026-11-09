@@ -1,7 +1,7 @@
+import { getAnthropicProvider } from "@tuja/server-clients/get-anthropic-provider";
 import { TypeSafeClient } from "@typesafe-ai/sdk";
 import type { LanguageModel } from "ai";
 import "server-only";
-import { getAnthropicProvider } from "#src/anthropic/get-anthropic-provider.ts";
 import type { LabellingModel } from "./label-bank-rows.ts";
 
 const LABELLING_MODEL_ID = "jev-1.13.0";

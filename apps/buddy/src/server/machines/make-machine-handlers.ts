@@ -1,7 +1,7 @@
+import { isSameOrigin } from "@tuja/server-auth/is-same-origin";
 import { z } from "zod";
 import { readSession } from "../auth/read-session.ts";
 import type { BuddyDb } from "../db/types.ts";
-import { isSameOrigin } from "../http/is-same-origin.ts";
 import { accountNameOf } from "./account-name-of.ts";
 import { machineStore } from "./machine-store.ts";
 import type { MachineRegistry } from "./make-machine-registry.ts";

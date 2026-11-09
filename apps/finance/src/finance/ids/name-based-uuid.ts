@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { uuidToBytes } from "./uuid-to-bytes.ts";
+import { uuidToBytes } from "@tuja/server-auth/uuid-to-bytes";
 
 /** The namespace for every id Finance derives from a name, such as a Rule occurrence. */
 const FINANCE_ID_NAMESPACE = "6f1e8f0a-3c2b-5d4e-9a7b-1c2d3e4f5a6b";

@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
+import { generateToken } from "@tuja/server-auth/generate-token";
+import { hashToken } from "@tuja/server-auth/hash-token";
 import { and, eq, gt, isNull, ne, or } from "drizzle-orm";
 import { emailVerifications, users } from "#src/finance/db/schema.ts";
 import type { FinanceAppDb } from "#src/finance/db/with-household.ts";
-import { generateToken } from "./generate-token.ts";
-import { hashToken } from "./hash-token.ts";
 
 const VERIFICATION_LIFETIME_MS = 60 * 60 * 1000;
 

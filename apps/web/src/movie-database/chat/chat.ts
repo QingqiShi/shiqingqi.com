@@ -1,8 +1,8 @@
+import { getAnthropicProvider } from "@tuja/server-clients/get-anthropic-provider";
 import type { LanguageModel } from "ai";
 import { convertToModelMessages, isStepCount, streamText } from "ai";
 import "server-only";
 import { getAnthropicModel } from "#src/anthropic/get-anthropic-model.ts";
-import { getAnthropicProvider } from "#src/anthropic/get-anthropic-provider.ts";
 import { classifyMoodTool } from "#src/movie-database/chat/tools/classify-mood-tool.ts";
 import { createMediaCreditsTool } from "#src/movie-database/chat/tools/create-media-credits-tool.ts";
 import { createPersonCreditsTool } from "#src/movie-database/chat/tools/create-person-credits-tool.ts";

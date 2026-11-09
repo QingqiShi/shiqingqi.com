@@ -1,12 +1,12 @@
 import { spawn } from "node:child_process";
+import { isPortOpen } from "@tuja/dev-tools/is-port-open";
 import type { DevDb } from "../src/finance/db/dev/start-dev-db.ts";
-import { isPortOpen } from "../src/finance/dev/is-port-open.ts";
 import { buildIfStale } from "./build-if-stale.ts";
 import { FINANCE_E2E_DB_PORT, financeE2eEnv } from "./finance-e2e-env.ts";
 
 const env = {
   ...process.env,
-  // Exercises the real posthog.init() path (see src/analytics/init-post-hog.ts)
+  // Exercises the real posthog.init() path (see @tuja/analytics/init-post-hog)
   // without sending anything: the host never resolves, so nothing leaves
   // the machine, but a crash in init still fails the suite. NEXT_PUBLIC_*
   // is inlined at build time, so these only take effect via the local

@@ -1,0 +1,21 @@
+{
+  "name": "@tuja/test-support",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Vitest helpers the apps share: the jsdom environment and the server-only stub.",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "build:tsc": "tsc --noEmit",
+    "lint": "eslint --max-warnings 0 ."
+  },
+  "dependencies": {
+    "vitest": "catalog:"
+  },
+  "devDependencies": {
+    "@tuja/tsconfig": "workspace:*",
+    "@types/node": "catalog:"
+  }
+}

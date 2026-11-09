@@ -1,5 +1,5 @@
 import "server-only";
-import { getAnthropicProvider } from "./get-anthropic-provider.ts";
+import { getAnthropicProvider } from "@tuja/server-clients/get-anthropic-provider";
 import type { AssistantModel } from "./types.ts";
 
 const AGENT_MODEL_ID = "claude-sonnet-5-5";

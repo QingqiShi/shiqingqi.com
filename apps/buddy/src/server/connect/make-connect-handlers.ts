@@ -1,8 +1,8 @@
+import { getRequestOrigin } from "@tuja/server-auth/get-request-origin";
+import { isSameOrigin } from "@tuja/server-auth/is-same-origin";
 import { z } from "zod";
-import { getRequestOrigin } from "../auth/get-request-origin.ts";
 import { readSession } from "../auth/read-session.ts";
 import type { BuddyDb } from "../db/types.ts";
-import { isSameOrigin } from "../http/is-same-origin.ts";
 import { slowDown, withinRateLimit } from "../http/within-rate-limit.ts";
 import { accountNameOf } from "../machines/account-name-of.ts";
 import { machineStore } from "../machines/machine-store.ts";

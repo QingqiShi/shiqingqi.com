@@ -1,6 +1,6 @@
+import { getAnthropicProvider } from "@tuja/server-clients/get-anthropic-provider";
 import type { LanguageModel } from "ai";
 import "server-only";
-import { getAnthropicProvider } from "./get-anthropic-provider";
 
 const MODEL_ID = "claude-sonnet-5-5";
 

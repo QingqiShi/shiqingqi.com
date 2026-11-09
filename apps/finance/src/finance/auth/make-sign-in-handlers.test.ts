@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/server";
+import { hashToken } from "@tuja/server-auth/hash-token";
+import { createSoftwareAuthenticator } from "@tuja/server-auth/testing/create-software-authenticator";
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import {
@@ -14,12 +16,10 @@ import { withHousehold } from "#src/finance/db/with-household.ts";
 import { guardFinanceRequest } from "../http/guard-finance-request.ts";
 import { financeSessionCookie } from "./finance-session-cookie.ts";
 import { makeGetFinanceSession } from "./get-finance-session.ts";
-import { hashToken } from "./hash-token.ts";
 import {
   createAuthTestClient,
   TEST_ORIGIN,
 } from "./testing/create-auth-test-client.ts";
-import { createSoftwareAuthenticator } from "./testing/create-software-authenticator.ts";
 import {
   advance,
   DAY_MS,

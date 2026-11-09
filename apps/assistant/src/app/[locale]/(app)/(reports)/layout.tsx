@@ -1,9 +1,9 @@
 import { setLocale } from "@tuja/i18n/server-locale";
 import { validateLocale } from "@tuja/i18n/validate-locale";
+import { safeNextPath } from "@tuja/server-auth/sign-in-path";
 import { headers } from "next/headers";
 import type { ReactNode } from "react";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { safeNextPath } from "#src/assistant/auth/sign-in-path.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
 import { ASSISTANT_PATH_HEADER } from "#src/assistant/http/constants.ts";
 import { localClock } from "#src/assistant/report/due-report-date.ts";

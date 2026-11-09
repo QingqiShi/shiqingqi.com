@@ -1,4 +1,4 @@
-import { serializeCookie } from "./serialize-cookie.ts";
+import { serializeCookie } from "@tuja/server-auth/serialize-cookie";
 
 const NAME = "finance_session";
 const MAX_AGE_SECONDS = 400 * 24 * 60 * 60;

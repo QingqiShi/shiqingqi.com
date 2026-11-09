@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
+import { hashToken } from "@tuja/server-auth/hash-token";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { z } from "zod";
-import { hashToken } from "#src/assistant/auth/hash-token.ts";
 import {
   captureTokens,
   todos,

@@ -4,11 +4,11 @@ import {
   type AuthenticationResponseJSON,
   type RegistrationResponseJSON,
 } from "@simplewebauthn/server";
+import { uuidToBytes } from "@tuja/server-auth/uuid-to-bytes";
 import { z } from "zod";
 import { passkeys } from "#src/server/db/schema.ts";
 import type { BuddyDb } from "#src/server/db/types.ts";
 import { HttpError, type Context } from "./make-auth-route-kit.ts";
-import { uuidToBytes } from "./uuid-to-bytes.ts";
 
 const RP_NAME = "Buddy";
 

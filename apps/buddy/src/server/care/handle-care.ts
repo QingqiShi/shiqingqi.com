@@ -1,9 +1,9 @@
+import { isSameOrigin } from "@tuja/server-auth/is-same-origin";
 import { z } from "zod";
 import { MAX_CARE_PRESSES } from "#src/pet/max-care-presses.ts";
 import { ACCOUNT_NAME_PATTERN } from "../account-name-pattern.ts";
 import { readSession } from "../auth/read-session.ts";
 import type { BuddyDb } from "../db/types.ts";
-import { isSameOrigin } from "../http/is-same-origin.ts";
 import { slowDown, withinRateLimit } from "../http/within-rate-limit.ts";
 import { accountNameOf } from "../machines/account-name-of.ts";
 import { buddyKeys } from "../store/buddy-keys.ts";

@@ -6,6 +6,7 @@ import { SignOutIcon } from "@phosphor-icons/react/dist/ssr/SignOut";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { RouterLink } from "@tuja/next-links/router-link";
 import { Callout } from "@tuja/ui/components/callout";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
@@ -18,7 +19,6 @@ import { useState } from "react";
 import { useCopyToClipboard } from "#src/clipboard/use-copy-to-clipboard.ts";
 import { BASE_URL } from "#src/constants.ts";
 import { postJson } from "#src/http/post-json.ts";
-import { RouterLink } from "#src/links/router-link.tsx";
 import { fillTemplate } from "#src/pet/fill-template.ts";
 import { passkeyClient } from "#src/sign-in/passkey-client.ts";
 

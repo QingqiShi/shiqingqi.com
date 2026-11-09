@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
+import { hashToken } from "@tuja/server-auth/hash-token";
 import { sql } from "drizzle-orm";
 import { NextRequest, type NextResponse } from "next/server";
 import { i18nRouter } from "next-i18n-router";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { i18nConfig } from "#src/i18n/i18n-config.ts";
 import { assistantSessionCookie } from "../auth/assistant-session-cookie.ts";
-import { hashToken } from "../auth/hash-token.ts";
 import { sessions, users } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import { makeAssistantProxy } from "./assistant-proxy.ts";

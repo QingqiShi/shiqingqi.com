@@ -3,6 +3,7 @@
 import { SquaresFourIcon } from "@phosphor-icons/react/dist/ssr/SquaresFour";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { Link } from "@tuja/next-links/link";
 import { headerControlsTokens } from "@tuja/ui/components/header-controls.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
@@ -18,7 +19,6 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ComponentProps, ReactNode } from "react";
 import { Specimen } from "#src/design-system/specimen.tsx";
-import { Link } from "#src/links/link.tsx";
 import { DeviceFrame, DeviceFramePlaceholder } from "./device-frame.tsx";
 import {
   Count,

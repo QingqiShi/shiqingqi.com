@@ -1,8 +1,8 @@
+import { hashToken } from "@tuja/server-auth/hash-token";
 import { eq } from "drizzle-orm";
 import { sessions } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
 import { assistantSessionCookie } from "./assistant-session-cookie.ts";
-import { hashToken } from "./hash-token.ts";
 import type { AssistantSession } from "./types.ts";
 
 const REFRESH_AFTER_MS = 7 * 24 * 60 * 60 * 1000;

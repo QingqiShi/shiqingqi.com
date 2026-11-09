@@ -650,16 +650,10 @@ export default defineConfig([
       "@next/next/no-img-element": "off",
     },
   },
-  // Every link goes through an app's `Link`, which sets `prefetch={false}`.
+  // Every link goes through the shared `Link`, which prefetches only on intent.
   {
     files: ["apps/**", "packages/**"],
-    ignores: [
-      "apps/*/src/link.tsx",
-      "apps/web/src/links/link.tsx",
-      "apps/finance/src/links/link.tsx",
-      "apps/assistant/src/links/link.tsx",
-      "apps/buddy/src/links/link.tsx",
-    ],
+    ignores: ["apps/*/src/link.tsx", "packages/next-links/src/link.tsx"],
     rules: {
       "no-restricted-imports": [
         "error",
@@ -668,7 +662,7 @@ export default defineConfig([
             {
               name: "next/link",
               message:
-                "Import `Link` from `#src/links/link.tsx` (`@/link` in trip-planner). It never prefetches.",
+                "Import `Link` from `@tuja/next-links/link` (`@/link` in trip-planner). It prefetches only on intent, when `prefetchOnIntent` is set.",
             },
           ],
         },

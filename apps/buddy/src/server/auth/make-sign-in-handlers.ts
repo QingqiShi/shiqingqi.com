@@ -2,6 +2,8 @@ import {
   generateAuthenticationOptions,
   verifyAuthenticationResponse,
 } from "@simplewebauthn/server";
+import { readRequestCookie } from "@tuja/server-auth/read-request-cookie";
+import { uuidToBytes } from "@tuja/server-auth/uuid-to-bytes";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { accounts, passkeys } from "#src/server/db/schema.ts";
@@ -16,9 +18,7 @@ import {
   takeChallenge,
   type AuthRouteKit,
 } from "./make-auth-route-kit.ts";
-import { readRequestCookie } from "./read-request-cookie.ts";
 import { resolveSession } from "./resolve-session.ts";
-import { uuidToBytes } from "./uuid-to-bytes.ts";
 import { authenticationResponseSchema } from "./verify-registration.ts";
 
 const authenticationVerifyBody = z.object({

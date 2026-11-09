@@ -1,4 +1,6 @@
 import { randomUUID } from "node:crypto";
+import { generateToken } from "@tuja/server-auth/generate-token";
+import { hashToken } from "@tuja/server-auth/hash-token";
 import { and, eq, gt, isNull, lte, or } from "drizzle-orm";
 import { signUps } from "#src/finance/db/schema.ts";
 import type { FinanceDb } from "#src/finance/db/types.ts";
@@ -6,8 +8,6 @@ import {
   asFinanceApp,
   type FinanceAppDb,
 } from "#src/finance/db/with-household.ts";
-import { generateToken } from "./generate-token.ts";
-import { hashToken } from "./hash-token.ts";
 
 const SIGN_UP_LIFETIME_MS = 30 * 60 * 1000;
 

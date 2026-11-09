@@ -3,6 +3,7 @@ import type {
   PublicKeyCredentialCreationOptionsJSON,
   PublicKeyCredentialRequestOptionsJSON,
 } from "@simplewebauthn/server";
+import { createSoftwareAuthenticator } from "@tuja/server-auth/testing/create-software-authenticator";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createInvite } from "../auth/create-invite.ts";
@@ -14,7 +15,6 @@ import {
   createAuthTestClient,
   TEST_ORIGIN,
 } from "../auth/testing/create-auth-test-client.ts";
-import { createSoftwareAuthenticator } from "../auth/testing/create-software-authenticator.ts";
 import type { FinanceSession } from "../auth/types.ts";
 import { members, passkeys, sessions } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";

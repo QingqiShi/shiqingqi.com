@@ -6,6 +6,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { getLocale } from "@tuja/i18n/server-locale";
+import { Link } from "@tuja/next-links/link";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
@@ -24,7 +25,6 @@ import {
   space,
 } from "@tuja/ui/tokens.stylex";
 import { BUDDY_ORIGIN } from "#src/buddy-origin.mjs";
-import { Link } from "#src/links/link.tsx";
 import { SiteHeaderFooterLayout } from "./site-header-footer-layout.tsx";
 
 /**

@@ -1,7 +1,7 @@
+import { isSameOrigin } from "@tuja/server-auth/is-same-origin";
 import type { FinanceSession } from "../auth/types.ts";
 import { checkRateLimit } from "./check-rate-limit.ts";
 import { financeJson } from "./finance-json.ts";
-import { isSameOrigin } from "./is-same-origin.ts";
 import type { FinanceRateLimitBucket, LimitFinanceRequest } from "./types.ts";
 
 export interface FinanceRequestGuardDependencies {

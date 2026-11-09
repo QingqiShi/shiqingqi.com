@@ -1,6 +1,6 @@
+import { getRedisClient } from "@tuja/server-clients/get-redis-client";
 import { Ratelimit } from "@upstash/ratelimit";
 import "server-only";
-import { getRedisClient } from "#src/redis/get-redis-client.ts";
 import type {
   FinanceRateLimitBucket,
   FinanceRateLimitResult,
