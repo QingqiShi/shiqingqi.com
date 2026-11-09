@@ -16,7 +16,7 @@ export function svg(
 }
 
 const FONT =
-  "-apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif";
+  "-apple-system, system-ui, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif";
 
 const GLYPH_EM: Record<string, number> = {
   " ": 0.33,

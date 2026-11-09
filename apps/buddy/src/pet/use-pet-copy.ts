@@ -35,7 +35,7 @@ export function usePetCopy(): PetCopy {
     agoDays: t({ en: "{n}d ago", zh: "{n} 天前" }),
     levelNames: [
       t({ en: "Seed", zh: "种子" }),
-      t({ en: "Sprout", zh: "小苗" }),
+      t({ en: "Sprout", zh: "幼苗" }),
       t({ en: "Shoot", zh: "嫩芽" }),
       t({ en: "Bud", zh: "花苞" }),
       t({ en: "Bloom", zh: "开花" }),
