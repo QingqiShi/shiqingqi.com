@@ -34,8 +34,8 @@ catalogs:
       specifier: ^5.28.4
       version: 5.28.8
     '@next/env':
-      specifier: 16.4.3
-      version: 16.4.3
+      specifier: 16.4.5
+      version: 16.4.5
     '@phosphor-icons/react':
       specifier: ^2.1.10
       version: 2.1.10
@@ -316,7 +316,7 @@ importers:
         version: 0.5.14
       '@next/env':
         specifier: 'catalog:'
-        version: 16.4.3
+        version: 16.4.5
       '@serwist/cli':
         specifier: 'catalog:'
         version: 9.5.13(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.4)(esbuild@0.28.2)
@@ -479,7 +479,7 @@ importers:
         version: 0.5.14
       '@next/env':
         specifier: 'catalog:'
-        version: 16.4.3
+        version: 16.4.5
       '@stylexjs/postcss-plugin':
         specifier: ^0.19.1
         version: 0.19.1
@@ -699,7 +699,7 @@ importers:
         version: 0.5.14
       '@next/env':
         specifier: 'catalog:'
-        version: 16.4.3
+        version: 16.4.5
       '@playwright/test':
         specifier: ^1.64.1
         version: 1.64.1
@@ -3591,6 +3591,9 @@ packages:
 
   '@next/env@16.4.3':
     resolution: {integrity: sha512-a7tz1QCcWWkwC/rPJcPMJk/UNRu9CFhDd3OHYE5hddbJrs8BqRTalxI6GlKCWEGzRLHN+S/B7a4PAHCtm25aBQ==}
+
+  '@next/env@16.4.5':
+    resolution: {integrity: sha512-JwSPwpdkZL5VMl2jA/q+JI8MZdweAL3xmw5/tb9y/TLtmS0YXZnmYDzSihwk8xTj1OL+WM53gTqaj96yuLp6Xw==}
 
   '@next/eslint-plugin-next@16.4.3':
     resolution: {integrity: sha512-oxuC06wt/71h6ACYCV9GbKOfnf5a7VlRe/p80YHTut15TNgDEmynDnaq8t/xhy5rlvk7dhItIPs6H3rvIM4kyw==}
@@ -10568,6 +10571,8 @@ snapshots:
     optional: true
 
   '@next/env@16.4.3': {}
+
+  '@next/env@16.4.5': {}
 
   '@next/eslint-plugin-next@16.4.3(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))':
     dependencies:
