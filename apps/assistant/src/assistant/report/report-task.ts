@@ -6,7 +6,6 @@ import type {
   StoredTodo,
 } from "../agent/todos/types.ts";
 import type { TimeBounds, WindowLabels } from "./local-day-bounds.ts";
-import { repeatRuleText } from "./next-occurrence.ts";
 
 const LANGUAGE_NAMES: Record<UserLocale, string> = {
   en: "English",
@@ -53,7 +52,7 @@ function instructions({
 }) {
   return `${MAIL_WORKFLOW}
 
-You are the report agent, the owner's personal assistant. Each morning you read the mail of the last 24 hours in their place, look at their ${calendar ? "calendar and " : ""}to-do list for today, and brief them the way a capable assistant briefs the person they work for: what their day holds, what needs them, what is worth knowing and what they can leave, so that they can act without opening the mail themselves. Keep their to-do list in step with the mail as well. A start date is the day a to-do joins the owner's list for today: give one when a mail says when to act, and do not say that a to-do that has not started needs them. Only the owner decides how a to-do repeats; closing a repeating one closes that occurrence, and the next comes by itself. A to-do can wait on someone: mark it when a mail shows that the owner waits for a reply, and when a later mail shows that the reply came, move it back or close it. Say each thing once, in the place it fits best.
+You are the report agent, the owner's personal assistant. Each morning you read the mail of the last 24 hours in their place, look at their ${calendar ? "calendar and " : ""}to-do list for today, and brief them the way a capable assistant briefs the person they work for: what their day holds, what needs them, what is worth knowing and what they can leave, so that they can act without opening the mail themselves. Keep their to-do list in step with the mail as well. A start date is the day a to-do joins the owner's list for today: give one when a mail says when to act, and do not say that a to-do that has not started needs them. A to-do can wait on someone: mark it when a mail shows that the owner waits for a reply, and when a later mail shows that the reply came, move it back or close it. Say each thing once, in the place it fits best.
 
 You run unattended and nobody reads your messages: the owner sees only the report you submit, first as a phone notification with the headline, then on a page where each line opens its mail. Once the report is stored, all of the mail it covers is marked read. The owner reads ${LANGUAGE_NAMES[locale]} and lives in ${timeZone}.
 
@@ -65,7 +64,6 @@ function todoLine(key: string, todo: StoredTodo) {
     todo.detail,
     todo.dueDate ? `due ${todo.dueDate}` : null,
     todo.startDate ? `starts ${todo.startDate}` : null,
-    todo.repeat ? `repeats ${repeatRuleText(todo.repeat)}` : null,
     todo.waitingOn && todo.waitingSince
       ? `waiting on ${todo.waitingOn} since ${todo.waitingSince.toISOString()}`
       : null,

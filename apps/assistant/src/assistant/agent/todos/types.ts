@@ -1,5 +1,4 @@
 import type { TodoEditableField } from "#src/assistant/db/schema.ts";
-import type { RepeatRule } from "#src/assistant/report/next-occurrence.ts";
 import type { ChecklistItem } from "#src/assistant/report/own-todo.ts";
 import type { MailSource } from "#src/assistant/report/types.ts";
 
@@ -9,8 +8,6 @@ export interface StoredTodo {
   detail: string | null;
   dueDate: string | null;
   startDate: string | null;
-  /** How it comes back, which only the owner decides. */
-  repeat: RepeatRule | null;
   /** Who or what it waits on. */
   waitingOn: string | null;
   followUpDate: string | null;
@@ -70,7 +67,6 @@ export interface TodoChanges {
     id: string;
     title: string;
     reason: string;
-    repeats: boolean;
     /** The ISO time of the mail that shows it. */
     mailAt?: string;
   }[];

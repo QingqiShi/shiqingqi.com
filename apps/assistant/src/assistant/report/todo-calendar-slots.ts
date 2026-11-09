@@ -465,24 +465,6 @@ export async function freeSlotsOfClosedTodos(
   return freeEvents(scope, deps, rows);
 }
 
-/**
- * Takes the slot off a to-do that moved on to its next dates, because the slot
- * was for the occurrence that it skipped. A slot that has begun stays on the
- * calendar, as for a close, and a slot in the future goes.
- */
-export async function freeSlotOfSkippedTodo(
-  scope: UserScope,
-  deps: Deps,
-  todoId: string,
-  now: Date,
-) {
-  const row = await readSlot(scope, todoId);
-  if (!row?.accountId || !row.href || !row.start) return [];
-  if (row.start > now) return freeEvents(scope, deps, [row]);
-  await clearSlot(scope, todoId, row.href);
-  return [];
-}
-
 /** True when the owner can put a to-do on a calendar. */
 export async function hasCalendarAccount({ db, userId }: UserScope) {
   const accounts = await db.$count(

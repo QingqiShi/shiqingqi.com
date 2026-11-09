@@ -13,7 +13,6 @@ import { datesInOrder } from "./dates-in-order.ts";
 import { ownerChecklist } from "./owner-checklist.ts";
 import { ownerTodos, type TodoRefusal } from "./owner-todos.ts";
 import {
-  freeSlotOfSkippedTodo,
   freeSlotsOfClosedTodos,
   todoCalendarSlots,
   type SlotRefusal,
@@ -28,31 +27,6 @@ const detail = z
   .transform((text) => text || null);
 const localDate = z.iso.date();
 const instant = z.iso.datetime({ offset: true });
-
-const interval = z.int().min(1).max(todoLimits.repeatInterval);
-const repeatRule = z.discriminatedUnion("kind", [
-  z.strictObject({ kind: z.literal("daily"), every: interval }),
-  z.strictObject({
-    kind: z.literal("weekly"),
-    every: interval,
-    weekdays: z
-      .array(z.int().min(1).max(7))
-      .min(1)
-      .refine((days) => days.every((day, i) => i === 0 || day > days[i - 1])),
-  }),
-  z.strictObject({
-    kind: z.literal("monthly"),
-    every: interval,
-    day: z.union([z.int().min(1).max(31), z.literal("last")]),
-  }),
-  z.strictObject({
-    kind: z.literal("yearly"),
-    every: interval,
-    month: z.int().min(1).max(12),
-    day: z.int().min(1).max(31),
-  }),
-  z.strictObject({ kind: z.literal("after-done"), days: interval }),
-]);
 
 const addBody = z
   .strictObject({
@@ -70,17 +44,8 @@ const changeBody = z
     detail: detail.nullable().optional(),
     dueDate: localDate.nullable().optional(),
     startDate: localDate.nullable().optional(),
-    repeat: repeatRule.nullable().optional(),
-    nextId: z.uuid().optional(),
   })
   .refine((body) => Object.keys(body).length > 0);
-const occurrenceBody = z
-  .strictObject({
-    dueDate: localDate.nullable(),
-    startDate: localDate.nullable(),
-    ticked: z.array(z.uuid()).max(todoLimits.orderedTodos).default([]),
-  })
-  .refine(datesInOrder);
 const waitingOn = z.string().trim().min(1).max(todoLimits.waitingOnChars);
 const followUpDate = localDate.nullable();
 const waitingBody = z.union([
@@ -132,13 +97,7 @@ const bulkIds = z
 const bulkBody = z.discriminatedUnion("action", [
   z.strictObject({
     action: z.literal("done"),
-    todos: z
-      .array(z.strictObject({ id: z.uuid(), nextId: z.uuid().optional() }))
-      .min(1)
-      .max(todoLimits.bulkTodos)
-      .refine(
-        (todos) => new Set(todos.map(({ id }) => id)).size === todos.length,
-      ),
+    ids: bulkIds,
   }),
   z.strictObject({ action: z.literal("reopen"), ids: bulkIds }),
   z.strictObject({ action: z.literal("delete"), ids: bulkIds }),
@@ -274,25 +233,6 @@ export function makeTodoHandlers(
           : assistantNoContent();
       }),
 
-    /** Skips an occurrence of a repeating to-do, or undoes that. */
-    moveOccurrence: (request: Request, todoId: string) =>
-      withSession(request, async (scope, now) => {
-        const body = await readBody(request, occurrenceBody);
-        if (!body.success) return invalidBody();
-        if (!isTodoId(todoId)) return notFound();
-        if (!(await ownerTodos.moveOccurrence(scope, todoId, body.data, now))) {
-          return notFound();
-        }
-        return calendarAnswer(
-          await freeSlotOfSkippedTodo(
-            scope,
-            deps.getCalendarDeps(),
-            todoId,
-            now,
-          ),
-        );
-      }),
-
     /** Makes a to-do wait, changes its wait or ends it, and answers with what it was. Or puts that back. */
     changeWaiting: (request: Request, todoId: string) =>
       withSession(request, async (scope, now) => {
@@ -356,9 +296,9 @@ export function makeTodoHandlers(
         const { data } = body;
         switch (data.action) {
           case "done": {
-            const closed = await ownerTodos.closeMany(scope, data.todos, now);
-            return typeof closed === "string"
-              ? refused(closed)
+            const closed = await ownerTodos.closeMany(scope, data.ids, now);
+            return closed === false
+              ? notFound()
               : calendarAnswer(
                   await freeSlotsOfClosedTodos(
                     scope,

@@ -1,22 +1,7 @@
-import { randomUUID } from "node:crypto";
-import {
-  and,
-  eq,
-  inArray,
-  isNotNull,
-  TransactionRollbackError,
-} from "drizzle-orm";
+import { and, eq, inArray, isNotNull } from "drizzle-orm";
 import { todos } from "#src/assistant/db/schema.ts";
 import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
-import {
-  addNextOccurrence,
-  occurrenceColumns,
-  takeBackNextOccurrence,
-} from "./add-next-occurrence.ts";
-import { localClock } from "./due-report-date.ts";
-import { liveTodo, ownTodo } from "./own-todo.ts";
-import type { TodoRefusal } from "./owner-todos.ts";
-import { readReportSettings } from "./read-report-settings.ts";
+import { ownTodo } from "./own-todo.ts";
 
 /** A to-do that comes back no longer teaches the report anything. */
 export const notDeleted = {
@@ -33,57 +18,37 @@ function lockTodos(
   ids: readonly string[],
 ) {
   return tx
-    .select({
-      ...occurrenceColumns,
-      doneAt: todos.doneAt,
-      nextTodoId: todos.nextTodoId,
-    })
+    .select({ id: todos.id, doneAt: todos.doneAt })
     .from(todos)
     .where(and(ownTodo(scope), inArray(todos.id, [...ids])))
     .for("update");
 }
 
 /**
- * Closes many to-dos, all or none, and makes the next occurrence of each one
- * that repeats. It gives back those that it closed, because one that is done
- * already must stay done after an undo.
+ * Closes many to-dos, all or none. It gives back those that it closed, because
+ * one that is done already must stay done after an undo. False when the user
+ * lacks one of them.
  */
 export async function closeTodos(
   scope: UserScope,
-  closing: readonly { id: string; nextId?: string }[],
+  ids: readonly string[],
   now: Date,
-): Promise<string[] | TodoRefusal> {
-  const { timeZone } = await readReportSettings(scope);
-  const nextIdOf = new Map(closing.map(({ id, nextId }) => [id, nextId]));
-  try {
-    return await scope.db.transaction(async (tx) => {
-      const rows = await lockTodos(tx, scope, [...nextIdOf.keys()]);
-      if (rows.length !== closing.length) return "not-found";
-      const open = rows.filter((row) => row.doneAt === null);
-      for (const row of open) {
-        const added = await addNextOccurrence(tx, {
-          userId: scope.userId,
-          closed: row,
-          nextId: nextIdOf.get(row.id) ?? randomUUID(),
-          doneOn: localClock(now, timeZone).date,
-          now,
-        });
-        if (!added) tx.rollback();
-      }
-      const closed = open.map((row) => row.id);
-      await tx
-        .update(todos)
-        .set({ doneAt: now, updatedAt: now })
-        .where(and(ownTodo(scope), inArray(todos.id, closed)));
-      return closed;
-    });
-  } catch (error) {
-    if (error instanceof TransactionRollbackError) return "id-taken";
-    throw error;
-  }
+): Promise<string[] | false> {
+  return scope.db.transaction(async (tx) => {
+    const rows = await lockTodos(tx, scope, ids);
+    if (rows.length !== ids.length) return false;
+    const closed = rows
+      .filter((row) => row.doneAt === null)
+      .map((row) => row.id);
+    await tx
+      .update(todos)
+      .set({ doneAt: now, updatedAt: now })
+      .where(and(ownTodo(scope), inArray(todos.id, closed)));
+    return closed;
+  });
 }
 
-/** Opens many to-dos again, all or none, each as `changeTodo` does. False when the user lacks one of them. */
+/** Opens many to-dos again, all or none. False when the user lacks one of them. */
 export async function reopenTodos(
   scope: UserScope,
   ids: readonly string[],
@@ -92,23 +57,15 @@ export async function reopenTodos(
   return scope.db.transaction(async (tx) => {
     const rows = await lockTodos(tx, scope, ids);
     if (rows.length !== ids.length) return false;
-    const closed = rows.filter((row) => row.doneAt !== null);
-    for (const { id, nextTodoId } of closed) {
-      if (nextTodoId === null) continue;
-      await tx
-        .update(todos)
-        .set(await takeBackNextOccurrence(tx, scope, nextTodoId))
-        .where(liveTodo(scope, id));
-    }
     await tx
       .update(todos)
-      .set({ doneAt: null, doneReason: null, nextTodoId: null, updatedAt: now })
+      .set({ doneAt: null, doneReason: null, updatedAt: now })
       .where(
         and(
           ownTodo(scope),
           inArray(
             todos.id,
-            closed.map((row) => row.id),
+            rows.filter((row) => row.doneAt !== null).map((row) => row.id),
           ),
         ),
       );

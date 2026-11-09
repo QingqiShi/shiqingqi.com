@@ -4,8 +4,6 @@ export const todoLimits = {
   bulkTodos: 500,
   /** The most to-dos, or steps of a checklist, that one request can put in order. */
   orderedTodos: 500,
-  /** The most days, weeks, months or years between two occurrences. */
-  repeatInterval: 999,
   titleChars: 300,
   detailChars: 2000,
   checklistItemChars: 300,

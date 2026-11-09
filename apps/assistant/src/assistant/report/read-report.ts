@@ -20,7 +20,6 @@ import {
 import type { UserScope } from "#src/assistant/db/types.ts";
 import { mailViewPath } from "#src/assistant/mail/view/mail-view-path.ts";
 import { startsAfter, waitsAfter } from "./dates-in-order.ts";
-import type { RepeatRule } from "./next-occurrence.ts";
 import {
   checklistOfTodo,
   ownTodo,
@@ -47,11 +46,8 @@ export interface TodoView {
   detail: string | null;
   dueDate: string | null;
   startDate: string | null;
-  repeat: RepeatRule | null;
   /** The time that it holds on the calendar. */
   calendarSlot: { start: Date; end: Date } | null;
-  /** The occurrence that closing this one made. */
-  nextId: string | null;
   /** Who or what it waits on. */
   waitingOn: string | null;
   followUpDate: string | null;
@@ -115,11 +111,9 @@ const todoColumns = {
   detail: todos.detail,
   dueDate: todos.dueDate,
   startDate: todos.startDate,
-  repeat: todos.repeat,
   calendarAccountId: todos.calendarAccountId,
   calendarStart: todos.calendarStart,
   calendarEnd: todos.calendarEnd,
-  nextTodoId: todos.nextTodoId,
   waitingOn: todos.waitingOn,
   followUpDate: todos.followUpDate,
   waitingNote: todos.waitingNote,
@@ -148,12 +142,10 @@ function toTodoView(
     detail: row.detail,
     dueDate: row.dueDate,
     startDate: row.startDate,
-    repeat: row.repeat,
     calendarSlot:
       row.calendarAccountId && row.calendarStart && row.calendarEnd
         ? { start: row.calendarStart, end: row.calendarEnd }
         : null,
-    nextId: row.nextTodoId,
     waitingOn: row.waitingOn,
     followUpDate: row.followUpDate,
     waitingNote: row.waitingNote,

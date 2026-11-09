@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
@@ -19,41 +18,17 @@ setUpTodoHandlers();
 
 describe("the owner's to-do requests", () => {
   describe("bulk", () => {
-    async function insertRepeating(userId: string) {
-      const [row] = await db
-        .insert(todos)
-        .values({
-          userId,
-          title: "Pay rent",
-          dueDate: "2026-11-01",
-          repeat: { kind: "monthly", every: 1, day: 1 },
-        })
-        .returning();
-      return row;
-    }
-
-    it("closes all with their next occurrences, and one undo restores every row", async () => {
-      const plain = await insertTodo(owner);
-      const repeating = await insertRepeating(owner);
-      const nextId = randomUUID();
+    it("closes all, and one undo restores every row", async () => {
+      const first = await insertTodo(owner);
+      const second = await insertTodo(owner);
 
       const closed = await handlers.bulk(
-        request("POST", {
-          action: "done",
-          todos: [{ id: plain.id }, { id: repeating.id, nextId }],
-        }),
+        request("POST", { action: "done", ids: [first.id, second.id] }),
       );
 
       expect(closed.status).toBe(200);
-      expect(await stored(plain.id)).toMatchObject({ doneAt: NOW });
-      expect(await stored(repeating.id)).toMatchObject({
-        doneAt: NOW,
-        nextTodoId: nextId,
-      });
-      expect(await stored(nextId)).toMatchObject({
-        dueDate: "2026-12-01",
-        position: repeating.position,
-      });
+      expect(await stored(first.id)).toMatchObject({ doneAt: NOW });
+      expect(await stored(second.id)).toMatchObject({ doneAt: NOW });
 
       const { closed: ids } = z
         .object({ closed: z.array(z.string()) })
@@ -63,15 +38,8 @@ describe("the owner's to-do requests", () => {
       );
 
       expect(undone.status).toBe(204);
-      expect(await stored(plain.id)).toMatchObject({ doneAt: null });
-      expect(await stored(repeating.id)).toMatchObject({
-        doneAt: null,
-        nextTodoId: null,
-        position: repeating.position,
-        dueDate: "2026-11-01",
-        repeat: repeating.repeat,
-      });
-      expect(await stored(nextId)).toBeUndefined();
+      expect(await stored(first.id)).toMatchObject({ doneAt: null });
+      expect(await stored(second.id)).toMatchObject({ doneAt: null });
     });
 
     it("does not count a to-do that was done already, so an undo leaves it done", async () => {
@@ -86,7 +54,7 @@ describe("the owner's to-do requests", () => {
       const closed = await handlers.bulk(
         request("POST", {
           action: "done",
-          todos: [{ id: open.id }, { id: doneId }],
+          ids: [open.id, doneId],
         }),
       );
 
@@ -102,7 +70,7 @@ describe("the owner's to-do requests", () => {
       const closed = await handlers.bulk(
         request("POST", {
           action: "done",
-          todos: ids.map((id) => ({ id })),
+          ids,
         }),
       );
       const deleted = await handlers.bulk(
@@ -117,26 +85,6 @@ describe("the owner's to-do requests", () => {
           deletedAt: null,
         });
       }
-    });
-
-    it("closes none when a next id is taken", async () => {
-      const plain = await insertTodo(owner);
-      const repeating = await insertRepeating(owner);
-      const theirs = await insertTodo(stranger);
-
-      const closed = await handlers.bulk(
-        request("POST", {
-          action: "done",
-          todos: [{ id: plain.id }, { id: repeating.id, nextId: theirs.id }],
-        }),
-      );
-
-      expect(closed.status).toBe(409);
-      expect(await stored(plain.id)).toMatchObject({ doneAt: null });
-      expect(await stored(repeating.id)).toMatchObject({
-        doneAt: null,
-        nextTodoId: null,
-      });
     });
 
     it("deletes all, and restores only the user's own", async () => {

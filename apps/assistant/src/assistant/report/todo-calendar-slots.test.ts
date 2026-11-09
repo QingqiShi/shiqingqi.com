@@ -357,7 +357,7 @@ describe("a to-do that ends while it holds time", () => {
     const response = await handlers.bulk(
       request("POST", {
         action: "done",
-        todos: [{ id: first.id }, { id: second.id }],
+        ids: [first.id, second.id],
       }),
     );
 
@@ -430,60 +430,5 @@ describe("a to-do that ends while it holds time", () => {
     expect(server.events(calendarUrl)).toEqual([changed]);
     expect((await stored(id)).calendarHref).toBeNull();
     expect((await stored(id)).deletedAt).toEqual(NOW);
-  });
-
-  it("does not bring a slot along to the next occurrence", async () => {
-    const { id } = await todoWithSlot({
-      repeat: { kind: "daily", every: 1 },
-      dueDate: "2026-11-03",
-    });
-    const nextId = randomUUID();
-
-    await handlers.update(request("PATCH", { done: true, nextId }), id);
-
-    expect((await stored(nextId)).calendarHref).toBeNull();
-    expect(server.events(calendarUrl)).toEqual([]);
-  });
-
-  it("frees the time of an occurrence that the owner skips", async () => {
-    const { id } = await todoWithSlot({
-      repeat: { kind: "daily", every: 1 },
-      dueDate: "2026-11-03",
-    });
-
-    const response = await handlers.moveOccurrence(
-      request("PUT", {
-        dueDate: "2026-11-04",
-        startDate: null,
-        ticked: [],
-      }),
-      id,
-    );
-
-    expect(await response.json()).toEqual({
-      calendar: [{ id, outcome: "freed" }],
-    });
-    expect(server.events(calendarUrl)).toEqual([]);
-    expect((await stored(id)).calendarHref).toBeNull();
-  });
-
-  it("gives the slot of a next occurrence to the row that opens in its place", async () => {
-    const { id } = await insertTodo({
-      repeat: { kind: "daily", every: 1 },
-      dueDate: "2026-11-03",
-    });
-    const nextId = randomUUID();
-    await handlers.update(request("PATCH", { done: true, nextId }), id);
-    await addSlot(nextId);
-    const [event] = server.events(calendarUrl);
-
-    await handlers.update(request("PATCH", { done: false }), id);
-
-    expect(await stored(id)).toMatchObject({
-      calendarHref: event.url,
-      calendarEtag: event.etag,
-      calendarAccountId: accountId,
-    });
-    expect(server.events(calendarUrl)).toEqual([event]);
   });
 });

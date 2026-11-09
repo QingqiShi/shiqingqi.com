@@ -30,7 +30,6 @@ import { CalendarSlotLabel } from "./calendar-slot-label.tsx";
 import { ChecklistProgress } from "./checklist-progress.tsx";
 import { daysBetween, formatShortDate } from "./format-day.ts";
 import { OpenMailButton } from "./open-mail-button.tsx";
-import { RepeatLabel } from "./repeat-label.tsx";
 import { TickBox } from "./tick-box.tsx";
 import { slotIsAhead } from "./to-todo-item-data.ts";
 import { TodoEditor, type TodoEditFocus } from "./todo-editor.tsx";
@@ -299,9 +298,6 @@ export function TodoItem({
                   formatShortDate(todo.startDate, locale),
                 )}
               </Badge>
-            ) : null}
-            {todo.repeat && !done ? (
-              <RepeatLabel rule={todo.repeat} locale={locale} />
             ) : null}
             {todo.calendarSlot &&
             (!done || slotIsAhead(todo.calendarSlot, renderedAt)) ? (

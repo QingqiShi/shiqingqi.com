@@ -228,36 +228,5 @@ describe("the to-do tools", () => {
       });
       expect(await storedRow(moving.id)).toMatchObject({ waitingOn: "Bob" });
     });
-
-    it("leaves the wait out of a next occurrence", async () => {
-      const userId = await insertUser(db);
-      const [row] = await db
-        .insert(todos)
-        .values({
-          userId,
-          title: "Get the rent receipt",
-          dueDate: "2026-11-02",
-          repeat: { kind: "monthly", every: 1, day: 2 },
-          waitingOn: "The landlord",
-          waitingSince: WAIT_BEGAN,
-          ownerEditedFields: ["dueDate", "waitingOn"],
-        })
-        .returning();
-      const { tools, changes } = await run(userId);
-
-      await callAgentTool(tools.complete_todo, {
-        todo: "t1",
-        reason: "The receipt came.",
-        mail: "new",
-      });
-      await applyChanges(db, userId, changes);
-
-      const closed = await storedRow(row.id);
-      expect(await storedRow(closed?.nextTodoId ?? "")).toMatchObject({
-        waitingOn: null,
-        waitingSince: null,
-        ownerEditedFields: ["dueDate"],
-      });
-    });
   });
 });

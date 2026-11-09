@@ -11,22 +11,15 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { datesInOrder } from "../report/dates-in-order.ts";
-import { firstOccurrence, sameRepeatRule } from "../report/next-occurrence.ts";
 import { todoLimits } from "../report/todo-limits.ts";
 import { OpenMailButton } from "./open-mail-button.tsx";
-import {
-  RepeatField,
-  repeatDraftOf,
-  ruleOfDraft,
-  withYearDate,
-} from "./repeat-field.tsx";
 import type { TodoItemData } from "./to-todo-item-data.ts";
 import { TodoChecklist } from "./todo-checklist.tsx";
 import type { TodoItemSortable } from "./todo-item.tsx";
 import { useTodoStore, type TodoEdit } from "./todo-store-provider.tsx";
 
 export type TodoEditFocus =
-  "title" | "checklist" | "dueDate" | "startDate" | "repeat" | "waitingOn";
+  "title" | "checklist" | "dueDate" | "startDate" | "waitingOn";
 
 function openDatePicker(field: HTMLInputElement) {
   try {
@@ -102,29 +95,21 @@ export function TodoEditor({
   sortable?: TodoItemSortable;
   onClose: () => void;
 }) {
-  const { edit, remove, setWaiting, addStep, today, locale } = useTodoStore();
+  const { edit, remove, setWaiting, addStep } = useTodoStore();
   const [title, setTitle] = useState(todo.title);
   const [detail, setDetail] = useState(todo.detail ?? "");
   const [dueDate, setDueDate] = useState(todo.dueDate ?? "");
   const [startDate, setStartDate] = useState(todo.startDate ?? "");
-  const [repeat, setRepeat] = useState(() =>
-    repeatDraftOf(todo.repeat, todo.dueDate ?? today),
-  );
   const [waitingOn, setWaitingOn] = useState(todo.waitingOn ?? "");
   const [followUpDate, setFollowUpDate] = useState(todo.followUpDate ?? "");
   const [newStep, setNewStep] = useState("");
   const [titleError, setTitleError] = useState("");
-  const [repeatError, setRepeatError] = useState("");
   const [startError, setStartError] = useState("");
   const titleRequired = t({ en: "Give it a title.", zh: "请填写标题。" });
   const startAfterDue = t({
     en: "It cannot start after it is due.",
     zh: "开始日期不能晚于到期日。",
   });
-  const badInterval = t({
-    en: "Give a whole number from 1 to {max}.",
-    zh: "请填写 1 到 {max} 之间的整数。",
-  }).replace("{max}", String(todoLimits.repeatInterval));
 
   function save() {
     const nextTitle = title.trim();
@@ -133,13 +118,7 @@ export function TodoEditor({
       return;
     }
     const nextDetail = detail.trim() || null;
-    const nextRepeat = ruleOfDraft(repeat);
-    if (nextRepeat === undefined) {
-      setRepeatError(badInterval);
-      return;
-    }
-    const nextDueDate =
-      dueDate || (nextRepeat && firstOccurrence(nextRepeat, today));
+    const nextDueDate = dueDate || null;
     const nextStartDate = startDate || null;
     if (!datesInOrder({ startDate: nextStartDate, dueDate: nextDueDate })) {
       setStartError(startAfterDue);
@@ -150,7 +129,6 @@ export function TodoEditor({
     if (nextDetail !== todo.detail) change.detail = nextDetail;
     if (nextDueDate !== todo.dueDate) change.dueDate = nextDueDate;
     if (nextStartDate !== todo.startDate) change.startDate = nextStartDate;
-    if (!sameRepeatRule(nextRepeat, todo.repeat)) change.repeat = nextRepeat;
     if (Object.keys(change).length > 0) edit(todo.id, change);
     const nextWaitingOn = waitingOn.trim() || null;
     const nextFollowUp = nextWaitingOn && followUpDate ? followUpDate : null;
@@ -222,7 +200,6 @@ export function TodoEditor({
           onChange={(value) => {
             setDueDate(value);
             setStartError("");
-            if (value) setRepeat(withYearDate(repeat, value));
           }}
         />
         <DateField
@@ -261,17 +238,6 @@ export function TodoEditor({
             onChange={setFollowUpDate}
           />
         ) : null}
-        <RepeatField
-          draft={repeat}
-          date={dueDate || today}
-          autoFocus={focus === "repeat"}
-          error={repeatError || undefined}
-          locale={locale}
-          onChange={(draft) => {
-            setRepeat(draft);
-            setRepeatError("");
-          }}
-        />
         <div css={cluster.tight}>
           <Text look="caption" tone="muted">
             {todo.createdBy === "owner"

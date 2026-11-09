@@ -96,7 +96,6 @@ async function applyChanges(changes: Partial<TodoChanges>) {
       reportId: report.id,
       runId: run.id,
       now: NOW,
-      today: "2026-11-02",
       changes: { ...NO_CHANGES, ...changes },
     }),
   );
@@ -274,53 +273,6 @@ describe("undo of a completion", () => {
     id,
     title: "Pay the invoice",
     reason: "It is paid.",
-    repeats: true,
-  });
-
-  it("takes the next occurrence away with no trace and takes its place", async () => {
-    const todo = await insertTodo({
-      dueDate: "2026-11-02",
-      repeat: { kind: "daily", every: 1 },
-    });
-    const runId = await applyChanges({ done: [done(todo.id)] });
-    const closed = await readTodo(todo.id);
-    const nextId = closed?.nextTodoId ?? "";
-    const next = await readTodo(nextId);
-
-    await undo(runId);
-
-    expect(await readTodo(nextId)).toBeUndefined();
-    const row = await readTodo(todo.id);
-    expect(row).toMatchObject({
-      doneAt: null,
-      doneReason: null,
-      nextTodoId: null,
-      position: next?.position,
-      repeat: { kind: "daily", every: 1 },
-    });
-    expect(await readDeletedTodos(scope, LATER)).toEqual([]);
-  });
-
-  it("leaves the rule out when the next occurrence is done, so that the series does not run twice", async () => {
-    const todo = await insertTodo({
-      dueDate: "2026-11-02",
-      repeat: { kind: "daily", every: 1 },
-    });
-    const runId = await applyChanges({ done: [done(todo.id)] });
-    const nextId = (await readTodo(todo.id))?.nextTodoId ?? "";
-    await ownerTodos.change(
-      scope,
-      nextId,
-      { done: true, nextId: randomUUID() },
-      NOW,
-    );
-
-    await undo(runId);
-
-    const row = await readTodo(todo.id);
-    expect(row?.doneAt).toBeNull();
-    expect(row?.repeat).toBeNull();
-    expect((await readTodo(nextId))?.doneAt).toEqual(NOW);
   });
 
   it("puts back the wait that the completion ended", async () => {
@@ -332,7 +284,7 @@ describe("undo of a completion", () => {
       waitingNote: "Sam will reply.",
     });
     const runId = await applyChanges({
-      done: [{ ...done(todo.id), repeats: false, mailAt: NOW.toISOString() }],
+      done: [{ ...done(todo.id), mailAt: NOW.toISOString() }],
     });
 
     await undo(runId);
@@ -349,7 +301,7 @@ describe("undo of a completion", () => {
   it("does not reopen a to-do that the owner closed again", async () => {
     const todo = await insertTodo();
     const runId = await applyChanges({
-      done: [{ ...done(todo.id), repeats: false }],
+      done: [{ ...done(todo.id) }],
     });
     await ownerTodos.change(scope, todo.id, { done: false }, NOW);
     await ownerTodos.change(scope, todo.id, { done: true }, LATER);

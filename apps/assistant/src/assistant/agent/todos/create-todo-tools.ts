@@ -80,7 +80,6 @@ export function createTodoTools({
     open,
     takeChange,
     ownerSet,
-    repeatOf,
     waitingSinceOf,
     replyTime,
     view,
@@ -102,7 +101,7 @@ export function createTodoTools({
   const tools: AgentTools = {
     list_todos: agentTool({
       description:
-        "The owner's open to-dos. ownerSet names the fields the owner set, which you cannot change. waitingOn says who or what a to-do waits on, since waitingSince. repeats says how a to-do comes back when it is closed, which only the owner decides. checklist is the owner's steps and which are ticked, which you cannot change. Ticking every step does not close a to-do.",
+        "The owner's open to-dos. ownerSet names the fields the owner set, which you cannot change. waitingOn says who or what a to-do waits on, since waitingSince. checklist is the owner's steps and which are ticked, which you cannot change. Ticking every step does not close a to-do.",
       inputSchema: z.object({}),
       describe: () => ({ kind: "list_todos" }),
       execute: () =>
@@ -151,14 +150,11 @@ export function createTodoTools({
         }
         const same = [...entries].find(
           ([, entry]) =>
-            (!entry.done || repeatOf(entry)) &&
-            normal(entry.todo.title) === normal(input.title),
+            !entry.done && normal(entry.todo.title) === normal(input.title),
         );
         if (same) {
           throw new ToolRefusal(
-            same[1].done
-              ? `To-do ${same[0]} has that title and repeats, so its next occurrence comes by itself.`
-              : `To-do ${same[0]} has that title already. Update it instead.`,
+            `To-do ${same[0]} has that title already. Update it instead.`,
           );
         }
         const mail =
@@ -189,7 +185,7 @@ export function createTodoTools({
 
     complete_todo: agentTool({
       description:
-        "Marks an open to-do done, when mail shows that it is done or no longer needed. The report shows the owner the to-do with the reason, so it needs no other line on it. On a repeating to-do it closes this occurrence only: the next comes by itself, and only the owner can end the series. A to-do that waits closes only with a mail that came after the wait began.",
+        "Marks an open to-do done, when mail shows that it is done or no longer needed. The report shows the owner the to-do with the reason, so it needs no other line on it. A to-do that waits closes only with a mail that came after the wait began.",
       inputSchema: z.object({
         todo: todoKey,
         reason: z
@@ -227,7 +223,6 @@ export function createTodoTools({
             id: entry.todo.id,
             title: entry.todo.title,
             reason,
-            repeats: entry.todo.repeat !== null,
             mailAt: mailAt?.toISOString(),
           });
         }

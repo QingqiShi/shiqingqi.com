@@ -127,6 +127,13 @@
       "when": 1794096149198,
       "tag": "0017_drop_todo_reminders",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794180907667,
+      "tag": "0018_drop_todo_repeat",
+      "breakpoints": true
     }
   ]
 }

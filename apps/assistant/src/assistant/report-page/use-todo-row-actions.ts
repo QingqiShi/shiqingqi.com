@@ -6,20 +6,17 @@ import type {
   WaitingChange,
 } from "../report/change-waiting.ts";
 import { datesInOrder } from "../report/dates-in-order.ts";
-import { nextOccurrenceDates } from "../report/next-occurrence.ts";
 import type { OwnerTodoChange } from "../report/owner-todos.ts";
 import { rearrange } from "../report/rearrange.ts";
-import { closeRow, nextRowOf, reopenRow, withTicks } from "./close-row.ts";
-import { formatListDay } from "./format-day.ts";
+import { closeRow, reopenRow } from "./close-row.ts";
 import { viewOfTodo } from "./group-open-todos.ts";
 import {
-  patchChecklist,
   patchRow,
   withWaiting,
   type TodoOp,
   type TodoRows,
 } from "./patch-row.ts";
-import { isOpen, type TodoItemData } from "./to-todo-item-data.ts";
+import type { TodoItemData } from "./to-todo-item-data.ts";
 import type {
   ShowDeleted,
   TodoEdit,
@@ -61,25 +58,17 @@ export function useTodoRowActions({
   rows,
   run,
   today,
-  locale,
   slotRelease,
   showDeleted,
 }: {
   rows: TodoRows;
   run: RunTodoOp;
   today: string;
-  locale: string;
   slotRelease: ReleaseSlots;
   showDeleted: ShowDeleted;
 }): Pick<
   TodoStore,
-  | "add"
-  | "edit"
-  | "setDone"
-  | "skipOccurrence"
-  | "remove"
-  | "setWaiting"
-  | "reorder"
+  "add" | "edit" | "setDone" | "remove" | "setWaiting" | "reorder"
 > {
   const showToast = useToast();
   const copy = {
@@ -89,14 +78,6 @@ export function useTodoRowActions({
       en: "Reopened. It is back in your list",
       zh: "已重新打开，回到了待办列表",
     }),
-    doneNext: t({
-      en: "Done. Next one on {date}",
-      zh: "已完成。下一次在 {date}",
-    }),
-    skipped: t({
-      en: "Skipped. Next one on {date}",
-      zh: "已跳过。下一次在 {date}",
-    }),
     deleted: t({ en: "Deleted", zh: "已删除" }),
     waitingOn: t({ en: "Waiting on {who}", zh: "正在等待：{who}" }),
     waitingOnUpcoming: t({
@@ -104,10 +85,6 @@ export function useTodoRowActions({
       zh: "正在等待：{who}。它现在在“接下来”里",
     }),
     notWaiting: t({ en: "Not waiting any more", zh: "不再等待" }),
-    deletedSeries: t({
-      en: "Deleted, and it will not repeat",
-      zh: "已删除，不会再重复",
-    }),
   };
 
   function sendTodoChange(
@@ -129,27 +106,6 @@ export function useTodoRowActions({
     sendTodoChange(id, reopenRow(id), { done: false });
   }
 
-  function sendOccurrence(
-    id: string,
-    fields: Pick<TodoItemData, "dueDate" | "startDate" | "calendarSlot">,
-    ticked: readonly string[],
-    onAnswer?: (response: Response) => Promise<void>,
-  ) {
-    const { dueDate, startDate } = fields;
-    const patchDates = patchRow(id, fields);
-    const patchTicks = patchChecklist(id, (steps) => withTicks(steps, ticked));
-    run(
-      (list) => patchTicks(patchDates(list)),
-      async () => {
-        const response = await assistantFetch(`/api/todos/${id}/occurrence`, {
-          method: "PUT",
-          body: JSON.stringify({ dueDate, startDate, ticked }),
-        });
-        await onAnswer?.(response);
-      },
-    );
-  }
-
   return {
     add: ({ title, dueDate }) => {
       const id = crypto.randomUUID();
@@ -159,9 +115,7 @@ export function useTodoRowActions({
         detail: null,
         dueDate,
         startDate: null,
-        repeat: null,
         calendarSlot: null,
-        nextId: null,
         waitingOn: null,
         followUpDate: null,
         waitingNote: null,
@@ -196,12 +150,9 @@ export function useTodoRowActions({
         return;
       }
       const row = rows.find((entry) => entry.id === id);
-      const next = row ? nextRowOf(row, today) : null;
       const release = slotRelease(row ? [row] : []);
       const closedToast: WordedToast = {
-        message: next
-          ? copy.doneNext.replace("{date}", formatListDay(next.dueDate, locale))
-          : copy.done,
+        message: copy.done,
         action: {
           label: copy.undo,
           onAction: () => {
@@ -212,63 +163,27 @@ export function useTodoRowActions({
       };
       sendTodoChange(
         id,
-        closeRow(id, next, new Date().toISOString()),
-        { done: true, nextId: next?.id },
+        closeRow(id, new Date().toISOString()),
+        { done: true },
         (response) => release.tell(response, closedToast),
       );
       showToast(closedToast);
-    },
-    skipOccurrence: (id) => {
-      const row = rows.find((entry) => entry.id === id);
-      if (!row?.repeat) return;
-      const moved = nextOccurrenceDates(row.repeat, row, today);
-      const release = slotRelease([row]);
-      const skippedToast: WordedToast = {
-        message: copy.skipped.replace(
-          "{date}",
-          formatListDay(moved.dueDate, locale),
-        ),
-        action: {
-          label: copy.undo,
-          onAction: () => {
-            sendOccurrence(
-              id,
-              {
-                dueDate: row.dueDate,
-                startDate: row.startDate,
-                calendarSlot: null,
-              },
-              row.checklist.filter((step) => step.done).map((step) => step.id),
-            );
-            release.addBack();
-          },
-        },
-      };
-      sendOccurrence(id, { ...moved, calendarSlot: null }, [], (response) =>
-        release.tell(response, skippedToast),
-      );
-      showToast(skippedToast);
     },
     remove: (id) => {
       const row = rows.find((entry) => entry.id === id);
       if (!row) return;
       const index = rows.indexOf(row);
       const release = slotRelease([row]);
-      const deletedToast = showDeleted(
-        [row],
-        row.repeat && isOpen(row) ? copy.deletedSeries : copy.deleted,
-        () => {
-          run(
-            (list) =>
-              list.some((entry) => entry.id === id)
-                ? list
-                : list.toSpliced(index, 0, row),
-            () =>
-              assistantFetch(`/api/todos/${id}/restore`, { method: "POST" }),
-          );
-          release.addBack();
-        },
-      );
+      const deletedToast = showDeleted([row], copy.deleted, () => {
+        run(
+          (list) =>
+            list.some((entry) => entry.id === id)
+              ? list
+              : list.toSpliced(index, 0, row),
+          () => assistantFetch(`/api/todos/${id}/restore`, { method: "POST" }),
+        );
+        release.addBack();
+      });
       run(
         (list) => list.filter((entry) => entry.id !== id),
         async () => {
