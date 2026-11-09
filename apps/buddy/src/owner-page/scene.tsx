@@ -4,7 +4,10 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
+import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode, Ref } from "react";
+import { sceneHeight, sceneTokens } from "./scene.stylex.ts";
 import { SvgMarkup } from "./svg-markup.tsx";
 
 type SceneProps = {
@@ -15,6 +18,7 @@ type SceneProps = {
   onTap: () => void;
   ref: Ref<HTMLDivElement>;
   insetRef: Ref<HTMLDivElement>;
+  css?: StyleProp;
   /** The corner marks, laid over the scene. */
   children?: ReactNode;
 };
@@ -30,10 +34,11 @@ export function Scene({
   onTap,
   ref,
   insetRef,
+  css,
   children,
 }: SceneProps) {
   return (
-    <div ref={ref} css={styles.scene}>
+    <div ref={ref} css={[styles.scene, css]}>
       <div ref={insetRef} aria-hidden css={styles.inset} />
       <div aria-live="polite" css={a11y.srOnly}>
         {alt}
@@ -48,6 +53,7 @@ export function Scene({
           <SvgMarkup markup={svg} />
         </span>
       </button>
+      <div aria-hidden css={styles.seam} />
       {children}
     </div>
   );
@@ -57,10 +63,20 @@ const styles = stylex.create({
   scene: {
     position: "relative",
     blockSize: {
-      default: `calc(env(safe-area-inset-top) + clamp(20rem, 48svh, 26rem))`,
-      [breakpoints.md]: `calc(env(safe-area-inset-top) + clamp(22rem, 48svh, 30rem))`,
+      default: sceneHeight.phone,
+      [breakpoints.md]: sceneHeight.wide,
     },
     overflow: "hidden",
+  },
+  // In dark mode the ground fades into the page, so that it does not stop
+  // at a hard edge on the black page.
+  seam: {
+    position: "absolute",
+    insetInline: 0,
+    insetBlockEnd: 0,
+    blockSize: space._5,
+    backgroundImage: `linear-gradient(transparent, light-dark(transparent, ${sceneTokens.seamFade}))`,
+    pointerEvents: "none",
   },
   // An empty box as tall as the status bar, so that the scene can measure it.
   inset: {

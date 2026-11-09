@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 
-/** The calm column under the scene. The pet page and the home page share it, so they read as one place. */
+/** The calm column under the pet page's scene. The home page's footer takes its padding, so the two pages end the same way. */
 export const petPageColumn = stylex.create({
   content: {
     paddingBlockStart: space._5,

@@ -299,7 +299,7 @@ export function sceneInputFor(
   override: SceneOverride = {},
 ): SceneInput {
   const { text = view.text, ...rest } = override;
-  const { rows } = wrapText(text, bubbleUnits(box.width), BUBBLE_ROWS);
+  const rows = wrapText(text, bubbleUnits(box.width), BUBBLE_ROWS);
 
   return {
     ...box,
