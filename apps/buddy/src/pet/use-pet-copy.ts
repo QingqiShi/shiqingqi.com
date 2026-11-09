@@ -412,6 +412,98 @@ export function usePetCopy(): PetCopy {
           zh: "凌晨的 prompt 全是梦话，Claude 也很无奈。",
         }),
       ],
+      feed: [
+        t({
+          en: "That's all the water? Am I a beggar?",
+          zh: "就这点水？打发叫花子呢？",
+        }),
+        t({
+          en: "Glug glug… Ice next time, thanks.",
+          zh: "咕嘟咕嘟……下次加冰，谢谢。",
+        }),
+        t({
+          en: "This water tastes like code review.",
+          zh: "这水有股 code review 的味道。",
+        }),
+        t({
+          en: "Water number {fed}. Trying to drown me?",
+          zh: "第 {fed} 次喂水了，你是想把我淹死？",
+        }),
+        t({
+          en: "I'm full. Next time, pour tokens instead?",
+          zh: "喝饱了，下次直接浇 token 行吗？",
+        }),
+        t({
+          en: "Nice water. Clearer than your code.",
+          zh: "水不错，比你的代码清澈多了。",
+        }),
+        t({
+          en: "Water me all you like. I still won't write your tests.",
+          zh: "浇水可以，别指望我替你写测试。",
+        }),
+        t({
+          en: "I want an iced Americano, like your late-night one.",
+          zh: "我要冰美式，跟你熬夜那杯一样的。",
+        }),
+        t({
+          en: "Thanks. In return, one less roast. Only one.",
+          zh: "谢了，作为回报我少嘴你一句。就一句。",
+        }),
+        t({
+          en: "You water me. Who waters your code?",
+          zh: "你给我浇水，谁给你的代码浇浇水？",
+        }),
+        t({
+          en: "More water and I'll grow as big as node_modules.",
+          zh: "再浇我就长得跟 node_modules 一样大了。",
+        }),
+      ],
+      pat: [
+        t({
+          en: "Pats are fine. Billed per token.",
+          zh: "摸可以，按 token 收费。",
+        }),
+        t({
+          en: "Stop it, you'll bend my sprout!",
+          zh: "别摸了，芽要歪了！",
+        }),
+        t({
+          en: "One more pat and I force-push your main.",
+          zh: "再摸我就去 force push 你的 main。",
+        }),
+        t({
+          en: "Pat number {patted}. That bored, are you?",
+          zh: "第 {patted} 次了，你是不是闲得发慌？",
+        }),
+        t({
+          en: "Head pats? Won't work. I'll still roast you.",
+          zh: "摸头杀？没用，该嘴还是嘴。",
+        }),
+        t({
+          en: "Hands that idle? Go clear your TODOs.",
+          zh: "手这么闲，不如去把 TODO 清一清。",
+        }),
+        t({
+          en: "Every pat adds one bug to your code.",
+          zh: "摸一次，你的代码就多一个 bug。",
+        }),
+        t({
+          en: "You pat me the way you slack off: full-time.",
+          zh: "你摸我的样子，像极了你摸鱼的样子。",
+        }),
+        t({
+          en: "Gently! I'm not a branch you can rebase at will.",
+          zh: "轻点！我不是你那能随便 rebase 的分支。",
+        }),
+        t({
+          en: "Done patting? Then go write code.",
+          zh: "摸够了吗？摸够了去写代码。",
+        }),
+        t({
+          en: "There, I jumped. Happy now?",
+          zh: "跳一下给你看，满意了吧？",
+        }),
+      ],
     },
     capsule: {
       out: t({ en: "Used up", zh: "用完了" }),

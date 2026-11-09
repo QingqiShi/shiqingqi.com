@@ -58,7 +58,10 @@ const MOOD_KEYS = new Set<Bucket>([
   "broken",
 ]);
 
-/** A line the visitor asked for with "next line"; `index` picks it from its bucket's pool. */
+/**
+ * A line the visitor asked for with "next line", or the answer to water or a pat; `index` picks it
+ * from its bucket's pool.
+ */
 export type PickedLine = { bucket: Bucket; index: number; at: number };
 
 type Window = {
@@ -221,6 +224,8 @@ export function buildView(state: PublicPetState, options: ViewOptions) {
     pr: party === null ? null : "#" + String(party.number),
     time: `${String(local.hour).padStart(2, "0")}:${String(local.minute).padStart(2, "0")}`,
     ago: state.updatedAt === null ? null : agoText(state.updatedAt, now, copy),
+    fed: state.pet.fed + state.visitors.fed,
+    patted: state.pet.patted + state.visitors.patted,
   };
   const moodKey: Bucket = isAway
     ? "away"
@@ -262,23 +267,25 @@ export function buildView(state: PublicPetState, options: ViewOptions) {
 
 type View = ReturnType<typeof buildView>;
 
-/** The next line for "next line": one further along the pool of the line on show. */
+/**
+ * The next line of `bucket`, the mood's by default as for "next line": one further along the pool
+ * when that bucket's line is on show.
+ */
 export function nextLine(
   view: View,
   line: PickedLine | null,
   at: number,
+  bucket: Bucket = view.moodKey,
 ): PickedLine {
   const isSame =
-    line !== null &&
-    line.bucket === view.moodKey &&
-    at - line.at < LINE_FRESH_MS;
+    line !== null && line.bucket === bucket && at - line.at < LINE_FRESH_MS;
   const index = isSame
     ? line.index + 1
     : Math.floor(view.now / AUTO_LINE_MS) +
       Number.parseInt(hashOf(view.today), 36) +
       1;
 
-  return { bucket: view.moodKey, index, at };
+  return { bucket, index, at };
 }
 
 /** What the page says and does over the view: the first-run line, a pat, the sprouting party. */

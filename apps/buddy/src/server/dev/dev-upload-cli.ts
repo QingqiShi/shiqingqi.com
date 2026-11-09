@@ -64,8 +64,10 @@ async function main() {
       body: Buffer.from(payload),
     });
 
+  const uploaded = await post(body);
+  const reply = await uploaded.text();
   const results = {
-    upload: (await post(body)).status,
+    upload: uploaded.status,
     replay: (await post(body)).status,
     changedBody: (
       await post(
@@ -77,6 +79,7 @@ async function main() {
 
   console.log(`POST ${uploadUrl}`);
   console.log(`  signed upload: ${String(results.upload)} (want 200)`);
+  console.log(`  its reply: ${reply}`);
   console.log(`  same upload again: ${String(results.replay)} (want 401)`);
   console.log(`  changed body: ${String(results.changedBody)} (want 401)`);
   console.log(`GET ${stateUrl}`);

@@ -13,7 +13,7 @@ export function petStateTag(user: string) {
 export function readPublicPetState(
   user: string,
 ): Promise<PublicPetState | null> {
-  return readPetState(getBuddyBackend().kv, user);
+  return readPetState(getBuddyBackend().kv, user, { withVisitors: true });
 }
 
 export function readCachedPublicPetState(
@@ -28,5 +28,8 @@ export function readCachedPublicPetState(
 
 /** The owner's own view, also of a private page. Not cached, so the owner sees the toggle's result at once. */
 export function readOwnPetState(user: string): Promise<PublicPetState | null> {
-  return readPetState(getBuddyBackend().kv, user, { includePrivate: true });
+  return readPetState(getBuddyBackend().kv, user, {
+    includePrivate: true,
+    withVisitors: true,
+  });
 }

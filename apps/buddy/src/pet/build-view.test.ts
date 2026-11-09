@@ -38,6 +38,8 @@ const COPY: PetCopy = {
     streak: ["streak"],
     levelup: ["levelup"],
     broken: ["broken"],
+    feed: ["feed {fed}"],
+    pat: ["pat {patted}"],
   },
   capsule: { out: "out", over: "over {pct}" },
   tiles: { cost: "cost", streak: "streak", streakUnit: "d", cacheHit: "hit" },
@@ -108,6 +110,7 @@ function stateWith(overrides: Partial<PublicPetState>): PublicPetState {
     party: null,
     growth: { highest: null, levelUp: null },
     pet: { fed: 0, patted: 0 },
+    visitors: { fed: 0, patted: 0 },
     ...overrides,
   };
 }

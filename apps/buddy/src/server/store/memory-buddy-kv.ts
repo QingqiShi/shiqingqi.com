@@ -68,6 +68,18 @@ export class MemoryBuddyKv implements BuddyKv {
     return Promise.resolve(count);
   }
 
+  incrementBy(counts: readonly (readonly [key: string, by: number])[]) {
+    for (const [key, by] of counts) {
+      if (by === 0) continue;
+      const entry = this.live(key);
+      this.values.set(key, {
+        value: String(Number(entry?.value ?? 0) + by),
+        expiresAt: entry?.expiresAt ?? Infinity,
+      });
+    }
+    return Promise.resolve();
+  }
+
   addToSet(key: string, members: readonly string[]) {
     const set = this.sets.get(key) ?? new Set<string>();
     this.sets.set(key, set);

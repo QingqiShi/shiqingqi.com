@@ -130,7 +130,9 @@ describe("handleOthersRead", () => {
     const response = await read(laptop);
     expect(response.status).toBe(200);
     expect(response.headers.get("Cache-Control")).toBe("no-store");
-    expect(await response.json()).toMatchObject({
+    const body: unknown = await response.json();
+    expect(body).not.toHaveProperty("visitors");
+    expect(body).toMatchObject({
       user: USER,
       days: [
         { day: "2026-11-06", tokens: 30 },

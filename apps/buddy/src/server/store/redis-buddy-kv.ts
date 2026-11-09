@@ -57,6 +57,14 @@ export class RedisBuddyKv implements BuddyKv {
     return count;
   }
 
+  async incrementBy(counts: readonly (readonly [key: string, by: number])[]) {
+    const added = counts.filter(([, by]) => by !== 0);
+    if (added.length === 0) return;
+    const pipeline = this.redis.pipeline();
+    for (const [key, by] of added) pipeline.incrby(key, by);
+    await pipeline.exec();
+  }
+
   async addToSet(key: string, members: readonly string[]) {
     if (members.length === 0) return;
     await this.redis.sadd(key, members[0], ...members.slice(1));

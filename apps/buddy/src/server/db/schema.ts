@@ -37,6 +37,14 @@ export const accounts = pgTable("accounts", {
   email: text("email").notNull().unique(),
   /** False until the owner makes the page public. A private page is a 404 to everyone else. */
   isPublic: boolean("is_public").notNull().default(false),
+  /**
+   * How often the page's visitors watered and patted the pet: a copy of the Redis counts, which
+   * the daily archive cron keeps and uses to restore a lost count.
+   */
+  visitorFed: bigint("visitor_fed", { mode: "number" }).notNull().default(0),
+  visitorPatted: bigint("visitor_patted", { mode: "number" })
+    .notNull()
+    .default(0),
   createdAt: createdAt(),
 });
 

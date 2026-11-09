@@ -12,6 +12,7 @@ import { fillTemplate } from "#src/pet/fill-template.ts";
 import { agoText } from "#src/pet/local-time.ts";
 import type { OwnerPetState, PublicPetState, Range } from "#src/pet/types.ts";
 import { usePetCopy } from "#src/pet/use-pet-copy.ts";
+import { CareButtons } from "./care-buttons.tsx";
 import { CornerButton, CornerLink } from "./corner-link.tsx";
 import { firstRunStage } from "./first-run-stage.ts";
 import { FirstRun } from "./first-run.tsx";
@@ -25,6 +26,7 @@ import {
 import { petPageColumn } from "./pet-page-column.stylex.ts";
 import { PetSections } from "./pet-sections.tsx";
 import { Scene } from "./scene.tsx";
+import { useCareBatch } from "./use-care-batch.ts";
 import { useFirstRunScene } from "./use-first-run-scene.ts";
 import { REFRESH_MS, useLiveState } from "./use-live-state.ts";
 import { usePetScene } from "./use-pet-scene.ts";
@@ -97,8 +99,9 @@ export function OwnerPetPage({
   const visibility = usePageVisibility(
     viewer.kind === "owner" && viewer.isPublic,
   );
-  const { view, now, scene } = usePetScene(
-    state,
+  const careBatch = useCareBatch(state);
+  const { view, now, scene, care } = usePetScene(
+    careBatch.state,
     renderedAt,
     copy,
     range,
@@ -166,6 +169,14 @@ export function OwnerPetPage({
                 : null
             }
           />
+          {stage === null ? (
+            <CareButtons
+              onCare={(kind) => {
+                care(kind);
+                careBatch.press(kind);
+              }}
+            />
+          ) : null}
           {stage !== null ? (
             <FirstRun stage={stage} />
           ) : (

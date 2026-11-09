@@ -15,10 +15,15 @@ const SAMPLE_USER = "sample";
 
 /** The fixture pet of `pnpm dev`, awake as of `now`, for when no real account can be shown. */
 function samplePetState(now: number): PublicPetState {
-  return combineSnapshots(
-    SAMPLE_USER,
-    devFixtureUploads(now).map(({ body }) => nextSnapshot(null, body, body.at)),
-  );
+  return {
+    ...combineSnapshots(
+      SAMPLE_USER,
+      devFixtureUploads(now).map(({ body }) =>
+        nextSnapshot(null, body, body.at),
+      ),
+    ),
+    visitors: { fed: 0, patted: 0 },
+  };
 }
 
 /**

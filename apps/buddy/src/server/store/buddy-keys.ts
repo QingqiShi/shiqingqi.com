@@ -3,7 +3,9 @@
  * registry, after a change in Postgres (a Mac's connect and removal, the
  * owner's visibility toggle, and the daily cron), writes `macKey`,
  * `accountMacs` and `publicAccount`; only the Mac's own signed uploads write
- * `macSnapshot`. A read merges the snapshots.
+ * `macSnapshot`; only the care route writes `careFed` and `carePatted`, with
+ * INCRBY, which adds and needs no compare-and-set (the daily cron also adds,
+ * only to restore a lost count). A read merges the snapshots.
  */
 export const buddyKeys = {
   /** The sealed `MacKey` of a connected Mac. */
@@ -14,4 +16,8 @@ export const buddyKeys = {
   publicAccount: (name: string) => `buddy:user:${name}:public`,
   /** Every Mac of the account that was not removed, also one that stopped uploading. */
   accountMacs: (name: string) => `buddy:user:${name}:macs`,
+  /** How often visitors of the page, and its owner there, watered the pet. */
+  careFed: (name: string) => `buddy:user:${name}:care:fed`,
+  /** How often visitors of the page, and its owner there, patted the pet. */
+  carePatted: (name: string) => `buddy:user:${name}:care:patted`,
 };
