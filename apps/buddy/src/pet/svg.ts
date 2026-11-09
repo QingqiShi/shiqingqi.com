@@ -18,29 +18,48 @@ export function svg(
 const FONT =
   "-apple-system, system-ui, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif";
 
-const GLYPH_EM: Record<string, number> = {
-  " ": 0.33,
-  "%": 0.99,
-  ".": 0.27,
-  ",": 0.27,
-  "/": 0.38,
-  ":": 0.27,
-  $: 0.6,
-  "+": 0.61,
-  "1": 0.41,
-  "7": 0.55,
-  "→": 1,
-  B: 0.69,
-  M: 0.9,
-  k: 0.55,
-};
+/**
+ * The width of a glyph in em. A letter takes the wider of San Francisco and Roboto, so that a box
+ * measured from it holds the text on an Apple device and on Android alike.
+ */
+const GLYPH_GROUPS: ReadonlyArray<readonly [number, string]> = [
+  [0.26, "'|ijl"],
+  [0.27, ".,:"],
+  [0.29, "!;I\\ft"],
+  [0.33, " ()[]{}r"],
+  [0.38, "/"],
+  [0.41, "1"],
+  [0.45, '-"*'],
+  [0.5, "cvxyzJ`"],
+  [0.55, "7k"],
+  [0.57, "abdeghnopqsuL_?"],
+  [0.6, "023456789#$^~"],
+  [0.62, "+<=>FTZ"],
+  [0.69, "ABEKPSVXY&"],
+  [0.73, "CDHNRUw"],
+  [0.79, "GOQ"],
+  [0.9, "Mm"],
+  [0.95, "W"],
+  [0.99, "%"],
+  [1, "→"],
+  [1.03, "@"],
+];
+
+const GLYPH_EM = new Map(
+  GLYPH_GROUPS.flatMap(([em, chars]) =>
+    Array.from(chars, (ch) => [ch, em] as const),
+  ),
+);
+
+export function glyphEm(ch: string) {
+  const code = ch.codePointAt(0) ?? 0;
+
+  return GLYPH_EM.get(ch) ?? (code >= 0x2e80 ? 1 : 0.6);
+}
 
 export function textWidth(text: string, size: number) {
   let em = 0;
-  for (const ch of text) {
-    const code = ch.codePointAt(0) ?? 0;
-    em += GLYPH_EM[ch] ?? (code >= 0x2e80 ? 1 : 0.6);
-  }
+  for (const ch of text) em += glyphEm(ch);
 
   return em * size;
 }

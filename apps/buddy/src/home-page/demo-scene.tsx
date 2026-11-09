@@ -1,5 +1,6 @@
 "use client";
 
+import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
 import { Scene } from "#src/owner-page/scene.tsx";
 import { REFRESH_MS, useLiveState } from "#src/owner-page/use-live-state.ts";
@@ -13,6 +14,7 @@ type DemoSceneProps = {
   renderedAt: number;
   /** A real account's pet, which the scene keeps fresh as a visitor's page does. */
   isLive: boolean;
+  css?: StyleProp;
   /** The corner marks, laid over the scene. */
   children?: ReactNode;
 };
@@ -22,6 +24,7 @@ export function DemoScene({
   initialState,
   renderedAt,
   isLive,
+  css,
   children,
 }: DemoSceneProps) {
   const copy = usePetCopy();
@@ -32,5 +35,9 @@ export function DemoScene({
   );
   const { scene } = usePetScene(state, renderedAt, copy, "30");
 
-  return <Scene {...scene}>{children}</Scene>;
+  return (
+    <Scene {...scene} css={css}>
+      {children}
+    </Scene>
+  );
 }
