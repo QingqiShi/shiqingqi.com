@@ -214,7 +214,10 @@ export function settleLiquid(
   const away = Math.abs(target - centre);
   const boost = tiltBoost(away);
   const arrived = away < ARRIVE_REACH + ARRIVE_SPAN * span;
-  const calm = clamp01(body.calm + (arrived ? SETTLE : -CALM_FALL) * step);
+  const held = input.held === true;
+  const calm = clamp01(
+    body.calm + (arrived ? (held ? 0 : SETTLE) : -CALM_FALL) * step,
+  );
   // The liquid sets only as far as `LINGER_SET` while it lingers, so that
   // its rim stays water and flows. It sets all the way at the end.
   const setGoal = calm >= 1 - SET_TIME / LINGER ? 1 : LINGER_SET;
@@ -248,7 +251,7 @@ export function settleLiquid(
           Math.max(SHED_SPACING, (input.to - input.from) / SHED_BUDGET),
         );
   const settled =
-    calm >= 1 &&
+    (calm >= 1 || held) &&
     speed < STILL_SPEED &&
     set === (pressed ? 0 : 1) &&
     beads.length === 0 &&

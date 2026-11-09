@@ -256,10 +256,12 @@ export function layoutLiquid(
     position === state.position &&
     drag === state.drag &&
     pressed === state.pressed;
-  if (pillMoved && !relaid) {
+  if (pillMoved && !relaid && !(held && state.drag !== null)) {
     // The drawn surface settles into the rest pill as the body calms. A new
     // target moves that pill at once, so the body is not calm until it has
-    // arrived there.
+    // arrived there. A drag that goes on moves the target in each frame,
+    // also while a held finger only trembles, and there the body stays
+    // liquid, as `settleLiquid` keeps it.
     body = { ...body, calm: 0 };
   }
   const ahead =
@@ -274,6 +276,7 @@ export function layoutLiquid(
     pressed,
     reducedMotion: reduced,
     aim: 0,
+    held: held && state?.drag != null,
   };
   if (relaid) {
     body = frozenLiquid(body, input);

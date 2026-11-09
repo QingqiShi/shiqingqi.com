@@ -38,6 +38,11 @@ export interface LiquidInput {
    * far end. A toggle with no press point aims at 0, the centre line.
    */
   readonly aim: number;
+  /**
+   * A drag holds the liquid under the finger. It stays liquid and keeps its
+   * shape there, and calms into the rest shape only after the release.
+   */
+  readonly held?: boolean;
 }
 
 const SUBSTEP = 1 / 240;
