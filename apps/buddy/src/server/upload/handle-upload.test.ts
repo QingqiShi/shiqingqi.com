@@ -96,9 +96,14 @@ afterEach(async () => {
 });
 
 describe("handleUpload", () => {
-  it("stores a correctly signed upload", async () => {
+  it("stores a correctly signed upload, and answers with the visitors' counts", async () => {
+    await kit.kv.incrementBy([[buddyKeys.carePatted(USER), 3]]);
     const response = await upload(signedRequest());
     expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      ok: true,
+      visitors: { fed: 0, patted: 3 },
+    });
     expect(await readPetState(kit.kv, USER)).toMatchObject({
       updatedAt: kit.clock.now,
       days: [{ day: "2026-11-07", tokens: 100, costUsd: 1 }],

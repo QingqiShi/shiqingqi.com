@@ -1,9 +1,16 @@
 import type { PublicPetState } from "#src/pet/types.ts";
 import { ACCOUNT_NAME_PATTERN } from "../account-name-pattern.ts";
+import { careKeys, countersOf } from "../care/care-keys.ts";
 import { buddyKeys } from "../store/buddy-keys.ts";
 import type { BuddyKv } from "../store/types.ts";
-import { combineSnapshots } from "./combine-snapshots.ts";
+import { combineSnapshots, type MacsState } from "./combine-snapshots.ts";
 import { parseSnapshot, type MacSnapshot } from "./parse-snapshot.ts";
+
+type ReadOptions = {
+  includePrivate?: boolean;
+  excludeMachine?: string;
+  withVisitors?: boolean;
+};
 
 /**
  * The state of the account `name`. A GET of the key that says the page is
@@ -13,15 +20,28 @@ import { parseSnapshot, type MacSnapshot } from "./parse-snapshot.ts";
  * account answers as a name that nobody has. `includePrivate` is for the
  * page's owner, whose account the caller knows exists. `excludeMachine`
  * leaves one Mac's snapshot out: what the account's other Macs add up to.
+ * `withVisitors` also reads the page's care counts, in the MGET of the
+ * snapshots.
  */
+export async function readPetState(
+  kv: BuddyKv,
+  name: string,
+  options: ReadOptions & { withVisitors: true },
+): Promise<PublicPetState | null>;
+export async function readPetState(
+  kv: BuddyKv,
+  name: string,
+  options?: ReadOptions,
+): Promise<MacsState | null>;
 export async function readPetState(
   kv: BuddyKv,
   name: string,
   {
     includePrivate = false,
     excludeMachine,
-  }: { includePrivate?: boolean; excludeMachine?: string } = {},
-): Promise<PublicPetState | null> {
+    withVisitors = false,
+  }: ReadOptions = {},
+): Promise<MacsState | PublicPetState | null> {
   if (!ACCOUNT_NAME_PATTERN.test(name)) return null;
   if (
     !includePrivate &&
@@ -32,10 +52,15 @@ export async function readPetState(
   const macs = (await kv.setMembers(buddyKeys.accountMacs(name)))
     .filter((machine) => machine !== excludeMachine)
     .sort();
-  const values =
-    macs.length === 0 ? [] : await kv.getMany(macs.map(buddyKeys.macSnapshot));
+  const extraKeys = withVisitors ? careKeys(name) : [];
+  const keys = [...extraKeys, ...macs.map(buddyKeys.macSnapshot)];
+  const values = keys.length === 0 ? [] : await kv.getMany(keys);
   const snapshots = values
+    .slice(extraKeys.length)
     .map((value) => parseSnapshot(value))
     .filter((snapshot): snapshot is MacSnapshot => snapshot !== null);
-  return combineSnapshots(name, snapshots);
+  const state = combineSnapshots(name, snapshots);
+  return withVisitors
+    ? { ...state, visitors: countersOf(values.slice(0, extraKeys.length)) }
+    : state;
 }

@@ -44,7 +44,8 @@ export type PetCounters = { fed: number; patted: number };
 
 /**
  * What the public read API returns and the page renders. `days` is the sum over all machines.
- * `updatedAt` is the newest upload from any machine, or null before the first upload.
+ * `updatedAt` is the newest upload from any machine, or null before the first upload. `pet` counts
+ * the owner's presses on their Macs, `visitors` the presses on the web page.
  */
 export type PublicPetState = {
   user: string;
@@ -58,6 +59,7 @@ export type PublicPetState = {
   party: PetParty | null;
   growth: PetGrowth;
   pet: PetCounters;
+  visitors: PetCounters;
 };
 
 /**
@@ -75,7 +77,9 @@ export type Bucket =
   | "night"
   | "streak"
   | "levelup"
-  | "broken";
+  | "broken"
+  | "feed"
+  | "pat";
 
 /** The pure modules take their text as data, because `t()` can only run in render. */
 export type PetCopy = {

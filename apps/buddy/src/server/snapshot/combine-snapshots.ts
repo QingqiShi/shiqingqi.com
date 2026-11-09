@@ -55,11 +55,14 @@ function largest(values: readonly (number | null)[]): number | null {
   return known.length === 0 ? null : Math.max(...known);
 }
 
+/** What the Macs of an account add up to: the public state without the page's visitors. */
+export type MacsState = Omit<PublicPetState, "visitors">;
+
 /** The public state of an account, from the snapshots of every Mac it ever connected. */
 export function combineSnapshots(
   user: string,
   snapshots: readonly MacSnapshot[],
-): PublicPetState {
+): MacsState {
   const firstDays = snapshots
     .map((snapshot) => snapshot.firstDay)
     .filter((day) => day !== null)

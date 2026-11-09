@@ -15,7 +15,7 @@ function handlers() {
     getDb: () => kit.db,
     registry: kit.registry,
     readOwnPetState: (name) =>
-      readPetState(kit.kv, name, { includePrivate: true }),
+      readPetState(kit.kv, name, { includePrivate: true, withVisitors: true }),
     onVisibilityChanged: (name) => {
       expired.push(name);
     },

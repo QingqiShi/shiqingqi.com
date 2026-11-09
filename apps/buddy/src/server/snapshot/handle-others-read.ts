@@ -1,11 +1,7 @@
-import { buddyKeys } from "../store/buddy-keys.ts";
-import type { BuddyKv } from "../store/types.ts";
-import { authenticateMachine } from "../upload/authenticate-machine.ts";
-import { MAX_CLOCK_SKEW_MS } from "../upload/handle-upload.ts";
 import {
-  readReadHeaders,
-  verifyReadSignature,
-} from "../upload/verify-upload-signature.ts";
+  authenticateSignedRead,
+  type SignedReadDeps,
+} from "../upload/authenticate-signed-read.ts";
 import { readPetState } from "./read-pet-state.ts";
 
 const unauthorized = () =>
@@ -20,33 +16,13 @@ const unauthorized = () =>
 export async function handleOthersRead(
   request: Request,
   user: string,
-  { kv, secret, now }: { kv: BuddyKv; secret: string; now: () => number },
+  deps: SignedReadDeps,
 ): Promise<Response> {
-  const signed = readReadHeaders(request.headers);
-  if (!signed) return unauthorized();
-  const { machine, signature, at } = signed;
-  const key = authenticateMachine({
-    sealedKey: await kv.get(buddyKeys.macKey(machine)),
-    secret,
-    machine,
-    user,
-  });
-  if (
-    key === null ||
-    Math.abs(now() - at) > MAX_CLOCK_SKEW_MS ||
-    !verifyReadSignature({
-      user,
-      machine,
-      at,
-      signature,
-      publicKey: key.publicKey,
-    })
-  ) {
-    return unauthorized();
-  }
-  const state = await readPetState(kv, user, {
+  const read = await authenticateSignedRead(request, user, deps);
+  if (!read) return unauthorized();
+  const state = await readPetState(deps.kv, user, {
     includePrivate: true,
-    excludeMachine: machine,
+    excludeMachine: read.machine,
   });
   if (!state) return unauthorized();
   return Response.json(state, { headers: { "Cache-Control": "no-store" } });

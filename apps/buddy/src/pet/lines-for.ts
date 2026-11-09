@@ -16,6 +16,9 @@ export type LineContext = {
   time: string;
   /** How long ago the owner's Mac last uploaded. */
   ago: string | null;
+  /** The waterings and pats on the owner's Macs and on the web page together. */
+  fed: number;
+  patted: number;
 };
 
 const PLACEHOLDER = /\{(\w+)\}/g;

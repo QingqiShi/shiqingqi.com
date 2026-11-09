@@ -1,3 +1,4 @@
+import { careKeys, countersOf } from "../care/care-keys.ts";
 import { nextSnapshot } from "../snapshot/next-snapshot.ts";
 import { parseSnapshot } from "../snapshot/parse-snapshot.ts";
 import { buddyKeys } from "../store/buddy-keys.ts";
@@ -50,8 +51,9 @@ const unauthorized = () =>
 
 /**
  * Stores a signed upload in two Redis commands, a GET of the Mac's key and
- * snapshot and a SET of the new snapshot. It never reads Postgres, so a
- * request without a key cannot wake the database.
+ * snapshot and the page's visitor counts, and a SET of the new snapshot. It
+ * never reads Postgres, so a request without a key cannot wake the database.
+ * The reply carries the visitor counts, so that the Mac shows them.
  */
 export async function handleUpload(
   request: Request,
@@ -64,9 +66,10 @@ export async function handleUpload(
   const signed = readUploadHeaders(request.headers);
   if (!signed) return unauthorized();
   const { machine, signature } = signed;
-  const [sealedKey, storedSnapshot] = await kv.getMany([
+  const [sealedKey, storedSnapshot, fed, patted] = await kv.getMany([
     buddyKeys.macKey(machine),
     buddyKeys.macSnapshot(machine),
+    ...careKeys(user),
   ]);
   const key = authenticateMachine({ sealedKey, secret, machine, user });
   if (
@@ -100,5 +103,5 @@ export async function handleUpload(
     buddyKeys.macSnapshot(machine),
     JSON.stringify(nextSnapshot(previous, upload, receivedAt)),
   );
-  return Response.json({ ok: true });
+  return Response.json({ ok: true, visitors: countersOf([fed, patted]) });
 }

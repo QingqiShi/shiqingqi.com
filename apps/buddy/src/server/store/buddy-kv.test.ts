@@ -29,7 +29,11 @@ function kvCases(createKv: () => BuddyKv) {
     await kv.removeFromSet(set, ["mac-a", "mac-c"]);
     expect(await kv.setMembers(set)).toEqual(["mac-b"]);
     expect(await kv.setMembers(missing)).toEqual([]);
-    await kv.delMany([a, b, set]);
+    const count = key("count");
+    await kv.incrementBy([[count, 3]]);
+    await kv.incrementBy([[count, 4]]);
+    expect(await kv.get(count)).toBe("7");
+    await kv.delMany([a, b, set, count]);
     expect(await kv.getMany([a, b])).toEqual([null, null]);
     expect(await kv.setMembers(set)).toEqual([]);
   });
