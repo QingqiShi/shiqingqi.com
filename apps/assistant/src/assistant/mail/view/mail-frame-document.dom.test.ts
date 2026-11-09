@@ -98,21 +98,34 @@ describe("mailFrameDocument", () => {
     expect(frame.proxiedImages).toBe(0);
   });
 
-  it("takes linear time on crafted mail of 1 MB", () => {
-    const size = 1024 * 1024;
+  it("takes linear time on crafted mail up to 1 MB", () => {
     const crafted = {
-      cssUrlSpaces: `<style>p{background:url(${" ".repeat(size)}</style>`,
-      manyCssUrls: `<style>p{background:${"url(".repeat(size / 4)}</style>`,
-      manyUnclosedTags: "<meta<a".repeat(size / 7),
-      linkTagSpaces: `<a${" ".repeat(size)}>`,
-      replacementCharRun: `>${" �".repeat(size / 2)}`,
-      nestedTags: "<div>".repeat(size / 5) + "</span>".repeat(size / 7),
+      cssUrlSpaces: (size: number) =>
+        `<style>p{background:url(${" ".repeat(size)}</style>`,
+      manyCssUrls: (size: number) =>
+        `<style>p{background:${"url(".repeat(size / 4)}</style>`,
+      manyUnclosedTags: (size: number) => "<meta<a".repeat(size / 7),
+      linkTagSpaces: (size: number) => `<a${" ".repeat(size)}>`,
+      replacementCharRun: (size: number) => `>${" \uFFFD".repeat(size / 2)}`,
+      nestedTags: (size: number) =>
+        "<div>".repeat(size / 5) + "</span>".repeat(size / 7),
     };
+    const fastestRun = (html: string) =>
+      Math.min(
+        ...Array.from({ length: 3 }, () => {
+          const started = performance.now();
+          mailFrameDocument(html, [], imageLinks);
+          return performance.now() - started;
+        }),
+      );
 
-    for (const [shape, html] of Object.entries(crafted)) {
-      const started = performance.now();
-      mailFrameDocument(html, [], imageLinks);
-      expect(performance.now() - started, shape).toBeLessThan(500);
+    // Wall-clock budgets fail on slow CI runners, so compare 1 MB with 128 KB:
+    // linear time gives a ratio near 8, quadratic time near 64.
+    const small = 128 * 1024;
+    for (const [shape, craft] of Object.entries(crafted)) {
+      const smallTime = Math.max(fastestRun(craft(small)), 1);
+      const largeTime = fastestRun(craft(small * 8));
+      expect(largeTime / smallTime, shape).toBeLessThan(24);
     }
   });
 
