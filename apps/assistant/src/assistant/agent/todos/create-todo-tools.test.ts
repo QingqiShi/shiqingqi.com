@@ -7,7 +7,10 @@ import {
   createTestDb,
   type TestDb,
 } from "#src/assistant/db/testing/create-test-db.ts";
-import { insertUser } from "#src/assistant/mail/testing/insert-account.ts";
+import {
+  insertAccount,
+  insertUser,
+} from "#src/assistant/mail/testing/insert-account.ts";
 import { callAgentTool } from "../agent-tool.ts";
 import { createTodoTools } from "./create-todo-tools.ts";
 import { readOpenTodos } from "./read-open-todos.ts";
@@ -144,6 +147,38 @@ describe("the to-do tools", () => {
         edit: { startDate: "2026-11-08" },
       },
     ]);
+  });
+
+  it("make a to-do open the later mail that says how to act", async () => {
+    const userId = await insertUser(db);
+    const accountId = await insertAccount(db, userId);
+    const [todo] = await db
+      .insert(todos)
+      .values({
+        userId,
+        title: "Return the router",
+        sourceAccountId: accountId,
+        sourceMessageId: "<switching@x>",
+      })
+      .returning();
+    const { tools, changes } = createTodoTools({
+      openTodos: await readOpenTodos({ db, userId }),
+      deletedTodos: [],
+      rejectedTodos: [],
+      sourceOf: () => ({ accountId, messageId: "<how-to-return@x>" }),
+      receivedAtOf: () => NOW,
+    });
+
+    await callAgentTool(tools.update_todo, {
+      reason: "The return mail gives the steps.",
+      todo: "t1",
+      detail: "Free at the Post Office.",
+      mail: "m2",
+    });
+    await applyChanges(db, userId, changes);
+
+    const [row] = await db.select().from(todos).where(eq(todos.id, todo.id));
+    expect(row.sourceMessageId).toBe("<how-to-return@x>");
   });
 
   it("leave the dates as they are when the owner's new date no longer fits the run's", async () => {

@@ -25,6 +25,10 @@ const fields = z
     /** An ISO time. */
     waitingSince: z.string().nullable(),
     waitingNote: z.string().nullable(),
+    /** The mail that the to-do opens. */
+    source: z
+      .object({ accountId: z.string(), messageId: z.string() })
+      .nullable(),
   })
   .partial();
 

@@ -232,27 +232,33 @@ export function createTodoTools({
 
     update_todo: agentTool({
       description:
-        "Changes an open to-do when mail changes it, such as a new due date. null clears detail, dueDate or startDate. The fields the owner set cannot change.",
+        "Changes an open to-do when mail changes it, such as a new due date. null clears detail, dueDate or startDate. The fields the owner set cannot change. The owner opens a to-do's mail to act on it: when a later mail is the one that says how or when to act, give it as mail.",
       inputSchema: z.object({
         todo: todoKey,
         title: title.optional(),
         detail: detail.nullable().optional(),
         dueDate: dueDate.nullable().optional(),
         startDate: startDate.nullable().optional(),
+        mail: mailId
+          .optional()
+          .describe(
+            'The mail that the to-do opens from now on, in place of its earlier one, such as "m12".',
+          ),
         reason: changeReason,
       }),
       describe: ({ todo: key, title: newTitle }) => {
         const { title: oldTitle } = open(key).todo;
         return { kind: "update_todo", title: newTitle ?? oldTitle };
       },
-      execute: ({ todo: key, reason, ...input }) => {
+      execute: ({ todo: key, reason, mail, ...input }) => {
         const entry = open(key);
+        const source = mail === undefined ? null : sourceOf(mail);
         const edit: TodoEdit = {};
         if (input.title !== undefined) edit.title = input.title;
         if (input.detail !== undefined) edit.detail = input.detail || null;
         if (input.dueDate !== undefined) edit.dueDate = input.dueDate;
         if (input.startDate !== undefined) edit.startDate = input.startDate;
-        if (Object.keys(edit).length === 0) {
+        if (Object.keys(edit).length === 0 && !source) {
           throw new ToolRefusal("Give at least one field to change.");
         }
         const refused = ownerSet(entry).filter((field) => field in edit);
@@ -269,7 +275,14 @@ export function createTodoTools({
         takeChange();
         Object.assign(entry.todo, edit);
         if (entry.kind === "stored") {
-          changes.updated.push({ id: entry.todo.id, edit, reason });
+          changes.updated.push({
+            id: entry.todo.id,
+            edit,
+            reason,
+            ...(source ? { source } : {}),
+          });
+        } else if (source) {
+          entry.todo.source = source;
         }
         return Promise.resolve(view(key, entry));
       },

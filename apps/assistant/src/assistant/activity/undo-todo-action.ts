@@ -12,6 +12,7 @@ import {
 } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
 import { datesInOrder } from "#src/assistant/report/dates-in-order.ts";
+import { todoSource } from "#src/assistant/report/own-todo.ts";
 
 /** Why the undo of a change to a to-do did not happen. Nothing changed for it. */
 export const TODO_UNDO_REFUSALS = [
@@ -103,7 +104,8 @@ async function undoAdd(scope: Scope, todoId: string): Promise<Result> {
 
 /**
  * Each field returns to what it was, unless it changed after the action: then it
- * stays, and the rest go on. Dates that would then be out of order stay too.
+ * stays, and the rest go on. Dates that would then be out of order stay too. The
+ * mail that the to-do opens goes back the same way.
  */
 async function undoUpdate(
   scope: Scope,
@@ -127,8 +129,23 @@ async function undoUpdate(
     delete values.dueDate;
     delete values.startDate;
   }
-  if (restored.size === 0) return { refusal: "todo-changed" };
-  await writeRow(scope, todoId, values);
+  const rowSource = todoSource(row);
+  const sourceGoesBack =
+    after.source != null &&
+    rowSource?.accountId === after.source.accountId &&
+    rowSource.messageId === after.source.messageId;
+  if (restored.size === 0 && !sourceGoesBack) {
+    return { refusal: "todo-changed" };
+  }
+  await writeRow(scope, todoId, {
+    ...values,
+    ...(sourceGoesBack
+      ? {
+          sourceAccountId: before.source?.accountId ?? null,
+          sourceMessageId: before.source?.messageId ?? null,
+        }
+      : {}),
+  });
   return { kept: fields.filter((field) => !restored.has(field)) };
 }
 
