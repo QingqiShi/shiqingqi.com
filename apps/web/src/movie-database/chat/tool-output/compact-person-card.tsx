@@ -5,6 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -16,7 +17,7 @@ import {
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DepartmentLabel } from "#src/movie-database/department-label.ts";
 import { configurationQuery } from "#src/movie-database/tmdb/queries/configuration-query.ts";
 import { TmdbImage } from "#src/movie-database/tmdb/tmdb-image.tsx";
@@ -113,7 +114,9 @@ export function CompactPersonCard({ person, onClick }: CompactPersonCardProps) {
           </div>
         )}
       </div>
-      <span css={[typeRole.label, styles.name]}>{label}</span>
+      <Text as="span" look="label" weight="semibold" lines={2}>
+        {label}
+      </Text>
       {person.knownForDepartment && (
         <span css={[typeRole.caption, styles.department]}>
           <DepartmentLabel department={person.knownForDepartment} />
@@ -196,14 +199,6 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: color.border,
     color: color.fgMuted,
-  },
-  name: {
-    fontWeight: font.weight_6,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    display: "-webkit-box",
-    WebkitLineClamp: 2,
-    WebkitBoxOrient: "vertical",
   },
   department: {
     color: color.fgMuted,

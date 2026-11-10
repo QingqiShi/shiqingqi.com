@@ -4,10 +4,13 @@ import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Select } from "@tuja/ui/components/select";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { Textarea } from "@tuja/ui/components/textarea";
+import { truncate } from "@tuja/ui/primitives/layout.stylex";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { useDeferredValue, useRef, useState } from "react";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
@@ -64,6 +67,26 @@ export function PayeesSettings() {
   });
   const payeeSaved = t({ en: "Payee saved", zh: "商家已保存" });
 
+  function payeeDetail(payee: PayeeRow) {
+    const category =
+      payee.defaultCategoryId === null
+        ? ""
+        : (categoryNames.get(payee.defaultCategoryId) ?? "");
+    if (category === "" && payee.note === "") return null;
+    return (
+      <MetaLine
+        facts={[
+          category,
+          payee.note === "" ? null : (
+            <span key="note" css={truncate.base}>
+              {payee.note}
+            </span>
+          ),
+        ]}
+      />
+    );
+  }
+
   function save() {
     if (!draft || draft.name.trim() === "") return false;
     const mutations: LocalMutationInput[] = [
@@ -105,32 +128,27 @@ export function PayeesSettings() {
           setQuery(event.target.value);
         }}
       />
-      <List>
-        {matches.slice(0, SHOWN).map((payee) => (
-          <ListRow
-            key={payee.id}
-            detail={[
-              payee.defaultCategoryId === null
-                ? ""
-                : (categoryNames.get(payee.defaultCategoryId) ?? ""),
-              payee.note,
-            ]
-              .filter((part) => part !== "")
-              .join(" · ")}
-            onClick={() => {
-              setDraft({
-                payee,
-                name: payee.name,
-                note: payee.note,
-                defaultCategoryId: payee.defaultCategoryId ?? "",
-                mergeIntoId: "",
-              });
-            }}
-          >
-            {payee.name}
-          </ListRow>
-        ))}
-      </List>
+      <div css={typeModifier.verbatim}>
+        <List>
+          {matches.slice(0, SHOWN).map((payee) => (
+            <ListRow
+              key={payee.id}
+              detail={payeeDetail(payee)}
+              onClick={() => {
+                setDraft({
+                  payee,
+                  name: payee.name,
+                  note: payee.note,
+                  defaultCategoryId: payee.defaultCategoryId ?? "",
+                  mergeIntoId: "",
+                });
+              }}
+            >
+              {payee.name}
+            </ListRow>
+          ))}
+        </List>
+      </div>
       {matches.length > SHOWN ? (
         <Text look="bodySmall" tone="muted">
           {`${new Intl.NumberFormat(locale).format(matches.length - SHOWN)} ${moreLabel}`}

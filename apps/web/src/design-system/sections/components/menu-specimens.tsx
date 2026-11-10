@@ -3,62 +3,22 @@
 import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { MenuButton } from "@tuja/ui/components/menu-button";
+import { MenuItem } from "@tuja/ui/components/menu-item";
 import { Text } from "@tuja/ui/components/text";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { align, flex } from "@tuja/ui/primitives/flex.stylex";
-import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { controlSize, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { definitionRows } from "#src/design-system/definition-rows.stylex.ts";
+import { GuideNote } from "#src/design-system/guide/guide-section.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
-
-interface DemoMenuItemProps {
-  /** Sets `aria-current` on the chosen item, which `quietSurface.interactive` paints. */
-  isCurrent: boolean;
-  label: string;
-  onSelect: () => void;
-}
-
-/**
- * The whole of what `MenuButton`'s menu contract asks of a popup child:
- * `role="menuitem"` on something focusable. The site's real menu items are
- * navigating links; this one is a plain button so every key can be tried
- * without leaving the page.
- *
- * The chosen item also carries `data-menu-autofocus`, which is how a consumer
- * says "open on this one" — reopening the menu lands focus here rather than on
- * the first item.
- */
-function DemoMenuItem({ isCurrent, label, onSelect }: DemoMenuItemProps) {
-  return (
-    <button
-      type="button"
-      role="menuitem"
-      aria-current={isCurrent ? "true" : undefined}
-      data-menu-autofocus={isCurrent ? "true" : undefined}
-      css={[
-        buttonReset.base,
-        corner.radius_1,
-        typeRole.control,
-        quietSurface.interactive,
-        a11y.focusRing,
-        styles.item,
-      ]}
-      onClick={onSelect}
-    >
-      {label}
-    </button>
-  );
-}
 
 /**
  * The menu keyboard model spelled out next to the demo that performs it, so the
@@ -152,14 +112,18 @@ function MenuDemo() {
               // `role="menu"` despite the layout wrapper in between.
               <div role="none" css={[flex.col, styles.menu]}>
                 {items.map((item) => (
-                  <DemoMenuItem
+                  <MenuItem
                     key={item.id}
-                    label={item.label}
-                    isCurrent={item.id === openedId}
-                    onSelect={() => {
+                    current={item.id === openedId}
+                    data-menu-autofocus={
+                      item.id === openedId ? "true" : undefined
+                    }
+                    onClick={() => {
                       setOpenedId(item.id);
                     }}
-                  />
+                  >
+                    {item.label}
+                  </MenuItem>
                 ))}
               </div>
             }
@@ -201,6 +165,42 @@ export function MenuPopupShowcase() {
   );
 }
 
+export function MenuItemShowcase() {
+  return (
+    <Showcase
+      label={t({
+        en: "Make each command a MenuItem",
+        zh: "每条命令都是一个 MenuItem",
+      })}
+      leadsWithText
+    >
+      <ShowcaseHelper>
+        {t({
+          en: 'In a MenuButton menu, a MenuItem takes role="menuitem" and joins the arrow keys; in a Popover it stays a plain button. trailing adds muted text at the end of the row, and intent="danger" marks a command that destroys something.',
+          zh: '在 MenuButton 菜单中，MenuItem 会带上 role="menuitem" 并响应方向键；在 Popover 中它仍是普通按钮。trailing 在行尾加上弱化文字，intent="danger" 标记会销毁内容的命令。',
+        })}
+      </ShowcaseHelper>
+      <Specimen caption="MenuItem">
+        <div css={[flex.col, styles.itemList]}>
+          <MenuItem trailing={t({ en: "Wed 12 Nov", zh: "11月12日周三" })}>
+            {t({ en: "Tomorrow", zh: "明天" })}
+          </MenuItem>
+          <MenuItem trailing={t({ en: "Mon 17 Nov", zh: "11月17日周一" })}>
+            {t({ en: "Next week", zh: "下周" })}
+          </MenuItem>
+          <MenuItem intent="danger">{t({ en: "Delete", zh: "删除" })}</MenuItem>
+        </div>
+      </Specimen>
+      <GuideNote>
+        {t({
+          en: 'size="sm" makes each row shorter, for a long menu of many commands. On touch each row stays at least 44px tall.',
+          zh: 'size="sm" 让每行更矮，适用于命令很多的长菜单。在触屏上每行仍至少 44px 高。',
+        })}
+      </GuideNote>
+    </Showcase>
+  );
+}
+
 const styles = stylex.create({
   // A stage is only as wide as the popup it holds, so from `md` up the section's
   // copy takes the column beside it instead of sitting under a band of empty
@@ -223,6 +223,10 @@ const styles = stylex.create({
     minInlineSize: 0,
     gridColumn: { default: "auto", [breakpoints.md]: "2" },
     gridRow: { default: "auto", [breakpoints.md]: "1" },
+  },
+  itemList: {
+    inlineSize: space._13,
+    maxInlineSize: "100%",
   },
   keyTable: {
     minInlineSize: 0,
@@ -269,16 +273,6 @@ const styles = stylex.create({
   menu: {
     padding: controlSize._1,
     inlineSize: space._13,
-  },
-  item: {
-    color: {
-      default: color.fg,
-      ":hover": { default: null, [pointer.canHover]: color.fgMuted },
-    },
-    fontWeight: font.weight_6,
-    blockSize: controlSize._9,
-    paddingInline: controlSize._3,
-    textAlign: "start",
   },
   stateValue: {
     fontFamily: font.familyMono,

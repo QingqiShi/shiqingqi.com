@@ -155,7 +155,7 @@ export function Select({
         {hasDescription ? (
           <span
             id={descriptionId}
-            css={[typeRole.caption, fieldStyles.description]}
+            css={[typeRole.bodySmall, fieldStyles.description]}
           >
             {description}
           </span>
@@ -211,7 +211,7 @@ export function Select({
         <span
           id={errorId}
           role="alert"
-          css={[typeRole.caption, fieldStyles.errorText]}
+          css={[typeRole.bodySmall, fieldStyles.errorText]}
         >
           {error}
         </span>

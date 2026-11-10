@@ -6,7 +6,6 @@ import { validateLocale } from "@tuja/i18n/validate-locale";
 import { Link } from "@tuja/next-links/link";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
-import { anchorTokens } from "@tuja/ui/components/anchor.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
@@ -195,7 +194,7 @@ export default async function HomePage({ params }: PageProps) {
       <footer css={pageColumn.base}>
         <div css={[petPageColumn.content, styles.footerRow]}>
           <Text as="span" look="caption" tone="muted">
-            <Anchor href={MOD_URL} target="_blank" css={styles.footerLink}>
+            <Anchor href={MOD_URL} target="_blank" tone="muted">
               {t({ en: "Source on GitHub", zh: "源码在 GitHub" })}
             </Anchor>
           </Text>
@@ -336,8 +335,5 @@ const styles = stylex.create({
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: "solid",
     borderBlockStartColor: color.border,
-  },
-  footerLink: {
-    [anchorTokens.color]: color.fgMuted,
   },
 });

@@ -11,7 +11,7 @@ import { listRowSizes, listRowTokens } from "@tuja/ui/components/list.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { createContext, type MouseEvent, use } from "react";
 import { formatMoney } from "../domain/money/format-money.ts";
@@ -178,7 +178,7 @@ export function TransactionListRow({
   const metaLine = { meta, isExpected, showReviewBadge, isPending };
 
   return (
-    <div data-transaction-row={row.id}>
+    <div data-transaction-row={row.id} css={typeModifier.verbatim}>
       <TransactionLinkContext value={{ id: row.id, onOpen: actions.onOpen }}>
         <ListRow
           href={actions.hrefFor(row.id)}

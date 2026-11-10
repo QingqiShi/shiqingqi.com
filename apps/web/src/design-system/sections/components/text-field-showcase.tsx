@@ -2,6 +2,7 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGl
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { TextField } from "@tuja/ui/components/text-field";
+import { GuideNote } from "#src/design-system/guide/guide-section.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
@@ -92,6 +93,12 @@ export function TextFieldShowcase() {
             />
           </Specimen>
         </SpecimenGrid>
+        <GuideNote>
+          {t({
+            en: "In Safari and Chrome, a search field shows a clear button in the colours of the theme. Firefox shows none, so give the field your own clear when every visitor needs one.",
+            zh: "在 Safari 和 Chrome 中，搜索字段会显示一个随主题配色的清除按钮。Firefox 不显示，因此当每位访客都需要清除时，请为字段自行提供清除按钮。",
+          })}
+        </GuideNote>
       </Showcase>
 
       <Showcase label={t({ en: "States", zh: "状态" })}>

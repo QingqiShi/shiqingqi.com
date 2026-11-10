@@ -7,6 +7,7 @@ import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { useRef, useState } from "react";
 import { useReplica } from "../replica/use-replica.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
@@ -76,7 +77,7 @@ export function TagsSettings() {
                 setName(tag.name);
               }}
             >
-              {tag.name}
+              <span css={typeModifier.verbatim}>{tag.name}</span>
             </ListRow>
           ))}
         </List>

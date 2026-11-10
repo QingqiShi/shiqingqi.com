@@ -34,8 +34,9 @@ function reducedMarkPose(shown: number): Styles {
 }
 
 /**
- * The default `OptionCard` indicator: an empty ring or box at rest, a filled
- * dot or tick once selected. The mark appearing is the state change, so
+ * The default `OptionCard` indicator: an empty ring or box at rest. Once
+ * selected, a radio shows a heavier ring around a dot, and a checkbox a filled
+ * box with a tick. The mark appearing is the state change, so
  * selection reads without relying on colour (WCAG 1.4.1). The dot or tick
  * grows from the centre of the mark on the spring, and shrinks back
  * into it.
@@ -82,7 +83,7 @@ export function SelectionMark({
         transition.colors,
         markStyles.base,
         outline,
-        fillGrows ? markStyles.ring : optionCardPart.mark,
+        role === "radio" || fillGrows ? markStyles.ring : optionCardPart.mark,
       ]}
     >
       <span
@@ -91,7 +92,9 @@ export function SelectionMark({
           flex.inlineCenter,
           markStyles.shown,
           outline,
-          fillGrows && markStyles.fill,
+          role === "radio"
+            ? markStyles.checkedRing
+            : fillGrows && markStyles.fill,
           !selected && markStyles.hidden,
         ]}
       >
@@ -130,12 +133,19 @@ const markStyles = stylex.create({
   fill: {
     backgroundColor: color.fg,
   },
+  // A dot in the colour of the surface reads as a hole in a filled disc, so
+  // the checked radio has the ink in its centre.
+  checkedRing: {
+    borderWidth: border.size_2,
+    borderStyle: "solid",
+    borderColor: color.fg,
+  },
   hidden: {
     transform: "scale(0)",
   },
   dot: {
     inlineSize: `calc(${optionCardMark.size} / 2)`,
     blockSize: `calc(${optionCardMark.size} / 2)`,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.fg,
   },
 });

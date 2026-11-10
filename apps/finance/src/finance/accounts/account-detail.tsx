@@ -125,7 +125,7 @@ export function AccountDetail({ accountId, onDeleted }: AccountDetailProps) {
       <header css={styles.header}>
         <div css={[stack.text, styles.names]}>
           <Heading level={2} look="h3">
-            {accountName(account)}
+            <span css={typeModifier.verbatim}>{accountName(account)}</span>
           </Heading>
           <div css={[cluster.tight, typeRole.bodySmall, styles.muted]}>
             <span>

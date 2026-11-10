@@ -5,17 +5,24 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGl
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { t } from "@tuja/i18n";
+import { Anchor } from "@tuja/ui/components/anchor";
 import { Button } from "@tuja/ui/components/button";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import {
   outlineSurface,
   outlineSurfaceSize,
 } from "@tuja/ui/components/outline-surface.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { align } from "@tuja/ui/primitives/flex.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { Example } from "#src/design-system/example.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
-import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
+import {
+  GuideNote,
+  GuideSection,
+} from "#src/design-system/guide/guide-section.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -49,6 +56,16 @@ export function ButtonShowcase() {
           </Specimen>
           <Specimen caption="danger">
             <Button look="danger" icon={<TrashIcon weight="bold" />}>
+              {t({ en: "Delete", zh: "删除" })}
+            </Button>
+          </Specimen>
+          <Specimen caption='outline + intent="danger"'>
+            <Button look="outline" intent="danger">
+              {t({ en: "Delete", zh: "删除" })}
+            </Button>
+          </Specimen>
+          <Specimen caption='ghost + intent="danger"'>
+            <Button look="ghost" intent="danger">
               {t({ en: "Delete", zh: "删除" })}
             </Button>
           </Specimen>
@@ -106,6 +123,74 @@ export function ButtonShowcase() {
         </ShowcaseHelper>
       </Showcase>
 
+      <Showcase
+        label={t({
+          en: "A link in text is an Anchor",
+          zh: "文字中的链接是 Anchor",
+        })}
+        leadsWithText
+      >
+        <ShowcaseHelper>
+          {t({
+            en: 'An Anchor stands out from the sentence around it. tone="muted" keeps the colour and weight of a line of details and marks the link with the underline only.',
+            zh: 'Anchor 在周围的句子中显得突出。tone="muted" 保持详情行的颜色与字重，只用下划线标示链接。',
+          })}
+        </ShowcaseHelper>
+        <Example>
+          <div css={stack.tight}>
+            <Text>
+              {t({ en: "Read the ", zh: "请先阅读" })}
+              <Anchor
+                href="#"
+                newTabLabel={t({
+                  en: "(opens in new tab)",
+                  zh: "(在新标签页中打开)",
+                })}
+              >
+                {t({ en: "release notes", zh: "发布说明" })}
+              </Anchor>
+              {t({ en: " first.", zh: "。" })}
+            </Text>
+            <Text look="caption" tone="muted">
+              <MetaLine
+                facts={[
+                  t({ en: "12 replies", zh: "12 条回复" }),
+                  <Anchor
+                    key="source"
+                    href="#"
+                    tone="muted"
+                    newTabLabel={t({
+                      en: "(opens in new tab)",
+                      zh: "(在新标签页中打开)",
+                    })}
+                  >
+                    {t({ en: "Source", zh: "来源" })}
+                  </Anchor>,
+                ]}
+              />
+            </Text>
+            <Anchor
+              href="#"
+              standalone
+              newTabLabel={t({
+                en: "(opens in new tab)",
+                zh: "(在新标签页中打开)",
+              })}
+            >
+              {t({ en: "All films", zh: "全部影片" })}
+            </Anchor>
+          </div>
+        </Example>
+        <GuideNote>
+          {t({
+            en: "standalone gives a link outside a sentence a 44px hit area on touch, as a button has, and does not change its look. Leave it off in running text, where that area covers the lines above and below.",
+            zh: "standalone 让句子之外的链接在触屏上获得与按钮一样的 44px 点击区域，外观不变。连续文字中的链接不要设置它，否则该区域会遮住上下行。",
+          })}
+        </GuideNote>
+      </Showcase>
+
+      <PropsTable component="anchor" />
+
       <Showcase label={t({ en: "A row of filters", zh: "一排筛选项" })}>
         <Example>
           <div css={cluster.tight}>
@@ -143,6 +228,36 @@ export function ButtonShowcase() {
           {t({
             en: 'A dense row takes size="xs" and look="outline". trailing stays in the accessibility tree, so it reads as part of the name, and on the selected fill it takes the label\'s colour to keep its contrast. A <select> cannot be a Button, so it takes outlineSurface, the same border, fill and selected state.',
             zh: '紧凑的一行使用 size="xs" 与 look="outline"。trailing 保留在无障碍树中，会作为名称的一部分被朗读；在选中态的填充上它改用标签的颜色，以保持对比度。<select> 不可能是 Button，因此使用 outlineSurface，它带有同样的描边、填充与选中态。',
+          })}
+        </ShowcaseHelper>
+      </Showcase>
+
+      <Showcase
+        label={t({ en: "Reach past the content edge", zh: "越过内容边缘" })}
+      >
+        <Example>
+          <div css={[stack.tight, align.start]}>
+            <Button
+              size="sm"
+              look="ghost"
+              bleed="start"
+              icon={<CaretLeftIcon weight="bold" />}
+              href="#"
+            >
+              {t({ en: "All reports", zh: "全部晨报" })}
+            </Button>
+            <Text>
+              {t({
+                en: "The back link’s arrow lines up with this text.",
+                zh: "返回链接的箭头与这段文字对齐。",
+              })}
+            </Text>
+          </div>
+        </Example>
+        <ShowcaseHelper>
+          {t({
+            en: 'A ghost button has no fill at rest, so its padding reads as empty space. bleed="start" or bleed="end" pulls the box past the edge by that padding, and the label or glyph meets the edge of the text.',
+            zh: 'ghost 按钮静止时没有填充，它的内边距看起来只是空白。bleed="start" 或 bleed="end" 让方框按这段内边距越过边缘，标签或图标便与文字的边缘对齐。',
           })}
         </ShowcaseHelper>
       </Showcase>
@@ -206,8 +321,8 @@ export function ButtonShowcase() {
       <Showcase label={t({ en: "Icon-only", zh: "纯图标" })} leadsWithText>
         <ShowcaseHelper>
           {t({
-            en: "With no children the button renders icon-only: a square of its own height, at the corner radius half that height gives — named by aria-label or aria-labelledby, since the icon itself is decorative.",
-            zh: "没有 children 时，按钮渲染为纯图标：一个与自身高度相等的正方形，圆角为该高度的一半——由 aria-label 或 aria-labelledby 命名，因为图标本身是装饰性的。",
+            en: "With no children the button renders icon-only: a square of its own height, named by aria-label or aria-labelledby, since the icon itself is decorative. With no label beside it, the glyph is larger than a glyph beside a label, the size of a checkbox or a drag handle in the same row.",
+            zh: "没有 children 时，按钮渲染为纯图标：一个与自身高度相等的正方形，由 aria-label 或 aria-labelledby 命名，因为图标本身是装饰性的。旁边没有标签时，图标比标签旁的图标更大，与同一行中的复选框或拖动手柄一样大。",
           })}
         </ShowcaseHelper>
         <SpecimenGrid>
@@ -360,6 +475,17 @@ export function ButtonShowcase() {
               note: t({
                 en: "Reserved for what cannot be undone — deleting, discarding, revoking.",
                 zh: "只留给无法撤销的操作——删除、丢弃、撤回。",
+              }),
+            },
+            {
+              term: t({
+                en: "A destructive action among others, such as Delete in a bar",
+                zh: "与其他操作并列的破坏性操作，例如操作栏中的“删除”",
+              }),
+              value: 'intent="danger"',
+              note: t({
+                en: "On an outline or ghost button. The label turns danger and the button keeps the weight of its neighbours.",
+                zh: "用于 outline 或 ghost 按钮。标签变为危险色，按钮与相邻按钮保持同样的分量。",
               }),
             },
           ]}

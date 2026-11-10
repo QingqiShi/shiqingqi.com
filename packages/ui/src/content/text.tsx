@@ -21,11 +21,13 @@ interface TextProps {
    */
   look?: "body" | "bodySmall" | "label" | "caption" | "overline";
   /**
-   * Foreground colour role, resolved per theme.
+   * Foreground colour role, resolved per theme. `"danger"` is for a line that
+   * says something went wrong and asks the reader to act, such as an inline
+   * error under a row; it matches the error text of a field.
    *
-   * @zh 前景色角色，随主题解析。
+   * @zh 前景色角色，随主题解析。`"danger"` 用于说明出了问题、需要读者处理的一行文字，例如列表行下方的内联错误，与表单字段的错误文字一致。
    */
-  tone?: "default" | "muted" | "accent";
+  tone?: "default" | "muted" | "accent" | "danger";
   /**
    * Overrides the weight that `look` sets.
    *
@@ -48,13 +50,23 @@ interface TextProps {
   align?: "start" | "center" | "end";
   /**
    * How lines break. `"pretty"` avoids stranding one word on the last
-   * line — the choice for body copy. `"balance"` evens every line, which
-   * suits short standalone copy, though the browser caps how many lines it
-   * balances. `"nowrap"` keeps the run on one line.
+   * line — the choice for body copy, and the default of a paragraph.
+   * `"balance"` evens every line, which suits short standalone copy, though
+   * the browser caps how many lines it balances. `"nowrap"` keeps the run on one line.
    *
-   * @zh 控制换行方式。`"pretty"` 避免末行只剩一个孤词，是正文的首选；`"balance"` 让每行长度均衡，适合简短独立文案，但浏览器只对有限的行数生效；`"nowrap"` 让文本保持单行。
+   * @zh 控制换行方式。`"pretty"` 避免末行只剩一个孤词，是正文的首选，也是段落的默认值；`"balance"` 让每行长度均衡，适合简短独立文案，但浏览器只对有限的行数生效；`"nowrap"` 让文本保持单行。
    */
   wrap?: "balance" | "pretty" | "nowrap";
+  /**
+   * The width cap of a paragraph. `"prose"` stops its lines at
+   * `measure.prose`, so the eye finds the next one. `"none"` lets it run the
+   * width of its box, for a note inside a card or a row whose other lines
+   * already run that wide. Only a paragraph takes a cap. Defaults to
+   * `"prose"`.
+   *
+   * @zh 段落的宽度上限。`"prose"` 让行在 `measure.prose` 处换行，便于视线找到下一行；`"none"` 让段落占满容器宽度，用于卡片或列表行中的说明，其周围的行已占满该宽度。只有段落才有上限。默认为 `"prose"`。
+   */
+  measure?: "prose" | "none";
   /**
    * Renders figures at a fixed width so numbers line up in a column and a
    * ticking value doesn't jitter.
@@ -62,6 +74,22 @@ interface TextProps {
    * @zh 以等宽方式渲染数字，使数字在列中对齐，跳动的数值也不会抖动。
    */
   numeric?: boolean;
+  /**
+   * Shows the text as a person or an agent wrote it: "(1)", "2x3" and "->"
+   * stay as typed, where Haffer would draw "①", "2×3" and "→". Use it for a
+   * name, a note or a message, never for the app's own copy.
+   *
+   * @zh 按人或智能体写下的原样显示文字："(1)"、"2x3" 与 "->" 保持原样，而不是被 Haffer 画成 "①"、"2×3" 与 "→"。用于名称、备注或消息，不用于应用自己的文案。
+   */
+  verbatim?: boolean;
+  /**
+   * Shows at most this many lines and ends the last one with "…". A word too
+   * long for a line breaks, so the text never widens its box. The full text
+   * stays in the page, so a screen reader still reads all of it.
+   *
+   * @zh 最多显示这么多行，并在最后一行末尾加 "…"。过长的单词会断开，因此文字不会撑宽容器。完整文字仍在页面中，屏幕阅读器仍会读出全部内容。
+   */
+  lines?: number;
   /**
    * Id applied to the rendered element, so another node can point
    * `aria-labelledby` / `aria-describedby` here.
@@ -93,7 +121,7 @@ interface TextProps {
  * Body-copy typography primitive. Picks the semantic element via `as` and the
  * type role via `look`, so a `<span>` can still read at body size. A paragraph
  * — `as="p"` at `body` or `bodySmall` — caps its line length at
- * `measure.prose`; pass `css` with `maxInlineSize: "none"` to let it run the
+ * `measure.prose` and wraps `"pretty"`; `measure="none"` lets it run the
  * full width.
  */
 export function Text({
@@ -104,7 +132,10 @@ export function Text({
   transform,
   align,
   wrap,
+  measure = "prose",
   numeric,
+  verbatim,
+  lines,
   id,
   css,
   ref,
@@ -114,13 +145,16 @@ export function Text({
   const textCss = [
     typeRole[look],
     styles.base,
-    isProse ? measureStyles[align ?? "start"] : null,
+    isProse && measure === "prose" ? measureStyles[align ?? "start"] : null,
+    isProse ? wrapStyles.pretty : null,
     toneStyles[tone],
     weight ? weightStyles[weight] : null,
     transform ? transformStyles[transform] : null,
     align ? alignStyles[align] : null,
     wrap ? wrapStyles[wrap] : null,
     numeric === true ? typeModifier.numeric : null,
+    verbatim === true ? typeModifier.verbatim : null,
+    lines === undefined ? null : typeModifier.lines(lines),
     css,
   ];
 
@@ -170,6 +204,7 @@ const toneStyles = stylex.create({
   default: { color: color.fg },
   muted: { color: color.fgMuted },
   accent: { color: color.fgAccent },
+  danger: { color: color.fgDanger },
 });
 
 const weightStyles = stylex.create({

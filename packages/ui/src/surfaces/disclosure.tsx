@@ -59,11 +59,15 @@ interface DisclosureBaseProps extends Omit<
   /**
    * `"plain"` (the default) is chrome-free, for a disclosure that sits inside a
    * surface something else already owns. `"card"` wraps both parts in the shared
-   * bordered card surface and rules the panel off from the header.
+   * bordered card surface and rules the panel off from the header. Both make
+   * the header the whole row, with the caret at its far end. `"inline"` is
+   * plain with a trigger only as wide as its label and the caret right after
+   * it, for a small expander inside a row whose far end belongs to something
+   * else; its panel still takes the full width.
    *
-   * @zh `"plain"`（默认）不带外框，适用于内部已有其他表面承载的折叠面板；`"card"` 将两部分一并包进共享的描边卡片表面，并用分隔线把面板与标题分开。
+   * @zh `"plain"`（默认）不带外框，适用于内部已有其他表面承载的折叠面板；`"card"` 将两部分一并包进共享的描边卡片表面，并用分隔线把面板与标题分开。这两种外观都让标题占满整行，箭头位于行尾。`"inline"` 与 plain 一样不带外框，但触发器只与标签同宽，箭头紧跟标签之后，适用于行内的小型展开控件，而该行的末端另有他用；面板仍占满整个宽度。
    */
-  look?: "plain" | "card";
+  look?: "plain" | "card" | "inline";
   /**
    * StyleX overrides merged over the root — composed last so a caller wins.
    * The trigger inherits the root's `font-size`, so one override resizes the
@@ -169,7 +173,7 @@ export function Disclosure({
         {...triggerProps}
         css={[
           buttonReset.base,
-          a11y.focusRingInset,
+          look === "inline" ? a11y.focusRing : a11y.focusRingInset,
           corner.radius_2,
           styles.trigger,
           triggerLooks[look],
@@ -180,7 +184,9 @@ export function Disclosure({
             {icon}
           </span>
         ) : null}
-        <span css={styles.summary}>{summary}</span>
+        <span css={[styles.summary, look === "inline" && styles.summaryHug]}>
+          {summary}
+        </span>
         {trailing ? <span css={styles.trailing}>{trailing}</span> : null}
         {/* Truthiness, so `indicator={hasChildren && <Icon />}` drops the slot
             on a leaf row instead of leaving an empty box that misaligns the
@@ -234,6 +240,9 @@ const styles = stylex.create({
     // Let long summaries wrap instead of forcing the trigger wider.
     minInlineSize: 0,
   },
+  summaryHug: {
+    flexGrow: 0,
+  },
   trailing: {
     flexShrink: 0,
     color: color.fgMuted,
@@ -256,6 +265,11 @@ const triggerLooks = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._3,
   },
+  inline: {
+    inlineSize: "fit-content",
+    maxInlineSize: "100%",
+    paddingBlock: space._1,
+  },
 });
 
 const panelLooks = stylex.create({
@@ -268,5 +282,8 @@ const panelLooks = stylex.create({
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: "solid",
     borderBlockStartColor: color.border,
+  },
+  inline: {
+    paddingBlockEnd: space._1,
   },
 });

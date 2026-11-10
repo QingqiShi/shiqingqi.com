@@ -6,12 +6,14 @@ import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Skeleton } from "@tuja/ui/components/skeleton";
+import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { layer, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef, useState } from "react";
 import { CompactMediaCard } from "#src/movie-database/compact-media-card.tsx";
 import { DepartmentLabel } from "#src/movie-database/department-label.ts";
@@ -91,11 +93,17 @@ export function PersonDetailContent({
           <h2 css={[typeRole.h1, styles.name]}>{displayName}</h2>
           {hasMeta ? (
             <div css={[typeRole.bodySmall, styles.meta]}>
-              {detail.knownForDepartment && (
-                <DepartmentLabel department={detail.knownForDepartment} />
-              )}
-              {detail.knownForDepartment && lifespan ? " · " : null}
-              {lifespan}
+              <MetaLine
+                facts={[
+                  detail.knownForDepartment ? (
+                    <DepartmentLabel
+                      key="department"
+                      department={detail.knownForDepartment}
+                    />
+                  ) : null,
+                  lifespan,
+                ]}
+              />
             </div>
           ) : (
             detailQuery.isPending && <Skeleton width={180} height={14} />
@@ -151,7 +159,7 @@ const LINE_CLAMP = 6;
 export function ExpandableBiography({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false);
   const [isClamped, setIsClamped] = useState(false);
-  const paragraphRef = useRef<HTMLParagraphElement>(null);
+  const paragraphRef = useRef<HTMLElement>(null);
   const biographyId = useId();
 
   // Observe layout changes on the paragraph itself. `measure` reads live
@@ -178,17 +186,13 @@ export function ExpandableBiography({ text }: { text: string }) {
 
   return (
     <div>
-      <p
+      <Text
         id={biographyId}
         ref={paragraphRef}
-        css={[
-          typeRole.body,
-          styles.biography,
-          !expanded && styles.biographyClamped,
-        ]}
+        lines={expanded ? undefined : LINE_CLAMP}
       >
         {text}
-      </p>
+      </Text>
       {(isClamped || expanded) && (
         <button
           type="button"
@@ -356,16 +360,6 @@ const styles = stylex.create({
   meta: {
     color: color.fgMuted,
     margin: 0,
-  },
-  biography: {
-    margin: 0,
-    maxInlineSize: measure.prose,
-  },
-  biographyClamped: {
-    display: "-webkit-box",
-    WebkitLineClamp: LINE_CLAMP,
-    WebkitBoxOrient: "vertical",
-    overflow: "hidden",
   },
   readMoreButton: {
     color: color.fgMuted,

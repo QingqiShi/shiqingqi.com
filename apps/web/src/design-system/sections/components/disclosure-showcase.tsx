@@ -44,12 +44,26 @@ export function DisclosureShowcase() {
               </Text>
             </Disclosure>
           </Specimen>
+          <Specimen caption="inline">
+            <Disclosure
+              look="inline"
+              summary={t({ en: "3 documents", zh: "3 份文件" })}
+              css={fill.inline}
+            >
+              <Text look="bodySmall" tone="muted">
+                {t({
+                  en: "Passport, EU driving licence, and the rental confirmation printed out.",
+                  zh: "护照、欧盟驾照，以及打印好的租车确认单。",
+                })}
+              </Text>
+            </Disclosure>
+          </Specimen>
         </div>
         <FlowBlock data-prose>
           <Text look="bodySmall" tone="muted">
             {t({
-              en: "Plain is chrome-free, for a disclosure inside a surface something else already owns. Card wraps both parts in the shared bordered surface and rules the panel off from the header.",
-              zh: "简洁样式不带外框，适用于外层已有表面的场景。卡片样式将标题与面板一同包进共享的描边表面，并用分隔线将面板与标题分开。",
+              en: "Plain is chrome-free, for a disclosure inside a surface something else already owns. Card wraps both parts in the shared bordered surface and rules the panel off from the header. In both, the header is the whole row and the caret ends it. Inline keeps the caret right after the label, for a small expander inside a row whose far end holds something else; its panel still takes the full width.",
+              zh: "简洁样式不带外框，适用于外层已有表面的场景。卡片样式将标题与面板一同包进共享的描边表面，并用分隔线将面板与标题分开。这两种样式的标题都占满整行，箭头位于行尾。行内样式让箭头紧跟标签，适用于行内的小型展开控件，而该行末端另有他用；它的面板仍占满整个宽度。",
             })}
           </Text>
         </FlowBlock>

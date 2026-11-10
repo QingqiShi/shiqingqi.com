@@ -7,4 +7,5 @@ export const checkboxTokens = stylex.defineVars({
   // transparent mask, not `none`: `mask-image: none` masks nothing out, so the
   // pseudo-element would paint the whole box.
   glyph: "linear-gradient(transparent, transparent)",
+  glyphSize: "74% 74%",
 });

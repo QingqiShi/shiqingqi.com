@@ -1,15 +1,12 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { normalizePath } from "@tuja/i18n/normalize-path";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Link, LinkStatus } from "@tuja/next-links/link";
-import { color } from "@tuja/ui/color.stylex";
+import { StatusDot } from "@tuja/ui/components/status-dot";
 import { TabView, type TabViewLinkProps } from "@tuja/ui/components/tab-view";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { isCurrentDestination } from "./finance-destination-paths.ts";
@@ -59,9 +56,9 @@ export function FinanceTabView({
         const isSettings = destination.path === "/settings";
         const dot =
           isSettings && attention
-            ? attentionStyles[attention]
+            ? ATTENTION_INTENTS[attention]
             : waiting && destination.path === "/transactions"
-              ? attentionStyles.waiting
+              ? ATTENTION_INTENTS.waiting
               : null;
         return {
           href: getLocalePath(destination.path, locale),
@@ -69,10 +66,7 @@ export function FinanceTabView({
           icon: destination.icon,
           current: isCurrentDestination(current, destination.path),
           skeleton: <FinanceScreenSkeleton path={destination.path} />,
-          badge:
-            dot === null ? null : (
-              <span css={[corner.radius_round, styles.dot, dot]} />
-            ),
+          badge: dot === null ? null : <StatusDot intent={dot} />,
           status: isSettings ? (attention ? label : null) : undefined,
         };
       })}
@@ -82,15 +76,7 @@ export function FinanceTabView({
   );
 }
 
-const styles = stylex.create({
-  dot: {
-    display: "block",
-    inlineSize: space._1,
-    blockSize: space._1,
-  },
-});
-
-const attentionStyles = stylex.create({
-  waiting: { backgroundColor: color.fgWarning },
-  problem: { backgroundColor: color.fgDanger },
-});
+const ATTENTION_INTENTS = {
+  waiting: "warning",
+  problem: "danger",
+} as const;

@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -58,13 +59,13 @@ export function AnalyticsSummary({
   return (
     <section css={stack.tight} aria-label={heading}>
       <Text look="caption" tone="muted">
-        {[
-          heading,
-          scope,
-          displayDayRange(view.range.from, view.range.to, locale),
-        ]
-          .filter((part) => part !== null)
-          .join(" · ")}
+        <MetaLine
+          facts={[
+            heading,
+            scope,
+            displayDayRange(view.range.from, view.range.to, locale),
+          ]}
+        />
       </Text>
       <span css={[typeRole.h1, styles.total]}>{money(view.total)}</span>
       <div css={stack.text}>

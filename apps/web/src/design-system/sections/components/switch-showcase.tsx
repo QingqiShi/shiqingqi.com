@@ -42,8 +42,8 @@ export function SwitchShowcase() {
       >
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "With a `label`, the name and the switch share a row in the look of a `Select` box, and the description sits beneath it.",
-            zh: "有 `label` 时，名称与开关同处一行，外观与 `Select` 的方框一致，说明文字位于其下方。",
+            en: "With a `label`, the switch leads and its name follows, so the two read as one setting with no box around them. The description sits under the name, and a click on the name toggles the switch.",
+            zh: "有 `label` 时，开关在前，名称紧随其后，二者无需外框即可读作同一个设置项。说明文字位于名称下方，点击名称也会切换开关。",
           })}
         </Text>
         <Specimen caption="label, description">

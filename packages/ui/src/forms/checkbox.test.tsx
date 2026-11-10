@@ -28,4 +28,19 @@ describe("Checkbox", () => {
       screen.getByRole("checkbox", { name: "Accept terms" }),
     ).toBeChecked();
   });
+
+  it("keeps its state when read-only, stays reachable, and says so", async () => {
+    const user = userEvent.setup();
+    render(<Checkbox label="Renew passport" readOnly defaultChecked />);
+
+    const checkbox = screen.getByRole("checkbox", { name: "Renew passport" });
+    await user.tab();
+    expect(checkbox).toHaveFocus();
+    await user.keyboard(" ");
+    await user.click(checkbox);
+    await user.click(screen.getByText("Renew passport"));
+
+    expect(checkbox).toBeChecked();
+    expect(checkbox).toHaveAttribute("aria-readonly", "true");
+  });
 });

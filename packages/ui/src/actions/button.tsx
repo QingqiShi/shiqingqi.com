@@ -18,6 +18,10 @@ import { typeRole } from "../primitives/type.stylex.ts";
 import { opacity } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import {
+  bleedStyles,
+  dangerIntentStyles,
+  glyphBelowMdTokenStyles,
+  iconGlyphStyles,
   lookStyles,
   sharedStyles,
   sizeStyles,
@@ -28,10 +32,11 @@ import { outlineSurface } from "./outline-surface.stylex.ts";
 interface SharedProps {
   /**
    * Below the `md` breakpoint, collapses to a square icon-only button and
-   * hides the label. Pass `aria-label` too, so the collapsed form keeps its
-   * name.
+   * hides the label. Its glyph there is one step smaller than an icon-only
+   * button's, because it stands for a word in a row of text. Pass
+   * `aria-label` too, so the collapsed form keeps its name.
    *
-   * @zh 在 `md` 断点以下收起为纯图标的正方形按钮，并隐藏标签。同时提供 `aria-label`，使收起后的按钮仍保留名称。
+   * @zh 在 `md` 断点以下收起为纯图标的正方形按钮，并隐藏标签。此时其图标比纯图标按钮小一级，因为它代替的是一行文字中的一个词。同时提供 `aria-label`，使收起后的按钮仍保留名称。
    */
   hideLabelOnMobile?: boolean;
   /**
@@ -87,6 +92,26 @@ interface SharedProps {
    * `"primary"` 与 `isActive` 共用同一种高亮，但不表示任何状态。`"outline"` 以描边取代填充，是一排筛选项所用的外观；`"ghost"` 完全没有表面，颜色在悬停前保持克制，适合置于已有内容之上的行内控件；`"bright"` 将按钮置于明亮表面，悬停时进一步提亮；`"danger"` 用于真正具有破坏性的操作。
    */
   look?: "primary" | "outline" | "ghost" | "bright" | "danger";
+  /**
+   * `"danger"` marks a secondary destructive action on an `outline` or
+   * `ghost` button, such as Delete in a bar of other actions: the label and
+   * the hover fill turn danger, and the button keeps the weight of the
+   * buttons beside it. Other looks ignore it. The one action that destroys
+   * takes `look="danger"`, the filled form.
+   *
+   * @zh `"danger"` 用于 `outline` 或 `ghost` 按钮上次要的破坏性操作，例如一排操作中的“删除”：标签和悬停填充变为危险色，按钮与旁边的按钮保持同样的分量。其他外观会忽略它。真正具有破坏性的唯一操作使用 `look="danger"`，即填充形式。
+   */
+  intent?: "danger";
+  /**
+   * Lets a `ghost` button reach past its edge of the content, so that its
+   * label or glyph, not its padded box, lines up with the text above and
+   * below. `"start"` for a button that leads a line, such as a back link;
+   * `"end"` for one that ends it, such as the action of a section header.
+   * The hover fill then reaches past the edge.
+   *
+   * @zh 让 `ghost` 按钮越过内容的边缘，使其标签或图标（而不是带内边距的方框）与上下文字对齐。`"start"` 用于位于一行开头的按钮，例如返回链接；`"end"` 用于位于一行末尾的按钮，例如分区标题的操作。悬停填充随之越过边缘。
+   */
+  bleed?: "start" | "end";
   /**
    * Id applied to the label span, e.g. to wire an external `aria-labelledby`.
    *
@@ -315,10 +340,12 @@ function SlottedLink({
 type FaceProps = SharedProps & { children?: ReactNode };
 
 function splitFace<Props extends FaceProps>({
+  bleed,
   children,
   css,
   hideLabelOnMobile,
   icon,
+  intent,
   isActive,
   labelId,
   look,
@@ -327,10 +354,12 @@ function splitFace<Props extends FaceProps>({
   ...native
 }: Props) {
   const face: FaceProps = {
+    bleed,
     children,
     css,
     hideLabelOnMobile,
     icon,
+    intent,
     isActive,
     labelId,
     look,
@@ -359,21 +388,11 @@ function faceCss(
   >,
   { isInert = false, isLoading = false }: FaceState = {},
 ): StyleProp {
-  const {
-    children,
-    css,
-    hideLabelOnMobile,
-    icon,
-    look,
-    size = "md",
-    trailing,
-  } = face;
+  const { bleed, css, intent, look, size = "md" } = face;
   const { isPressed, releasedOutside, pressedCss } = press;
-  // Truthiness, not a null check, so `icon={count && <Icon />}` renders
-  // nothing when `count` is `0` instead of a stray icon.
-  const hasIcon = !!icon;
   const isOutline = look === "outline";
   const isPressedLive = isPressed && !isInert;
+  const shape = faceShape(face);
 
   return [
     typeRole.control,
@@ -388,10 +407,14 @@ function faceCss(
     sizeStyles[size],
     look !== undefined && look !== "primary" && lookStyles[look],
     isOutline && outlineSurface.skin,
-    hasIcon &&
-      !!children &&
-      (hideLabelOnMobile ? sharedStyles.iconOnlyBelowMd : sharedStyles.hasIcon),
-    hasIcon && !children && !trailing && sharedStyles.iconOnly,
+    intent === "danger" &&
+      (look === "outline" || look === "ghost") &&
+      dangerIntentStyles[look],
+    shape === "iconOnlyBelowMd" && sharedStyles.iconOnlyBelowMd,
+    shape === "iconOnlyBelowMd" && glyphBelowMdTokenStyles[size],
+    shape === "iconAndLabel" && sharedStyles.hasIcon,
+    shape === "iconOnly" && sharedStyles.iconOnly,
+    bleed !== undefined && bleedStyles[bleedStyleOf(bleed, shape)],
     // `active` and `bright` set a literal `backgroundColor` that wins over
     // the fill of the tokens.
     paintsHighlight(face) &&
@@ -405,6 +428,30 @@ function faceCss(
   ];
 }
 
+function faceShape({ children, hideLabelOnMobile, icon, trailing }: FaceProps) {
+  // Truthiness, not a null check, so `icon={count && <Icon />}` renders
+  // nothing when `count` is `0` instead of a stray icon.
+  if (!icon) return "label";
+  if (children) return hideLabelOnMobile ? "iconOnlyBelowMd" : "iconAndLabel";
+  return trailing ? "label" : "iconOnly";
+}
+
+function bleedStyleOf(
+  bleed: "start" | "end",
+  shape: "iconOnly" | "iconOnlyBelowMd" | "iconAndLabel" | "label",
+): keyof typeof bleedStyles {
+  switch (shape) {
+    case "iconOnly":
+      return bleed === "start" ? "startIconOnly" : "endIconOnly";
+    case "iconOnlyBelowMd":
+      return bleed === "start" ? "startIconOnlyBelowMd" : "endIconOnlyBelowMd";
+    case "iconAndLabel":
+      return bleed === "start" ? "startIcon" : "endLabel";
+    case "label":
+      return bleed === "start" ? "startLabel" : "endLabel";
+  }
+}
+
 function Face({
   face,
   isLoading = false,
@@ -414,6 +461,7 @@ function Face({
 }) {
   const { children, hideLabelOnMobile, icon, labelId, look, trailing } = face;
   const hasIcon = !!icon;
+  const shape = faceShape(face);
   // With an icon, the spinner takes its place. Without one, it overlays the
   // label (kept in the layout via `visibility`) so the button's width holds.
   const swapsIconForSpinner = isLoading && hasIcon;
@@ -426,7 +474,14 @@ function Face({
   return (
     <>
       {hasIcon && (
-        <span css={sharedStyles.icon} aria-hidden>
+        <span
+          css={[
+            sharedStyles.icon,
+            shape === "iconOnly" && iconGlyphStyles.iconOnly,
+            shape === "iconOnlyBelowMd" && iconGlyphStyles.iconOnlyBelowMd,
+          ]}
+          aria-hidden
+        >
           {/* `aria-busy` on the button already announces the state, so a
               labelled spinner would say it twice. `size="inline"` matches the
               icon box it replaces, keeping the button's width fixed. */}

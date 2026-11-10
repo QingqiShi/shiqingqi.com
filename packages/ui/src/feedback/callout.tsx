@@ -7,14 +7,18 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import { XCircleIcon } from "@phosphor-icons/react/dist/ssr/XCircle";
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
-import { pointer } from "../breakpoints.stylex.ts";
+import { Button } from "../actions/button.tsx";
 import { color } from "../color.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
-import { transition } from "../primitives/motion.stylex.ts";
-import { buttonReset } from "../primitives/reset.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { border, controlSize, font, rhythm, space } from "../tokens.stylex.ts";
+import {
+  border,
+  controlHeight,
+  font,
+  rhythm,
+  space,
+} from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
 type CalloutIntent =
@@ -148,19 +152,15 @@ export function Callout({
         <div css={[typeRole.bodySmall, styles.body]}>{children}</div>
       </div>
       {onDismiss ? (
-        <button
-          type="button"
-          onClick={onDismiss}
+        <Button
+          size="sm"
+          look="ghost"
+          bleed="end"
+          icon={<XIcon weight="bold" />}
           aria-label={dismissLabel}
-          css={[
-            buttonReset.base,
-            transition.colors,
-            corner.radius_1,
-            styles.dismiss,
-          ]}
-        >
-          <XIcon weight="bold" aria-hidden />
-        </button>
+          onClick={onDismiss}
+          css={styles.dismiss}
+        />
       ) : null}
     </div>
   );
@@ -199,18 +199,10 @@ const styles = stylex.create({
   body: {
     color: color.fg,
   },
+  // The button is taller than the first line. It centres on that line, so
+  // that it does not push the box taller.
   dismiss: {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-    fontSize: controlSize._4,
-    blockSize: controlLineBox,
-    inlineSize: controlLineBox,
-    color: {
-      default: color.fgMuted,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
-    },
+    marginBlock: `calc((${controlLineBox} - ${controlHeight.sm}) / 2)`,
   },
 });
 

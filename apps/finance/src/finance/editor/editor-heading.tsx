@@ -66,7 +66,7 @@ export function EditorHeading({ form }: { form: TransactionForm }) {
         {headlineAmount}
       </span>
       <span css={[cluster.tight, typeRole.body, styles.headlineName]}>
-        <span>{headlineName}</span>
+        <span css={typeModifier.verbatim}>{headlineName}</span>
         {isExpected ? (
           <Badge size="sm" intent="neutral">
             {t({ en: "Expected", zh: "待确认" })}

@@ -103,6 +103,7 @@ const styles = stylex.create({
     outlineWidth: border.size_2,
     outlineStyle: "solid",
     outlineColor: color.bgControlRaised,
+    backgroundColor: color.fgMuted,
   },
   content: {
     display: "flex",

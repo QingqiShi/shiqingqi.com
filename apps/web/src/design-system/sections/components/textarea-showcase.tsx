@@ -1,6 +1,7 @@
 import { t } from "@tuja/i18n";
 import { Textarea } from "@tuja/ui/components/textarea";
 import { PropsTable } from "#src/design-system/props-table.tsx";
+import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
 
@@ -57,6 +58,52 @@ export function TextareaShowcase() {
               error={t({
                 en: "Feedback needs at least 20 characters.",
                 zh: "反馈内容至少需要 20 个字符。",
+              })}
+            />
+          </Specimen>
+        </SpecimenGrid>
+      </Showcase>
+
+      <Showcase
+        label={t({
+          en: "Let a ghost field sit in a line of text",
+          zh: "让无框字段嵌在一行文字中",
+        })}
+        leadsWithText
+      >
+        <ShowcaseHelper>
+          {t({
+            en: 'A field in a row of text, such as a step of a checklist, takes look="ghost": no frame or fill until the pointer is over it or it has focus. A done step takes tone="muted" and recedes like its ticked box, until it has focus.',
+            zh: '嵌在一行文字中的字段，例如清单中的一个步骤，使用 look="ghost"：在指针悬停或获得焦点之前，没有边框和底色。已完成的步骤使用 tone="muted"，与已勾选的方框一起退后，获得焦点时恢复。',
+          })}
+        </ShowcaseHelper>
+        <SpecimenGrid>
+          <Specimen caption='look="ghost"'>
+            <Textarea
+              look="ghost"
+              size="sm"
+              rows={1}
+              autoGrow
+              label={t({ en: "Step 1", zh: "第 1 步" })}
+              labelHidden
+              defaultValue={t({
+                en: "Book the table for Friday",
+                zh: "订好周五的餐桌",
+              })}
+            />
+          </Specimen>
+          <Specimen caption='tone="muted"'>
+            <Textarea
+              look="ghost"
+              tone="muted"
+              size="sm"
+              rows={1}
+              autoGrow
+              label={t({ en: "Step 2", zh: "第 2 步" })}
+              labelHidden
+              defaultValue={t({
+                en: "Send the invitations",
+                zh: "发出邀请",
               })}
             />
           </Specimen>

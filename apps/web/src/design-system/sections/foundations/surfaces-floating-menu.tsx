@@ -3,17 +3,9 @@
 import { SortAscendingIcon } from "@phosphor-icons/react/dist/ssr/SortAscending";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
-import { Button } from "@tuja/ui/components/button";
 import { MenuButton } from "@tuja/ui/components/menu-button";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import {
-  duration,
-  easing,
-  motionConstants,
-} from "@tuja/ui/primitives/motion.stylex";
-import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { MenuItem } from "@tuja/ui/components/menu-item";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { Specimen } from "#src/design-system/specimen.tsx";
@@ -37,20 +29,17 @@ export function SurfacesFloatingMenu() {
         buttonProps={{ icon: <SortAscendingIcon weight="bold" /> }}
         position="bottomLeft"
         menuContent={
-          <div role="none" css={[stack.tight, styles.menu]}>
+          <div role="none" css={[flex.col, styles.menu]}>
             {orders.map((order, index) => (
-              <Button
+              <MenuItem
                 key={order}
-                role="menuitem"
-                look="ghost"
-                aria-current={index === sortBy}
-                css={[quietSurface.interactive, a11y.focusRing, styles.item]}
+                current={index === sortBy}
                 onClick={() => {
                   setSortBy(index);
                 }}
               >
                 {order}
-              </Button>
+              </MenuItem>
             ))}
           </div>
         }
@@ -65,15 +54,5 @@ const styles = stylex.create({
   menu: {
     inlineSize: space._12,
     padding: space._0,
-  },
-  // A Button animates its press, and `quietSurface.interactive` replaces that
-  // transition. So this is a copy of the transition of a Button.
-  item: {
-    justifyContent: "flex-start",
-    color: color.fg,
-    transition: {
-      default: `background ${duration._200} ${easing.ease}, transform ${duration._500} ${easing.spring}, filter ${duration._150} ${easing.easeOut}`,
-      [motionConstants.REDUCED_MOTION]: `background ${duration._200} ${easing.ease}`,
-    },
   },
 });

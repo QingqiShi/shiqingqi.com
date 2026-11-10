@@ -10,4 +10,9 @@ export const buttonTokens = stylex.defineVars({
   color: color.fg,
   height: controlHeight.md,
   paddingInline: controlSize._3,
+  // The glyph of an icon-only button. With no label beside it, the glyph is
+  // the whole face, so it takes the size of the other lone glyphs in a row of
+  // controls (a Checkbox box, a drag handle, a TabBar icon), not the 1em of a
+  // label.
+  glyph: controlSize._5,
 });

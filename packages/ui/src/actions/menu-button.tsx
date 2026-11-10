@@ -25,6 +25,7 @@ import { popoverSurface } from "../surfaces/popover-surface.stylex.ts";
 import { ProgressiveBlur } from "../surfaces/progressive-blur.tsx";
 import { border, controlSize, layer } from "../tokens.stylex.ts";
 import { Button, type ButtonFormProps } from "./button.tsx";
+import { MenuPopupRoleContext } from "./menu-popup-role-context.ts";
 import { useRovingFocus } from "./use-roving-focus.ts";
 import { useSheetCap } from "./use-sheet-cap.ts";
 import { useSurfaceMorph } from "./use-surface-morph.ts";
@@ -363,7 +364,9 @@ export function MenuButton({
                     {children && (
                       <MenuTitle isSheet={isSheet}>{children}</MenuTitle>
                     )}
-                    {menuContent}
+                    <MenuPopupRoleContext value={popupRole}>
+                      {menuContent}
+                    </MenuPopupRoleContext>
                   </OptionalEffectCarrier>
                 </div>
               </div>

@@ -6,6 +6,7 @@ import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -165,22 +166,18 @@ export function ReportSpending({
             </p>
           </div>
           <div css={[cluster.item, styles.facts]}>
-            <p
-              css={[
-                cluster.tight,
-                typeRole.bodySmall,
-                styles.line,
-                styles.muted,
-              ]}
-            >
-              <span>
-                {t({ en: "Income", zh: "收入" })}{" "}
-                <span css={[typeModifier.numeric, styles.fact]}>
-                  {money(data.incomeMinor)}
-                </span>
-              </span>
-              <span aria-hidden>·</span>
-              <span>{transactionCount}</span>
+            <p css={[typeRole.bodySmall, styles.line, styles.muted]}>
+              <MetaLine
+                facts={[
+                  <span key="income">
+                    {t({ en: "Income", zh: "收入" })}{" "}
+                    <span css={[typeModifier.numeric, styles.fact]}>
+                      {money(data.incomeMinor)}
+                    </span>
+                  </span>,
+                  transactionCount,
+                ]}
+              />
             </p>
             {data.reviewCount > 0 ? (
               <Button

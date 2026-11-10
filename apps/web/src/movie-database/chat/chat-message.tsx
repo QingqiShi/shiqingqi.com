@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, constants, shadow, space } from "@tuja/ui/tokens.stylex";
 import {
   getToolName,
@@ -55,6 +55,7 @@ export function ChatMessage({
       css={[
         styles.bubble,
         corner.radius_3,
+        typeModifier.verbatim,
         isUser ? styles.userBubble : styles.assistantBubble,
       ]}
     >

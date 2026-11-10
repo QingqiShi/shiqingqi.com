@@ -11,6 +11,7 @@ import {
   useSplitViewShared,
 } from "@tuja/ui/components/navigation-split-view";
 import { row } from "@tuja/ui/primitives/stack.stylex";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
@@ -109,7 +110,7 @@ export function AccountRow({
           : `≈ ${formatMoney(line.baseBalance, baseCurrency, locale)}`
       }
     >
-      {name}
+      <span css={typeModifier.verbatim}>{name}</span>
     </ListRow>
   );
 }

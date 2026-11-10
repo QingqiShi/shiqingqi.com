@@ -8,7 +8,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   controlSize,
@@ -200,6 +200,7 @@ export function ChatTextarea({
             css={[
               stylex.defaultMarker(),
               typeRole.body,
+              typeModifier.verbatim,
               styles.field,
               styles.fieldMultiline,
             ]}
@@ -219,6 +220,7 @@ export function ChatTextarea({
             css={[
               stylex.defaultMarker(),
               typeRole.body,
+              typeModifier.verbatim,
               styles.field,
               styles.fieldSingleLine,
             ]}

@@ -8,8 +8,10 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { TextField } from "@tuja/ui/components/text-field";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { useRef, useState } from "react";
 import { useReplica } from "../replica/use-replica.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
@@ -109,11 +111,16 @@ export function GroupsSettings() {
         {groups.map((group, index) => (
           <ListRow
             key={group.id}
-            detail={`${sideLabels[group.side]} · ${
-              counts.get(group.id) === 1
-                ? oneAccountLabel
-                : `${new Intl.NumberFormat(locale).format(counts.get(group.id) ?? 0)} ${accountsLabel}`
-            }`}
+            detail={
+              <MetaLine
+                facts={[
+                  sideLabels[group.side],
+                  counts.get(group.id) === 1
+                    ? oneAccountLabel
+                    : `${new Intl.NumberFormat(locale).format(counts.get(group.id) ?? 0)} ${accountsLabel}`,
+                ]}
+              />
+            }
             onClick={() => {
               setEditing(group);
               setName(group.name);
@@ -144,7 +151,7 @@ export function GroupsSettings() {
               </>
             }
           >
-            {group.name}
+            <span css={typeModifier.verbatim}>{group.name}</span>
           </ListRow>
         ))}
       </List>

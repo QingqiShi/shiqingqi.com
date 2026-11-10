@@ -1,23 +1,21 @@
 "use client";
 
-import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
-import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
+import { Disclosure } from "@tuja/ui/components/disclosure";
+import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { Select } from "@tuja/ui/components/select";
 import { Switch } from "@tuja/ui/components/switch";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, font, space } from "@tuja/ui/tokens.stylex";
-import { useId, useState } from "react";
 import { accountFullName } from "../accounts/account-full-name.ts";
 import type { ProviderAccountView } from "../bank/types.ts";
 import { isLinkableAccount } from "../domain/accounts/is-linkable-account.ts";
@@ -51,8 +49,6 @@ export function ProviderAccountCard({
 }: ProviderAccountCardProps) {
   const locale = useLocale();
   const bankLinks = useReplica(liveRowSelectors.bankLinks);
-  const moreId = useId();
-  const [moreOpen, setMoreOpen] = useState(() => choiceOf(account).flipped);
   const replicaLink = account.link
     ? bankLinks.find((link) => link.id === account.link?.id)
     : undefined;
@@ -79,7 +75,7 @@ export function ProviderAccountCard({
   const linkedName = linked ? fullName(linked) : null;
 
   return (
-    <li css={[corner.radius_3, stack.item, styles.card]}>
+    <FlowBlock as="li" surface css={[corner.radius_3, stack.item, styles.card]}>
       <div css={[row.tight, styles.head]}>
         <div css={[row.tight, styles.identity]}>
           <Avatar
@@ -147,52 +143,28 @@ export function ProviderAccountCard({
         <Callout intent="warning">{bankErrorMessage(lastError)}</Callout>
       ) : null}
       {account.link && editable ? (
-        <div css={stack.tight}>
-          <div>
-            <Button
-              size="sm"
-              look="ghost"
-              aria-expanded={moreOpen}
-              aria-controls={moreId}
-              icon={
-                <span
-                  css={[
-                    transition.transform,
-                    styles.caret,
-                    moreOpen && styles.caretOpen,
-                  ]}
-                >
-                  <CaretDownIcon weight="bold" />
-                </span>
-              }
-              onClick={() => {
-                setMoreOpen(!moreOpen);
-              }}
-            >
-              {t({ en: "More", zh: "更多" })}
-            </Button>
-          </div>
-          {moreOpen ? (
-            <div id={moreId} css={stack.tight}>
-              <Switch
-                label={t({
-                  en: "Spending arrives as a positive amount",
-                  zh: "银行把支出显示为正数",
-                })}
-                description={t({
-                  en: "Turn on only if this account's purchases arrive as money in. Most banks and cards show purchases as negative.",
-                  zh: "仅当此账户的消费显示为入账时才打开。大多数银行和信用卡把消费显示为负数。",
-                })}
-                value={choice.flipped ? "on" : "off"}
-                onChange={(state) => {
-                  onChange({ ...choice, flipped: state === "on" });
-                }}
-              />
-            </div>
-          ) : null}
-        </div>
+        <Disclosure
+          look="inline"
+          summary={t({ en: "More", zh: "更多" })}
+          defaultOpen={choiceOf(account).flipped}
+        >
+          <Switch
+            label={t({
+              en: "Spending arrives as a positive amount",
+              zh: "银行把支出显示为正数",
+            })}
+            description={t({
+              en: "Turn on only if this account's purchases arrive as money in. Most banks and cards show purchases as negative.",
+              zh: "仅当此账户的消费显示为入账时才打开。大多数银行和信用卡把消费显示为负数。",
+            })}
+            value={choice.flipped ? "on" : "off"}
+            onChange={(state) => {
+              onChange({ ...choice, flipped: state === "on" });
+            }}
+          />
+        </Disclosure>
       ) : null}
-    </li>
+    </FlowBlock>
   );
 }
 
@@ -221,11 +193,5 @@ const styles = stylex.create({
   },
   muted: {
     color: color.fgMuted,
-  },
-  caret: {
-    display: "inline-flex",
-  },
-  caretOpen: {
-    transform: "rotate(180deg)",
   },
 });

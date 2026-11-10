@@ -60,8 +60,8 @@ export function TextShowcase() {
       <Showcase label={t({ en: "Tones", zh: "色调" })} leadsWithText>
         <ShowcaseHelper>
           {t({
-            en: "Three tones that resolve per theme — never a hand-picked colour.",
-            zh: "三种色调会随主题自动解析——无需手动挑选颜色。",
+            en: "Four tones that resolve per theme, never a hand-picked colour. Danger is for a line that says something went wrong, as a field says its error.",
+            zh: "四种色调会随主题自动解析，无需手动挑选颜色。danger 用于说明出了问题的一行文字，与字段显示错误的方式一致。",
           })}
         </ShowcaseHelper>
         <div css={stack.item}>
@@ -83,6 +83,14 @@ export function TextShowcase() {
               {t({
                 en: "Highlighted, on-brand phrases",
                 zh: "突出显示的品牌语句",
+              })}
+            </Text>
+          </Specimen>
+          <Specimen caption="danger">
+            <Text tone="danger">
+              {t({
+                en: "That did not save. Try again.",
+                zh: "没有保存成功，请重试。",
               })}
             </Text>
           </Specimen>
@@ -120,8 +128,8 @@ export function TextShowcase() {
       <Showcase label={t({ en: "Element", zh: "元素" })} leadsWithText>
         <ShowcaseHelper>
           {t({
-            en: "as picks the semantic element; look picks the size. They stay decoupled, so a span can still read at body size inline. A p at body or bodySmall is a paragraph, so its lines stop at the Measure.",
-            zh: "as 决定语义元素，look 决定字号，二者相互独立——因此 span 仍可在行内保持正文字号。body 或 bodySmall 字号的 p 是段落，所以每行到行长上限为止。",
+            en: 'as picks the semantic element; look picks the size. They stay decoupled, so a span can still read at body size inline. A p at body or bodySmall is a paragraph, so its lines stop at the Measure, unless it takes measure="none".',
+            zh: 'as 决定语义元素，look 决定字号，二者相互独立——因此 span 仍可在行内保持正文字号。body 或 bodySmall 字号的 p 是段落，所以每行到行长上限为止，除非设置 measure="none"。',
           })}
         </ShowcaseHelper>
         <SpecimenGrid>
@@ -135,6 +143,14 @@ export function TextShowcase() {
             <Text as="div">{t({ en: "Generic block", zh: "通用块" })}</Text>
           </Specimen>
         </SpecimenGrid>
+        <Specimen caption='measure="none"'>
+          <Text look="bodySmall" tone="muted" measure="none">
+            {t({
+              en: "A note in a card whose other lines already run the full width can run that wide too, so it does not stop short of the rows above and below it. Without the cap, its lines go on to the edge of the card, however wide the card is.",
+              zh: "卡片中的说明，若周围的行已占满宽度，它也可以占满宽度，不会比上下的行提前停下。去掉上限后，无论卡片多宽，它的每一行都会一直延伸到卡片的边缘。",
+            })}
+          </Text>
+        </Specimen>
       </Showcase>
 
       <Showcase
@@ -186,11 +202,17 @@ export function TextShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Wrapping", zh: "换行" })}>
+      <Showcase label={t({ en: "Wrapping", zh: "换行" })} leadsWithText>
+        <ShowcaseHelper>
+          {t({
+            en: 'A paragraph wraps "pretty" by default, so no word is left alone on its last line. "balance" evens every line, for short copy that stands alone, and "nowrap" keeps one line.',
+            zh: '段落默认以 "pretty" 换行，末行不会只剩一个词。"balance" 让每行长度均衡，适合简短的独立文案；"nowrap" 保持单行。',
+          })}
+        </ShowcaseHelper>
         <div css={stack.item}>
-          <Specimen caption='wrap="balance"'>
+          <Specimen caption="default">
             <div css={styles.wrapSpecimen}>
-              <Text wrap="balance">
+              <Text>
                 {t({
                   en: "A tense, patient thriller that trusts its audience completely.",
                   zh: "一部紧张而耐心的惊悚片，全然信任它的观众。",
@@ -198,9 +220,9 @@ export function TextShowcase() {
               </Text>
             </div>
           </Specimen>
-          <Specimen caption='wrap="pretty"'>
+          <Specimen caption='wrap="balance"'>
             <div css={styles.wrapSpecimen}>
-              <Text wrap="pretty">
+              <Text wrap="balance">
                 {t({
                   en: "A tense, patient thriller that trusts its audience completely.",
                   zh: "一部紧张而耐心的惊悚片，全然信任它的观众。",
@@ -242,6 +264,64 @@ export function TextShowcase() {
             </div>
           </Specimen>
         </div>
+      </Showcase>
+
+      <Showcase
+        label={t({
+          en: "Show what a person wrote as they wrote it",
+          zh: "按人写下的原样显示文字",
+        })}
+        leadsWithText
+      >
+        <ShowcaseHelper>
+          {t({
+            en: "Where text has no tracking, as in Chinese and in a field, the typeface draws a digit in brackets as a circled figure, an x between digits as a times sign and a hyphen before > as an arrow. verbatim keeps what a person or an agent wrote as it was written.",
+            zh: "在没有字距的文字中，例如中文和输入框里，字体会把括号中的数字画成带圈数字，把数字之间的 x 画成乘号，把 > 前的连字符画成箭头。verbatim 让人或智能体写下的文字保持原样。",
+          })}
+        </ShowcaseHelper>
+        <SpecimenGrid>
+          <Specimen caption="default">
+            <Text>
+              {t({
+                en: "Step (1): cut 2x3 -> glue",
+                zh: "第 (1) 步：裁 2x3 -> 粘",
+              })}
+            </Text>
+          </Specimen>
+          <Specimen caption="verbatim">
+            <Text verbatim>
+              {t({
+                en: "Step (1): cut 2x3 -> glue",
+                zh: "第 (1) 步：裁 2x3 -> 粘",
+              })}
+            </Text>
+          </Specimen>
+        </SpecimenGrid>
+      </Showcase>
+
+      <Showcase
+        label={t({
+          en: "Cut long text after a set number of lines",
+          zh: "在指定行数后截断长文字",
+        })}
+        leadsWithText
+      >
+        <ShowcaseHelper>
+          {t({
+            en: "lines shows at most that many lines and ends the last one with an ellipsis. The full text stays in the page for a screen reader.",
+            zh: "lines 最多显示指定的行数，并在最后一行末尾加省略号。完整文字仍在页面中，供屏幕阅读器读取。",
+          })}
+        </ShowcaseHelper>
+        <Specimen caption="lines={2}">
+          <div css={styles.wrapSpecimen}>
+            <Text look="bodySmall" tone="muted" lines={2}>
+              {t({
+                en: "A weary detective takes one last case that drags his own past back into the light, and the city he swore to protect turns out to have kept his secrets better than he did.",
+                zh: "一位疲惫的警探接下最后一桩案子，却让自己的过往重见天日；而他发誓守护的城市，竟比他自己更好地守住了他的秘密。",
+              })}
+            </Text>
+          </div>
+        </Specimen>
       </Showcase>
 
       <PropsTable component="text" />

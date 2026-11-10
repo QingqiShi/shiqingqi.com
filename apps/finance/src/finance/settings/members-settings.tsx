@@ -14,6 +14,7 @@ import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { copyTextToClipboard } from "@tuja/ui/utils/copy-text-to-clipboard";
 import { useRef, useState } from "react";
 import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
@@ -280,7 +281,7 @@ export function MembersSettings() {
                   setNameError(undefined);
                 }}
               >
-                {member.name}
+                <span css={typeModifier.verbatim}>{member.name}</span>
               </ListRow>
             );
           })}

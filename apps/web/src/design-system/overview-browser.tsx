@@ -280,8 +280,8 @@ const styles = stylex.create({
     // Holds the trailing gutter whether or not the clear button is showing, so
     // typing the first character never reflows the text under the cursor.
     paddingInlineEnd: `calc(${controlSize._4} + ${controlSize._7})`,
-    // The UA's own clear affordance is a fixed blue glyph that tracks neither
-    // the palette nor the theme, and only two of the three engines draw one.
+    // This field has its own Clear button, so the browser's clear button
+    // must not show beside it.
     "::-webkit-search-cancel-button": { display: "none" },
   },
   // Centred over the field's trailing gutter. The sr-only label is out of flow,

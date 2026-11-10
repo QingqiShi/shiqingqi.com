@@ -35,6 +35,32 @@ export const TextLab = defineLab({
       label: { en: "Overline", zh: "上标题" },
       props: { children: "New feature", look: "overline", tone: "accent" },
     },
+    {
+      id: "verbatim",
+      label: { en: "Verbatim", zh: "原样显示" },
+      props: { children: "Step (1): cut 2x3 -> glue", verbatim: true },
+    },
+    {
+      id: "lines",
+      label: { en: "Two lines", zh: "两行" },
+      props: {
+        children:
+          "A weary detective takes one last case that drags his own past back into the light, and the city he swore to protect turns out to have kept his secrets better than he did.",
+        look: "bodySmall",
+        tone: "muted",
+        lines: 2,
+      },
+    },
   ],
-  controls: ["children", "look", "tone", "weight", "transform", "as"],
+  controls: [
+    "children",
+    "look",
+    "tone",
+    "weight",
+    "transform",
+    "as",
+    "verbatim",
+    { prop: "lines", range: { min: 1, max: 5 } },
+    "measure",
+  ],
 });

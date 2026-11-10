@@ -1,8 +1,15 @@
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { StarIcon } from "@phosphor-icons/react/dist/ssr/Star";
+import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
+import { MetaLine } from "@tuja/ui/components/meta-line";
+import { StatusDot } from "@tuja/ui/components/status-dot";
+import { Text } from "@tuja/ui/components/text";
+import { row } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { PropsTable } from "#src/design-system/props-table.tsx";
+import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
 
@@ -70,6 +77,81 @@ export function BadgeShowcase() {
       </Showcase>
 
       <PropsTable component="badge" />
+
+      <Showcase
+        label={t({
+          en: "Mark what waits with a dot",
+          zh: "用圆点标出待处理的事",
+        })}
+      >
+        <SpecimenGrid>
+          <Specimen caption="warning">
+            <span css={[row.tight, typeRole.label]}>
+              {t({ en: "Mailboxes", zh: "邮箱" })}
+              <StatusDot
+                intent="warning"
+                label={t({
+                  en: "(needs connecting again)",
+                  zh: "（需要重新连接）",
+                })}
+              />
+            </span>
+          </Specimen>
+          <Specimen caption="danger">
+            <span css={[row.tight, typeRole.label]}>
+              {t({ en: "Sync", zh: "同步" })}
+              <StatusDot
+                intent="danger"
+                label={t({ en: "(failed)", zh: "（失败）" })}
+              />
+            </span>
+          </Specimen>
+        </SpecimenGrid>
+        <ShowcaseHelper>
+          {t({
+            en: "A dot says that something waits, without a word on screen. Its label is read by a screen reader only, so the place that shows the dot must still say it.",
+            zh: "圆点表示有事等待处理，但不在屏幕上显示文字。它的 label 只供屏幕阅读器朗读，所以显示圆点的位置仍需说明含义。",
+          })}
+        </ShowcaseHelper>
+      </Showcase>
+
+      <PropsTable component="status-dot" />
+
+      <Showcase
+        label={t({
+          en: "Keep a status with its facts on one line",
+          zh: "让状态与相关事实排成一行",
+        })}
+      >
+        <Specimen caption="MetaLine">
+          <Text as="div" look="caption" tone="muted" css={styles.narrow}>
+            <MetaLine
+              facts={[
+                <Badge key="status" size="sm" intent="success">
+                  {t({ en: "Connected", zh: "已连接" })}
+                </Badge>,
+                "Gmail",
+                t({ en: "Last checked at 9:30", zh: "上次检查于 9:30" }),
+              ]}
+            />
+          </Text>
+        </Specimen>
+        <ShowcaseHelper>
+          {t({
+            en: "MetaLine puts a dot between each two facts and wraps between them, never inside one. A fact that starts a new line shows no dot.",
+            zh: "MetaLine 在每两项事实之间放一个圆点，只在事实之间换行，不会在某项内部断开。换到新行开头的事实不显示圆点。",
+          })}
+        </ShowcaseHelper>
+      </Showcase>
+
+      <PropsTable component="meta-line" />
     </>
   );
 }
+
+const styles = stylex.create({
+  narrow: {
+    inlineSize: "13rem",
+    maxInlineSize: "100%",
+  },
+});

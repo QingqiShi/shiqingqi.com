@@ -12,27 +12,7 @@ import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
-import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { MenuPopupShowcase } from "./menu-specimens.tsx";
-
-const MENU_USAGE = `import { MenuButton } from "@tuja/ui/components/menu-button";
-
-// Anything focusable that carries role="menuitem" joins the keyboard model.
-<MenuButton
-  buttonProps={{ icon: <DotsThreeIcon weight="bold" /> }}
-  menuContent={
-    <div role="none">
-      <a role="menuitem" href={detailsHref} data-menu-autofocus="true">
-        Details
-      </a>
-      <a role="menuitem" href={creditsHref}>
-        Cast & crew
-      </a>
-    </div>
-  }
->
-  More
-</MenuButton>`;
+import { MenuItemShowcase, MenuPopupShowcase } from "./menu-specimens.tsx";
 
 export function MenuShowcase() {
   return (
@@ -76,19 +56,15 @@ export function MenuShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Usage", zh: "用法" })}>
-        <UsageSnippet
-          code={MENU_USAGE}
-          label={t({ en: "Menu popup", zh: "菜单弹层" })}
-        />
-      </Showcase>
+      <MenuItemShowcase />
 
       <PropsTable component="menu-button" />
+      <PropsTable component="menu-item" />
       <Showcase>
         <ShowcaseHelper>
           {t({
-            en: 'Two conventions live inside menuContent rather than on a prop: caption a group of controls with MenuLabel, and mark one role="menuitem" child with data-menu-autofocus="true" to choose where focus lands when a menu opens.',
-            zh: 'menuContent 内部有两项约定，而非通过 prop 表达：用 MenuLabel 为一组控件添加标题；给某个 role="menuitem" 子元素标上 data-menu-autofocus="true"，以决定菜单打开时焦点落在哪里。',
+            en: 'Two conventions live inside menuContent rather than on a prop: caption a group of controls with MenuLabel, and mark one MenuItem with data-menu-autofocus="true" to choose where focus lands when a menu opens.',
+            zh: 'menuContent 内部有两项约定，而非通过 prop 表达：用 MenuLabel 为一组控件添加标题；给某个 MenuItem 标上 data-menu-autofocus="true"，以决定菜单打开时焦点落在哪里。',
           })}
         </ShowcaseHelper>
       </Showcase>

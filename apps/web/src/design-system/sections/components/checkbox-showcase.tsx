@@ -35,6 +35,47 @@ export function CheckboxShowcase() {
         </SpecimenGrid>
       </Showcase>
 
+      <Showcase
+        label={t({ en: "Say what the tick means", zh: "说明勾选的含义" })}
+        leadsWithText
+      >
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "A done task recedes, a box that picks an item for an action is round, and a preview shows the state with no box. A tick marks one of several and a dot the only choice, so a round box still shows a tick.",
+            zh: "已完成的任务退后，为操作选中条目的方框是圆形，预览只显示状态而没有方框。勾表示多个选择中的一个，圆点表示唯一的选择，所以圆形方框勾选后仍显示勾。",
+          })}
+        </Text>
+        <SpecimenGrid>
+          <Specimen caption='look="done"'>
+            <Checkbox
+              look="done"
+              label={t({ en: "Renew passport", zh: "续签护照" })}
+              defaultChecked
+            />
+          </Specimen>
+          <Specimen caption='look="selection"'>
+            <Checkbox
+              look="selection"
+              label={t({ en: "Select this item", zh: "选择此条目" })}
+              defaultChecked
+            />
+          </Specimen>
+          <Specimen caption="readOnly">
+            <Checkbox
+              readOnly
+              label={t({ en: "Open item", zh: "未完成的条目" })}
+            />
+          </Specimen>
+          <Specimen caption="readOnly checked">
+            <Checkbox
+              readOnly
+              label={t({ en: "Done item", zh: "已完成的条目" })}
+              defaultChecked
+            />
+          </Specimen>
+        </SpecimenGrid>
+      </Showcase>
+
       <Showcase label={t({ en: "Label and description", zh: "标签与说明" })}>
         <Specimen caption={t({ en: "with description", zh: "带说明文字" })}>
           <Checkbox

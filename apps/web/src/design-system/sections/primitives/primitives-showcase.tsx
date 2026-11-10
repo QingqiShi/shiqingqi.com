@@ -89,8 +89,8 @@ function SelectedSection() {
     <Showcase label={t({ en: "Selected", zh: "选中态" })}>
       <ShowcaseHelper>
         {t({
-          en: "One selected state, read from the ARIA state the item already carries: aria-pressed, aria-checked or aria-selected set to true, or any aria-current. Set the attribute and the look follows, so what a screen reader announces is what everyone sees. An item that only has to stand out from its siblings takes quietSurface.interactive; a choice the visitor submits takes selected.marked.",
-          zh: "统一的选中态，读取条目本身已有的 ARIA 状态：值为 true 的 aria-pressed、aria-checked 或 aria-selected，或任何 aria-current。设置属性，外观随之改变，因此屏幕阅读器读出的状态，就是所有人看到的状态。只需在同级中突出的条目使用 quietSurface.interactive；访客要提交的选择使用 selected.marked。",
+          en: 'One selected state, read from the ARIA state the item already carries: aria-pressed, aria-checked or aria-selected set to true, or any aria-current. An item that holds a ticked Checkbox with look="selection" is selected too, so a list row needs no state of its own. Set the state and the look follows, so what a screen reader announces is what everyone sees. An item that only has to stand out from its siblings takes quietSurface.interactive; a choice the visitor submits takes selected.marked.',
+          zh: '统一的选中态，读取条目本身已有的 ARIA 状态：值为 true 的 aria-pressed、aria-checked 或 aria-selected，或任何 aria-current。条目内含已勾选且 look="selection" 的 Checkbox 时同样算作选中，因此列表行不需要自己的状态。设置状态，外观随之改变，因此屏幕阅读器读出的状态，就是所有人看到的状态。只需在同级中突出的条目使用 quietSurface.interactive；访客要提交的选择使用 selected.marked。',
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={primitivesSpecimen.tracks}>

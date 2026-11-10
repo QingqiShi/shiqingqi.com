@@ -6,6 +6,7 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { listSurface } from "@tuja/ui/components/list.stylex";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -108,10 +109,12 @@ export function ExchangeRatesSettings() {
                         : `1 ${entry.currency} = ${formatRate(entry.rate, locale)} ${baseCurrency}`}
                     </span>
                     <span css={[typeRole.caption, styles.detail]}>
-                      {[
-                        ...rateFacts,
-                        `${new Intl.NumberFormat(locale).format(count)} ${count === 1 ? labels.account : labels.accounts}`,
-                      ].join(" · ")}
+                      <MetaLine
+                        facts={[
+                          ...rateFacts,
+                          `${new Intl.NumberFormat(locale).format(count)} ${count === 1 ? labels.account : labels.accounts}`,
+                        ]}
+                      />
                     </span>
                   </div>
                 </div>

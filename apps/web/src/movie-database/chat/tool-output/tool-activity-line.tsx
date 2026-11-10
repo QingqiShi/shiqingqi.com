@@ -5,6 +5,7 @@ import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle"
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -63,8 +64,8 @@ function formatYearRange(from: unknown, to: unknown): string | null {
   return `${start}–${end}`;
 }
 
-function getDiscoverSummary(input: unknown): string | null {
-  if (!isRecord(input)) return null;
+function getDiscoverFacts(input: unknown): string[] {
+  if (!isRecord(input)) return [];
   const parts: string[] = [];
   const years = formatYearRange(input.year_from, input.year_to);
   if (years !== null) {
@@ -76,7 +77,7 @@ function getDiscoverSummary(input: unknown): string | null {
   if (typeof input.min_rating === "number") {
     parts.push(`≥ ${String(input.min_rating)}`);
   }
-  return parts.length > 0 ? parts.join(" · ") : null;
+  return parts;
 }
 
 interface ToolActivityLineProps {
@@ -147,10 +148,11 @@ export function ToolActivityLine({
   const itemPlural = t({ en: "items", zh: "个项目" });
 
   let summary: string | null = null;
+  let discoverFacts: string[] = [];
   if (toolName === "tmdb_search" || toolName === "web_search") {
     summary = getQuerySummary(input);
   } else if (toolName === "tmdb_discover") {
-    summary = getDiscoverSummary(input);
+    discoverFacts = getDiscoverFacts(input);
   } else if (toolName === "tmdb_recommendations") {
     summary = getIdSummary(input, "id");
   } else if (toolName === "watch_providers") {
@@ -201,6 +203,8 @@ export function ToolActivityLine({
     }
   }
 
+  const summaryFacts = summary === null ? discoverFacts : [summary];
+
   const statusText = isComplete
     ? t({ en: "Complete", zh: "完成" })
     : isError
@@ -217,15 +221,20 @@ export function ToolActivityLine({
         {isError && <WarningCircleIcon weight="bold" aria-hidden="true" />}
         <span css={a11y.srOnly}>{statusText}</span>
       </span>
-      <span css={styles.label}>{label}</span>
-      {summary != null && (
-        <>
-          <span css={styles.separator} aria-hidden="true">
-            ·
-          </span>
-          <span css={truncate.base}>{summary}</span>
-        </>
-      )}
+      <span css={styles.facts}>
+        <MetaLine
+          facts={[
+            <span key="label" css={styles.label}>
+              {label}
+            </span>,
+            ...summaryFacts.map((fact) => (
+              <span key={fact} css={truncate.base}>
+                {fact}
+              </span>
+            )),
+          ]}
+        />
+      </span>
     </div>
   );
 }
@@ -267,7 +276,7 @@ const styles = stylex.create({
     fontWeight: font.weight_5,
     whiteSpace: "nowrap",
   },
-  separator: {
-    opacity: 0.5,
+  facts: {
+    minInlineSize: 0,
   },
 });

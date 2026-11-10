@@ -7,6 +7,7 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -14,7 +15,7 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { ExternalLinkIndicator } from "#src/links/external-link-indicator.tsx";
 import { isRecord } from "#src/movie-database/is-record.ts";
 import { buildTmdbSrcSet } from "#src/movie-database/tmdb/build-tmdb-src-set.ts";
@@ -363,27 +364,30 @@ function CountryList({ countries }: { countries: ReadonlyArray<string> }) {
 
   return (
     <p css={[typeRole.bodySmall, styles.countryList]}>
-      {visible.map((code, i) => (
-        <Fragment key={code}>
-          {i > 0 && " · "}
-          <span>{displayNames?.of(code) ?? code}</span>
-        </Fragment>
-      ))}
-      {!expanded && needsTruncation && (
-        <>
-          {" "}
-          <button
-            type="button"
-            onClick={() => {
-              setExpanded(true);
-            }}
-            css={[buttonReset.base, typeRole.bodySmall, styles.showMoreButton]}
-          >
-            {`+${String(remaining)} `}
-            {t({ en: "more", zh: "更多" })}
-          </button>
-        </>
-      )}
+      <MetaLine
+        facts={[
+          ...visible.map((code) => (
+            <span key={code}>{displayNames?.of(code) ?? code}</span>
+          )),
+          !expanded && needsTruncation && (
+            <button
+              key="more"
+              type="button"
+              onClick={() => {
+                setExpanded(true);
+              }}
+              css={[
+                buttonReset.base,
+                typeRole.bodySmall,
+                styles.showMoreButton,
+              ]}
+            >
+              {`+${String(remaining)} `}
+              {t({ en: "more", zh: "更多" })}
+            </button>
+          ),
+        ]}
+      />
     </p>
   );
 }
