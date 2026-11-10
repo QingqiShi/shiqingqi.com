@@ -251,7 +251,7 @@ export function settleLiquid(
           Math.max(SHED_SPACING, (input.to - input.from) / SHED_BUDGET),
         );
   const settled =
-    (calm >= 1 || held) &&
+    calm >= 1 &&
     speed < STILL_SPEED &&
     set === (pressed ? 0 : 1) &&
     beads.length === 0 &&
