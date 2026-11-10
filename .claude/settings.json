@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'CMD=$(jq -r .tool_input.command) && if echo \"$CMD\" | grep -qE \"\\bnpm\\b|\\bnpx\\b\"; then echo \"Use pnpm/pnpx instead of npm/npx. This project uses pnpm.\" >&2; exit 2; fi'"
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/require-pnpm.py\""
           }
         ]
       },
