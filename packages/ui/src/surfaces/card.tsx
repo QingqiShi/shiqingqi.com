@@ -1,5 +1,9 @@
+"use client";
+
 import * as stylex from "@stylexjs/stylex";
-import type { ComponentProps, ReactNode } from "react";
+import { useRef, type ComponentProps, type ReactNode } from "react";
+import { useOptionCardPress } from "../forms/use-option-card-press.ts";
+import { mergeRefs } from "../merge-refs.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { space } from "../tokens.stylex.ts";
@@ -9,11 +13,11 @@ import { FlowBlock } from "./flow-block.tsx";
 
 interface CardProps extends Omit<ComponentProps<"div">, "className" | "style"> {
   /**
-   * Adds hover and focus affordances for a card that acts as a clickable
+   * Adds hover, focus and press affordances for a card that acts as a clickable
    * control. To make the whole card a link instead, compose `cardSurface` on
    * your own `<Link>`/`<a>` — `Card` always renders a `<div>`.
    *
-   * @zh 为作为可点击控件的卡片添加悬停与聚焦态样式。若想让整张卡片本身成为链接，请改在你自己的 `<Link>`/`<a>` 上组合 `cardSurface`——`Card` 始终渲染为 `<div>`。
+   * @zh 为作为可点击控件的卡片添加悬停、聚焦与按下态样式。若想让整张卡片本身成为链接，请改在你自己的 `<Link>`/`<a>` 上组合 `cardSurface`——`Card` 始终渲染为 `<div>`。
    */
   interactive?: boolean;
   /**
@@ -42,13 +46,27 @@ export function Card({
   css,
   ref,
   children,
+  onPointerDown,
+  onPointerUp,
+  onPointerCancel,
+  onPointerLeave,
   ...restProps
 }: CardProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const press = useOptionCardPress({
+    cardRef,
+    disabled: !interactive,
+    onPointerDown,
+    onPointerUp,
+    onPointerCancel,
+    onPointerLeave,
+  });
   return (
     <FlowBlock
       {...restProps}
+      {...press.handlers}
       surface
-      ref={ref}
+      ref={mergeRefs(ref, cardRef)}
       css={[
         stack.item,
         styles.base,
