@@ -8,8 +8,8 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { setLocaleCookie } from "@tuja/i18n/set-locale-cookie";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { fieldStyles } from "@tuja/ui/components/field-shared.stylex";
 import { OptionCardGroup } from "@tuja/ui/components/option-card-group";
-import { Text } from "@tuja/ui/components/text";
 import { useTheme } from "@tuja/ui/hooks/use-theme";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -36,9 +36,9 @@ export function PreferencesSettings() {
       })}
     >
       <div css={stack.tight}>
-        <Text id={languageId} look="label">
+        <span id={languageId} css={[typeRole.control, fieldStyles.label]}>
           {t({ en: "Language", zh: "语言" })}
-        </Text>
+        </span>
         <OptionCardGroup
           look="tile"
           css={styles.tiles}
@@ -64,9 +64,9 @@ export function PreferencesSettings() {
         />
       </div>
       <div css={stack.tight}>
-        <Text id={themeId} look="label">
+        <span id={themeId} css={[typeRole.control, fieldStyles.label]}>
           {t({ en: "Theme", zh: "主题" })}
-        </Text>
+        </span>
         <OptionCardGroup
           look="tile"
           css={styles.tiles}

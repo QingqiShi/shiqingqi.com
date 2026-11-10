@@ -57,7 +57,8 @@ async function readSchedule(scope: UserScope) {
   return { organises, settings };
 }
 
-async function readUnseenReportDate({ db, userId }: UserScope) {
+/** The date of the newest report while the owner has not seen it, else null. */
+export async function readUnseenReportDate({ db, userId }: UserScope) {
   const newest = (
     await db
       .select({

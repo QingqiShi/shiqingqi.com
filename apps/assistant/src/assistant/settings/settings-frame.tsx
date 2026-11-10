@@ -23,7 +23,14 @@ import {
  * they do not, the menu is the root page of the stack, and each section opens
  * over it with a way back.
  */
-export function SettingsFrame({ children }: { children: ReactNode }) {
+export function SettingsFrame({
+  mailboxNeedsYou = false,
+  children,
+}: {
+  /** A mailbox must be connected again: the Mailboxes section says so. */
+  mailboxNeedsYou?: boolean;
+  children: ReactNode;
+}) {
   const locale = useLocale();
   const router = useRouter();
   const segment = useSelectedLayoutSegment();
@@ -49,10 +56,13 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
         node: (
           <div css={stack.group}>
             <nav aria-label={settingsLabel} css={stack.group}>
-              <Heading level={1} look="h3">
+              <Heading level={1} look="h1">
                 {settingsLabel}
               </Heading>
-              <SettingsMenu current={current} />
+              <SettingsMenu
+                current={current}
+                mailboxNeedsYou={mailboxNeedsYou}
+              />
             </nav>
             <div>
               <SignOutButton />

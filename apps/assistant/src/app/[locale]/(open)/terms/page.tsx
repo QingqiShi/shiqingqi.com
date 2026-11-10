@@ -3,6 +3,7 @@ import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { getLocale } from "@tuja/i18n/server-locale";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Text } from "@tuja/ui/components/text";
 import type { Metadata } from "next";
 import {
@@ -85,7 +86,9 @@ export default function Page() {
 
       <LegalSection heading={t({ en: "Contact", zh: "联系方式" })}>
         <Text>
-          {`${t({ en: "Qingqi Shi", zh: "石清琪" })} · ${CONTACT_ADDRESS}`}
+          <MetaLine
+            facts={[t({ en: "Qingqi Shi", zh: "石清琪" }), CONTACT_ADDRESS]}
+          />
         </Text>
       </LegalSection>
     </LegalPage>

@@ -15,20 +15,23 @@ import {
 /** The most a function may run: a `running` row this old has no function left to end it. */
 export const REPORT_PREVIEW_STALE_MS = 800_000;
 
+interface BuiltPreview {
+  builtAt: Date;
+  report: ReportView;
+  /** The open to-dos the owner would have after the report. */
+  openTodos: number;
+}
+
 export type ReportPreview =
   | { status: "running" }
   | {
       status: "failed";
       /** `interrupted`: the function stopped before it could end the preview. */
       reason: ReportPreviewError | "interrupted";
+      /** The last preview that was built, if any. */
+      last?: BuiltPreview;
     }
-  | {
-      status: "done";
-      builtAt: Date;
-      report: ReportView;
-      /** The open to-dos the owner would have after the report. */
-      openTodos: number;
-    };
+  | ({ status: "done" } & BuiltPreview);
 
 /** The user's latest preview, as the page shows it, or null when there is none. */
 export async function readReportPreview(
@@ -43,14 +46,34 @@ export async function readReportPreview(
   ).at(0);
   if (!row) return null;
   if (row.status === "running") {
-    return now.getTime() - row.startedAt.getTime() >= REPORT_PREVIEW_STALE_MS
-      ? { status: "failed", reason: "interrupted" }
-      : { status: "running" };
+    if (now.getTime() - row.startedAt.getTime() < REPORT_PREVIEW_STALE_MS) {
+      return { status: "running" };
+    }
+    return failed("interrupted", await builtPreview(scope, row));
   }
+  const built = await builtPreview(scope, row);
+  if (row.status === "failed" || !built) {
+    return failed(row.error ?? "error", built);
+  }
+  return { status: "done", ...built };
+}
+
+function failed(
+  reason: ReportPreviewError | "interrupted",
+  last: BuiltPreview | null,
+): ReportPreview {
+  return last
+    ? { status: "failed", reason, last }
+    : { status: "failed", reason };
+}
+
+/** The preview that the row holds as the page shows it, or null when none was built. */
+async function builtPreview(
+  scope: UserScope,
+  row: typeof morningReportPreviews.$inferSelect,
+): Promise<BuiltPreview | null> {
   const { content, todoChanges: changes, builtAt } = row;
-  if (row.status === "failed" || !content || !changes || !builtAt) {
-    return { status: "failed", reason: row.error ?? "error" };
-  }
+  if (!content || !changes || !builtAt) return null;
   const created = changes.added.map((todo): TodoRow => ({
     id: todo.id,
     title: todo.title,
@@ -108,7 +131,6 @@ export async function readReportPreview(
     countOpenTodos(scope),
   ]);
   return {
-    status: "done",
     builtAt,
     report,
     openTodos: Math.max(0, openNow + created.length - changes.done.length),

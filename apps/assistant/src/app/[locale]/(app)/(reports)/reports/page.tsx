@@ -8,7 +8,7 @@ import { LatestReport } from "#src/assistant/report-page/latest-report.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);
-  return { title: t({ en: "Past reports", zh: "往期晨报" }) };
+  return { title: t({ en: "All reports", zh: "全部晨报" }) };
 }
 
 /** The list is in the layout. This is the column beside it, where both fit. */

@@ -120,7 +120,7 @@ describe("the morning report cron", () => {
       {
         title: "Pay the Example invoice by Thursday.",
         body: "1 new to-do.",
-        url: "/",
+        url: "/?view=report",
       },
     ]);
 

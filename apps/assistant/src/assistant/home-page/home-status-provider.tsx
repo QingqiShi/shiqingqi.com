@@ -15,10 +15,12 @@ import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { createContext, type ReactNode, use } from "react";
 import { Anchor } from "#src/links/anchor.tsx";
 import type { AgentActivity } from "../agent/agent-activity.ts";
 import { formatClock } from "../home/format-clock.ts";
 import type { RunChange } from "../home/run-change.ts";
+import type { HomeCard } from "../home/select-home-card.ts";
 import type { HomeRun, HomeStatus, HomeView } from "../home/types.ts";
 import { fillTemplate } from "../shell/fill-template.tsx";
 import { ActivitySentence } from "./activity-sentence.tsx";
@@ -34,11 +36,16 @@ function InFlight({ activity }: { activity: AgentActivity }) {
   const sender = senderOf(activity);
   return (
     <li css={stack.text}>
-      <Text as="p" look="bodySmall" css={styles.sentence}>
+      <Text as="p" look="bodySmall" verbatim lines={2}>
         <ActivitySentence activity={activity} ended={false} />
       </Text>
       {sender ? (
-        <Text look="caption" tone="muted" css={[truncate.base, styles.line]}>
+        <Text
+          look="caption"
+          tone="muted"
+          verbatim
+          css={[truncate.base, styles.line]}
+        >
           {sender}
         </Text>
       ) : null}
@@ -112,13 +119,13 @@ function RunningCard({ run, elapsedMs }: { run: HomeRun; elapsedMs: number }) {
   );
 }
 
-function CountdownCard({ remainingMs }: { remainingMs: number }) {
+function CountdownLine({ remainingMs }: { remainingMs: number }) {
   return (
-    <div css={[cardSurface.base, row.inline, styles.card]}>
-      <span css={[typeRole.label, flex.row, shrink._0, styles.glyph]}>
+    <div css={[row.inline, styles.quiet]}>
+      <span css={[typeRole.bodySmall, flex.row, shrink._0]}>
         <ClockCountdownIcon weight="regular" aria-hidden />
       </span>
-      <Text look="label">
+      <Text look="bodySmall" tone="muted">
         {fillTemplate(
           t({ en: "Organising in {time}", zh: "{time} 后开始整理" }),
           {
@@ -134,13 +141,13 @@ function CountdownCard({ remainingMs }: { remainingMs: number }) {
   );
 }
 
-function CheckingCard() {
+function CheckingLine() {
   return (
-    <div css={[cardSurface.base, row.inline, styles.card]}>
-      <span css={[typeRole.label, flex.row, shrink._0]}>
-        <Spinner size="inline" tone="accent" aria-hidden />
+    <div css={[row.inline, styles.quiet]}>
+      <span css={[typeRole.bodySmall, flex.row, shrink._0]}>
+        <Spinner size="inline" aria-hidden />
       </span>
-      <Text look="label">
+      <Text look="bodySmall" tone="muted">
         {t({ en: "Checking the inbox", zh: "正在检查收件箱" })}
       </Text>
     </div>
@@ -187,35 +194,55 @@ function Announcement({ change }: { change: RunChange | null }) {
   }
 }
 
+const HomeCardContext = createContext<HomeCard>({ kind: "none" });
+const UnseenReportContext = createContext(false);
+
 /**
- * What the agents do now, at the top of `/`: a run that goes on, else the
- * countdown to the next organise run. Mostly it shows nothing. The live
- * region stays in the page, because a screen reader announces only a change
- * in a region that it already knows.
+ * What the agents do now, on `/`: a run that goes on shows as a card above
+ * the view, and the countdown to the next organise run as `HomeStatusLine` in
+ * the top row of the view. Mostly it shows nothing. The live region stays in
+ * the page, because a screen reader announces only a change in a region that
+ * it already knows.
  */
-export function HomeStatusCard({
+export function HomeStatusProvider({
   seed,
   view,
+  children,
 }: {
   /** The status of the server's render. */
   seed: HomeStatus;
   view: HomeView;
+  children: ReactNode;
 }) {
-  const { card, change } = useHomeStatus(seed, view);
+  const { card, change, unseenReportDate } = useHomeStatus(seed, view);
   return (
-    <>
-      <span role="status" css={a11y.srOnly}>
-        <Announcement change={change} />
-      </span>
-      {card.kind === "running" ? (
-        <RunningCard run={card.run} elapsedMs={card.elapsedMs} />
-      ) : card.kind === "countdown" ? (
-        <CountdownCard remainingMs={card.remainingMs} />
-      ) : card.kind === "checking" ? (
-        <CheckingCard />
-      ) : null}
-    </>
+    <HomeCardContext value={card}>
+      <UnseenReportContext value={unseenReportDate !== null}>
+        <span role="status" css={a11y.srOnly}>
+          <Announcement change={change} />
+        </span>
+        {card.kind === "running" ? (
+          <RunningCard run={card.run} elapsedMs={card.elapsedMs} />
+        ) : null}
+        {children}
+      </UnseenReportContext>
+    </HomeCardContext>
   );
+}
+
+/** Whether the newest report is unseen now, as the last poll found. */
+export function useUnseenReport() {
+  return use(UnseenReportContext);
+}
+
+/** The quiet status at the end of the top row of a home view. */
+export function HomeStatusLine() {
+  const card = use(HomeCardContext);
+  return card.kind === "countdown" ? (
+    <CountdownLine remainingMs={card.remainingMs} />
+  ) : card.kind === "checking" ? (
+    <CheckingLine />
+  ) : null;
 }
 
 const styles = stylex.create({
@@ -231,21 +258,15 @@ const styles = stylex.create({
   title: {
     minInlineSize: 0,
   },
-  glyph: {
+  quiet: {
     color: color.fgMuted,
+    marginInlineStart: "auto",
   },
   time: {
     fontWeight: font.weight_6,
   },
   list: {
     gap: rhythm.inline,
-  },
-  sentence: {
-    display: "-webkit-box",
-    WebkitBoxOrient: "vertical",
-    WebkitLineClamp: 2,
-    overflow: "hidden",
-    overflowWrap: "anywhere",
   },
   line: {
     display: "block",

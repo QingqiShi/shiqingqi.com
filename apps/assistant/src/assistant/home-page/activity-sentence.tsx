@@ -1,9 +1,9 @@
 "use client";
 
 import { t } from "@tuja/i18n";
-import { useLocale } from "@tuja/i18n/use-locale";
 import type { AgentActivity } from "../agent/agent-activity.ts";
 import { formatShortDate } from "../report-page/format-day.ts";
+import { useDateLocale } from "../shell/date-locale-provider.tsx";
 import { fillTemplate } from "../shell/fill-template.tsx";
 import { Folder } from "../shell/folder.tsx";
 import { Quoted } from "../shell/quoted.tsx";
@@ -12,7 +12,7 @@ const LOCAL_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 /** The model writes these days, and a day it writes wrong must not stop the page. */
 function Day({ date }: { date: string }) {
-  const locale = useLocale();
+  const locale = useDateLocale();
   return LOCAL_DATE.test(date) && !Number.isNaN(Date.parse(date))
     ? formatShortDate(date, locale)
     : date;

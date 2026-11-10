@@ -1,18 +1,23 @@
 "use client";
 
+import { ArrowUUpLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowUUpLeft";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { HourglassIcon } from "@phosphor-icons/react/dist/ssr/Hourglass";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
-import { Button } from "@tuja/ui/components/button";
 import { listSurface } from "@tuja/ui/components/list.stylex";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { selected } from "@tuja/ui/primitives/selected.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
+import { controlHeight, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import { mergeRefs } from "@tuja/ui/utils/merge-refs";
 import {
@@ -29,7 +34,8 @@ import { localClock } from "../report/due-report-date.ts";
 import { CalendarSlotLabel } from "./calendar-slot-label.tsx";
 import { ChecklistProgress } from "./checklist-progress.tsx";
 import { daysBetween, formatShortDate } from "./format-day.ts";
-import { OpenMailButton } from "./open-mail-button.tsx";
+import { NoteText } from "./note-text.tsx";
+import { OpenMailLink } from "./open-mail-button.tsx";
 import { TickBox } from "./tick-box.tsx";
 import { slotIsAhead } from "./to-todo-item-data.ts";
 import { TodoEditor, type TodoEditFocus } from "./todo-editor.tsx";
@@ -53,15 +59,22 @@ function DueBadge({
   const days = daysBetween(today, dueDate);
   const date = formatShortDate(dueDate, locale);
   return (
-    <Badge size="sm" intent={started && days <= 1 ? "warning" : "neutral"}>
+    <Badge
+      size="sm"
+      intent={
+        !started || days > 1 ? "neutral" : days < 0 ? "danger" : "warning"
+      }
+    >
       {days < 0
-        ? t({ en: "Overdue since {date}", zh: "{date} 已到期" }).replace(
+        ? t({ en: "Overdue since {date}", zh: "{date}起逾期" }).replace(
             "{date}",
             date,
           )
         : days === 0
           ? t({ en: "Due today", zh: "今天到期" })
-          : t({ en: "Due {date}", zh: "{date} 到期" }).replace("{date}", date)}
+          : days === 1
+            ? t({ en: "Due tomorrow", zh: "明天到期" })
+            : t({ en: "Due {date}", zh: "{date}到期" }).replace("{date}", date)}
     </Badge>
   );
 }
@@ -80,11 +93,34 @@ function FollowUpBadge({
     <Badge size="sm" intent={days <= 0 ? "warning" : "neutral"}>
       {days === 0
         ? t({ en: "Follow up today", zh: "今天跟进" })
-        : t({ en: "Follow up {date}", zh: "{date} 跟进" }).replace(
+        : t({ en: "Follow up {date}", zh: "{date}跟进" }).replace(
             "{date}",
             formatShortDate(date, locale),
           )}
     </Badge>
+  );
+}
+
+/**
+ * Why the morning report closed the to-do, or what it says of the wait, led by
+ * the glyph that the activity page gives that change, so that it does not read
+ * as part of the note above it. The glyph sits in the text, as the icon of
+ * "Open mail" does, so that a wrapped line starts at the row's text edge.
+ */
+function ReasonLine({
+  glyph,
+  children,
+}: {
+  glyph: ReactNode;
+  children: string;
+}) {
+  return (
+    <Text as="p" look="bodySmall" tone="muted" verbatim>
+      <span aria-hidden css={styles.reasonGlyph}>
+        {glyph}
+      </span>
+      {children}
+    </Text>
   );
 }
 
@@ -109,7 +145,7 @@ export function TodoItem({
   sortable,
 }: {
   id: string;
-  /** Say that the morning report added it. The report's own page does not need to. */
+  /** Say that the morning report added or closed it, where nothing else on the row says so. The report's own page does not need to. */
   showSource?: boolean;
   /** Say which day it was done, where no day heading says so. */
   showDoneDate?: boolean;
@@ -135,7 +171,7 @@ export function TodoItem({
   const done = todo.doneAt !== null;
   const notStarted = startsAfter(todo, today);
   const selecting = selection !== null && selection.selecting && !done;
-  const selected = selecting && selection.isSelected(id);
+  const picked = selecting && selection.isSelected(id);
 
   if (editing && !done) {
     return (
@@ -168,6 +204,107 @@ export function TodoItem({
     selection.pick(id, shiftKey);
   }
 
+  const facts: ReactNode[] = [];
+  if (todo.waitingOn !== null && !done) {
+    facts.push(
+      <Badge key="waiting" size="sm" intent="info" css={styles.waitingOn}>
+        <span css={truncate.base}>
+          {t({ en: "Waiting on {who}", zh: "在等 {who}" }).replace(
+            "{who}",
+            todo.waitingOn,
+          )}
+        </span>
+      </Badge>,
+    );
+    if (todo.followUpDate !== null) {
+      facts.push(
+        <FollowUpBadge
+          key="follow-up"
+          date={todo.followUpDate}
+          today={today}
+          locale={locale}
+        />,
+      );
+    }
+  }
+  if (todo.dueDate !== null && !done) {
+    facts.push(
+      <DueBadge
+        key="due"
+        dueDate={todo.dueDate}
+        started={!notStarted}
+        today={today}
+        locale={locale}
+      />,
+    );
+  }
+  if (todo.startDate !== null && notStarted && !done) {
+    facts.push(
+      <Badge key="starts" size="sm" intent="neutral">
+        {t({ en: "Starts {date}", zh: "{date}开始" }).replace(
+          "{date}",
+          formatShortDate(todo.startDate, locale),
+        )}
+      </Badge>,
+    );
+  }
+  if (
+    todo.calendarSlot &&
+    (!done || slotIsAhead(todo.calendarSlot, renderedAt))
+  ) {
+    facts.push(
+      <CalendarSlotLabel
+        key="slot"
+        slot={todo.calendarSlot}
+        stillHeld={done}
+      />,
+    );
+  }
+  if (todo.checklist.length > 0 && !done) {
+    facts.push(
+      <ChecklistProgress
+        key="checklist"
+        steps={todo.checklist}
+        onOpen={
+          readOnly
+            ? undefined
+            : () => {
+                setEditing("checklist");
+              }
+        }
+      />,
+    );
+  }
+  if (showDoneDate && todo.doneAt !== null) {
+    facts.push(
+      t({ en: "Done {date}", zh: "{date}完成" }).replace(
+        "{date}",
+        formatShortDate(
+          localClock(new Date(todo.doneAt), timeZone).date,
+          locale,
+        ),
+      ),
+    );
+  }
+  const origin: ReactNode[] = [];
+  const reason = done ? todo.doneReason : todo.waitingNote;
+  if (showSource && done && todo.doneReason) {
+    origin.push(t({ en: "Closed by the morning report", zh: "由晨报关闭" }));
+  } else if (
+    showSource &&
+    todo.createdBy === "report" &&
+    !reason &&
+    !todo.openHref
+  ) {
+    origin.push(t({ en: "From the morning report", zh: "来自晨报" }));
+  }
+  if (todo.reAdded) {
+    origin.push(t({ en: "You deleted this before", zh: "你之前删过" }));
+  }
+  if (todo.openHref) {
+    origin.push(<OpenMailLink key="mail" href={todo.openHref} />);
+  }
+
   return (
     <li
       ref={mergeRefs(sortable?.itemRef, rowRef)}
@@ -178,7 +315,7 @@ export function TodoItem({
         selection && a11y.focusRingInset,
         selection && styles.clearOfBar,
         selecting && styles.selectable,
-        selected && styles.selected,
+        selecting && selected.marked,
         sortable?.itemCss,
       ]}
       onClickCapture={pickOnClick}
@@ -205,7 +342,8 @@ export function TodoItem({
               "{title}",
               todo.title,
             )}
-            checked={selected}
+            checked={picked}
+            look="selection"
             onChange={() => {
               selection.pick(id, false);
             }}
@@ -214,23 +352,31 @@ export function TodoItem({
           <TickBox
             label={todo.title}
             checked={done}
-            disabled={readOnly}
+            readOnly={readOnly}
+            look="done"
             onChange={(checked) => {
               setDone(id, checked);
             }}
           />
         )}
-        <div css={[stack.text, styles.main]}>
+        <div css={styles.main}>
           {done ? (
-            <Text as="p" css={styles.doneTitle}>
+            <Text as="p" tone="muted" verbatim>
               {todo.title}
             </Text>
           ) : readOnly ? (
-            <Text as="p">{todo.title}</Text>
+            <Text as="p" verbatim>
+              {todo.title}
+            </Text>
           ) : (
             <button
               type="button"
-              css={[buttonReset.base, typeRole.control, styles.title]}
+              css={[
+                buttonReset.base,
+                typeRole.body,
+                typeModifier.verbatim,
+                styles.title,
+              ]}
               onClick={() => {
                 setEditing("title");
               }}
@@ -238,131 +384,53 @@ export function TodoItem({
               {todo.title}
             </button>
           )}
-          {todo.detail ? (
-            <Text as="p" look="bodySmall" tone="muted">
-              {todo.detail}
-            </Text>
-          ) : null}
-          {done && todo.doneReason ? (
-            <Text as="p" look="bodySmall" tone="muted">
-              {t({
-                en: "The morning report closed this: {reason}",
-                zh: "晨报关闭了这项：{reason}",
-              }).replace("{reason}", todo.doneReason)}
-            </Text>
-          ) : null}
-          {!done && todo.waitingNote ? (
-            <Text as="p" look="bodySmall" tone="muted">
-              {(todo.waitingOn === null
-                ? t({
-                    en: "The reply came: {reason}",
-                    zh: "回复已到：{reason}",
-                  })
-                : t({
-                    en: "The morning report says: {reason}",
-                    zh: "晨报说：{reason}",
-                  })
-              ).replace("{reason}", todo.waitingNote)}
-            </Text>
-          ) : null}
-          <div css={[cluster.inline, styles.meta]}>
-            {todo.waitingOn !== null && !done ? (
-              <Badge size="sm" intent="info" css={styles.waitingOn}>
-                <span css={truncate.base}>
-                  {t({ en: "Waiting on {who}", zh: "在等 {who}" }).replace(
-                    "{who}",
-                    todo.waitingOn,
-                  )}
-                </span>
-              </Badge>
+          {selecting || (readOnly && !sortable?.handle) ? null : (
+            <div css={[typeRole.body, styles.actions]}>
+              {sortable?.handle ? (
+                <span css={styles.handle}>{sortable.handle}</span>
+              ) : null}
+              {readOnly ? null : (
+                <TodoRowMenu
+                  todo={todo}
+                  moves={sortable?.moves}
+                  onEdit={setEditing}
+                />
+              )}
+            </div>
+          )}
+          <div css={[stack.text, styles.wide]}>
+            {todo.detail ? (
+              <NoteText text={todo.detail} clamped={!done && !readOnly} />
             ) : null}
-            {todo.waitingOn !== null && todo.followUpDate !== null && !done ? (
-              <FollowUpBadge
-                date={todo.followUpDate}
-                today={today}
-                locale={locale}
-              />
-            ) : null}
-            {todo.dueDate !== null && !done ? (
-              <DueBadge
-                dueDate={todo.dueDate}
-                started={!notStarted}
-                today={today}
-                locale={locale}
-              />
-            ) : null}
-            {todo.startDate !== null && notStarted && !done ? (
-              <Badge size="sm" intent="neutral">
-                {t({ en: "Starts {date}", zh: "{date} 开始" }).replace(
-                  "{date}",
-                  formatShortDate(todo.startDate, locale),
-                )}
-              </Badge>
-            ) : null}
-            {todo.calendarSlot &&
-            (!done || slotIsAhead(todo.calendarSlot, renderedAt)) ? (
-              <CalendarSlotLabel slot={todo.calendarSlot} stillHeld={done} />
-            ) : null}
-            {todo.checklist.length > 0 && !done ? (
-              <ChecklistProgress
-                steps={todo.checklist}
-                onOpen={
-                  readOnly
-                    ? undefined
-                    : () => {
-                        setEditing("checklist");
-                      }
+            {reason ? (
+              <ReasonLine
+                glyph={
+                  done ? (
+                    <CheckCircleIcon weight="regular" />
+                  ) : todo.waitingOn === null ? (
+                    <ArrowUUpLeftIcon weight="regular" />
+                  ) : (
+                    <HourglassIcon weight="regular" />
+                  )
                 }
-              />
-            ) : null}
-            {showDoneDate && todo.doneAt !== null ? (
-              <Text look="caption" tone="muted">
-                {t({ en: "Done {date}", zh: "{date} 完成" }).replace(
-                  "{date}",
-                  formatShortDate(
-                    localClock(new Date(todo.doneAt), timeZone).date,
-                    locale,
-                  ),
-                )}
-              </Text>
-            ) : null}
-            {showSource && todo.createdBy === "report" ? (
-              <Text look="caption" tone="muted">
-                {t({ en: "From the morning report", zh: "来自晨报" })}
-              </Text>
-            ) : null}
-            {todo.reAdded ? (
-              <Text look="caption" tone="muted">
-                {t({ en: "You deleted this before", zh: "你之前删过" })}
-              </Text>
-            ) : null}
-            {done && !readOnly ? (
-              <Button
-                size="sm"
-                look="ghost"
-                css={styles.reopen}
-                onClick={() => {
-                  setDone(id, false);
-                }}
               >
-                {t({ en: "Reopen", zh: "重新打开" })}
-              </Button>
+                {reason}
+              </ReasonLine>
+            ) : null}
+            {facts.length + origin.length > 0 ? (
+              <Text as="div" look="caption" tone="muted" css={styles.meta}>
+                <MetaLine
+                  facts={[
+                    ...facts,
+                    origin.length > 0 ? (
+                      <MetaLine key="origin" facts={origin} />
+                    ) : null,
+                  ]}
+                />
+              </Text>
             ) : null}
           </div>
         </div>
-        {selecting ? null : (
-          <div css={styles.actions}>
-            {todo.openHref ? <OpenMailButton href={todo.openHref} /> : null}
-            {sortable?.handle}
-            {readOnly ? null : (
-              <TodoRowMenu
-                todo={todo}
-                moves={sortable?.moves}
-                onEdit={setEditing}
-              />
-            )}
-          </div>
-        )}
       </div>
     </li>
   );
@@ -376,14 +444,14 @@ const styles = stylex.create({
     cursor: "pointer",
     userSelect: "none",
   },
-  selected: {
-    backgroundColor: color.bgAccentSubtle,
-  },
   row: {
     alignItems: "flex-start",
     paddingBlock: space._2,
   },
   main: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr) auto",
+    alignItems: "start",
     flexGrow: 1,
     minInlineSize: 0,
   },
@@ -391,29 +459,35 @@ const styles = stylex.create({
     color: color.fg,
     textAlign: "start",
   },
-  doneTitle: {
-    color: color.fgMuted,
-    textDecorationLine: "line-through",
+  wide: {
+    gridColumn: "1 / -1",
   },
   meta: {
-    marginBlockStart: {
-      default: 0,
-      ":not(:empty)": rhythm.inline,
-    },
+    marginBlockStart: rhythm.inline,
   },
   waitingOn: {
     maxInlineSize: "100%",
   },
-  // Alone on its line, the label starts under the title, not its button's padding.
-  reopen: {
-    marginInlineStart: {
-      default: 0,
-      ":first-child": `calc(-1 * ${controlSize._2})`,
+  reasonGlyph: {
+    display: "inline-flex",
+    alignItems: "center",
+    blockSize: "1lh",
+    verticalAlign: "top",
+    marginInlineEnd: rhythm.inline,
+  },
+  // On a small touch screen, the title gets the space. The row menu can move the row.
+  handle: {
+    display: {
+      default: "flex",
+      [pointer.coarse]: { default: "none", [breakpoints.md]: "flex" },
     },
   },
   actions: {
+    gridColumn: 2,
+    gridRow: 1,
     display: "flex",
     alignItems: "center",
-    flexShrink: 0,
+    marginBlock: `calc((1lh - ${controlHeight.sm}) / 2)`,
+    marginInlineStart: rhythm.inline,
   },
 });

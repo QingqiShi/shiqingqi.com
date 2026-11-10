@@ -3,29 +3,83 @@
 import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
+import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Text } from "@tuja/ui/components/text";
+import { shrink } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { rhythm } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { controlHeight, controlSize, rhythm } from "@tuja/ui/tokens.stylex";
+import type { StyleProp } from "@tuja/ui/types";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import type { UndoOutcome } from "../activity/undo-agent-actions.ts";
+import {
+  createContext,
+  type ReactNode,
+  use,
+  useState,
+  useTransition,
+} from "react";
+import type {
+  UndoOutcome,
+  UndoRefusal,
+} from "../activity/undo-agent-actions.ts";
 import { assistantFetch } from "../http/assistant-fetch.ts";
+import { AddressText } from "../mailboxes/address-text.tsx";
+import { MailboxesLink } from "../mailboxes/mailboxes-link.tsx";
+import { ReconnectCause } from "../mailboxes/reconnect-cause.tsx";
+import { fillTemplate } from "../shell/fill-template.tsx";
 
 type Refused = Extract<UndoOutcome, { undone: false }>;
 
-/** What a refused undo says to the owner. */
-function RefusalText({ outcome }: { outcome: Refused }) {
+/**
+ * Refusals that a later try can get past: after a wait, or after the owner
+ * connects the mailbox again. The others are final, such as a to-do changed
+ * since.
+ */
+const RETRYABLE: ReadonlySet<UndoRefusal> = new Set([
+  "login-refused",
+  "login-failed",
+  "failed",
+]);
+
+/**
+ * A short state in the place of an Undo button. Its end lines up with the end
+ * of the glyph or label of the button it replaces.
+ */
+export function UndoStateBadge({ children }: { children: ReactNode }) {
   return (
-    <Text look="caption" css={styles.problem}>
+    <Badge size="sm" intent="neutral" css={[shrink._0, styles.stateBadge]}>
+      {children}
+    </Badge>
+  );
+}
+
+function UndoGlyph() {
+  return <ArrowCounterClockwiseIcon weight="bold" />;
+}
+
+/**
+ * Why an undo was refused. A refusal that a later try can get past asks for
+ * the owner's attention; a final one only tells.
+ */
+function RefusalText({ outcome }: { outcome: Refused }) {
+  const retryable = RETRYABLE.has(outcome.refusal);
+  return (
+    <Text
+      as="p"
+      look="bodySmall"
+      tone={retryable ? "danger" : "muted"}
+      measure="none"
+    >
       {refusalText(outcome)}
     </Text>
   );
 }
 
-function refusalText(outcome: Refused) {
+function refusalText(outcome: Refused): ReactNode {
   const folder = outcome.folder ?? "";
+  const address = <AddressText address={outcome.address ?? ""} />;
+  const mailboxes = <MailboxesLink />;
   switch (outcome.refusal) {
     case "mail-gone":
       return t({
@@ -82,27 +136,72 @@ function refusalText(outcome: Refused) {
         en: "That mailbox is no longer connected.",
         zh: "这个邮箱已经断开连接了。",
       });
+    case "login-refused":
+      return fillTemplate(
+        t({
+          en: "Could not sign in to {address}, so nothing changed. {cause} Connect it again in {mailboxes}, then undo.",
+          zh: "无法登录 {address}，所以没有改动。{cause}请在{mailboxes}中重新连接后再撤销。",
+        }),
+        { address, mailboxes, cause: <ReconnectCause code={outcome.code} /> },
+      );
+    case "login-failed":
+      return fillTemplate(
+        t({
+          en: "Could not log in to {address}, so nothing changed. Try again later.",
+          zh: "暂时登录不了 {address}，所以没有改动。请稍后再试。",
+        }),
+        { address },
+      );
     case "failed":
-      return t({
-        en: "The mail or calendar server did not do it. Try again later.",
-        zh: "邮件或日历服务器没有完成操作，请稍后再试。",
-      });
+      return outcome.address
+        ? fillTemplate(
+            t({
+              en: "The server of {address} did not do it. Try again later.",
+              zh: "{address} 的服务器没有完成操作，请稍后再试。",
+            }),
+            { address },
+          )
+        : t({
+            en: "The mail or calendar server did not do it. Try again later.",
+            zh: "邮件或日历服务器没有完成操作，请稍后再试。",
+          });
   }
 }
 
+interface UndoState {
+  confirm: string | undefined;
+  asking: boolean;
+  busy: boolean;
+  refused: Refused[];
+  undone: number;
+  failed: boolean;
+  run: () => void;
+  setAsking: (asking: boolean) => void;
+}
+
+const UndoContext = createContext<UndoState | null>(null);
+
+function useUndo() {
+  const undo = use(UndoContext);
+  if (!undo) throw new Error("UndoButton and UndoStatus need an UndoScope");
+  return undo;
+}
+
 /**
- * Takes back some actions, or a whole run, and loads the page again. A run
- * asks once more first. What could not be undone stays, with why.
+ * Holds one undo: some actions, or a whole run. `UndoButton` starts it, and
+ * `UndoStatus` says what could not be undone, with why, so the two can sit in
+ * different columns of a row. A run asks once more first, and a done undo
+ * loads the page again.
  */
-export function UndoButton({
+export function UndoScope({
   target,
-  label,
   confirm,
+  children,
 }: {
   target: { actionIds: string[] } | { runId: string };
-  label: string;
   /** Asked before a larger undo, such as a whole run. */
   confirm?: string;
+  children: ReactNode;
 }) {
   const router = useRouter();
   const [asking, setAsking] = useState(false);
@@ -138,98 +237,141 @@ export function UndoButton({
       });
   }
 
+  return (
+    <UndoContext
+      value={{
+        confirm,
+        asking,
+        busy,
+        refused,
+        undone,
+        failed,
+        run,
+        setAsking,
+      }}
+    >
+      {children}
+    </UndoContext>
+  );
+}
+
+/**
+ * The Undo button of the nearest `UndoScope`. When every refusal is one that
+ * no later try can get past, a "Can’t undo" badge takes its place.
+ */
+export function UndoButton({
+  label,
+  compact = false,
+  describedBy,
+}: {
+  label: string;
+  /** Show only the icon below `md`, so the row's text gets the width. */
+  compact?: boolean;
+  /** The id of the text that says what the undo takes back. */
+  describedBy?: string;
+}) {
+  const { confirm, asking, busy, refused, run, setAsking } = useUndo();
+  const stuck =
+    refused.length > 0 &&
+    refused.every((outcome) => !RETRYABLE.has(outcome.refusal));
+  return (
+    <div css={[typeRole.body, styles.buttons]}>
+      {stuck ? (
+        <UndoStateBadge>
+          {t({ en: "Can’t undo", zh: "无法撤销" })}
+        </UndoStateBadge>
+      ) : asking ? (
+        <>
+          <Button size="sm" look="outline" onClick={run}>
+            {confirm}
+          </Button>
+          <Button
+            size="sm"
+            look="ghost"
+            onClick={() => {
+              setAsking(false);
+            }}
+          >
+            {t({ en: "Keep", zh: "保留" })}
+          </Button>
+        </>
+      ) : (
+        <Button
+          size="sm"
+          look="ghost"
+          loading={busy}
+          disabled={busy}
+          icon={<UndoGlyph />}
+          hideLabelOnMobile={compact}
+          aria-label={compact ? label : undefined}
+          aria-describedby={describedBy}
+          onClick={() => {
+            if (confirm) setAsking(true);
+            else run();
+          }}
+        >
+          {label}
+        </Button>
+      )}
+    </div>
+  );
+}
+
+/**
+ * What the undo of the nearest `UndoScope` could not do, with why, under the
+ * text of its row. It is empty until an undo answers.
+ */
+export function UndoStatus({ css }: { css?: StyleProp }) {
+  const { refused, undone, failed } = useUndo();
   const distinct = [
     ...new Map(
       refused.map((outcome) => [
-        `${outcome.refusal}:${outcome.folder ?? ""}`,
+        `${outcome.refusal}:${outcome.folder ?? ""}:${outcome.address ?? ""}`,
         outcome,
       ]),
     ),
   ];
-  const partly =
-    refused.length > 0 && undone > 0
-      ? t({
-          en: "Undid {done} of {all}.",
-          zh: "撤销了 {all} 项中的 {done} 项。",
-        })
-          .replace("{done}", String(undone))
-          .replace("{all}", String(undone + refused.length))
-      : null;
-
   return (
-    <div css={[stack.text, styles.wrap]}>
-      <div css={styles.buttons}>
-        {asking ? (
-          <>
-            <Button size="sm" look="outline" onClick={run}>
-              {confirm}
-            </Button>
-            <Button
-              size="sm"
-              look="ghost"
-              onClick={() => {
-                setAsking(false);
-              }}
-            >
-              {t({ en: "Keep", zh: "保留" })}
-            </Button>
-          </>
-        ) : (
-          <Button
-            size="sm"
-            look="ghost"
-            loading={busy}
-            disabled={busy}
-            icon={<ArrowCounterClockwiseIcon weight="bold" />}
-            onClick={() => {
-              if (confirm) setAsking(true);
-              else run();
-            }}
-          >
-            {label}
-          </Button>
-        )}
-      </div>
-      <div role="status" css={[stack.text, styles.status]}>
-        {partly ? (
-          <Text look="caption" css={styles.problem}>
-            {partly}
-          </Text>
-        ) : null}
-        {distinct.map(([key, outcome]) => (
-          <RefusalText key={key} outcome={outcome} />
-        ))}
-        {failed ? (
-          <Text look="caption" css={styles.problem}>
-            {t({
-              en: "That did not go through. Try again.",
-              zh: "没有成功，请重试。",
-            })}
-          </Text>
-        ) : null}
-      </div>
+    <div role="status" css={[stack.text, styles.status, css]}>
+      {refused.length > 0 && undone > 0 ? (
+        <Text as="p" look="bodySmall" tone="muted" measure="none">
+          {t({
+            en: "Undid {done} of {all}.",
+            zh: "撤销了 {all} 项中的 {done} 项。",
+          })
+            .replace("{done}", String(undone))
+            .replace("{all}", String(undone + refused.length))}
+        </Text>
+      ) : null}
+      {distinct.map(([key, outcome]) => (
+        <RefusalText key={key} outcome={outcome} />
+      ))}
+      {failed ? (
+        <Text as="p" look="bodySmall" tone="danger" measure="none">
+          {t({
+            en: "That did not go through. Try again.",
+            zh: "没有成功，请重试。",
+          })}
+        </Text>
+      ) : null}
     </div>
   );
 }
 
 const styles = stylex.create({
-  wrap: {
-    alignItems: "flex-end",
-    flexShrink: 0,
-    maxInlineSize: "50%",
-  },
   buttons: {
     display: "flex",
     flexWrap: "wrap",
     justifyContent: "flex-end",
+    alignItems: "center",
     gap: rhythm.inline,
     whiteSpace: "nowrap",
+    marginBlock: `calc((1lh - ${controlHeight.sm}) / 2)`,
   },
   status: {
-    marginBlockStart: { default: 0, ":not(:empty)": rhythm.tight },
+    marginBlockStart: { default: 0, ":not(:empty)": rhythm.inline },
   },
-  problem: {
-    color: color.fgDanger,
-    textAlign: "end",
+  stateBadge: {
+    marginInlineEnd: controlSize._2,
   },
 });

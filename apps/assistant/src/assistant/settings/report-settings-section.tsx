@@ -1,4 +1,3 @@
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
@@ -6,9 +5,10 @@ import { Link } from "@tuja/next-links/link";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { measure } from "@tuja/ui/tokens.stylex";
 import { readRejectedTodos } from "../agent/todos/read-open-todos.ts";
 import { getAssistantDb } from "../db/get-assistant-db.ts";
+import { ConnectMailboxFirst } from "../mailboxes/connect-mailbox-first.tsx";
+import { readMailboxHealth } from "../mailboxes/read-mailbox-health.ts";
 import { readReportSettings } from "../report/read-report-settings.ts";
 import { PushToggle } from "./push-toggle.tsx";
 import { RejectedTodoList } from "./rejected-todo-list.tsx";
@@ -24,11 +24,15 @@ export async function ReportSettingsSection({
   locale: SupportedLocale;
 }) {
   const scope = { db: getAssistantDb(), userId };
-  const [{ timeZone, digestHour, locale: reportLocale }, rejectedTodos] =
-    await Promise.all([
-      readReportSettings(scope),
-      readRejectedTodos(scope, new Date()),
-    ]);
+  const [
+    { timeZone, digestHour, locale: reportLocale },
+    rejectedTodos,
+    mailboxes,
+  ] = await Promise.all([
+    readReportSettings(scope),
+    readRejectedTodos(scope, new Date()),
+    readMailboxHealth(scope),
+  ]);
   const timeZones = Intl.supportedValuesOf("timeZone");
   if (!timeZones.includes(timeZone)) timeZones.push(timeZone);
 
@@ -36,6 +40,10 @@ export async function ReportSettingsSection({
     <SettingsSection
       level={2}
       title={t({ en: "Report and notifications", zh: "晨报与通知" })}
+      description={t({
+        en: "Each morning the assistant sums up the last day’s mail and your calendar in one report.",
+        zh: "助手每天早上把过去一天的邮件和你的日历汇总成一份晨报。",
+      })}
     >
       <div css={stack.section}>
         <SettingsSection
@@ -46,7 +54,16 @@ export async function ReportSettingsSection({
             initial={{ timeZone, digestHour, locale: reportLocale }}
             timeZones={timeZones}
           />
-          <div css={styles.preview}>
+        </SettingsSection>
+        <SettingsSection level={3} title={t({ en: "Preview", zh: "预览" })}>
+          {mailboxes.connected === 0 ? (
+            <ConnectMailboxFirst
+              why={t({
+                en: "The preview reads your mailboxes, and none is connected yet.",
+                zh: "预览要读取你的邮箱，而现在还没有连接任何邮箱。",
+              })}
+            />
+          ) : (
             <List>
               <ListRow
                 href={getLocalePath("/report-preview", locale)}
@@ -56,10 +73,10 @@ export async function ReportSettingsSection({
                   zh: "不会改动邮件、待办或晨报。",
                 })}
               >
-                {t({ en: "Preview the next report", zh: "预览下一份晨报" })}
+                {t({ en: "See the next report now", zh: "现在查看下一份晨报" })}
               </ListRow>
             </List>
-          </div>
+          )}
         </SettingsSection>
         <SettingsSection
           level={3}
@@ -94,7 +111,3 @@ export async function ReportSettingsSection({
     </SettingsSection>
   );
 }
-
-const styles = stylex.create({
-  preview: { maxInlineSize: measure.form },
-});

@@ -333,6 +333,21 @@ describe("a preview of the next morning report", () => {
     }
   });
 
+  it("keeps the last built preview when a later one fails", async () => {
+    expect(await start(buildDeps(reportAgent().model))).toBe(204);
+    expect(await start(buildDeps(null))).toBe(204);
+
+    const preview = await readReportPreview({ db, userId }, clock);
+    expect(preview).toMatchObject({
+      status: "failed",
+      reason: "no-model",
+      last: {
+        builtAt: NOW,
+        report: { content: { headline: "Pay the invoice." } },
+      },
+    });
+  });
+
   it("ends in a failed row when no mailbox can be read", async () => {
     server.failNextConnects(new Error("The server is down"));
     expect(await start(buildDeps(silentAgent()))).toBe(204);

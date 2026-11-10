@@ -16,6 +16,13 @@ export const SYNC_ERROR_CODES = [
 ] as const;
 export type SyncErrorCode = (typeof SYNC_ERROR_CODES)[number];
 
+/** The codes of a login that cannot work until the user connects anew. */
+export const RECONNECT_CODES: ReadonlySet<string> = new Set([
+  "login_refused",
+  "token_revoked",
+  "credential_unreadable",
+] satisfies SyncErrorCode[]);
+
 const MAX_MESSAGE_CHARS = 300;
 
 /**

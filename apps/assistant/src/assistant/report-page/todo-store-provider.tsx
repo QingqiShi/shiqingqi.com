@@ -13,6 +13,7 @@ import { createContext, use, useState, type ReactNode } from "react";
 import type { WaitingChange } from "../report/change-waiting.ts";
 import type { ChecklistItem } from "../report/own-todo.ts";
 import type { OwnerTodoChange } from "../report/owner-todos.ts";
+import { useDateLocale } from "../shell/date-locale-provider.tsx";
 import type { TodoRows } from "./patch-row.ts";
 import { RejectTodosSheet } from "./reject-todos-sheet.tsx";
 import { sendBulk } from "./send-bulk.ts";
@@ -33,6 +34,7 @@ export interface TodoStore {
   rows: TodoRows;
   /** The user's local date, `YYYY-MM-DD`. */
   today: string;
+  /** The locale the page writes dates in. */
   locale: string;
   /** The owner's time zone, which the times of the page are read in. */
   timeZone: string;
@@ -42,8 +44,13 @@ export interface TodoStore {
   hasCalendar: boolean;
   /** When the server began this render, in milliseconds. */
   renderedAt: number;
-  add: (todo: { title: string; dueDate: string | null }) => void;
-  edit: (id: string, edit: TodoEdit) => void;
+  /** Adds a to-do and answers with its id. */
+  add: (todo: { title: string; dueDate: string | null }) => string;
+  /**
+   * Changes a to-do. A change that moves it to the other view says so, with
+   * Undo, unless `quiet`, for an action that has its own message.
+   */
+  edit: (id: string, edit: TodoEdit, options?: { quiet?: boolean }) => void;
   setDone: (id: string, done: boolean) => void;
   remove: (id: string) => void;
   /** Makes a to-do wait, changes its wait or ends it. */
@@ -90,7 +97,6 @@ export function useTodoStore() {
 function Store({
   todos,
   today,
-  locale,
   timeZone,
   openCount,
   hasCalendar,
@@ -100,7 +106,6 @@ function Store({
 }: {
   todos: TodoRows;
   today: string;
-  locale: string;
   timeZone: string;
   openCount: number;
   hasCalendar: boolean;
@@ -109,6 +114,7 @@ function Store({
   children: ReactNode;
 }) {
   const showToast = useToast();
+  const locale = useDateLocale();
   const { rows, run } = useOptimisticTodos({
     todos,
     renderedAt,
@@ -225,7 +231,6 @@ function Store({
 export function TodoStoreProvider({
   todos,
   today,
-  locale,
   timeZone,
   openCount,
   hasCalendar = false,
@@ -235,7 +240,6 @@ export function TodoStoreProvider({
 }: {
   todos: readonly TodoItemData[];
   today: string;
-  locale: string;
   timeZone: string;
   openCount: number;
   /** The owner has a calendar to put a to-do on. */
@@ -254,7 +258,6 @@ export function TodoStoreProvider({
       <Store
         todos={todos}
         today={today}
-        locale={locale}
         timeZone={timeZone}
         openCount={openCount}
         hasCalendar={hasCalendar}

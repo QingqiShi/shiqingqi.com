@@ -1,6 +1,7 @@
 import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Text } from "@tuja/ui/components/text";
 import type { Metadata } from "next";
 import {
@@ -22,7 +23,7 @@ export default function Page() {
     <LegalPage title={t({ en: "Privacy policy", zh: "隐私政策" })}>
       <Text>
         {t({
-          en: "Qi Assistant (assistant.qingqi.dev) is a mail assistant that Qingqi Shi built and runs. It is designed for anyone to use, but it is not open for sign-up yet. It files the mail in the inboxes you connect into folders, and each morning it writes a report of the last 24 hours' mail with the to-dos it finds. This page says what it stores, where your data goes, and what you can do about it.",
+          en: "Qi Assistant (assistant.qingqi.dev) is a mail assistant that Qingqi Shi built and runs. It is designed for anyone to use, but it is not open for sign-up yet. It files the mail in the inboxes you connect into folders, and each morning it writes a report of the last 24 hours’ mail with the to-dos it finds. This page says what it stores, where your data goes, and what you can do about it.",
           zh: "Qi Assistant（assistant.qingqi.dev）是石清琪开发并运营的邮件助手，面向所有人设计，但目前尚未开放注册。它把你连接的邮箱收件箱里的邮件归入文件夹，并在每天早上就过去 24 小时的邮件写一份晨报，列出其中的待办。本页说明它保存什么、你的数据去往哪里，以及你可以做什么。",
         })}
       </Text>
@@ -47,7 +48,7 @@ export default function Page() {
         </Text>
         <Text>
           {t({
-            en: "Each morning it reads the last 24 hours' messages from your folders, without changing them, and writes a short report and a list of to-dos. It never deletes mail and never sends mail for you.",
+            en: "Each morning it reads the last 24 hours’ messages from your folders, without changing them, and writes a short report and a list of to-dos. It never deletes mail and never sends mail for you.",
             zh: "每天早上，它会读取你各个文件夹里过去 24 小时的邮件（不做任何改动），写一份简短的晨报和一份待办清单。它从不删除邮件，也从不替你发送邮件。",
           })}
         </Text>
@@ -56,7 +57,7 @@ export default function Page() {
       <LegalSection heading={t({ en: "What it stores", zh: "保存哪些数据" })}>
         <Text>
           {t({
-            en: "It does not store the text of your mail: that stays in your mailbox and is read when a job needs it. It keeps a log of what the organising agent did: for each message it moved, the subject, the sender, the message's ID, the folders and the agent's reason; for each folder it made, renamed or deleted, the folder's names and the reason; for each calendar event it added, changed or deleted, the message it came from, the event's title and, before a change or a delete, a full copy of the event, so that it can be undone; for each change the report made to a to-do, the to-do's title, what the change replaced and wrote and the reason, so that it can be undone; for each run, the steps the agent took, which can quote subjects, senders and the short descriptions of messages that the second model wrote.",
+            en: "It does not store the text of your mail: that stays in your mailbox and is read when a job needs it. It keeps a log of what the organising agent did: for each message it moved, the subject, the sender, the message’s ID, the folders and the agent’s reason; for each folder it made, renamed or deleted, the folder’s names and the reason; for each calendar event it added, changed or deleted, the message it came from, the event’s title and, before a change or a delete, a full copy of the event, so that it can be undone; for each change the report made to a to-do, the to-do’s title, what the change replaced and wrote and the reason, so that it can be undone; for each run, the steps the agent took, which can quote subjects, senders and the short descriptions of messages that the second model wrote.",
             zh: "它不保存邮件正文：正文留在你的邮箱里，只在任务需要时读取。它会保存整理智能体的操作记录：对它移动的每封邮件，记录主题、发件人、邮件 ID、所在文件夹和智能体给出的理由；对它新建、重命名或删除的每个文件夹，记录文件夹名称和理由；对它添加、修改或删除的每个日程，记录其来源邮件、日程标题，并在修改或删除前保存该日程的完整副本，以便撤销；对晨报对待办做的每项更改，记录待办标题、更改前后的内容和理由，以便撤销；对每次运行，记录智能体执行的步骤，其中可能包含主题、发件人，以及第二个模型为邮件写下的简短描述。",
           })}
         </Text>
@@ -74,14 +75,14 @@ export default function Page() {
         </Text>
         <Text>
           {t({
-            en: "Morning reports and to-dos: the words that the AI model and you wrote, which can name a sender or a subject, a to-do's due and start dates, its checklist and which steps you ticked, who or what it waits on and when to follow up, the time it holds on your calendar and where that event is, whether it is done, why the report closed it or changed its wait, and which of its parts you changed. A to-do that you delete is hidden but stays stored, so that the report does not add it again, with your note if you said that it should not have been added. For a line that links to a message, it keeps the mailbox and the message's ID, so that the link opens the message in your mailbox.",
+            en: "Morning reports and to-dos: the words that the AI model and you wrote, which can name a sender or a subject, a to-do’s due and start dates, its checklist and which steps you ticked, who or what it waits on and when to follow up, the time it holds on your calendar and where that event is, whether it is done, why the report closed it or changed its wait, and which of its parts you changed. A to-do that you delete is hidden but stays stored, so that the report does not add it again, with your note if you said that it should not have been added. For a line that links to a message, it keeps the mailbox and the message’s ID, so that the link opens the message in your mailbox.",
             zh: "晨报和待办：AI 模型和你写下的文字（其中可能提到某个发件人或主题）、待办的到期日和开始日期、它的清单以及你勾选了哪些步骤、它在等谁或等什么以及何时跟进、它在你日历上占用的时间和该日程的位置、它是否已完成、晨报关闭它或改变其等待状态的原因，以及你改过它的哪些部分。你删除的待办会被隐藏，但仍然保存，这样晨报就不会再次添加它；如果你说明它不该被添加，也会保存你写的说明。对于链接到某封邮件的条目，它保存所在邮箱和该邮件的 ID，以便链接能在你的邮箱中打开这封邮件。",
           })}
         </Text>
         <Text>
           {t({
-            en: "Also: your settings (time zone, report hour, language, whether organising is on, and your notes on where mail goes) and the push subscription of each device you allow.",
-            zh: "此外还有：你的设置（时区、晨报时间、语言、是否开启整理，以及你写下的邮件归类说明），以及你允许推送的每台设备的推送订阅。",
+            en: "Also: your settings (time zone, report hour, language, whether organising is on, and your rules on where mail goes) and the push subscription of each device you allow.",
+            zh: "此外还有：你的设置（时区、晨报时间、语言、是否开启整理，以及你写下的邮件归类规则），以及你允许推送的每台设备的推送订阅。",
           })}
         </Text>
       </LegalSection>
@@ -91,13 +92,13 @@ export default function Page() {
       >
         <Text>
           {t({
-            en: "Anthropic: to organise your inbox, the assistant sends the sender, recipients, subject and date of its messages, with your folder names and your notes, to Anthropic's Claude API, and for the messages the agent needs to understand, up to about 6,000 characters of their text. To write the morning report, it sends the sender, recipients, subject, date and the start of the text of the last 24 hours' messages with your open to-dos the titles of the to-dos you deleted in the last 30 days, the titles and notes of those you said in the last 90 days should not have been added, and the titles of those whose changes you undid in the last 30 days. Anthropic's commercial terms say that it does not train its models on this data.",
-            zh: "Anthropic：为了整理收件箱，Qi Assistant 会把邮件的发件人、收件人、主题和日期，连同你的文件夹名称和归类说明，发送到 Anthropic 的 Claude API；对智能体需要了解内容的邮件，还会发送最多约 6,000 个字符的正文。为了撰写晨报，它会把过去 24 小时邮件的发件人、收件人、主题、日期和正文开头，连同你未完成的待办、你在过去 30 天内删除的待办的标题，你在过去 90 天内说明不该添加的待办的标题和说明，以及你在过去 30 天内撤销过其更改的待办的标题一起发送过去。Anthropic 的商业条款规定，它不会用这些数据训练模型。",
+            en: "Anthropic: to organise your inbox, the assistant sends the sender, recipients, subject and date of its messages, with your folder names and your rules, to Anthropic’s Claude API, and for the messages the agent needs to understand, up to about 6,000 characters of their text. To write the morning report, it sends the sender, recipients, subject, date and the start of the text of the last 24 hours’ messages with your open to-dos the titles of the to-dos you deleted in the last 30 days, the titles and notes of those you said in the last 90 days should not have been added, and the titles of those whose changes you undid in the last 30 days. Anthropic’s commercial terms say that it does not train its models on this data.",
+            zh: "Anthropic：为了整理收件箱，Qi Assistant 会把邮件的发件人、收件人、主题和日期，连同你的文件夹名称和归类规则，发送到 Anthropic 的 Claude API；对智能体需要了解内容的邮件，还会发送最多约 6,000 个字符的正文。为了撰写晨报，它会把过去 24 小时邮件的发件人、收件人、主题、日期和正文开头，连同你未完成的待办、你在过去 30 天内删除的待办的标题，你在过去 90 天内说明不该添加的待办的标题和说明，以及你在过去 30 天内撤销过其更改的待办的标题一起发送过去。Anthropic 的商业条款规定，它不会用这些数据训练模型。",
           })}
         </Text>
         <Text>
           {t({
-            en: "The services that run the assistant: Vercel hosts the app and Neon hosts its database, both in London. Apple, Google and Microsoft receive the requests to your own mailbox, and Apple those to your iCloud Calendar. Your browser's push service (from Apple, Google or Mozilla) delivers the morning notification.",
+            en: "The services that run the assistant: Vercel hosts the app and Neon hosts its database, both in London. Apple, Google and Microsoft receive the requests to your own mailbox, and Apple those to your iCloud Calendar. Your browser’s push service (from Apple, Google or Mozilla) delivers the morning notification.",
             zh: "运行 Qi Assistant 的服务：Vercel 托管应用，Neon 托管数据库，均位于伦敦。Apple、Google 和 Microsoft 接收对你自己邮箱的请求，Apple 还接收对你 iCloud 日历的请求。你浏览器的推送服务（来自 Apple、Google 或 Mozilla）负责发送早间通知。",
           })}
         </Text>
@@ -114,7 +115,7 @@ export default function Page() {
       >
         <Text>
           {t({
-            en: "Qi Assistant's use and transfer of information received from Google APIs adheres to the Google API Services User Data Policy, including the Limited Use requirements. Gmail data is used only to provide the features on this page to you, and people do not read it unless you ask for help with your account or the law requires it.",
+            en: "Qi Assistant’s use and transfer of information received from Google APIs adheres to the Google API Services User Data Policy, including the Limited Use requirements. Gmail data is used only to provide the features on this page to you, and people do not read it unless you ask for help with your account or the law requires it.",
             zh: "Qi Assistant 对从 Google API 获得的信息的使用和传输遵守《Google API 服务用户数据政策》，包括其中的“有限使用”要求。Gmail 数据仅用于向你提供本页所述的功能；除非你请求账户方面的帮助或法律要求，不会有人阅读这些数据。",
           })}
         </Text>
@@ -134,7 +135,7 @@ export default function Page() {
       <LegalSection heading={t({ en: "Your choices", zh: "你的选择" })}>
         <Text>
           {t({
-            en: "You can turn organising off, or disconnect a mailbox, at any time; a disconnected mailbox's stored secret is deleted at once. You can also take back access at Apple (delete the app-specific password), Google or Microsoft (remove the app from your account's security settings). To delete your account and everything stored for it, write to the address below.",
+            en: "You can turn organising off, or disconnect a mailbox, at any time; a disconnected mailbox’s stored secret is deleted at once. You can also take back access at Apple (delete the app-specific password), Google or Microsoft (remove the app from your account’s security settings). To delete your account and everything stored for it, write to the address below.",
             zh: "你可以随时关闭整理或断开邮箱连接；断开后，该邮箱保存的凭据会立即删除。你也可以在 Apple（删除 App 专用密码）、Google 或 Microsoft（在账户安全设置中移除此应用）收回访问权限。如需删除你的账户及其保存的所有数据，请写信到下方地址。",
           })}
         </Text>
@@ -142,7 +143,9 @@ export default function Page() {
 
       <LegalSection heading={t({ en: "Contact", zh: "联系方式" })}>
         <Text>
-          {`${t({ en: "Qingqi Shi", zh: "石清琪" })} · ${CONTACT_ADDRESS}`}
+          <MetaLine
+            facts={[t({ en: "Qingqi Shi", zh: "石清琪" }), CONTACT_ADDRESS]}
+          />
         </Text>
       </LegalSection>
     </LegalPage>

@@ -16,18 +16,17 @@ import { ListPlusIcon } from "@phosphor-icons/react/dist/ssr/ListPlus";
 import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import type { SupportedLocale } from "@tuja/i18n/types";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
-import { Badge } from "@tuja/ui/components/badge";
 import { Disclosure } from "@tuja/ui/components/disclosure";
 import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { flex, shrink } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
-import type { ReactNode } from "react";
+import { type ReactNode, useId } from "react";
 import type {
   ActivityItem,
   ActivityMail,
@@ -35,9 +34,15 @@ import type {
 } from "../activity/read-activity.ts";
 import type { TodoPlainField } from "../agent/todos/todo-action-detail.ts";
 import { fillTemplate } from "../shell/fill-template.tsx";
+import { keepHyphenated } from "../shell/keep-hyphenated.tsx";
 import { Quoted } from "../shell/quoted.tsx";
 import { formatEventStart, ItemSentence } from "./item-sentence.tsx";
-import { UndoButton } from "./undo-button.tsx";
+import {
+  UndoButton,
+  UndoScope,
+  UndoStateBadge,
+  UndoStatus,
+} from "./undo-button.tsx";
 
 function todoFieldNames(): Record<TodoPlainField, string> {
   return {
@@ -50,17 +55,17 @@ function todoFieldNames(): Record<TodoPlainField, string> {
 
 function TodoChangeLine({
   change: { field, from, to },
-  locale,
+  dateLocale,
 }: {
   change: TodoFieldChange;
-  locale: SupportedLocale;
+  dateLocale: string;
 }) {
   const none = t({ en: "none", zh: "无" });
   const date = (value: string | null) =>
-    value ? formatEventStart(value, locale) : none;
+    value ? formatEventStart(value, dateLocale) : none;
   const name = todoFieldNames()[field];
   return (
-    <Text as="p" look="caption" tone="muted">
+    <Text as="p" look="bodySmall" tone="muted">
       {field === "detail"
         ? t({ en: "The detail changed", zh: "详情有改动" })
         : fillTemplate(
@@ -80,7 +85,7 @@ function TodoChangeLine({
 function KeptNote({ fields }: { fields: readonly TodoPlainField[] }) {
   const names = todoFieldNames();
   return (
-    <Text as="p" look="caption" tone="muted">
+    <Text as="p" look="bodySmall" tone="muted">
       {t({
         en: "These changed since, so they stay as they are: {fields}",
         zh: "这些内容之后改过，所以保持现状：{fields}",
@@ -115,34 +120,60 @@ const KIND_GLYPHS: Record<
 };
 
 function UndoneBadge() {
-  return (
-    <Badge size="sm" intent="neutral" css={shrink._0}>
-      {t({ en: "Undone", zh: "已撤销" })}
-    </Badge>
+  return <UndoStateBadge>{t({ en: "Undone", zh: "已撤销" })}</UndoStateBadge>;
+}
+
+/** An `UndoScope` around the children while there is something to undo. */
+function MaybeUndoScope({
+  actionIds,
+  children,
+}: {
+  actionIds: string[];
+  children: ReactNode;
+}) {
+  return actionIds.length === 0 ? (
+    children
+  ) : (
+    <UndoScope target={{ actionIds }}>{children}</UndoScope>
   );
 }
 
 function MailList({ mails }: { mails: readonly ActivityMail[] }) {
   const undo = t({ en: "Undo", zh: "撤销" });
+  const id = useId();
   return (
     <ul css={stack.rows}>
       {mails.map((mail) => (
         <li key={mail.actionId} css={styles.mailRow}>
-          <div css={[stack.text, styles.grow]}>
-            <Text look="bodySmall" css={mail.undone && styles.undone}>
-              <Quoted text={mail.subject} />
-            </Text>
-            {mail.sender ? (
-              <Text look="caption" tone="muted">
-                {mail.sender}
+          <MaybeUndoScope actionIds={mail.undone ? [] : [mail.actionId]}>
+            <div css={[stack.text, styles.grow]}>
+              <Text
+                id={`${id}-${mail.actionId}`}
+                look="bodySmall"
+                tone={mail.undone ? "muted" : "default"}
+                verbatim
+              >
+                <Quoted text={mail.subject} lift={false} />
               </Text>
-            ) : null}
-          </div>
-          {mail.undone ? (
-            <UndoneBadge />
-          ) : (
-            <UndoButton target={{ actionIds: [mail.actionId] }} label={undo} />
-          )}
+              {mail.sender ? (
+                <Text look="bodySmall" tone="muted">
+                  {mail.sender}
+                </Text>
+              ) : null}
+              {mail.undone ? null : <UndoStatus />}
+            </div>
+            <div css={styles.mailAction}>
+              {mail.undone ? (
+                <UndoneBadge />
+              ) : (
+                <UndoButton
+                  label={undo}
+                  compact
+                  describedBy={`${id}-${mail.actionId}`}
+                />
+              )}
+            </div>
+          </MaybeUndoScope>
         </li>
       ))}
     </ul>
@@ -164,15 +195,16 @@ function actionIdsOf(item: ActivityItem) {
 
 export function ItemRow({
   item,
-  locale,
+  dateLocale,
 }: {
   item: ActivityItem;
-  locale: SupportedLocale;
+  dateLocale: string;
 }) {
   const pending = actionIdsOf(item);
   const undone = pending.length === 0;
   const mails = item.type === "mail" || item.type === "merge" ? item.mails : [];
   const showMails = mails.length > 1 || item.type === "merge";
+  const sentenceId = useId();
   return (
     <FlowBlock as="li" css={listSurface.item}>
       <div css={[listSurface.row, styles.row]}>
@@ -188,60 +220,81 @@ export function ItemRow({
         </span>
         <div css={[stack.text, styles.grow]}>
           <div css={styles.head}>
-            <div css={[stack.text, styles.grow]}>
-              <Text as="p" css={undone && styles.undone}>
-                <ItemSentence item={item} locale={locale} />
+            <MaybeUndoScope actionIds={pending}>
+              <Text
+                as="p"
+                id={sentenceId}
+                tone={undone ? "muted" : "default"}
+                verbatim
+                measure="none"
+              >
+                <ItemSentence item={item} dateLocale={dateLocale} />
               </Text>
-              <Text as="p" look="bodySmall" tone="muted">
-                {item.reason}
-              </Text>
-              {item.type === "todo"
-                ? item.changes.map((change) => (
-                    <TodoChangeLine
-                      key={change.field}
-                      change={change}
-                      locale={locale}
-                    />
-                  ))
-                : null}
-              {item.type === "todo" && item.kept.length > 0 ? (
-                <KeptNote fields={item.kept} />
-              ) : null}
-              {item.type === "event" && item.sourceSubject ? (
-                <Text as="p" look="caption" tone="muted">
-                  {fillTemplate(
-                    t({
-                      en: "From the mail {subject}",
-                      zh: "来自邮件 {subject}",
-                    }),
-                    {
-                      subject: <Quoted text={item.sourceSubject} />,
-                    },
-                  )}
+              <div css={[stack.text, typeModifier.verbatim, styles.wide]}>
+                <Text as="p" look="bodySmall" tone="muted">
+                  {keepHyphenated(item.reason)}
                 </Text>
-              ) : null}
-              {item.type === "mail" && mails.length === 1 && mails[0].sender ? (
-                <Text as="p" look="caption" tone="muted">
-                  {mails[0].sender}
-                </Text>
-              ) : null}
-            </div>
-            {undone ? (
-              <UndoneBadge />
-            ) : (
-              <UndoButton
-                target={{ actionIds: pending }}
-                label={t({ en: "Undo", zh: "撤销" })}
-              />
-            )}
+                {item.type === "todo"
+                  ? item.changes.map((change) => (
+                      <TodoChangeLine
+                        key={change.field}
+                        change={change}
+                        dateLocale={dateLocale}
+                      />
+                    ))
+                  : null}
+                {item.type === "todo" && item.kept.length > 0 ? (
+                  <KeptNote fields={item.kept} />
+                ) : null}
+                {item.type === "event" && item.sourceSubject ? (
+                  <Text as="p" look="bodySmall" tone="muted">
+                    {fillTemplate(
+                      t({
+                        en: "From the mail {subject}",
+                        zh: "来自邮件 {subject}",
+                      }),
+                      {
+                        subject: <Quoted text={item.sourceSubject} />,
+                      },
+                    )}
+                  </Text>
+                ) : null}
+                {item.type === "mail" &&
+                mails.length === 1 &&
+                mails[0].sender ? (
+                  <Text as="p" look="bodySmall" tone="muted">
+                    {t({ en: "From {sender}", zh: "来自 {sender}" }).replace(
+                      "{sender}",
+                      mails[0].sender,
+                    )}
+                  </Text>
+                ) : null}
+                {undone ? null : <UndoStatus />}
+              </div>
+              <div css={[typeRole.body, styles.action]}>
+                {undone ? (
+                  <UndoneBadge />
+                ) : (
+                  <UndoButton
+                    label={t({ en: "Undo", zh: "撤销" })}
+                    compact
+                    describedBy={sentenceId}
+                  />
+                )}
+              </div>
+            </MaybeUndoScope>
           </div>
           {showMails ? (
             <Disclosure
-              look="plain"
-              summary={t({
-                en: "The mails ({count})",
-                zh: "相关邮件（{count}）",
-              }).replace("{count}", String(mails.length))}
+              look="inline"
+              summary={
+                mails.length === 1
+                  ? t({ en: "1 mail", zh: "1 封邮件" })
+                  : t({ en: "{count} mails", zh: "{count} 封邮件" }).replace(
+                      "{count}",
+                      String(mails.length),
+                    )
+              }
             >
               <MailList mails={mails} />
             </Disclosure>
@@ -258,9 +311,22 @@ const styles = stylex.create({
     paddingBlock: space._2,
   },
   head: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr) fit-content(50%)",
+    alignItems: "start",
+    columnGap: { default: rhythm.tight, [breakpoints.md]: rhythm.item },
+  },
+  wide: {
+    gridColumn: "1 / -1",
+  },
+  action: {
+    gridColumn: 2,
+    gridRow: 1,
     display: "flex",
-    alignItems: "flex-start",
-    gap: rhythm.inline,
+    flexDirection: "column",
+    alignItems: "flex-end",
+    minBlockSize: "1lh",
+    justifyContent: "center",
   },
   grow: {
     flexGrow: 1,
@@ -273,13 +339,11 @@ const styles = stylex.create({
   mailRow: {
     display: "flex",
     alignItems: "center",
-    gap: rhythm.inline,
+    gap: { default: rhythm.tight, [breakpoints.md]: rhythm.item },
     paddingBlock: space._1,
   },
-  undone: {
-    [color.fg]: color.fgMuted,
-    color: color.fgMuted,
-    textDecorationLine: "line-through",
-    textDecorationColor: color.border,
+  mailAction: {
+    flexShrink: 0,
+    maxInlineSize: "50%",
   },
 });

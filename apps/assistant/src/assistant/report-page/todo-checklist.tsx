@@ -6,6 +6,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
+import { MenuItem } from "@tuja/ui/components/menu-item";
 import { Popover } from "@tuja/ui/components/popover";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
@@ -13,15 +14,9 @@ import { Textarea } from "@tuja/ui/components/textarea";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { controlHeight, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { controlHeight, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { mergeRefs } from "@tuja/ui/utils/merge-refs";
-import {
-  useId,
-  useRef,
-  useState,
-  type CompositionEvent,
-  type KeyboardEvent,
-} from "react";
+import { useId, useRef, useState } from "react";
 import type { ChecklistItem } from "../report/own-todo.ts";
 import { spanOfMove } from "../report/rearrange.ts";
 import { todoLimits } from "../report/todo-limits.ts";
@@ -32,42 +27,9 @@ import {
   useSortableRow,
 } from "./sortable-rows.tsx";
 import { TickBox } from "./tick-box.tsx";
-import {
-  MenuAction,
-  useFocusAfterMove,
-  type TodoMoves,
-} from "./todo-row-menu.tsx";
+import { useFocusAfterMove, type TodoMoves } from "./todo-row-menu.tsx";
 import { useTodoStore } from "./todo-store-provider.tsx";
-
-function oneLine(text: string) {
-  return text.replaceAll(/\s*\n\s*/g, " ").trim();
-}
-
-const IME_ENTER_MS = 50;
-
-/**
- * Reads the Enter key in a field where the owner can type Chinese. Safari ends a
- * composition before the keydown of the Enter that confirms it, so `isComposing`
- * is false. Thus an Enter directly after the end of a composition does not count.
- */
-function useEnterOutsideIme(onEnter: () => void) {
-  const compositionEndRef = useRef(Number.NEGATIVE_INFINITY);
-  return {
-    onCompositionEnd: (event: CompositionEvent<HTMLElement>) => {
-      compositionEndRef.current = event.timeStamp;
-    },
-    onKeyDown: (event: KeyboardEvent<HTMLElement>) => {
-      if (
-        event.key === "Enter" &&
-        !event.nativeEvent.isComposing &&
-        event.timeStamp - compositionEndRef.current > IME_ENTER_MS
-      ) {
-        event.preventDefault();
-        onEnter();
-      }
-    },
-  };
-}
+import { oneLine, useEnterOutsideIme } from "./use-enter-outside-ime.ts";
 
 function StepMenu({
   step,
@@ -103,6 +65,7 @@ function StepMenu({
           type="button"
           size="sm"
           look="ghost"
+          bleed="end"
           icon={<DotsThreeIcon weight="bold" />}
           aria-label={moreActions}
         />
@@ -110,18 +73,18 @@ function StepMenu({
     >
       <div css={[stack.rows, styles.menu]}>
         {up ? (
-          <MenuAction onClick={closeThen(up)}>
+          <MenuItem size="sm" onClick={closeThen(up)}>
             {t({ en: "Move up", zh: "上移" })}
-          </MenuAction>
+          </MenuItem>
         ) : null}
         {down ? (
-          <MenuAction onClick={closeThen(down)}>
+          <MenuItem size="sm" onClick={closeThen(down)}>
             {t({ en: "Move down", zh: "下移" })}
-          </MenuAction>
+          </MenuItem>
         ) : null}
-        <MenuAction danger onClick={closeThen(onDelete)}>
+        <MenuItem size="sm" intent="danger" onClick={closeThen(onDelete)}>
           {t({ en: "Delete", zh: "删除" })}
-        </MenuAction>
+        </MenuItem>
       </div>
     </Popover>
   );
@@ -173,6 +136,7 @@ function StepRow({
         <TickBox
           label={step.text}
           checked={step.done}
+          look="done"
           autoFocus={takeFocus}
           onChange={(done) => {
             changeStep(todoId, step.id, { done });
@@ -188,11 +152,12 @@ function StepRow({
           labelHidden
           ref={textRef}
           size="sm"
+          look="ghost"
           rows={1}
           autoGrow
           value={draft}
           maxLength={todoLimits.checklistItemChars}
-          css={[styles.stepField, step.done && styles.stepDone]}
+          tone={step.done ? "muted" : "default"}
           onChange={(event) => {
             setDraft(event.target.value);
           }}
@@ -200,14 +165,16 @@ function StepRow({
           {...enterKeys}
         />
       </div>
-      {handle}
-      <StepMenu
-        step={step}
-        moves={moves}
-        onDelete={() => {
-          removeStep(todoId, step.id);
-        }}
-      />
+      <div css={styles.actions}>
+        {handle}
+        <StepMenu
+          step={step}
+          moves={moves}
+          onDelete={() => {
+            removeStep(todoId, step.id);
+          }}
+        />
+      </div>
     </li>
   );
 }
@@ -291,32 +258,20 @@ export function TodoChecklist({
           </ul>
         </SortableRows>
       ) : null}
-      <div css={[cluster.tight, styles.add]}>
-        <div css={styles.stepText}>
-          <TextField
-            label={addLabel}
-            labelHidden
-            placeholder={addLabel}
-            size="sm"
-            value={newStep}
-            maxLength={todoLimits.checklistItemChars}
-            autoFocus={takeFocus && firstOpen === undefined}
-            onChange={(event) => {
-              onNewStepChange(event.target.value);
-            }}
-            {...enterKeys}
-          />
-        </div>
-        <Button
-          type="button"
-          size="sm"
-          look="ghost"
-          icon={<PlusIcon weight="bold" />}
-          aria-label={addLabel}
-          disabled={!newStep.trim()}
-          onClick={addNewStep}
-        />
-      </div>
+      <TextField
+        label={addLabel}
+        labelHidden
+        placeholder={addLabel}
+        size="sm"
+        leading={<PlusIcon weight="bold" />}
+        value={newStep}
+        maxLength={todoLimits.checklistItemChars}
+        autoFocus={takeFocus && firstOpen === undefined}
+        onChange={(event) => {
+          onNewStepChange(event.target.value);
+        }}
+        {...enterKeys}
+      />
       <div role="status" css={a11y.srOnly}>
         {status}
       </div>
@@ -355,17 +310,8 @@ const styles = stylex.create({
     flexGrow: 1,
     minInlineSize: 0,
   },
-  stepField: {
-    borderColor: { default: "transparent", ":focus": color.borderAccent },
-    backgroundColor: "transparent",
-    paddingInline: space._1,
-  },
-  stepDone: {
-    color: color.fgMuted,
-    textDecorationLine: "line-through",
-  },
-  add: {
-    flexWrap: "nowrap",
-    alignItems: "center",
+  actions: {
+    display: "flex",
+    flexShrink: 0,
   },
 });

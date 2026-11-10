@@ -50,7 +50,6 @@ function page(
           todos={[row]}
           today="2026-11-02"
           timeZone="UTC"
-          locale="en"
           openCount={1}
           renderedAt={renderedAt}
           refreshesOnLeave={refreshesOnLeave}

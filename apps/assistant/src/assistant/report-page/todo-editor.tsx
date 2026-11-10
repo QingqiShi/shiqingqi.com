@@ -7,16 +7,21 @@ import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { Textarea } from "@tuja/ui/components/textarea";
+import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
+import { Anchor } from "#src/links/anchor.tsx";
 import { datesInOrder } from "../report/dates-in-order.ts";
 import { todoLimits } from "../report/todo-limits.ts";
 import { OpenMailButton } from "./open-mail-button.tsx";
+import { splitLinks } from "./split-links.ts";
 import type { TodoItemData } from "./to-todo-item-data.ts";
 import { TodoChecklist } from "./todo-checklist.tsx";
 import type { TodoItemSortable } from "./todo-item.tsx";
 import { useTodoStore, type TodoEdit } from "./todo-store-provider.tsx";
+import { useEnterOutsideIme } from "./use-enter-outside-ime.ts";
 
 export type TodoEditFocus =
   "title" | "checklist" | "dueDate" | "startDate" | "waitingOn";
@@ -105,11 +110,27 @@ export function TodoEditor({
   const [newStep, setNewStep] = useState("");
   const [titleError, setTitleError] = useState("");
   const [startError, setStartError] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
+  const titleRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const field = titleRef.current;
+    if (focus !== "title" || !field) return;
+    field.focus();
+    field.setSelectionRange(field.value.length, field.value.length);
+  }, [focus]);
   const titleRequired = t({ en: "Give it a title.", zh: "请填写标题。" });
   const startAfterDue = t({
     en: "It cannot start after it is due.",
     zh: "开始日期不能晚于到期日。",
   });
+
+  const titleEnterKeys = useEnterOutsideIme(() => {
+    formRef.current?.requestSubmit();
+  });
+  const detailLinks = [
+    ...new Set(splitLinks(detail).flatMap(({ href }) => (href ? [href] : []))),
+  ];
 
   function save() {
     const nextTitle = title.trim();
@@ -152,6 +173,7 @@ export function TodoEditor({
       css={[listSurface.item, sortable?.itemCss]}
     >
       <form
+        ref={formRef}
         noValidate
         css={[listSurface.row, stack.item, styles.form]}
         onSubmit={(event) => {
@@ -165,27 +187,44 @@ export function TodoEditor({
           }
         }}
       >
-        <TextField
+        <Textarea
+          ref={titleRef}
           label={t({ en: "Title", zh: "标题" })}
           value={title}
+          rows={1}
+          autoGrow
           maxLength={todoLimits.titleChars}
           required
-          autoFocus={focus === "title"}
           error={titleError || undefined}
           onChange={(event) => {
-            setTitle(event.target.value);
+            setTitle(event.target.value.replaceAll("\n", " "));
             setTitleError("");
           }}
+          {...titleEnterKeys}
         />
-        <Textarea
-          label={t({ en: "Detail", zh: "详情" })}
-          value={detail}
-          rows={2}
-          maxLength={todoLimits.detailChars}
-          onChange={(event) => {
-            setDetail(event.target.value);
-          }}
-        />
+        <div css={stack.tight}>
+          <Textarea
+            label={t({ en: "Detail", zh: "详情" })}
+            value={detail}
+            rows={2}
+            autoGrow
+            maxLength={todoLimits.detailChars}
+            onChange={(event) => {
+              setDetail(event.target.value);
+            }}
+          />
+          {detailLinks.length > 0 ? (
+            <ul css={[stack.text, styles.links]}>
+              {detailLinks.map((href) => (
+                <li key={href} css={[typeRole.bodySmall, truncate.base]}>
+                  <Anchor href={href} target="_blank">
+                    {href}
+                  </Anchor>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
         <TodoChecklist
           todoId={todo.id}
           steps={todo.checklist}
@@ -275,6 +314,11 @@ const styles = stylex.create({
   form: {
     alignItems: "stretch",
     paddingBlock: space._3,
+  },
+  links: {
+    margin: 0,
+    paddingInlineStart: 0,
+    listStyleType: "none",
   },
   dateRow: {
     alignItems: "flex-end",

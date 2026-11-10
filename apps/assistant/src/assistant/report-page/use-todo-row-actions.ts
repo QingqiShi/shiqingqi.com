@@ -74,9 +74,21 @@ export function useTodoRowActions({
   const copy = {
     undo: t({ en: "Undo", zh: "撤销" }),
     done: t({ en: "Done", zh: "已完成" }),
-    reopened: t({
-      en: "Reopened. It is back in your list",
-      zh: "已重新打开，回到了待办列表",
+    reopenedToday: t({
+      en: "Reopened. It is in Today now",
+      zh: "已重新打开，它现在在“今天”里",
+    }),
+    reopenedUpcoming: t({
+      en: "Reopened. It is in Upcoming now",
+      zh: "已重新打开，它现在在“接下来”里",
+    }),
+    savedToday: t({
+      en: "Saved. It is in Today now",
+      zh: "已保存，它现在在“今天”里",
+    }),
+    savedUpcoming: t({
+      en: "Saved. It is in Upcoming now",
+      zh: "已保存，它现在在“接下来”里",
     }),
     deleted: t({ en: "Deleted", zh: "已删除" }),
     waitingOn: t({ en: "Waiting on {who}", zh: "正在等待：{who}" }),
@@ -111,6 +123,33 @@ export function useTodoRowActions({
     sendTodoChange(id, reopenRow(id), { done: false });
   }
 
+  /** Closes a to-do. `quiet` is for an Undo, which needs no toast of its own. */
+  function close(
+    id: string,
+    row: TodoItemData | undefined,
+    { quiet = false } = {},
+  ) {
+    const release = slotRelease(row ? [row] : [], "close");
+    const closedToast: WordedToast = {
+      message: copy.done,
+      action: {
+        label: copy.undo,
+        onAction: () => {
+          reopen(id);
+          release.addBack();
+        },
+      },
+    };
+    sendTodoChange(
+      id,
+      closeRow(id, new Date().toISOString()),
+      { done: true },
+      (response) => release.tell(response, closedToast),
+      release.refusalToast,
+    );
+    if (!quiet) showToast(closedToast);
+  }
+
   return {
     add: ({ title, dueDate }) => {
       const id = crypto.randomUUID();
@@ -140,40 +179,51 @@ export function useTodoRowActions({
             body: JSON.stringify({ id, title, dueDate }),
           }),
       );
+      return id;
     },
-    edit: (id, edit) => {
-      const change = withStartInOrder(
-        rows.find((row) => row.id === id),
-        edit,
-      );
-      sendTodoChange(id, patchRow(id, change), change);
-    },
-    setDone: (id, done) => {
-      if (!done) {
-        reopen(id);
-        showToast({ message: copy.reopened });
-        return;
-      }
+    edit: (id, edit, { quiet = false } = {}) => {
       const row = rows.find((entry) => entry.id === id);
-      const release = slotRelease(row ? [row] : [], "close");
-      const closedToast: WordedToast = {
-        message: copy.done,
+      const change = withStartInOrder(row, edit);
+      sendTodoChange(id, patchRow(id, change), change);
+      if (!row || quiet) return;
+      const was = viewOfTodo(row, today);
+      const now = viewOfTodo({ ...row, ...change }, today);
+      if (was === now) return;
+      const before: TodoEdit = {
+        ...(change.title === undefined ? {} : { title: row.title }),
+        ...(change.detail === undefined ? {} : { detail: row.detail }),
+        ...(change.dueDate === undefined ? {} : { dueDate: row.dueDate }),
+        ...(change.startDate === undefined ? {} : { startDate: row.startDate }),
+      };
+      showToast({
+        message: now === "upcoming" ? copy.savedUpcoming : copy.savedToday,
         action: {
           label: copy.undo,
           onAction: () => {
-            reopen(id);
-            release.addBack();
+            sendTodoChange(id, patchRow(id, before), before);
           },
         },
-      };
-      sendTodoChange(
-        id,
-        closeRow(id, new Date().toISOString()),
-        { done: true },
-        (response) => release.tell(response, closedToast),
-        release.refusalToast,
-      );
-      showToast(closedToast);
+      });
+    },
+    setDone: (id, done) => {
+      const row = rows.find((entry) => entry.id === id);
+      if (done) {
+        close(id, row);
+        return;
+      }
+      reopen(id);
+      showToast({
+        message:
+          row && viewOfTodo(row, today) === "upcoming"
+            ? copy.reopenedUpcoming
+            : copy.reopenedToday,
+        action: {
+          label: copy.undo,
+          onAction: () => {
+            close(id, row, { quiet: true });
+          },
+        },
+      });
     },
     remove: (id) => {
       const row = rows.find((entry) => entry.id === id);

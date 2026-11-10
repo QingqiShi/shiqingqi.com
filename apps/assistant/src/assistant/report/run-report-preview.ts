@@ -122,6 +122,7 @@ async function buildPreview(
         mailboxes,
       }),
       todoChanges: agent.todoChanges,
+      localDate,
       builtAt: deps.now(),
     };
   } finally {
@@ -131,7 +132,8 @@ async function buildPreview(
 
 /**
  * Runs the real report agent for a claimed preview and stores what it
- * submits in the preview row. It stores no report and applies no to-do
+ * submits in the preview row. A failure keeps the last built preview there.
+ * It stores no report and applies no to-do
  * change, and it never calls `markWindowMailRead` and pushes nothing. Its
  * agent has the calendar write tools, but the calendars are read-only. Every
  * failure ends in a `failed` row. It does not throw while the database works.

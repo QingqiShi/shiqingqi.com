@@ -1,7 +1,7 @@
-import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { and, eq } from "drizzle-orm";
 import { morningReports, type UserLocale } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
+import { homeViewHref } from "#src/assistant/home/choose-home-view.ts";
 import type {
   PushMessage,
   PushSender,
@@ -37,7 +37,7 @@ export function reportMessage(report: BuiltReport): PushMessage {
   return {
     title: report.headline ?? copy.notWritten,
     body: report.newTodos > 0 ? copy.todos(report.newTodos) : copy.open,
-    url: getLocalePath("/", report.locale),
+    url: homeViewHref("report", report.locale),
   };
 }
 

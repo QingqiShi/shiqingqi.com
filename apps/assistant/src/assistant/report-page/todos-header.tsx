@@ -4,7 +4,7 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
-/** The heading of the to-dos and, beside it, their search box. */
+/** The heading of the to-dos and, at the end of its line, their search. */
 export function TodosHeader({
   title,
   children,
@@ -14,23 +14,18 @@ export function TodosHeader({
 }) {
   return (
     <header css={[flex.wrap, styles.header]}>
-      <Heading level={1} look="h3">
+      <Heading level={1} look="h1">
         {title}
       </Heading>
-      <div css={styles.search}>{children}</div>
+      {children}
     </header>
   );
 }
 
 const styles = stylex.create({
   header: {
-    alignItems: "baseline",
+    alignItems: "flex-start",
     columnGap: rhythm.group,
     rowGap: rhythm.tight,
-  },
-  search: {
-    flexBasis: "10rem",
-    flexGrow: 1,
-    minInlineSize: 0,
   },
 });

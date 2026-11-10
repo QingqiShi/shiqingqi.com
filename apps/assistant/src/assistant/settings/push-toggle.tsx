@@ -1,12 +1,12 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { Callout } from "@tuja/ui/components/callout";
 import { Switch } from "@tuja/ui/components/switch";
-import { Text } from "@tuja/ui/components/text";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { measure } from "@tuja/ui/tokens.stylex";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { assistantFetch } from "../http/assistant-fetch.ts";
 
 type PushState =
@@ -77,10 +77,13 @@ async function turnOff() {
 /**
  * Turns the morning report notification on or off for this device. Each device
  * subscribes on its own; iOS allows it only in the app added to the Home
- * Screen.
+ * Screen. Where the browser cannot notify or blocks it, a switch could do
+ * nothing, so a notice that says how to change that takes its place.
  */
 export function PushToggle({ publicKey }: { publicKey: string | null }) {
   const [state, setState] = useState<PushState>("checking");
+  const noticeRef = useRef<HTMLDivElement>(null);
+  const pressedRef = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -96,24 +99,54 @@ export function PushToggle({ publicKey }: { publicKey: string | null }) {
     };
   }, [publicKey]);
 
-  const messages: Partial<Record<PushState, string>> = {
-    unsupported: t({
-      en: "This browser cannot show notifications from the app.",
-      zh: "这个浏览器无法显示本应用的通知。",
-    }),
-    denied: t({
-      en: "Notifications are blocked for this site. Allow them in the browser's settings, then come back.",
-      zh: "这个网站的通知已被禁止。请在浏览器设置中允许后再回来。",
-    }),
-    failed: t({
-      en: "That did not work. Try again.",
-      zh: "没有成功，请重试。",
-    }),
-  };
-  const message = messages[state];
+  useEffect(() => {
+    // The switch left with the focus in it. Put the focus on the notice
+    // that replaced it, so that a screen reader reads why.
+    if (state === "denied" && pressedRef.current) noticeRef.current?.focus();
+  }, [state]);
+
+  if (state === "unsupported" || state === "denied") {
+    return (
+      <div
+        ref={noticeRef}
+        tabIndex={-1}
+        css={[a11y.focusRing, corner.radius_3]}
+      >
+        {state === "denied" ? (
+          <Callout
+            intent="info"
+            role="status"
+            title={t({
+              en: "Notifications are blocked",
+              zh: "通知已被禁止",
+            })}
+          >
+            {t({
+              en: "This browser blocks notifications from this site. Allow them in the browser’s settings, then come back to turn on the morning notification.",
+              zh: "这个浏览器禁止了本网站的通知。请在浏览器设置中允许通知，再回到这里开启早间通知。",
+            })}
+          </Callout>
+        ) : (
+          <Callout
+            intent="info"
+            role="status"
+            title={t({
+              en: "This browser cannot show notifications",
+              zh: "这个浏览器无法显示通知",
+            })}
+          >
+            {t({
+              en: "On iPhone and iPad, notifications work only in the app on the Home Screen: in Safari, tap Share, then Add to Home Screen, open the app from there and turn on the morning notification.",
+              zh: "在 iPhone 和 iPad 上，只有添加到主屏幕的应用才能收到通知：在 Safari 中点“分享”，再点“添加到主屏幕”，然后从主屏幕打开应用，在这里开启早间通知。",
+            })}
+          </Callout>
+        )}
+      </div>
+    );
+  }
 
   return (
-    <div css={[stack.tight, styles.toggle]}>
+    <div css={stack.tight}>
       <Switch
         label={t({ en: "Morning notification", zh: "早间通知" })}
         description={t({
@@ -121,14 +154,10 @@ export function PushToggle({ publicKey }: { publicKey: string | null }) {
           zh: "晨报写好后，这台设备会收到一条通知。在 iPhone 和 iPad 上，只有添加到主屏幕的应用才能收到通知：在 Safari 中点“分享”，再点“添加到主屏幕”，然后从主屏幕打开应用并在这里开启。",
         })}
         value={state === "on" ? "on" : "off"}
-        disabled={
-          state === "checking" ||
-          state === "busy" ||
-          state === "unsupported" ||
-          state === "denied"
-        }
+        disabled={state === "checking" || state === "busy"}
         onChange={(next) => {
           if (!publicKey) return;
+          pressedRef.current = true;
           setState("busy");
           (next === "on"
             ? turnOn(publicKey)
@@ -140,17 +169,14 @@ export function PushToggle({ publicKey }: { publicKey: string | null }) {
             });
         }}
       />
-      <div role="status">
-        {message ? (
-          <Text as="p" look="bodySmall">
-            {message}
-          </Text>
-        ) : null}
-      </div>
+      {state === "failed" ? (
+        <Callout intent="danger" role="alert">
+          {t({
+            en: "That did not work. Try again.",
+            zh: "没有成功，请重试。",
+          })}
+        </Callout>
+      ) : null}
     </div>
   );
 }
-
-const styles = stylex.create({
-  toggle: { maxInlineSize: measure.form },
-});

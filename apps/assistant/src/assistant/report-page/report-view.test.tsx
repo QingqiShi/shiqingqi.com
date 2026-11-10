@@ -85,6 +85,7 @@ describe("ReportView", () => {
             timeZone="UTC"
             openTodos={0}
             locale="en"
+            dateLocale="en-GB"
             headingLevel={1}
             pastLink
             renderedAt={0}
@@ -161,6 +162,7 @@ describe("ReportView", () => {
             timeZone="UTC"
             openTodos={2}
             locale="en"
+            dateLocale="en-GB"
             headingLevel={1}
             pastLink
             renderedAt={0}
@@ -239,6 +241,7 @@ describe("ReportView", () => {
             timeZone="UTC"
             openTodos={0}
             locale="en"
+            dateLocale="en-GB"
             headingLevel={1}
             pastLink
             renderedAt={0}

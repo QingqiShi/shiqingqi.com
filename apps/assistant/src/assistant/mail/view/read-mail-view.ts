@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNotNull } from "drizzle-orm";
 import PostalMime from "postal-mime";
 import {
   agentActions,
@@ -6,6 +6,7 @@ import {
   type MailProvider,
 } from "#src/assistant/db/schema.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
+import { recordAccountError } from "#src/assistant/mail/accounts/check-account.ts";
 import { describeSyncError } from "#src/assistant/mail/accounts/describe-sync-error.ts";
 import {
   openMailboxSession,
@@ -41,14 +42,49 @@ interface MailAccountView {
   address: string;
 }
 
+/** The headers that the agents' actions on the mail kept, for when the mail cannot be read. */
+export interface KnownMailHeaders {
+  subject: string | null;
+  sender: string | null;
+}
+
+interface MailProblem<Kind extends string> {
+  kind: Kind;
+  account: MailAccountView;
+  known: KnownMailHeaders | null;
+}
+
 export type MailViewResult =
   | { kind: "found"; account: MailAccountView; mail: MailView }
   /** No folder holds it: deleted, or never in this mailbox. */
-  | { kind: "not-found"; account: MailAccountView }
-  /** Only a new connect can open the mailbox. */
-  | { kind: "reconnect"; account: MailAccountView }
+  | MailProblem<"not-found">
+  /** Only a new connect can open the mailbox, for the reason that `code` names. */
+  | (MailProblem<"reconnect"> & { code: string | null })
   /** The mail server or the app's setup failed; a later try can work. */
-  | { kind: "unavailable"; account: MailAccountView };
+  | MailProblem<"unavailable">;
+
+async function knownHeaders(
+  { db, userId }: UserScope,
+  accountId: string,
+  messageId: string,
+): Promise<KnownMailHeaders | null> {
+  const row = (
+    await db
+      .select({ subject: agentActions.subject, sender: agentActions.sender })
+      .from(agentActions)
+      .where(
+        and(
+          eq(agentActions.userId, userId),
+          eq(agentActions.accountId, accountId),
+          eq(agentActions.messageId, messageId),
+          isNotNull(agentActions.subject),
+        ),
+      )
+      .orderBy(desc(agentActions.createdAt))
+      .limit(1)
+  ).at(0);
+  return row ?? null;
+}
 
 /** The folder the agents last moved the mail into, where it most likely is. */
 async function likelyFolder(
@@ -119,7 +155,11 @@ async function readFound(
   };
 }
 
-/** Null when the account is not the user's. */
+/**
+ * Null when the account is not the user's. A login that only a new connect
+ * can fix goes on the account, as a run puts it, so that Mailboxes and Home
+ * ask for that connect.
+ */
 export async function readMailView(
   scope: UserScope,
   deps: MailboxDeps | null,
@@ -135,27 +175,40 @@ export async function readMailView(
         address: mailAccounts.address,
         credential: mailAccounts.credential,
         status: mailAccounts.status,
+        lastErrorCode: mailAccounts.lastErrorCode,
       })
       .from(mailAccounts)
       .where(ownAccount(scope.userId, accountId))
   ).at(0);
   if (!stored) return null;
   const account = { provider: stored.provider, address: stored.address };
-  if (stored.status === "reconnect") return { kind: "reconnect", account };
-  if (!deps) return { kind: "unavailable", account };
+  const problem = async <Kind extends string>(kind: Kind) => ({
+    kind,
+    account,
+    known: await knownHeaders(scope, accountId, messageId).catch(() => null),
+  });
+  if (stored.status === "reconnect") {
+    return { ...(await problem("reconnect")), code: stored.lastErrorCode };
+  }
+  if (!deps) return problem("unavailable");
 
   const likely = likelyFolder(scope, accountId, messageId).catch(() => null);
   let session: MailboxSession | null = null;
   try {
     session = await openMailboxSession(scope.db, scope.userId, stored, deps);
     const mail = await readFound(session, messageId, await likely, imageLinks);
-    return mail
-      ? { kind: "found", account, mail }
-      : { kind: "not-found", account };
+    return mail ? { kind: "found", account, mail } : await problem("not-found");
   } catch (error) {
-    return describeSyncError(error).status === "reconnect"
-      ? { kind: "reconnect", account }
-      : { kind: "unavailable", account };
+    const { status, code } = describeSyncError(error);
+    if (status !== "reconnect") return await problem("unavailable");
+    await recordAccountError(
+      scope.db,
+      scope.userId,
+      accountId,
+      error,
+      deps.auth.now(),
+    ).catch(() => undefined);
+    return { ...(await problem("reconnect")), code };
   } finally {
     await session?.close().catch(() => undefined);
   }

@@ -18,7 +18,7 @@ export function ScreenSkeleton({ title }: { title?: string }) {
             {title === undefined ? (
               <Skeleton width="8rem" height="1.5rem" />
             ) : (
-              <Heading level={1} look="h3">
+              <Heading level={1} look="h1">
                 {title}
               </Heading>
             )}

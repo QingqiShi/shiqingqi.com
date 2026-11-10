@@ -54,7 +54,7 @@ export function AgendaList({ items }: { items: readonly AgendaItem[] }) {
                   </Text>
                 ) : null}
                 {item.note ? (
-                  <Text as="p" look="bodySmall">
+                  <Text as="p" look="bodySmall" tone="muted">
                     {item.note}
                   </Text>
                 ) : null}

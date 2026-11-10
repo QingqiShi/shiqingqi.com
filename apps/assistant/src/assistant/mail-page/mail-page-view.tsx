@@ -1,26 +1,31 @@
 import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { getLocalePath } from "@tuja/i18n/get-locale-path";
-import type { SupportedLocale } from "@tuja/i18n/types";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
-import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { border, controlHeight } from "@tuja/ui/tokens.stylex";
+import type { ReactNode } from "react";
 import type { MailProvider } from "#src/assistant/db/schema.ts";
 import type { MailAddress } from "#src/assistant/mail/imap/types.ts";
 import type {
+  KnownMailHeaders,
   MailView,
   MailViewResult,
 } from "#src/assistant/mail/view/read-mail-view.ts";
+import { ReconnectCause } from "#src/assistant/mailboxes/reconnect-cause.tsx";
+import { ReconnectLink } from "#src/assistant/mailboxes/reconnect-link.tsx";
 import { Folder } from "#src/assistant/shell/folder.tsx";
+import { keepTogether } from "#src/assistant/shell/keep-together.ts";
 import { Anchor } from "#src/links/anchor.tsx";
+import { MailSplitView } from "./mail-split-view.tsx";
 
 function addressText({ name, address }: MailAddress) {
   if (name && address) return `${name} <${address}>`;
@@ -44,7 +49,6 @@ function OpenInMailApp({
     <div css={cluster.tight}>
       <Button
         href={href}
-        size="sm"
         look="outline"
         icon={<ArrowSquareOutIcon weight="bold" />}
         {...(href.startsWith("https:")
@@ -135,10 +139,10 @@ function FoundMail({
     { label: t({ en: "Cc:", zh: "抄送：" }), list: mail.cc },
   ].filter(({ list }) => list.length > 0);
   return (
-    <div css={stack.group}>
+    <div css={[stack.group, typeModifier.verbatim]}>
       <header css={stack.item}>
-        <Heading level={1} look="h3" css={styles.wrap}>
-          {mail.subject.trim() || t({ en: "(No subject)", zh: "（无主题）" })}
+        <Heading level={1} look="h1" css={styles.wrap}>
+          {mail.subject.trim() || t({ en: "No subject", zh: "无主题" })}
         </Heading>
         <div css={[stack.text, styles.wrap]}>
           {mail.from ? (
@@ -152,9 +156,17 @@ function FoundMail({
             </Text>
           ))}
           <Text as="p" look="bodySmall" tone="muted">
-            {mail.sentAt ? `${formatter.format(mail.sentAt)} · ` : null}
-            {t({ en: "In ", zh: "位于" })}
-            <Folder path={mail.folder} />
+            <MetaLine
+              facts={[
+                mail.sentAt
+                  ? keepTogether(formatter.format(mail.sentAt))
+                  : null,
+                <span key="folder">
+                  {t({ en: "In ", zh: "位于" })}
+                  <Folder path={mail.folder} />
+                </span>,
+              ]}
+            />
           </Text>
         </div>
         <OpenInMailApp provider={provider} href={openHref} />
@@ -199,52 +211,67 @@ function FoundMail({
   );
 }
 
+/** The subject and sender that the agents kept, when the mail cannot be read. */
+function KnownHeader({ known }: { known: KnownMailHeaders | null }) {
+  const subject = known?.subject?.trim();
+  return (
+    <header css={stack.item}>
+      <Heading level={1} look="h1" css={styles.wrap}>
+        {subject || t({ en: "Mail", zh: "邮件" })}
+      </Heading>
+      {known?.sender ? (
+        <Text as="p" look="bodySmall" weight="semibold" css={styles.wrap}>
+          {known.sender}
+        </Text>
+      ) : null}
+    </header>
+  );
+}
+
 function Problem({
   result,
   openHref,
-  locale,
 }: {
   result: Exclude<MailViewResult, { kind: "found" }>;
   openHref: string | null;
-  locale: SupportedLocale;
 }) {
   const messages = {
     "not-found": t({
       en: "This mail is no longer in the mailbox. It may have been deleted.",
       zh: "邮箱里已经没有这封邮件了，可能已被删除。",
     }),
-    reconnect: t({
-      en: "The app can no longer sign in to this mailbox. Connect it again in Mailboxes to read this mail in the app.",
-      zh: "应用已无法登录这个邮箱。请在“邮箱”中重新连接，才能在应用里阅读这封邮件。",
-    }),
+    reconnect: (
+      <>
+        <ReconnectLink addresses={[result.account.address]} />
+        {t({ en: ". ", zh: "。" })}
+        <ReconnectCause
+          code={result.kind === "reconnect" ? result.code : null}
+        />
+        {t({
+          en: " The app cannot open this mail until you do.",
+          zh: "在你重新连接之前，应用无法打开这封邮件。",
+        })}
+      </>
+    ),
     unavailable: t({
       en: "Could not reach the mail server. Try again in a minute.",
       zh: "暂时连不上邮件服务器，请稍后再试。",
     }),
   };
   return (
-    <div css={stack.group}>
-      <Heading level={1} look="h3">
-        {t({ en: "Mail", zh: "邮件" })}
-      </Heading>
+    <div css={[stack.group, typeModifier.verbatim]}>
+      <KnownHeader known={result.known} />
       <Callout
         intent={result.kind === "unavailable" ? "danger" : "warning"}
         role="alert"
       >
         {messages[result.kind]}
       </Callout>
-      <div css={cluster.tight}>
-        {result.kind === "reconnect" ? (
-          <Button
-            href={getLocalePath("/settings/mailboxes", locale)}
-            size="sm"
-            look="outline"
-          >
-            {t({ en: "Mailboxes", zh: "邮箱" })}
-          </Button>
-        ) : null}
-        <OpenInMailApp provider={result.account.provider} href={openHref} />
-      </div>
+      {openHref ? (
+        <div css={cluster.tight}>
+          <OpenInMailApp provider={result.account.provider} href={openHref} />
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -259,59 +286,73 @@ function SkeletonLine({
   look: "bodySmall" | "caption";
 }) {
   return (
-    <Text as="p" look={look}>
+    <Text as="div" look={look}>
       <Skeleton width={width} height="1lh" delay={delay} />
     </Text>
+  );
+}
+
+/** The mail page's frame, with the way back. */
+function MailFrame({ children }: { children: ReactNode }) {
+  return (
+    <MailSplitView
+      labels={{
+        mail: t({ en: "Mail", zh: "邮件" }),
+        home: t({ en: "Today", zh: "今天" }),
+        homeReport: t({ en: "Report", zh: "晨报" }),
+        homePlan: t({ en: "Plan", zh: "计划" }),
+        pages: [
+          ["/todos/done", t({ en: "Done", zh: "已完成" })],
+          ["/todos", t({ en: "To-dos", zh: "待办" })],
+          ["/reports", t({ en: "All reports", zh: "全部晨报" })],
+          ["/activity", t({ en: "Activity", zh: "动态" })],
+          [
+            "/report-preview",
+            t({ en: "Morning report preview", zh: "晨报预览" }),
+          ],
+          ["/settings", t({ en: "Settings", zh: "设置" })],
+        ],
+      }}
+    >
+      {children}
+    </MailSplitView>
   );
 }
 
 /** The mail page before it can show: the header lines over the body frame. */
 export function MailPageSkeleton() {
   return (
-    <NavigationSplitView
-      content={{
-        label: t({ en: "Mail", zh: "邮件" }),
-        node: (
-          <div css={stack.group} aria-busy>
-            <header css={stack.item}>
-              <Heading level={1} look="h3">
-                <Skeleton width="min(28rem, 100%)" height="1lh" />
-              </Heading>
-              <div css={stack.text}>
-                <SkeletonLine
-                  look="bodySmall"
-                  width="min(16rem, 70%)"
-                  delay={0}
-                />
-                <SkeletonLine
-                  look="bodySmall"
-                  width="min(20rem, 85%)"
-                  delay={100}
-                />
-                <SkeletonLine
-                  look="bodySmall"
-                  width="min(14rem, 60%)"
-                  delay={200}
-                />
-              </div>
-              <div css={cluster.tight}>
-                <Skeleton width="8rem" height={controlHeight.sm} />
-              </div>
-            </header>
-            <div css={stack.tight}>
-              <SkeletonLine
-                look="caption"
-                width="min(32rem, 90%)"
-                delay={300}
-              />
-              <div css={[corner.radius_3, styles.frame, styles.frameSkeleton]}>
-                <Skeleton fill />
-              </div>
-            </div>
+    <MailFrame>
+      <div css={stack.group} aria-busy>
+        <header css={stack.item}>
+          <Heading level={1} look="h1">
+            <Skeleton width="min(28rem, 100%)" height="1lh" />
+          </Heading>
+          <div css={stack.text}>
+            <SkeletonLine look="bodySmall" width="min(16rem, 70%)" delay={0} />
+            <SkeletonLine
+              look="bodySmall"
+              width="min(20rem, 85%)"
+              delay={100}
+            />
+            <SkeletonLine
+              look="bodySmall"
+              width="min(14rem, 60%)"
+              delay={200}
+            />
           </div>
-        ),
-      }}
-    />
+          <div css={cluster.tight}>
+            <Skeleton width="8rem" height={controlHeight.md} />
+          </div>
+        </header>
+        <div css={stack.tight}>
+          <SkeletonLine look="caption" width="min(32rem, 90%)" delay={300} />
+          <div css={[corner.radius_3, styles.frame, styles.frameSkeleton]}>
+            <Skeleton fill />
+          </div>
+        </div>
+      </div>
+    </MailFrame>
   );
 }
 
@@ -319,37 +360,34 @@ export function MailPageSkeleton() {
 export function MailPageView({
   result,
   openHref,
-  locale,
+  dateLocale,
   timeZone,
 }: {
   result: MailViewResult;
   /** The mail in the owner's mail app or webmail. */
   openHref: string | null;
-  locale: SupportedLocale;
+  /** The locale the page writes dates in. */
+  dateLocale: string;
   timeZone: string;
 }) {
-  const formatter = new Intl.DateTimeFormat(locale, {
+  const formatter = new Intl.DateTimeFormat(dateLocale, {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone,
   });
   return (
-    <NavigationSplitView
-      content={{
-        label: t({ en: "Mail", zh: "邮件" }),
-        node:
-          result.kind === "found" ? (
-            <FoundMail
-              mail={result.mail}
-              formatter={formatter}
-              openHref={openHref}
-              provider={result.account.provider}
-            />
-          ) : (
-            <Problem result={result} openHref={openHref} locale={locale} />
-          ),
-      }}
-    />
+    <MailFrame>
+      {result.kind === "found" ? (
+        <FoundMail
+          mail={result.mail}
+          formatter={formatter}
+          openHref={openHref}
+          provider={result.account.provider}
+        />
+      ) : (
+        <Problem result={result} openHref={openHref} />
+      )}
+    </MailFrame>
   );
 }
 

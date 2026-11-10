@@ -13,6 +13,7 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type RefObject,
 } from "react";
 import { isOpen } from "./to-todo-item-data.ts";
 import { TodoBulkBar } from "./todo-bulk-bar.tsx";
@@ -29,6 +30,8 @@ interface TodoSelection {
   start: () => void;
   stop: () => void;
   openHelp: () => void;
+  /** The button that opens the list of keys, where the page shows one. */
+  helpButtonRef: RefObject<HTMLButtonElement | null>;
 }
 
 const TodoSelectionContext = createContext<TodoSelection | null>(null);
@@ -65,6 +68,8 @@ export function TodoSelectionArea({
   const [picked, setPicked] = useState<ReadonlySet<string>>(() => new Set());
   const [anchor, setAnchor] = useState<string | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
+  const helpButtonRef = useRef<HTMLButtonElement>(null);
+  const focusBeforeHelpRef = useRef<HTMLElement | null>(null);
   const chosen = rows.filter((row) => isOpen(row) && picked.has(row.id));
   const selecting = selectMode || chosen.length > 0;
 
@@ -79,6 +84,30 @@ export function TodoSelectionArea({
     setSelectMode(false);
     setPicked(new Set());
     setAnchor(null);
+  }
+
+  function openHelp() {
+    const { activeElement } = document;
+    focusBeforeHelpRef.current =
+      activeElement instanceof HTMLElement && activeElement !== document.body
+        ? activeElement
+        : null;
+    setHelpOpen(true);
+  }
+
+  // The sheet gives the focus back only to an element that had the focus.
+  // When no element had it, the focus stays in the sheet while the sheet
+  // closes, and the keys do not work. Safari does not focus a button on a click.
+  function closeHelp() {
+    setHelpOpen(false);
+    const target = focusBeforeHelpRef.current?.isConnected
+      ? focusBeforeHelpRef.current
+      : helpButtonRef.current;
+    target?.focus({ preventScroll: true });
+    const { activeElement } = document;
+    if (activeElement !== target && activeElement instanceof HTMLElement) {
+      activeElement.blur();
+    }
   }
 
   function pick(id: string, extend: boolean) {
@@ -102,12 +131,33 @@ export function TodoSelectionArea({
       return index < 0 ? undefined : elements.at(index);
     }
 
+    function isOpenRow(element: HTMLElement) {
+      const todo = rows.find((entry) => entry.id === idOfRow(element));
+      return todo !== undefined && isOpen(todo);
+    }
+
+    /** After a tick, the next open to-do, so that a second `x` does not reopen a done one. */
+    function nextOpenRow(row: HTMLElement) {
+      const elements = rowElements();
+      const index = elements.indexOf(row);
+      const isOtherOpen = (element: HTMLElement) =>
+        element !== row && isOpenRow(element);
+      return (
+        elements.slice(index + 1).find(isOtherOpen) ??
+        elements.slice(0, index).findLast(isOtherOpen)
+      );
+    }
+
     function closeOrReopen(row: HTMLElement) {
       const id = idOfRow(row);
       const todo = rows.find((entry) => entry.id === id);
       if (!todo) return;
-      (neighbour(row, 1) ?? neighbour(row, -1))?.focus();
-      setDone(id, isOpen(todo));
+      const closing = isOpen(todo);
+      (closing
+        ? nextOpenRow(row)
+        : (neighbour(row, 1) ?? neighbour(row, -1))
+      )?.focus();
+      setDone(id, closing);
     }
 
     function moveFocus(from: HTMLElement | null, by: 1 | -1) {
@@ -149,16 +199,15 @@ export function TodoSelectionArea({
         case "search":
           if (canSearch) {
             act(() => {
-              document
-                .querySelector<HTMLInputElement>('[role="search"] input')
-                ?.select();
+              const box = document.querySelector('[role="search"]');
+              const input = box?.querySelector("input");
+              if (input) input.select();
+              else box?.querySelector("button")?.click();
             });
           }
           return;
         case "help":
-          act(() => {
-            setHelpOpen(true);
-          });
+          act(openHelp);
           return;
         case "done":
           if (chosen.length > 0) {
@@ -208,9 +257,8 @@ export function TodoSelectionArea({
           setSelectMode(true);
         },
         stop,
-        openHelp: () => {
-          setHelpOpen(true);
-        },
+        openHelp,
+        helpButtonRef,
       }}
     >
       <div ref={rootRef} css={styles.area}>
@@ -221,9 +269,7 @@ export function TodoSelectionArea({
         isOpen={helpOpen}
         canAdd={canAdd}
         canSearch={canSearch}
-        onClose={() => {
-          setHelpOpen(false);
-        }}
+        onClose={closeHelp}
       />
     </TodoSelectionContext>
   );
@@ -235,15 +281,11 @@ export function TodoListTools() {
   const selection = useTodoSelection();
   const keysLabel = t({ en: "Keyboard shortcuts", zh: "键盘快捷键" });
   if (!selection || !rows.some(isOpen)) return null;
-  const { selecting, start, stop, openHelp } = selection;
+  const { selecting, start, stop, openHelp, helpButtonRef } = selection;
   return (
     <div css={[cluster.tight, styles.tools]}>
-      <Button size="sm" look="ghost" onClick={selecting ? stop : start}>
-        {selecting
-          ? t({ en: "Cancel", zh: "取消" })
-          : t({ en: "Select", zh: "选择" })}
-      </Button>
       <Button
+        ref={helpButtonRef}
         size="sm"
         look="ghost"
         icon={<QuestionIcon weight="bold" />}
@@ -251,6 +293,16 @@ export function TodoListTools() {
         css={styles.keysButton}
         onClick={openHelp}
       />
+      <Button
+        size="sm"
+        look="ghost"
+        bleed="end"
+        onClick={selecting ? stop : start}
+      >
+        {selecting
+          ? t({ en: "Cancel", zh: "取消" })
+          : t({ en: "Select", zh: "选择" })}
+      </Button>
     </div>
   );
 }
