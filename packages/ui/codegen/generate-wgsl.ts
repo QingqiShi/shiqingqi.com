@@ -56,7 +56,7 @@ const [
 ]);
 
 type Pipeline =
-  | { readonly vertex: TgpuVertexFn; readonly fragment: TgpuFragmentFn<never> }
+  | { readonly vertex: TgpuVertexFn; readonly fragment: TgpuFragmentFn }
   | { readonly compute: TgpuComputeFn };
 
 /** The entry points of each pipeline. */
