@@ -206,7 +206,7 @@ export const iconGlyphStyles = stylex.create({
 // one step smaller.
 export const glyphBelowMdTokenStyles = stylex.create({
   xs: { [buttonTokens.glyph]: controlSize._3 },
-  sm: { [buttonTokens.glyph]: controlSize._4 },
+  sm: { [buttonTokens.glyph]: controlSize._3 },
   md: { [buttonTokens.glyph]: controlSize._4 },
   lg: { [buttonTokens.glyph]: controlSize._5 },
 });
@@ -268,6 +268,7 @@ export const sizeStyles = stylex.create({
   },
   sm: {
     [buttonTokens.height]: controlHeight.sm,
+    [buttonTokens.glyph]: controlSize._4,
     [buttonTokens.paddingInline]: controlSize._2,
     gap: controlSize._1,
     paddingBlock: controlSize._0,
