@@ -141,6 +141,7 @@ export function AccountGroupList({
             onChange={(state) => {
               setShowHidden(state === "on");
             }}
+            css={styles.noWrap}
           />
         ) : null}
         <Button
@@ -148,10 +149,9 @@ export function AccountGroupList({
           size="sm"
           look="ghost"
           icon={<ArrowsDownUpIcon weight="bold" />}
+          aria-label={t({ en: "Reorder", zh: "调整顺序" })}
           css={styles.reorder}
-        >
-          {t({ en: "Reorder", zh: "调整顺序" })}
-        </Button>
+        />
       </FlowBlock>
     </div>
   );
@@ -183,6 +183,9 @@ const styles = stylex.create({
   },
   footer: {
     paddingInline: space._2,
+  },
+  noWrap: {
+    whiteSpace: "nowrap",
   },
   reorder: {
     marginInlineStart: "auto",
