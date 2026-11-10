@@ -38,7 +38,7 @@
     "@tuja/server-auth": "workspace:*",
     "@tuja/ui": "workspace:*",
     "@upstash/redis": "^1.40.0",
-    "@vercel/functions": "^3.10.3",
+    "@vercel/functions": "^3.11.0",
     "drizzle-orm": "^0.45.4",
     "next": "catalog:",
     "pg": "^8.23.1",
