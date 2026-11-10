@@ -8,7 +8,7 @@ import { purple } from "../_generated/palette/hues/purple.stylex.ts";
 // colour below clears WCAG AA (4.5:1) there.
 //
 // Three hues, not nine. `plain` matches `color.fg`, so a snippet reads as
-// part of the page; `punct` then `comment` step down from it, at gray._30 and _40
+// part of the page; `punct` then `comment` step down from it, at gray._20 and _30
 // in light and gray._80 and _60 in dark. Each hue holds one tone per theme, so
 // the three differ in hue alone. Green takes _60 in the dark theme because its
 // ramp runs bright at _70.

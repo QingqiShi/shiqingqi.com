@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ComponentType } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { border } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
@@ -47,6 +48,26 @@ interface AnchorProps extends Omit<ComponentProps<"a">, "className" | "style"> {
    */
   indicateExternal?: boolean;
   /**
+   * `"default"` stands out from the text around it: full colour and
+   * semibold. `"muted"` keeps the muted colour and the weight of the text
+   * around it, and only the underline marks it, for a link in a line of
+   * secondary details, such as a count or a source. A `standalone` muted link
+   * that starts with an icon is marked by the icon, so it shows the underline
+   * only on hover.
+   *
+   * @zh `"default"` 在周围文字中显得突出：全色、半粗体。`"muted"` 保持周围文字的弱化颜色与字重，仅以下划线标示，适合次要信息行中的链接，例如计数或来源。以图标开头的 `standalone` 弱化链接由图标标示，因此只在悬停时显示下划线。
+   */
+  tone?: "default" | "muted";
+  /**
+   * The link stands on its own, outside a sentence. Under a coarse pointer it
+   * then takes a hit area of at least 44px, as a button does, without a change
+   * to how it looks. Leave it off for a link in running text, where that area
+   * would cover the lines above and below.
+   *
+   * @zh 链接独立存在，不在句子之中。在粗略指针下，它会获得至少 44px 的点击区域，与按钮一致，外观不变。若链接位于连续文字中，请保持关闭，否则该区域会遮住上下行。
+   */
+  standalone?: boolean;
+  /**
    * Link Slot — renders the anchor. Defaults to a plain `<a>`; pass a framework
    * link (`next/link` and friends) to keep client-side navigation without this
    * package depending on a framework.
@@ -79,6 +100,8 @@ export function Anchor({
   children,
   newTabLabel,
   indicateExternal = true,
+  tone = "default",
+  standalone = false,
   linkComponent: LinkComponent = PlainAnchor,
   ...props
 }: AnchorProps) {
@@ -90,7 +113,13 @@ export function Anchor({
       rel={isNewTab ? mergeRel(rel, "noopener noreferrer") : rel}
       // The Slot is a component, so the styles travel as a compiled
       // `className`/`style` pair rather than through the `css` prop.
-      {...stylex.props(styles.a, a11y.focusRing, css)}
+      {...stylex.props(
+        standalone && a11y.touchTarget,
+        styles[tone],
+        tone === "muted" && standalone && styles.mutedIconLed,
+        a11y.focusRing,
+        css,
+      )}
     >
       {children}
       {indicateExternal && isNewTab && (
@@ -111,9 +140,30 @@ function mergeRel(existing: string | undefined, required: string): string {
 }
 
 const styles = stylex.create({
-  a: {
+  // When many rows each have an icon-led link, such as "Open mail", the
+  // underlines at rest make a column of lines. The icon shows that the text is
+  // a link. Thus the underline shows only on hover.
+  mutedIconLed: {
+    textDecorationLine: {
+      default: null,
+      ":has(> svg:first-child)": "none",
+      ":hover": { default: null, [pointer.canHover]: "underline" },
+    },
+  },
+  default: {
     color: anchorTokens.color,
     fontWeight: anchorTokens.fontWeight,
+    textDecorationThickness: {
+      default: null,
+      ":hover": { default: null, [pointer.canHover]: border.size_2 },
+    },
+  },
+  muted: {
+    color: {
+      default: color.fgMuted,
+      ":hover": { default: null, [pointer.canHover]: color.fg },
+    },
+    fontWeight: "inherit",
     textDecorationThickness: {
       default: null,
       ":hover": { default: null, [pointer.canHover]: border.size_2 },

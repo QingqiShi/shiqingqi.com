@@ -7,12 +7,12 @@ import { setLocaleCookie } from "@tuja/i18n/set-locale-cookie";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import { Button } from "@tuja/ui/components/button";
 import { MenuButton } from "@tuja/ui/components/menu-button";
+import { MenuItem } from "@tuja/ui/components/menu-item";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { controlSize } from "@tuja/ui/tokens.stylex";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, type ComponentProps } from "react";
 import { htmlLang } from "#src/i18n/i18n-config.ts";
-import { MenuItem } from "./menu-item";
 
 interface LocaleSelectorProps {
   /** Accessible name of the icon-only trigger. */
@@ -90,32 +90,32 @@ function LocaleSelectorMenu({
       menuContent={
         <div css={[flex.col, styles.menu]}>
           <MenuItem
-            ariaLabel="Switch to English"
+            aria-label="Switch to English"
             href={`${getLocalePath(pathname, "en")}${searchString}`}
-            isActive={locale === "en"}
-            autoFocus={locale !== "en"}
+            current={locale === "en"}
+            data-menu-autofocus={locale !== "en" ? "true" : undefined}
             lang={htmlLang.en}
+            trailing="🇬🇧"
             onClick={() => {
               // The server reads the Preference from this cookie, so write it
               // before the browser follows the link.
               setLocaleCookie("en");
             }}
           >
-            <span>English</span>
-            <span>🇬🇧</span>
+            English
           </MenuItem>
           <MenuItem
-            ariaLabel="切换至中文"
+            aria-label="切换至中文"
             href={`${getLocalePath(pathname, "zh")}${searchString}`}
-            isActive={locale === "zh"}
-            autoFocus={locale === "en"}
+            current={locale === "zh"}
+            data-menu-autofocus={locale === "en" ? "true" : undefined}
             lang={htmlLang.zh}
+            trailing="🇨🇳"
             onClick={() => {
               setLocaleCookie("zh");
             }}
           >
-            <span>中文</span>
-            <span>🇨🇳</span>
+            中文
           </MenuItem>
         </div>
       }

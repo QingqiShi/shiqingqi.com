@@ -64,6 +64,11 @@ export const DisclosureLab = defineLab({
       props: { summary: SUMMARY, children: PANEL, look: "card" },
     },
     {
+      id: "inline",
+      label: { en: "Inline", zh: "行内" },
+      props: { summary: SUMMARY, children: PANEL, look: "inline" },
+    },
+    {
       id: "open",
       label: { en: "Open", zh: "展开" },
       props: {

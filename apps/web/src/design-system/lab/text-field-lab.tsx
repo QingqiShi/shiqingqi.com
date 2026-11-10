@@ -32,7 +32,9 @@ const LEADING_SAMPLES = [
 function SizedTextField(props: ComponentProps<typeof TextField>) {
   return (
     <div css={styles.frame}>
-      <TextField {...props} />
+      {/* A field reads defaultValue only when it mounts. Thus a Variant
+          with a different value must mount a new field. */}
+      <TextField key={String(props.defaultValue)} {...props} />
     </div>
   );
 }
@@ -71,6 +73,27 @@ export const TextFieldLab = defineLab({
       },
     },
     {
+      id: "ghost",
+      label: { en: "Ghost", zh: "无框" },
+      props: {
+        label: "Step",
+        labelHidden: true,
+        look: "ghost",
+        defaultValue: "Book the table for Friday",
+      },
+    },
+    {
+      id: "muted",
+      label: { en: "Muted", zh: "弱化" },
+      props: {
+        label: "Step",
+        labelHidden: true,
+        look: "ghost",
+        tone: "muted",
+        defaultValue: "Send the invitations",
+      },
+    },
+    {
       id: "disabled",
       label: { en: "Disabled", zh: "禁用" },
       props: { label: "Email", placeholder: "you@example.com", disabled: true },
@@ -81,6 +104,8 @@ export const TextFieldLab = defineLab({
     "placeholder",
     "description",
     "error",
+    "look",
+    "tone",
     "size",
     { prop: "leading", samples: LEADING_SAMPLES },
     "labelHidden",

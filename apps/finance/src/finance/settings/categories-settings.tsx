@@ -11,6 +11,7 @@ import { ListRow } from "@tuja/ui/components/list-row";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Select } from "@tuja/ui/components/select";
 import { TextField } from "@tuja/ui/components/text-field";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useRef, useState } from "react";
 import { useReplica } from "../replica/use-replica.ts";
@@ -173,7 +174,9 @@ export function CategoriesSettings() {
               });
             }}
           >
-            {`${category.emoji ? `${category.emoji} ` : ""}${displayName(category)}`}
+            <span css={typeModifier.verbatim}>
+              {`${category.emoji ? `${category.emoji} ` : ""}${displayName(category)}`}
+            </span>
           </ListRow>
         ))}
       </List>

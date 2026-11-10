@@ -7,8 +7,10 @@ import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Text } from "@tuja/ui/components/text";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { useRef } from "react";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
@@ -55,19 +57,21 @@ export function RulesSettings() {
   };
 
   function summary(rule: RuleRow) {
-    return [
-      formatMoney(
-        templateAmount(rule.template),
-        templateCurrency(rule),
-        locale,
-      ),
-      rule.pausedAt === null
-        ? `${nextLabel} ${displayDay(rule.nextOn, locale, "day")}`
-        : "",
-      describeSchedule(rule),
-    ]
-      .filter((part) => part !== "")
-      .join(" · ");
+    return (
+      <MetaLine
+        facts={[
+          formatMoney(
+            templateAmount(rule.template),
+            templateCurrency(rule),
+            locale,
+          ),
+          rule.pausedAt === null
+            ? `${nextLabel} ${displayDay(rule.nextOn, locale, "day")}`
+            : null,
+          describeSchedule(rule),
+        ]}
+      />
+    );
   }
 
   function toggle(rule: RuleRow) {
@@ -133,7 +137,7 @@ export function RulesSettings() {
                 openRule(rule);
               }}
             >
-              {rule.name}
+              <span css={typeModifier.verbatim}>{rule.name}</span>
             </ListRow>
           ))}
         </List>

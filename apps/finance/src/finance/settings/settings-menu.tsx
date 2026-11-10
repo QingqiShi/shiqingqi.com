@@ -13,18 +13,14 @@ import { StorefrontIcon } from "@phosphor-icons/react/dist/ssr/Storefront";
 import { TagIcon } from "@phosphor-icons/react/dist/ssr/Tag";
 import { TreeStructureIcon } from "@phosphor-icons/react/dist/ssr/TreeStructure";
 import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
 import { NavGroup } from "@tuja/ui/components/nav-group";
 import { NavLink } from "@tuja/ui/components/nav-link";
 import { NavList } from "@tuja/ui/components/nav-list";
 import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { rhythm, space } from "@tuja/ui/tokens.stylex";
+import { StatusDot } from "@tuja/ui/components/status-dot";
 import {
   SETTINGS_GROUPS,
   type SettingsGroup,
@@ -88,12 +84,10 @@ export function SettingsMenu({ current }: { current: SettingsSection | null }) {
   });
   const membersDot =
     recoveryEmail?.verified === false ? (
-      <>
-        <span
-          css={[corner.radius_round, styles.dot, isOwner && styles.dotOwner]}
-        />
-        <span css={a11y.srOnly}>{` · ${noRecoveryEmail}`}</span>
-      </>
+      <StatusDot
+        intent={isOwner ? "warning" : "neutral"}
+        label={` · ${noRecoveryEmail}`}
+      />
     ) : null;
 
   return (
@@ -119,18 +113,3 @@ export function SettingsMenu({ current }: { current: SettingsSection | null }) {
     </NavList>
   );
 }
-
-const styles = stylex.create({
-  dot: {
-    display: "inline-block",
-    flexShrink: 0,
-    inlineSize: space._1,
-    blockSize: space._1,
-    marginInlineStart: rhythm.inline,
-    verticalAlign: "middle",
-    backgroundColor: color.fgMuted,
-  },
-  dotOwner: {
-    backgroundColor: color.fgWarning,
-  },
-});

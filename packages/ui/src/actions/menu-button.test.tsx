@@ -1,8 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { MenuButton } from "./menu-button.tsx";
+import { MenuItem } from "./menu-item.tsx";
 
 // jsdom has no `matchMedia`, which the open/close morph reads for a
 // reduced-motion preference. Stub it so the menu can open.
@@ -19,26 +20,8 @@ beforeAll(() => {
   });
 });
 
-// Stands in for the app's MenuItem, which lives in app code the package can't
-// import. It reproduces the two contract points MenuButton's keyboard
-// navigation queries: `role="menuitem"` and the `data-menu-autofocus` marker
-// that selects the item to focus first when the menu opens.
-function MenuItemFixture({
-  autoFocus,
-  children,
-}: {
-  autoFocus?: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      role="menuitem"
-      data-menu-autofocus={autoFocus ? "true" : undefined}
-    >
-      {children}
-    </button>
-  );
+function autoFocusMark(on: boolean) {
+  return on ? { "data-menu-autofocus": "true" } : {};
 }
 
 function TestMenu({ autoFocusIndex }: { autoFocusIndex?: number }) {
@@ -47,15 +30,9 @@ function TestMenu({ autoFocusIndex }: { autoFocusIndex?: number }) {
       buttonProps={{ type: "button", "aria-label": "Open menu" }}
       menuContent={
         <div>
-          <MenuItemFixture autoFocus={autoFocusIndex === 0}>
-            Item A
-          </MenuItemFixture>
-          <MenuItemFixture autoFocus={autoFocusIndex === 1}>
-            Item B
-          </MenuItemFixture>
-          <MenuItemFixture autoFocus={autoFocusIndex === 2}>
-            Item C
-          </MenuItemFixture>
+          <MenuItem {...autoFocusMark(autoFocusIndex === 0)}>Item A</MenuItem>
+          <MenuItem {...autoFocusMark(autoFocusIndex === 1)}>Item B</MenuItem>
+          <MenuItem {...autoFocusMark(autoFocusIndex === 2)}>Item C</MenuItem>
         </div>
       }
     />

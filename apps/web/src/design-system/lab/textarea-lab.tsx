@@ -11,7 +11,9 @@ import { defineLab } from "./define-lab.tsx";
 function SizedTextarea(props: ComponentProps<typeof Textarea>) {
   return (
     <div css={styles.frame}>
-      <Textarea {...props} />
+      {/* A field reads defaultValue only when it mounts. Thus a Variant
+          with a different value must mount a new field. */}
+      <Textarea key={String(props.defaultValue)} {...props} />
     </div>
   );
 }
@@ -47,6 +49,31 @@ export const TextareaLab = defineLab({
       props: { label: "Notes", error: "Write at least one line." },
     },
     {
+      id: "ghost",
+      label: { en: "Ghost", zh: "无框" },
+      props: {
+        label: "Step",
+        labelHidden: true,
+        look: "ghost",
+        rows: 1,
+        autoGrow: true,
+        defaultValue: "Book the table for Friday",
+      },
+    },
+    {
+      id: "muted",
+      label: { en: "Muted", zh: "弱化" },
+      props: {
+        label: "Step",
+        labelHidden: true,
+        look: "ghost",
+        tone: "muted",
+        rows: 1,
+        autoGrow: true,
+        defaultValue: "Send the invitations",
+      },
+    },
+    {
       id: "disabled",
       label: { en: "Disabled", zh: "禁用" },
       props: { label: "Notes", placeholder: PLACEHOLDER, disabled: true },
@@ -57,6 +84,8 @@ export const TextareaLab = defineLab({
     "placeholder",
     "description",
     "error",
+    "look",
+    "tone",
     "size",
     "autoGrow",
     "labelHidden",

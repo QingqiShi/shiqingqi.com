@@ -231,7 +231,7 @@ const ROUTES = [
     category: "actions",
     path: "/design-system/components/menu-button",
     lab: true,
-    keywords: ["dropdown", "popup", "menu", "sheet", "context menu"],
+    keywords: ["dropdown", "popup", "menu item", "sheet", "context menu"],
   },
   // Breadcrumb sits with the Actions rather than under a Navigation heading of
   // its own: it is a row of links the visitor operates, and one route cannot
@@ -348,7 +348,7 @@ const ROUTES = [
     category: "dataDisplay",
     path: "/design-system/components/badge",
     lab: true,
-    keywords: ["label", "status", "tag", "count", "pill"],
+    keywords: ["label", "status dot", "meta line", "tag", "count", "pill"],
   },
   // Table joins the two markers above rather than opening a category of its
   // own: one route cannot carry a heading, and the obvious name for that

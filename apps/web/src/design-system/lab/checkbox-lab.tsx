@@ -37,6 +37,21 @@ export const CheckboxLab = defineLab({
       },
     },
     {
+      id: "done",
+      label: { en: "Done", zh: "已完成" },
+      props: { label: "Renew passport", look: "done" },
+    },
+    {
+      id: "selection",
+      label: { en: "Selection", zh: "选择" },
+      props: { label: "Select this item", look: "selection" },
+    },
+    {
+      id: "readOnly",
+      label: { en: "Read-only", zh: "只读" },
+      props: { label: "Renew passport", readOnly: true },
+    },
+    {
       id: "small",
       label: { en: "Small", zh: "小号" },
       props: { label: LABEL, size: "sm" },
@@ -51,8 +66,10 @@ export const CheckboxLab = defineLab({
     "label",
     "description",
     "error",
+    "look",
     "size",
     "indeterminate",
+    "readOnly",
     "labelHidden",
     "disabled",
   ],

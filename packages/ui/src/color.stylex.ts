@@ -62,20 +62,30 @@ const darkIntentTone = {
 };
 
 const light = {
-  // Foreground — two levels, measured with APCA against every surface they
-  // can land on. `fg` clears the Lc 75 body floor,
-  // `fgMuted` the Lc 60 non-body floor. Worst case in light is
-  // `bgControlSelected` (gray._90): fg 86, muted 65.
+  // Foreground — two levels, measured with APCA against every fill they can
+  // land on, also with the neutral tint on that fill. `fg` clears the Lc 75
+  // body floor, `fgMuted` the Lc 60 non-body floor. contrast/color-ladder.test.ts
+  // keeps these floors.
   //
-  // In dark the worst case is gray._13, the fill of `bgControlHover` and
-  // `bgControlRaised`: fg 94, muted 82.
-  // The ramp has no tone between _70 and _80, and gray._70 is under the floor
-  // there, so the dark `fgMuted` is one tone louder than the light one.
+  // In light the worst fill is `bgSurfaceSelectedHover`: fg 86, muted 64. The
+  // worst tint is `bgNeutralSubtle` on `bgControlSelected` (gray._90), such
+  // as a neutral Badge in a selected row: muted 61.
+  //
+  // In dark the worst fill is `bgSurfaceSelectedHover`: fg 91, muted 62. The
+  // worst tint is `bgNeutralSubtle` on gray._13, the fill of
+  // `bgSurfaceSelected` and `bgControlHover`: muted 60.
+  //
+  // In both themes, `bgNeutralSubtle` on `bgSurfaceSelectedHover` gives muted
+  // 57, under the floor. A neutral Badge on a selected option card under the
+  // pointer has this contrast.
+  //
+  // gray._70 and gray._80 are too near `fg` in dark: done and secondary text
+  // did not recede as they do in light.
   fg: gray._13,
   fgMuted: gray._30,
   // The label of an unselected item in a group of controls, such as a
-  // SegmentedControl option or a TabBar tab. In dark it is dimmer than
-  // `fgMuted`, so the selected item, in `fg`, stands out from it.
+  // SegmentedControl option or a TabBar tab. It is as dim as `fgMuted`, so
+  // the selected item, in `fg`, stands out from it.
   // `fgControlSelected` is the label of the selected item where its colour
   // marks the selection, such as the shown tab of a TabBar.
   fgControl: gray._30,
@@ -102,15 +112,14 @@ const light = {
   bgSurfaceFade: gray._95,
   // A surface that the visitor can choose, such as an option card. Each state
   // is one step further from the page: rest, hover, selected, selected hover.
-  // The selected edge is louder than `border`, so the selection does not rest
-  // on the fill alone.
+  // The selected edge has the colour of `fg`, as the filled mark has. A grey
+  // fill alone looks like a disabled field on the page.
   bgSurfaceHover: gray._95,
   bgSurfaceSelected: gray._90,
-  // The palette has no step between the selected fill and the next step. That
-  // step is too heavy, and in dark it is the colour of the selected edge. Thus
-  // this token mixes the two steps.
+  // The palette has no step between the selected fill and the next step, and
+  // that step is too heavy. Thus this token mixes the two steps.
   bgSurfaceSelectedHover: `color-mix(in oklab, ${gray._90}, ${gray._80})`,
-  borderSurfaceSelected: gray._50,
+  borderSurfaceSelected: gray._13,
 
   // A bright control stays light in both themes (a slider thumb).
   // Inverse flips the theme (tooltips, snackbars). Scrim dims the page behind
@@ -131,13 +140,12 @@ const light = {
   bgControlSelected: gray._90,
   bgControlDisabled: gray._95,
   // The track that holds a group of controls, such as the options of a
-  // SegmentedControl, and the selected item raised on it.
+  // SegmentedControl, and the selected item raised on it. The raised fill
+  // holds the label of the selected item, in `fg` or `fgControlSelected`, and
+  // a StatusDot. An unselected label in `fgControl` crosses it only while the
+  // indicator moves. In dark that label is Lc 58 on it, under the floor.
   bgControlSunken: gray._92,
   bgControlRaised: gray._100,
-  // An unselected item under the pointer, next to a selected item that is
-  // `bgControlRaised`, on the track or on the canvas. `bgControlHover` would
-  // equal the raised fill in dark.
-  bgControlHoverBesideRaised: gray._95,
   // A neutral fill for an unselected control when the fill is its only sign,
   // such as an off switch. Selected, it takes `bgControlStrongSelected`. Its
   // foreground is `fgOnControlStrong` in both states.
@@ -201,7 +209,7 @@ const light = {
   // border are `fg` and `border`.
   bgNeutral: gray._80,
   bgNeutralHover: gray._90,
-  bgNeutralSubtle: `rgba(${gray_rgb._30}, 0.12)`,
+  bgNeutralSubtle: `rgba(${gray_rgb._30}, 0.1)`,
   fgOnNeutral: gray._0,
 
   // Glass — the translucent fill over the blur, the hairline rim all the way
@@ -217,9 +225,11 @@ const light = {
 
 const dark: { [key in keyof typeof light]: string } = {
   fg: gray._92,
-  fgMuted: gray._80,
+  fgMuted: gray._60,
   fgControl: gray._60,
-  fgControlSelected: purple._70,
+  // purple._70 is under the Lc 60 floor on `bgControlRaised` (gray._20), so
+  // the selected label is purple._80.
+  fgControlSelected: purple._80,
   fgOnControlBright: gray._0,
   fgOnControlStrong: gray._100,
   fgOnInverse: gray._20,
@@ -235,7 +245,7 @@ const dark: { [key in keyof typeof light]: string } = {
   bgSurfaceHover: gray._9,
   bgSurfaceSelected: gray._13,
   bgSurfaceSelectedHover: `color-mix(in oklab, ${gray._13}, ${gray._20})`,
-  borderSurfaceSelected: gray._20,
+  borderSurfaceSelected: gray._92,
 
   bgControlBright: gray._80,
   bgInverse: gray._92,
@@ -243,14 +253,19 @@ const dark: { [key in keyof typeof light]: string } = {
 
   bgControl: gray._7,
   bgControlHover: gray._13,
-  bgControlPressed: gray._11,
   // The selected fill is darker than the hover fill. A selected area can be
   // large, such as the Net worth card, and a lighter fill is too bright there.
-  bgControlSelected: gray._9,
+  // Near black, a step looks smaller than the same step near white, so this
+  // fill is two tones from `bgSurface`. With gray._9 a selected row was
+  // almost the same as its neighbours.
+  // The pressed fill is the selected fill, and this is intended: a press
+  // shows the fill that the item has when it is selected. gray._9 is the only
+  // free tone, and it is almost the same as `bgControl` (1.06:1).
+  bgControlSelected: gray._11,
+  bgControlPressed: gray._11,
   bgControlDisabled: gray._5,
   bgControlSunken: gray._7,
-  bgControlRaised: gray._13,
-  bgControlHoverBesideRaised: gray._9,
+  bgControlRaised: gray._20,
   bgControlStrong: gray._30,
   bgControlStrongSelected: purple._40,
   borderControlStrong: gray._35,
@@ -300,7 +315,8 @@ const dark: { [key in keyof typeof light]: string } = {
 
   bgNeutral: gray._20,
   bgNeutralHover: gray._30,
-  bgNeutralSubtle: `rgba(${gray_rgb._70}, 0.14)`,
+  // A stronger tint takes `fgMuted` under the Lc 60 floor on gray._13.
+  bgNeutralSubtle: `rgba(${gray_rgb._70}, 0.1)`,
   fgOnNeutral: gray._100,
 
   bgMaterialGlass: `rgba(${gray_rgb._100}, 0.12)`,
@@ -308,6 +324,16 @@ const dark: { [key in keyof typeof light]: string } = {
   borderMaterialGlassHighlight: `rgba(${gray_rgb._100}, 0.25)`,
   bgMaterialGlassSelected: `rgba(${gray_rgb._100}, 0.1)`,
 };
+
+/**
+ * The light and the dark value of each `color` token, for code that runs
+ * outside CSS. A style uses `color`.
+ *
+ * @internal
+ */
+export function colorThemes() {
+  return { light, dark };
+}
 
 export const color = stylex.defineVars({
   fg: `light-dark(${light.fg}, ${dark.fg})`,
@@ -342,7 +368,6 @@ export const color = stylex.defineVars({
   bgControlDisabled: `light-dark(${light.bgControlDisabled}, ${dark.bgControlDisabled})`,
   bgControlSunken: `light-dark(${light.bgControlSunken}, ${dark.bgControlSunken})`,
   bgControlRaised: `light-dark(${light.bgControlRaised}, ${dark.bgControlRaised})`,
-  bgControlHoverBesideRaised: `light-dark(${light.bgControlHoverBesideRaised}, ${dark.bgControlHoverBesideRaised})`,
   bgControlStrong: `light-dark(${light.bgControlStrong}, ${dark.bgControlStrong})`,
   bgControlStrongSelected: `light-dark(${light.bgControlStrongSelected}, ${dark.bgControlStrongSelected})`,
   borderControlStrong: `light-dark(${light.borderControlStrong}, ${dark.borderControlStrong})`,

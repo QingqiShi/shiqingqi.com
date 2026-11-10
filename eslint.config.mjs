@@ -563,6 +563,17 @@ export default defineConfig([
       ],
     },
   },
+  // The glyph of an icon-only Button reads `buttonTokens.glyph`, which each
+  // size sets from `controlSize`, so the glyph and the bleed share one size.
+  {
+    files: ["packages/ui/src/actions/button-shared.stylex.ts"],
+    rules: {
+      "@tuja/require-type-role": [
+        "error",
+        { sizeTokenGroups: ["buttonTokens"] },
+      ],
+    },
+  },
   // StyleX 0.19 types these properties but its eslint allowlist does not
   // carry them yet. `propLimits` puts them back for the one package that uses
   // them, so a stray one elsewhere still errors.

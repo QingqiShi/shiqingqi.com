@@ -1,10 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "../breakpoints.stylex.ts";
 import { color } from "../color.stylex.ts";
 import {
   border,
   controlHeight,
   controlSize,
   font,
+  measure,
   opacity,
   rhythm,
 } from "../tokens.stylex.ts";
@@ -18,8 +20,8 @@ import {
  * centrally — but `TextField` / `Textarea` stay the public entry point.
  *
  * The type comes from a `typeRole`, composed first beside each style:
- * `control` for the label, the control box and the affixes, `caption` for
- * the description and the error text.
+ * `control` for the label, the control box and the affixes, `bodySmall` for
+ * the description and the error text, the size of secondary text.
  */
 
 /**
@@ -32,6 +34,11 @@ import {
 export const fieldVars = stylex.defineVars({
   paddingInline: controlSize._4,
 });
+
+// A mask image: only its alpha matters. Percent-encode spaces and brackets
+// so that the data URI survives CSS parsing.
+const CLEAR_MASK =
+  "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Cpath%20d='M4%204l8%208M12%204l-8%208'%20fill='none'%20stroke='black'%20stroke-width='2'%20stroke-linecap='round'/%3E%3C/svg%3E";
 
 // Width reserved for a leading/trailing icon slot, in `em` so it tracks the
 // control's font size. Shared between the input padding and the affix box.
@@ -59,6 +66,7 @@ export const fieldStyles = stylex.create({
   },
   description: {
     color: color.fgMuted,
+    maxInlineSize: measure.prose,
   },
   // A live region must be in the DOM before its text arrives, so the status
   // is never removed. While it is empty, it goes out of flow and takes no gap
@@ -104,6 +112,49 @@ export const fieldStyles = stylex.create({
     "::placeholder": {
       color: color.fgMuted,
       opacity: 1,
+    },
+    // The clear button of a search field, which only WebKit and Blink draw.
+    // The UA glyph has a fixed colour, so this paints a glyph that follows
+    // the palette and the theme. Blink shows the button only on hover or
+    // focus of a field that can change. WebKit shows it whenever the field
+    // has a value, so a field that cannot change hides it here.
+    "::-webkit-search-cancel-button": {
+      appearance: "none",
+      flexShrink: 0,
+      inlineSize: controlSize._4,
+      blockSize: controlSize._4,
+      marginInlineStart: controlSize._2,
+      backgroundColor: color.fgMuted,
+      maskImage: `url("${CLEAR_MASK}")`,
+      maskRepeat: "no-repeat",
+      maskPosition: "center",
+      maskSize: "100% 100%",
+      cursor: "pointer",
+      visibility: { default: null, ":is(:disabled, :read-only)": "hidden" },
+    },
+  },
+  // Text that recedes, such as a done step of a checklist. It is at full
+  // contrast while it has focus, so that the text a person edits is legible.
+  controlMuted: {
+    color: { default: color.fgMuted, ":focus": color.fg },
+  },
+  // A field that sits in a row of text, such as a step of a checklist: no
+  // frame or fill until the pointer is over it or it has focus. Its text then
+  // lines up with the text around it.
+  ghost: {
+    [fieldVars.paddingInline]: controlSize._2,
+    backgroundColor: {
+      default: "transparent",
+      ":disabled": color.bgControlDisabled,
+    },
+    borderColor: {
+      default: "transparent",
+      ":hover": { default: null, [pointer.canHover]: color.border },
+      ":focus": {
+        default: color.borderAccent,
+        [pointer.canHover]: color.borderAccent,
+      },
+      [pointer.canHover]: { default: null, ":disabled:hover": "transparent" },
     },
   },
   multiline: {

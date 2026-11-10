@@ -38,7 +38,7 @@ const DARK: typeof LIGHT = {
   surface: "#131412",
   border: "#2B2C29",
   fg: "#F2F0ED",
-  fgMuted: "#DFDDDA",
+  fgMuted: "#C1C0BD",
   accent: "#E3A3FF",
   fgOnAccent: "#000000",
 };

@@ -9,14 +9,12 @@ import { useLiquid } from "../effect-layer/use-liquid.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { corner } from "../primitives/corner.stylex.ts";
-import { justify } from "../primitives/flex.stylex.ts";
 import {
   duration,
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
-import { row, stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import {
   border,
@@ -28,11 +26,7 @@ import {
   shadow,
 } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
-import {
-  fieldSizeInline,
-  fieldStyles,
-  fieldVars,
-} from "./field-shared.stylex.ts";
+import { fieldStyles } from "./field-shared.stylex.ts";
 import { DRAG_THRESHOLD, indexAt } from "./index-at.ts";
 import { selectedSurface } from "./segment-track.stylex.ts";
 import { switchTokens } from "./switch.stylex.ts";
@@ -52,18 +46,19 @@ interface SwitchProps extends Omit<
   "checked" | "onChange" | "size" | "className" | "style"
 > {
   /**
-   * The setting's name. The name and the switch share one row, which looks
-   * like the box of a `Select` or a `TextField`, with the switch at its end.
-   * Without a `label`, the switch renders alone and takes an `aria-label`.
+   * The setting's name. The switch leads and the name follows it, so the two
+   * read as one setting with no box around them, at every width. A click on
+   * the name toggles the switch. Without a `label`, the switch renders alone
+   * and takes an `aria-label`.
    *
-   * @zh 设置项的名称。名称与开关同处一行，这一行的外观与 `Select`、`TextField` 的方框一致，开关位于行尾。没有 `label` 时只渲染开关本身，并需要 `aria-label`。
+   * @zh 设置项的名称。开关在前，名称紧随其后，二者无需外框即可读作同一个设置项，在任何宽度下都是如此。点击名称也会切换开关。没有 `label` 时只渲染开关本身，并需要 `aria-label`。
    */
   label?: string;
   /**
-   * Supporting copy under the row, wired via `aria-describedby`. Shows only
-   * with a `label`.
+   * What the setting changes, under the name and aligned with it, wired via
+   * `aria-describedby`. Shows only with a `label`.
    *
-   * @zh 这一行下方的说明文字，通过 `aria-describedby` 关联。仅在有 `label` 时显示。
+   * @zh 说明这个设置会改变什么，位于名称下方并与名称对齐，通过 `aria-describedby` 关联。仅在有 `label` 时显示。
    */
   description?: string;
   /**
@@ -280,32 +275,26 @@ export function Switch({
   }
 
   return (
-    <div css={[stack.tight, fieldStyles.root, css]}>
-      <div
+    <div css={[fieldStyles.root, styles.field, css]}>
+      {input}
+      <label
+        htmlFor={fieldId}
         css={[
-          row.item,
-          justify.between,
-          fieldStyles.box,
-          fieldSizeInline.md,
-          styles.row,
+          typeRole.control,
+          styles.label,
+          rest.disabled && styles.labelDisabled,
         ]}
       >
-        <label
-          htmlFor={fieldId}
-          css={[
-            typeRole.control,
-            styles.label,
-            rest.disabled && styles.labelDisabled,
-          ]}
-        >
-          {label}
-        </label>
-        {input}
-      </div>
+        {label}
+      </label>
       {hasDescription ? (
         <span
           id={descriptionId}
-          css={[typeRole.caption, fieldStyles.description]}
+          css={[
+            typeRole.bodySmall,
+            fieldStyles.description,
+            styles.description,
+          ]}
         >
           {description}
         </span>
@@ -432,17 +421,22 @@ function useSwitchDrag({
 const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
 
 const styles = stylex.create({
-  row: {
-    minBlockSize: controlHeight.md,
-    paddingBlock: controlSize._1,
-    paddingInline: fieldVars.paddingInline,
+  field: {
+    display: "grid",
+    gridTemplateColumns: "auto minmax(0, 1fr)",
+    alignItems: "center",
+    columnGap: controlSize._3,
   },
   label: {
+    justifySelf: "start",
     color: color.fg,
     cursor: "pointer",
   },
   labelDisabled: {
     cursor: "not-allowed",
+  },
+  description: {
+    gridColumn: 2,
   },
   switch: {
     margin: 0,

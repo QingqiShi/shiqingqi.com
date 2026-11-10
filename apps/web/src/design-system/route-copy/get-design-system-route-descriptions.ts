@@ -88,8 +88,8 @@ export function getDesignSystemRouteDescriptions(): Record<
       zh: "操作或目标链接，提供多种外观、尺寸与按压动画。",
     }),
     "/design-system/components/menu-button": t({
-      en: "A button that expands into a popup menu.",
-      zh: "点击后展开为弹出菜单的按钮。",
+      en: "A button that expands into a popup menu, and the MenuItem rows inside it.",
+      zh: "点击后展开为弹出菜单的按钮，以及菜单中的 MenuItem 行。",
     }),
     "/design-system/components/breadcrumb": t({
       en: "A trail of links back up the hierarchy, ending on the page you are reading.",
@@ -104,8 +104,8 @@ export function getDesignSystemRouteDescriptions(): Record<
       zh: "同一处各页面之间的链接，排成一列，可分成带标签的组。",
     }),
     "/design-system/components/badge": t({
-      en: "Compact status and label indicators in the six Intents plus a default.",
-      zh: "六种意图色加默认样式的紧凑状态与标签指示器。",
+      en: "Compact status and label indicators in the six Intents plus a default, a status dot, and a line of facts to hold them.",
+      zh: "六种意图色加默认样式的紧凑状态与标签指示器、状态圆点，以及容纳它们的事实行。",
     }),
     "/design-system/components/avatar": t({
       en: "A portrait or monogram medallion with an optional corner badge.",

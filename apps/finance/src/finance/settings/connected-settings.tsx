@@ -5,6 +5,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
+import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { useToast } from "@tuja/ui/components/toast-provider";
@@ -309,7 +310,7 @@ export function ConnectedSettings({
         ) : (
           <div css={stack.group}>
             {groupByBankLogin(response.accounts).map((group) => (
-              <section key={group.bankLoginId} css={stack.tight}>
+              <FlowBlock as="section" key={group.bankLoginId} css={stack.tight}>
                 <Heading level={3} look="h4">
                   {group.title}
                 </Heading>
@@ -334,7 +335,7 @@ export function ConnectedSettings({
                     />
                   ))}
                 </ul>
-              </section>
+              </FlowBlock>
             ))}
           </div>
         )}

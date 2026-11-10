@@ -14,7 +14,7 @@ import { Switch } from "@tuja/ui/components/switch";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { useId, useState } from "react";
+import { useState } from "react";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { AccountRow } from "./account-row.tsx";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
@@ -48,7 +48,6 @@ export function AccountGroupList({
   const initials = useAccountInitials(sheet);
   const { collapsed, toggle } = useCollapsedGroups();
   const [showHidden, setShowHidden] = useState(false);
-  const hiddenSwitchId = useId();
   const emptyGroup = t({
     en: "No accounts in this group.",
     zh: "此分组没有账户。",
@@ -93,7 +92,13 @@ export function AccountGroupList({
                 toggle(section.group.id, open);
               }}
               summary={
-                <span css={[typeRole.label, styles.groupName]}>
+                <span
+                  css={[
+                    typeRole.label,
+                    typeModifier.verbatim,
+                    styles.groupName,
+                  ]}
+                >
                   {section.group.name}
                 </span>
               }
@@ -130,21 +135,13 @@ export function AccountGroupList({
       })}
       <FlowBlock css={[row.tight, styles.footer]}>
         {hiddenCount > 0 ? (
-          <div css={row.tight}>
-            <Switch
-              id={hiddenSwitchId}
-              value={showHidden ? "on" : "off"}
-              onChange={(state) => {
-                setShowHidden(state === "on");
-              }}
-            />
-            <label
-              htmlFor={hiddenSwitchId}
-              css={[typeRole.bodySmall, styles.muted]}
-            >
-              {`${t({ en: "Show hidden accounts", zh: "显示隐藏的账户" })} (${new Intl.NumberFormat(locale).format(hiddenCount)})`}
-            </label>
-          </div>
+          <Switch
+            label={`${t({ en: "Show hidden accounts", zh: "显示隐藏的账户" })} (${new Intl.NumberFormat(locale).format(hiddenCount)})`}
+            value={showHidden ? "on" : "off"}
+            onChange={(state) => {
+              setShowHidden(state === "on");
+            }}
+          />
         ) : null}
         <Button
           href={reorderHref}
@@ -189,8 +186,5 @@ const styles = stylex.create({
   },
   reorder: {
     marginInlineStart: "auto",
-  },
-  muted: {
-    color: color.fgMuted,
   },
 });

@@ -306,7 +306,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgControlRaised,
+    backgroundColor: color.bgSurface,
     overflow: "clip",
     display: "grid",
     gridTemplateColumns: {
@@ -323,8 +323,8 @@ const styles = stylex.create({
     padding: space._2,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.borderControlSunken,
-    backgroundColor: color.bgControlRaised,
+    borderColor: color.border,
+    backgroundColor: color.bgSurfaceRaised,
   },
 });
 

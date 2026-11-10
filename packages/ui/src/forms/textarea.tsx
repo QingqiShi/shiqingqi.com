@@ -10,7 +10,7 @@ import { mergeRefs } from "../merge-refs.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
-import { typeRole } from "../primitives/type.stylex.ts";
+import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import {
   fieldSizeBox,
@@ -59,6 +59,24 @@ interface TextareaProps extends Omit<
    */
   size?: "sm" | "md" | "lg";
   /**
+   * `"outline"` is the framed box of a form. `"ghost"` has no frame or fill
+   * until the pointer is over it or it has focus, for a field that sits in a
+   * row of text, such as a step of a checklist, where a frame on each row
+   * would be noise. Defaults to `"outline"`.
+   *
+   * @zh `"outline"` 是表单中带边框的输入框。`"ghost"` 在指针悬停或获得焦点之前没有边框和底色，适合嵌在一行文字中的字段，例如清单中的一个步骤——此时每行都有边框只会显得杂乱。默认为 `"outline"`。
+   */
+  look?: "outline" | "ghost";
+  /**
+   * Colour of the text. `"muted"` makes the text recede, as `Text`'s muted
+   * tone does, for a field whose item is done, such as the step of a
+   * checklist beside a `Checkbox` with `look="done"`. The text is at full
+   * contrast while the field has focus. Defaults to `"default"`.
+   *
+   * @zh 文字颜色。`"muted"` 让文字退后，与 `Text` 的 muted 色调一致，用于条目已完成的字段，例如清单中与 `look="done"` 的 `Checkbox` 相邻的步骤。字段获得焦点时文字恢复为完整对比度。默认为 `"default"`。
+   */
+  tone?: "default" | "muted";
+  /**
    * Grow the textarea to fit its content instead of scrolling, disabling the
    * manual resize handle. Off, the textarea is a fixed `rows`-tall box the
    * user can drag to resize.
@@ -87,6 +105,8 @@ export function Textarea({
   description,
   error,
   size = "md",
+  look = "outline",
+  tone = "default",
   autoGrow = false,
   rows = 3,
   id,
@@ -156,7 +176,7 @@ export function Textarea({
         {hasDescription ? (
           <span
             id={descriptionId}
-            css={[typeRole.caption, fieldStyles.description]}
+            css={[typeRole.bodySmall, fieldStyles.description]}
           >
             {description}
           </span>
@@ -179,11 +199,14 @@ export function Textarea({
         }}
         css={[
           typeRole.control,
+          typeModifier.verbatim,
           fieldStyles.box,
           fieldStyles.control,
           fieldStyles.multiline,
           fieldSizeInline[size],
           fieldSizeBox[size],
+          look === "ghost" ? fieldStyles.ghost : null,
+          tone === "muted" ? fieldStyles.controlMuted : null,
           autoGrow ? fieldStyles.noResize : null,
           transition.colors,
           a11y.focusRing,
@@ -195,7 +218,7 @@ export function Textarea({
         <span
           id={errorId}
           role="alert"
-          css={[typeRole.caption, fieldStyles.errorText]}
+          css={[typeRole.bodySmall, fieldStyles.errorText]}
         >
           {error}
         </span>

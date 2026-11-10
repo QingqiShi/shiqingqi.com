@@ -11,7 +11,7 @@ import { Text } from "@tuja/ui/components/text";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { BarChart, type BarSeries } from "../charts/bar-chart.tsx";
@@ -236,7 +236,9 @@ export function CategoryBreakdown({
                   key={item.bucket}
                   label={
                     <span css={row.inline}>
-                      <span css={styles.name}>{rowName(item)}</span>
+                      <span css={[typeModifier.verbatim, styles.name]}>
+                        {rowName(item)}
+                      </span>
                       {item.hasChildren ? (
                         <CaretRightIcon
                           weight="bold"

@@ -156,9 +156,28 @@ export const typeRole = stylex.create({
  * - `numeric` — figures of one width, so numbers line up in a column and a
  *   value that changes does not move. Haffer already uses lining figures, so
  *   only `tabular-nums` is set.
+ * - `verbatim` — text as a person or an agent wrote it. Haffer's contextual
+ *   alternates turn "(1)" into "①", "2x3" into "2×3" and "->" into "→",
+ *   which is right for copy the app writes and wrong for a name, a note or a
+ *   message. It inherits, so it can go on the box that holds such text.
+ *   `TextField` and `Textarea` always show their text this way.
+ * - `lines(n)` — at most `n` lines, the last one ending in "…". A word too
+ *   long for a line breaks, so the text never widens its box. `Text` takes
+ *   it as `lines`; compose it yourself on text inside another component's
+ *   slot, such as the detail line of a `ListRow`.
  */
 export const typeModifier = stylex.create({
   numeric: {
     fontVariantNumeric: "tabular-nums",
   },
+  verbatim: {
+    fontVariantLigatures: "no-contextual",
+  },
+  lines: (lines: number) => ({
+    display: "-webkit-box",
+    WebkitBoxOrient: "vertical",
+    WebkitLineClamp: lines,
+    overflow: "hidden",
+    overflowWrap: "anywhere",
+  }),
 });

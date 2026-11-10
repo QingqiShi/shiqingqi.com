@@ -6,6 +6,7 @@ import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -31,11 +32,9 @@ export function BankLinkStatus({ link }: { link: BankLinkRow }) {
       <p css={[cluster.tight, typeRole.bodySmall, styles.line]}>
         <span css={[cluster.inline, styles.muted]}>
           <LinkSimpleIcon weight="bold" aria-hidden />
-          <span>
-            {[link.providerName || link.providerInstitution, synced]
-              .filter((part) => part !== "")
-              .join(" · ")}
-          </span>
+          <MetaLine
+            facts={[link.providerName || link.providerInstitution, synced]}
+          />
         </span>
         {needsReconnect ? (
           <Badge size="sm" intent="warning">

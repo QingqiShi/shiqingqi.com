@@ -99,6 +99,7 @@ export const sharedStyles = stylex.create({
     display: "inline-flex",
     flexShrink: 0,
   },
+
   childrenContainer: {
     display: "inline-flex",
     alignItems: "center",
@@ -189,12 +190,76 @@ export const lookStyles = stylex.create({
   },
 });
 
+// The glyph of an icon-only button. It reads `buttonTokens.glyph`, which
+// `sizeStyles` sets per size and the bleed reads too. `iconOnlyBelowMd` is
+// for a button that shows its label from `md` up.
+export const iconGlyphStyles = stylex.create({
+  iconOnly: { fontSize: buttonTokens.glyph },
+  iconOnlyBelowMd: {
+    fontSize: { default: buttonTokens.glyph, [breakpoints.md]: "inherit" },
+  },
+});
+
+// Below `md`, the glyph of a button that shows its label from `md` up stands
+// for a word in a row of text, such as Undo at the end of each line of a log.
+// A column of lone-control glyphs there outweighs the text, so this glyph is
+// one step smaller.
+export const glyphBelowMdTokenStyles = stylex.create({
+  xs: { [buttonTokens.glyph]: controlSize._3 },
+  sm: { [buttonTokens.glyph]: controlSize._4 },
+  md: { [buttonTokens.glyph]: controlSize._4 },
+  lg: { [buttonTokens.glyph]: controlSize._5 },
+});
+
+// A secondary destructive action. The label turns danger and the hover fill
+// is a danger tint, while the edge of `outline` stays neutral, so the button
+// keeps the weight of the buttons beside it. `look="danger"` is the filled
+// form, for the one action that destroys.
+export const dangerIntentStyles = stylex.create({
+  ghost: {
+    [buttonTokens.color]: color.fgDanger,
+    [buttonTokens.backgroundColorHover]: color.bgDangerSubtle,
+  },
+  outline: {
+    [buttonTokens.color]: color.fgDanger,
+    backgroundColor: {
+      default: "transparent",
+      [pointer.canHover]: {
+        default: null,
+        ":hover": color.bgDangerSubtle,
+        ":disabled:hover": "transparent",
+      },
+    },
+  },
+});
+
+// A negative margin as large as the space between the box and its content,
+// so that the content, not the box, meets the edge of the content column.
+const iconOnlyInset = `calc((${buttonTokens.glyph} - ${buttonTokens.height}) / 2)`;
+const labelInset = `calc(-1 * ${buttonTokens.paddingInline})`;
+const iconInset = `calc(-1 * ${controlSize._2})`;
+
+export const bleedStyles = stylex.create({
+  startLabel: { marginInlineStart: labelInset },
+  startIcon: { marginInlineStart: iconInset },
+  startIconOnly: { marginInlineStart: iconOnlyInset },
+  startIconOnlyBelowMd: {
+    marginInlineStart: { default: iconOnlyInset, [breakpoints.md]: iconInset },
+  },
+  endLabel: { marginInlineEnd: labelInset },
+  endIconOnly: { marginInlineEnd: iconOnlyInset },
+  endIconOnlyBelowMd: {
+    marginInlineEnd: { default: iconOnlyInset, [breakpoints.md]: labelInset },
+  },
+});
+
 // Each size drives `buttonTokens.height` and scales padding to match. The
 // label size comes from a type role composed before `sharedStyles.base`:
 // `caption` for `xs`, `label` for `sm`, `control` for `md`, `h2` for `lg`.
 export const sizeStyles = stylex.create({
   xs: {
     [buttonTokens.height]: controlHeight.xs,
+    [buttonTokens.glyph]: controlSize._4,
     [buttonTokens.paddingInline]: controlSize._2,
     gap: controlSize._1,
     paddingBlock: controlSize._0,
@@ -212,6 +277,7 @@ export const sizeStyles = stylex.create({
   },
   lg: {
     [buttonTokens.height]: controlHeight.lg,
+    [buttonTokens.glyph]: controlSize._6,
     [buttonTokens.paddingInline]: controlSize._4,
     paddingBlock: controlSize._2,
   },

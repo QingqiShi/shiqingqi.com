@@ -18,7 +18,7 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { Ref } from "react";
 import { MoneyChange } from "../domain/money/money-change.tsx";
@@ -144,7 +144,13 @@ function WhatMoved({
                     styles.moverLink,
                   )}
                 >
-                  <span css={[typeRole.bodySmall, styles.moverName]}>
+                  <span
+                    css={[
+                      typeRole.bodySmall,
+                      typeModifier.verbatim,
+                      styles.moverName,
+                    ]}
+                  >
                     {accountName(mover.account)}
                   </span>
                   <span aria-hidden css={[corner.radius_round, styles.track]}>

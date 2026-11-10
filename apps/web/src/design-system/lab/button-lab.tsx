@@ -40,6 +40,21 @@ export const ButtonLab = defineLab({
       props: { children: "Delete", look: "danger", icon: "trash" },
     },
     {
+      id: "dangerIntent",
+      label: { en: "Danger intent", zh: "危险意图" },
+      props: { children: "Delete", look: "outline", intent: "danger" },
+    },
+    {
+      id: "bleed",
+      label: { en: "Bleed", zh: "越过边缘" },
+      props: {
+        children: "All reports",
+        look: "ghost",
+        size: "sm",
+        bleed: "start",
+      },
+    },
+    {
       id: "link",
       label: { en: "Link", zh: "链接" },
       props: { children: LABEL, href: "#" },
@@ -69,11 +84,13 @@ export const ButtonLab = defineLab({
   controls: [
     "children",
     "look",
+    "intent",
     "size",
     { prop: "icon", samples: labIconSamples },
     "trailing",
     "isActive",
     "loading",
+    "bleed",
     "hideLabelOnMobile",
     "disabled",
   ],

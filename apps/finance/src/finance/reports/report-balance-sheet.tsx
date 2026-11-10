@@ -12,7 +12,7 @@ import { TableFoot } from "@tuja/ui/components/table-foot";
 import { TableHead } from "@tuja/ui/components/table-head";
 import { TableHeaderCell } from "@tuja/ui/components/table-header-cell";
 import { TableRow } from "@tuja/ui/components/table-row";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, space } from "@tuja/ui/tokens.stylex";
 import { accountDetailLine } from "../accounts/account-detail-line.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
@@ -97,7 +97,7 @@ export function ReportBalanceSheet({
             {side.groups.flatMap((group) => [
               <TableRow key={group.id} css={styles.groupRow}>
                 <TableHeaderCell scope="row" css={styles.groupLabel}>
-                  {group.name}
+                  <span css={typeModifier.verbatim}>{group.name}</span>
                 </TableHeaderCell>
                 <TableCell numeric css={styles.groupTotal}>
                   {money(group.totalMinor)}
@@ -109,7 +109,9 @@ export function ReportBalanceSheet({
                 return (
                   <TableRow key={account.id}>
                     <TableHeaderCell scope="row" css={styles.accountLabel}>
-                      <span css={styles.block}>{accountName(account)}</span>
+                      <span css={[typeModifier.verbatim, styles.block]}>
+                        {accountName(account)}
+                      </span>
                       {detail === "" ? null : (
                         <span
                           css={[typeRole.caption, styles.block, styles.muted]}

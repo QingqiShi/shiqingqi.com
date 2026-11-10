@@ -296,6 +296,11 @@ export const layer = stylex.defineVars({
   fixedEffect: stylex.types.integer(700),
 });
 
+/** @internal The value of each `opacity` token, for code that runs outside CSS. */
+export const opacityValue = stylex.defineConsts({
+  disabled: 0.6,
+});
+
 // The fade that marks a control inactive. One value for every control, because
 // the fade is the whole disabled treatment — fill, label, border and icon dim
 // together against whatever is behind, which is what keeps it right on any
@@ -304,7 +309,7 @@ export const layer = stylex.defineVars({
 // a field's value and an accent button's label in light mode): legible, but
 // never as loud as something active.
 export const opacity = stylex.defineVars({
-  disabled: stylex.types.number(0.6),
+  disabled: stylex.types.number(opacityValue.disabled),
 });
 
 export const ratio = stylex.defineVars({

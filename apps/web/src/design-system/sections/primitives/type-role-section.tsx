@@ -73,6 +73,22 @@ export function TypeRoleSection() {
         zh: "叠加在任意字体角色之上的等宽数字，使数字在列中对齐。",
       }),
     },
+    {
+      token: "typeModifier.verbatim",
+      meta: "no-contextual",
+      description: t({
+        en: "Text as a person or an agent wrote it: (1), 2x3 and -> stay as typed. It inherits, so it can go on the box that holds a message.",
+        zh: "按人或智能体写下的原样显示：(1)、2x3 与 -> 保持原样。它会继承，因此可以放在包住一条消息的容器上。",
+      }),
+    },
+    {
+      token: "typeModifier.lines(n)",
+      meta: "line-clamp",
+      description: t({
+        en: "At most n lines, the last one ending in an ellipsis, for text in another component's slot. Text takes it as lines.",
+        zh: "最多 n 行，最后一行以省略号结尾，用于其他组件插槽中的文字。Text 以 lines 属性提供。",
+      }),
+    },
   ];
 
   return (

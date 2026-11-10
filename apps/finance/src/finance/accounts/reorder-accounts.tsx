@@ -8,7 +8,7 @@ import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { useReplica } from "../replica/use-replica.ts";
@@ -42,7 +42,14 @@ function AccountFace({
         css={styles.avatar}
       />
       <span css={styles.main}>
-        <span css={[typeRole.body, truncate.base, styles.name]}>
+        <span
+          css={[
+            typeRole.body,
+            typeModifier.verbatim,
+            truncate.base,
+            styles.name,
+          ]}
+        >
           {accountName(account)}
         </span>
         {detail ? (
@@ -146,7 +153,11 @@ export function ReorderAccounts({ sheet }: { sheet: BalanceSheet }) {
       renderItem={(section, handle, isLifted) => (
         <>
           <div css={styles.groupHeader}>
-            <span css={[typeRole.label, styles.groupName]}>{section.name}</span>
+            <span
+              css={[typeRole.label, typeModifier.verbatim, styles.groupName]}
+            >
+              {section.name}
+            </span>
             {handle}
           </div>
           {accountsOf(section, isLifted)}

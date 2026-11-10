@@ -137,7 +137,7 @@ export const segmentTrack = stylex.create({
     zIndex: -2,
     pointerEvents: "none",
     filter: "opacity(0)",
-    backgroundColor: color.bgControlHoverBesideRaised,
+    backgroundColor: color.bgControlHover,
     opacity: {
       default: 1,
       [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]: 0,
@@ -149,7 +149,7 @@ export const segmentTrack = stylex.create({
       default: "transparent",
       ":hover": {
         default: null,
-        [pointer.canHover]: color.bgControlHoverBesideRaised,
+        [pointer.canHover]: color.bgControlHover,
       },
     },
   },

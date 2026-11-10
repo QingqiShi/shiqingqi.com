@@ -10,7 +10,7 @@ import { Heading } from "@tuja/ui/components/heading";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Switch } from "@tuja/ui/components/switch";
 import { Text } from "@tuja/ui/components/text";
-import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
@@ -60,7 +60,6 @@ export function CategoryTrend({
   const names = useAnalyticsNames();
   const datePeriodLabel = usePeriodLabel(view);
   const headingId = useId();
-  const switchId = useId();
   const title = names.categoryLabel(trend.categoryId);
   const money = (minor: number) =>
     formatAnalyticsMoney(minor, currency, locale, state.kind);
@@ -234,20 +233,13 @@ export function CategoryTrend({
         </Text>
       )}
       {trend.outlierCount > 0 || trend.excluded ? (
-        <div css={row.tight}>
-          <Switch
-            id={switchId}
-            size="sm"
-            value={state.excludeOutliers ? "on" : "off"}
-            onChange={(value) => {
-              onChange({ excludeOutliers: value === "on" });
-            }}
-          />
-          <label htmlFor={switchId} css={[typeRole.bodySmall, styles.muted]}>
-            {t({ en: "Leave out outliers", zh: "过滤离群交易" })}
-            {` (${trend.outlierCount.toLocaleString(locale)})`}
-          </label>
-        </div>
+        <Switch
+          label={`${t({ en: "Leave out outliers", zh: "过滤离群交易" })} (${trend.outlierCount.toLocaleString(locale)})`}
+          value={state.excludeOutliers ? "on" : "off"}
+          onChange={(value) => {
+            onChange({ excludeOutliers: value === "on" });
+          }}
+        />
       ) : null}
     </section>
   );

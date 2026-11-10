@@ -63,7 +63,7 @@ export default function GlobalError({
         <p
           style={{
             margin: 0,
-            color: `light-dark(${gray._30}, ${gray._80})`,
+            color: `light-dark(${gray._30}, ${gray._60})`,
           }}
         >
           {strings.text}
