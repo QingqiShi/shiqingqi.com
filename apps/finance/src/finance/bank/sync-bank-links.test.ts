@@ -71,13 +71,19 @@ afterEach(async () => {
   await db.close();
 });
 
-function sync(options: { now?: Date } = {}) {
-  return syncBankLinks({
+async function sync(options: { now?: Date } = {}) {
+  const results = await syncBankLinks({
     db,
     householdId: home.householdId,
     client: createFakeBankClient(fixture),
     now: options.now ?? NOW,
   });
+  const of = (linkId: string) => {
+    const result = results.find((summary) => summary.linkId === linkId);
+    if (!result) throw new Error(`No sync result for link ${linkId}`);
+    return result;
+  };
+  return { current: of(currentLinkId), card: of(cardLinkId) };
 }
 
 /** The AI step with no model: every new row becomes an Uncategorised Transaction. */
@@ -166,7 +172,7 @@ describe("syncBankLinks", () => {
       providerRow("t2", "2026-10-09", -2150, "DELIVEROO*KFC"),
     ];
 
-    const [current, card] = await sync();
+    const { current, card } = await sync();
 
     expect(current).toMatchObject({ error: null, waiting: 2, linked: 0 });
     expect(card).toMatchObject({ error: null, waiting: 0 });
@@ -190,7 +196,7 @@ describe("syncBankLinks", () => {
     const before = await liveTransactions();
     const entriesBefore = await db.select().from(entries);
 
-    const [second] = await sync({ now: NEXT_DAY });
+    const { current: second } = await sync({ now: NEXT_DAY });
 
     expect(second).toMatchObject({ waiting: 0, linked: 0, confirmed: 0 });
     expect(await liveTransactions()).toEqual(before);
@@ -204,7 +210,7 @@ describe("syncBankLinks", () => {
       providerRow("t1", "2026-10-08", -999, "GYM"),
     ];
 
-    const [result] = await sync();
+    const { current: result } = await sync();
 
     expect(result).toMatchObject({ confirmed: 1, waiting: 0 });
     const [row] = await liveTransactions();
@@ -223,7 +229,7 @@ describe("syncBankLinks", () => {
       providerRow("t1", "2026-10-09", -1250, "GROCER LTD"),
     ];
 
-    const [result] = await sync();
+    const { current: result } = await sync();
 
     expect(result).toMatchObject({ linked: 1, waiting: 0 });
     const rows = await liveTransactions();
@@ -271,7 +277,7 @@ describe("syncBankLinks", () => {
       providerRow("c1", "2026-10-09", 50_000, "PAYMENT RECEIVED"),
     ];
 
-    const [, card] = await sync();
+    const { card } = await sync();
 
     expect(card).toMatchObject({ linked: 1, waiting: 0 });
     const rows = await liveTransactions();
@@ -303,7 +309,7 @@ describe("syncBankLinks", () => {
     fixture.transactions["acc-card"] = days.map((day) =>
       providerRow(`tfl-${day}`, day, -720, "TFL TRAVEL CH"),
     );
-    const [, card] = await sync();
+    const { card } = await sync();
 
     expect(card).toMatchObject({ error: null, linked: 4, waiting: 0 });
     expect(
@@ -330,8 +336,8 @@ describe("syncBankLinks", () => {
     ]);
     fixture.transactions["acc-current"] = others;
 
-    const [once] = await sync({ now: NEXT_DAY });
-    const [twice] = await sync({ now: DAY_AFTER });
+    const { current: once } = await sync({ now: NEXT_DAY });
+    const { current: twice } = await sync({ now: DAY_AFTER });
 
     expect(once.missing).toBe(0);
     expect(twice.missing).toBe(1);
@@ -357,12 +363,12 @@ describe("syncBankLinks", () => {
     ];
     await syncAndProcess();
     fixture.transactions["acc-current"] = [];
-    const [empty] = await sync({ now: NEXT_DAY });
-    const [emptyAgain] = await sync({ now: DAY_AFTER });
+    const { current: empty } = await sync({ now: NEXT_DAY });
+    const { current: emptyAgain } = await sync({ now: DAY_AFTER });
     fixture.transactions["acc-current"] = [
       providerRow("t3", "2026-10-07", -900, "BUTCHER"),
     ];
-    const [short] = await sync({ now: THIRD_DAY });
+    const { current: short } = await sync({ now: THIRD_DAY });
 
     expect([empty.missing, emptyAgain.missing, short.missing]).toEqual([
       0, 0, 0,

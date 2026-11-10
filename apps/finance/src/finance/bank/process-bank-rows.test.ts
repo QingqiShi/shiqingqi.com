@@ -196,7 +196,7 @@ function push(mutations: ReturnType<typeof mutation>[]) {
 }
 
 /** Syncs the savings link with these bank rows; the current link has none. */
-function syncSavings(
+async function syncSavings(
   rows: readonly { id: string; date: string; amountMinor: number }[],
 ) {
   const fixture: FakeBankFixture = {
@@ -212,12 +212,13 @@ function syncSavings(
       "acc-savings": { amountMinor: 0, currency: "GBP" },
     },
   };
-  return syncBankLinks({
+  const results = await syncBankLinks({
     db,
     householdId: home.householdId,
     client: createFakeBankClient(fixture),
     now: NOW,
   });
+  return results.find((summary) => summary.linkId === savingsLinkId);
 }
 
 describe("processBankRows", () => {
@@ -402,7 +403,7 @@ describe("processBankRows", () => {
     ]);
     expect(total(middle)).toBe(total(before));
 
-    const [, savings] = await syncSavings([
+    const savings = await syncSavings([
       { id: "s1", date: "2026-10-06", amountMinor: 50_000 },
     ]);
 
