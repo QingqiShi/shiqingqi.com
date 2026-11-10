@@ -14,6 +14,12 @@ interface ExampleProps {
    * this in. Never write it by hand.
    */
   source?: readonly CodeToken[];
+  /**
+   * Sets block content, such as a card or a page header, at the full width of
+   * the preview. Without it, the preview centres its children in a row, each
+   * at its own width.
+   */
+  fill?: boolean;
   /** The live preview. */
   children: ReactNode;
 }
@@ -25,10 +31,12 @@ interface ExampleProps {
  * two cannot drift apart. The `CodeBlock` renders where the `Example` renders,
  * so a server page keeps the colouring on the server.
  */
-export function Example({ source, children }: ExampleProps) {
+export function Example({ source, fill = false, children }: ExampleProps) {
   return (
     <div css={[corner.radius_3, styles.card]}>
-      <div css={[flex.center, styles.preview]}>{children}</div>
+      <div css={[flex.center, styles.preview, fill && styles.fill]}>
+        {children}
+      </div>
       {source ? (
         <CodeBlock
           source={source}
@@ -54,6 +62,11 @@ const styles = stylex.create({
     gap: rhythm.item,
     paddingBlock: { default: space._8, [breakpoints.md]: space._9 },
     paddingInline: space._5,
+  },
+  fill: {
+    flexDirection: "column",
+    flexWrap: "nowrap",
+    alignItems: "stretch",
   },
   // The card does not clip its content, because a clip would also cut the
   // effects of the preview. Thus the code area sets its own lower corners,

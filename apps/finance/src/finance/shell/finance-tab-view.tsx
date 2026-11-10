@@ -46,6 +46,7 @@ export function FinanceTabView({
 
   return (
     <TabView
+      rail="icons"
       label={t({ en: "Finance", zh: "家庭账本" })}
       linkComponent={TabLink}
       linkStatus={LinkStatus}

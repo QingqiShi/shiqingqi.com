@@ -98,7 +98,7 @@ export function AmountFields({ form }: { form: TransactionForm }) {
           leading={currencySymbol(currency, locale)}
           value={draft.amountText}
           error={errorOf("amount")}
-          css={[typeModifier.numeric, styles.amount]}
+          controlCss={[typeModifier.numeric, styles.amount]}
           onChange={(event) => {
             const amountText = event.target.value;
             update(

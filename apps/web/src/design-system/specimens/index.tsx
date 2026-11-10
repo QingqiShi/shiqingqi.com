@@ -9,8 +9,12 @@ import { CalloutSpecimen } from "./callout-specimen.tsx";
 import { CardSpecimen } from "./card-specimen.tsx";
 import { CheckboxSpecimen } from "./checkbox-specimen.tsx";
 import { CodeBlockSpecimen } from "./code-block-specimen.tsx";
+import { ColumnsSpecimen } from "./columns-specimen.tsx";
 import { DisclosureSpecimen } from "./disclosure-specimen.tsx";
 import { DividerSpecimen } from "./divider-specimen.tsx";
+import { EmptyStateSpecimen } from "./empty-state-specimen.tsx";
+import { FilterChipsSpecimen } from "./filter-chips-specimen.tsx";
+import { FormFooterSpecimen } from "./form-footer-specimen.tsx";
 import { HeaderFooterLayoutSpecimen } from "./header-footer-layout-specimen.tsx";
 import { HeadingSpecimen } from "./heading-specimen.tsx";
 import { ListSpecimen } from "./list-specimen.tsx";
@@ -18,18 +22,22 @@ import { MenuButtonSpecimen } from "./menu-button-specimen.tsx";
 import { NavListSpecimen } from "./nav-list-specimen.tsx";
 import { NavigationSplitViewSpecimen } from "./navigation-split-view-specimen.tsx";
 import { OptionCardSpecimen } from "./option-card-specimen.tsx";
+import { PageHeaderSpecimen } from "./page-header-specimen.tsx";
 import { PagerSpecimen } from "./pager-specimen.tsx";
 import { PopoverSpecimen } from "./popover-specimen.tsx";
 import { ProgressSpecimen } from "./progress-specimen.tsx";
 import { ProgressiveBlurSpecimen } from "./progressive-blur-specimen.tsx";
+import { RadioGroupSpecimen } from "./radio-group-specimen.tsx";
 import { ScrollMaskSpecimen } from "./scroll-mask-specimen.tsx";
 import { SectionSpecimen } from "./section-specimen.tsx";
 import { SegmentedControlSpecimen } from "./segmented-control-specimen.tsx";
 import { SelectSpecimen } from "./select-specimen.tsx";
+import { SettingRowSpecimen } from "./setting-row-specimen.tsx";
 import { SheetSpecimen } from "./sheet-specimen.tsx";
 import { SkeletonSpecimen } from "./skeleton-specimen.tsx";
 import { SliderSpecimen } from "./slider-specimen.tsx";
 import { SpinnerSpecimen } from "./spinner-specimen.tsx";
+import { StatSpecimen } from "./stat-specimen.tsx";
 import { StickyControlsSpecimen } from "./sticky-controls-specimen.tsx";
 import { SwitchSpecimen } from "./switch-specimen.tsx";
 import { TabViewSpecimen } from "./tab-view-specimen.tsx";
@@ -107,6 +115,16 @@ const COMPONENT_SPECIMENS: Partial<
   "/design-system/components/select": { element: <SelectSpecimen /> },
   "/design-system/components/option-card": { element: <OptionCardSpecimen /> },
   "/design-system/components/slider": { element: <SliderSpecimen /> },
+  "/design-system/components/page-header": { element: <PageHeaderSpecimen /> },
+  "/design-system/components/stat": { element: <StatSpecimen /> },
+  "/design-system/components/setting-row": { element: <SettingRowSpecimen /> },
+  "/design-system/components/form-footer": { element: <FormFooterSpecimen /> },
+  "/design-system/components/empty-state": { element: <EmptyStateSpecimen /> },
+  "/design-system/components/columns": { element: <ColumnsSpecimen /> },
+  "/design-system/components/radio-group": { element: <RadioGroupSpecimen /> },
+  "/design-system/components/filter-chips": {
+    element: <FilterChipsSpecimen />,
+  },
   "/design-system/components/popover": { element: <PopoverSpecimen /> },
   "/design-system/components/progressive-blur": {
     element: <ProgressiveBlurSpecimen />,

@@ -5,30 +5,33 @@ import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { wireframe } from "./specimen.stylex.ts";
 import { WireframeBar } from "./wireframe-bar.tsx";
 
-const RAIL_ITEMS = 4;
+const SIDEBAR_ITEMS = 4;
 const BAR_ITEMS = 3;
 
 /**
  * A miniature page rather than the component: the real `TabView` owns the
- * screen and the `<main>` landmark. The diagram shows its two forms side by
- * side — a wide page with the sunken rail, its current destination raised,
- * and a phone with the floating tab bar.
+ * screen and the `<main>` landmark. The diagram shows two of its forms side
+ * by side: a wide page with the labelled sidebar, its current destination
+ * marked, and a phone with the floating tab bar.
  */
 export function TabViewSpecimen() {
   return (
     <div css={styles.stage}>
       <div css={[wireframe.page, wireframe.clip, styles.wide]}>
-        <div css={styles.rail}>
+        <div css={styles.sidebar}>
           <span css={[corner.radius_1, styles.mark]} />
-          {Array.from({ length: RAIL_ITEMS }, (_, index) => (
+          {Array.from({ length: SIDEBAR_ITEMS }, (_, index) => (
             <span
               key={index}
               css={[
                 corner.radius_1,
-                styles.railItem,
+                styles.sidebarItem,
                 index === 0 && styles.current,
               ]}
-            />
+            >
+              <span css={[corner.radius_1, styles.icon]} />
+              <WireframeBar width="60%" />
+            </span>
           ))}
         </div>
         <div css={styles.content}>
@@ -75,18 +78,17 @@ const styles = stylex.create({
     flexShrink: 0,
     inlineSize: "28%",
   },
-  rail: {
+  sidebar: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
     flexShrink: 0,
     gap: rhythm.inline,
-    inlineSize: "1.25rem",
+    inlineSize: "40%",
     paddingBlock: space._1,
+    paddingInline: space._0,
     borderInlineEndWidth: border.size_1,
     borderInlineEndStyle: "solid",
     borderInlineEndColor: color.border,
-    backgroundColor: color.bgControlSunken,
   },
   mark: {
     inlineSize: space._2,
@@ -94,16 +96,20 @@ const styles = stylex.create({
     marginBlockEnd: rhythm.inline,
     backgroundColor: color.fgMuted,
   },
-  railItem: {
-    inlineSize: space._2,
-    blockSize: space._2,
+  sidebarItem: {
+    display: "flex",
+    alignItems: "center",
+    gap: rhythm.inline,
+    padding: space._00,
+  },
+  icon: {
+    flexShrink: 0,
+    inlineSize: space._1,
+    blockSize: space._1,
     backgroundColor: color.bgNeutral,
   },
   current: {
-    outlineWidth: border.size_2,
-    outlineStyle: "solid",
-    outlineColor: color.bgControlRaised,
-    backgroundColor: color.fgMuted,
+    backgroundColor: color.bgControlSelected,
   },
   content: {
     display: "flex",

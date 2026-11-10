@@ -71,7 +71,7 @@ function BulkDateActions({
           type="date"
           label={t({ en: "Pick a date", zh: "选择日期" })}
           value={picked}
-          css={styles.dateField}
+          controlCss={styles.dateField}
           onChange={(event) => {
             setPicked(event.target.value);
           }}

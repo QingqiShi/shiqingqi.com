@@ -28,7 +28,7 @@ export function TextShowcase() {
               })}
             </Text>
           </Specimen>
-          <Specimen caption="bodySmall · .85rem">
+          <Specimen caption="bodySmall · .875rem">
             <Text look="bodySmall">
               {t({
                 en: "2h 08m · Crime, Drama · Directed by Ana Reyes",
@@ -36,7 +36,7 @@ export function TextShowcase() {
               })}
             </Text>
           </Specimen>
-          <Specimen caption="label · .85rem · 500">
+          <Specimen caption="label · .875rem · 400">
             <Text look="label">
               {t({ en: "Original language", zh: "原始语言" })}
             </Text>
@@ -49,7 +49,7 @@ export function TextShowcase() {
               })}
             </Text>
           </Specimen>
-          <Specimen caption="overline · .85rem">
+          <Specimen caption="overline · .875rem">
             <Text look="overline">
               {t({ en: "Now streaming", zh: "正在热播" })}
             </Text>
@@ -60,8 +60,8 @@ export function TextShowcase() {
       <Showcase label={t({ en: "Tones", zh: "色调" })} leadsWithText>
         <ShowcaseHelper>
           {t({
-            en: "Four tones that resolve per theme, never a hand-picked colour. Danger is for a line that says something went wrong, as a field says its error.",
-            zh: "四种色调会随主题自动解析，无需手动挑选颜色。danger 用于说明出了问题的一行文字，与字段显示错误的方式一致。",
+            en: "Tones resolve per theme, never a hand-picked colour. Success, warning, danger and info take the text colour of their Intent, so the words must say what the colour means too: danger is for a line that says something went wrong, as a field says its error.",
+            zh: "各色调随主题自动解析，无需手动挑选颜色。success、warning、danger 与 info 使用各自意图的文字颜色，因此文字本身也要说明颜色的含义：danger 用于说明出了问题的一行文字，与字段显示错误的方式一致。",
           })}
         </ShowcaseHelper>
         <div css={stack.item}>
@@ -86,11 +86,32 @@ export function TextShowcase() {
               })}
             </Text>
           </Specimen>
+          <Specimen caption="success">
+            <Text tone="success">
+              {t({ en: "+£1,240.00 received", zh: "已收到 +£1,240.00" })}
+            </Text>
+          </Specimen>
+          <Specimen caption="warning">
+            <Text tone="warning">
+              {t({
+                en: "Three transactions have no category.",
+                zh: "有三笔交易还没有分类。",
+              })}
+            </Text>
+          </Specimen>
           <Specimen caption="danger">
             <Text tone="danger">
               {t({
                 en: "That did not save. Try again.",
                 zh: "没有保存成功，请重试。",
+              })}
+            </Text>
+          </Specimen>
+          <Specimen caption="info">
+            <Text tone="info">
+              {t({
+                en: "The bank syncs again at 9:00.",
+                zh: "银行将于 9:00 再次同步。",
               })}
             </Text>
           </Specimen>
@@ -109,7 +130,10 @@ export function TextShowcase() {
           </Specimen>
           <Specimen caption="medium">
             <Text weight="medium">
-              {t({ en: "Medium — gentle emphasis", zh: "中等——轻度强调" })}
+              {t({
+                en: "Medium — shows as regular until the typeface has a Medium face",
+                zh: "中等——在字体有中等字重之前，显示为常规",
+              })}
             </Text>
           </Specimen>
           <Specimen caption="semibold">

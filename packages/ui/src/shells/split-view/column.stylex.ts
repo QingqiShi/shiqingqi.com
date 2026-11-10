@@ -343,12 +343,12 @@ export const stackStyles = stylex.create({
   contentColumn: {
     backgroundColor: {
       default: "transparent",
-      [splitViewQueries.contentBesideSidebar]: color.bgSurfaceSunken,
+      [splitViewQueries.contentBesideSidebar]: islandTokens.fill,
     },
   },
   contentPage: {
     backgroundColor: {
-      default: color.bgSurfaceSunken,
+      default: islandTokens.fill,
       [splitViewQueries.contentBesideSidebar]: null,
     },
   },

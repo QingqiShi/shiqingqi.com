@@ -2,6 +2,7 @@ import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import type { MetadataRoute } from "next";
 import { BASE_URL } from "#src/constants.ts";
+import { PATTERN_PATHS } from "#src/design-system/patterns/pattern-paths.ts";
 import { DESIGN_SYSTEM_LAB_PATHS } from "#src/design-system/routes/design-system-lab-paths.ts";
 import { DESIGN_SYSTEM_PATHS } from "#src/design-system/routes/design-system-paths.ts";
 
@@ -27,6 +28,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...SITE_PATHS,
     ...DESIGN_SYSTEM_PATHS,
     ...DESIGN_SYSTEM_LAB_PATHS,
+    ...PATTERN_PATHS,
   ].flatMap((path) => {
     const languages = {
       en: toAbsoluteUrl(path, "en"),

@@ -1,6 +1,7 @@
 import { MegaphoneIcon } from "@phosphor-icons/react/dist/ssr/Megaphone";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
@@ -85,6 +86,31 @@ export function CalloutShowcase() {
             {t({
               en: "Omit the title for a single, concise line — the icon and tint still carry the Intent.",
               zh: "省略标题即为单行简讯——图标与着色依旧传达意图色。",
+            })}
+          </Callout>
+        </Specimen>
+      </Showcase>
+
+      <Showcase label={t({ en: "Action", zh: "操作" })} leadsWithText>
+        <ShowcaseHelper>
+          {t({
+            en: "action puts one control at the end of the message. Where the box is too narrow for both, as on a phone, it goes under the message. A callout spans the width of its container.",
+            zh: "action 在消息末尾放置一个控件。当提示框太窄、两者放不下时（例如在手机上），它移到消息下方。提示框撑满其容器的宽度。",
+          })}
+        </ShowcaseHelper>
+        <Specimen caption="action">
+          <Callout
+            intent="warning"
+            title={t({ en: "Mailbox disconnected", zh: "邮箱已断开连接" })}
+            action={
+              <Button size="sm">
+                {t({ en: "Reconnect", zh: "重新连接" })}
+              </Button>
+            }
+          >
+            {t({
+              en: "New mail has not come in since Monday.",
+              zh: "自周一以来没有收到新邮件。",
             })}
           </Callout>
         </Specimen>

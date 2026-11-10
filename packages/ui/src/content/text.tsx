@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode, Ref } from "react";
-import { color } from "../color.stylex.ts";
 import { mergeRefs } from "../merge-refs.ts";
+import { toneColor } from "../primitives/tone.stylex.ts";
 import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
 import { font, measure } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
@@ -23,11 +23,15 @@ interface TextProps {
   /**
    * Foreground colour role, resolved per theme. `"danger"` is for a line that
    * says something went wrong and asks the reader to act, such as an inline
-   * error under a row; it matches the error text of a field.
+   * error under a row; it matches the error text of a field. `"success"`,
+   * `"warning"` and `"info"` take the text colour of their Intent, such as a
+   * positive amount in `"success"`. A colour alone does not say what it
+   * means, so keep the meaning in the words or the sign as well.
    *
-   * @zh 前景色角色，随主题解析。`"danger"` 用于说明出了问题、需要读者处理的一行文字，例如列表行下方的内联错误，与表单字段的错误文字一致。
+   * @zh 前景色角色，随主题解析。`"danger"` 用于说明出了问题、需要读者处理的一行文字，例如列表行下方的内联错误，与表单字段的错误文字一致。`"success"`、`"warning"` 与 `"info"` 使用各自意图的文字颜色，例如以 `"success"` 显示正数金额。颜色本身不能说明含义，因此文字或符号也要表达它。
    */
-  tone?: "default" | "muted" | "accent" | "danger";
+  tone?:
+    "default" | "muted" | "accent" | "success" | "warning" | "danger" | "info";
   /**
    * Overrides the weight that `look` sets.
    *
@@ -147,7 +151,7 @@ export function Text({
     styles.base,
     isProse && measure === "prose" ? measureStyles[align ?? "start"] : null,
     isProse ? wrapStyles.pretty : null,
-    toneStyles[tone],
+    toneColor[tone],
     weight ? weightStyles[weight] : null,
     transform ? transformStyles[transform] : null,
     align ? alignStyles[align] : null,
@@ -198,13 +202,6 @@ const measureStyles = stylex.create({
   start: { maxInlineSize: measure.prose },
   center: { maxInlineSize: measure.prose, marginInline: "auto" },
   end: { maxInlineSize: measure.prose, marginInlineStart: "auto" },
-});
-
-const toneStyles = stylex.create({
-  default: { color: color.fg },
-  muted: { color: color.fgMuted },
-  accent: { color: color.fgAccent },
-  danger: { color: color.fgDanger },
 });
 
 const weightStyles = stylex.create({

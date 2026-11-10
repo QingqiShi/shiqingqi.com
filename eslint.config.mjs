@@ -551,26 +551,21 @@ export default defineConfig([
       "@tuja/require-type-role": "error",
     },
   },
-  // The density of a List sets the type size of its rows through
-  // `listRowTokens`. These tokens change the size and the line height
-  // together, from one type role to the next.
+  // These files size type through a token group that changes the size and
+  // the line height together, from one type role to the next: the density
+  // of a List through `listRowTokens`, the figure of a Stat in a wide or a
+  // narrow StatGroup through `statTokens`, and the glyph of an icon-only
+  // Button through `buttonTokens`, which each size sets from `controlSize`.
   {
-    files: ["packages/ui/src/data-display/list-row.tsx"],
+    files: [
+      "packages/ui/src/data-display/list-row.tsx",
+      "packages/ui/src/data-display/stat.tsx",
+      "packages/ui/src/actions/button-shared.stylex.ts",
+    ],
     rules: {
       "@tuja/require-type-role": [
         "error",
-        { sizeTokenGroups: ["listRowTokens"] },
-      ],
-    },
-  },
-  // The glyph of an icon-only Button reads `buttonTokens.glyph`, which each
-  // size sets from `controlSize`, so the glyph and the bleed share one size.
-  {
-    files: ["packages/ui/src/actions/button-shared.stylex.ts"],
-    rules: {
-      "@tuja/require-type-role": [
-        "error",
-        { sizeTokenGroups: ["buttonTokens"] },
+        { sizeTokenGroups: ["listRowTokens", "statTokens", "buttonTokens"] },
       ],
     },
   },
@@ -770,7 +765,7 @@ export default defineConfig([
   // Tooling JS files are CJS and not covered by tsconfig, so disable
   // type-checked rules and configure for Node.js/CommonJS.
   {
-    files: ["packages/**/*.js"],
+    files: ["packages/**/*.js", "bench/**/*.cjs"],
     ignores: ["packages/tmdb-codegen/src/generator.js"],
     ...tsEslint.configs.disableTypeChecked,
     languageOptions: {

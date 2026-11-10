@@ -78,3 +78,7 @@ apps/*/e2e/.web-server-errors.log
 
 # Agent skills installed on demand (posthog-cli api skill install)
 .agents/
+
+# UI bench: evaluation screens and their screenshots (see bench/ui/README.md)
+apps/web/src/app/\[locale\]/bench/
+bench/ui/shots/

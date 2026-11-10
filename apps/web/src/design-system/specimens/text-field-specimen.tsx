@@ -15,7 +15,7 @@ export function TextFieldSpecimen() {
       label={t({ en: "Email", zh: "邮箱" })}
       leading={<EnvelopeIcon weight="bold" />}
       defaultValue="ada@mail.test"
-      css={specimenLayout.fill}
+      controlCss={specimenLayout.fill}
     />
   );
 }

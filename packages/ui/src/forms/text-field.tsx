@@ -93,19 +93,28 @@ interface TextFieldProps extends Omit<
    */
   trailing?: ReactNode;
   /**
-   * StyleX overrides merged over the control's own — the escape hatch.
+   * StyleX styles merged over the field root, composed last, such as how the
+   * field sits in the layout around it: a width, or `flexGrow` in a row.
    *
-   * @zh 合并到输入框上的 StyleX 覆盖样式——逃生舱口。
+   * @zh 合并到字段根容器上的 StyleX 样式，最后合成，例如字段在周围布局中的位置：宽度，或在一行中的 `flexGrow`。
    */
   css?: StyleProp;
+  /**
+   * StyleX styles merged over the `<input>` itself, such as
+   * `typeModifier.numeric` for an amount or a padding for a button laid
+   * over it.
+   *
+   * @zh 合并到 `<input>` 本身上的 StyleX 样式，例如金额所用的 `typeModifier.numeric`，或为叠放其上的按钮留出的内边距。
+   */
+  controlCss?: StyleProp;
 }
 
 /**
  * Single-line text input with a built-in label, optional helper text, a live
  * status line, and an error state, all accessibly wired (`htmlFor`, `aria-describedby`,
  * `aria-invalid`, `role="alert"`). Forwards `ref` and native `<input>`
- * attributes to the underlying element, and stays server-renderable (no client
- * directive) since it only uses `useId`. A `type="search"` field shows the
+ * attributes to the underlying element. It has no client directive, so a
+ * server component can render it: its only hook is `useId`. A `type="search"` field shows the
  * browser's clear button in the colours of the theme, where the browser draws
  * one (WebKit and Blink).
  */
@@ -124,6 +133,7 @@ export function TextField({
   required,
   disabled,
   css,
+  controlCss,
   "aria-describedby": ariaDescribedBy,
   "aria-invalid": ariaInvalid,
   ref,
@@ -148,12 +158,12 @@ export function TextField({
   });
 
   return (
-    <div css={[stack.tight, fieldStyles.root]}>
+    <div css={[stack.tight, fieldStyles.root, css]}>
       <div css={[stack.text, labelHidden && !hasDescription && a11y.srOnly]}>
         <label
           htmlFor={fieldId}
           css={[
-            typeRole.control,
+            typeRole.label,
             fieldStyles.label,
             required && fieldStyles.labelRequired,
             labelHidden && a11y.srOnly,
@@ -200,7 +210,7 @@ export function TextField({
             leading ? fieldStyles.hasLeadingAffix : null,
             trailing ? fieldStyles.hasTrailingAffix : null,
             hasError ? fieldStyles.controlInvalid : null,
-            css,
+            controlCss,
           ]}
         />
         {trailing ? (

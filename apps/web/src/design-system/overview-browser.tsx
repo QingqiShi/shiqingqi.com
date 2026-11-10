@@ -187,7 +187,7 @@ export function OverviewBrowser({
                 setQuery(event.target.value);
               }}
               leading={<MagnifyingGlassIcon weight="bold" />}
-              css={styles.searchInput}
+              controlCss={styles.searchInput}
             />
             {query !== "" && (
               <Button

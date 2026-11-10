@@ -100,7 +100,7 @@ export function TransferFields({ form }: { form: TransactionForm }) {
           leading={currencySymbol(toAccount.currency, locale)}
           value={draft.toAmountText}
           error={errorOf("toAmount")}
-          css={typeModifier.numeric}
+          controlCss={typeModifier.numeric}
           onChange={(event) => {
             update({ toAmountText: event.target.value }, ["toAmount"]);
           }}

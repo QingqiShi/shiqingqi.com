@@ -27,8 +27,8 @@ export function ShellChoice() {
             }),
             value: labels["/design-system/components/tab-view"],
             note: t({
-              en: "A rail on wide screens, and a floating tab bar on small ones.",
-              zh: "宽屏上是侧轨，小屏上是悬浮标签栏。",
+              en: "A sidebar or a rail on wide screens, and a floating tab bar on small ones.",
+              zh: "宽屏上是侧边栏或侧轨，小屏上是悬浮标签栏。",
             }),
           },
           {

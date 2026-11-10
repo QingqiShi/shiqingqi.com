@@ -17,6 +17,9 @@ apps/buddy/drizzle/meta/
 # Vendored third-party code (preserve upstream formatting)
 packages/system-palette-codegen/src/vendor/
 
+# UI bench references, kept as the shadcn build wrote them
+bench/ui/shadcn/
+
 # Lock files
 pnpm-lock.yaml
 skills-lock.json

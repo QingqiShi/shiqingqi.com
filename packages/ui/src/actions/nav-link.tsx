@@ -7,7 +7,7 @@ import { color } from "../color.stylex.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { quietSurface } from "../primitives/quiet-surface.stylex.ts";
-import { typeRole } from "../primitives/type.stylex.ts";
+import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
 import { FlowBlock } from "../surfaces/flow-block.tsx";
 import { font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
@@ -43,6 +43,15 @@ interface NavLinkProps {
    */
   icon?: ReactNode;
   /**
+   * Something at the end of the row, in the muted colour at caption size, as
+   * a `TabView` sidebar row shows its `count`: a count, a `Badge` such as
+   * "Today", or a `StatusDot`. It is part of the link's name, so give a mark
+   * with no text a label, as `StatusDot` takes one.
+   *
+   * @zh 行尾的内容，以弱化颜色和说明文字字号显示，与 `TabView` 侧栏行显示 `count` 的方式相同：一个数量、一个 `Badge`（例如“今天”）或一个 `StatusDot`。它属于链接名称的一部分，因此没有文字的标记要带标签，例如 `StatusDot` 的 `label`。
+   */
+  trailing?: ReactNode;
+  /**
    * The link's name, on one line.
    *
    * @zh 链接的名称，单行显示。
@@ -69,11 +78,13 @@ export function NavLink({
   href,
   current = false,
   icon,
+  trailing,
   children,
   css,
 }: NavLinkProps) {
   const { linkComponent, motion } = use(NavListContext);
   const isCurrent = useShownCurrent(href, current);
+  const hasTrailing = trailing !== undefined && trailing !== null;
   useLayoutEffect(() => {
     motion?.refresh();
   }, [isCurrent, motion]);
@@ -101,7 +112,26 @@ export function NavLink({
         },
         icon === undefined ? null : <NavIcon>{icon}</NavIcon>,
         children,
-        <span key="caret" aria-hidden css={styles.caret}>
+        // The space keeps the name and the trailing text apart for a
+        // screen reader. A flex row does not show it.
+        hasTrailing ? " " : null,
+        hasTrailing ? (
+          <span
+            key="trailing"
+            css={[
+              typeRole.caption,
+              typeModifier.numeric,
+              navListStyles.trailing,
+            ]}
+          >
+            {trailing}
+          </span>
+        ) : null,
+        <span
+          key="caret"
+          aria-hidden
+          css={[styles.caret, hasTrailing && styles.caretAfterTrailing]}
+        >
           <CaretRightIcon weight="bold" />
         </span>,
       )}
@@ -128,5 +158,8 @@ const styles = stylex.create({
     flexShrink: 0,
     marginInlineStart: "auto",
     color: color.fgMuted,
+  },
+  caretAfterTrailing: {
+    marginInlineStart: 0,
   },
 });

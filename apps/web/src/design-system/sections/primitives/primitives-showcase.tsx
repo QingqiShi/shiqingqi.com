@@ -21,6 +21,7 @@ import {
   MarkedSelectedSpecimen,
   QuietSelectedSpecimen,
 } from "./selected-specimens.tsx";
+import { ShowSection } from "./show-section.tsx";
 import { StackSection } from "./stack-section.tsx";
 import { TextureSection, WashSection } from "./texture-section.tsx";
 import { TypeRoleSection } from "./type-role-section.tsx";
@@ -207,6 +208,7 @@ export function PrimitivesShowcase() {
     <>
       <FlexSection />
       <LayoutSection />
+      <ShowSection />
       <MotionSection />
       <ResetSection />
       <RootSection />

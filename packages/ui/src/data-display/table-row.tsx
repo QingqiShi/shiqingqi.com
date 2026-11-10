@@ -18,6 +18,15 @@ interface TableRowProps extends Omit<
    */
   current?: boolean;
   /**
+   * Tints the row in the colour of an Intent. `"warning"` marks a row that
+   * waits for the visitor, such as a transaction with no category; `"danger"`
+   * marks a row where something failed. The tint does not say why, so put
+   * the reason or the action in a cell of the row.
+   *
+   * @zh 以意图的颜色为整行着色。`"warning"` 标记等待访客处理的行，例如尚未分类的交易；`"danger"` 标记出错的行。色调本身不说明原因，因此请在该行的某个单元格中写明原因或操作。
+   */
+  intent?: "warning" | "danger";
+  /**
    * StyleX styles merged over the row's own — the config-layer escape
    * hatch.
    *
@@ -29,6 +38,7 @@ interface TableRowProps extends Omit<
 /** One `<tr>`, seamed off the row above it. */
 export function TableRow({
   current = false,
+  intent,
   css,
   ref,
   children,
@@ -40,7 +50,12 @@ export function TableRow({
       {...restProps}
       ref={ref}
       aria-current={ariaCurrent ?? (current ? "true" : undefined)}
-      css={[styles.row, current && styles.currentRow, css]}
+      css={[
+        styles.row,
+        intent && intentStyles[intent],
+        current && styles.currentRow,
+        css,
+      ]}
     >
       {children}
     </tr>
@@ -59,5 +74,14 @@ const styles = stylex.create({
   currentRow: {
     backgroundColor: color.bgAccentSubtle,
     fontWeight: font.weight_6,
+  },
+});
+
+const intentStyles = stylex.create({
+  warning: {
+    backgroundColor: color.bgWarningSubtle,
+  },
+  danger: {
+    backgroundColor: color.bgDangerSubtle,
   },
 });

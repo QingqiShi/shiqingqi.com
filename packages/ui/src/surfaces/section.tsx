@@ -11,6 +11,8 @@ import { SectionHeading } from "./section-heading.tsx";
 
 export type SectionLevel = 2 | 3 | 4 | 5 | 6;
 
+export type SectionLook = "label" | "heading";
+
 interface SectionProps extends Omit<
   ComponentProps<"section">,
   "title" | "children" | "className" | "style"
@@ -56,6 +58,16 @@ interface SectionProps extends Omit<
    */
   level?: SectionLevel;
   /**
+   * How the title reads. `"label"`, the default, is a quiet muted label for
+   * wayfinding, such as a group of settings. `"heading"` is a real heading in
+   * the `h3` type role, for a block that is a part of the page, such as the
+   * day of a timeline, with the description under it.
+   *
+   * @default "label"
+   * @zh 标题的呈现方式。默认的 `"label"` 是低调的弱化标签，用于导引，例如一组设置。`"heading"` 是 `h3` 字体角色的真实标题，用于构成页面一部分的区块，例如时间线中的某一天，说明文字位于其下方。
+   */
+  look?: SectionLook;
+  /**
    * Rules the section off from what precedes it. Use it when sections follow
    * one another directly and the label alone isn't enough of a break.
    *
@@ -71,11 +83,11 @@ interface SectionProps extends Omit<
 }
 
 /**
- * A labelled block of content: a quiet heading row — optional icon, the label,
+ * A labelled block of content: a heading row — optional icon, the title,
  * optional trailing controls — above whatever it holds.
- * The label reads as muted small text on purpose (wayfinding, not hierarchy)
- * while staying a real heading; reach for `Heading` directly for a prominent
- * title.
+ * By default the title reads as muted small text on purpose (wayfinding, not
+ * hierarchy) while staying a real heading; `look="heading"` makes it a
+ * prominent title.
  */
 export function Section({
   title,
@@ -84,28 +96,32 @@ export function Section({
   icon,
   actions,
   level = 3,
+  look = "label",
   divider,
   css,
   ref,
   ...restProps
 }: SectionProps) {
+  const parts = lookParts[look];
   return (
     <FlowBlock
       {...restProps}
       as="section"
       ref={ref}
-      css={[stack.tight, divider === true && styles.divided, css]}
+      css={[parts.block, divider === true && styles.divided, css]}
     >
       <div css={[row.tight, description ? styles.described : null]}>
         {/* Truthiness: `icon={cond && <X/>}` / `actions={cond && <Y/>}` then
             render no slot. `!= null` would keep an empty box and the gap. */}
         {icon ? (
-          <span css={[typeRole.label, styles.icon]} aria-hidden>
+          <span css={[parts.icon, styles.icon]} aria-hidden>
             {icon}
           </span>
         ) : null}
         <div css={[stack.text, styles.titles]}>
-          <SectionHeading level={level}>{title}</SectionHeading>
+          <SectionHeading level={level} look={look}>
+            {title}
+          </SectionHeading>
           {description ? (
             <Text look="bodySmall" tone="muted">
               {description}
@@ -120,6 +136,12 @@ export function Section({
     </FlowBlock>
   );
 }
+
+// The gap under the title row, and the type role that sizes the icon.
+const lookParts = {
+  label: { block: stack.tight, icon: typeRole.label },
+  heading: { block: stack.item, icon: typeRole.h3 },
+} as const;
 
 const styles = stylex.create({
   divided: {

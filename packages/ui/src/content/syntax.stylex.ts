@@ -19,7 +19,7 @@ import { purple } from "../_generated/palette/hues/purple.stylex.ts";
 // stays with the punctuation.
 
 const light = {
-  plain: gray._13,
+  plain: gray._5,
   keyword: purple._30,
   string: green._30,
   comment: gray._30,
@@ -32,7 +32,7 @@ const light = {
 };
 
 const dark: { [key in keyof typeof light]: string } = {
-  plain: gray._92,
+  plain: gray._97,
   keyword: purple._70,
   string: green._60,
   comment: gray._60,

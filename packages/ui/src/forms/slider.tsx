@@ -241,7 +241,7 @@ export function Slider({
           <label
             htmlFor={fieldId}
             css={[
-              typeRole.control,
+              typeRole.label,
               fieldStyles.label,
               labelHidden && a11y.srOnly,
             ]}
@@ -250,7 +250,7 @@ export function Slider({
           </label>
           {readout === undefined ? null : (
             <span
-              css={[typeRole.control, fieldStyles.label, typeModifier.numeric]}
+              css={[typeRole.label, fieldStyles.label, typeModifier.numeric]}
             >
               {readout}
             </span>

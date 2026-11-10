@@ -29,6 +29,7 @@ import type { StyleProp } from "../types.ts";
 import { fieldStyles } from "./field-shared.stylex.ts";
 import { DRAG_THRESHOLD, indexAt } from "./index-at.ts";
 import { selectedSurface } from "./segment-track.stylex.ts";
+import { useSettingRowControl } from "./setting-row-context.ts";
 import { switchTokens } from "./switch.stylex.ts";
 import { useFieldAria } from "./use-field-aria.ts";
 
@@ -49,9 +50,10 @@ interface SwitchProps extends Omit<
    * The setting's name. The switch leads and the name follows it, so the two
    * read as one setting with no box around them, at every width. A click on
    * the name toggles the switch. Without a `label`, the switch renders alone
-   * and takes an `aria-label`.
+   * and takes an `aria-label`, or sits in the `control` slot of a
+   * `SettingRow`, whose label names it, with the switch at the end of the row.
    *
-   * @zh 设置项的名称。开关在前，名称紧随其后，二者无需外框即可读作同一个设置项，在任何宽度下都是如此。点击名称也会切换开关。没有 `label` 时只渲染开关本身，并需要 `aria-label`。
+   * @zh 设置项的名称。开关在前，名称紧随其后，二者无需外框即可读作同一个设置项，在任何宽度下都是如此。点击名称也会切换开关。没有 `label` 时只渲染开关本身，并需要 `aria-label`；或放进 `SettingRow` 的 `control` 槽，由该行的标签命名，开关位于行尾。
    */
   label?: string;
   /**
@@ -83,9 +85,10 @@ interface SwitchProps extends Omit<
   /**
    * Track-height scale via `controlHeight`; the width and thumb scale with
    * it. Every size, `md` included, grows below the `md` breakpoint like the
-   * `controlHeight` scale. Defaults to `"xs"` with a `label`, else `"md"`.
+   * `controlHeight` scale. Defaults to `"xs"` with a `label` or in a
+   * `SettingRow`, else `"md"`.
    *
-   * @zh 基于 `controlHeight` 的轨道高度阶梯；宽度与滑块随之缩放。有 `label` 时默认为 `"xs"`，否则为 `"md"`。
+   * @zh 基于 `controlHeight` 的轨道高度阶梯；宽度与滑块随之缩放。有 `label` 时或位于 `SettingRow` 中时默认为 `"xs"`，否则为 `"md"`。
    */
   size?: "xs" | "sm" | "md" | "lg";
   /**
@@ -141,12 +144,15 @@ export function Switch({
   ...rest
 }: SwitchProps) {
   const bare = label === undefined;
-  const { fieldId, descriptionId, hasDescription, describedBy } = useFieldAria({
-    id,
-    ariaDescribedBy,
-    description: bare ? undefined : description,
-  });
-  const size = sizeProp ?? (bare ? "md" : "xs");
+  const settingRow = useSettingRowControl(bare);
+  const { fieldId, descriptionId, hasDescription, describedBy, inSettingRow } =
+    useFieldAria({
+      id,
+      ariaDescribedBy,
+      description: bare ? undefined : description,
+      settingRow,
+    });
+  const size = sizeProp ?? (bare && !inSettingRow ? "md" : "xs");
   const elRef = useRef<HTMLInputElement>(null);
   const hasSetInitialRenderedRef = useRef(false);
   // Set once a pointer release or Space keypress toggles state, so the

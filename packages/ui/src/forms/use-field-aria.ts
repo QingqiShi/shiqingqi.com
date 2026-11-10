@@ -1,4 +1,5 @@
 import { useId, type AriaAttributes } from "react";
+import type { SettingRowControl } from "./setting-row-context.ts";
 
 interface UseFieldAriaOptions {
   /**
@@ -17,6 +18,12 @@ interface UseFieldAriaOptions {
   error?: string;
   /** Live status text, if any. Empty strings count as absent. */
   status?: string;
+  /**
+   * The ids of the `SettingRow` whose `control` slot holds the control, from
+   * `useSettingRowControl`. The control takes them, so the row's label names
+   * it and the row's description describes it.
+   */
+  settingRow?: SettingRowControl | null;
 }
 
 /**
@@ -37,9 +44,10 @@ export function useFieldAria({
   description,
   error,
   status,
+  settingRow: row = null,
 }: UseFieldAriaOptions) {
   const reactId = useId();
-  const fieldId = id ?? reactId;
+  const fieldId = id ?? row?.id ?? reactId;
   const descriptionId = `${fieldId}-description`;
   const errorId = `${fieldId}-error`;
   const statusId = `${fieldId}-status`;
@@ -50,6 +58,7 @@ export function useFieldAria({
 
   const describedIds = [
     ariaDescribedBy,
+    row?.descriptionId,
     hasDescription ? descriptionId : null,
     hasStatus ? statusId : null,
     hasError ? errorId : null,
@@ -66,5 +75,6 @@ export function useFieldAria({
     hasError,
     describedBy,
     ariaInvalid: hasError ? true : ariaInvalid,
+    inSettingRow: row !== null,
   };
 }
