@@ -12,6 +12,7 @@ import { readMailView } from "#src/assistant/mail/view/read-mail-view.ts";
 import { MailPageView } from "#src/assistant/mail-page/mail-page-view.tsx";
 import { openMailHref } from "#src/assistant/report/open-mail-href.ts";
 import { readReportSettings } from "#src/assistant/report/read-report-settings.ts";
+import { getDateLocale } from "#src/assistant/shell/get-date-locale.ts";
 
 interface Props {
   params: Promise<{ locale: string; accountId: string; messageId: string }>;
@@ -46,7 +47,7 @@ export default async function Page({ params }: Props) {
         accountAddress: result.account.address,
         messageId,
       })}
-      locale={locale}
+      dateLocale={await getDateLocale(locale)}
       timeZone={settings.timeZone}
     />
   );

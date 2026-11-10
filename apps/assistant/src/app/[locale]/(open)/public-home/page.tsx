@@ -2,6 +2,7 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { getLocale } from "@tuja/i18n/server-locale";
 import { Heading } from "@tuja/ui/components/heading";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
@@ -18,16 +19,21 @@ export default async function Page() {
   const locale = getLocale();
   return (
     <AssistantFrame brand={t({ en: "Qi Assistant", zh: "Qi Assistant" })}>
-      <article css={stack.section}>
-        <Heading level={1} look="h1">
-          {t({ en: "Qi Assistant", zh: "Qi Assistant" })}
-        </Heading>
-        <Text>
-          {t({
-            en: "Qi Assistant (assistant.qingqi.dev) is a mail assistant that Qingqi Shi built and runs. It is designed for anyone to use, but it is not open for sign-up yet. It files the mail in an inbox into folders, and each morning it writes a report of the last 24 hours' mail with the to-dos it finds.",
-            zh: "Qi Assistant（assistant.qingqi.dev）是石清琪开发并运营的邮件助手，面向所有人设计，但目前尚未开放注册。它把收件箱里的邮件归入文件夹，并在每天早上就过去 24 小时的邮件写一份晨报，列出其中的待办。",
-          })}
-        </Text>
+      <article css={stack.group}>
+        <div css={stack.tight}>
+          <Heading level={1} look="h1">
+            {t({
+              en: "Your mail, filed and summed up each morning",
+              zh: "邮件自动归档，每天早上一份晨报",
+            })}
+          </Heading>
+          <Text>
+            {t({
+              en: "Qi Assistant (assistant.qingqi.dev) is a mail assistant that Qingqi Shi built and runs. It is designed for anyone to use, but it is not open for sign-up yet. It files the mail in an inbox into folders, and each morning it writes a report of the last 24 hours’ mail with the to-dos it finds.",
+              zh: "Qi Assistant（assistant.qingqi.dev）是石清琪开发并运营的邮件助手，面向所有人设计，但目前尚未开放注册。它把收件箱里的邮件归入文件夹，并在每天早上就过去 24 小时的邮件写一份晨报，列出其中的待办。",
+            })}
+          </Text>
+        </div>
 
         <LegalSection
           heading={t({
@@ -59,17 +65,19 @@ export default async function Page() {
 
         <LegalSection heading={t({ en: "More", zh: "更多信息" })}>
           <Text>
-            <Anchor href={getLocalePath("/privacy", locale)}>
-              {t({ en: "Privacy policy", zh: "隐私政策" })}
-            </Anchor>
-            {" · "}
-            <Anchor href={getLocalePath("/terms", locale)}>
-              {t({ en: "Terms of use", zh: "使用条款" })}
-            </Anchor>
-            {" · "}
-            <Anchor href={getLocalePath("/sign-in", locale)}>
-              {t({ en: "Sign in", zh: "登录" })}
-            </Anchor>
+            <MetaLine
+              facts={[
+                <Anchor key="privacy" href={getLocalePath("/privacy", locale)}>
+                  {t({ en: "Privacy policy", zh: "隐私政策" })}
+                </Anchor>,
+                <Anchor key="terms" href={getLocalePath("/terms", locale)}>
+                  {t({ en: "Terms of use", zh: "使用条款" })}
+                </Anchor>,
+                <Anchor key="sign-in" href={getLocalePath("/sign-in", locale)}>
+                  {t({ en: "Sign in", zh: "登录" })}
+                </Anchor>,
+              ]}
+            />
           </Text>
         </LegalSection>
       </article>

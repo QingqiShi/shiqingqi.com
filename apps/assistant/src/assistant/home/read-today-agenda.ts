@@ -7,10 +7,11 @@ import {
   RunCalendars,
   type CalendarDeps,
 } from "#src/assistant/agent/calendar/run-calendars.ts";
-import { mailAccounts } from "#src/assistant/db/schema.ts";
+import { mailAccounts, morningReports } from "#src/assistant/db/schema.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
 import { agendaItems } from "#src/assistant/report/agenda-items.ts";
 import { localClock } from "#src/assistant/report/due-report-date.ts";
+import type { AgendaItem } from "#src/assistant/report/types.ts";
 import type { TodayAgenda } from "./types.ts";
 
 const TIMEOUT_MS = 8000;
@@ -60,5 +61,36 @@ export async function readTodayAgenda(
       error instanceof Error ? error.message : String(error),
     );
     return { status: "error" };
+  }
+}
+
+/**
+ * The agenda that the report of `localDate` read from the calendar when it
+ * was built, or null when there is no such report, it has no agenda or the
+ * read fails. It never throws.
+ */
+export async function readReportAgenda(
+  { db, userId }: UserScope,
+  localDate: string,
+): Promise<AgendaItem[] | null> {
+  try {
+    const report = (
+      await db
+        .select({ content: morningReports.content })
+        .from(morningReports)
+        .where(
+          and(
+            eq(morningReports.userId, userId),
+            eq(morningReports.localDate, localDate),
+          ),
+        )
+    ).at(0);
+    return report?.content.version === 2 ? report.content.agenda : null;
+  } catch (error) {
+    console.error(
+      "Reading the report's agenda failed",
+      error instanceof Error ? error.message : String(error),
+    );
+    return null;
   }
 }

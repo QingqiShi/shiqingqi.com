@@ -7,6 +7,7 @@ import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
+import { MenuItem } from "@tuja/ui/components/menu-item";
 import { Popover } from "@tuja/ui/components/popover";
 import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
 import { Text } from "@tuja/ui/components/text";
@@ -19,7 +20,6 @@ import { addDays } from "../report/local-day-bounds.ts";
 import { formatListDay } from "./format-day.ts";
 import { nextWeekStart } from "./parse-todo-date.ts";
 import type { TodoItemData } from "./to-todo-item-data.ts";
-import { MenuAction } from "./todo-row-menu.tsx";
 import { useTodoStore } from "./todo-store-provider.tsx";
 
 /** The dates that a selection can move to. The popover mounts it when it opens. */
@@ -40,7 +40,8 @@ function BulkDateActions({
     <div css={[stack.tight, styles.dateMenu]}>
       <div css={stack.rows}>
         {dates.map(({ date, label }) => (
-          <MenuAction
+          <MenuItem
+            size="sm"
             key={date}
             trailing={formatListDay(date, locale)}
             onClick={() => {
@@ -48,15 +49,16 @@ function BulkDateActions({
             }}
           >
             {label}
-          </MenuAction>
+          </MenuItem>
         ))}
-        <MenuAction
+        <MenuItem
+          size="sm"
           onClick={() => {
             onPick(null);
           }}
         >
           {t({ en: "No date", zh: "不设日期" })}
-        </MenuAction>
+        </MenuItem>
       </div>
       <form
         css={[cluster.tight, styles.dateForm]}
@@ -162,8 +164,8 @@ export function TodoBulkBar({
           <Button
             size="sm"
             look="outline"
+            intent="danger"
             disabled={count === 0}
-            css={styles.delete}
             onClick={finish(() => {
               removeMany(ids);
             })}
@@ -203,9 +205,6 @@ const styles = stylex.create({
   },
   actions: {
     justifyContent: "flex-end",
-  },
-  delete: {
-    color: color.fgDanger,
   },
   dateMenu: {
     minInlineSize: "14rem",

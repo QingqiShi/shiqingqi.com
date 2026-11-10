@@ -1,3 +1,5 @@
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { pollDelayMs } from "../home/poll-delay-ms.ts";
@@ -32,6 +34,7 @@ async function readStatus(signal: AbortSignal): Promise<HomeStatus | null> {
  */
 export function useHomeStatus(seed: HomeStatus, view: HomeView) {
   const router = useRouter();
+  const home = getLocalePath("/", useLocale());
   const [status, setStatus] = useState(seed);
   const [nowMs, setNowMs] = useState(() => Date.parse(seed.serverNow));
   const [change, setChange] = useState<RunChange | null>(null);
@@ -131,7 +134,7 @@ export function useHomeStatus(seed: HomeStatus, view: HomeView) {
         hiddenAt !== null &&
         Date.now() - hiddenAt >= AWAY_BEFORE_REFRESH_MS
       ) {
-        router.refresh();
+        router.replace(home);
       }
       setNowMs(Date.now() + skewRef.current);
       if (!polling) pollAfter(0);
@@ -155,7 +158,7 @@ export function useHomeStatus(seed: HomeStatus, view: HomeView) {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [seed, view, router]);
+  }, [seed, view, router, home]);
 
-  return { card, change };
+  return { card, change, unseenReportDate: status.unseenReportDate };
 }

@@ -24,8 +24,8 @@ export function ReportsSkeleton() {
       segments={segments}
       list={
         <div css={stack.item} aria-busy>
-          <Heading level={segments.length === 1 ? 1 : 2} look="h3">
-            {t({ en: "Past reports", zh: "往期晨报" })}
+          <Heading level={segments.length === 1 ? 1 : 2}>
+            {t({ en: "All reports", zh: "全部晨报" })}
           </Heading>
           <SkeletonList rows={6} width="80%" />
         </div>

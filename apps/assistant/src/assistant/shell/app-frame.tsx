@@ -10,6 +10,7 @@ import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { normalizePath } from "@tuja/i18n/normalize-path";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Link, LinkStatus } from "@tuja/next-links/link";
+import { StatusDot } from "@tuja/ui/components/status-dot";
 import {
   TabView,
   TabViewLink,
@@ -20,13 +21,14 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { controlSize } from "@tuja/ui/tokens.stylex";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
 import { AssistantLogo } from "../pwa/assistant-logo.tsx";
 import { ReportsSkeleton } from "../report-page/reports-skeleton.tsx";
 import { TodosSkeleton } from "../report-page/todos-skeleton.tsx";
 import { SettingsSkeleton } from "../settings/settings-skeleton.tsx";
 import { ScreenSkeleton } from "./screen-skeleton.tsx";
 import { shownDestination, type DestinationPath } from "./shown-destination.ts";
+import { RecordShownPath } from "./use-came-from.ts";
 
 function TabLink(props: TabViewLinkProps) {
   return <Link {...props} prefetchOnIntent />;
@@ -37,12 +39,23 @@ function TabLink(props: TabViewLinkProps) {
  * mark and the four destinations. Below `md`, the tab bar holds the
  * destinations.
  */
-export function AppFrame({ children }: { children: ReactNode }) {
+export function AppFrame({
+  mailboxNeedsYou,
+  children,
+}: {
+  /** A mailbox must be connected again: the Settings destination says so. */
+  mailboxNeedsYou: boolean;
+  children: ReactNode;
+}) {
   const locale = useLocale();
   const shown = shownDestination(normalizePath(usePathname()));
   const appName = t({ en: "Qi Assistant", zh: "Qi Assistant" });
   const todosLabel = t({ en: "To-dos", zh: "待办" });
   const activityLabel = t({ en: "Activity", zh: "动态" });
+  const reconnectStatus = t({
+    en: "A mailbox needs connecting again",
+    zh: "有邮箱需要重新连接",
+  });
   const destinations = [
     {
       path: "/",
@@ -76,31 +89,42 @@ export function AppFrame({ children }: { children: ReactNode }) {
   }[];
 
   return (
-    <TabView
-      label={appName}
-      linkComponent={TabLink}
-      linkStatus={LinkStatus}
-      fallbackSkeleton={<ScreenSkeleton />}
-      css={pageColumn.list}
-      header={
-        <TabViewLink
-          href={getLocalePath("/", locale)}
-          aria-label={appName}
-          {...stylex.props(corner.radius_3, a11y.focusRing, styles.mark)}
-        >
-          <AssistantLogo css={styles.logo} />
-        </TabViewLink>
-      }
-      items={destinations.map((destination) => ({
-        href: getLocalePath(destination.path, locale),
-        label: destination.label,
-        icon: destination.icon,
-        current: destination.path === shown,
-        skeleton: destination.skeleton,
-      }))}
-    >
-      {children}
-    </TabView>
+    <>
+      <Suspense fallback={null}>
+        <RecordShownPath />
+      </Suspense>
+      <TabView
+        label={appName}
+        linkComponent={TabLink}
+        linkStatus={LinkStatus}
+        fallbackSkeleton={<ScreenSkeleton />}
+        css={pageColumn.list}
+        header={
+          <TabViewLink
+            href={getLocalePath("/", locale)}
+            aria-label={appName}
+            {...stylex.props(corner.radius_3, a11y.focusRing, styles.mark)}
+          >
+            <AssistantLogo css={styles.logo} />
+          </TabViewLink>
+        }
+        items={destinations.map((destination) => ({
+          href: getLocalePath(destination.path, locale),
+          label: destination.label,
+          icon: destination.icon,
+          current: destination.path === shown,
+          skeleton: destination.skeleton,
+          ...(destination.path === "/settings"
+            ? {
+                badge: mailboxNeedsYou ? <StatusDot intent="warning" /> : null,
+                status: mailboxNeedsYou ? reconnectStatus : null,
+              }
+            : {}),
+        }))}
+      >
+        {children}
+      </TabView>
+    </>
   );
 }
 

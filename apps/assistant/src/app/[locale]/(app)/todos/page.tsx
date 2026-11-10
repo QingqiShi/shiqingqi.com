@@ -88,7 +88,6 @@ export default async function Page({
               key={query}
               todos={todos.map((todo) => toTodoItemData(todo))}
               today={localClock(new Date(), settings.timeZone).date}
-              locale={locale}
               timeZone={settings.timeZone}
               openCount={openCount}
               hasCalendar={hasCalendar}

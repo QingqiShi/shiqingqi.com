@@ -10,6 +10,11 @@ import {
   type TodoActionKind,
 } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
+import { recordAccountError } from "#src/assistant/mail/accounts/check-account.ts";
+import {
+  describeSyncError,
+  type SyncErrorCode,
+} from "#src/assistant/mail/accounts/describe-sync-error.ts";
 import {
   openMailboxSession,
   type MailboxDeps,
@@ -45,7 +50,11 @@ export const UNDO_REFUSALS = [
   "event-changed",
   /** The mailbox is no longer connected. */
   "account-gone",
-  /** The mailbox or calendar did not let the app log in, or a command failed. */
+  /** The mailbox at `address` refused the login: it must be connected again. */
+  "login-refused",
+  /** The app could not log in to the mailbox at `address` this time. */
+  "login-failed",
+  /** A mail or calendar command failed. */
   "failed",
   ...TODO_UNDO_REFUSALS,
 ] as const;
@@ -53,7 +62,15 @@ export type UndoRefusal = (typeof UNDO_REFUSALS)[number];
 
 export type UndoOutcome =
   | { actionId: string; undone: true }
-  | { actionId: string; undone: false; refusal: UndoRefusal; folder?: string };
+  | {
+      actionId: string;
+      undone: false;
+      refusal: UndoRefusal;
+      folder?: string;
+      address?: string;
+      /** For `login-refused`: why only a new connect can fix the login. */
+      code?: SyncErrorCode;
+    };
 
 export type UndoTarget = { actionIds: readonly string[] } | { runId: string };
 
@@ -63,11 +80,22 @@ type ActionRow = typeof agentActions.$inferSelect;
 class Refused extends Error {
   readonly refusal: UndoRefusal;
   readonly folder: string | undefined;
+  readonly address: string | undefined;
+  readonly code: SyncErrorCode | undefined;
 
-  constructor(refusal: UndoRefusal, folder?: string) {
+  constructor(
+    refusal: UndoRefusal,
+    {
+      folder,
+      address,
+      code,
+    }: { folder?: string; address?: string; code?: SyncErrorCode } = {},
+  ) {
     super(refusal);
     this.refusal = refusal;
     this.folder = folder;
+    this.address = address;
+    this.code = code;
   }
 }
 
@@ -211,13 +239,34 @@ export async function undoAgentActions(
     return account;
   }
 
+  /**
+   * Refuses after a failed login: try later, or connect again. A login that
+   * only a new connect can fix goes on the account, as a run puts it, so that
+   * Mailboxes offers the connect that the refusal asks for.
+   */
+  async function refuseLogin(
+    error: unknown,
+    account: { id: string; address: string },
+  ): Promise<never> {
+    const { status, code } = describeSyncError(error);
+    if (status !== "reconnect") {
+      throw new Refused("login-failed", { address: account.address });
+    }
+    await recordAccountError(db, userId, account.id, error, now());
+    throw new Refused("login-refused", { address: account.address, code });
+  }
+
   function mailboxOf(accountId: string | null) {
     const key = accountId ?? "";
     let mailbox = mailboxes.get(key);
     if (!mailbox) {
       mailbox = storedAccount(accountId).then(
         async (account) =>
-          new UndoMailbox(await openMailboxSession(db, userId, account, deps)),
+          new UndoMailbox(
+            await openMailboxSession(db, userId, account, deps).catch(
+              (error: unknown) => refuseLogin(error, account),
+            ),
+          ),
       );
       mailboxes.set(key, mailbox);
     }
@@ -229,8 +278,15 @@ export async function undoAgentActions(
     let calendar = calendars.get(key);
     if (!calendar) {
       calendar = storedAccount(accountId).then(async (account) => {
-        const auth = await resolveMailboxAuth(db, userId, account, deps.auth);
-        if (!("pass" in auth)) throw new Refused("failed");
+        const auth = await resolveMailboxAuth(
+          db,
+          userId,
+          account,
+          deps.auth,
+        ).catch((error: unknown) => refuseLogin(error, account));
+        if (!("pass" in auth)) {
+          throw new Refused("failed", { address: account.address });
+        }
         return deps.calendarConnector({ user: auth.user, pass: auth.pass });
       });
       calendars.set(key, calendar);
@@ -305,12 +361,13 @@ export async function undoAgentActions(
     const detail = mailDetail.safeParse(row.detail ?? {}).data ?? {};
     const from = row.fromFolder ?? "";
     const to = row.toFolder ?? "";
-    if (!(await mailbox.has(from))) throw new Refused("folder-gone", from);
+    if (!(await mailbox.has(from)))
+      throw new Refused("folder-gone", { folder: from });
     const uid = await mailbox.find(to, row.messageId ?? "", {
       uidValidity: detail.toUidValidity,
       uid: detail.toUid,
     });
-    if (uid === null) throw new Refused("mail-gone", to);
+    if (uid === null) throw new Refused("mail-gone", { folder: to });
     await mailbox.session.moveMessages([uid], from);
   }
 
@@ -320,7 +377,7 @@ export async function undoAgentActions(
     const { flag, set } = FLAG_UNDO[kind];
     const folder = row.fromFolder ?? "";
     const uid = await mailbox.find(folder, row.messageId ?? "", detail);
-    if (uid === null) throw new Refused("mail-gone", folder);
+    if (uid === null) throw new Refused("mail-gone", { folder });
     if (set) await mailbox.session.addFlags([uid], [flag]);
     else await mailbox.session.removeFlags([uid], [flag]);
   }
@@ -331,7 +388,7 @@ export async function undoAgentActions(
       const path = row.toFolder ?? "";
       if (!(await mailbox.has(path))) return;
       if ((await mailbox.inside(path)).length > 0) {
-        throw new Refused("folder-has-folders", path);
+        throw new Refused("folder-has-folders", { folder: path });
       }
       const folder = (await mailbox.folders()).find(
         (entry) => entry.path === path,
@@ -339,7 +396,7 @@ export async function undoAgentActions(
       if (folder?.selectable) {
         await mailbox.select(path, false);
         if ((await mailbox.session.searchUids({})).length > 0) {
-          throw new Refused("folder-not-empty", path);
+          throw new Refused("folder-not-empty", { folder: path });
         }
       }
       await mailbox.session.deleteEmptyFolder(path);
@@ -349,8 +406,8 @@ export async function undoAgentActions(
       const hasOld = await mailbox.has(old);
       const hasRenamed = await mailbox.has(renamed);
       if (hasOld && !hasRenamed) return;
-      if (!hasRenamed) throw new Refused("folder-gone", renamed);
-      if (hasOld) throw new Refused("folder-exists", old);
+      if (!hasRenamed) throw new Refused("folder-gone", { folder: renamed });
+      if (hasOld) throw new Refused("folder-exists", { folder: old });
       await mailbox.session.renameFolder(renamed, old);
     } else {
       const path = row.fromFolder ?? "";
@@ -485,6 +542,8 @@ export async function undoAgentActions(
             undone: false,
             refusal: error.refusal,
             ...(error.folder === undefined ? {} : { folder: error.folder }),
+            ...(error.address === undefined ? {} : { address: error.address }),
+            ...(error.code === undefined ? {} : { code: error.code }),
           });
         } else {
           console.error(

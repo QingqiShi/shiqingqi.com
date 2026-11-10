@@ -4,28 +4,38 @@ import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
+import { Divider } from "@tuja/ui/components/divider";
 import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
 import { listSurface } from "@tuja/ui/components/list.stylex";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Text } from "@tuja/ui/components/text";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
+import { Anchor } from "#src/links/anchor.tsx";
 import type { ActivityEntry, ActivityRun } from "../activity/read-activity.ts";
-import { localClock } from "../report/due-report-date.ts";
+import { AddressText } from "../mailboxes/address-text.tsx";
+import { MailboxesLink } from "../mailboxes/mailboxes-link.tsx";
+import type { MailboxHealth } from "../mailboxes/read-mailbox-health.ts";
+import { ReconnectCause } from "../mailboxes/reconnect-cause.tsx";
+import { LAST_TRY_HOUR, localClock } from "../report/due-report-date.ts";
 import { daysBetween, formatDay } from "../report-page/format-day.ts";
-import { DayHeader } from "../shell/day-header.tsx";
+import { fillTemplate } from "../shell/fill-template.tsx";
+import { keepHyphenated } from "../shell/keep-hyphenated.tsx";
 import { ItemRow } from "./item-row.tsx";
-import { UndoButton } from "./undo-button.tsx";
+import { UndoButton, UndoScope, UndoStatus } from "./undo-button.tsx";
 
 interface Place {
   timeZone: string;
   locale: SupportedLocale;
+  /** The locale the page writes dates and times in. */
+  dateLocale: string;
 }
 
-function formatClock(date: Date, { timeZone, locale }: Place) {
-  return new Intl.DateTimeFormat(locale, {
+function formatClock(date: Date, { timeZone, dateLocale }: Place) {
+  return new Intl.DateTimeFormat(dateLocale, {
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
@@ -75,7 +85,94 @@ function StatusBadge({ run }: { run: ActivityRun }) {
   }
 }
 
-function RunEntry({ run, place }: { run: ActivityRun; place: Place }) {
+type Reconnect = MailboxHealth["reconnect"];
+
+/**
+ * Why a run failed and what happens next, per task. A mailbox that refused
+ * its login before the run ended comes first, because only the owner can
+ * fix it.
+ */
+function FailedRunNote({
+  run,
+  place,
+  reconnect,
+}: {
+  run: ActivityRun;
+  place: Place;
+  reconnect: Reconnect;
+}) {
+  const end = run.endedAt ?? run.startedAt;
+  const refused = reconnect.filter(
+    (mailbox) => mailbox.since === null || mailbox.since <= end,
+  );
+  const mailboxes = <MailboxesLink />;
+  const lastTry =
+    localClock(run.startedAt, place.timeZone).hour >= LAST_TRY_HOUR;
+  const refusedLogin = t({
+    en: "The assistant skips {address} until you connect it again in {mailboxes}. {cause}",
+    zh: "在你到{mailboxes}重新连接之前，助手会跳过 {address}。{cause}",
+  });
+  return (
+    <div css={stack.text}>
+      {refused.map((mailbox) => (
+        <Text key={mailbox.address} as="p" look="bodySmall" measure="none">
+          {fillTemplate(refusedLogin, {
+            address: <AddressText address={mailbox.address} />,
+            mailboxes,
+            cause: <ReconnectCause code={mailbox.code} />,
+          })}
+        </Text>
+      ))}
+      <Text as="p" look="bodySmall" measure="none">
+        {run.task === "organise"
+          ? t({
+              en: "The run stopped on an error. The next check, within 30 minutes, tries again.",
+              zh: "这次运行因出错而停止，30 分钟内的下一次检查会再试。",
+            })
+          : run.task === "report-preview"
+            ? fillTemplate(
+                t({
+                  en: "The preview stopped on an error. You can run it again on the {preview} page.",
+                  zh: "预览因出错而停止。可以在{preview}页面重新运行。",
+                }),
+                {
+                  preview: (
+                    <Anchor
+                      href={getLocalePath("/report-preview", place.locale)}
+                    >
+                      {t({ en: "preview", zh: "晨报预览" })}
+                    </Anchor>
+                  ),
+                },
+              )
+            : lastTry
+              ? t({
+                  en: "The run stopped on an error. It was the day’s last try, so the next report comes tomorrow morning.",
+                  zh: "这次运行因出错而停止。这是当天最后一次尝试，下一份晨报明天早上写。",
+                })
+              : t({
+                  en: "The run stopped on an error. The report tries again every hour until it is written.",
+                  zh: "这次运行因出错而停止。晨报写好之前，每小时会再试一次。",
+                })}
+      </Text>
+      {run.errorMessage ? (
+        <Text as="p" look="bodySmall" tone="muted" measure="none">
+          {run.errorMessage}
+        </Text>
+      ) : null}
+    </div>
+  );
+}
+
+function RunEntry({
+  run,
+  place,
+  reconnect,
+}: {
+  run: ActivityRun;
+  place: Place;
+  reconnect: Reconnect;
+}) {
   const changes =
     run.actions === 1
       ? t({ en: "1 change", zh: "1 项更改" })
@@ -88,85 +185,77 @@ function RunEntry({ run, place }: { run: ActivityRun; place: Place }) {
       <List>
         <li css={listSurface.item}>
           <header css={[listSurface.row, styles.row]}>
-            <div css={[stack.tight, styles.grow]}>
+            <div css={[styles.runHead, styles.grow]}>
               <div css={stack.text}>
                 <div css={styles.runTitle}>
-                  <Heading level={3} css={[typeRole.label, styles.runName]}>
+                  <Heading level={3} look="h4">
                     <TaskName run={run} />
                   </Heading>
                   <StatusBadge run={run} />
                 </div>
-                <Text look="caption" tone="muted" numeric>
-                  {formatClock(run.startedAt, place)}
-                  {run.actions > 0 ? ` · ${changes}` : null}
+                <Text look="bodySmall" tone="muted" numeric>
+                  <MetaLine
+                    facts={[
+                      formatClock(run.startedAt, place),
+                      run.actions > 0 && changes,
+                    ]}
+                  />
                 </Text>
               </div>
-              {run.note ? (
-                <Text as="p" look="bodySmall">
-                  {run.note}
-                </Text>
-              ) : null}
-              {run.status === "failed" ? (
-                <div css={stack.text}>
-                  <Text as="p" look="bodySmall">
+              <div css={[stack.tight, styles.wide]}>
+                {run.note ? (
+                  <Text as="p" look="bodySmall" measure="none" verbatim>
+                    {keepHyphenated(run.note)}
+                  </Text>
+                ) : null}
+                {run.status === "failed" ? (
+                  <FailedRunNote
+                    run={run}
+                    place={place}
+                    reconnect={reconnect}
+                  />
+                ) : null}
+                {run.status === "interrupted" ? (
+                  <Text as="p" look="bodySmall" tone="muted" measure="none">
+                    {run.actions > 0
+                      ? t({
+                          en: "The run was cut off before it finished. What it changed until then is below.",
+                          zh: "这次运行没有完成就被中断了。中断前做的更改列在下面。",
+                        })
+                      : t({
+                          en: "The run was cut off before it finished. It changed nothing.",
+                          zh: "这次运行没有完成就被中断了，没有做任何更改。",
+                        })}
+                  </Text>
+                ) : null}
+                {run.task === "report" && !run.note && run.status === "done" ? (
+                  <Text as="p" look="bodySmall" measure="none">
                     {t({
-                      en: "The run stopped on an error. The next run tries again.",
-                      zh: "这次运行因出错而停止，下一次运行会再试。",
+                      en: "Wrote the morning report.",
+                      zh: "写好了晨报。",
                     })}
                   </Text>
-                  {run.errorMessage ? (
-                    <Text as="p" look="caption" tone="muted">
-                      {run.errorMessage}
-                    </Text>
-                  ) : null}
-                </div>
-              ) : null}
-              {run.status === "interrupted" ? (
-                <Text as="p" look="caption" tone="muted">
-                  {run.actions > 0
-                    ? t({
-                        en: "The run was cut off before it finished. What it changed until then is below.",
-                        zh: "这次运行没有完成就被中断了。中断前做的更改列在下面。",
-                      })
-                    : t({
-                        en: "The run was cut off before it finished. It changed nothing.",
-                        zh: "这次运行没有完成就被中断了，没有做任何更改。",
-                      })}
-                </Text>
-              ) : null}
-              {run.task === "report" && !run.note && run.status === "done" ? (
-                <Text as="p" look="bodySmall">
-                  {t({
-                    en: "Wrote the morning report.",
-                    zh: "写好了晨报。",
-                  })}
-                </Text>
-              ) : null}
-              {run.task === "report-preview" &&
-              !run.note &&
-              run.status === "done" ? (
-                <Text as="p" look="bodySmall">
-                  {t({
-                    en: "Wrote a preview of the morning report and changed nothing.",
-                    zh: "写好了晨报预览，没有做任何更改。",
-                  })}
-                </Text>
+                ) : null}
+              </div>
+              {run.undoable > 1 ? (
+                <UndoScope
+                  target={{ runId: run.id }}
+                  confirm={t({
+                    en: "Undo {count} changes",
+                    zh: "撤销 {count} 项更改",
+                  }).replace("{count}", String(run.undoable))}
+                >
+                  <div css={styles.action}>
+                    <UndoButton label={t({ en: "Undo all", zh: "全部撤销" })} />
+                  </div>
+                  <UndoStatus css={styles.runStatus} />
+                </UndoScope>
               ) : null}
             </div>
-            {run.undoable > 1 ? (
-              <UndoButton
-                target={{ runId: run.id }}
-                label={t({ en: "Undo all", zh: "全部撤销" })}
-                confirm={t({
-                  en: "Undo {count} changes",
-                  zh: "撤销 {count} 项更改",
-                }).replace("{count}", String(run.undoable))}
-              />
-            ) : null}
           </header>
         </li>
         {run.items.map((item, index) => (
-          <ItemRow key={index} item={item} locale={place.locale} />
+          <ItemRow key={index} item={item} dateLocale={place.dateLocale} />
         ))}
       </List>
     </article>
@@ -181,23 +270,36 @@ function QuietLine({
   place: Place;
 }) {
   const text =
-    entry.count === 1
-      ? t({
-          en: "A check at {first} changed nothing",
-          zh: "{first} 检查了一次，没有更改",
-        })
-      : t({
-          en: "{count} checks from {first} to {last} changed nothing",
-          zh: "{first} 到 {last} 检查了 {count} 次，没有更改",
-        });
+    entry.task === "report-preview"
+      ? entry.count === 1
+        ? t({
+            en: "A morning report preview at {first} changed nothing",
+            zh: "{first} 生成了一次晨报预览，没有更改",
+          })
+        : t({
+            en: "{count} morning report previews from {first} to {last} changed nothing",
+            zh: "{first} 到 {last} 生成了 {count} 次晨报预览，没有更改",
+          })
+      : entry.count === 1
+        ? t({
+            en: "A check at {first} changed nothing",
+            zh: "{first} 检查了一次，没有更改",
+          })
+        : t({
+            en: "{count} checks from {first} to {last} changed nothing",
+            zh: "{first} 到 {last} 检查了 {count} 次，没有更改",
+          });
   return (
-    <FlowBlock>
+    <FlowBlock css={[flex.row, styles.quiet]}>
       <Text as="p" look="caption" tone="muted" numeric>
         {text
           .replace("{count}", String(entry.count))
           .replace("{first}", formatClock(entry.first, place))
           .replace("{last}", formatClock(entry.last, place))}
       </Text>
+      <div css={styles.quietRule} aria-hidden>
+        <Divider />
+      </div>
     </FlowBlock>
   );
 }
@@ -226,12 +328,15 @@ export function ActivityView({
   earlier,
   now,
   place,
+  reconnect,
 }: {
   entries: readonly ActivityEntry[];
   /** Where the next page starts; null when there is none. */
   earlier: Date | null;
   now: Date;
   place: Place;
+  /** Mailboxes that must be connected again. */
+  reconnect: Reconnect;
 }) {
   const today = localClock(now, place.timeZone).date;
   const days: { date: string; entries: ActivityEntry[] }[] = [];
@@ -243,19 +348,24 @@ export function ActivityView({
     else days.push({ date, entries: [entry] });
   }
   return (
-    <div css={stack.group}>
+    <div css={stack.section}>
       {days.map((day) => (
         <FlowBlock as="section" key={day.date} css={stack.tight}>
-          <DayHeader level={2}>
-            <DayName date={day.date} today={today} locale={place.locale} />
-          </DayHeader>
+          <Heading level={2}>
+            <DayName date={day.date} today={today} locale={place.dateLocale} />
+          </Heading>
           <div css={stack.item}>
             {day.entries.map((entry) =>
               entry.type === "run" ? (
-                <RunEntry key={entry.id} run={entry} place={place} />
+                <RunEntry
+                  key={entry.id}
+                  run={entry}
+                  place={place}
+                  reconnect={reconnect}
+                />
               ) : (
                 <QuietLine
-                  key={`quiet-${entry.first.toISOString()}`}
+                  key={`quiet-${entry.task}-${entry.first.toISOString()}`}
                   entry={entry}
                   place={place}
                 />
@@ -288,13 +398,38 @@ const styles = stylex.create({
     flexGrow: 1,
     minInlineSize: 0,
   },
+  runHead: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr) fit-content(50%)",
+    alignItems: "start",
+    columnGap: rhythm.tight,
+  },
+  wide: {
+    gridColumn: "1 / -1",
+    display: { default: "flex", ":empty": "none" },
+    marginBlockStart: rhythm.tight,
+  },
+  runStatus: {
+    gridColumn: "1 / -1",
+    marginBlockStart: { default: 0, ":not(:empty)": rhythm.tight },
+  },
+  action: {
+    gridColumn: 2,
+    gridRow: 1,
+  },
+  quiet: {
+    gap: rhythm.tight,
+    // The same block padding as a run card's header row, so the note's text sits where a card's title does.
+    paddingBlock: space._2,
+  },
+  quietRule: {
+    flexGrow: 1,
+    minInlineSize: space._7,
+  },
   runTitle: {
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
     gap: rhythm.inline,
-  },
-  runName: {
-    fontWeight: font.weight_6,
   },
 });

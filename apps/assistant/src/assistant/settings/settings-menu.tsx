@@ -12,6 +12,7 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { NavLink } from "@tuja/ui/components/nav-link";
 import { NavList } from "@tuja/ui/components/nav-list";
 import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
+import { StatusDot } from "@tuja/ui/components/status-dot";
 import {
   SETTINGS_SECTIONS,
   type SettingsSection,
@@ -39,9 +40,19 @@ export function useSettingsSectionLabels(): Record<SettingsSection, string> {
  * The Settings sections, with the open one marked where the menu shows beside
  * it. The sidebar of the view marks none where it is a page of its own.
  */
-export function SettingsMenu({ current }: { current: SettingsSection | null }) {
+export function SettingsMenu({
+  current,
+  mailboxNeedsYou,
+}: {
+  current: SettingsSection | null;
+  mailboxNeedsYou: boolean;
+}) {
   const locale = useLocale();
   const labels = useSettingsSectionLabels();
+  const reconnectNote = t({
+    en: "(needs connecting again)",
+    zh: "（需要重新连接）",
+  });
 
   return (
     <NavList linkComponent={SplitViewLink}>
@@ -55,6 +66,9 @@ export function SettingsMenu({ current }: { current: SettingsSection | null }) {
             icon={<SectionIcon weight="bold" />}
           >
             {labels[section]}
+            {section === "mailboxes" && mailboxNeedsYou ? (
+              <StatusDot intent="warning" label={reconnectNote} />
+            ) : null}
           </NavLink>
         );
       })}

@@ -105,7 +105,9 @@ export function useSortableRow(id: string, draggable: boolean) {
       >
         <DotsSixVerticalIcon weight="bold" />
       </span>
-    ) : null,
+    ) : (
+      <span aria-hidden css={[styles.handle, styles.noHandle]} />
+    ),
   };
 }
 
@@ -138,6 +140,11 @@ const styles = stylex.create({
     color: color.fgMuted,
     cursor: "grab",
     touchAction: "none",
+  },
+  // A row that cannot move keeps the handle's space, so that the titles of
+  // the list end at the same place.
+  noHandle: {
+    visibility: "hidden",
   },
   moving: (transform: string, transition: string) => ({
     transform,

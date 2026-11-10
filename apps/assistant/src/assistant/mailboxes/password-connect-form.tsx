@@ -1,22 +1,23 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { TextField } from "@tuja/ui/components/text-field";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { measure } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toAssistantApiError } from "../http/assistant-api-error.ts";
 import { assistantFetch } from "../http/assistant-fetch.ts";
+import { keepHyphenatedText } from "../shell/keep-hyphenated.tsx";
 
 /** Connects a mailbox with an app-specific password. The server tries the login before it keeps it. */
 export function PasswordConnectForm({
   provider,
+  onConnected,
 }: {
   provider: "icloud" | "gmail";
+  onConnected?: () => void;
 }) {
   const router = useRouter();
   const [address, setAddress] = useState("");
@@ -31,10 +32,12 @@ export function PasswordConnectForm({
             zh: "iCloud 拒绝了这个地址和密码。请确认使用的是 App 专用密码，而不是 Apple 账户密码。",
           }),
           address: t({ en: "iCloud email address", zh: "iCloud 邮箱地址" }),
-          passwordHelp: t({
-            en: "Make one at account.apple.com, under Sign-In and Security. It looks like abcd-efgh-ijkl-mnop.",
-            zh: "在 account.apple.com 的“登录与安全”中生成，格式类似 abcd-efgh-ijkl-mnop。",
-          }),
+          passwordHelp: keepHyphenatedText(
+            t({
+              en: "Make one at account.apple.com, under Sign-In and Security. It looks like abcd-efgh-ijkl-mnop.",
+              zh: "在 account.apple.com 的“登录与安全”中生成，格式类似 abcd-efgh-ijkl-mnop。",
+            }),
+          ),
           submit: t({ en: "Connect iCloud", zh: "连接 iCloud" }),
         }
       : {
@@ -43,10 +46,12 @@ export function PasswordConnectForm({
             zh: "Gmail 拒绝了这个地址和密码。请使用应用专用密码，而不是 Google 密码。",
           }),
           address: t({ en: "Gmail address", zh: "Gmail 地址" }),
-          passwordHelp: t({
-            en: "Make one at myaccount.google.com/apppasswords. It needs 2-Step Verification.",
-            zh: "在 myaccount.google.com/apppasswords 生成，需要先开启两步验证。",
-          }),
+          passwordHelp: keepHyphenatedText(
+            t({
+              en: "Make one at myaccount.google.com/apppasswords. It needs 2-Step Verification.",
+              zh: "在 myaccount.google.com/apppasswords 生成，需要先开启两步验证。",
+            }),
+          ),
           submit: t({
             en: "Connect with app password",
             zh: "用应用专用密码连接",
@@ -66,7 +71,7 @@ export function PasswordConnectForm({
 
   return (
     <form
-      css={[stack.item, styles.form]}
+      css={stack.item}
       onSubmit={(event) => {
         event.preventDefault();
         setBusy(true);
@@ -78,6 +83,7 @@ export function PasswordConnectForm({
           .then(() => {
             setAddress("");
             setPassword("");
+            onConnected?.();
             router.refresh();
           })
           .catch((caught: unknown) => {
@@ -127,9 +133,3 @@ export function PasswordConnectForm({
     </form>
   );
 }
-
-const styles = stylex.create({
-  form: {
-    maxInlineSize: measure.form,
-  },
-});

@@ -4,13 +4,12 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { TabViewLink } from "@tuja/ui/components/tab-view";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
+import { Anchor } from "#src/links/anchor.tsx";
 import { formatWeekday } from "./format-day.ts";
 import { useTodoStore } from "./todo-store-provider.tsx";
 
@@ -18,18 +17,31 @@ import { useTodoStore } from "./todo-store-provider.tsx";
 export function ReportFigures({
   needsYou,
   agendaCount,
+  agendaDate,
   mailCount,
   mailDate,
   locale,
 }: {
   needsYou: number;
   agendaCount: number;
+  /** The day of the agenda, the report's day. */
+  agendaDate: string;
   mailCount: number;
   mailDate: string;
   locale: SupportedLocale;
 }) {
-  const { openCount: openTodos } = useTodoStore();
-  const mailDay = formatWeekday(mailDate, locale);
+  const { openCount: openTodos, today, locale: dateLocale } = useTodoStore();
+  const mailDay = formatWeekday(mailDate, dateLocale);
+  const agendaDay = formatWeekday(agendaDate, dateLocale);
+  const agendaLabel =
+    agendaDate === today
+      ? agendaCount === 1
+        ? t({ en: "event today", zh: "今日日程" })
+        : t({ en: "events today", zh: "今日日程" })
+      : (agendaCount === 1
+          ? t({ en: "event on {day}", zh: "{day}日程" })
+          : t({ en: "events on {day}", zh: "{day}日程" })
+        ).replace("{day}", agendaDay);
   const figures = [
     {
       key: "needs-you",
@@ -51,10 +63,7 @@ export function ReportFigures({
     {
       key: "agenda",
       count: agendaCount,
-      label:
-        agendaCount === 1
-          ? t({ en: "event today", zh: "今日日程" })
-          : t({ en: "events today", zh: "今日日程" }),
+      label: agendaLabel,
     },
     {
       key: "mail",
@@ -73,12 +82,14 @@ export function ReportFigures({
         <div key={key} css={[typeRole.bodySmall, styles.figure]}>
           <dt css={styles.label}>
             {href ? (
-              <TabViewLink
+              <Anchor
                 href={href}
-                {...stylex.props(a11y.focusRing, styles.link)}
+                linkComponent={TabViewLink}
+                tone="muted"
+                standalone
               >
                 {label}
-              </TabViewLink>
+              </Anchor>
             ) : (
               label
             )}
@@ -98,7 +109,6 @@ const styles = stylex.create({
     rowGap: rhythm.inline,
   },
   figure: {
-    position: "relative",
     display: "flex",
     alignItems: "baseline",
     gap: rhythm.inline,
@@ -109,21 +119,5 @@ const styles = stylex.create({
   count: {
     margin: 0,
     order: -1,
-    fontWeight: font.weight_7,
-  },
-  // The link takes the whole figure, and 44px of height at the least.
-  link: {
-    color: {
-      default: "inherit",
-      ":hover": { default: null, [pointer.canHover]: color.fg },
-    },
-    textDecorationLine: "underline",
-    textDecorationColor: color.border,
-    textUnderlineOffset: "0.2em",
-    "::after": {
-      content: '""',
-      position: "absolute",
-      inset: "min(0px, calc(50% - 22px))",
-    },
   },
 });

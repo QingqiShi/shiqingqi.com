@@ -1,18 +1,16 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Textarea } from "@tuja/ui/components/textarea";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { measure } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { assistantFetch } from "../http/assistant-fetch.ts";
 import { ORGANISE_NOTES_MAX_CHARS } from "../organise/organise-notes-max-chars.ts";
 
-/** The user's own words on where mail goes, for the model that picks a folder. */
+/** The user's rules on where mail goes, for the model that picks a folder. */
 export function OrganiseNotesForm({ initial }: { initial: string }) {
   const router = useRouter();
   const [notes, setNotes] = useState(initial);
@@ -21,7 +19,7 @@ export function OrganiseNotesForm({ initial }: { initial: string }) {
 
   return (
     <form
-      css={[stack.item, styles.form]}
+      css={stack.item}
       onSubmit={(event) => {
         event.preventDefault();
         setBusy(true);
@@ -42,10 +40,10 @@ export function OrganiseNotesForm({ initial }: { initial: string }) {
       }}
     >
       <Textarea
-        label={t({ en: "Where mail goes", zh: "邮件归到哪里" })}
+        label={t({ en: "Your rules", zh: "你的规则" })}
         description={t({
-          en: "Tell the assistant your rules, for example: “Bank and card mail goes to Finance.” Your rules come before its own judgement.",
-          zh: "告诉助手你的规则，例如：“银行和信用卡邮件放进‘财务’。”你的规则优先于它自己的判断。",
+          en: "Tell the assistant where mail goes, for example: “Bank and card mail goes to Finance.” Your rules come before its own judgement.",
+          zh: "告诉助手邮件该放到哪里，例如：“银行和信用卡邮件放进‘财务’。”你的规则优先于它自己的判断。",
         })}
         rows={4}
         autoGrow
@@ -58,28 +56,22 @@ export function OrganiseNotesForm({ initial }: { initial: string }) {
       />
       {notice === "saved" ? (
         <Callout intent="success" role="status">
-          {t({ en: "Notes saved.", zh: "说明已保存。" })}
+          {t({ en: "Rules saved.", zh: "规则已保存。" })}
         </Callout>
       ) : null}
       {notice === "failed" ? (
         <Callout intent="danger" role="alert">
           {t({
-            en: "The notes were not saved. Try again.",
-            zh: "说明没有保存成功，请重试。",
+            en: "The rules were not saved. Try again.",
+            zh: "规则没有保存成功，请重试。",
           })}
         </Callout>
       ) : null}
       <div>
-        <Button type="submit" look="outline" loading={busy}>
-          {t({ en: "Save notes", zh: "保存说明" })}
+        <Button type="submit" look="primary" loading={busy}>
+          {t({ en: "Save rules", zh: "保存规则" })}
         </Button>
       </div>
     </form>
   );
 }
-
-const styles = stylex.create({
-  form: {
-    maxInlineSize: measure.form,
-  },
-});

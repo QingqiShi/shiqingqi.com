@@ -23,7 +23,7 @@ import {
 } from "#src/assistant/db/schema.ts";
 import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
 import type { MailboxDeps } from "#src/assistant/mail/accounts/open-mailbox-session.ts";
-import { dueReportDate, localClock } from "./due-report-date.ts";
+import { dueReportDate, LAST_TRY_HOUR, localClock } from "./due-report-date.ts";
 import {
   addDays,
   localDayBounds,
@@ -41,12 +41,6 @@ type ReportWindowInput = Pick<
   Parameters<typeof runReportAgent>[1],
   "today" | "mailWindow" | "mailStart" | "task"
 >;
-
-/**
- * From this local hour on, a run that cannot write the report stores one
- * that says so. Before it, the run stores nothing and the next hour tries again.
- */
-const LAST_TRY_HOUR = 23;
 
 /** A mailbox that fails to open gets this many more tries in the run, this long apart. */
 const LOGIN_RETRIES = 2;

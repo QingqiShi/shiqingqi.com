@@ -25,8 +25,8 @@ export interface ClaimedReportPreview {
 }
 
 /**
- * Overwrites the user's preview row with a new running preview, or returns
- * null when one is running. A running row of `REPORT_PREVIEW_STALE_MS` or
+ * Marks the user's preview row as a new running preview, or returns null
+ * when one is running. The last built preview stays in the row. A running row of `REPORT_PREVIEW_STALE_MS` or
  * older does not count: its function is gone.
  */
 export async function claimReportPreview(
@@ -49,18 +49,15 @@ export async function claimReportPreview(
   };
   const values = {
     status: "running" as const,
-    localDate,
-    content: null,
-    todoChanges: null,
     error: null,
     startedAt: now,
-    builtAt: null,
   };
   const claimed = await scope.db
     .insert(morningReportPreviews)
-    .values({ userId: scope.userId, ...values })
+    .values({ userId: scope.userId, localDate, ...values })
     .onConflictDoUpdate({
       target: morningReportPreviews.userId,
+      // The last built preview, with its day, stays until a new one is built, so that a failed run can show it below the failure.
       set: values,
       setWhere: or(
         ne(morningReportPreviews.status, "running"),

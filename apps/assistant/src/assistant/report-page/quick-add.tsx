@@ -1,6 +1,7 @@
 "use client";
 
 import { CalendarBlankIcon } from "@phosphor-icons/react/dist/ssr/CalendarBlank";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
@@ -17,22 +18,38 @@ import { useTodoStore } from "./todo-store-provider.tsx";
 /**
  * The input at the top of the to-dos. Enter adds a to-do and keeps the focus
  * here for the next one. A date in the text shows as a chip while typing, and
- * dropping the chip keeps the text as it is. What another app shared starts in
+ * dropping the chip keeps the text as it is. Text with no date takes the date of
+ * the view it is added from, as a chip too, so the new to-do stays in sight.
+ * What another app shared starts in
  * it, and goes from the address so that a reload does not bring it back.
  */
 export function QuickAdd({
   sharedText = "",
+  defaultDueDate,
   onAdded,
 }: {
   sharedText?: string;
-  onAdded: (todo: { dueDate: string | null; startDate: null }) => void;
+  /** The due date of text that names none: today in the Today view. */
+  defaultDueDate: string | null;
+  onAdded: (todo: {
+    id: string;
+    dueDate: string | null;
+    startDate: null;
+  }) => void;
 }) {
   const { add, today, locale } = useTodoStore();
   const [text, setText] = useState(sharedText);
   const [droppedWords, setDroppedWords] = useState<string | null>(null);
+  const [droppedDefault, setDroppedDefault] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const parsed = parseTodoDate(text, today);
-  const dueDate = parsed.matched === droppedWords ? null : parsed.dueDate;
+  const datedByWords =
+    parsed.dueDate !== null && parsed.matched !== droppedWords;
+  const dueDate = datedByWords
+    ? parsed.dueDate
+    : text.trim() === "" || parsed.matched !== null || droppedDefault
+      ? null
+      : defaultDueDate;
   const label = t({ en: "Add a to-do", zh: "添加待办" });
 
   useEffect(() => {
@@ -51,10 +68,14 @@ export function QuickAdd({
         event.preventDefault();
         const typed = text.trim();
         if (typed) {
-          add({ title: dueDate ? parsed.title : typed, dueDate });
-          onAdded({ dueDate, startDate: null });
+          const id = add({
+            title: datedByWords ? parsed.title : typed,
+            dueDate,
+          });
+          onAdded({ id, dueDate, startDate: null });
           setText("");
           setDroppedWords(null);
+          setDroppedDefault(false);
         }
         inputRef.current?.focus();
       }}
@@ -65,16 +86,19 @@ export function QuickAdd({
             ref={inputRef}
             label={label}
             labelHidden
-            placeholder={t({
-              en: "Send the report by Friday",
-              zh: "周五前交报销",
-            })}
+            placeholder={label}
+            leading={<PlusIcon weight="bold" />}
             value={text}
             maxLength={todoLimits.titleChars}
             enterKeyHint="done"
             autoComplete="off"
             onChange={(event) => {
               setText(event.target.value);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && !event.nativeEvent.isComposing) {
+                event.currentTarget.blur();
+              }
             }}
           />
         </div>
@@ -100,7 +124,8 @@ export function QuickAdd({
               zh: "去掉日期 {date}",
             }).replace("{date}", formatListDay(dueDate, locale))}
             onClick={() => {
-              setDroppedWords(parsed.matched);
+              if (parsed.matched === null) setDroppedDefault(true);
+              else setDroppedWords(parsed.matched);
               inputRef.current?.focus();
             }}
           >

@@ -77,7 +77,7 @@ export function useTodoSlotActions({
       en: "It changed in your calendar, so nothing was overwritten",
       zh: "它在日历里被改过，所以没有覆盖",
     }),
-    useCalendarTime: t({ en: "Use the calendar's", zh: "以日历为准" }),
+    useCalendarTime: t({ en: "Use the calendar’s", zh: "以日历为准" }),
     slotGone: t({
       en: "That event is no longer on your calendar",
       zh: "这个日程已经不在日历上了",

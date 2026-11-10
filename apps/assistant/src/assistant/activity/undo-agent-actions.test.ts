@@ -17,7 +17,11 @@ import {
   createFakeCalendarServer,
   type FakeCalendarServer,
 } from "#src/assistant/calendar/testing/create-fake-calendar-server.ts";
-import { agentActions, agentRuns } from "#src/assistant/db/schema.ts";
+import {
+  agentActions,
+  agentRuns,
+  mailAccounts,
+} from "#src/assistant/db/schema.ts";
 import {
   createTestDb,
   type TestDb,
@@ -305,6 +309,38 @@ describe("undoing what an agent did", () => {
     expect(mail.locate(letter)).toMatchObject([{ path: "Purchases" }]);
     expect(mail.log.writes).toHaveLength(writes);
     expect((await actionsOf(runId))[0].undoneAt).toBeNull();
+  });
+
+  it("names the mailbox that refuses the login, so the owner can connect it again", async () => {
+    deliver("INBOX", "Council tax");
+    const { runId, call } = await startRun();
+    const ids = await idsIn(call, "INBOX");
+    await call("move_mail", {
+      ids: [ids["Council tax"]],
+      folder: "Receipts",
+      reason: "Bills",
+    });
+    const changedPassword = createFakeMailServer({
+      user: "me@icloud.com",
+      password: "new-password",
+    });
+
+    expect(
+      await undoAgentActions(
+        { db, userId, now: nextInstant },
+        { ...deps(), connector: changedPassword.connector },
+        { runId },
+      ),
+    ).toEqual([
+      expect.objectContaining({
+        undone: false,
+        refusal: "login-refused",
+        address: "me@icloud.com",
+        code: "login_refused",
+      }),
+    ]);
+    expect((await actionsOf(runId))[0].undoneAt).toBeNull();
+    expect((await db.select().from(mailAccounts))[0].status).toBe("reconnect");
   });
 
   it("puts a changed event back as it was, and a deleted one back in the calendar", async () => {

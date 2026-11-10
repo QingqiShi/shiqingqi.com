@@ -3,21 +3,16 @@
 import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
+import { Divider } from "@tuja/ui/components/divider";
+import { MenuItem } from "@tuja/ui/components/menu-item";
 import { Popover } from "@tuja/ui/components/popover";
 import { Text } from "@tuja/ui/components/text";
 import { useToast } from "@tuja/ui/components/toast-provider";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { rhythm, space } from "@tuja/ui/tokens.stylex";
+import { controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { mergeRefs } from "@tuja/ui/utils/merge-refs";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 import { datesInOrder } from "../report/dates-in-order.ts";
 import { addDays } from "../report/local-day-bounds.ts";
 import { CalendarSlotSheet } from "./calendar-slot-sheet.tsx";
@@ -29,42 +24,19 @@ import { isOpen, slotIsAhead, type TodoItemData } from "./to-todo-item-data.ts";
 import type { TodoEditFocus } from "./todo-editor.tsx";
 import { useTodoStore } from "./todo-store-provider.tsx";
 
-export function MenuAction({
-  children,
-  trailing,
-  current = false,
-  danger = false,
-  onClick,
-}: {
-  children: ReactNode;
-  trailing?: string;
-  current?: boolean;
-  danger?: boolean;
-  onClick: () => void;
-}) {
+/** The groups of a menu, with a line between each two. A null group shows nothing. */
+function MenuGroups({ groups }: { groups: readonly ReactNode[] }) {
   return (
-    <button
-      type="button"
-      aria-current={current ? "true" : undefined}
-      onClick={onClick}
-      css={[
-        buttonReset.base,
-        flex.between,
-        typeRole.control,
-        corner.radius_1,
-        a11y.touchRow,
-        quietSurface.interactive,
-        styles.action,
-        danger && styles.danger,
-      ]}
-    >
-      <span>{children}</span>
-      {trailing ? (
-        <Text look="caption" tone="muted">
-          {trailing}
-        </Text>
-      ) : null}
-    </button>
+    <div css={[stack.rows, styles.menu]}>
+      {groups
+        .filter((group) => group !== null)
+        .map((group, index) => (
+          <Fragment key={index}>
+            {index > 0 ? <Divider css={styles.divider} /> : null}
+            {group}
+          </Fragment>
+        ))}
+    </div>
   );
 }
 
@@ -126,6 +98,8 @@ function TodoRowActions({
 }) {
   const {
     edit,
+    moveMany,
+    setDone,
     remove,
     removeSlot,
     setWaiting,
@@ -161,167 +135,204 @@ function TodoRowActions({
       );
   const shownFrom = t({
     en: "Shows in Today from {date}",
-    zh: "{date} 起显示在“今天”",
+    zh: "{date}起显示在“今天”",
   });
 
+  const open = isOpen(todo);
+  const removesSlot = open
+    ? todo.calendarSlot !== null
+    : slotIsAhead(todo.calendarSlot, renderedAt);
+
   return (
-    <div css={[stack.rows, styles.menu]}>
-      {up ? (
-        <MenuAction onClick={closeThen(up)}>
-          {t({ en: "Move up", zh: "上移" })}
-        </MenuAction>
-      ) : null}
-      {down ? (
-        <MenuAction onClick={closeThen(down)}>
-          {t({ en: "Move down", zh: "下移" })}
-        </MenuAction>
-      ) : null}
-      {isOpen(todo) ? (
-        <>
-          <MenuCaption>{t({ en: "Due", zh: "到期" })}</MenuCaption>
-          {dueDates.map(({ date, label }) => (
-            <MenuAction
-              key={date}
-              trailing={formatListDay(date, locale)}
-              current={todo.dueDate === date}
-              onClick={closeThen(() => {
-                edit(todo.id, { dueDate: date });
-              })}
-            >
-              {label}
-            </MenuAction>
-          ))}
-          <MenuAction
+    <MenuGroups
+      groups={[
+        open ? null : (
+          <MenuItem
+            size="sm"
+            key="reopen"
             onClick={closeThen(() => {
-              onEdit("dueDate");
+              setDone(todo.id, false);
             })}
           >
-            {t({ en: "Pick a date…", zh: "选择日期…" })}
-          </MenuAction>
-          {todo.dueDate !== null ? (
-            <MenuAction
-              onClick={closeThen(() => {
-                edit(todo.id, { dueDate: null });
-              })}
-            >
-              {t({ en: "No date", zh: "不设日期" })}
-            </MenuAction>
-          ) : null}
-          {startDates.length > 0 ? (
-            <>
-              <MenuCaption>{t({ en: "Later", zh: "稍后再看" })}</MenuCaption>
-              {startDates.map(({ date, label }) => (
-                <MenuAction
-                  key={date}
-                  trailing={formatListDay(date, locale)}
-                  current={todo.startDate === date}
-                  onClick={closeThen(() => {
-                    edit(todo.id, { startDate: date });
-                    showToast({
-                      message: shownFrom.replace(
-                        "{date}",
-                        formatListDay(date, locale),
-                      ),
-                    });
-                  })}
-                >
-                  {label}
-                </MenuAction>
-              ))}
-              <MenuAction
+            {t({ en: "Reopen", zh: "重新打开" })}
+          </MenuItem>
+        ),
+        open ? (
+          <Fragment key="due">
+            <MenuCaption>{t({ en: "Due", zh: "到期" })}</MenuCaption>
+            {dueDates.map(({ date, label }) => (
+              <MenuItem
+                size="sm"
+                key={date}
+                trailing={formatListDay(date, locale)}
+                current={todo.dueDate === date}
                 onClick={closeThen(() => {
-                  onEdit("startDate");
+                  if (todo.dueDate !== date) moveMany([todo.id], date);
                 })}
               >
-                {t({ en: "Pick a date…", zh: "选择日期…" })}
-              </MenuAction>
-              {viewOfTodo(todo, today) === "upcoming" ? (
-                <MenuAction
-                  onClick={closeThen(() => {
-                    edit(todo.id, { startDate: today });
-                  })}
-                >
-                  {t({ en: "Show today", zh: "今天就显示" })}
-                </MenuAction>
-              ) : null}
-            </>
-          ) : null}
-          <MenuAction
-            trailing={todo.waitingOn ?? undefined}
-            onClick={closeThen(() => {
-              onEdit("waitingOn");
-            })}
-          >
-            {t({ en: "Waiting on…", zh: "等待…" })}
-          </MenuAction>
-          {waiting ? (
-            <MenuAction
+                {label}
+              </MenuItem>
+            ))}
+            <MenuItem
+              size="sm"
               onClick={closeThen(() => {
-                setWaiting(todo.id, { waitingOn: null, followUpDate: null });
+                onEdit("dueDate");
               })}
             >
-              {t({ en: "Stop waiting", zh: "不再等待" })}
-            </MenuAction>
-          ) : null}
-          {todo.calendarSlot ? (
-            <MenuAction
-              trailing={formatSlotTime(todo.calendarSlot, {
-                today,
-                locale,
-                timeZone,
+              {t({ en: "Pick a date…", zh: "选择日期…" })}
+            </MenuItem>
+            {todo.dueDate !== null ? (
+              <MenuItem
+                size="sm"
+                onClick={closeThen(() => {
+                  moveMany([todo.id], null);
+                })}
+              >
+                {t({ en: "No date", zh: "不设日期" })}
+              </MenuItem>
+            ) : null}
+          </Fragment>
+        ) : null,
+        open && startDates.length > 0 ? (
+          <Fragment key="later">
+            <MenuCaption>{t({ en: "Later", zh: "稍后再看" })}</MenuCaption>
+            {startDates.map(({ date, label }) => (
+              <MenuItem
+                size="sm"
+                key={date}
+                trailing={formatListDay(date, locale)}
+                current={todo.startDate === date}
+                onClick={closeThen(() => {
+                  edit(todo.id, { startDate: date }, { quiet: true });
+                  showToast({
+                    message: shownFrom.replace(
+                      "{date}",
+                      formatListDay(date, locale),
+                    ),
+                  });
+                })}
+              >
+                {label}
+              </MenuItem>
+            ))}
+            <MenuItem
+              size="sm"
+              onClick={closeThen(() => {
+                onEdit("startDate");
               })}
-              onClick={closeThen(onPickSlot)}
             >
-              {t({ en: "Move on calendar…", zh: "在日历上改时间…" })}
-            </MenuAction>
-          ) : hasCalendar ? (
-            <MenuAction onClick={closeThen(onPickSlot)}>
-              {t({ en: "Add to calendar…", zh: "加入日历…" })}
-            </MenuAction>
+              {t({ en: "Pick a date…", zh: "选择日期…" })}
+            </MenuItem>
+            {viewOfTodo(todo, today) === "upcoming" ? (
+              <MenuItem
+                size="sm"
+                onClick={closeThen(() => {
+                  edit(todo.id, { startDate: today }, { quiet: true });
+                })}
+              >
+                {t({ en: "Show today", zh: "今天就显示" })}
+              </MenuItem>
+            ) : null}
+          </Fragment>
+        ) : null,
+        open ? (
+          <Fragment key="more">
+            <MenuItem
+              size="sm"
+              trailing={todo.waitingOn ?? undefined}
+              onClick={closeThen(() => {
+                onEdit("waitingOn");
+              })}
+            >
+              {t({ en: "Waiting on…", zh: "等待…" })}
+            </MenuItem>
+            {waiting ? (
+              <MenuItem
+                size="sm"
+                onClick={closeThen(() => {
+                  setWaiting(todo.id, { waitingOn: null, followUpDate: null });
+                })}
+              >
+                {t({ en: "Stop waiting", zh: "不再等待" })}
+              </MenuItem>
+            ) : null}
+            {todo.calendarSlot ? (
+              <MenuItem
+                size="sm"
+                trailing={formatSlotTime(todo.calendarSlot, {
+                  today,
+                  locale,
+                  timeZone,
+                })}
+                onClick={closeThen(onPickSlot)}
+              >
+                {t({ en: "Move on calendar…", zh: "在日历上改时间…" })}
+              </MenuItem>
+            ) : hasCalendar ? (
+              <MenuItem size="sm" onClick={closeThen(onPickSlot)}>
+                {t({ en: "Add to calendar…", zh: "加入日历…" })}
+              </MenuItem>
+            ) : null}
+            <MenuItem
+              size="sm"
+              trailing={checklistProgress(todo.checklist)}
+              onClick={closeThen(() => {
+                onEdit("checklist");
+              })}
+            >
+              {t({ en: "Checklist…", zh: "清单…" })}
+            </MenuItem>
+            <MenuItem
+              size="sm"
+              onClick={closeThen(() => {
+                onEdit("title");
+              })}
+            >
+              {t({ en: "Edit", zh: "编辑" })}
+            </MenuItem>
+          </Fragment>
+        ) : null,
+        up || down ? (
+          <Fragment key="move">
+            {up ? (
+              <MenuItem size="sm" onClick={closeThen(up)}>
+                {t({ en: "Move up", zh: "上移" })}
+              </MenuItem>
+            ) : null}
+            {down ? (
+              <MenuItem size="sm" onClick={closeThen(down)}>
+                {t({ en: "Move down", zh: "下移" })}
+              </MenuItem>
+            ) : null}
+          </Fragment>
+        ) : null,
+        <Fragment key="remove">
+          {removesSlot ? (
+            <MenuItem
+              size="sm"
+              onClick={closeThen(() => {
+                removeSlot(todo.id);
+              })}
+            >
+              {t({ en: "Remove from calendar", zh: "从日历上移除" })}
+            </MenuItem>
           ) : null}
-          <MenuAction
-            trailing={checklistProgress(todo.checklist)}
+          <MenuItem
+            size="sm"
+            intent="danger"
             onClick={closeThen(() => {
-              onEdit("checklist");
+              remove(todo.id);
             })}
           >
-            {t({ en: "Checklist…", zh: "清单…" })}
-          </MenuAction>
-          <MenuAction
-            onClick={closeThen(() => {
-              onEdit("title");
-            })}
-          >
-            {t({ en: "Edit", zh: "编辑" })}
-          </MenuAction>
-        </>
-      ) : null}
-      {(
-        isOpen(todo)
-          ? todo.calendarSlot
-          : slotIsAhead(todo.calendarSlot, renderedAt)
-      ) ? (
-        <MenuAction
-          onClick={closeThen(() => {
-            removeSlot(todo.id);
-          })}
-        >
-          {t({ en: "Remove from calendar", zh: "从日历上移除" })}
-        </MenuAction>
-      ) : null}
-      <MenuAction
-        danger
-        onClick={closeThen(() => {
-          remove(todo.id);
-        })}
-      >
-        {t({ en: "Delete", zh: "删除" })}
-      </MenuAction>
-    </div>
+            {t({ en: "Delete", zh: "删除" })}
+          </MenuItem>
+        </Fragment>,
+      ]}
+    />
   );
 }
 
-/** What a row can do besides ticking it off: move it, reschedule it, edit it and delete it. */
+/** What a row can do besides ticking it off: reschedule it, edit it, move it and delete it. */
 export function TodoRowMenu({
   todo,
   moves,
@@ -350,6 +361,7 @@ export function TodoRowMenu({
             ref={mergeRefs(triggerProps.ref, triggerRef)}
             size="sm"
             look="ghost"
+            bleed="end"
             icon={<DotsThreeIcon weight="bold" />}
             aria-label={moreActions}
           />
@@ -383,19 +395,11 @@ const styles = stylex.create({
   menu: {
     minInlineSize: "13rem",
   },
+  divider: {
+    marginBlock: rhythm.inline,
+  },
   caption: {
     paddingBlockStart: space._1,
-    paddingInline: space._2,
-  },
-  action: {
-    gap: rhythm.item,
-    inlineSize: "100%",
-    paddingBlock: space._1,
-    paddingInline: space._2,
-    color: color.fg,
-    textAlign: "start",
-  },
-  danger: {
-    color: color.fgDanger,
+    paddingInline: controlSize._3,
   },
 });

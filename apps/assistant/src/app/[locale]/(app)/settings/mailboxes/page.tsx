@@ -5,14 +5,20 @@ import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { List } from "@tuja/ui/components/list";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { userSettings } from "#src/assistant/db/schema.ts";
 import { listAccounts } from "#src/assistant/mail/accounts/list-accounts.ts";
 import type { ConnectErrorCode } from "#src/assistant/mail/oauth/make-connect-handlers.ts";
 import { AccountCard } from "#src/assistant/mailboxes/account-card.tsx";
+import { GmailPasswordConnect } from "#src/assistant/mailboxes/gmail-password-connect.tsx";
 import { PasswordConnectForm } from "#src/assistant/mailboxes/password-connect-form.tsx";
+import { localClock } from "#src/assistant/report/due-report-date.ts";
+import { formatTimeInZone } from "#src/assistant/report-page/format-day.ts";
 import { SettingsSection } from "#src/assistant/settings/settings-section.tsx";
+import { getDateLocale } from "#src/assistant/shell/get-date-locale.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);
@@ -26,9 +32,11 @@ function connectHref(slug: "google" | "microsoft", locale: string) {
 function ConnectNotice({
   connected,
   error,
+  organising,
 }: {
   connected: string | null;
   error: string | null;
+  organising: boolean;
 }) {
   const errors: Record<ConnectErrorCode, string> = {
     "not-configured": t({
@@ -48,7 +56,7 @@ function ConnectNotice({
       zh: "服务商没有确认授权，请重新开始。",
     }),
     "no-refresh-token": t({
-      en: "The provider gave no lasting access. Remove the app's access in your account settings, then connect again.",
+      en: "The provider gave no lasting access. Remove the app’s access in your account settings, then connect again.",
       zh: "服务商没有给出长期授权。请先在账户设置中移除本应用的访问权限，再重新连接。",
     }),
     "no-email": t({
@@ -75,10 +83,15 @@ function ConnectNotice({
   if (connected) {
     return (
       <Callout intent="success" role="status">
-        {t({
-          en: "Connected. The assistant starts filing this inbox once organising is on in the settings.",
-          zh: "已连接。在设置中开启整理后，助手就会开始整理这个收件箱。",
-        })}
+        {organising
+          ? t({
+              en: "Connected. The assistant files this inbox from its next run.",
+              zh: "已连接。助手下一次运行时就开始整理这个收件箱。",
+            })
+          : t({
+              en: "Connected. The assistant starts filing this inbox once you turn on Organise.",
+              zh: "已连接。开启“整理”后，助手就会开始整理这个收件箱。",
+            })}
       </Callout>
     );
   }
@@ -94,49 +107,63 @@ export default async function Page({
   const locale = validateLocale((await params).locale);
   const query = await searchParams;
   const session = await requirePageSession(locale, "/settings/mailboxes");
-  const { accounts, timeZone } = await listAccounts({
-    db: getAssistantDb(),
-    userId: session.userId,
-  });
-  const formatter = new Intl.DateTimeFormat(locale, {
-    dateStyle: "medium",
-    timeStyle: "short",
+  const db = getAssistantDb();
+  const [{ accounts, timeZone }, organising] = await Promise.all([
+    listAccounts({ db, userId: session.userId }),
+    db
+      .select({ enabled: userSettings.organiseEnabled })
+      .from(userSettings)
+      .where(eq(userSettings.userId, session.userId))
+      .then((rows) => rows.at(0)?.enabled ?? false),
+  ]);
+  const place = {
+    today: localClock(new Date(), timeZone).date,
+    locale: await getDateLocale(locale),
     timeZone,
-  });
-  const formatDate = (date: Date) => formatter.format(date);
+  };
+  const formatDate = (date: Date) =>
+    formatTimeInZone(date.toISOString(), place);
 
   return (
     <SettingsSection
       level={2}
       title={t({ en: "Mailboxes", zh: "邮箱" })}
-      description={t({
-        en: "Once you turn on organising in the settings, the assistant files your inbox mail into folders every 30 minutes and leaves it unread. Until then it changes nothing. It never deletes mail.",
-        zh: "在设置中开启整理后，助手每 30 分钟把收件箱里的邮件归入文件夹，并保持未读。开启之前它不会改动任何邮件。它从不删除邮件。",
-      })}
+      description={
+        organising
+          ? t({
+              en: "Connect each mailbox the assistant should read and file. It never deletes or sends mail.",
+              zh: "连接要让助手读取和整理的邮箱。助手从不删除或发送邮件。",
+            })
+          : t({
+              en: "Connect each mailbox the assistant should read for the morning report. It never deletes or sends mail.",
+              zh: "连接要让助手为晨报读取的邮箱。助手从不删除或发送邮件。",
+            })
+      }
     >
       <ConnectNotice
         connected={typeof query.connected === "string" ? query.connected : null}
         error={typeof query.error === "string" ? query.error : null}
+        organising={organising}
       />
-      {accounts.length > 0 ? (
-        <List>
-          {accounts.map((account) => (
-            <AccountCard
-              key={account.id}
-              account={account}
-              formatDate={formatDate}
-              reconnectHref={
-                account.provider === "gmail"
-                  ? connectHref("google", locale)
-                  : account.provider === "outlook"
-                    ? connectHref("microsoft", locale)
-                    : null
-              }
-            />
-          ))}
-        </List>
-      ) : null}
       <div css={stack.section}>
+        {accounts.length > 0 ? (
+          <List>
+            {accounts.map((account) => (
+              <AccountCard
+                key={account.id}
+                account={account}
+                formatDate={formatDate}
+                reconnectHref={
+                  account.provider === "gmail"
+                    ? connectHref("google", locale)
+                    : account.provider === "outlook"
+                      ? connectHref("microsoft", locale)
+                      : null
+                }
+              />
+            ))}
+          </List>
+        ) : null}
         <SettingsSection
           level={3}
           title={t({
@@ -155,6 +182,7 @@ export default async function Page({
             <Button href={connectHref("microsoft", locale)} look="outline">
               {t({ en: "Connect Outlook", zh: "连接 Outlook" })}
             </Button>
+            <GmailPasswordConnect />
           </div>
         </SettingsSection>
         <SettingsSection
@@ -166,19 +194,6 @@ export default async function Page({
           })}
         >
           <PasswordConnectForm provider="icloud" />
-        </SettingsSection>
-        <SettingsSection
-          level={3}
-          title={t({
-            en: "Gmail with an app password",
-            zh: "用应用专用密码连接 Gmail",
-          })}
-          description={t({
-            en: "Use this if Google keeps asking you to connect Gmail again.",
-            zh: "如果 Google 总是要求重新连接 Gmail，可以改用这种方式。",
-          })}
-        >
-          <PasswordConnectForm provider="gmail" />
         </SettingsSection>
       </div>
     </SettingsSection>

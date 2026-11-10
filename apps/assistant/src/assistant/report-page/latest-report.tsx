@@ -15,6 +15,7 @@ import {
 } from "../report/read-report-settings.ts";
 import { countOpenTodos, readReport } from "../report/read-report.ts";
 import { hasCalendarAccount } from "../report/todo-calendar-slots.ts";
+import { getDateLocale } from "../shell/get-date-locale.ts";
 import { ReportView } from "./report-view.tsx";
 
 /** What to expect while there is no report. */
@@ -23,13 +24,11 @@ export async function NoReportYet({
   settings,
   locale,
   headingLevel,
-  headingLook = "h3",
 }: {
   scope: UserScope;
   settings: ReportSettings;
   locale: SupportedLocale;
   headingLevel: 1 | 2;
-  headingLook?: "h3" | "h4";
 }) {
   const accounts = await scope.db.$count(
     mailAccounts,
@@ -39,7 +38,7 @@ export async function NoReportYet({
   const hour = `${String(settings.digestHour).padStart(2, "0")}:00`;
   return (
     <div css={stack.item}>
-      <Heading level={headingLevel} look={headingLook}>
+      <Heading level={headingLevel}>
         {t({ en: "Morning report", zh: "晨报" })}
       </Heading>
       <div css={stack.text}>
@@ -112,6 +111,7 @@ export async function LatestReport({
       timeZone={settings.timeZone}
       openTodos={openTodos}
       locale={locale}
+      dateLocale={await getDateLocale(locale)}
       headingLevel={headingLevel}
       pastLink
       renderedAt={renderedAt}

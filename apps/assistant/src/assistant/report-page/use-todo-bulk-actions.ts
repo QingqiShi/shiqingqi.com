@@ -209,9 +209,11 @@ export function useTodoBulkActions({
         message:
           dueDate === null
             ? copy.undatedMany.replace("{count}", count)
-            : copy.movedMany
-                .replace("{count}", count)
-                .replace("{date}", formatListDay(dueDate, locale)),
+            : dueDate === today
+              ? copy.moved.replace("{count}", count)
+              : copy.movedMany
+                  .replace("{count}", count)
+                  .replace("{date}", formatListDay(dueDate, locale)),
         action: {
           label: copy.undo,
           onAction: () => {

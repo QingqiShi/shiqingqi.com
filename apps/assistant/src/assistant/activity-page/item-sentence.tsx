@@ -1,23 +1,27 @@
 import { t } from "@tuja/i18n";
-import type { SupportedLocale } from "@tuja/i18n/types";
 import type { ActivityItem } from "../activity/read-activity.ts";
 import { fillTemplate } from "../shell/fill-template.tsx";
 import { Folder } from "../shell/folder.tsx";
+import { keepTogether } from "../shell/keep-together.ts";
 import { Quoted } from "../shell/quoted.tsx";
 
 /** A start as the tools write it, `YYYY-MM-DD` or `YYYY-MM-DDTHH:mm`, at the event's place. */
 export function formatEventStart(
   local: string,
-  locale: string,
+  dateLocale: string,
   { withDay = true } = {},
 ) {
   const allDay = local.length === 10;
   const date = new Date(allDay ? `${local}T12:00:00Z` : `${local}:00Z`);
-  return new Intl.DateTimeFormat(locale, {
-    timeZone: "UTC",
-    ...(withDay ? { weekday: "short", day: "numeric", month: "short" } : {}),
-    ...(allDay ? {} : { hour: "2-digit", minute: "2-digit", hourCycle: "h23" }),
-  }).format(date);
+  return keepTogether(
+    new Intl.DateTimeFormat(dateLocale, {
+      timeZone: "UTC",
+      ...(withDay ? { weekday: "short", day: "numeric", month: "short" } : {}),
+      ...(allDay
+        ? {}
+        : { hour: "2-digit", minute: "2-digit", hourCycle: "h23" }),
+    }).format(date),
+  );
 }
 
 function MailSentence({
@@ -28,7 +32,7 @@ function MailSentence({
   const one = item.mails.length === 1;
   const parts = {
     mail: one ? (
-      <Quoted text={item.mails[0].subject} />
+      <Quoted text={item.mails[0].subject} lift={false} />
     ) : (
       String(item.mails.length)
     ),
@@ -143,10 +147,10 @@ function FolderSentence({
 
 function EventSentence({
   item,
-  locale,
+  dateLocale,
 }: {
   item: Extract<ActivityItem, { type: "event" }>;
-  locale: SupportedLocale;
+  dateLocale: string;
 }) {
   const sameDay =
     item.start !== null &&
@@ -155,17 +159,17 @@ function EventSentence({
     item.start.length > 10 &&
     item.previousStart.length > 10;
   const parts = {
-    title: <Quoted text={item.title} />,
+    title: <Quoted text={item.title} lift={false} />,
     calendar: <Folder path={item.calendar ?? ""} />,
-    start: item.start ? formatEventStart(item.start, locale) : "",
+    start: item.start ? formatEventStart(item.start, dateLocale) : "",
     newTime: item.start
-      ? formatEventStart(item.start, locale, { withDay: !sameDay })
+      ? formatEventStart(item.start, dateLocale, { withDay: !sameDay })
       : "",
     oldTime: item.previousStart
-      ? formatEventStart(item.previousStart, locale, { withDay: !sameDay })
+      ? formatEventStart(item.previousStart, dateLocale, { withDay: !sameDay })
       : "",
     when: item.previousStart
-      ? formatEventStart(item.previousStart, locale)
+      ? formatEventStart(item.previousStart, dateLocale)
       : "",
   };
   switch (item.kind) {
@@ -223,14 +227,14 @@ function EventSentence({
 
 function TodoSentence({
   item,
-  locale,
+  dateLocale,
 }: {
   item: Extract<ActivityItem, { type: "todo" }>;
-  locale: SupportedLocale;
+  dateLocale: string;
 }) {
   const parts = {
-    title: <Quoted text={item.title} />,
-    due: item.dueDate ? formatEventStart(item.dueDate, locale) : "",
+    title: <Quoted text={item.title} lift={false} />,
+    due: item.dueDate ? formatEventStart(item.dueDate, dateLocale) : "",
     who: item.waitingOn ?? "",
   };
   switch (item.kind) {
@@ -239,7 +243,7 @@ function TodoSentence({
         item.dueDate
           ? t({
               en: "Added the to-do {title}, due {due}",
-              zh: "添加了待办 {title}，{due} 到期",
+              zh: "添加了待办 {title}，{due}到期",
             })
           : t({ en: "Added the to-do {title}", zh: "添加了待办 {title}" }),
         parts,
@@ -275,17 +279,17 @@ function TodoSentence({
 
 export function ItemSentence({
   item,
-  locale,
+  dateLocale,
 }: {
   item: ActivityItem;
-  locale: SupportedLocale;
+  dateLocale: string;
 }) {
   return item.type === "mail" ? (
     <MailSentence item={item} />
   ) : item.type === "event" ? (
-    <EventSentence item={item} locale={locale} />
+    <EventSentence item={item} dateLocale={dateLocale} />
   ) : item.type === "todo" ? (
-    <TodoSentence item={item} locale={locale} />
+    <TodoSentence item={item} dateLocale={dateLocale} />
   ) : (
     <FolderSentence item={item} />
   );

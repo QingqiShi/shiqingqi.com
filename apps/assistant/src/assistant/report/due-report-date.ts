@@ -7,6 +7,12 @@ export interface LocalClock {
   weekday: number;
 }
 
+/**
+ * From this local hour on, a run that cannot write the report stores one
+ * that says so. Before it, the run stores nothing and the next hour tries again.
+ */
+export const LAST_TRY_HOUR = 23;
+
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const formatters = new Map<string, Intl.DateTimeFormat>();

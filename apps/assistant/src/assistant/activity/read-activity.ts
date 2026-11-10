@@ -115,6 +115,7 @@ export interface ActivityRun {
   task: AgentTask;
   status: ActivityRunStatus;
   startedAt: Date;
+  endedAt: Date | null;
   note: string | null;
   errorMessage: string | null;
   items: ActivityItem[];
@@ -123,9 +124,10 @@ export interface ActivityRun {
   actions: number;
 }
 
-/** Runs that changed nothing, folded into one line. */
+/** Runs of one task that changed nothing, folded into one line. */
 export interface QuietRuns {
   type: "quiet";
+  task: Extract<AgentTask, "organise" | "report-preview">;
   count: number;
   first: Date;
   last: Date;
@@ -135,7 +137,13 @@ export type ActivityEntry = ({ type: "run" } & ActivityRun) | QuietRuns;
 
 type RunRow = Pick<
   typeof agentRuns.$inferSelect,
-  "id" | "task" | "status" | "startedAt" | "finalText" | "errorMessage"
+  | "id"
+  | "task"
+  | "status"
+  | "startedAt"
+  | "endedAt"
+  | "finalText"
+  | "errorMessage"
 >;
 type ActionRow = typeof agentActions.$inferSelect;
 
@@ -315,8 +323,10 @@ export function itemsOfRun(actions: readonly ActionRow[]): ActivityItem[] {
 
 /**
  * The runs newest first. Organise runs that ended well and changed
- * nothing fold into one quiet line per local day; a report run, a run that failed, was
- * cut off or still runs, and a run with changes show on their own.
+ * nothing, and report previews that were built, which never change
+ * anything, fold into one quiet line per task and local day; a report run,
+ * a run that failed, was cut off or still runs, and a run with changes
+ * show on their own.
  */
 export function buildActivity(
   runs: readonly RunRow[],
@@ -334,14 +344,18 @@ export function buildActivity(
       (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
     );
     const status = statusOf(run, now);
-    const quiet =
+    const quietTask =
       own.length === 0 &&
-      run.task === "organise" &&
-      (status === "done" || status === "stopped");
-    if (quiet) {
+      ((run.task === "organise" &&
+        (status === "done" || status === "stopped")) ||
+        (run.task === "report-preview" && status === "done"))
+        ? run.task
+        : null;
+    if (quietTask) {
       const last = entries.at(-1);
       if (
         last?.type === "quiet" &&
+        last.task === quietTask &&
         dayOf(last.first) === dayOf(run.startedAt)
       ) {
         last.count += 1;
@@ -349,6 +363,7 @@ export function buildActivity(
       } else {
         entries.push({
           type: "quiet",
+          task: quietTask,
           count: 1,
           first: run.startedAt,
           last: run.startedAt,
@@ -362,6 +377,7 @@ export function buildActivity(
       task: run.task,
       status,
       startedAt: run.startedAt,
+      endedAt: run.endedAt,
       note: run.finalText,
       errorMessage: run.errorMessage,
       items: itemsOfRun(own),
@@ -387,6 +403,7 @@ export async function readActivity(
       task: agentRuns.task,
       status: agentRuns.status,
       startedAt: agentRuns.startedAt,
+      endedAt: agentRuns.endedAt,
       finalText: agentRuns.finalText,
       errorMessage: agentRuns.errorMessage,
     })

@@ -4,12 +4,13 @@ import type { HomeRun, HomeStatus, HomeView } from "./types.ts";
 export const AWAY_BEFORE_REFRESH_MS = 30 * 60_000;
 
 /**
- * The key of the refresh that a poll calls for, or null. A refresh chooses
- * the view again, so on the report view only a return after a long time
- * refreshes (`AWAY_BEFORE_REFRESH_MS`). On the today view a refresh shows what
- * changed: a run that ended, a report that is new to the owner, or a new
- * local day. A key in `done` has refreshed once, so a refresh that fails or
- * gives the same view does not repeat on every poll.
+ * The key of the refresh that a poll calls for, or null. A refresh keeps the
+ * view, which the address names. The report view does not refresh in a poll,
+ * because a newer report would replace the one that the owner reads; a return
+ * after a long time (`AWAY_BEFORE_REFRESH_MS`) loads `/` and chooses the view
+ * again. On the today view a refresh shows what changed: a run that ended, a
+ * report that is new to the owner, or a new local day. A key in `done` has
+ * refreshed once, so a refresh that fails does not repeat on every poll.
  */
 export function refreshAfterPoll({
   view,

@@ -3,21 +3,28 @@
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Text } from "@tuja/ui/components/text";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { grow, justify } from "@tuja/ui/primitives/flex.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { type ReactNode, useEffect, useState, useTransition } from "react";
 import { AssistantApiError } from "../http/assistant-api-error.ts";
 import { assistantFetch } from "../http/assistant-fetch.ts";
 
 const REFRESH_MS = 5000;
 
-/** Starts a new preview, and reloads the page's data while one runs. */
+/**
+ * The header row of the preview: the state of the latest preview, and the
+ * button that starts a new one. It reloads the page's data while one runs.
+ */
 export function ReportPreviewControls({
   running,
   hasPreview,
+  children,
 }: {
   running: boolean;
   hasPreview: boolean;
+  /** What the latest preview is: when it was written, or that it runs. */
+  children?: ReactNode;
 }) {
   const router = useRouter();
   const [refreshing, startRefresh] = useTransition();
@@ -54,10 +61,10 @@ export function ReportPreviewControls({
 
   return (
     <div css={stack.tight}>
-      <div>
+      <div css={[cluster.item, justify.between]}>
+        {children === undefined ? null : <div css={grow._1}>{children}</div>}
         <Button
           look="primary"
-          size="sm"
           loading={starting || refreshing}
           disabled={running}
           onClick={start}

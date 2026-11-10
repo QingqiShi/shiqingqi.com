@@ -2,15 +2,14 @@
 
 import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
 import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
-import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { ToastProvider, useToast } from "@tuja/ui/components/toast-provider";
 import { toastTokens } from "@tuja/ui/components/toast.stylex";
@@ -23,6 +22,8 @@ import { useState } from "react";
 import { z } from "zod";
 import { assistantFetch } from "../http/assistant-fetch.ts";
 import { formatTimeInZone } from "../report-page/format-day.ts";
+import { useDateLocale } from "../shell/date-locale-provider.tsx";
+import { keepHyphenated } from "../shell/keep-hyphenated.tsx";
 import { SettingsSection } from "./settings-section.tsx";
 
 interface CaptureTokenEntry {
@@ -92,12 +93,15 @@ function TokenRow({
   timeZone: string;
   onRevoke: () => void;
 }) {
-  const locale = useLocale();
+  const locale = useDateLocale();
   const [confirming, setConfirming] = useState(false);
   const place = { today, locale, timeZone };
   const created = t({ en: "Made {time}", zh: "创建于 {time}" });
   const used = t({ en: "Last used {time}", zh: "最后使用于 {time}" });
   const notUsed = t({ en: "Not used yet", zh: "还没有使用" });
+  const revokeLabel = confirming
+    ? t({ en: "Revoke for good", zh: "确认撤销" })
+    : t({ en: "Revoke", zh: "撤销" });
 
   return (
     <ListRow
@@ -110,14 +114,15 @@ function TokenRow({
         <Button
           size="sm"
           look={confirming ? "danger" : "ghost"}
+          icon={<TrashIcon weight="bold" />}
+          hideLabelOnMobile
+          aria-label={revokeLabel}
           onClick={() => {
             if (confirming) onRevoke();
             else setConfirming(true);
           }}
         >
-          {confirming
-            ? t({ en: "Revoke for good", zh: "确认撤销" })
-            : t({ en: "Revoke", zh: "撤销" })}
+          {revokeLabel}
         </Button>
       }
     >
@@ -208,13 +213,36 @@ function CaptureContent({
       })}
     >
       <div css={stack.section}>
-        <SettingsSection level={3} title={t({ en: "Android", zh: "Android" })}>
-          <Text as="p">
-            {t({
-              en: "Add this app to your home screen. It then shows in the share menu of other apps, and what you share opens in the box at the top of To-dos, for you to check and add.",
-              zh: "把这个应用添加到主屏幕后，它会出现在其他应用的分享菜单里。分享的内容会填进“待办”顶部的输入框，由你确认后添加。",
-            })}
-          </Text>
+        <SettingsSection
+          level={3}
+          title={t({ en: "Android", zh: "Android" })}
+          description={t({
+            en: "Once this app is on your home screen, it shows in the share menu of other apps.",
+            zh: "把这个应用添加到主屏幕后，它会出现在其他应用的分享菜单里。",
+          })}
+        >
+          <ol css={[stack.item, typeRole.bodySmall, styles.steps]}>
+            <li>
+              {t(
+                {
+                  en: "In Chrome, open the menu and tap <strong>Add to Home screen</strong>.",
+                  zh: "在 Chrome 中打开菜单，点<strong>添加到主屏幕</strong>。",
+                },
+                { parse: true },
+              )}
+            </li>
+            <li>
+              {keepHyphenated(
+                t(
+                  {
+                    en: "In another app, tap <strong>Share</strong> and choose this app. What you share opens in the box at the top of To-dos, for you to check and add.",
+                    zh: "在其他应用里点<strong>分享</strong>，选择这个应用。分享的内容会填进“待办”顶部的输入框，由你确认后添加。",
+                  },
+                  { parse: true },
+                ),
+              )}
+            </li>
+          </ol>
         </SettingsSection>
         <SettingsSection
           level={3}
@@ -224,50 +252,7 @@ function CaptureContent({
             zh: "iOS 不允许网页应用接收分享，所以用快捷指令来添加待办，也可以用 Siri 运行。令牌只能让快捷指令添加待办，不能做别的事。",
           })}
         >
-          <div css={[stack.item, styles.tokens]}>
-            {rows.length > 0 ? (
-              <List>
-                {rows.map((entry) => (
-                  <TokenRow
-                    key={entry.id}
-                    entry={entry}
-                    today={today}
-                    timeZone={timeZone}
-                    onRevoke={() => {
-                      revoke(entry.id);
-                    }}
-                  />
-                ))}
-              </List>
-            ) : null}
-            {shown ? (
-              <Callout
-                title={t({
-                  en: "Copy this token now. It shows only this once.",
-                  zh: "现在就复制这个令牌，它只显示这一次。",
-                })}
-              >
-                <CopyField
-                  label={t({
-                    en: "Authorization value",
-                    zh: "Authorization 的值",
-                  })}
-                  value={`Bearer ${shown.token}`}
-                />
-              </Callout>
-            ) : null}
-            <div>
-              <Button
-                look="outline"
-                icon={<PlusIcon weight="bold" />}
-                loading={isMaking}
-                onClick={make}
-              >
-                {t({ en: "New token", zh: "新建令牌" })}
-              </Button>
-            </div>
-          </div>
-          <ol css={[stack.item, typeRole.body, styles.steps]}>
+          <ol css={[stack.item, typeRole.bodySmall, styles.steps]}>
             <li>
               {t(
                 {
@@ -301,13 +286,43 @@ function CaptureContent({
               </div>
             </li>
             <li>
-              {t(
-                {
-                  en: "Under <strong>Headers</strong>, add <strong>Authorization</strong>, and paste the value of a new token.",
-                  zh: "在<strong>头部</strong>下添加 <strong>Authorization</strong>，粘贴新令牌的值。",
-                },
-                { parse: true },
-              )}
+              <div css={stack.tight}>
+                <div>
+                  {t(
+                    {
+                      en: "Under <strong>Headers</strong>, add <strong>Authorization</strong>. Make a token and paste its value.",
+                      zh: "在<strong>头部</strong>下添加 <strong>Authorization</strong>。新建一个令牌，粘贴它的值。",
+                    },
+                    { parse: true },
+                  )}
+                </div>
+                {shown ? (
+                  <Callout
+                    title={t({
+                      en: "Copy this token now. It shows only this once.",
+                      zh: "现在就复制这个令牌，它只显示这一次。",
+                    })}
+                  >
+                    <CopyField
+                      label={t({
+                        en: "Authorization value",
+                        zh: "Authorization 的值",
+                      })}
+                      value={`Bearer ${shown.token}`}
+                    />
+                  </Callout>
+                ) : null}
+                <div>
+                  <Button
+                    look="outline"
+                    icon={<PlusIcon weight="bold" />}
+                    loading={isMaking}
+                    onClick={make}
+                  >
+                    {t({ en: "New token", zh: "新建令牌" })}
+                  </Button>
+                </div>
+              </div>
             </li>
             <li>
               {t(
@@ -319,16 +334,42 @@ function CaptureContent({
               )}
             </li>
             <li>
-              {t(
-                {
-                  en: "Add the action <strong>Show Result</strong> and choose <strong>Contents of URL</strong>, so that you see the new to-do, or the error when it fails.",
-                  zh: "添加操作<strong>显示结果</strong>，选择 <strong>URL 的内容</strong>，这样你能看到新待办，或失败时的错误。",
-                },
-                { parse: true },
+              {keepHyphenated(
+                t(
+                  {
+                    en: "Add the action <strong>Show Result</strong> and choose <strong>Contents of URL</strong>, so that you see the new to-do, or the error when it fails.",
+                    zh: "添加操作<strong>显示结果</strong>，选择 <strong>URL 的内容</strong>，这样你能看到新待办，或失败时的错误。",
+                  },
+                  { parse: true },
+                ),
               )}
             </li>
           </ol>
         </SettingsSection>
+        {rows.length > 0 ? (
+          <SettingsSection
+            level={3}
+            title={t({ en: "Your tokens", zh: "你的令牌" })}
+            description={t({
+              en: "A Shortcut with a token can add to-dos until you revoke it.",
+              zh: "在你撤销令牌之前，使用它的快捷指令都能添加待办。",
+            })}
+          >
+            <List>
+              {rows.map((entry) => (
+                <TokenRow
+                  key={entry.id}
+                  entry={entry}
+                  today={today}
+                  timeZone={timeZone}
+                  onRevoke={() => {
+                    revoke(entry.id);
+                  }}
+                />
+              ))}
+            </List>
+          </SettingsSection>
+        ) : null}
       </div>
     </SettingsSection>
   );
@@ -352,14 +393,10 @@ export function CaptureSettings(props: {
 }
 
 const styles = stylex.create({
-  tokens: {
-    maxInlineSize: measure.form,
-  },
   copyLine: {
     display: "flex",
     alignItems: "flex-end",
     gap: rhythm.tight,
-    maxInlineSize: measure.form,
   },
   copyValue: {
     flexGrow: 1,

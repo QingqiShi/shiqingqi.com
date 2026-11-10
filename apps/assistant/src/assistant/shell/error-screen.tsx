@@ -17,16 +17,16 @@ const copy = {
   en: {
     brand: "Qi Assistant",
     heading: "Something went wrong",
-    text: "An unexpected error stopped this page. Try again, or go back to the report.",
+    text: "An unexpected error stopped this page. Try again, or go back to Today.",
     retry: "Try again",
-    home: "Back to the report",
+    home: "Back to Today",
   },
   zh: {
     brand: "Qi Assistant",
     heading: "出了点问题",
-    text: "页面因意外错误中断。请重试，或返回晨报。",
+    text: "页面因意外错误中断。请重试，或返回“今天”。",
     retry: "重试",
-    home: "返回晨报",
+    home: "返回今天",
   },
 };
 

@@ -1,17 +1,23 @@
+import { AppleLogoIcon } from "@phosphor-icons/react/dist/ssr/AppleLogo";
+import { GoogleLogoIcon } from "@phosphor-icons/react/dist/ssr/GoogleLogo";
+import { MicrosoftOutlookLogoIcon } from "@phosphor-icons/react/dist/ssr/MicrosoftOutlookLogo";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { ListRow } from "@tuja/ui/components/list-row";
+import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { rhythm, space } from "@tuja/ui/tokens.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { PROVIDER_NAMES } from "#src/assistant/mailboxes/provider-names.ts";
-import type { SyncErrorCode } from "../mail/accounts/describe-sync-error.ts";
+import type { MailProvider } from "../db/schema.ts";
+import { RECONNECT_CODES } from "../mail/accounts/describe-sync-error.ts";
 import type { AccountSummary } from "../mail/accounts/list-accounts.ts";
 import type { WriteErrorCode } from "../mail/accounts/record-write-state.ts";
 import { AccountActions } from "./account-actions.tsx";
+import { AddressText } from "./address-text.tsx";
+import { ReconnectCause } from "./reconnect-cause.tsx";
 
 function StatusBadge({ status }: { status: AccountSummary["status"] }) {
   if (status === "ok") {
@@ -35,37 +41,38 @@ function StatusBadge({ status }: { status: AccountSummary["status"] }) {
   );
 }
 
+function ProviderMark({ provider }: { provider: MailProvider }) {
+  if (provider === "gmail") return <GoogleLogoIcon weight="fill" aria-hidden />;
+  if (provider === "outlook")
+    return <MicrosoftOutlookLogoIcon weight="fill" aria-hidden />;
+  return <AppleLogoIcon weight="fill" aria-hidden />;
+}
+
 function ErrorText({ code }: { code: string }) {
-  const messages: Record<SyncErrorCode, string> = {
-    login_refused: t({
-      en: "The mail server refused the login. Connect the mailbox again.",
-      zh: "邮件服务器拒绝了登录，请重新连接邮箱。",
-    }),
-    token_revoked: t({
-      en: "Access was withdrawn or has expired. Connect the mailbox again.",
-      zh: "授权已撤销或过期，请重新连接邮箱。",
-    }),
+  const messages: Record<string, string> = {
     token_refresh_failed: t({
       en: "The provider did not renew access. The next run tries again.",
       zh: "服务商没有续期授权，下次运行会再试。",
-    }),
-    credential_unreadable: t({
-      en: "The saved login can no longer be read. Connect the mailbox again.",
-      zh: "保存的登录信息无法读取，请重新连接邮箱。",
     }),
     not_configured: t({
       en: "This kind of mailbox is not set up on the server yet.",
       zh: "服务器还没有配置这类邮箱。",
     }),
-    sync_failed: t({
-      en: "The run stopped with an error. The next run tries again.",
-      zh: "运行出错中断，下次运行会再试。",
-    }),
   };
+  const failed = t({
+    en: "The run stopped with an error. The next run tries again.",
+    zh: "运行出错中断，下次运行会再试。",
+  });
   return (
     <Text as="p" look="bodySmall">
-      {new Map<string, string>(Object.entries(messages)).get(code) ??
-        messages.sync_failed}
+      {RECONNECT_CODES.has(code) ? (
+        <>
+          <ReconnectCause code={code} />
+          {t({ en: " Connect the mailbox again.", zh: "请重新连接邮箱。" })}
+        </>
+      ) : (
+        (new Map(Object.entries(messages)).get(code) ?? failed)
+      )}
     </Text>
   );
 }
@@ -89,8 +96,10 @@ function WriteErrorText({ code }: { code: string }) {
 }
 
 /**
- * One connected mailbox, a row of a `List`: its last check, the last error,
- * and what to do about it.
+ * One connected mailbox, a row of a `List`: its last check, or the time of
+ * a check that failed since, the last error, and what to do about it. The
+ * error is the one line that says what to do; the server's own words stay in
+ * the log.
  */
 export function AccountCard({
   account,
@@ -102,79 +111,85 @@ export function AccountCard({
   /** The OAuth start route, for a Gmail or Outlook account. */
   reconnectHref: string | null;
 }) {
+  const { lastErrorAt, lastSyncedAt } = account;
+  const failedAt =
+    lastErrorAt !== null &&
+    (lastSyncedAt === null || lastErrorAt > lastSyncedAt)
+      ? lastErrorAt
+      : null;
+  const lastCheck = failedAt
+    ? t({
+        en: "Check failed {date}",
+        zh: "检查失败 {date}",
+      }).replace("{date}", formatDate(failedAt))
+    : account.lastSyncedAt
+      ? t({
+          en: "Last checked {date}",
+          zh: "上次检查 {date}",
+        }).replace("{date}", formatDate(account.lastSyncedAt))
+      : t({ en: "Not checked yet", zh: "尚未检查" });
+  const reconnect = account.status === "reconnect" && reconnectHref !== null;
+  const hasNotes =
+    reconnect ||
+    account.lastErrorCode !== null ||
+    account.writeErrorCode !== null;
+
   return (
     <ListRow
       wrap
-      leading={
-        <Avatar
-          name={PROVIDER_NAMES[account.provider]}
-          shape="square"
-          aria-hidden
+      leading={<ProviderMark provider={account.provider} />}
+      leadingShape="square"
+      detail={
+        <MetaLine
+          facts={[
+            <StatusBadge key="status" status={account.status} />,
+            PROVIDER_NAMES[account.provider],
+            lastCheck,
+          ]}
         />
       }
-      detail={`${PROVIDER_NAMES[account.provider]} · ${
-        account.lastSyncedAt
-          ? t({
-              en: "Last checked {date}",
-              zh: "上次检查 {date}",
-            }).replace("{date}", formatDate(account.lastSyncedAt))
-          : t({ en: "Not checked yet", zh: "尚未检查" })
-      }`}
       extra={
-        <div css={[stack.tight, styles.extra]}>
-          <StatusBadge status={account.status} />
-          {account.lastErrorCode ? (
-            <div css={stack.text}>
+        hasNotes ? (
+          <div css={[stack.tight, styles.notes]}>
+            {account.lastErrorCode ? (
               <ErrorText code={account.lastErrorCode} />
-              {account.lastErrorMessage ? (
-                <Text look="caption" tone="muted">
-                  {account.lastErrorAt
-                    ? `${formatDate(account.lastErrorAt)} · `
-                    : null}
-                  {account.lastErrorMessage}
-                </Text>
-              ) : null}
-            </div>
-          ) : null}
-          {account.writeErrorCode ? (
-            <div css={stack.text}>
-              <WriteErrorText code={account.writeErrorCode} />
-              {account.writeErrorMessage ? (
-                <Text look="caption" tone="muted">
-                  {account.writeErrorAt
-                    ? `${formatDate(account.writeErrorAt)} · `
-                    : null}
-                  {account.writeErrorMessage}
-                </Text>
-              ) : null}
-            </div>
-          ) : null}
-          <div css={styles.actions}>
-            {account.status === "reconnect" && reconnectHref ? (
+            ) : null}
+            {account.writeErrorCode ? (
+              <div css={stack.text}>
+                <WriteErrorText code={account.writeErrorCode} />
+                {account.writeErrorMessage ? (
+                  <Text look="caption" tone="muted">
+                    <MetaLine
+                      facts={[
+                        account.writeErrorAt
+                          ? formatDate(account.writeErrorAt)
+                          : null,
+                        account.writeErrorMessage,
+                      ]}
+                    />
+                  </Text>
+                ) : null}
+              </div>
+            ) : null}
+            {reconnect ? (
               <Button href={reconnectHref} size="sm" look="primary">
                 {t({ en: "Connect again", zh: "重新连接" })}
               </Button>
             ) : null}
-            <AccountActions accountId={account.id} />
           </div>
-        </div>
+        ) : null
       }
+      actions={<AccountActions accountId={account.id} />}
     >
-      {account.address}
+      <AddressText address={account.address} />
     </ListRow>
   );
 }
 
 const styles = stylex.create({
-  extra: {
+  notes: {
     alignItems: "flex-start",
-    paddingBlockStart: rhythm.inline,
+    paddingBlockStart: space._1,
     paddingBlockEnd: space._1,
-  },
-  actions: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    gap: rhythm.tight,
   },
 });

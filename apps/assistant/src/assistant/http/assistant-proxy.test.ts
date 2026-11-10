@@ -6,7 +6,7 @@ import { i18nRouter } from "next-i18n-router";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { i18nConfig } from "#src/i18n/i18n-config.ts";
 import { assistantSessionCookie } from "../auth/assistant-session-cookie.ts";
-import { sessions, users } from "../db/schema.ts";
+import { morningReports, sessions, users } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import { makeAssistantProxy } from "./assistant-proxy.ts";
 
@@ -16,10 +16,11 @@ const LIVE_TOKEN = "live-token";
 const EXPIRED_TOKEN = "expired-token";
 
 let db: TestDb;
+let userId: string;
 
 beforeEach(async () => {
   db = await createTestDb();
-  const userId = randomUUID();
+  userId = randomUUID();
   await db.insert(users).values({ id: userId, displayName: "Owner" });
   await db.insert(sessions).values([
     {
@@ -75,9 +76,37 @@ describe("assistantProxy at the root", () => {
     },
   );
 
-  it("gives a live session Home", async () => {
-    expect(rewrittenPath(await run("/", LIVE_TOKEN))).toBe("/en");
-    expect(rewrittenPath(await run("/zh", LIVE_TOKEN))).toBeNull();
+  it("sends a live session to the view that Home chooses, before the page streams", async () => {
+    const plan = await run("/", LIVE_TOKEN);
+    expect(plan.status).toBe(307);
+    expect(plan.headers.get("location")).toBe(`${ORIGIN}/?view=plan`);
+
+    await db.insert(morningReports).values({
+      userId,
+      localDate: "2026-11-04",
+      builtAt: NOW,
+      content: {
+        version: 2,
+        mailDate: "2026-11-03",
+        status: "failed",
+        headline: null,
+        needsAction: [],
+        worthKnowing: [],
+        rest: null,
+        agenda: null,
+        mailCount: 0,
+        ranOutOfTime: false,
+        unreadMailboxes: [],
+        doneTodos: [],
+      },
+    });
+    const report = await run("/zh", LIVE_TOKEN);
+    expect(report.headers.get("location")).toBe(`${ORIGIN}/zh?view=report`);
+  });
+
+  it("gives a live session the view that the address names", async () => {
+    expect(rewrittenPath(await run("/?view=report", LIVE_TOKEN))).toBe("/en");
+    expect(rewrittenPath(await run("/zh?view=plan", LIVE_TOKEN))).toBeNull();
   });
 
   it("gives Home when the session cannot be read, because the page checks it again", async () => {

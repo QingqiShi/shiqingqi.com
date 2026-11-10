@@ -1,4 +1,5 @@
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
+import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { getLocale } from "@tuja/i18n/server-locale";
@@ -19,8 +20,8 @@ export function NotFoundScreen() {
     <AssistantFrame brand={t({ en: "Qi Assistant", zh: "Qi Assistant" })}>
       <div css={stack.item}>
         <div css={stack.tight}>
-          <Heading level={1} look="h2">
-            {t({ en: "This page doesn't exist", zh: "该页面不存在" })}
+          <Heading level={1} look="h1">
+            {t({ en: "This page doesn’t exist", zh: "该页面不存在" })}
           </Heading>
           <Text tone="muted">
             {t({
@@ -29,16 +30,22 @@ export function NotFoundScreen() {
             })}
           </Text>
         </div>
-        <div>
-          <Button
-            href={getLocalePath("/", locale)}
-            look="primary"
-            icon={<HouseIcon weight="bold" />}
-          >
-            {t({ en: "Back to the report", zh: "返回晨报" })}
-          </Button>
-        </div>
+        <Button
+          href={getLocalePath("/", locale)}
+          look="primary"
+          size="lg"
+          icon={<HouseIcon weight="bold" />}
+          css={styles.wide}
+        >
+          {t({ en: "Back to Today", zh: "返回今天" })}
+        </Button>
       </div>
     </AssistantFrame>
   );
 }
+
+const styles = stylex.create({
+  wide: {
+    inlineSize: "100%",
+  },
+});

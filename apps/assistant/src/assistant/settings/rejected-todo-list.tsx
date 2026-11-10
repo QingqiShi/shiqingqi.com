@@ -1,5 +1,6 @@
 "use client";
 
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
@@ -9,7 +10,7 @@ import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { ToastProvider, useToast } from "@tuja/ui/components/toast-provider";
 import { toastTokens } from "@tuja/ui/components/toast.stylex";
-import { measure } from "@tuja/ui/tokens.stylex";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { assistantFetch } from "../http/assistant-fetch.ts";
@@ -121,7 +122,7 @@ function Entries({ todos }: { todos: readonly RejectedTodoEntry[] }) {
   }
 
   return (
-    <List css={styles.list}>
+    <List>
       {shown.map((entry) => (
         <ListRow
           key={entry.id}
@@ -131,6 +132,8 @@ function Entries({ todos }: { todos: readonly RejectedTodoEntry[] }) {
             <Button
               size="sm"
               look="ghost"
+              icon={<TrashIcon weight="bold" />}
+              hideLabelOnMobile
               aria-label={copy.removeOne.replace("{title}", entry.title)}
               onClick={() => {
                 remove(entry);
@@ -140,7 +143,7 @@ function Entries({ todos }: { todos: readonly RejectedTodoEntry[] }) {
             </Button>
           }
         >
-          {entry.title}
+          <span css={typeModifier.verbatim}>{entry.title}</span>
         </ListRow>
       ))}
     </List>
@@ -164,9 +167,6 @@ export function RejectedTodoList({
 }
 
 const styles = stylex.create({
-  list: {
-    maxInlineSize: measure.form,
-  },
   toasts: {
     [toastTokens.clearance]: tabViewTokens.barClearance,
   },

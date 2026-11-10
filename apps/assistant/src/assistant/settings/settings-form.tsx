@@ -1,12 +1,10 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Select } from "@tuja/ui/components/select";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { measure } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { UserLocale } from "../db/schema.ts";
@@ -44,7 +42,7 @@ export function SettingsForm({
 
   return (
     <form
-      css={[stack.item, styles.form]}
+      css={stack.item}
       onSubmit={(event) => {
         event.preventDefault();
         setBusy(true);
@@ -127,9 +125,3 @@ export function SettingsForm({
     </form>
   );
 }
-
-const styles = stylex.create({
-  form: {
-    maxInlineSize: measure.form,
-  },
-});
