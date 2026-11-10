@@ -3,10 +3,8 @@ import { Slider } from "@tuja/ui/components/slider";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**
- * A label above a part-filled track with its thumb in view — the whole shape of
- * the control at thumbnail size. No readout: a figure would have to be formatted
- * for the reader's locale, and the plate is inert, so it could never follow the
- * thumb anyway.
+ * A labelled panel part way along its groove: the whole shape of the control
+ * at thumbnail size, with the plain value at the end of the groove.
  *
  * Uncontrolled, because the types require an `onChange` beside a `value` and an
  * inert specimen has no use for one.

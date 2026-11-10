@@ -180,8 +180,8 @@ export function getDesignSystemRouteDescriptions(): Record<
       zh: "单选的宽裕形态，适合需要说明的选项。",
     }),
     "/design-system/components/slider": t({
-      en: "A range input with a live readout, streaming moves and a single commit.",
-      zh: "带实时读数的范围输入，持续报告移动并在结束时提交一次。",
+      en: "A panel in a groove that springs by steps and melts while you drag it.",
+      zh: "凹槽里的面板随步长弹动，拖动时化为液体。",
     }),
     "/design-system/components/select": t({
       en: "A styled native select driven by options or custom children.",

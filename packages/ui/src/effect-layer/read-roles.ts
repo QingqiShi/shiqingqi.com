@@ -3,6 +3,7 @@ import { roleBits, type EffectRole } from "./effect-roles.ts";
 import { liquidReader } from "./liquid-reader.ts";
 import type { ElementBox } from "./read-element-box.ts";
 import { ringLightReader } from "./ring-light-effect.ts";
+import { sliderLiquidReader } from "./slider-liquid-effect.ts";
 import type { EffectReadings } from "./types.ts";
 
 /**
@@ -55,6 +56,7 @@ export function readRoles(
   const readings = {
     liquid: read("liquid", liquidReader),
     ringLight: read("ringLight", ringLightReader),
+    sliderLiquid: read("sliderLiquid", sliderLiquidReader),
   } satisfies Record<keyof EffectReadings, unknown>;
   return { readings, observed };
 }

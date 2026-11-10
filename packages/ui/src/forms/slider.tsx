@@ -1,31 +1,26 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { useRef, type ComponentProps, type ReactNode } from "react";
-import { pointer } from "../breakpoints.stylex.ts";
-import { color } from "../color.stylex.ts";
+import { SLIDER_HANDLE } from "../effect-layer/slider-liquid-effect.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
+import { mergeRefs } from "../merge-refs.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
-import { flex } from "../primitives/flex.stylex.ts";
-import {
-  duration,
-  easing,
-  motionConstants,
-} from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
-import {
-  border,
-  controlSize,
-  opacity,
-  rhythm,
-  shadow,
-} from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { fieldStyles } from "./field-shared.stylex.ts";
-import { sliderTokens } from "./slider.stylex.ts";
+import {
+  sliderAt,
+  sliderGrooveMarker,
+  sliderMarker,
+  sliderSizes,
+  sliderStyles as styles,
+  sliderTick,
+} from "./slider.stylex.ts";
+import { fractionOf } from "./snap-to-step.ts";
 import { useFieldAria } from "./use-field-aria.ts";
+import { useSliderMotion } from "./use-slider-motion.ts";
 
 // The design system's `size` scale replaces the native character-width attribute of the same name.
 interface SliderOwnProps extends Omit<
@@ -43,37 +38,39 @@ interface SliderOwnProps extends Omit<
   | "style"
 > {
   /**
-   * Visible label text, and the control's accessible name — it lands on the
-   * `<input>` itself via `htmlFor`, never on a wrapper. Required even when
-   * hidden via {@link SliderProps.labelHidden}.
+   * Label text, printed at the start of the panel, and the control's
+   * accessible name — it lands on the `<input>` itself via `htmlFor`, never
+   * on a wrapper. Required even when hidden via {@link SliderProps.labelHidden}.
    *
-   * @zh 可见的标签文本，也是控件的无障碍名称——通过 `htmlFor` 落在 `<input>` 本身上，而非外层容器。即使通过 `labelHidden` 隐藏，仍必须提供。
+   * @zh 标签文本，印在面板起始处，也是控件的无障碍名称——通过 `htmlFor` 落在 `<input>` 本身上，而非外层容器。即使通过 `labelHidden` 隐藏，仍必须提供。
    */
   label: string;
   /**
-   * Visually hide the label (kept in the accessibility tree via `sr-only`).
+   * Leave the label off the panel (kept in the accessibility tree via
+   * `sr-only`).
    *
-   * @zh 在视觉上隐藏标签（通过 `sr-only` 保留在无障碍树中）。
+   * @zh 不在面板上印标签（通过 `sr-only` 保留在无障碍树中）。
    */
   labelHidden?: boolean;
   /**
-   * Helper text rendered under the label and wired via `aria-describedby`.
+   * Helper text rendered under the control and wired via `aria-describedby`.
    *
-   * @zh 标签下方的说明文字，通过 `aria-describedby` 关联到输入框。
+   * @zh 控件下方的说明文字，通过 `aria-describedby` 关联到输入框。
    */
   description?: string;
   /**
-   * Error message. Turns the track danger-coloured, sets `aria-invalid`,
-   * renders with `role="alert"`, and joins `aria-describedby`.
+   * Error message. Turns the groove's edge and the handle danger-coloured,
+   * sets `aria-invalid`, renders with `role="alert"`, and joins
+   * `aria-describedby`.
    *
-   * @zh 错误消息。把轨道变为危险色，设置 `aria-invalid`，以 `role="alert"` 渲染，并加入 `aria-describedby`。
+   * @zh 错误消息。把凹槽边缘和把手变为危险色，设置 `aria-invalid`，以 `role="alert"` 渲染，并加入 `aria-describedby`。
    */
   error?: string;
   /**
-   * Live value display rendered opposite the label. Formatting is the
-   * consumer's — the Slider only places it.
+   * The value as it shows at the end of the groove, formatted by the
+   * consumer. The plain number when it is left out.
    *
-   * @zh 渲染在标签对面的实时数值。格式化由调用方决定——滑块只负责摆放。
+   * @zh 显示在凹槽末端的数值，格式化由调用方决定。不提供时显示原始数字。
    */
   readout?: ReactNode;
   /**
@@ -103,9 +100,10 @@ interface SliderOwnProps extends Omit<
    */
   onCommit?: (value: number) => void;
   /**
-   * Track height and thumb diameter, both driven by `controlSize`.
+   * The control's height, on the same `controlHeight` steps as a Button or
+   * a TextField of the same `size`.
    *
-   * @zh 轨道高度与滑块直径，二者都由 `controlSize` 驱动。
+   * @zh 控件高度，与同一 `size` 的按钮或输入框处在同一 `controlHeight` 档位。
    */
   size?: "sm" | "md" | "lg";
   /**
@@ -118,22 +116,22 @@ interface SliderOwnProps extends Omit<
 
 /**
  * A controlled value without `onChange` is a dead control: `useControlled`
- * returns a no-op setter, so the thumb springs back the moment it is released.
+ * returns a no-op setter, so the panel springs back the moment it is released.
  */
 type SliderValueProps =
   | {
       /**
-       * Controlled value. Requires `onChange` — without it, the thumb
+       * Controlled value. Requires `onChange` — without it, the panel
        * springs back to its current value the moment it is released.
        *
-       * @zh 受控数值，需同时提供 `onChange`——否则滑块在松开的瞬间就会弹回原值。
+       * @zh 受控数值，需同时提供 `onChange`——否则面板在松开的瞬间就会弹回原值。
        */
       value: number;
       /**
        * Fires with the next number on every value change, including each
-       * move of a drag.
+       * step of a drag.
        *
-       * @zh 每次数值变化时以新数值触发，拖动过程中的每一次移动也包含在内。
+       * @zh 每次数值变化时以新数值触发，拖动过程中的每一步也包含在内。
        */
       onChange: (value: number) => void;
       defaultValue?: undefined;
@@ -142,9 +140,9 @@ type SliderValueProps =
       value?: undefined;
       /**
        * Fires with the next number on every value change, including each
-       * move of a drag.
+       * step of a drag.
        *
-       * @zh 每次数值变化时以新数值触发，拖动过程中的每一次移动也包含在内。
+       * @zh 每次数值变化时以新数值触发，拖动过程中的每一步也包含在内。
        */
       onChange?: (value: number) => void;
       /**
@@ -160,13 +158,20 @@ type SliderValueProps =
 type SliderProps = SliderOwnProps & SliderValueProps;
 
 /**
- * Single-value slider built on a native `<input type="range">`, so keyboard
- * stepping, focus, and value announcement come from the platform. `onChange`
- * streams every move; `onCommit` fires once per interaction.
+ * Single-value slider. A panel fills its groove from the start to the
+ * value, with the label printed on it and on the groove beneath, and a
+ * handle line at its far edge; the value sits at the end of the groove and
+ * climbs onto the panel when the panel covers it. A drag, from anywhere on
+ * the control, moves the panel by the steps of the range, and a tap sends
+ * it to the point. While a pointer holds it, the panel melts into clear
+ * liquid that bends the ticks and the value under it, where the effect
+ * layer runs. A native `<input type="range">` underneath carries the
+ * keyboard, focus and value announcement. `onChange` streams every step;
+ * `onCommit` fires once per interaction.
  */
 export function Slider({
   label,
-  labelHidden,
+  labelHidden = false,
   description,
   error,
   readout,
@@ -180,13 +185,12 @@ export function Slider({
   size = "md",
   css,
   id,
-  disabled,
-  onPointerUp,
-  onPointerCancel,
+  disabled = false,
   onKeyUp,
   onBlur,
   "aria-describedby": ariaDescribedBy,
   "aria-invalid": ariaInvalid,
+  "aria-valuetext": ariaValueText,
   ref,
   ...rest
 }: SliderProps) {
@@ -194,8 +198,44 @@ export function Slider({
     controlled: valueProp,
     defaultValue: defaultValue ?? min,
   });
-
+  const range = { min, max, step };
   const pendingCommitRef = useRef<number | null>(null);
+
+  function commit() {
+    const pending = pendingCommitRef.current;
+    if (pending === null) {
+      return;
+    }
+    pendingCommitRef.current = null;
+    onCommit?.(pending);
+  }
+
+  function change(next: number) {
+    if (next === value) return;
+    pendingCommitRef.current = next;
+    setValue(next);
+    onChange?.(next);
+  }
+
+  const {
+    controlRef,
+    grooveRef,
+    innerRef,
+    topPieceRef,
+    labelRef,
+    valueRef,
+    panelRef,
+    inputRef,
+    handlers,
+    ticks,
+  } = useSliderMotion({
+    value,
+    range,
+    labelHidden,
+    disabled,
+    change,
+    commit,
+  });
 
   const {
     fieldId,
@@ -207,110 +247,193 @@ export function Slider({
     ariaInvalid: resolvedAriaInvalid,
   } = useFieldAria({ id, ariaDescribedBy, ariaInvalid, description, error });
 
-  function commit() {
-    const pending = pendingCommitRef.current;
-    if (pending === null) {
-      return;
-    }
-    pendingCommitRef.current = null;
-    onCommit?.(pending);
-  }
-
-  const span = max - min;
-  const percent =
-    span > 0 ? Math.min(100, Math.max(0, ((value - min) / span) * 100)) : 0;
+  const shown = readout ?? String(value);
+  const valueText =
+    ariaValueText ??
+    (typeof readout === "string" || typeof readout === "number"
+      ? String(readout)
+      : undefined);
 
   return (
     <div css={[stack.tight, fieldStyles.root, css]}>
+      {labelHidden ? (
+        <label htmlFor={fieldId} css={a11y.srOnly}>
+          {label}
+        </label>
+      ) : null}
       <div
+        ref={controlRef}
+        {...handlers}
         css={[
-          stack.text,
-          labelHidden &&
-            readout === undefined &&
-            !hasDescription &&
-            a11y.srOnly,
+          sliderMarker,
+          styles.control,
+          sliderSizes[size],
+          sliderAt.at(fractionOf(value, range)),
+          disabled && styles.controlDisabled,
         ]}
       >
         <div
+          ref={grooveRef}
+          data-effect-content=""
           css={[
-            flex.between,
-            styles.labelRow,
-            labelHidden && readout === undefined && a11y.srOnly,
+            size === "sm" ? typeRole.controlCaption : typeRole.control,
+            typeModifier.numeric,
+            sliderGrooveMarker,
+            corner.squircle_round,
+            styles.groove,
+            hasError && styles.grooveInvalid,
           ]}
         >
-          <label
-            htmlFor={fieldId}
-            css={[
-              typeRole.control,
-              fieldStyles.label,
-              labelHidden && a11y.srOnly,
-            ]}
-          >
-            {label}
-          </label>
-          {readout === undefined ? null : (
+          <div ref={innerRef} css={styles.inner}>
+            {ticks.map((x) => (
+              <span
+                key={x}
+                aria-hidden
+                css={[corner.radius_round, styles.tick, sliderTick.at(x)]}
+              />
+            ))}
+            {labelHidden ? null : (
+              <label
+                ref={labelRef}
+                htmlFor={fieldId}
+                css={[
+                  styles.text,
+                  styles.label,
+                  styles.grooveText,
+                  styles.snapshotOnly,
+                ]}
+              >
+                {label}
+              </label>
+            )}
+            {labelHidden ? null : (
+              <div
+                aria-hidden
+                data-effect-omit=""
+                css={[styles.labelRow, styles.grooveText]}
+              >
+                <span css={[styles.text, styles.labelMoved]}>{label}</span>
+              </div>
+            )}
             <span
-              css={[typeRole.control, fieldStyles.label, typeModifier.numeric]}
+              ref={valueRef}
+              aria-hidden
+              css={[styles.text, styles.value, styles.snapshotOnly]}
             >
-              {readout}
+              {shown}
             </span>
-          )}
+            <div
+              aria-hidden
+              data-effect-omit=""
+              css={[styles.valueRow, styles.grooveText]}
+            >
+              <span css={[styles.text, styles.valueMoved]}>{shown}</span>
+            </div>
+            <div aria-hidden data-effect-omit="" css={styles.panelGroup}>
+              <div ref={panelRef} css={[corner.squircle_round, styles.panel]}>
+                {labelHidden ? null : (
+                  <div
+                    css={[
+                      styles.labelRow,
+                      styles.panelLabelRow,
+                      styles.labelFade,
+                    ]}
+                  >
+                    <span
+                      css={[styles.text, styles.labelMoved, styles.panelText]}
+                    >
+                      {label}
+                    </span>
+                  </div>
+                )}
+                <div
+                  css={[
+                    styles.valueRow,
+                    styles.panelValueRow,
+                    styles.valueFade,
+                  ]}
+                >
+                  <span
+                    css={[styles.text, styles.valueMoved, styles.panelText]}
+                  >
+                    {shown}
+                  </span>
+                </div>
+              </div>
+              <div css={[corner.squircle_round, styles.panelCap]}>
+                {labelHidden ? null : (
+                  <div css={[styles.labelRow, styles.labelFade]}>
+                    <span
+                      css={[styles.text, styles.labelMoved, styles.panelText]}
+                    >
+                      {label}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div aria-hidden data-effect-omit="" css={styles.handle}>
+              <span
+                ref={topPieceRef}
+                {...{ [SLIDER_HANDLE]: "" }}
+                css={[
+                  corner.radius_round,
+                  styles.piece,
+                  styles.topPiece,
+                  hasError && styles.pieceInvalid,
+                ]}
+              />
+              <span
+                css={[
+                  corner.radius_round,
+                  styles.piece,
+                  styles.bottomPiece,
+                  hasError && styles.pieceInvalid,
+                ]}
+              />
+            </div>
+          </div>
         </div>
-        {hasDescription ? (
-          <span
-            id={descriptionId}
-            css={[typeRole.bodySmall, fieldStyles.description]}
-          >
-            {description}
-          </span>
-        ) : null}
+        <input
+          {...rest}
+          ref={mergeRefs(inputRef, ref)}
+          id={fieldId}
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          disabled={disabled}
+          aria-invalid={resolvedAriaInvalid}
+          aria-describedby={describedBy}
+          aria-valuetext={valueText}
+          css={[
+            a11y.focusRing,
+            corner.squircle_round,
+            styles.input,
+            hasError && styles.inputInvalid,
+          ]}
+          onChange={(event) => {
+            change(event.currentTarget.valueAsNumber);
+          }}
+          onKeyUp={(event) => {
+            commit();
+            onKeyUp?.(event);
+          }}
+          onBlur={(event) => {
+            commit();
+            onBlur?.(event);
+          }}
+        />
       </div>
-      <input
-        {...rest}
-        ref={ref}
-        id={fieldId}
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        disabled={disabled}
-        aria-invalid={resolvedAriaInvalid}
-        aria-describedby={describedBy}
-        // The input is invisible; `corner.radius_round` only shapes the focus
-        // ring around the track.
-        css={[
-          a11y.focusRing,
-          corner.radius_round,
-          styles.input,
-          sizeStyles[size],
-          fillStyles.fill(percent),
-          hasError && styles.inputInvalid,
-          disabled && styles.inputDisabled,
-        ]}
-        onChange={(event) => {
-          const next = event.currentTarget.valueAsNumber;
-          pendingCommitRef.current = next;
-          setValue(next);
-          onChange?.(next);
-        }}
-        onPointerUp={(event) => {
-          commit();
-          onPointerUp?.(event);
-        }}
-        onPointerCancel={(event) => {
-          commit();
-          onPointerCancel?.(event);
-        }}
-        onKeyUp={(event) => {
-          commit();
-          onKeyUp?.(event);
-        }}
-        onBlur={(event) => {
-          commit();
-          onBlur?.(event);
-        }}
-      />
+      {hasDescription ? (
+        <span
+          id={descriptionId}
+          css={[typeRole.bodySmall, fieldStyles.description]}
+        >
+          {description}
+        </span>
+      ) : null}
       {hasError ? (
         <span
           id={errorId}
@@ -323,155 +446,3 @@ export function Slider({
     </div>
   );
 }
-
-const ACCENT_FILL = `linear-gradient(to right, ${color.bgAccent} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
-const DANGER_FILL = `linear-gradient(to right, ${color.bgDanger} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
-const DISABLED_FILL = `linear-gradient(to right, ${color.bgNeutral} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
-
-// WebKit stacks the thumb from the track's top edge instead of centring it.
-const THUMB_OFFSET = `calc((${sliderTokens.trackHeight} - ${sliderTokens.thumbSize}) / 2)`;
-const THUMB_LIFT = `transform ${duration._500} ${easing.spring}`;
-
-const styles = stylex.create({
-  labelRow: {
-    gap: rhythm.tight,
-  },
-  input: {
-    appearance: "none",
-    margin: 0,
-    padding: 0,
-    inlineSize: "100%",
-    minInlineSize: 0,
-    // Tall enough that the thumb is never clipped by the track.
-    blockSize: sliderTokens.thumbSize,
-    backgroundColor: "transparent",
-    cursor: { default: "pointer", ":disabled": "not-allowed" },
-    opacity: { default: null, ":disabled": opacity.disabled },
-
-    // The two engines each need their own track and thumb; StyleX takes only
-    // literal blocks under a pseudo-element, so the pair is spelled out twice.
-    "::-webkit-slider-runnable-track": {
-      blockSize: sliderTokens.trackHeight,
-      borderRadius: border.radius_round,
-      cornerShape: "round",
-      // Matches Progress's track. A mid-tone fill, not `bgNeutralSubtle`,
-      // which hits only 1.04:1 against a raised card in dark theme and hides
-      // the unfilled remainder.
-      backgroundColor: color.bgNeutral,
-      backgroundImage: ACCENT_FILL,
-    },
-    "::-moz-range-track": {
-      blockSize: sliderTokens.trackHeight,
-      borderRadius: border.radius_round,
-      cornerShape: "round",
-      // Matches Progress's track. A mid-tone fill, not `bgNeutralSubtle`,
-      // which hits only 1.04:1 against a raised card in dark theme and hides
-      // the unfilled remainder.
-      backgroundColor: color.bgNeutral,
-      backgroundImage: ACCENT_FILL,
-    },
-    "::-webkit-slider-thumb": {
-      appearance: "none",
-      boxSizing: "border-box",
-      blockSize: sliderTokens.thumbSize,
-      inlineSize: sliderTokens.thumbSize,
-      borderRadius: border.radius_round,
-      cornerShape: "round",
-      borderStyle: "solid",
-      borderWidth: border.size_2,
-      borderColor: color.borderAccent,
-      backgroundColor: color.bgControlBright,
-      boxShadow: shadow._2,
-      cursor: "inherit",
-      marginBlockStart: THUMB_OFFSET,
-      transition: {
-        default: THUMB_LIFT,
-        [motionConstants.REDUCED_MOTION]: "none",
-      },
-      transform: {
-        default: null,
-        ":hover": {
-          default: null,
-          [pointer.canHover]: "scale(1.12)",
-        },
-      },
-    },
-    "::-moz-range-thumb": {
-      boxSizing: "border-box",
-      blockSize: sliderTokens.thumbSize,
-      inlineSize: sliderTokens.thumbSize,
-      borderRadius: border.radius_round,
-      cornerShape: "round",
-      borderStyle: "solid",
-      borderWidth: border.size_2,
-      borderColor: color.borderAccent,
-      backgroundColor: color.bgControlBright,
-      boxShadow: shadow._2,
-      cursor: "inherit",
-      transition: {
-        default: THUMB_LIFT,
-        [motionConstants.REDUCED_MOTION]: "none",
-      },
-      transform: {
-        default: null,
-        ":hover": {
-          default: null,
-          [pointer.canHover]: "scale(1.12)",
-        },
-      },
-    },
-  },
-  // Composed after `a11y.focusRing`, so the danger ring wins — matching the
-  // invalid treatment on the other fields.
-  inputInvalid: {
-    outlineColor: {
-      default: "transparent",
-      ":focus-visible": color.borderDanger,
-    },
-    "::-webkit-slider-runnable-track": { backgroundImage: DANGER_FILL },
-    "::-moz-range-track": { backgroundImage: DANGER_FILL },
-    "::-webkit-slider-thumb": { borderColor: color.borderDanger },
-    "::-moz-range-thumb": { borderColor: color.borderDanger },
-  },
-  // `:disabled` cannot be expressed from inside a pseudo-element block, so the
-  // disabled track is selected by the prop instead.
-  inputDisabled: {
-    "::-webkit-slider-runnable-track": { backgroundImage: DISABLED_FILL },
-    "::-moz-range-track": { backgroundImage: DISABLED_FILL },
-    "::-webkit-slider-thumb": {
-      borderColor: color.border,
-      transform: {
-        default: null,
-        ":hover": { default: null, [pointer.canHover]: "none" },
-      },
-    },
-    "::-moz-range-thumb": {
-      borderColor: color.border,
-      transform: {
-        default: null,
-        ":hover": { default: null, [pointer.canHover]: "none" },
-      },
-    },
-  },
-});
-
-const fillStyles = stylex.create({
-  fill: (percent: number) => ({
-    [sliderTokens.fill]: `${String(percent)}%`,
-  }),
-});
-
-const sizeStyles = stylex.create({
-  sm: {
-    [sliderTokens.trackHeight]: controlSize._1,
-    [sliderTokens.thumbSize]: controlSize._4,
-  },
-  md: {
-    [sliderTokens.trackHeight]: controlSize._2,
-    [sliderTokens.thumbSize]: controlSize._5,
-  },
-  lg: {
-    [sliderTokens.trackHeight]: controlSize._3,
-    [sliderTokens.thumbSize]: controlSize._6,
-  },
-});

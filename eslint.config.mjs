@@ -48,6 +48,7 @@ const effectLayerTypegpuModules = [
   "pond-shader",
   "ring-light-shader",
   "ripple-shader",
+  "slider-liquid-shader",
   "content-at",
   "dust-page-position",
   "edge-point",

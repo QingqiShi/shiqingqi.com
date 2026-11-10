@@ -178,7 +178,6 @@
     "./components/skeleton": "./src/feedback/skeleton.tsx",
     "./components/skeleton.stylex": "./src/feedback/skeleton.stylex.ts",
     "./components/slider": "./src/forms/slider.tsx",
-    "./components/slider.stylex": "./src/forms/slider.stylex.ts",
     "./components/spinner": "./src/feedback/spinner.tsx",
     "./components/status-dot": "./src/data-display/status-dot.tsx",
     "./components/sticky-control-group": "./src/surfaces/sticky-control-group.tsx",
