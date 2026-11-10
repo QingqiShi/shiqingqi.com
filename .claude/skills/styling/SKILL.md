@@ -1,6 +1,6 @@
 ---
 name: styling
-description: How to style in this project and where its design principles live. Use it for any style change, even a small one: styles, the look of a component, layout, responsive behaviour, hover and focus states, or motion (StyleX, tokens, the css prop). Use it also to judge whether something follows the design principles (设计原则, 空间原则), even when no style changes.
+description: How to build a screen and how to style in this project, and where its design principles live. Use it before you build or change any page, screen, form, dashboard, list or other UI (it holds the component catalogue and the example screens to start from), and for any style change, even a small one: styles, the look of a component, layout, responsive behaviour, hover and focus states, or motion (StyleX, tokens, the css prop). Use it also to judge whether something follows the design principles (设计原则, 空间原则), even when no style changes.
 ---
 
 # Styling
@@ -8,6 +8,35 @@ description: How to style in this project and where its design principles live. 
 `apps/web`, `apps/finance`, `apps/assistant` and `packages/ui` style with StyleX through a `css` prop. `apps/trip-planner` uses Tailwind, and this skill does not apply there.
 
 Import paths below are `@tuja/ui` package exports. Inside `packages/ui`, import the same files by relative path.
+
+## Build a screen from components
+
+A screen here comes out of components, as a shadcn screen comes out of blocks. The components carry the hierarchy: what is large, what is muted, what sits on a surface, how far apart things are. A screen that stacks them looks right. A screen that writes its own layout and type usually looks flat, because each hand-made choice is one more place where the hierarchy can slip.
+
+**Read `references/components.md` before you write a screen.** It is the whole catalogue on one page: each component, its import path, and when to reach for it. Each group links to a file with every prop and an example, so you do not need to open the source.
+
+**Start from the nearest pattern** and change it. Each one is a whole screen built only from components, works on a phone and on a desktop, and runs at `/design-system/patterns/<name>`:
+
+| Screen                                                                 | Pattern in `apps/web/src/design-system/patterns/` |
+| ---------------------------------------------------------------------- | ------------------------------------------------- |
+| A report or dashboard: figures, cards of rows, a main and aside        | `dashboard/`                                      |
+| A settings page: cards of settings rows, one Save                      | `settings/`                                       |
+| A list of records: figures, filters, a table that is a list on a phone | `list/`                                           |
+| A form to add or edit one thing: fields in cards, an error, actions    | `form/`                                           |
+
+Most screens have this shape, from the outside in:
+
+1. `TabView` is the frame of the app: a sidebar with labels on a wide window, a rail of icons on a narrower one, a tab bar on a phone. A destination can show a `count`, and `secondary` holds a list under the destinations.
+2. `PageHeader` starts the page: the title, one line that says what the page is for, and the one main action of the screen (`Button look="primary"`). Other actions are quieter.
+3. `StatGroup` shows the figures that the visitor came for, when the page has them.
+4. The content is `Card`s, a `List`, a `Table`, or `SettingList`s. `Columns` puts a main column beside an aside, so that a wide window is used and not left empty at the sides.
+5. A form ends with `FormFooter`.
+
+To make the hierarchy clear: put first what asks the visitor to act, give secondary text `tone="muted"`, let done things recede, and keep to one main action per screen.
+
+**A `stylex.create` in a screen file is for what only that screen has**, such as a chart or a mark of its own. If you start to write gaps, padding, type or colour for something common (a header, a row of figures, a settings row, an empty state), look in the catalogue again. If it is not there, say so when you report: the fix belongs in `@tuja/ui`, so that the next screen gets it too.
+
+**Look at the screen before you call it done**, at a phone width and a desktop width, in light and in dark. Correct code does not show that a screen looks right.
 
 ## Read the principles first
 
@@ -55,9 +84,9 @@ Before you say that a component follows or breaks a principle, read that princip
 
 In development, that check runs at each press and warns in the console with the prefix `Flow:`. After you change what lies below a panel, press the panel and read those warnings. To see how this works, read `packages/ui/src/motion/use-flow-block.tsx`, `packages/ui/src/surfaces/flow-block.tsx` and `packages/ui/src/surfaces/disclosure.tsx`.
 
-## Start from a component
+## Style an element yourself
 
-Prefer a component. When you style an element yourself, compose primitives before you write a style of your own, such as `css={[flex.row, align.end]}`. A link or button of more than one line takes `Pager`, `Button` or `cardSurface.interactive`, so that hover responds across the whole target. `references/primitives.md` says which primitive to choose.
+When no component fits and you style an element yourself, compose primitives before you write a style of your own, such as `css={[flex.row, align.end]}`. A link or button of more than one line takes `Pager`, `Button` or `cardSurface.interactive`, so that hover responds across the whole target. `references/primitives.md` says which primitive to choose.
 
 ## Traps that lint does not catch
 
@@ -92,5 +121,6 @@ Lint reports the design-system rules. Fix each one as its message says. The rule
 
 ## References
 
+- `references/components.md`: the catalogue of components, with a detail file for each group. It is generated: `pnpm --filter web codegen:agent-index`.
 - `references/primitives.md`: which primitive to choose and in which order to compose them; the motion engine and flow blocks; Hover and Icons with code; `data-prose`; a class that a third-party stylesheet needs.
 - `references/tokens.md`: where each token group is defined, and how to choose between close tokens.

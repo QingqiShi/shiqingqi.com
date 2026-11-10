@@ -16,6 +16,11 @@ export interface PropDoc {
     "enum" | "boolean" | "number" | "string" | "node" | "function" | "other";
   /** The literal members, when `kind` is `"enum"`. */
   members?: EnumMember[];
+  /**
+   * The fields of each object type that `@tuja/ui` declares and the prop
+   * holds, or holds a list of — `'BreadcrumbItem { label: string; href?: string }'`.
+   */
+  shapes?: string[];
   /** False when the prop is optional in any declaration that contributes it. */
   required: boolean;
   /** The default, printed as source text — `'"md"'`. */

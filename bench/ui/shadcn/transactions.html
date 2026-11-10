@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              border: "hsl(var(--border))",
+              input: "hsl(var(--input))",
+              background: "hsl(var(--background))",
+              foreground: "hsl(var(--foreground))",
+              primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
+              secondary: { DEFAULT: "hsl(var(--secondary))", foreground: "hsl(var(--secondary-foreground))" },
+              muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
+              accent: { DEFAULT: "hsl(var(--accent))", foreground: "hsl(var(--accent-foreground))" },
+              destructive: "hsl(var(--destructive))",
+              card: "hsl(var(--card))",
+              sidebar: "hsl(var(--sidebar))",
+            },
+            borderRadius: { xl: "calc(var(--radius) + 4px)", lg: "var(--radius)", md: "calc(var(--radius) - 2px)" },
+          },
+        },
+      };
+    </script>
+    <style>
+      :root {
+        --background: 0 0% 100%; --foreground: 0 0% 3.9%; --card: 0 0% 100%;
+        --primary: 0 0% 9%; --primary-foreground: 0 0% 98%;
+        --secondary: 0 0% 96.1%; --secondary-foreground: 0 0% 9%;
+        --muted: 0 0% 96.1%; --muted-foreground: 0 0% 45.1%;
+        --accent: 0 0% 96.1%; --accent-foreground: 0 0% 9%;
+        --destructive: 0 84.2% 60.2%; --border: 0 0% 89.8%; --input: 0 0% 89.8%;
+        --sidebar: 0 0% 98%; --radius: 0.625rem;
+      }
+    </style>
+  </head>
+  <body class="bg-background text-foreground antialiased">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside class="hidden w-64 shrink-0 flex-col border-r bg-sidebar md:flex">
+        <div class="flex items-center gap-2 p-4">
+          <div class="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"><i data-lucide="wallet" class="size-4"></i></div>
+          <div class="grid text-sm leading-tight"><span class="font-semibold">Finance</span><span class="text-xs text-muted-foreground">Household</span></div>
+        </div>
+        <div class="px-2">
+          <nav class="flex flex-col gap-1">
+            <a class="flex h-8 items-center gap-2 rounded-md px-2 text-sm"><i data-lucide="layout-dashboard" class="size-4"></i>Overview</a>
+            <a class="flex h-8 items-center gap-2 rounded-md bg-accent px-2 text-sm font-medium"><i data-lucide="arrow-left-right" class="size-4"></i>Transactions<span class="ml-auto text-xs tabular-nums text-muted-foreground">3</span></a>
+            <a class="flex h-8 items-center gap-2 rounded-md px-2 text-sm"><i data-lucide="landmark" class="size-4"></i>Accounts</a>
+            <a class="flex h-8 items-center gap-2 rounded-md px-2 text-sm"><i data-lucide="chart-column" class="size-4"></i>Analytics</a>
+            <a class="flex h-8 items-center gap-2 rounded-md px-2 text-sm"><i data-lucide="settings" class="size-4"></i>Settings</a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <div class="flex min-w-0 flex-1 flex-col">
+        <header class="sticky top-0 z-10 flex h-14 items-center gap-2 border-b bg-background px-4 md:static md:bg-transparent">
+          <button class="flex size-7 items-center justify-center rounded-md hover:bg-accent"><i data-lucide="panel-left" class="size-4"></i></button>
+          <div class="mx-2 h-4 w-px bg-border"></div>
+          <nav class="flex items-center gap-1.5 text-sm"><span class="hidden text-muted-foreground md:inline">Finance</span><i data-lucide="chevron-right" class="hidden size-3.5 text-muted-foreground md:block"></i><span class="font-medium">Transactions</span></nav>
+          <div class="ml-auto flex items-center gap-2">
+            <button class="inline-flex h-8 items-center gap-2 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground shadow max-sm:w-8 max-sm:justify-center max-sm:px-0"><i data-lucide="plus" class="size-4"></i><span class="hidden sm:inline">Add transaction</span></button>
+          </div>
+        </header>
+
+        <main class="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 md:p-6">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div class="flex flex-col gap-1">
+              <h1 class="text-2xl font-semibold tracking-tight">Transactions</h1>
+              <p class="text-sm text-muted-foreground">Review this month and fix what the bank sync could not categorise.</p>
+            </div>
+            <div class="flex items-center gap-1">
+              <button class="inline-flex h-9 items-center gap-1 rounded-md border border-input bg-background px-3 text-sm font-medium shadow-sm hover:bg-accent"><i data-lucide="chevron-left" class="size-4"></i>October</button>
+              <div class="flex h-9 flex-1 items-center justify-center whitespace-nowrap px-2 text-sm font-semibold sm:min-w-36 sm:flex-none sm:px-3">November 2026</div>
+              <button disabled class="inline-flex h-9 items-center gap-1 rounded-md border border-input bg-background px-3 text-sm font-medium opacity-50 shadow-sm">December<i data-lucide="chevron-right" class="size-4"></i></button>
+            </div>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div class="rounded-xl border bg-card shadow-sm">
+              <div class="flex flex-row items-center justify-between space-y-0 p-6 pb-2"><h3 class="text-sm font-medium tracking-tight">Spent</h3><i data-lucide="arrow-down-right" class="size-4 text-muted-foreground"></i></div>
+              <div class="p-6 pt-0"><div class="text-2xl font-bold tabular-nums">£2,184.20</div><p class="text-xs text-muted-foreground">£312 less than October</p></div>
+            </div>
+            <div class="rounded-xl border bg-card shadow-sm">
+              <div class="flex flex-row items-center justify-between space-y-0 p-6 pb-2"><h3 class="text-sm font-medium tracking-tight">Income</h3><i data-lucide="arrow-up-right" class="size-4 text-muted-foreground"></i></div>
+              <div class="p-6 pt-0"><div class="text-2xl font-bold tabular-nums">£4,250.00</div><p class="text-xs text-muted-foreground">1 payment this month</p></div>
+            </div>
+            <div class="rounded-xl border bg-card shadow-sm">
+              <div class="flex flex-row items-center justify-between space-y-0 p-6 pb-2"><h3 class="text-sm font-medium tracking-tight">Net</h3><i data-lucide="trending-up" class="size-4 text-muted-foreground"></i></div>
+              <div class="p-6 pt-0"><div class="text-2xl font-bold tabular-nums text-emerald-600">+£2,065.80</div><p class="text-xs text-muted-foreground">Income minus spending</p></div>
+            </div>
+            <div class="rounded-xl border border-amber-200 bg-amber-50/50 shadow-sm">
+              <div class="flex flex-row items-center justify-between space-y-0 p-6 pb-2"><h3 class="text-sm font-medium tracking-tight">Needs a category</h3><i data-lucide="circle-alert" class="size-4 text-amber-600"></i></div>
+              <div class="p-6 pt-0"><div class="text-2xl font-bold tabular-nums">3</div><p class="text-xs text-muted-foreground">Pick a category in the table below</p></div>
+            </div>
+          </div>
+
+          <div class="rounded-xl border bg-card shadow-sm">
+            <div class="flex flex-col gap-2 border-b p-4 md:flex-row md:items-center">
+              <div class="relative md:w-72">
+                <i data-lucide="search" class="absolute left-2.5 top-2.5 size-4 text-muted-foreground"></i>
+                <input placeholder="Search payees..." class="flex h-9 w-full rounded-md border border-input bg-transparent py-1 pl-8 pr-3 text-base shadow-sm transition-colors placeholder:text-muted-foreground md:text-sm" />
+              </div>
+              <div class="grid grid-cols-2 gap-2 md:flex">
+                <button class="flex h-9 w-full items-center justify-between gap-2 whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm md:w-44"><span>All accounts</span><i data-lucide="chevron-down" class="size-4 opacity-50"></i></button>
+                <button class="flex h-9 w-full items-center justify-between gap-2 whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm md:w-44"><span>All categories</span><i data-lucide="chevron-down" class="size-4 opacity-50"></i></button>
+              </div>
+            </div>
+
+            <div class="relative w-full overflow-auto">
+              <table class="w-full caption-bottom text-sm">
+                <thead class="[&_tr]:border-b">
+                  <tr class="border-b transition-colors hover:bg-muted/50">
+                    <th class="hidden h-10 px-4 text-left align-middle font-medium text-muted-foreground md:table-cell">Date</th>
+                    <th class="h-10 px-4 text-left align-middle font-medium text-muted-foreground">Payee</th>
+                    <th class="hidden h-10 px-2 text-left align-middle font-medium text-muted-foreground md:table-cell">Category</th>
+                    <th class="hidden h-10 px-2 text-left align-middle font-medium text-muted-foreground lg:table-cell">Account</th>
+                    <th class="h-10 px-4 text-right align-middle font-medium text-muted-foreground">Amount</th>
+                  </tr>
+                </thead>
+                <tbody id="rows" class="[&_tr:last-child]:border-0"></tbody>
+              </table>
+            </div>
+
+            <div class="flex flex-col items-center justify-between gap-3 border-t p-4 sm:flex-row">
+              <p class="text-sm text-muted-foreground">Showing 12 of 86 transactions</p>
+              <button class="inline-flex h-9 w-full items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent sm:w-auto">Load more</button>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <script>
+      const rows = [
+        ["10 Nov", "Tesco Express", "Groceries", "Monzo Current", -23.4, true],
+        ["10 Nov", "TfL Travel Charge", "Transport", "Monzo Current", -8.1],
+        ["9 Nov", "SQ *BLANK STREET", null, "Amex Gold", -4.2],
+        ["9 Nov", "Dishoom Shoreditch", "Eating out", "Amex Gold", -64.5],
+        ["8 Nov", "Octopus Energy", "Bills", "Monzo Current", -112],
+        ["7 Nov", "Foxtons Rent", "Rent", "Monzo Current", -1250],
+        ["7 Nov", "Lumen Studio Ltd (salary)", "Income", "Monzo Current", 4250],
+        ["6 Nov", "PAYPAL *8842", null, "Monzo Current", -39.99],
+        ["5 Nov", "Waterstones", "Shopping", "Amex Gold", -27.98],
+        ["4 Nov", "Sainsbury's", "Groceries", "Monzo Current", -71.25],
+        ["3 Nov", "AMZNMktplace", null, "Amex Gold", -18.49],
+        ["2 Nov", "Thames Water", "Bills", "Monzo Current", -41.3],
+      ];
+      const fmt = (n) => (n < 0 ? "−" : "+") + "£" + Math.abs(n).toLocaleString("en-GB", { minimumFractionDigits: 2 });
+      const category = (c) =>
+        c
+          ? `<span class="inline-flex items-center rounded-md border border-transparent bg-secondary px-2.5 py-0.5 text-xs font-semibold text-secondary-foreground">${c}</span>`
+          : `<button class="flex h-8 w-40 items-center justify-between gap-2 whitespace-nowrap rounded-md border border-dashed border-amber-400 bg-amber-50 px-3 text-xs font-medium text-amber-900 shadow-sm"><span>Pick a category</span><i data-lucide="chevron-down" class="size-4 opacity-50"></i></button>`;
+      document.getElementById("rows").innerHTML = rows
+        .map(([date, payee, cat, account, amount, pending]) => `
+          <tr class="cursor-pointer border-b transition-colors hover:bg-muted/50 ${cat ? "" : "bg-amber-50/30"}">
+            <td class="hidden whitespace-nowrap p-4 align-middle text-muted-foreground md:table-cell">${date}</td>
+            <td class="p-4 align-middle">
+              <div class="flex flex-wrap items-center gap-2"><span class="font-medium">${payee}</span>${pending ? '<span class="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold text-foreground">Pending</span>' : ""}</div>
+              <div class="mt-1 text-xs text-muted-foreground md:hidden">${date} · ${account}</div>
+              <div class="mt-2 md:hidden">${category(cat)}</div>
+              <div class="hidden text-xs text-muted-foreground md:block lg:hidden">${account}</div>
+            </td>
+            <td class="hidden p-2 align-middle md:table-cell">${category(cat)}</td>
+            <td class="hidden whitespace-nowrap p-2 align-middle text-muted-foreground lg:table-cell">${account}</td>
+            <td class="whitespace-nowrap p-4 text-right align-top font-medium tabular-nums md:align-middle ${amount > 0 ? "text-emerald-600" : ""}">${fmt(amount)}</td>
+          </tr>`)
+        .join("");
+      lucide.createIcons();
+    </script>
+  </body>
+</html>

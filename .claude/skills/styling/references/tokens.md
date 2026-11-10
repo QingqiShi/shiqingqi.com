@@ -28,7 +28,7 @@ Measure a gap between what a reader sees. Text on no surface is seen at its cont
 
 ## Type
 
-- Haffer comes in two weights, 400 and 600, and `packages/ui/src/fonts.css` turns off font synthesis. A weight of 500 or less shows at 400, and a heavier one at 600, so take `font.weight_4` or `font.weight_6`.
+- Haffer comes in two weights, 400 and 600, and `packages/ui/src/fonts.css` turns off font synthesis. A weight of 500 or less shows at 400, and a heavier one at 600, so take `font.weight_4` or `font.weight_6`. `font.weight_5` is for the components that will be medium when Haffer gets a Medium face; until then it shows at 400, so do not rely on it for emphasis.
 - In `apps/web`, a Chinese page takes a taller body leading and another font stack from `chineseType` in `apps/web/src/theme/global-styles.ts`.
 
 ## Controls

@@ -17,6 +17,7 @@
     "@tuja/ui": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
+    "prettier": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

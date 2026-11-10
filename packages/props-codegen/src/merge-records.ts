@@ -5,6 +5,7 @@ import {
   resolveTypeDeclaration,
   unwrapParens,
 } from "./collect-from-type-node.ts";
+import { collectShapes } from "./collect-shapes.ts";
 import type { EnumMember, PropDoc } from "./types.ts";
 
 /** Type references whose text alone says the prop holds renderable content. */
@@ -192,11 +193,14 @@ export function mergeRecords(
       .find((text) => text !== undefined);
 
     const isEnum = members !== undefined && members.length > 0;
+    const kind = kindOf(typeNodes, typeText, members);
+    const shapes = kind === "other" ? collectShapes(typeNodes, checker) : [];
     props.push({
       name,
       type: isEnum ? printMembers(members) : typeText,
-      kind: kindOf(typeNodes, typeText, members),
+      kind,
       ...(isEnum ? { members } : {}),
+      ...(shapes.length > 0 ? { shapes } : {}),
       required: group.every((record) => !record.optional),
       ...(defaultValue === undefined ? {} : { defaultValue }),
       description: {

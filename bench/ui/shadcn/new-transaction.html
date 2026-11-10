@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              border: "hsl(var(--border))",
+              input: "hsl(var(--input))",
+              background: "hsl(var(--background))",
+              foreground: "hsl(var(--foreground))",
+              primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
+              secondary: { DEFAULT: "hsl(var(--secondary))", foreground: "hsl(var(--secondary-foreground))" },
+              muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
+              accent: { DEFAULT: "hsl(var(--accent))", foreground: "hsl(var(--accent-foreground))" },
+              destructive: "hsl(var(--destructive))",
+              card: "hsl(var(--card))",
+              sidebar: "hsl(var(--sidebar))",
+            },
+            borderRadius: { xl: "calc(var(--radius) + 4px)", lg: "var(--radius)", md: "calc(var(--radius) - 2px)" },
+          },
+        },
+      };
+    </script>
+    <style>
+      :root {
+        --background: 0 0% 100%; --foreground: 0 0% 3.9%; --card: 0 0% 100%;
+        --primary: 0 0% 9%; --primary-foreground: 0 0% 98%;
+        --secondary: 0 0% 96.1%; --secondary-foreground: 0 0% 9%;
+        --muted: 0 0% 96.1%; --muted-foreground: 0 0% 45.1%;
+        --accent: 0 0% 96.1%; --accent-foreground: 0 0% 9%;
+        --destructive: 0 84.2% 60.2%; --border: 0 0% 89.8%; --input: 0 0% 89.8%;
+        --sidebar: 0 0% 98%; --radius: 0.625rem;
+      }
+    </style>
+  </head>
+  <body class="bg-background text-foreground antialiased">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside class="hidden w-64 shrink-0 flex-col border-r bg-sidebar md:flex">
+        <div class="flex items-center gap-2 p-4">
+          <div class="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"><i data-lucide="wallet" class="size-4"></i></div>
+          <div class="grid text-sm leading-tight"><span class="font-semibold">Finance</span><span class="text-xs text-muted-foreground">Household</span></div>
+        </div>
+        <div class="px-2">
+          <nav class="flex flex-col gap-1">
+            <a class="flex h-8 items-center gap-2 rounded-md px-2 text-sm"><i data-lucide="layout-dashboard" class="size-4"></i>Overview</a>
+            <a class="flex h-8 items-center gap-2 rounded-md bg-accent px-2 text-sm font-medium"><i data-lucide="arrow-left-right" class="size-4 shrink-0"></i>Transactions<span class="ml-auto text-xs tabular-nums text-muted-foreground">3</span></a>
+            <a class="flex h-8 items-center gap-2 rounded-md px-2 text-sm"><i data-lucide="landmark" class="size-4"></i>Accounts</a>
+            <a class="flex h-8 items-center gap-2 rounded-md px-2 text-sm"><i data-lucide="chart-column" class="size-4"></i>Analytics</a>
+            <a class="flex h-8 items-center gap-2 rounded-md px-2 text-sm"><i data-lucide="settings" class="size-4"></i>Settings</a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <div class="flex min-w-0 flex-1 flex-col">
+        <header class="sticky top-0 z-10 flex h-14 items-center gap-2 border-b bg-background px-4 md:static md:bg-transparent">
+          <button class="flex size-7 items-center justify-center rounded-md hover:bg-accent"><i data-lucide="panel-left" class="size-4"></i></button>
+          <div class="mx-2 h-4 w-px bg-border"></div>
+          <nav aria-label="breadcrumb">
+            <ol class="flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground">
+              <li class="hidden items-center gap-1.5 md:inline-flex"><a class="transition-colors hover:text-foreground">Finance</a></li>
+              <li role="presentation" class="hidden md:block"><i data-lucide="chevron-right" class="size-3.5"></i></li>
+              <li class="inline-flex items-center gap-1.5"><a class="transition-colors hover:text-foreground">Transactions</a></li>
+              <li role="presentation"><i data-lucide="chevron-right" class="size-3.5"></i></li>
+              <li class="inline-flex items-center gap-1.5"><span class="font-medium text-foreground">New</span></li>
+            </ol>
+          </nav>
+        </header>
+
+        <main class="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 md:p-6">
+          <div class="flex flex-col gap-3">
+            <a class="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><i data-lucide="arrow-left" class="size-4"></i>Back to transactions</a>
+            <div class="flex flex-col gap-1">
+              <h1 class="text-2xl font-semibold tracking-tight">New transaction</h1>
+              <p class="text-sm text-muted-foreground">Add a payment the bank sync has not picked up yet.</p>
+            </div>
+          </div>
+
+          <form class="rounded-xl border bg-card shadow-sm">
+            <div class="flex flex-col gap-6 p-4 md:p-6">
+              <!-- Type -->
+              <div class="grid gap-2">
+                <label class="text-sm font-medium leading-none">Type</label>
+                <div role="tablist" class="grid h-9 w-full grid-cols-3 items-center rounded-lg bg-muted p-1 text-muted-foreground">
+                  <button type="button" role="tab" data-state="active" class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md bg-background px-3 py-1 text-sm font-medium text-foreground shadow transition-all"><i data-lucide="arrow-up-right" class="size-4 shrink-0"></i>Money out</button>
+                  <button type="button" role="tab" class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium transition-all"><i data-lucide="arrow-down-left" class="size-4 shrink-0"></i>Money in</button>
+                  <button type="button" role="tab" class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium transition-all"><i data-lucide="arrow-left-right" class="size-4 shrink-0"></i>Transfer</button>
+                </div>
+              </div>
+
+              <div class="grid items-start gap-6 sm:grid-cols-2">
+                <!-- Amount -->
+                <div class="grid gap-2">
+                  <label for="amount" class="text-sm font-medium leading-none">Amount</label>
+                  <div class="relative">
+                    <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">£</span>
+                    <input id="amount" inputmode="decimal" value="64.50" class="flex h-9 w-full rounded-md border border-input bg-transparent py-1 pl-7 pr-3 text-base tabular-nums shadow-sm transition-colors md:text-sm" />
+                  </div>
+                </div>
+
+                <!-- Date (error) -->
+                <div class="grid gap-2">
+                  <label class="text-sm font-medium leading-none text-destructive">Date</label>
+                  <button type="button" aria-invalid="true" class="inline-flex h-9 w-full items-center justify-start gap-2 whitespace-nowrap rounded-md border border-destructive bg-background px-3 py-2 text-left text-sm font-normal shadow-sm ring-1 ring-destructive/20 hover:bg-accent"><i data-lucide="calendar" class="size-4 text-muted-foreground"></i>31 October 2026</button>
+                  <p class="text-[0.8rem] font-medium text-destructive">October is closed. Reopen it in Settings or pick a date in November.</p>
+                </div>
+              </div>
+
+              <!-- Payee -->
+              <div class="grid gap-2">
+                <label for="payee" class="text-sm font-medium leading-none">Payee</label>
+                <input id="payee" value="Dishoom Shoreditch" class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground md:text-sm" />
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-[0.8rem] text-muted-foreground">Recent:</span>
+                  <button type="button" class="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold text-foreground hover:bg-accent">Tesco Express</button>
+                  <button type="button" class="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold text-foreground hover:bg-accent">TfL</button>
+                  <button type="button" class="inline-flex items-center rounded-md border border-transparent bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground">Dishoom Shoreditch</button>
+                </div>
+              </div>
+
+              <div class="grid items-start gap-6 sm:grid-cols-2">
+                <!-- Account -->
+                <div class="grid gap-2">
+                  <label class="text-sm font-medium leading-none">Account</label>
+                  <button type="button" role="combobox" class="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm"><span>Amex Gold</span><i data-lucide="chevron-down" class="size-4 opacity-50"></i></button>
+                </div>
+                <!-- Category -->
+                <div class="grid gap-2">
+                  <label class="text-sm font-medium leading-none">Category</label>
+                  <button type="button" role="combobox" class="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm"><span>Eating out</span><i data-lucide="chevron-down" class="size-4 opacity-50"></i></button>
+                </div>
+              </div>
+
+              <div data-orientation="horizontal" role="none" class="h-px w-full shrink-0 bg-border"></div>
+
+              <!-- Split -->
+              <div class="flex flex-col gap-4 rounded-lg border p-4">
+                <div class="flex items-center justify-between gap-4">
+                  <div class="space-y-0.5"><label class="text-sm font-medium leading-none">Split with the household</label><p class="text-sm text-muted-foreground">Your share counts towards your spending.</p></div>
+                  <button type="button" role="switch" data-state="checked" class="peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors data-[state=checked]:bg-primary data-[state=unchecked]:bg-input"><span data-state="checked" class="pointer-events-none block size-4 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0"></span></button>
+                </div>
+                <div class="grid gap-3">
+                  <label class="text-sm font-medium leading-none">Your share</label>
+                  <div role="radiogroup" class="grid gap-2 sm:grid-cols-3">
+                    <label class="flex cursor-pointer items-center gap-2 rounded-md border p-3 text-sm">
+                      <span role="radio" aria-checked="false" class="aspect-square size-4 rounded-full border border-primary text-primary shadow"></span>100%
+                    </label>
+                    <label class="flex cursor-pointer items-center gap-2 rounded-md border border-primary bg-accent/50 p-3 text-sm">
+                      <span role="radio" aria-checked="true" class="flex aspect-square size-4 items-center justify-center rounded-full border border-primary text-primary shadow"><span class="size-2 rounded-full bg-primary"></span></span>50%<span class="ml-auto tabular-nums text-muted-foreground">£32.25</span>
+                    </label>
+                    <label class="flex cursor-pointer items-center gap-2 rounded-md border p-3 text-sm">
+                      <span role="radio" aria-checked="false" class="aspect-square size-4 rounded-full border border-primary text-primary shadow"></span>Custom amount
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Repeats -->
+              <div class="flex items-center justify-between gap-4 rounded-lg border p-4">
+                <div class="space-y-0.5"><label class="text-sm font-medium leading-none">Repeats</label><p class="text-sm text-muted-foreground">Every week, month or year.</p></div>
+                <button type="button" role="switch" data-state="unchecked" class="peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors data-[state=checked]:bg-primary data-[state=unchecked]:bg-input"><span data-state="unchecked" class="pointer-events-none block size-4 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0"></span></button>
+              </div>
+
+              <div data-orientation="horizontal" role="none" class="h-px w-full shrink-0 bg-border"></div>
+
+              <!-- Note -->
+              <div class="grid gap-2">
+                <label for="note" class="text-sm font-medium leading-none">Note <span class="font-normal text-muted-foreground">(optional)</span></label>
+                <textarea id="note" rows="3" class="flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground md:text-sm">Birthday dinner with Tom</textarea>
+              </div>
+
+              <!-- Receipt -->
+              <div class="grid gap-2">
+                <label class="text-sm font-medium leading-none">Receipt</label>
+                <div class="flex items-center gap-3 rounded-md border p-2 pr-2">
+                  <div class="flex size-10 shrink-0 items-center justify-center rounded bg-muted"><i data-lucide="image" class="size-5 text-muted-foreground"></i></div>
+                  <div class="min-w-0 flex-1"><p class="truncate text-sm font-medium">receipt-9-nov.jpg</p><p class="text-xs text-muted-foreground">1.2 MB</p></div>
+                  <button type="button" aria-label="Remove" class="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground"><i data-lucide="x" class="size-4"></i></button>
+                </div>
+                <button type="button" class="flex w-full flex-col items-center justify-center gap-1 rounded-md border border-dashed p-4 text-sm text-muted-foreground hover:bg-accent/50">
+                  <i data-lucide="upload" class="size-4"></i><span><span class="font-medium text-foreground">Add another photo</span> or drop it here</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex flex-col-reverse gap-2 border-t p-4 sm:flex-row sm:justify-end md:px-6">
+              <button type="button" class="inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">Cancel</button>
+              <button type="button" class="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent">Save and add another</button>
+              <button type="submit" class="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90">Save transaction</button>
+            </div>
+          </form>
+        </main>
+      </div>
+    </div>
+    <script>lucide.createIcons();</script>
+  </body>
+</html>

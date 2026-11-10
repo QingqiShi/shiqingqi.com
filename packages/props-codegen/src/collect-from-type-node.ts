@@ -65,7 +65,7 @@ function memberNameOf(node: ts.PropertyName): string | undefined {
   return undefined;
 }
 
-function isLocalDeclaration(node: ts.Node): boolean {
+export function isLocalDeclaration(node: ts.Node): boolean {
   return !node.getSourceFile().fileName.includes("/node_modules/");
 }
 
