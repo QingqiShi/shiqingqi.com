@@ -22,6 +22,7 @@ export interface EffectSettings {
     readonly density: number;
     readonly burst: number;
     readonly shakes: number;
+    readonly drift?: boolean;
     readonly carrier?: "viewport";
   };
   readonly extractorFan?: {

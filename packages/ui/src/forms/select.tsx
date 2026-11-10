@@ -4,6 +4,7 @@ import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
 import { type ComponentProps, type ReactNode } from "react";
 import { a11y } from "../primitives/a11y.stylex.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
@@ -174,6 +175,7 @@ export function Select({
           css={[
             typeRole.control,
             fieldStyles.box,
+            corner.squircle_round,
             fieldStyles.control,
             fieldSizeLine[size],
             fieldStyles.hasTrailingAffix,

@@ -1,5 +1,8 @@
+"use client";
+
 import { type ComponentProps, type ReactNode } from "react";
 import { a11y } from "../primitives/a11y.stylex.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
@@ -9,7 +12,9 @@ import {
   fieldSizeInline,
   fieldStyles,
 } from "./field-shared.stylex.ts";
+import { pointerFocus } from "./pointer-focus.ts";
 import { useFieldAria } from "./use-field-aria.ts";
+import { useTypingDust } from "./use-typing-dust.ts";
 
 // `size` on the intrinsic input is the HTML character-width attribute; the
 // design system reuses the name for its own scale, so drop the native one.
@@ -104,8 +109,9 @@ interface TextFieldProps extends Omit<
  * Single-line text input with a built-in label, optional helper text, a live
  * status line, and an error state, all accessibly wired (`htmlFor`, `aria-describedby`,
  * `aria-invalid`, `role="alert"`). Forwards `ref` and native `<input>`
- * attributes to the underlying element, and stays server-renderable (no client
- * directive) since it only uses `useId`. A `type="search"` field shows the
+ * attributes to the underlying element. With focus it looks like a selected
+ * `OptionCard`, and while the visitor types, a little dust in the colour of
+ * its border floats off its frame. A `type="search"` field shows the
  * browser's clear button in the colours of the theme, where the browser draws
  * one (WebKit and Blink).
  */
@@ -126,9 +132,13 @@ export function TextField({
   css,
   "aria-describedby": ariaDescribedBy,
   "aria-invalid": ariaInvalid,
+  onInput,
+  onPointerDown,
+  onBlur,
   ref,
   ...rest
 }: TextFieldProps) {
+  const { ref: dustRef, shed } = useTypingDust();
   const {
     fieldId,
     descriptionId,
@@ -171,6 +181,11 @@ export function TextField({
         ) : null}
       </div>
       <div css={[fieldStyles.controlAffixRow, fieldSizeInline[size]]}>
+        <span
+          ref={dustRef}
+          aria-hidden
+          css={[fieldStyles.dust, corner.squircle_round]}
+        />
         {leading ? (
           <span
             css={[typeRole.control, fieldStyles.affix, fieldStyles.affixStart]}
@@ -187,16 +202,30 @@ export function TextField({
           disabled={disabled}
           aria-invalid={resolvedAriaInvalid}
           aria-describedby={describedBy}
+          onPointerDown={(event) => {
+            pointerFocus.onPointerDown(event);
+            onPointerDown?.(event);
+          }}
+          onBlur={(event) => {
+            pointerFocus.onBlur(event);
+            onBlur?.(event);
+          }}
+          onInput={(event) => {
+            shed();
+            onInput?.(event);
+          }}
           css={[
             typeRole.control,
             typeModifier.verbatim,
             fieldStyles.box,
+            corner.squircle_round,
             fieldStyles.control,
             fieldSizeLine[size],
             look === "ghost" ? fieldStyles.ghost : null,
             tone === "muted" ? fieldStyles.controlMuted : null,
             transition.colors,
             a11y.focusRing,
+            fieldStyles.keyboardRing,
             leading ? fieldStyles.hasLeadingAffix : null,
             trailing ? fieldStyles.hasTrailingAffix : null,
             hasError ? fieldStyles.controlInvalid : null,

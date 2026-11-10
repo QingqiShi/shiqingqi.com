@@ -240,6 +240,7 @@ export const dustEffect: Effect = {
             height,
             density,
             burst,
+            drift: settings.dust?.drift === true,
             shakes:
               record.clicks +
               Math.max(

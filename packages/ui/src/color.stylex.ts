@@ -157,8 +157,7 @@ const light = {
   // darker, so the ring holds it.
   borderControlStrong: "transparent",
 
-  // The quiet default edge, the edge of a text field, and the neutral Intent's
-  // border.
+  // The quiet default edge and the neutral Intent's border.
   border: gray._90,
   // The edge that is the only sign of an unselected control, such as an empty
   // checkbox or radio. It is not quiet, because WCAG 1.4.11 sets a 3:1 floor on
@@ -166,6 +165,10 @@ const light = {
   borderControl: gray._40,
   // The edge of `bgControlSunken`.
   borderControlSunken: gray._92,
+  // The edge of a text field at rest: firmer than `border`, so that an empty
+  // field does not look disabled, and still well below the 3:1 of
+  // `borderControl`, so that a form stays quiet.
+  borderField: gray._80,
 
   // Intents — a solid fill and its hover, a tint (alpha is fixed, colour comes
   // from the palette), a solid border for rings and selected edges, a
@@ -273,6 +276,7 @@ const dark: { [key in keyof typeof light]: string } = {
   border: gray._13,
   borderControl: gray._35,
   borderControlSunken: gray._11,
+  borderField: gray._13,
 
   bgAccent: darkIntentTone.accent,
   bgAccentHover: purple._80,
@@ -375,6 +379,7 @@ export const color = stylex.defineVars({
   border: `light-dark(${light.border}, ${dark.border})`,
   borderControl: `light-dark(${light.borderControl}, ${dark.borderControl})`,
   borderControlSunken: `light-dark(${light.borderControlSunken}, ${dark.borderControlSunken})`,
+  borderField: `light-dark(${light.borderField}, ${dark.borderField})`,
 
   bgAccent: `light-dark(${light.bgAccent}, ${dark.bgAccent})`,
   bgAccentHover: `light-dark(${light.bgAccentHover}, ${dark.bgAccentHover})`,

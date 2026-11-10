@@ -39,6 +39,16 @@ export interface DustOptions {
    */
   shakes?: number;
   /**
+   * Shed each burst as the slow dust that `density` sheds: it floats off
+   * the edge and drifts on the air for some seconds, and does not fly off
+   * fast. Use it for a burst that answers a small action, such as a key
+   * press.
+   *
+   * @default false
+   * @zh 让每次抖落的灰尘与 `density` 散出的慢速灰尘一样：从边缘飘起，在空气中飘荡数秒，而不是快速飞散。适用于回应细小动作的抖落，例如一次按键。
+   */
+  drift?: boolean;
+  /**
    * Where the dust goes once shed. `"viewport"` keeps it in its place on the
    * screen while the page scrolls, so it lives on wherever the element
    * scrolls to, such as when a click on a link scrolls the page. Without
@@ -67,9 +77,10 @@ export function useDust({
   density = EFFECT_SETTING_DEFAULTS.dust.density,
   burst = EFFECT_SETTING_DEFAULTS.dust.burst,
   shakes = EFFECT_SETTING_DEFAULTS.dust.shakes,
+  drift = false,
   carrier,
 }: DustOptions = {}) {
   return useEffectRegistration(density > 0 || burst > 0 ? DUST : 0, {
-    dust: { density, burst, shakes, carrier },
+    dust: { density, burst, shakes, drift, carrier },
   });
 }
