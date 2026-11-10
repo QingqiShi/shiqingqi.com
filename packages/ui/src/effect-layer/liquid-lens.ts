@@ -1,5 +1,5 @@
 import { d, std } from "typegpu";
-import { FLAG_SEE_THROUGH } from "./liquid-instance-value.ts";
+import { FLAG_SEE_THROUGH, FLAG_SPLIT } from "./liquid-instance-value.ts";
 import type { Surface } from "./liquid-surface.ts";
 import { refractionOffset, TO_LIGHT } from "./refraction-offset.ts";
 import { targetLayout } from "./target-layout.ts";
@@ -70,6 +70,16 @@ const flatness = (calm: number) => {
 };
 
 /**
+ * How calm the body is for its dome. The rest pill of a Slider's thumb is
+ * short, and the liquid is calm there for as long as the pointer holds it,
+ * so its dome keeps its bend.
+ */
+const domeCalm = (liquid: Liquid) => {
+  "use gpu";
+  return std.select(liquid.calm, 0, (liquid.flags & FLAG_SPLIT) !== 0);
+};
+
+/**
  * The dome of water over a point `depth` inside the surface of a body of
  * `radius`: a spherical cap, with the way light takes through it. The ray
  * bends towards the normal as it enters the water, so the track shows
@@ -107,8 +117,12 @@ const domeAt = (
  */
 export const bendAt = (liquid: Liquid, surface: Surface, radius: number) => {
   "use gpu";
-  return domeAt(-surface.signedDistance, radius, surface.outward, liquid.calm)
-    .bend;
+  return domeAt(
+    -surface.signedDistance,
+    radius,
+    surface.outward,
+    domeCalm(liquid),
+  ).bend;
 };
 
 /**
@@ -161,7 +175,7 @@ const lens = (
     return d.vec3f(solidColor);
   }
   const depth = -surface.signedDistance;
-  const dome = domeAt(depth, radius, surface.outward, liquid.calm);
+  const dome = domeAt(depth, radius, surface.outward, domeCalm(liquid));
   const normal = dome.normal;
   const away = std.saturate(
     -std.dot(surface.outward, frameDir(liquid, d.vec3f(TO_LIGHT_FLAT, 0)).xy),

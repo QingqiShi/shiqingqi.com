@@ -15,6 +15,7 @@ import {
   FLAG_COVERS_CONTENT,
   FLAG_OWNS_CONTENT,
   FLAG_SEE_THROUGH,
+  FLAG_SPLIT,
 } from "./liquid-instance-value.ts";
 import { LiquidInstance, liquidLayout } from "./liquid-layout.ts";
 import { bendAt, liquidLens, solidAt, solidBody } from "./liquid-lens.ts";
@@ -40,6 +41,24 @@ import { coverAt, trackAt, trackContentAt } from "./track-at.ts";
 const SEE_THROUGH_COVER = 0.5;
 const SHADOW_REACH = 3;
 const SHADOW = 0.18;
+/** How far past the edge of a Slider's track the liquid's shadow shows, in CSS px. */
+const SWELL_SHADOW = 14;
+/** The shadow that the liquid of a Slider casts: how dark, and how far down the page, in CSS px. */
+const CAST = 0.2;
+const CAST_DROP = 3;
+
+/**
+ * How far past the edge of its track the liquid of a Slider can swell, in
+ * CSS px: as far as it spreads past the room the track gives the thumb.
+ */
+const swellOf = (liquid: Liquid) => {
+  "use gpu";
+  return std.select(
+    d.f32(0),
+    liquid.spread - liquid.fillInset,
+    (liquid.flags & FLAG_SPLIT) !== 0,
+  );
+};
 
 /** The quad of one instance, over its track, corner by corner as a triangle strip. */
 const liquidVertex = tgpu.vertexFn({
@@ -47,10 +66,15 @@ const liquidVertex = tgpu.vertexFn({
   out: instancedQuadVarying,
 })((input) => {
   "use gpu";
-  const element =
-    pageLayout.$.effectElements[liquidLayout.$.liquids[input.instance].element];
+  const liquid = liquidLayout.$.liquids[input.instance];
+  const element = pageLayout.$.effectElements[liquid.element];
+  const swell = swellOf(liquid);
   return {
-    position: elementQuad(input.vertex, element, 0),
+    position: elementQuad(
+      input.vertex,
+      element,
+      std.select(d.f32(0), swell + SWELL_SHADOW, swell > 0),
+    ),
     instance: input.instance,
   };
 });
@@ -177,7 +201,36 @@ const drawBody = (
     if (firm > 0) {
       rest = restShadow(liquid, page, distance, spread) * firm;
     }
-    const shadow = (1 - (1 - contact) * (1 - rest)) * (1 - coverage) * shown;
+    // The liquid of a Slider swells out of the track, so it also casts a
+    // soft shadow down the page. The field of the particles gives no
+    // distance far from the body, so there the shadows come from a pill
+    // round the body and its rest place.
+    let cast = d.f32(0);
+    let near = d.f32(1);
+    if ((liquid.flags & FLAG_SPLIT) !== 0) {
+      const local = page.sub(liquid.origin);
+      const middle = (liquid.centre.x + liquid.restX) * 0.5;
+      const half = std.abs(liquid.centre.x - liquid.restX) * 0.5 + liquid.span;
+      const along = std.max(std.abs(local.x - middle) - half, 0);
+      const size = liquid.radius + spread;
+      near =
+        1 -
+        std.smoothstep(
+          0,
+          SWELL_SHADOW,
+          std.length(d.vec2f(along, local.y)) - size,
+        );
+      const below = std.length(d.vec2f(along, local.y - CAST_DROP)) - size;
+      cast =
+        (1 - std.smoothstep(-3, SWELL_SHADOW - CAST_DROP, below)) *
+        CAST *
+        melted;
+    }
+    const shadow =
+      (1 - (1 - contact) * (1 - rest) * (1 - cast)) *
+      (1 - coverage) *
+      shown *
+      near;
     acc = over(d.vec4f(0, 0, 0, shadow), acc);
 
     if (coverage > 0) {
@@ -280,8 +333,12 @@ const liquidFragment = tgpu.fragmentFn({
     track.rect.w * 0.5 - liquid.radius - liquid.spread,
     seeThrough,
   );
+  // On a Slider it can swell past the track's edge, with its shadow.
+  const swell = swellOf(liquid);
+  const room = std.select(d.f32(0), swell + SWELL_SHADOW, swell > 0);
   const onTrack = std.saturate(
-    0.5 - (effectElementDistance(track, page) + std.max(inset, 0)) * pixel,
+    0.5 -
+      (effectElementDistance(track, page) + std.max(inset, 0) - room) * pixel,
   );
   const owns = (liquid.flags & FLAG_OWNS_CONTENT) !== 0;
   if (onTrack <= 0 && !owns) {

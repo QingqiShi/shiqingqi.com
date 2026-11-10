@@ -250,12 +250,16 @@ export function layoutLiquid(
   // A layout change, such as a resize, moves the pill of a liquid at rest
   // while nothing selects or presses it. The liquid then rests in the new
   // pill at once, and the control keeps its own surface.
+  // On a Slider, a change of position with no press is also such a move: a
+  // key moves the thumb one step at a time, and must not melt it at each.
+  const unpressed = !pressed && state?.pressed === false;
   const relaid =
     pillMoved &&
     !state.active &&
-    position === state.position &&
     drag === state.drag &&
-    pressed === state.pressed;
+    (control.split === undefined
+      ? position === state.position && pressed === state.pressed
+      : unpressed);
   if (pillMoved && !relaid && !(held && state.drag !== null)) {
     // The drawn surface settles into the rest pill as the body calms. A new
     // target moves that pill at once, so the body is not calm until it has
@@ -276,7 +280,10 @@ export function layoutLiquid(
     pressed,
     reducedMotion: reduced,
     aim: 0,
-    held: held && state?.drag != null,
+    // The thumb of a Slider stays under the pointer for a long time, so its
+    // liquid calms into the rest shape there.
+    held: held && state?.drag != null && control.split === undefined,
+    beadless: control.split !== undefined,
   };
   if (relaid) {
     body = frozenLiquid(body, input);
@@ -336,13 +343,14 @@ export function layoutLiquid(
   // The track is all one fill, which goes from off to on as the on fill
   // rises through it: with the liquid while a drag holds it, and on its
   // own after a toggle.
-  const level = fill !== null && position === last ? 1 : 0;
-  const riseGoal =
-    fill === null
-      ? 0
-      : held && travel > 0
-        ? clamp(mean(body.x) / travel, 0, 1)
-        : level;
+  // A Slider's track has both fills at once, and none rises.
+  const rises = fill !== null && control.split === undefined;
+  const level = rises && position === last ? 1 : 0;
+  const riseGoal = !rises
+    ? 0
+    : held && travel > 0
+      ? clamp(mean(body.x) / travel, 0, 1)
+      : level;
   const rise =
     state === undefined
       ? { level, speed: 0 }
@@ -468,12 +476,14 @@ export function layoutLiquid(
       // sets.
       on: dim(
         rgb(fill?.on ?? under),
-        THAWED_LIGHT + (1 - THAWED_LIGHT) * body.set,
+        rises ? THAWED_LIGHT + (1 - THAWED_LIGHT) * body.set : 1,
       ),
       ring: control.ring ?? NO_RING,
       rise: rise.level,
       riseGoal,
-      cover: fill !== null && active,
+      split: control.split?.inset,
+      reversed: control.split?.reversed,
+      cover: rises && active,
       seeThrough: !control.thumb,
       corner: control.corner,
       backdrop: rgb(backdrop),

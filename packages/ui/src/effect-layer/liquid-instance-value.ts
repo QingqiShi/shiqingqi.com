@@ -18,6 +18,10 @@ export const FLAG_VERTICAL = 8;
 export const FLAG_COVERS_CONTENT = 16;
 /** @internal */
 export const FLAG_OWNS_CONTENT = 32;
+/** @internal */
+export const FLAG_SPLIT = 64;
+/** @internal */
+export const FLAG_REVERSED = 128;
 
 /**
  * A ring inside the edge of a track: its colour off and on, sRGB-encoded with
@@ -86,6 +90,14 @@ export interface LiquidInstanceRecord {
    */
   readonly rise: number;
   readonly riseGoal: number;
+  /**
+   * The track is a Slider's, as `LiquidControl.split` describes: how far
+   * the on fill is inside the track's edge, in CSS px. Else the track is
+   * all one fill.
+   */
+  readonly split?: number | undefined;
+  /** The on fill of a Slider's track starts at the right end of the track. */
+  readonly reversed?: boolean | undefined;
   /** The effect paints the track, not only the liquid. */
   readonly cover: boolean;
   /** The track shows through the liquid, as through a segmented control's indicator. */
@@ -139,7 +151,9 @@ const flagsOf = (liquid: LiquidInstanceRecord) =>
   (liquid.lightBody ? FLAG_LIGHT_BODY : 0) |
   (liquid.vertical === true ? FLAG_VERTICAL : 0) |
   (liquid.content === "cover" ? FLAG_COVERS_CONTENT : 0) |
-  (liquid.content === "own" ? FLAG_OWNS_CONTENT : 0);
+  (liquid.content === "own" ? FLAG_OWNS_CONTENT : 0) |
+  (liquid.split === undefined ? 0 : FLAG_SPLIT) |
+  (liquid.reversed === true ? FLAG_REVERSED : 0);
 
 /**
  * `liquids[index]` for one control's liquid.
@@ -184,5 +198,6 @@ export function liquidInstanceValue(
         : [liquid.corner.radius, liquid.corner.exponent],
     owned: liquid.owned ?? [0, 0],
     leaving: liquid.leaving,
+    fillInset: liquid.split ?? 0,
   };
 }

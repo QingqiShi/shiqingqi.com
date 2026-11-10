@@ -37,6 +37,34 @@ function threeSegments(width = 100): LiquidControl {
   };
 }
 
+/** A Slider whose thumb is a pill 1.6 times as long as it is tall. */
+function slider(): LiquidControl {
+  const radius = 11;
+  const span = 0.6;
+  const travel = 294 / radius - 2;
+  return {
+    radius,
+    originX: 3 + radius,
+    originY: 14,
+    travel,
+    stops: [
+      { target: span, span },
+      { target: travel - span, span },
+    ],
+    color: readFill("rgb(255, 255, 255)"),
+    under: readFill("rgb(240, 240, 240)"),
+    fill: {
+      off: readFill("rgb(240, 240, 240)"),
+      on: readFill("rgb(160, 60, 210)"),
+    },
+    split: { inset: 3, reversed: false },
+    ring: null,
+    thumb: true,
+    edge: [0.06, 0.18, 0.12, 0],
+    spread: 6,
+  };
+}
+
 /**
  * Lays one control's liquid out frame by frame, 60 a second, with the CPU
  * reference in the GPU's place: it runs each step the layout asks for, and
@@ -146,5 +174,26 @@ describe("layoutLiquid", () => {
     expect(relaid.step).toBeNull();
     expect(relaid.seed).toBe(true);
     expect(mean(relaid.state.body.x)).toBeCloseTo(wider.stops[1].target, 1);
+  });
+
+  it("moves the solid thumb of a Slider on a key, and melts it only under a press", () => {
+    const control = slider();
+    const run = createRun(control);
+    run({ ...rest, position: 0.4 });
+
+    const stepped = run({ ...rest, position: 0.45 });
+
+    expect(stepped.drawn).toBe(false);
+    expect(stepped.step).toBeNull();
+    expect(mean(stepped.state.body.x)).toBeCloseTo(
+      control.stops[0].target +
+        0.45 * (control.stops[1].target - control.stops[0].target),
+      1,
+    );
+
+    const held = run({ position: 0.45, drag: 0.45, pressed: true });
+
+    expect(held.drawn).toBe(true);
+    expect(held.instance.cover).toBe(false);
   });
 });

@@ -1,7 +1,11 @@
 import { d, std } from "typegpu";
 import { contentAt } from "./content-at.ts";
 import { effectElementDistance } from "./effect-element-distance.ts";
-import { FLAG_COVERS_CONTENT } from "./liquid-instance-value.ts";
+import {
+  FLAG_COVERS_CONTENT,
+  FLAG_REVERSED,
+  FLAG_SPLIT,
+} from "./liquid-instance-value.ts";
 import { targetLayout } from "./target-layout.ts";
 import { toTrackFrame, type Liquid, type Track } from "./to-track-frame.ts";
 
@@ -45,7 +49,33 @@ const premultiplied = (color: d.v4f) => {
  */
 export const coverAt = (liquid: Liquid, track: Track, page: d.v2f) => {
   "use gpu";
-  const risen = risenAt(liquid, page);
+  let risen = risenAt(liquid, page);
+  if ((liquid.flags & FLAG_SPLIT) !== 0) {
+    // A Slider's on fill is a bar inside the track, from the start of the
+    // track to the middle of the rest shape, with round ends.
+    const pixel = targetLayout.$.effectTarget.pixelScale.x;
+    const end = liquid.origin.x + liquid.restX;
+    const start = std.select(
+      track.rect.x + liquid.fillInset,
+      track.rect.x + track.rect.z - liquid.fillInset,
+      (liquid.flags & FLAG_REVERSED) !== 0,
+    );
+    const halfLength = std.abs(end - start) * 0.5;
+    const halfHeight = std.max(track.rect.w * 0.5 - liquid.fillInset, 0);
+    const radius = std.min(halfHeight, halfLength);
+    const local = d.vec2f(
+      page.x - (start + end) * 0.5,
+      page.y - track.rect.y - track.rect.w * 0.5,
+    );
+    const outside = std
+      .abs(local)
+      .sub(d.vec2f(halfLength - radius, halfHeight - radius));
+    const distance =
+      std.length(std.max(outside, d.vec2f(0))) +
+      std.min(std.max(outside.x, outside.y), 0) -
+      radius;
+    risen = std.saturate(0.5 - distance * pixel);
+  }
   const fill = std.mix(liquid.off, liquid.on, risen);
   const width = liquid.ringWidth;
   if (width <= 0) {

@@ -43,6 +43,8 @@ export interface LiquidInput {
    * shape there, and calms into the rest shape only after the release.
    */
   readonly held?: boolean;
+  /** The liquid sheds no drops, as the glass thumb of a Slider. */
+  readonly beadless?: boolean;
 }
 
 const SUBSTEP = 1 / 240;

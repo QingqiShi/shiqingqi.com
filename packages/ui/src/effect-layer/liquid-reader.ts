@@ -1,8 +1,10 @@
 import type { MeasureContext } from "./create-element-tracker.ts";
 import { finiteOr } from "./effect-setting-defaults.ts";
 import {
+  LIQUID_FILL,
   LIQUID_INDICATOR,
   LIQUID_SEGMENT,
+  LIQUID_THUMB,
   LIQUID_VERTICAL,
 } from "./liquid-indicator.ts";
 import type { TrackRing } from "./liquid-instance-value.ts";
@@ -52,6 +54,17 @@ export interface LiquidControl {
   readonly under: EffectColor;
   /** The fills the track goes from and to as the on fill rises through it, or `null` for none. */
   readonly fill: { readonly off: EffectColor; readonly on: EffectColor } | null;
+  /**
+   * The track of a Slider: the on fill is a bar this far inside the track's
+   * edge, in CSS px, from the start of the track to the middle of the rest
+   * shape, where it ends in a round head, and the off fill is the rest of
+   * the track. The start is the right end of a `reversed` track, as in a
+   * right-to-left Slider, whose `position` is then a share from that end. The control draws the
+   * track, and the liquid can swell past its edge. A change of position
+   * with no press moves the rest shape at once, so a key does not melt it,
+   * and the liquid sheds no drops.
+   */
+  readonly split?: { readonly inset: number; readonly reversed: boolean };
   /** The ring inside the track's edge, off and on, which changes with the fill, or `null` for none. */
   readonly ring: TrackRing | null;
   /** The corners of the rest shape, where they are not those of a pill. */
@@ -204,6 +217,56 @@ function readThumb(
   };
 }
 
+/** How far the melted liquid of a Slider swells past the edge of the track, in CSS px. */
+const SLIDER_SWELL = 6;
+
+/**
+ * A Slider: its thumb from the element marked with `LIQUID_THUMB`, a pill as
+ * long as the thumb is wide, with the same room round it on all sides of the
+ * track, and its fill from the element marked with `LIQUID_FILL`. The stops
+ * are the two ends of the travel, so `position` is a share of the travel.
+ */
+function readSlider(
+  element: Element,
+  box: ElementBox,
+  { styleOf }: MeasureContext,
+): LiquidControl | null {
+  const thumb = element.querySelector(`[${LIQUID_THUMB}]`);
+  const fill = element.querySelector(`[${LIQUID_FILL}]`);
+  if (!(thumb instanceof HTMLElement) || fill === null) {
+    return null;
+  }
+  const radius = thumb.offsetHeight / 2;
+  if (!(radius > 0)) {
+    return null;
+  }
+  const inset = Math.max(0, (box.height - thumb.offsetHeight) / 2);
+  const span = Math.max(0, thumb.offsetWidth / 2 - radius) / radius;
+  const travel = Math.max(0, (box.width - 2 * inset) / radius - 2);
+  const own = styleOf(element);
+  const under = readFill(own.backgroundColor);
+  const reversed = own.direction === "rtl";
+  const stops = [
+    { target: span, span },
+    { target: Math.max(span, travel - span), span },
+  ];
+  return {
+    radius,
+    originX: inset + radius,
+    originY: box.height / 2,
+    travel,
+    stops,
+    color: readFill(styleOf(thumb).backgroundColor),
+    under,
+    fill: { off: under, on: readFill(styleOf(fill).backgroundColor) },
+    split: { inset, reversed },
+    ring: null,
+    thumb: true,
+    edge: THUMB_EDGE,
+    spread: inset + SLIDER_SWELL,
+  };
+}
+
 const segmentsOf = (element: Element) =>
   element.querySelectorAll(`[${LIQUID_SEGMENT}]`);
 
@@ -317,7 +380,7 @@ const TURNED_SIDES = { left: "Top", right: "Bottom", top: "Left" } as const;
 
 /**
  * What the liquid reads of a control: a segmented control, or else a
- * Switch, or `null` when it can draw in neither. A segment can change size
+ * Slider, or else a Switch, or `null` when it can draw in neither. A segment can change size
  * in a track whose own box stays the same, so the tracker observes each
  * segment too.
  *
@@ -325,6 +388,8 @@ const TURNED_SIDES = { left: "Top", right: "Bottom", top: "Left" } as const;
  */
 export const liquidReader: RoleReader<LiquidControl | null> = {
   read: (element, box, context) =>
-    readSegments(element, box, context) ?? readThumb(element, box, context),
+    readSegments(element, box, context) ??
+    readSlider(element, box, context) ??
+    readThumb(element, box, context),
   observe: segmentsOf,
 };

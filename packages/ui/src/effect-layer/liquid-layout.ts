@@ -67,6 +67,7 @@ export const LiquidInstance = d.struct({
   corner: d.vec2f,
   owned: d.vec2f,
   leaving: d.vec3f,
+  fillInset: d.f32,
 });
 
 /**

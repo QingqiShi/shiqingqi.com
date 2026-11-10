@@ -23,3 +23,20 @@ export const LIQUID_SEGMENT = "data-liquid-segment";
  * @internal
  */
 export const LIQUID_VERTICAL = "data-liquid-vertical";
+
+/**
+ * The attribute of the thumb inside the track of a Slider: the effect draws
+ * in its place, with its size and its colour.
+ *
+ * @internal
+ */
+export const LIQUID_THUMB = "data-liquid-thumb";
+
+/**
+ * The attribute of the fill inside the track of a Slider, which ends under
+ * the middle of the thumb: the liquid shows the track through itself with
+ * this colour before its rest place.
+ *
+ * @internal
+ */
+export const LIQUID_FILL = "data-liquid-fill";

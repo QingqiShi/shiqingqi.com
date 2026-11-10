@@ -240,7 +240,10 @@ export function settleLiquid(
     seed: body.seed,
   };
   const { beads, shedAt, seed } =
-    speed < SHED_SPEED || away < SHED_REACH || elapsed <= 0
+    input.beadless === true ||
+    speed < SHED_SPEED ||
+    away < SHED_REACH ||
+    elapsed <= 0
       ? kept
       : shed(
           kept,
@@ -251,7 +254,7 @@ export function settleLiquid(
           Math.max(SHED_SPACING, (input.to - input.from) / SHED_BUDGET),
         );
   const settled =
-    (calm >= 1 || held) &&
+    (calm >= 1 || (held && arrived)) &&
     speed < STILL_SPEED &&
     set === (pressed ? 0 : 1) &&
     beads.length === 0 &&

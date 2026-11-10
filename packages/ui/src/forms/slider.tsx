@@ -1,10 +1,14 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { useRef, type ComponentProps, type ReactNode } from "react";
+import { useRef, useState, type ComponentProps, type ReactNode } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
 import { color } from "../color.stylex.ts";
+import { handBack } from "../effect-layer/hand-back.stylex.ts";
+import { LIQUID_FILL, LIQUID_THUMB } from "../effect-layer/liquid-indicator.ts";
+import { useLiquid } from "../effect-layer/use-liquid.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
+import { mergeRefs } from "../merge-refs.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
@@ -15,17 +19,13 @@ import {
 } from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
-import {
-  border,
-  controlSize,
-  opacity,
-  rhythm,
-  shadow,
-} from "../tokens.stylex.ts";
+import { controlSize, opacity, rhythm } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { fieldStyles } from "./field-shared.stylex.ts";
+import { selectedSurface } from "./segment-track.stylex.ts";
 import { sliderTokens } from "./slider.stylex.ts";
 import { useFieldAria } from "./use-field-aria.ts";
+import { useSliderThumb } from "./use-slider-thumb.ts";
 
 // The design system's `size` scale replaces the native character-width attribute of the same name.
 interface SliderOwnProps extends Omit<
@@ -63,10 +63,10 @@ interface SliderOwnProps extends Omit<
    */
   description?: string;
   /**
-   * Error message. Turns the track danger-coloured, sets `aria-invalid`,
-   * renders with `role="alert"`, and joins `aria-describedby`.
+   * Error message. Turns the filled part of the track danger-coloured, sets
+   * `aria-invalid`, renders with `role="alert"`, and joins `aria-describedby`.
    *
-   * @zh 错误消息。把轨道变为危险色，设置 `aria-invalid`，以 `role="alert"` 渲染，并加入 `aria-describedby`。
+   * @zh 错误消息。把轨道的已填充部分变为危险色，设置 `aria-invalid`，以 `role="alert"` 渲染，并加入 `aria-describedby`。
    */
   error?: string;
   /**
@@ -103,11 +103,27 @@ interface SliderOwnProps extends Omit<
    */
   onCommit?: (value: number) => void;
   /**
-   * Track height and thumb diameter, both driven by `controlSize`.
+   * Height of the track, on the `controlSize` scale. The thumb sits inside
+   * the track and is as tall as it, less a thin rim.
    *
-   * @zh 轨道高度与滑块直径，二者都由 `controlSize` 驱动。
+   * @zh 轨道的高度，取自 `controlSize` 阶梯。滑块嵌在轨道之内，与轨道等高，只留一圈细边。
    */
   size?: "sm" | "md" | "lg";
+  /**
+   * An effect the effect layer draws on the thumb. `"liquid"`, the default,
+   * keeps the plain solid thumb at rest. While a pointer is over the track,
+   * a light comes in on the top edge of the thumb. While a pointer holds the
+   * thumb, the effect draws it as clear liquid: it swells a little past the
+   * track, and the track and the end of the fill show through it, bent. It
+   * follows the pointer with its own inertia, and sets into the solid thumb
+   * again after the release. A key moves the solid thumb and does not melt
+   * it. `"none"` keeps the plain thumb. The effect draws only inside an
+   * `EffectLayerProvider` with WebGPU and without reduced motion; elsewhere
+   * the thumb stays solid, and widens a little under a press.
+   *
+   * @zh 由效果层在滑块上绘制的效果。默认的 `"liquid"` 在静止时保留普通的实心滑块。指针停在轨道上时，光照亮滑块的上缘。指针按住滑块时，由效果把它绘制成透明的液体：它略微鼓出轨道，轨道与填充的末端透过它折射出来；它带着惯性跟随指针，松开后重新凝固成实心滑块。按键只移动实心滑块，不会让它融化。`"none"` 保留普通的滑块。效果只在带有 WebGPU 的 `EffectLayerProvider` 之内、且未开启减少动态效果时绘制；在其它情况下滑块保持实心，按下时略微变宽。
+   */
+  effect?: "liquid" | "none";
   /**
    * StyleX styles merged over the root wrapper — the escape hatch.
    *
@@ -160,8 +176,11 @@ type SliderValueProps =
 type SliderProps = SliderOwnProps & SliderValueProps;
 
 /**
- * Single-value slider built on a native `<input type="range">`, so keyboard
- * stepping, focus, and value announcement come from the platform. `onChange`
+ * Single-value slider. The track is a groove, the thumb is a pill as tall as
+ * the groove that moves inside it, and a neutral bar fills the groove from
+ * its start to the middle of the thumb. A native
+ * `<input type="range">` holds the value, so keyboard stepping, focus, value
+ * announcement and form submission come from the platform. `onChange`
  * streams every move; `onCommit` fires once per interaction.
  */
 export function Slider({
@@ -178,11 +197,11 @@ export function Slider({
   onChange,
   onCommit,
   size = "md",
+  effect = "liquid",
   css,
   id,
   disabled,
-  onPointerUp,
-  onPointerCancel,
+  onKeyDown,
   onKeyUp,
   onBlur,
   "aria-describedby": ariaDescribedBy,
@@ -196,6 +215,11 @@ export function Slider({
   });
 
   const pendingCommitRef = useRef<number | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  // A press on the track gives the input the focus from script, and a
+  // browser can show the focus ring for that. As with a native control, the
+  // ring shows only when the focus or the last change came from the keyboard.
+  const [isPointerFocus, setIsPointerFocus] = useState(false);
 
   const {
     fieldId,
@@ -216,9 +240,39 @@ export function Slider({
     onCommit?.(pending);
   }
 
-  const span = max - min;
-  const percent =
-    span > 0 ? Math.min(100, Math.max(0, ((value - min) / span) * 100)) : 0;
+  const {
+    share,
+    carrierRef,
+    fillRef,
+    thumbRef,
+    heldAt,
+    isReversed,
+    directionRef,
+    change,
+    trackHandlers,
+  } = useSliderThumb({
+    value,
+    min,
+    max,
+    step,
+    disabled: disabled === true,
+    onPress: () => {
+      setIsPointerFocus(true);
+      inputRef.current?.focus({ preventScroll: true });
+    },
+    onChange: (next) => {
+      pendingCommitRef.current = next;
+      setValue(next);
+      onChange?.(next);
+    },
+    onRelease: commit,
+  });
+  // The liquid reads a right-to-left track from its right end.
+  const liquidRef = useLiquid({
+    position: isReversed ? 1 - share : share,
+    drag: heldAt !== null && isReversed ? 1 - heldAt : heldAt,
+    pressed: heldAt !== null,
+  });
 
   return (
     <div css={[stack.tight, fieldStyles.root, css]}>
@@ -265,52 +319,76 @@ export function Slider({
           </span>
         ) : null}
       </div>
-      <input
-        {...rest}
-        ref={ref}
-        id={fieldId}
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        disabled={disabled}
-        aria-invalid={resolvedAriaInvalid}
-        aria-describedby={describedBy}
-        // The input is invisible; `corner.radius_round` only shapes the focus
-        // ring around the track.
+      <div
+        ref={mergeRefs(
+          directionRef,
+          effect === "liquid" && !disabled ? liquidRef : undefined,
+        )}
         css={[
-          a11y.focusRing,
+          stylex.defaultMarker(),
+          a11y.touchTarget,
+          !isPointerFocus && a11y.focusRingWithin,
           corner.radius_round,
-          styles.input,
+          styles.track,
           sizeStyles[size],
-          fillStyles.fill(percent),
-          hasError && styles.inputInvalid,
-          disabled && styles.inputDisabled,
+          styles.at(share),
+          isReversed && styles.reversed,
+          hasError && styles.fillInvalid,
+          hasError && !isPointerFocus && styles.ringInvalid,
+          disabled && styles.trackDisabled,
         ]}
-        onChange={(event) => {
-          const next = event.currentTarget.valueAsNumber;
-          pendingCommitRef.current = next;
-          setValue(next);
-          onChange?.(next);
+        {...trackHandlers}
+        // A press on the track must not take the focus from the input, and
+        // must not select text.
+        onMouseDown={(event) => {
+          event.preventDefault();
         }}
-        onPointerUp={(event) => {
-          commit();
-          onPointerUp?.(event);
-        }}
-        onPointerCancel={(event) => {
-          commit();
-          onPointerCancel?.(event);
-        }}
-        onKeyUp={(event) => {
-          commit();
-          onKeyUp?.(event);
-        }}
-        onBlur={(event) => {
-          commit();
-          onBlur?.(event);
-        }}
-      />
+      >
+        <div css={[corner.radius_round, styles.clip]}>
+          <div ref={fillRef} css={styles.fillCarrier}>
+            <div {...{ [LIQUID_FILL]: "" }} css={styles.fill} />
+          </div>
+        </div>
+        <div ref={carrierRef} css={styles.carrier}>
+          <div
+            ref={thumbRef}
+            {...{ [LIQUID_THUMB]: "" }}
+            css={[corner.radius_round, styles.thumb]}
+          >
+            <span css={[corner.radius_round, styles.grip]} />
+          </div>
+        </div>
+        <input
+          {...rest}
+          ref={mergeRefs(inputRef, ref)}
+          id={fieldId}
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          disabled={disabled}
+          aria-invalid={resolvedAriaInvalid}
+          aria-describedby={describedBy}
+          css={[stylex.defaultMarker(), styles.input]}
+          onChange={(event) => {
+            change(event.currentTarget.valueAsNumber);
+          }}
+          onKeyDown={(event) => {
+            setIsPointerFocus(false);
+            onKeyDown?.(event);
+          }}
+          onKeyUp={(event) => {
+            commit();
+            onKeyUp?.(event);
+          }}
+          onBlur={(event) => {
+            setIsPointerFocus(false);
+            commit();
+            onBlur?.(event);
+          }}
+        />
+      </div>
       {hasError ? (
         <span
           id={errorId}
@@ -324,154 +402,148 @@ export function Slider({
   );
 }
 
-const ACCENT_FILL = `linear-gradient(to right, ${color.bgAccent} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
-const DANGER_FILL = `linear-gradient(to right, ${color.bgDanger} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
-const DISABLED_FILL = `linear-gradient(to right, ${color.bgNeutral} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
-
-// WebKit stacks the thumb from the track's top edge instead of centring it.
-const THUMB_OFFSET = `calc((${sliderTokens.trackHeight} - ${sliderTokens.thumbSize}) / 2)`;
-const THUMB_LIFT = `transform ${duration._500} ${easing.spring}`;
+const RIM = sliderTokens.rim;
+const THUMB_WIDTH = sliderTokens.thumbWidth;
 
 const styles = stylex.create({
   labelRow: {
     gap: rhythm.tight,
   },
-  input: {
-    appearance: "none",
-    margin: 0,
-    padding: 0,
+  // A groove: the fill of a sunken control, a shade under its top edge and a
+  // light under its bottom edge.
+  track: {
+    position: "relative",
+    isolation: "isolate",
+    boxSizing: "border-box",
     inlineSize: "100%",
-    minInlineSize: 0,
-    // Tall enough that the thumb is never clipped by the track.
-    blockSize: sliderTokens.thumbSize,
-    backgroundColor: "transparent",
-    cursor: { default: "pointer", ":disabled": "not-allowed" },
-    opacity: { default: null, ":disabled": opacity.disabled },
-
-    // The two engines each need their own track and thumb; StyleX takes only
-    // literal blocks under a pseudo-element, so the pair is spelled out twice.
-    "::-webkit-slider-runnable-track": {
-      blockSize: sliderTokens.trackHeight,
-      borderRadius: border.radius_round,
-      cornerShape: "round",
-      // Matches Progress's track. A mid-tone fill, not `bgNeutralSubtle`,
-      // which hits only 1.04:1 against a raised card in dark theme and hides
-      // the unfilled remainder.
-      backgroundColor: color.bgNeutral,
-      backgroundImage: ACCENT_FILL,
-    },
-    "::-moz-range-track": {
-      blockSize: sliderTokens.trackHeight,
-      borderRadius: border.radius_round,
-      cornerShape: "round",
-      // Matches Progress's track. A mid-tone fill, not `bgNeutralSubtle`,
-      // which hits only 1.04:1 against a raised card in dark theme and hides
-      // the unfilled remainder.
-      backgroundColor: color.bgNeutral,
-      backgroundImage: ACCENT_FILL,
-    },
-    "::-webkit-slider-thumb": {
-      appearance: "none",
-      boxSizing: "border-box",
-      blockSize: sliderTokens.thumbSize,
-      inlineSize: sliderTokens.thumbSize,
-      borderRadius: border.radius_round,
-      cornerShape: "round",
-      borderStyle: "solid",
-      borderWidth: border.size_2,
-      borderColor: color.borderAccent,
-      backgroundColor: color.bgControlBright,
-      boxShadow: shadow._2,
-      cursor: "inherit",
-      marginBlockStart: THUMB_OFFSET,
-      transition: {
-        default: THUMB_LIFT,
-        [motionConstants.REDUCED_MOTION]: "none",
-      },
-      transform: {
-        default: null,
-        ":hover": {
-          default: null,
-          [pointer.canHover]: "scale(1.12)",
-        },
-      },
-    },
-    "::-moz-range-thumb": {
-      boxSizing: "border-box",
-      blockSize: sliderTokens.thumbSize,
-      inlineSize: sliderTokens.thumbSize,
-      borderRadius: border.radius_round,
-      cornerShape: "round",
-      borderStyle: "solid",
-      borderWidth: border.size_2,
-      borderColor: color.borderAccent,
-      backgroundColor: color.bgControlBright,
-      boxShadow: shadow._2,
-      cursor: "inherit",
-      transition: {
-        default: THUMB_LIFT,
-        [motionConstants.REDUCED_MOTION]: "none",
-      },
-      transform: {
-        default: null,
-        ":hover": {
-          default: null,
-          [pointer.canHover]: "scale(1.12)",
-        },
+    blockSize: sliderTokens.trackHeight,
+    backgroundColor: color.bgControlSunken,
+    boxShadow: `inset 0 1px 2px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.6)), inset 0 0 0 0.5px light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.06)), 0 1px 0 light-dark(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.07))`,
+    cursor: "pointer",
+    userSelect: "none",
+    // A drag along the track moves the thumb, and a swipe across it still
+    // scrolls the page.
+    touchAction: "pan-y",
+    [sliderTokens.thumbWidth]: `calc((${sliderTokens.trackHeight} - 2 * ${RIM}) * 1.6)`,
+    [sliderTokens.fillColor]: color.bgControlStrong,
+    [sliderTokens.thumbShadow]: {
+      default: selectedSurface.thumbShadow,
+      [pointer.canHover]: {
+        default: selectedSurface.thumbShadow,
+        ":hover": selectedSurface.thumbShadowHover,
       },
     },
   },
-  // Composed after `a11y.focusRing`, so the danger ring wins — matching the
-  // invalid treatment on the other fields.
-  inputInvalid: {
+  at: (share: number) => ({
+    [sliderTokens.position]: String(share),
+  }),
+  // A right-to-left track is the same track, mirrored. Its parts keep the
+  // left-to-right layout that their places are written for.
+  reversed: {
+    scale: "-1 1",
+  },
+  fillInvalid: {
+    [sliderTokens.fillColor]: color.bgDanger,
+  },
+  ringInvalid: {
     outlineColor: {
       default: "transparent",
-      ":focus-visible": color.borderDanger,
-    },
-    "::-webkit-slider-runnable-track": { backgroundImage: DANGER_FILL },
-    "::-moz-range-track": { backgroundImage: DANGER_FILL },
-    "::-webkit-slider-thumb": { borderColor: color.borderDanger },
-    "::-moz-range-thumb": { borderColor: color.borderDanger },
-  },
-  // `:disabled` cannot be expressed from inside a pseudo-element block, so the
-  // disabled track is selected by the prop instead.
-  inputDisabled: {
-    "::-webkit-slider-runnable-track": { backgroundImage: DISABLED_FILL },
-    "::-moz-range-track": { backgroundImage: DISABLED_FILL },
-    "::-webkit-slider-thumb": {
-      borderColor: color.border,
-      transform: {
-        default: null,
-        ":hover": { default: null, [pointer.canHover]: "none" },
-      },
-    },
-    "::-moz-range-thumb": {
-      borderColor: color.border,
-      transform: {
-        default: null,
-        ":hover": { default: null, [pointer.canHover]: "none" },
+      [stylex.when.descendant(":focus-visible")]: color.borderDanger,
+      "@supports not selector(:has(*))": {
+        default: "transparent",
+        ":focus-within": color.borderDanger,
       },
     },
   },
-});
-
-const fillStyles = stylex.create({
-  fill: (percent: number) => ({
-    [sliderTokens.fill]: `${String(percent)}%`,
-  }),
+  trackDisabled: {
+    cursor: "not-allowed",
+    opacity: opacity.disabled,
+    [sliderTokens.fillColor]: color.bgNeutral,
+    [sliderTokens.thumbShadow]: selectedSurface.thumbShadow,
+  },
+  // The room of the thumb: the fill is a bar as tall as the thumb, so at the
+  // start of the track the thumb hides all of it.
+  clip: {
+    position: "absolute",
+    inset: RIM,
+    direction: "ltr",
+    overflow: "hidden",
+    pointerEvents: "none",
+  },
+  // Until the motion engine binds, and where no script runs, the fill and the
+  // thumb take their places from `sliderTokens.position`. As long as the
+  // thumb's travel, so a translate of 100% is the full travel, and its end
+  // is under the middle of the thumb.
+  fillCarrier: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: `calc(${THUMB_WIDTH} / 2)`,
+    inlineSize: `calc(100% - ${THUMB_WIDTH})`,
+    translate: `calc((${sliderTokens.position} - 1) * 100%) 0`,
+  },
+  fill: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    right: 0,
+    left: `calc(${THUMB_WIDTH} / -2)`,
+    backgroundColor: sliderTokens.fillColor,
+    transition: `background-color ${duration._200} ${easing.ease}`,
+  },
+  // As long as the thumb's travel, so a translate of 100% is the full travel.
+  carrier: {
+    position: "absolute",
+    top: RIM,
+    bottom: RIM,
+    left: RIM,
+    direction: "ltr",
+    inlineSize: `calc(100% - 2 * ${RIM} - ${THUMB_WIDTH})`,
+    pointerEvents: "none",
+    translate: `calc(${sliderTokens.position} * 100%) 0`,
+  },
+  // The effect layer marks the track with `data-effect-drawn` while it
+  // draws the thumb. The thumb keeps its box and its colour then, so the effect can read them from it. It hides at once when the
+  // effect takes over, and fades back in as the effect hands it back.
+  thumb: {
+    display: "grid",
+    placeItems: "center",
+    blockSize: "100%",
+    inlineSize: THUMB_WIDTH,
+    backgroundColor: color.fgOnControlStrong,
+    boxShadow: sliderTokens.thumbShadow,
+    opacity: {
+      default: 1,
+      [stylex.when.ancestor(":is([data-effect-drawn])")]: 0,
+    },
+    transition: {
+      default: `box-shadow ${duration._400} ${easing.ease}, opacity ${handBack.duration} ${easing.linear}`,
+      [stylex.when.ancestor(":is([data-effect-drawn])")]: "none",
+      [motionConstants.REDUCED_MOTION]: `box-shadow ${duration._400} ${easing.ease}`,
+    },
+  },
+  grip: {
+    inlineSize: "2px",
+    blockSize: "40%",
+    backgroundColor: sliderTokens.fillColor,
+    opacity: 0.5,
+  },
+  // The input holds the value, the focus and the keyboard. The track takes
+  // the pointer, so the thumb can stay under it between two steps.
+  input: {
+    position: "absolute",
+    inset: 0,
+    inlineSize: "100%",
+    blockSize: "100%",
+    margin: 0,
+    appearance: "none",
+    opacity: 0,
+    pointerEvents: "none",
+  },
 });
 
 const sizeStyles = stylex.create({
-  sm: {
-    [sliderTokens.trackHeight]: controlSize._1,
-    [sliderTokens.thumbSize]: controlSize._4,
-  },
-  md: {
-    [sliderTokens.trackHeight]: controlSize._2,
-    [sliderTokens.thumbSize]: controlSize._5,
-  },
-  lg: {
-    [sliderTokens.trackHeight]: controlSize._3,
-    [sliderTokens.thumbSize]: controlSize._6,
-  },
+  sm: { [sliderTokens.trackHeight]: controlSize._6 },
+  md: { [sliderTokens.trackHeight]: controlSize._7 },
+  lg: { [sliderTokens.trackHeight]: controlSize._8 },
 });

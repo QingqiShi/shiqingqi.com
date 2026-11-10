@@ -45,7 +45,11 @@ export interface LiquidOptions {
  * indicator, attach it to the track: each segment marked with
  * `data-liquid-segment` gives the liquid a pill to rest in, and the element
  * marked with `data-liquid-indicator` gives its colour, its corners and its
- * edge.
+ * edge. For the thumb of a Slider, attach it to the track: the element
+ * marked with `data-liquid-thumb` gives the liquid its size and colour, and
+ * the one marked with `data-liquid-fill` the colour of the fill, which ends
+ * under the middle of the thumb. There `position` and `drag` are shares of
+ * the travel, and only a press melts the thumb.
  * While the effect draws, the element has the `data-effect-drawn`
  * attribute, so the control hides its own thumb or indicator then and at
  * no other time. Outside an `EffectLayerProvider`, or where the effect
