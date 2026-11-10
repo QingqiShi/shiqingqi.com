@@ -33,7 +33,9 @@ function todoLine(item: Extract<ActivityItem, { type: "todo" }>) {
     case "add_todo":
       return `adding ${todo}`;
     case "update_todo":
-      return `changing the ${item.changes.map(({ field }) => TODO_FIELD_NAMES[field]).join(", ")} of ${todo}`;
+      return item.changes.length > 0
+        ? `changing the ${item.changes.map(({ field }) => TODO_FIELD_NAMES[field]).join(", ")} of ${todo}`
+        : `changing the mail that ${todo} opens`;
     case "complete_todo":
       return `closing ${todo}`;
     case "mark_waiting":

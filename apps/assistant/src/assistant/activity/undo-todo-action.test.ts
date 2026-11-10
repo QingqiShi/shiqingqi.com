@@ -226,6 +226,29 @@ describe("undo of an update", () => {
     expect(row?.dueDate).toBe("2026-11-03");
   });
 
+  it("makes the to-do open its earlier mail again", async () => {
+    const accountId = await insertAccount(db, userId);
+    const todo = await insertTodo({
+      sourceAccountId: accountId,
+      sourceMessageId: "<first@x>",
+    });
+    const runId = await applyChanges({
+      updated: [
+        {
+          id: todo.id,
+          edit: {},
+          reason: "The later mail gives the steps.",
+          source: { accountId, messageId: "<later@x>" },
+        },
+      ],
+    });
+    expect((await readTodo(todo.id))?.sourceMessageId).toBe("<later@x>");
+
+    await undo(runId);
+
+    expect((await readTodo(todo.id))?.sourceMessageId).toBe("<first@x>");
+  });
+
   it("changes nothing on a field the owner changed since, and the rest go back", async () => {
     const todo = await insertTodo({ dueDate: "2026-11-03" });
     const runId = await applyChanges({

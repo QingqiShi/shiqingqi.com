@@ -70,7 +70,13 @@ export interface TodoChanges {
     /** The ISO time of the mail that shows it. */
     mailAt?: string;
   }[];
-  updated: { id: string; edit: TodoEdit; reason: string }[];
+  updated: {
+    id: string;
+    edit: TodoEdit;
+    reason: string;
+    /** The mail that the to-do opens from now on. */
+    source?: MailSource;
+  }[];
   /** A preview stored before to-dos could wait does not have this. */
   waiting?: {
     id: string;

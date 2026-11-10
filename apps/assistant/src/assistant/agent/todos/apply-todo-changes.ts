@@ -12,7 +12,8 @@ import {
   type CloseFailure,
 } from "#src/assistant/report/close-todos.ts";
 import { datesInOrder } from "#src/assistant/report/dates-in-order.ts";
-import { ownTodo } from "#src/assistant/report/own-todo.ts";
+import { ownTodo, todoSource } from "#src/assistant/report/own-todo.ts";
+import { sameMail } from "./deleted-todo-to-bring-back.ts";
 import {
   TODO_PLAIN_FIELDS,
   type TodoActionDetail,
@@ -140,12 +141,14 @@ export async function applyTodoChanges(
             followUpDate: todos.followUpDate,
             waitingSince: todos.waitingSince,
             waitingNote: todos.waitingNote,
+            sourceAccountId: todos.sourceAccountId,
+            sourceMessageId: todos.sourceMessageId,
           })
           .from(todos)
           .where(and(stillOpen, inArray(todos.id, lockedIds)))
           .for("update");
   const stored = new Map(locked.map((row) => [row.id, row]));
-  for (const { id, edit, reason } of changes.updated) {
+  for (const { id, edit, reason, source } of changes.updated) {
     const row = stored.get(id);
     if (!row) continue;
     const allowed: TodoEdit = {};
@@ -164,12 +167,21 @@ export async function applyTodoChanges(
       delete allowed.startDate;
     }
     const written = TODO_PLAIN_FIELDS.filter((field) => field in allowed);
-    if (written.length === 0) continue;
-    const next = { ...row, ...allowed };
+    const oldSource = todoSource(row);
+    const newSource =
+      source && !(oldSource && sameMail(source, oldSource)) ? source : null;
+    if (written.length === 0 && !newSource) continue;
+    const sourceColumns = newSource
+      ? {
+          sourceAccountId: newSource.accountId,
+          sourceMessageId: newSource.messageId,
+        }
+      : {};
+    const next = { ...row, ...allowed, ...sourceColumns };
     stored.set(id, next);
     await tx
       .update(todos)
-      .set({ ...allowed, updatedAt: now })
+      .set({ ...allowed, ...sourceColumns, updatedAt: now })
       .where(and(stillOpen, eq(todos.id, id)));
     actions.push({
       kind: "update_todo",
@@ -177,8 +189,11 @@ export async function applyTodoChanges(
       detail: {
         todoId: id,
         title: next.title,
-        before: Object.fromEntries(written.map((field) => [field, row[field]])),
-        after: allowed,
+        before: {
+          ...Object.fromEntries(written.map((field) => [field, row[field]])),
+          ...(newSource ? { source: oldSource } : {}),
+        },
+        after: { ...allowed, ...(newSource ? { source: newSource } : {}) },
       },
     });
   }
