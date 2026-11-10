@@ -31,6 +31,10 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "What @tuja/ui is, how it is organised, and where to go for what you want.",
       zh: "@tuja/ui 是什么、如何组织，以及想要什么该去哪里。",
     }),
+    "/design-system/patterns": t({
+      en: "Whole screens built only from components, ready to start from.",
+      zh: "只用组件搭成的完整页面，可以直接拿来起步。",
+    }),
     "/design-system/foundations/principles": t({
       en: "The ideas behind every decision in the system.",
       zh: "系统中每个决定背后的理念。",
@@ -183,6 +187,38 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "A panel in a groove that springs by steps and melts while you drag it.",
       zh: "凹槽里的面板随步长弹动，拖动时化为液体。",
     }),
+    "/design-system/components/page-header": t({
+      en: "The top of a page: its title, what it is for, and its own actions.",
+      zh: "页面的顶部：标题、页面用途，以及页面自身的操作。",
+    }),
+    "/design-system/components/stat": t({
+      en: "The few key figures a page is about, in a row of cards or plain.",
+      zh: "页面关注的几个关键数字，排成一行卡片或直接排列。",
+    }),
+    "/design-system/components/setting-row": t({
+      en: "One setting per row, with the control that changes it at the end.",
+      zh: "每行一个设置，改变它的控件位于行尾。",
+    }),
+    "/design-system/components/form-footer": t({
+      en: "The Cancel and Save of a form, in view while a long form scrolls.",
+      zh: "表单的「取消」与「保存」，长表单滚动时仍保持可见。",
+    }),
+    "/design-system/components/empty-state": t({
+      en: "What a list or a card shows when it has nothing yet.",
+      zh: "列表或卡片还没有内容时显示的内容。",
+    }),
+    "/design-system/components/columns": t({
+      en: "Columns side by side, shared by a ratio, that stack when narrow.",
+      zh: "按比例分配宽度的并排多列，变窄时堆叠。",
+    }),
+    "/design-system/components/radio-group": t({
+      en: "One answer of a few, each a radio with an optional description.",
+      zh: "从几个答案中选一个，每项是一个可带说明的单选按钮。",
+    }),
+    "/design-system/components/filter-chips": t({
+      en: "One filter of a list, as a row of chips with optional counts.",
+      zh: "以一行可带数字的筛选项为列表选择一个筛选条件。",
+    }),
     "/design-system/components/select": t({
       en: "A styled native select driven by options or custom children.",
       zh: "样式化的原生下拉选择，支持选项数组或自定义子元素。",
@@ -212,8 +248,8 @@ export function getDesignSystemRouteDescriptions(): Record<
       zh: "带悬浮页头控件与可选页脚的阅读密度页面骨架。",
     }),
     "/design-system/components/tab-view": t({
-      en: "An app shell: a narrow rail of destinations on wide screens, a floating tab bar on small ones.",
-      zh: "应用骨架：宽屏上是一条窄的目标页侧轨，小屏上是一枚悬浮标签栏。",
+      en: "An app shell: a sidebar or a rail of destinations on wide screens, a floating tab bar on small ones.",
+      zh: "应用骨架：宽屏上是目标页的侧边栏或侧轨，小屏上是一枚悬浮标签栏。",
     }),
     "/design-system/components/navigation-split-view": t({
       en: "A sidebar, the content and the detail of what is picked, side by side, with the detail in a sheet on a phone.",

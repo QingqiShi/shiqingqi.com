@@ -11,9 +11,9 @@ import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { border, controlSize, opacity, space } from "../tokens.stylex.ts";
+import { border, controlSize, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
-import { checkboxTokens } from "./checkbox.stylex.ts";
+import { checkboxMark, checkboxTokens } from "./checkbox.stylex.ts";
 import { fieldStyles } from "./field-shared.stylex.ts";
 import { useFieldAria } from "./use-field-aria.ts";
 
@@ -179,6 +179,7 @@ export function Checkbox({
             a11y.focusRing,
             transition.colors,
             look === "selection" ? corner.radius_round : corner.radius_1,
+            checkboxMark.base,
             styles.box,
             look === "done" && styles.done,
             sizeStyles[size],
@@ -236,11 +237,6 @@ const styles = stylex.create({
     cursor: "default",
   },
   box: {
-    appearance: "none",
-    margin: 0,
-    flexShrink: 0,
-    boxSizing: "border-box",
-    borderStyle: "solid",
     borderWidth: border.size_2,
     borderColor: {
       default: color.borderControl,
@@ -263,20 +259,6 @@ const styles = stylex.create({
       default: null,
       ":checked": `url("${CHECK_MASK}")`,
       ":indeterminate": `url("${DASH_MASK}")`,
-    },
-    cursor: { default: "pointer", ":disabled": "not-allowed" },
-    opacity: { default: 1, ":disabled": opacity.disabled },
-
-    "::before": {
-      content: "",
-      display: "block",
-      width: "100%",
-      height: "100%",
-      backgroundColor: "currentColor",
-      maskImage: checkboxTokens.glyph,
-      maskRepeat: "no-repeat",
-      maskPosition: "center",
-      maskSize: checkboxTokens.glyphSize,
     },
   },
   // The hover edge stays off a ticked box, which would ring the muted fill

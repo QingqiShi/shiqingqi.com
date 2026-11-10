@@ -13,6 +13,7 @@ import iconography from "./iconography.png";
 import layout from "./layout.png";
 import material from "./material.png";
 import motion from "./motion.png";
+import patterns from "./patterns.png";
 import primitives from "./primitives.png";
 import principles from "./principles.png";
 import surfaces from "./surfaces.png";
@@ -23,11 +24,14 @@ import {
 import typography from "./typography.png";
 
 /**
- * Of the overview section only Get started has a tile, so it is named here
- * rather than taking its whole section.
+ * The overview section also holds the overview page, which has no tile, so
+ * its two tiles are named here rather than taking the whole section.
  */
 type IllustratedPath =
-  | Extract<DesignSystemPath, "/design-system/get-started">
+  | Extract<
+      DesignSystemPath,
+      "/design-system/get-started" | "/design-system/patterns"
+    >
   | DesignSystemSectionPath<"foundations" | "buildingBlocks">;
 
 /**
@@ -38,6 +42,7 @@ type IllustratedPath =
  */
 const ILLUSTRATIONS: Record<IllustratedPath, TileIllustrationArt> = {
   "/design-system/get-started": { src: getStarted },
+  "/design-system/patterns": { src: patterns },
   "/design-system/foundations/principles": {
     src: principles,
     bleeds: "inline-end",

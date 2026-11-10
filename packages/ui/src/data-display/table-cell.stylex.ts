@@ -19,7 +19,7 @@ export const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._3,
     textAlign: "start",
-    verticalAlign: "top",
+    verticalAlign: tableTokens.cellAlignBlock,
     boxShadow: {
       default: tableTokens.cellRule,
       ":first-child": {

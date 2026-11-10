@@ -11,6 +11,7 @@ import { Button } from "../actions/button.tsx";
 import { color } from "../color.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
+import { toneColor } from "../primitives/tone.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import {
   border,
@@ -57,6 +58,14 @@ interface CalloutBaseProps extends Omit<
    * @zh 正文内容。保持简短——提示框是摘要，而非段落。
    */
   children: ReactNode;
+  /**
+   * One control that acts on the message, such as a small "Reconnect"
+   * `Button`. As in a `Toast`, it sits at the end of the message, and goes
+   * under it where the box is too narrow for both, such as on a phone.
+   *
+   * @zh 针对该消息的一个控件，例如小号的「重新连接」`Button`。与 `Toast` 一样，它位于消息末尾；当提示框太窄、两者放不下时（例如在手机上），它移到消息下方。
+   */
+  action?: ReactNode;
   /**
    * Leading icon. Defaults to a Phosphor icon for the intent; pass a
    * different Phosphor icon (or any node) to override, or `null` to remove
@@ -116,6 +125,7 @@ export function Callout({
   intent = "info",
   title,
   children,
+  action,
   icon,
   role,
   onDismiss,
@@ -127,6 +137,15 @@ export function Callout({
   const resolvedRole =
     role ?? (intent === "danger" || intent === "warning" ? "alert" : "status");
   const resolvedIcon = icon === undefined ? defaultIcons[intent] : icon;
+  const tone = toneColor[intent === "neutral" ? "default" : intent];
+  const message = (
+    <div css={[stack.text, styles.content, action ? styles.message : null]}>
+      {title != null ? (
+        <div css={[typeRole.h4, styles.title, tone]}>{title}</div>
+      ) : null}
+      <div css={[typeRole.bodySmall, styles.body]}>{children}</div>
+    </div>
+  );
 
   return (
     <div
@@ -136,21 +155,18 @@ export function Callout({
       css={[corner.radius_3, styles.base, surfaceStyles[intent], css]}
     >
       {resolvedIcon != null ? (
-        <span
-          css={[typeRole.body, styles.icon, accentStyles[intent]]}
-          aria-hidden
-        >
+        <span css={[typeRole.body, styles.icon, tone]} aria-hidden>
           {resolvedIcon}
         </span>
       ) : null}
-      <div css={[stack.text, styles.content]}>
-        {title != null ? (
-          <div css={[typeRole.h4, styles.title, accentStyles[intent]]}>
-            {title}
-          </div>
-        ) : null}
-        <div css={[typeRole.bodySmall, styles.body]}>{children}</div>
-      </div>
+      {action ? (
+        <div css={[styles.content, styles.withAction]}>
+          {message}
+          <div css={styles.action}>{action}</div>
+        </div>
+      ) : (
+        message
+      )}
       {onDismiss ? (
         <Button
           size="sm"
@@ -171,8 +187,11 @@ export function Callout({
 const controlLineBox = `calc(${font.uiBody} * ${font.lineHeightBody})`;
 
 const styles = stylex.create({
+  // A grid that starts its items keeps each as wide as its content, such as
+  // the `below` slot of a `ListRow`. A callout spans its column there too.
   base: {
     display: "flex",
+    justifySelf: "stretch",
     alignItems: "flex-start",
     gap: rhythm.tight,
     paddingBlock: space._3,
@@ -192,6 +211,22 @@ const styles = stylex.create({
     flexGrow: 1,
     // Let long words wrap instead of forcing the flex row wider.
     minInlineSize: 0,
+  },
+  // The message takes the line while the box is wider than it and the
+  // action. In a narrower box, the action goes under the message.
+  withAction: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    gap: rhythm.tight,
+  },
+  message: {
+    flexBasis: space._14,
+  },
+  action: {
+    display: "flex",
+    flexShrink: 0,
+    gap: rhythm.tight,
   },
   title: {
     lineHeight: font.lineHeightBody,
@@ -231,13 +266,4 @@ const surfaceStyles = stylex.create({
     backgroundColor: color.bgNeutralSubtle,
     borderColor: color.border,
   },
-});
-
-const accentStyles = stylex.create({
-  info: { color: color.fgInfo },
-  success: { color: color.fgSuccess },
-  warning: { color: color.fgWarning },
-  danger: { color: color.fgDanger },
-  accent: { color: color.fgAccent },
-  neutral: { color: color.fg },
 });

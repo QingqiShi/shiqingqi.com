@@ -112,8 +112,8 @@ export function SegmentedControlShowcase() {
         </Specimen>
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "Segments share the track evenly rather than in proportion to their labels, so the widths stay stable as the copy is translated.",
-            zh: "各分段均分轨道宽度，而非按标签长短分配，因此文案翻译后宽度保持稳定。",
+            en: "Without fullWidth, the track is as wide as its segments, also in a column. With it, the track fills its container, and segments share it evenly rather than in proportion to their labels, so the widths stay stable as the copy is translated.",
+            zh: "不设置 fullWidth 时，轨道与其分段同宽，在纵向排列的容器中也是如此。设置后，轨道撑满容器，各分段均分宽度，而非按标签长短分配，因此文案翻译后宽度保持稳定。",
           })}
         </Text>
       </Showcase>

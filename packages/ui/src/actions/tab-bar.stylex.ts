@@ -25,3 +25,36 @@ export const tabLink = stylex.create({
     fontWeight: font.weight_6,
   },
 });
+
+/**
+ * The mark at the top-end corner of a tab's icon: a `badge`, or a `count` in
+ * a small pill.
+ *
+ * @internal
+ */
+export const tabMark = stylex.create({
+  badge: {
+    position: "absolute",
+    insetBlockStart: 0,
+    insetInlineEnd: `calc(-1 * ${space._0})`,
+    display: "flex",
+  },
+  // Compose it after `typeRole.caption`, `typeModifier.numeric` and
+  // `corner.radius_round`.
+  count: {
+    position: "absolute",
+    insetBlockStart: `calc(-1 * ${space._0})`,
+    insetInlineStart: "55%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxSizing: "border-box",
+    minInlineSize: "1.125rem",
+    blockSize: "1.125rem",
+    paddingInline: space._0,
+    backgroundColor: color.bgAccent,
+    color: color.fgOnAccent,
+    fontWeight: font.weight_6,
+    letterSpacing: 0,
+  },
+});

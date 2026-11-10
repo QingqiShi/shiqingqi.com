@@ -70,12 +70,12 @@ export function TypeRolesShowcase() {
     },
     {
       name: "bodySmall",
-      metrics: t({ en: "0.85rem / 1.5", zh: "0.85rem / 1.7" }),
+      metrics: t({ en: "0.875rem / 1.5", zh: "0.875rem / 1.7" }),
       sample: t({ en: "Prices include tax.", zh: "价格已含税。" }),
     },
     {
       name: "label",
-      metrics: "0.85rem / 1.3",
+      metrics: "0.875rem / 1.3",
       sample: t({ en: "Departure time", zh: "出发时间" }),
     },
     {
@@ -85,7 +85,7 @@ export function TypeRolesShowcase() {
     },
     {
       name: "overline",
-      metrics: "0.85rem / 1.3",
+      metrics: "0.875rem / 1.3",
       sample: t({ en: "Day 2", zh: "第 2 天" }),
     },
   ];

@@ -6,7 +6,7 @@ import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { buttonTokens } from "@tuja/ui/components/button.stylex";
 import type { LinkSlotProps } from "@tuja/ui/components/link-provider";
-import { tabViewQueries } from "@tuja/ui/components/tab-view.stylex";
+import { viewWidth } from "@tuja/ui/primitives/view-width.stylex";
 import { ColumnLink } from "../navigation/column-link.tsx";
 import {
   floatingAction,
@@ -48,7 +48,7 @@ export function FinanceAddButton() {
 
 const styles = stylex.create({
   barOnly: {
-    display: { default: "block", [tabViewQueries.rail]: "none" },
+    display: { default: "block", [viewWidth.fromMd]: "none" },
   },
   button: {
     [buttonTokens.height]: floatingActionTokens.blockSize,

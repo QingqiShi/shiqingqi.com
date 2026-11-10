@@ -202,7 +202,7 @@ function UpdateBalanceForm({
           autoComplete="off"
           enterKeyHint="done"
           value={text}
-          css={typeModifier.numeric}
+          controlCss={typeModifier.numeric}
           onFocus={(event) => {
             event.currentTarget.select();
           }}

@@ -9,7 +9,10 @@ import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Heading } from "@tuja/ui/components/heading";
-import { TabView } from "@tuja/ui/components/tab-view";
+import { NavGroup } from "@tuja/ui/components/nav-group";
+import { NavLink } from "@tuja/ui/components/nav-link";
+import { NavList } from "@tuja/ui/components/nav-list";
+import { TabView, TabViewBrand } from "@tuja/ui/components/tab-view";
 import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -76,6 +79,13 @@ const ITEMS_WITH_BADGE = labSource([
   { href: "#settings", label: "Settings", icon: GearSixIcon },
 ]);
 
+const ITEMS_WITH_COUNT = labSource([
+  { href: "#home", label: "Home", icon: HouseIcon, current: true },
+  { href: "#search", label: "Search", icon: MagnifyingGlassIcon },
+  { href: "#library", label: "Library", icon: BooksIcon, count: 3 },
+  { href: "#settings", label: "Settings", icon: GearSixIcon },
+]);
+
 const SCREEN = labSource(
   <div css={screen.base}>
     <div css={[stack.group, screen.content]}>
@@ -109,6 +119,29 @@ const HEADER_SAMPLES: LabSample[] = [
       </span>,
     ),
   },
+  {
+    id: "brand",
+    label: { en: "Brand", zh: "品牌" },
+    value: labSource(<TabViewBrand name="Reader" detail="Mei Lin" />),
+  },
+];
+
+const SECONDARY_SAMPLES: LabSample[] = [
+  NONE_SAMPLE,
+  {
+    id: "shelves",
+    label: { en: "Shelves", zh: "书单" },
+    value: labSource(
+      <nav aria-label="Shelves">
+        <NavList>
+          <NavGroup label="Shelves">
+            <NavLink href="#">Want to read</NavLink>
+            <NavLink href="#">Finished</NavLink>
+          </NavGroup>
+        </NavList>
+      </nav>,
+    ),
+  },
 ];
 
 const FOOTER_SAMPLES: LabSample[] = [
@@ -125,7 +158,7 @@ const FOOTER_SAMPLES: LabSample[] = [
  * Lab stays on its page. A new set of items starts from its own current item.
  */
 function FollowedTabView(
-  props: Extract<ComponentProps<typeof TabView>, { linkStatus: null }>,
+  props: Extract<ComponentProps<typeof TabView>, { linkStatus?: null }>,
 ) {
   const [followed, setFollowed] = useState<{
     items: unknown;
@@ -171,6 +204,18 @@ export const TabViewLab = defineLab({
       props: { ...BASE, items: ITEMS, header: "mark", footer: "member" },
     },
     {
+      id: "sidebar",
+      label: { en: "Labelled sidebar", zh: "带标签的侧边栏" },
+      props: {
+        ...BASE,
+        items: ITEMS_WITH_COUNT,
+        rail: "labels",
+        header: "brand",
+        footer: "member",
+        secondary: "shelves",
+      },
+    },
+    {
       id: "badge",
       label: { en: "With a badge", zh: "带标记" },
       props: { ...BASE, items: ITEMS_WITH_BADGE },
@@ -183,8 +228,10 @@ export const TabViewLab = defineLab({
   ],
   controls: [
     "label",
+    "rail",
     { prop: "header", samples: HEADER_SAMPLES },
     { prop: "footer", samples: FOOTER_SAMPLES },
+    { prop: "secondary", samples: SECONDARY_SAMPLES },
     "effect",
   ],
 });

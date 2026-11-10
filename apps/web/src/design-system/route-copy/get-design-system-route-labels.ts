@@ -32,6 +32,7 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       en: "Get started",
       zh: "快速开始",
     }),
+    "/design-system/patterns": t({ en: "Patterns", zh: "模式" }),
     "/design-system/foundations/principles": t({
       en: "Principles",
       zh: "设计原则",
@@ -97,6 +98,32 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       zh: "选项卡片",
     }),
     "/design-system/components/slider": t({ en: "Slider", zh: "滑块" }),
+    "/design-system/components/page-header": t({
+      en: "Page header",
+      zh: "页面标题区",
+    }),
+    "/design-system/components/stat": t({ en: "Stat", zh: "统计项" }),
+    "/design-system/components/setting-row": t({
+      en: "Setting row",
+      zh: "设置行",
+    }),
+    "/design-system/components/form-footer": t({
+      en: "Form footer",
+      zh: "表单页脚",
+    }),
+    "/design-system/components/empty-state": t({
+      en: "Empty state",
+      zh: "空状态",
+    }),
+    "/design-system/components/columns": t({ en: "Columns", zh: "分栏" }),
+    "/design-system/components/radio-group": t({
+      en: "Radio group",
+      zh: "单选组",
+    }),
+    "/design-system/components/filter-chips": t({
+      en: "Filter chips",
+      zh: "筛选标签",
+    }),
     "/design-system/components/avatar": t({ en: "Avatar", zh: "头像" }),
     "/design-system/components/badge": t({ en: "Badge", zh: "徽章" }),
     "/design-system/components/table": t({ en: "Table", zh: "表格" }),

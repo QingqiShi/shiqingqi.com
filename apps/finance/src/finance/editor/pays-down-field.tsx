@@ -105,7 +105,7 @@ export function PaysDownField({ form }: { form: TransactionForm }) {
           )}
           value={draft.paysDownAmountText}
           error={errorOf("paysDownAmount")}
-          css={typeModifier.numeric}
+          controlCss={typeModifier.numeric}
           onChange={(event) => {
             update({ paysDownAmountText: event.target.value }, ["paysDown"]);
           }}

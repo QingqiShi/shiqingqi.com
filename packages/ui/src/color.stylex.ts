@@ -67,11 +67,11 @@ const light = {
   // body floor, `fgMuted` the Lc 60 non-body floor. contrast/color-ladder.test.ts
   // keeps these floors.
   //
-  // In light the worst fill is `bgSurfaceSelectedHover`: fg 86, muted 64. The
+  // In light the worst fill is `bgSurfaceSelectedHover`: fg 90, muted 64. The
   // worst tint is `bgNeutralSubtle` on `bgControlSelected` (gray._90), such
   // as a neutral Badge in a selected row: muted 61.
   //
-  // In dark the worst fill is `bgSurfaceSelectedHover`: fg 91, muted 62. The
+  // In dark the worst fill is `bgSurfaceSelectedHover`: fg 97, muted 62. The
   // worst tint is `bgNeutralSubtle` on gray._13, the fill of
   // `bgSurfaceSelected` and `bgControlHover`: muted 60.
   //
@@ -81,7 +81,7 @@ const light = {
   //
   // gray._70 and gray._80 are too near `fg` in dark: done and secondary text
   // did not recede as they do in light.
-  fg: gray._13,
+  fg: gray._5,
   fgMuted: gray._30,
   // The label of an unselected item in a group of controls, such as a
   // SegmentedControl option or a TabBar tab. It is as dim as `fgMuted`, so
@@ -119,7 +119,7 @@ const light = {
   // The palette has no step between the selected fill and the next step, and
   // that step is too heavy. Thus this token mixes the two steps.
   bgSurfaceSelectedHover: `color-mix(in oklab, ${gray._90}, ${gray._80})`,
-  borderSurfaceSelected: gray._13,
+  borderSurfaceSelected: gray._5,
 
   // A bright control stays light in both themes (a slider thumb).
   // Inverse flips the theme (tooltips, snackbars). Scrim dims the page behind
@@ -158,7 +158,7 @@ const light = {
   borderControlStrong: "transparent",
 
   // The quiet default edge and the neutral Intent's border.
-  border: gray._90,
+  border: gray._87,
   // The edge that is the only sign of an unselected control, such as an empty
   // checkbox or radio. It is not quiet, because WCAG 1.4.11 sets a 3:1 floor on
   // it against every surface a control sits on.
@@ -227,7 +227,7 @@ const light = {
 };
 
 const dark: { [key in keyof typeof light]: string } = {
-  fg: gray._92,
+  fg: gray._97,
   fgMuted: gray._60,
   fgControl: gray._60,
   // purple._70 is under the Lc 60 floor on `bgControlRaised` (gray._20), so
@@ -248,7 +248,7 @@ const dark: { [key in keyof typeof light]: string } = {
   bgSurfaceHover: gray._9,
   bgSurfaceSelected: gray._13,
   bgSurfaceSelectedHover: `color-mix(in oklab, ${gray._13}, ${gray._20})`,
-  borderSurfaceSelected: gray._92,
+  borderSurfaceSelected: gray._97,
 
   bgControlBright: gray._80,
   bgInverse: gray._92,

@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocale } from "@tuja/i18n/server-locale";
 import { color } from "@tuja/ui/color.stylex";
+import { Select } from "@tuja/ui/components/select";
 import {
   Table,
   TableBody,
@@ -275,6 +276,71 @@ function BalanceTable({
   );
 }
 
+/**
+ * Spending to sort, one row still without a category: the row waits for the
+ * visitor, and the Select that settles it sits in the row.
+ */
+function CategoryTable() {
+  const { money } = getFigureFormats();
+  const categoryLabel = t({ en: "Category", zh: "分类" });
+  const placeholder = t({ en: "No category", zh: "未分类" });
+  const categories = [
+    { value: "food", label: t({ en: "Food and drink", zh: "餐饮" }) },
+    { value: "travel", label: t({ en: "Travel", zh: "出行" }) },
+  ];
+  const rows = [
+    {
+      payee: t({ en: "Corner Café", zh: "街角咖啡馆" }),
+      amount: money.format(4),
+      category: "food",
+    },
+    {
+      payee: t({ en: "Northern Rail", zh: "北方铁路" }),
+      amount: money.format(25),
+      category: undefined,
+    },
+  ];
+  return (
+    <Table
+      caption={t({ en: "Spending to sort", zh: "待整理的支出" })}
+      verticalAlign="middle"
+    >
+      <TableHead>
+        <TableRow>
+          <TableHeaderCell scope="col">
+            {t({ en: "Payee", zh: "收款方" })}
+          </TableHeaderCell>
+          <TableHeaderCell scope="col">{categoryLabel}</TableHeaderCell>
+          <TableHeaderCell scope="col" numeric>
+            {t({ en: "Amount", zh: "金额" })}
+          </TableHeaderCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {rows.map((row) => (
+          <TableRow
+            key={row.payee}
+            intent={row.category === undefined ? "warning" : undefined}
+          >
+            <TableHeaderCell scope="row">{row.payee}</TableHeaderCell>
+            <TableCell>
+              <Select
+                size="sm"
+                label={`${categoryLabel}: ${row.payee}`}
+                labelHidden
+                placeholder={placeholder}
+                options={categories}
+                defaultValue={row.category}
+              />
+            </TableCell>
+            <TableCell numeric>{row.amount}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+
 /** Long enough to scroll under a held head. */
 function ThresholdHistoryTable() {
   const years = getPlan2ThresholdRows();
@@ -403,6 +469,23 @@ export function TableShowcase() {
           {t({
             en: 'current puts aria-current="true" on the row and joins the tint with heavier type, so the state survives a colour-blind reading and forced-colours mode. Pass aria-current yourself to announce it as something other than "true" — "page", say, when the row is the page being read.',
             zh: 'current 会为该行加上 aria-current="true"，并在着色之外同时加粗字重，因此该状态在色盲阅读和强制颜色模式下依然可辨。若要宣读为 "true" 以外的值，请自行传入 aria-current——例如当该行正是当前阅读的页面时使用 "page"。',
+          })}
+        </Text>
+      </Showcase>
+
+      <Showcase
+        label={t({
+          en: "Rows that wait for the visitor",
+          zh: "等待访客处理的行",
+        })}
+      >
+        <Specimen caption='intent="warning", verticalAlign="middle"'>
+          <CategoryTable />
+        </Specimen>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: 'intent tints a row: "warning" for a row that waits for the visitor, "danger" for one where something failed. The tint does not say why, so a cell must. Cells sit at the top of their row by default; verticalAlign="middle" centres them, for a row that holds a control taller than a line of text.',
+            zh: 'intent 为整行着色："warning" 用于等待访客处理的行，"danger" 用于出错的行。色调本身不说明原因，因此必须由某个单元格写明。单元格默认位于行的顶部；verticalAlign="middle" 让它们垂直居中，适合含有比一行文字更高的控件的行。',
           })}
         </Text>
       </Showcase>

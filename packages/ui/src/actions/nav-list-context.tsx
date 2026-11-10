@@ -115,6 +115,15 @@ export const navListStyles = stylex.create({
     fontSize: controlSize._4,
     color: color.fgMuted,
   },
+  /** What sits at the end of a row, such as a count, in the muted colour. */
+  trailing: {
+    display: "inline-flex",
+    flexShrink: 0,
+    alignItems: "center",
+    gap: rhythm.tight,
+    marginInlineStart: "auto",
+    color: color.fgMuted,
+  },
   row: {
     marginBlockStart: {
       default: 0,

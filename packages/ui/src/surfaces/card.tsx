@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useRef, type ComponentProps, type ReactNode } from "react";
+import { color } from "../color.stylex.ts";
 import { useOptionCardPress } from "../forms/use-option-card-press.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { transition } from "../primitives/motion.stylex.ts";
@@ -20,6 +21,15 @@ interface CardProps extends Omit<ComponentProps<"div">, "className" | "style"> {
    * @zh 为作为可点击控件的卡片添加悬停、聚焦与按下态样式。若想让整张卡片本身成为链接，请改在你自己的 `<Link>`/`<a>` 上组合 `cardSurface`——`Card` 始终渲染为 `<div>`。
    */
   interactive?: boolean;
+  /**
+   * Draws the edge in the colour of an Intent and leaves the rest of the card
+   * as it is. `"danger"` marks a card of actions that cannot be undone, such
+   * as a danger zone at the end of a settings page. Say the danger in the
+   * card's title too, because a colour alone does not say it.
+   *
+   * @zh 以意图的颜色绘制卡片边缘，其余部分保持不变。`"danger"` 标记一张包含无法撤销操作的卡片，例如设置页末尾的危险区。请在卡片标题中也说明危险，因为颜色本身无法表达。
+   */
+  intent?: "danger";
   /**
    * Card contents.
    *
@@ -43,6 +53,7 @@ interface CardProps extends Omit<ComponentProps<"div">, "className" | "style"> {
  */
 export function Card({
   interactive = false,
+  intent,
   css,
   ref,
   children,
@@ -73,6 +84,7 @@ export function Card({
         cardSurface.base,
         interactive && transition.colors,
         interactive && cardSurface.interactive,
+        intent && intentStyles[intent],
         css,
       ]}
     >
@@ -91,5 +103,11 @@ const styles = stylex.create({
   base: {
     boxSizing: "border-box",
     padding: space._5,
+  },
+});
+
+const intentStyles = stylex.create({
+  danger: {
+    borderColor: color.borderDanger,
   },
 });

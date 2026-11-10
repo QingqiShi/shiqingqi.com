@@ -1,6 +1,6 @@
 ---
 name: styling
-description: How to style in this project and where its design principles live. Use it for any style change, even a small one: styles, the look of a component, layout, responsive behaviour, hover and focus states, or motion (StyleX, tokens, the css prop). Use it also to judge whether something follows the design principles (设计原则, 空间原则), even when no style changes.
+description: How to build a screen and how to style in this project, and where its design principles live. Use it before you build or change any page, screen, form, dashboard, list or other UI, and for any style change, even a small one: styles, the look of a component, layout, responsive behaviour, hover and focus states, or motion (StyleX, tokens, the css prop). Use it also to judge whether something follows the design principles (设计原则, 空间原则), even when no style changes.
 ---
 
 # Styling
@@ -8,6 +8,15 @@ description: How to style in this project and where its design principles live. 
 `apps/web`, `apps/finance`, `apps/assistant` and `packages/ui` style with StyleX through a `css` prop. `apps/trip-planner` uses Tailwind, and this skill does not apply there.
 
 Import paths below are `@tuja/ui` package exports. Inside `packages/ui`, import the same files by relative path.
+
+## Build a screen from components
+
+`@tuja/ui` has the part here that shadcn/ui has in a Tailwind repo, and it reaches further. It also has components for what a shadcn screen writes by hand with utility classes: the frame of the app (`TabView`), the top of a page (`PageHeader`), a row of figures (`StatGroup`), a row of a list (`ListRow`), a settings row, an empty state. The components carry the hierarchy, so a screen that stacks them looks right. A screen that writes its own layout and type usually looks flat.
+
+- The components are the `./components/*` exports of `packages/ui/package.json`. The props of each one, with their doc comments, are in its source under `packages/ui/src/`.
+- Start from the nearest whole screen in `apps/web/src/design-system/patterns/`: `dashboard/`, `settings/`, `list/` or `form/`. Each one has only components, and works on a phone and on a desktop.
+- A `stylex.create` in a screen file is for what only that screen has, such as a chart. If you start to write gaps, type or colour for something common, look in the exports again. If it is not there, say so when you report: the fix belongs in `@tuja/ui`, so that the next screen gets it too.
+- Look at the screen before you call it done, at a phone width and a desktop width.
 
 ## Read the principles first
 

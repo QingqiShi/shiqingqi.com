@@ -292,7 +292,7 @@ const styles = stylex.create({
     zIndex: { default: layer.overlay, [BESIDE]: "auto" },
     backgroundColor: {
       default: color.bgSurface,
-      [BESIDE]: color.bgSurfaceSunken,
+      [BESIDE]: islandTokens.fill,
     },
     borderStartStartRadius: {
       default: border.radius_3,

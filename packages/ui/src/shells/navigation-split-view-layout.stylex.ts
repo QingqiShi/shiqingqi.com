@@ -17,7 +17,7 @@ export const splitViewWidths = stylex.defineConsts({
  * composition. Without a detail beside the content, the sidebar shows full
  * where the content keeps at least 25.25rem beside it, collapsed where the
  * view is wider than a phone, and not at all on a phone, where the content
- * fills the view. The full sidebar starts at the width of `tabViewQueries.rail`,
+ * fills the view. The full sidebar starts at the width of `viewWidth.fromMd`,
  * so that it never shows beside a tab bar: at that width the rail takes
  * `tabViewTokens.railInlineSize` from the view, and the view stacks again. `detailBeside` is where the detail fits beside the
  * collapsed sidebar and at least 20rem of content. Each width also holds

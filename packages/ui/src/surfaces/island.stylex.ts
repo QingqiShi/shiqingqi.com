@@ -7,16 +7,18 @@ import { border, rhythm } from "../tokens.stylex.ts";
 const GAP = rhythm.tight;
 
 /**
- * The Island dial, set the way `cornerTokens.height` is. Each inset is the
- * space from an edge of the frame to the islands: the gap between two
- * islands, or the safe area where that is more. The inline start takes no
- * safe area, because a rail beside the frame, such as the one of a
- * `TabView`, takes it. Where one island fills the screen, as on a phone,
- * set every token to `0px`.
+ * The Island dial, set the way `cornerTokens.height` is. `fill` is the colour
+ * of every island, also of a column or a sidebar that paints its own fill.
+ * Each inset is the space from an edge of the frame to the islands: the gap
+ * between two islands, or the safe area where that is more. The inline start
+ * takes no safe area, because a rail beside the frame, such as the one of a
+ * `TabView`, takes it. Where one island fills the screen, as on a phone, set
+ * every inset and the radius to `0px`.
  *
  * @internal
  */
 export const islandTokens = stylex.defineVars({
+  fill: color.bgSurface,
   radius: border.radius_3,
   insetBlockStart: `max(${GAP}, env(safe-area-inset-top))`,
   insetBlockEnd: `max(${GAP}, env(safe-area-inset-bottom))`,
@@ -34,8 +36,8 @@ export const islandTokens = stylex.defineVars({
  * - `base` is one island. It clips what it holds to its corners, so its
  *   scroller goes inside it.
  *
- * A card in an island takes `cardSurface`: a fill one step lighter than
- * the island and a hairline edge, so that it reads as a card, not as another
+ * A card in an island takes `cardSurface`: the same fill as the island, a
+ * hairline edge and a small shadow, so that it reads as a card, not as another
  * island. A screen takes its islands from `NavigationSplitView`.
  *
  * @internal
@@ -51,7 +53,7 @@ export const islandSurface = stylex.create({
     paddingInlineEnd: islandTokens.insetInlineEnd,
   },
   base: {
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: islandTokens.fill,
     borderRadius: islandTokens.radius,
     // Chromium ignores the mask of a backdrop filter in a box that a squircle
     // corner clips. Thus a progressive blur in an island needs a round corner.

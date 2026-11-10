@@ -19,6 +19,8 @@ export const tableTokens = stylex.defineVars({
   cellRule: NO_SHADOW,
   // The edge of a sticky column while other columns pass under it.
   columnEdge: NO_SHADOW,
+  // Where a cell sets its content in the height of its row. `Table` sets it.
+  cellAlignBlock: "top",
   // The width of the scroll region's visible box, while the table overflows
   // it. `TableDisclosure` keeps its panel this wide.
   scrollport: "100%",

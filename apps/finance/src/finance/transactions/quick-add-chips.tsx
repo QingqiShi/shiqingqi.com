@@ -297,7 +297,7 @@ export function QuickAddChips({
               enterKeyHint="done"
               leading={currencySymbol(currency, locale)}
               value={draft.amountText}
-              css={typeModifier.numeric}
+              controlCss={typeModifier.numeric}
               onChange={(event) => {
                 keep({ amountText: event.target.value });
               }}

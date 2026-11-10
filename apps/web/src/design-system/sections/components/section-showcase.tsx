@@ -47,6 +47,20 @@ export function SectionShowcase() {
         </Specimen>
       </Showcase>
 
+      <Showcase label={t({ en: "Heading look", zh: "标题外观" })}>
+        <Specimen caption='look="heading"'>
+          <Section
+            look="heading"
+            title={t({ en: "Monday 10 November", zh: "11 月 10 日，星期一" })}
+            css={fill.inline}
+            description={t({
+              en: 'The title is a muted label by default, for wayfinding. look="heading" sets it in the h3 role, for a block that is a part of the page, such as a day of a timeline.',
+              zh: '标题默认是弱化的标签，用于导引。look="heading" 以 h3 字体角色显示它，用于构成页面一部分的区块，例如时间线中的某一天。',
+            })}
+          />
+        </Specimen>
+      </Showcase>
+
       <Showcase label={t({ en: "Divided", zh: "带分隔" })}>
         <Specimen
           caption={t({ en: "rule between sections", zh: "区块之间的分隔线" })}

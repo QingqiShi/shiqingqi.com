@@ -44,6 +44,17 @@ interface TableProps extends Omit<
    */
   stickyColumn?: boolean;
   /**
+   * Where each cell sets its content in the height of its row. `"top"` keeps
+   * the first lines of a row on one line, for cells of wrapped text.
+   * `"middle"` centres each cell, for a row that holds a control, such as a
+   * `Select` or a `Button`, which is taller than a line of text.
+   *
+   * @default "top"
+   *
+   * @zh 每个单元格在行高内放置内容的位置。`"top"` 让一行中各单元格的首行对齐，适合换行的文字。`"middle"` 让每个单元格垂直居中，适合含有比一行文字更高的控件（如 `Select` 或 `Button`）的行。
+   */
+  verticalAlign?: "top" | "middle";
+  /**
    * StyleX overrides for the scroll region's root, composed last — where a
    * height or a width cap goes.
    *
@@ -84,6 +95,7 @@ export function Table({
   captionVisible = false,
   stickyHeader = false,
   stickyColumn = false,
+  verticalAlign = "top",
   containerCss,
   contentCss,
   css,
@@ -110,6 +122,7 @@ export function Table({
           typeRole.bodySmall,
           styles.table,
           stickyHeader && styles.stickyHead,
+          verticalAlign === "middle" && styles.middle,
           css,
         ]}
       >
@@ -140,6 +153,7 @@ const styles = stylex.create({
   table: {
     [tableTokens.headInset]: "auto",
     [tableTokens.headBackground]: "transparent",
+    [tableTokens.cellAlignBlock]: "top",
     inlineSize: "100%",
     borderCollapse: "collapse",
     color: color.fg,
@@ -147,6 +161,9 @@ const styles = stylex.create({
   stickyHead: {
     [tableTokens.headInset]: "0px",
     [tableTokens.headBackground]: color.bgSurface,
+  },
+  middle: {
+    [tableTokens.cellAlignBlock]: "middle",
   },
   caption: {
     paddingBlockEnd: space._2,

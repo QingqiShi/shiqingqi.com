@@ -2,7 +2,7 @@
 
 import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
-import { type ComponentProps, type ReactNode } from "react";
+import { useEffect, type ComponentProps, type ReactNode } from "react";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
@@ -14,6 +14,7 @@ import {
   fieldSizeInline,
   fieldStyles,
 } from "./field-shared.stylex.ts";
+import { useSettingRowControl } from "./setting-row-context.ts";
 import { useFieldAria } from "./use-field-aria.ts";
 
 /** A single choice for the {@link Select} `options` config layer. */
@@ -32,11 +33,12 @@ interface SelectProps extends Omit<
 > {
   /**
    * Visible text that labels the select. Pass `labelHidden` to keep it
-   * screen-reader-only.
+   * screen-reader-only. Leave it out only in the `control` slot of a
+   * `SettingRow`, whose label then names the select.
    *
-   * @zh 命名下拉框的可见文本；即使被隐藏，也是无障碍名称所必需的。
+   * @zh 命名下拉框的可见文本；即使被隐藏，也是无障碍名称所必需的。只有放在 `SettingRow` 的 `control` 槽中时才可省略，此时由该行的标签命名下拉框。
    */
-  label: string;
+  label?: string;
   /**
    * Visually hide the label while keeping it as the accessible name.
    *
@@ -117,6 +119,7 @@ export function Select({
   "aria-invalid": ariaInvalid,
   ...rest
 }: SelectProps) {
+  const settingRow = useSettingRowControl(label === undefined);
   const {
     fieldId,
     descriptionId,
@@ -125,13 +128,28 @@ export function Select({
     hasError,
     describedBy,
     ariaInvalid: resolvedAriaInvalid,
+    inSettingRow,
   } = useFieldAria({
     id: idProp,
     ariaDescribedBy,
     ariaInvalid,
     description,
     error,
+    settingRow,
   });
+
+  const hasNoName =
+    label === undefined &&
+    !inSettingRow &&
+    rest["aria-label"] === undefined &&
+    rest["aria-labelledby"] === undefined;
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production" && hasNoName) {
+      console.warn(
+        "Select: it has no `label`, `aria-label` or `aria-labelledby`, and it is not in the `control` slot of a `SettingRow`, so a screen reader cannot name it.",
+      );
+    }
+  }, [hasNoName]);
 
   // Set `defaultValue` only when uncontrolled: React warns if a controlled
   // `value` also gets a `defaultValue`.
@@ -142,26 +160,30 @@ export function Select({
 
   return (
     <div css={[stack.tight, fieldStyles.root, css]}>
-      <div css={[stack.text, labelHidden && !hasDescription && a11y.srOnly]}>
-        <label
-          htmlFor={fieldId}
-          css={[
-            typeRole.control,
-            fieldStyles.label,
-            labelHidden && a11y.srOnly,
-          ]}
-        >
-          {label}
-        </label>
-        {hasDescription ? (
-          <span
-            id={descriptionId}
-            css={[typeRole.bodySmall, fieldStyles.description]}
-          >
-            {description}
-          </span>
-        ) : null}
-      </div>
+      {label !== undefined || hasDescription ? (
+        <div css={[stack.text, labelHidden && !hasDescription && a11y.srOnly]}>
+          {label !== undefined ? (
+            <label
+              htmlFor={fieldId}
+              css={[
+                typeRole.label,
+                fieldStyles.label,
+                labelHidden && a11y.srOnly,
+              ]}
+            >
+              {label}
+            </label>
+          ) : null}
+          {hasDescription ? (
+            <span
+              id={descriptionId}
+              css={[typeRole.bodySmall, fieldStyles.description]}
+            >
+              {description}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
       <div css={[fieldStyles.controlAffixRow, fieldSizeInline[size]]}>
         <select
           {...rest}

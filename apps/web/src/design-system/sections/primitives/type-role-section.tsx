@@ -11,7 +11,7 @@ export function TypeRoleSection() {
   const api: ApiEntry[] = [
     {
       token: "typeRole.display · subDisplay",
-      meta: "3rem · 2rem · 800",
+      meta: "3rem · 2rem · 600",
       description: t({
         en: "The one title that leads a page or a hero.",
         zh: "引领一个页面或主视觉的那一个标题。",
@@ -19,7 +19,7 @@ export function TypeRoleSection() {
     },
     {
       token: "typeRole.h1 … h4",
-      meta: "1.5rem … 1rem · 800 … 700",
+      meta: "1.5rem … 1rem · 600",
       description: t({
         en: "Headings by rank. h4 is the title of one item, such as a card or a row.",
         zh: "按层级排列的标题。h4 是单个条目的标题，例如一张卡片或一行。",
@@ -27,7 +27,7 @@ export function TypeRoleSection() {
     },
     {
       token: "typeRole.body · bodySmall",
-      meta: "1rem · 0.85rem · 400 · 1.5",
+      meta: "1rem · 0.875rem · 400 · 1.5",
       description: t({
         en: "Running text. bodySmall is for text that supports the main copy.",
         zh: "连续的正文。bodySmall 用于辅助主文案的文字。",
@@ -35,7 +35,7 @@ export function TypeRoleSection() {
     },
     {
       token: "typeRole.label",
-      meta: "0.85rem · 500 · 1.3",
+      meta: "0.875rem · 400 · 1.3",
       description: t({
         en: "A short line that names something: a field, a group, a row of metadata.",
         zh: "为某物命名的一短行：一个字段、一个分组、一行元数据。",
@@ -43,7 +43,7 @@ export function TypeRoleSection() {
     },
     {
       token: "typeRole.caption · overline",
-      meta: "0.75rem · 0.85rem",
+      meta: "0.75rem · 0.875rem",
       description: t({
         en: "The smallest text. overline is set in sentence case, for an eyebrow above a title.",
         zh: "最小的文字。overline 按句首大写书写，用作标题上方的眉标。",
@@ -51,7 +51,7 @@ export function TypeRoleSection() {
     },
     {
       token: "typeRole.control · controlCaption",
-      meta: "1.2rem → 1rem ≥ md",
+      meta: "1rem → 0.875rem ≥ md",
       description: t({
         en: "Text inside a control. It steps down at md together with controlSize.",
         zh: "控件内的文字。它与 controlSize 一起在 md 处变小。",
