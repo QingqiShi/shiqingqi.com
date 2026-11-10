@@ -147,4 +147,22 @@ describe("layoutLiquid", () => {
     expect(relaid.seed).toBe(true);
     expect(mean(relaid.state.body.x)).toBeCloseTo(wider.stops[1].target, 1);
   });
+
+  it("follows a held drag that moves on after the finger has paused", () => {
+    const control = threeSegments();
+    const run = createRun(control);
+    run({ ...rest, position: 0 });
+    const holdFor = (seconds: number, drag: number) => {
+      let laid = run({ position: 0, pressed: true, drag });
+      for (let frame = 1; frame < seconds * 60; frame++) {
+        laid = run({ position: 0, pressed: true, drag });
+      }
+      return laid;
+    };
+    holdFor(2, 0.5);
+
+    const moved = holdFor(2, 2);
+
+    expect(mean(moved.state.body.x)).toBeCloseTo(control.stops[2].target, 0);
+  });
 });
