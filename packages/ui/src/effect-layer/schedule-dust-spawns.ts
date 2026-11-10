@@ -87,6 +87,8 @@ export interface DustEmitter extends DustBox {
    * and once for each step up of its `shakes` setting.
    */
   readonly shakes: number;
+  /** Whether its bursts shed slow dust, as its density does. */
+  readonly drift?: boolean;
 }
 
 /**
@@ -316,7 +318,9 @@ export function createDustBursts() {
     /**
      * The burst particles to shed this frame, as spawn list entries, at most
      * `room` of them. What does not fit waits for the next frame. With
-     * `shed` false, as under reduced motion, every burst is dropped.
+     * `shed` false, as under reduced motion, every burst is dropped. The
+     * entries of an emitter with `drift` have no burst bit, so they shed
+     * slow dust.
      */
     take(emitters: readonly DustEmitter[], room: number, shed: boolean) {
       const spawns: number[] = [];
@@ -334,8 +338,9 @@ export function createDustBursts() {
           );
         }
         const count = Math.min(left, room - spawns.length);
+        const entry = emitter.drift === true ? index : index + DUST_BURST_SPAWN;
         for (let spawn = 0; spawn < count; spawn++) {
-          spawns.push(index + DUST_BURST_SPAWN);
+          spawns.push(entry);
         }
         left -= count;
         if (left > 0) {

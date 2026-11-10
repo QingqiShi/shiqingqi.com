@@ -37,6 +37,13 @@ describe("createDustBursts", () => {
     );
   });
 
+  it("sheds the burst of a drifting emitter as slow dust", () => {
+    const bursts = createDustBursts();
+    const drifting = (shakes: number) => ({ ...emitter(shakes), drift: true });
+    bursts.take([drifting(0)], 64, true);
+    expect(bursts.take([drifting(1)], 64, true)).toEqual(Array(50).fill(3));
+  });
+
   it("drops a burst under reduced motion", () => {
     const bursts = createDustBursts();
     bursts.take([emitter(0)], 64, true);

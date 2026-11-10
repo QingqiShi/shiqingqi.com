@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "../breakpoints.stylex.ts";
 import { color } from "../color.stylex.ts";
+import { cornerTokens } from "../primitives/corner.stylex.ts";
 import {
   border,
   controlHeight,
@@ -75,8 +76,9 @@ export const fieldStyles = stylex.create({
     position: { default: null, ":empty": "absolute" },
     color: color.fgMuted,
   },
-  // Positioning context for the absolutely-placed affix slots. Also carries the
-  // size variable so both the control and the affixes read the same padding.
+  // Positioning context for the absolutely-placed affix slots and the dust
+  // frame. Also carries the size variable so both the control and the affixes
+  // read the same padding.
   controlAffixRow: {
     position: "relative",
     display: "flex",
@@ -86,8 +88,8 @@ export const fieldStyles = stylex.create({
     boxSizing: "border-box",
     borderStyle: "solid",
     borderWidth: border.size_1,
-    borderColor: color.border,
-    borderRadius: border.radius_2,
+    borderColor: color.borderField,
+    borderRadius: border.radius_3,
     cornerShape: "squircle",
     backgroundColor: color.bgSurface,
   },
@@ -100,12 +102,25 @@ export const fieldStyles = stylex.create({
     fontWeight: font.weight_4,
     lineHeight: font.lineHeight_4,
     color: color.fg,
+    // A field with focus looks like a selected OptionCard. Hover gives no
+    // fill while the field has focus, so the fill stays still under typing.
     backgroundColor: {
       default: color.bgSurface,
+      ":focus": {
+        default: color.bgSurfaceSelected,
+        [pointer.canHover]: color.bgSurfaceSelected,
+      },
       ":disabled": color.bgControlDisabled,
+      [pointer.canHover]: {
+        default: null,
+        ":hover:not(:disabled, :focus)": color.bgSurfaceHover,
+      },
     },
     // The keyboard-only ring layers on separately via `a11y.focusRing`.
-    borderColor: { default: color.border, ":focus": color.borderAccent },
+    borderColor: {
+      default: color.borderField,
+      ":focus": color.borderSurfaceSelected,
+    },
     paddingInline: fieldVars.paddingInline,
     cursor: { default: "text", ":disabled": "not-allowed" },
     opacity: { default: null, ":disabled": opacity.disabled },
@@ -145,14 +160,15 @@ export const fieldStyles = stylex.create({
     [fieldVars.paddingInline]: controlSize._2,
     backgroundColor: {
       default: "transparent",
+      ":focus": color.bgSurfaceSelected,
       ":disabled": color.bgControlDisabled,
     },
     borderColor: {
       default: "transparent",
-      ":hover": { default: null, [pointer.canHover]: color.border },
+      ":hover": { default: null, [pointer.canHover]: color.borderField },
       ":focus": {
-        default: color.borderAccent,
-        [pointer.canHover]: color.borderAccent,
+        default: color.borderSurfaceSelected,
+        [pointer.canHover]: color.borderSurfaceSelected,
       },
       [pointer.canHover]: { default: null, ":disabled:hover": "transparent" },
     },
@@ -166,8 +182,18 @@ export const fieldStyles = stylex.create({
     resize: "none",
     overflow: "hidden",
   },
-  // Composed after `a11y.focusRing`, so its danger-coloured `:focus-visible`
-  // outline and border win over the default accent ones.
+  // Composed after `a11y.focusRing`. A text field matches `:focus-visible`
+  // also when a pointer gives it focus, and its selected look already shows
+  // that focus. Thus the ring shows only when the keyboard moves focus to it,
+  // as on every other control. `pointerFocus` marks a pointer focus.
+  keyboardRing: {
+    outlineColor: {
+      default: "transparent",
+      ":focus-visible:not([data-pointer-focus])": color.borderAccent,
+    },
+  },
+  // Composed after `a11y.focusRing` and `keyboardRing`, so its
+  // danger-coloured outline and border win over the default accent ones.
   controlInvalid: {
     borderColor: {
       default: color.borderDanger,
@@ -175,7 +201,7 @@ export const fieldStyles = stylex.create({
     },
     outlineColor: {
       default: "transparent",
-      ":focus-visible": color.borderDanger,
+      ":focus-visible:not([data-pointer-focus])": color.borderDanger,
     },
   },
   hasLeadingAffix: {
@@ -205,15 +231,37 @@ export const fieldStyles = stylex.create({
   errorText: {
     color: color.fgDanger,
   },
+  // The frame that sheds dust while the visitor types. The dust takes its
+  // fill, which is the colour of the border of a field with focus. It does
+  // not show: `filter` hides it from the page but not from the effect layer.
+  dust: {
+    position: "absolute",
+    inset: 0,
+    borderRadius: border.radius_3,
+    cornerShape: "squircle",
+    backgroundColor: color.borderSurfaceSelected,
+    filter: "opacity(0)",
+    pointerEvents: "none",
+  },
 });
 
 // Per-size horizontal padding — sets the shared variable so both the control
-// padding and the affix offsets scale together. Apply to the affix wrapper (or
+// padding and the affix offsets scale together. Also gives
+// `corner.squircle_round` the height that its corners close at. Apply to the affix wrapper (or
 // directly to the control when there is no wrapper).
 export const fieldSizeInline = stylex.create({
-  sm: { [fieldVars.paddingInline]: controlSize._3 },
-  md: { [fieldVars.paddingInline]: controlSize._4 },
-  lg: { [fieldVars.paddingInline]: controlSize._5 },
+  sm: {
+    [fieldVars.paddingInline]: controlSize._3,
+    [cornerTokens.height]: controlHeight.sm,
+  },
+  md: {
+    [fieldVars.paddingInline]: controlSize._4,
+    [cornerTokens.height]: controlHeight.md,
+  },
+  lg: {
+    [fieldVars.paddingInline]: controlSize._5,
+    [cornerTokens.height]: controlHeight.lg,
+  },
 });
 
 // Per-size height of a single-line control. A minimum, so text that the

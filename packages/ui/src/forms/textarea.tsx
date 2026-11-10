@@ -17,7 +17,9 @@ import {
   fieldSizeInline,
   fieldStyles,
 } from "./field-shared.stylex.ts";
+import { pointerFocus } from "./pointer-focus.ts";
 import { useFieldAria } from "./use-field-aria.ts";
+import { useTypingDust } from "./use-typing-dust.ts";
 
 interface TextareaProps extends Omit<
   ComponentProps<"textarea">,
@@ -95,7 +97,9 @@ interface TextareaProps extends Omit<
 /**
  * Multi-line text input sharing `TextField`'s label / description / error
  * chrome, with an optional {@link TextareaProps.autoGrow} that grows the box
- * to fit its content.
+ * to fit its content. With focus it looks like a selected `OptionCard`, and
+ * while the visitor types, a little dust in the colour of its border floats
+ * off its frame.
  *
  * Renders on the client because auto-grow measures the element after layout.
  */
@@ -116,6 +120,8 @@ export function Textarea({
   value,
   defaultValue,
   onInput,
+  onPointerDown,
+  onBlur,
   "aria-describedby": ariaDescribedBy,
   "aria-invalid": ariaInvalid,
   ref,
@@ -131,6 +137,7 @@ export function Textarea({
     ariaInvalid: resolvedAriaInvalid,
   } = useFieldAria({ id, ariaDescribedBy, ariaInvalid, description, error });
 
+  const { ref: dustRef, shed } = useTypingDust();
   const innerRef = useRef<HTMLTextAreaElement>(null);
   const setRef = mergeRefs(innerRef, ref);
 
@@ -182,38 +189,50 @@ export function Textarea({
           </span>
         ) : null}
       </div>
-      <textarea
-        {...rest}
-        ref={setRef}
-        id={fieldId}
-        rows={rows}
-        required={required}
-        disabled={disabled}
-        value={value}
-        defaultValue={defaultValue}
-        aria-invalid={resolvedAriaInvalid}
-        aria-describedby={describedBy}
-        onInput={(event) => {
-          resize();
-          onInput?.(event);
-        }}
-        css={[
-          typeRole.control,
-          typeModifier.verbatim,
-          fieldStyles.box,
-          fieldStyles.control,
-          fieldStyles.multiline,
-          fieldSizeInline[size],
-          fieldSizeBox[size],
-          look === "ghost" ? fieldStyles.ghost : null,
-          tone === "muted" ? fieldStyles.controlMuted : null,
-          autoGrow ? fieldStyles.noResize : null,
-          transition.colors,
-          a11y.focusRing,
-          hasError ? fieldStyles.controlInvalid : null,
-          css,
-        ]}
-      />
+      <div css={[fieldStyles.controlAffixRow, fieldSizeInline[size]]}>
+        <span ref={dustRef} aria-hidden css={fieldStyles.dust} />
+        <textarea
+          {...rest}
+          ref={setRef}
+          id={fieldId}
+          rows={rows}
+          required={required}
+          disabled={disabled}
+          value={value}
+          defaultValue={defaultValue}
+          aria-invalid={resolvedAriaInvalid}
+          aria-describedby={describedBy}
+          onPointerDown={(event) => {
+            pointerFocus.onPointerDown(event);
+            onPointerDown?.(event);
+          }}
+          onBlur={(event) => {
+            pointerFocus.onBlur(event);
+            onBlur?.(event);
+          }}
+          onInput={(event) => {
+            resize();
+            shed();
+            onInput?.(event);
+          }}
+          css={[
+            typeRole.control,
+            typeModifier.verbatim,
+            fieldStyles.box,
+            fieldStyles.control,
+            fieldStyles.multiline,
+            fieldSizeBox[size],
+            look === "ghost" ? fieldStyles.ghost : null,
+            tone === "muted" ? fieldStyles.controlMuted : null,
+            autoGrow ? fieldStyles.noResize : null,
+            transition.colors,
+            a11y.focusRing,
+            fieldStyles.keyboardRing,
+            hasError ? fieldStyles.controlInvalid : null,
+            css,
+          ]}
+        />
+      </div>
       {hasError ? (
         <span
           id={errorId}
