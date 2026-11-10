@@ -41,6 +41,7 @@ const [
   { pondShader },
   { ringLightShader },
   { rippleShader },
+  { sliderLiquidShader },
 ] = await Promise.all([
   import("../src/effect-layer/black-hole-shader.ts"),
   import("../src/effect-layer/debug-shader.ts"),
@@ -51,6 +52,7 @@ const [
   import("../src/effect-layer/pond-shader.ts"),
   import("../src/effect-layer/ring-light-shader.ts"),
   import("../src/effect-layer/ripple-shader.ts"),
+  import("../src/effect-layer/slider-liquid-shader.ts"),
 ]);
 
 type Pipeline =
@@ -62,6 +64,7 @@ const PIPELINES: Record<string, Pipeline> = {
   ripple: rippleShader,
   ringLight: ringLightShader,
   pond: pondShader,
+  sliderLiquid: sliderLiquidShader,
   blackHole: blackHoleShader,
   liquid: liquidShader,
   liquidSimulation: { compute: liquidSimulation },

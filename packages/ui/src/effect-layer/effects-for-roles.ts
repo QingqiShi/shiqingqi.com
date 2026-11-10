@@ -5,6 +5,7 @@ import { liquidEffect } from "./liquid-effect.ts";
 import { pondEffect } from "./pond-effect.ts";
 import { ringLightEffect } from "./ring-light-effect.ts";
 import { rippleEffect } from "./ripple-effect.ts";
+import { sliderLiquidEffect } from "./slider-liquid-effect.ts";
 import type { Effect } from "./types.ts";
 
 /**
@@ -22,6 +23,7 @@ const ROLE_EFFECTS = new Map<EffectRole, Effect>([
   ["liquid", liquidEffect],
   ["ringLight", ringLightEffect],
   ["pond", pondEffect],
+  ["sliderLiquid", sliderLiquidEffect],
 ]);
 
 /**

@@ -9,6 +9,7 @@ import type { EffectColor } from "./parse-css-color.ts";
 import type { ElementBox } from "./read-element-box.ts";
 import type { CarrierKey } from "./resolve-carrier.ts";
 import type { RingLightReading } from "./ring-light-effect.ts";
+import type { SliderLiquidReading } from "./slider-liquid-effect.ts";
 import type { FrameClock } from "./track-elements.ts";
 
 /**
@@ -51,6 +52,7 @@ export interface EffectReadings {
   /** The control, or `null` when the liquid can draw in none. */
   readonly liquid?: LiquidControl | null;
   readonly ringLight?: RingLightReading;
+  readonly sliderLiquid?: SliderLiquidReading;
 }
 
 /**

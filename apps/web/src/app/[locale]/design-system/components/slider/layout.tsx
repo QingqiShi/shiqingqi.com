@@ -7,8 +7,8 @@ export default function SliderLayout({ children }: { children: ReactNode }) {
     <LabArticle
       path="/design-system/components/slider"
       description={t({
-        en: "A single-value range control built on the native input, so keyboard stepping and value announcement come from the platform, with a readout slot for the figure the visitor is choosing.",
-        zh: "基于原生 range 输入构建的单值滑块，键盘步进与数值播报都由平台提供，并用 readout 插槽显示访客正在选择的数值。",
+        en: "A single-value range control: a panel that springs from step to step in its groove, with the label and the value printed in, and a native input underneath for the keyboard and the screen reader.",
+        zh: "单值滑块：面板在凹槽里随刻度弹动，标签和数值印在控件里，下面的原生输入负责键盘与读屏。",
       })}
     >
       {children}
