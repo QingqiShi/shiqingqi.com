@@ -290,10 +290,8 @@ const styles = stylex.create({
       [BESIDE]: splitViewTokens.sidebarInlineSize,
     },
     zIndex: { default: layer.overlay, [BESIDE]: "auto" },
-    backgroundColor: {
-      default: color.card,
-      [BESIDE]: islandTokens.fill,
-    },
+    backgroundColor: color.sidebar,
+    color: color.sidebarForeground,
     borderStartStartRadius: {
       default: border.radius_3,
       [BESIDE]: islandTokens.radius,

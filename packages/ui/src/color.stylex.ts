@@ -16,7 +16,9 @@ import { red, red_rgb } from "./_generated/palette/hues/red.stylex.ts";
 // • A surface holds content. Choose it by what the element is: `background`
 //   is the page, `card` is a container on the page (also an island of an app
 //   shell), `popover` is what floats above the page. In light the three have
-//   the same fill, and an edge or a shadow sets them apart.
+//   the same fill, and an edge or a shadow sets them apart. `sidebar` is the
+//   sidebar beside a page. No edge sets it apart, so in light it is a step
+//   darker than the page.
 //
 // • A neutral fill on a surface is opaque, and the three have the same
 //   value: `muted` is a quiet region, `accent` is the fill of an item under
@@ -65,6 +67,8 @@ const light = {
   cardForeground: gray._5,
   popover: gray._100,
   popoverForeground: gray._5,
+  sidebar: gray._97,
+  sidebarForeground: gray._5,
 
   muted: gray._95,
   mutedForeground: gray._30,
@@ -132,6 +136,8 @@ const dark: { [key in keyof typeof light]: string } = {
   cardForeground: gray._97,
   popover: gray._7,
   popoverForeground: gray._97,
+  sidebar: gray._5,
+  sidebarForeground: gray._97,
 
   muted: gray._11,
   mutedForeground: gray._60,
@@ -201,6 +207,8 @@ export const color = stylex.defineVars({
   cardForeground: `light-dark(${light.cardForeground}, ${dark.cardForeground})`,
   popover: `light-dark(${light.popover}, ${dark.popover})`,
   popoverForeground: `light-dark(${light.popoverForeground}, ${dark.popoverForeground})`,
+  sidebar: `light-dark(${light.sidebar}, ${dark.sidebar})`,
+  sidebarForeground: `light-dark(${light.sidebarForeground}, ${dark.sidebarForeground})`,
 
   muted: `light-dark(${light.muted}, ${dark.muted})`,
   mutedForeground: `light-dark(${light.mutedForeground}, ${dark.mutedForeground})`,
