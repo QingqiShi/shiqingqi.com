@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
@@ -146,6 +146,41 @@ describe("MenuButton keyboard navigation", () => {
     // After opening, the popup should no longer be inert.
     await user.click(screen.getByRole("button", { name: "Open menu" }));
     expect(container.querySelector("[inert]")).toBeNull();
+  });
+});
+
+describe("MenuButton in Safari", () => {
+  // Safari does not focus a link or a button on a press: it clears focus, so
+  // the focused item blurs to nothing before the click. jsdom focuses the
+  // pressed item as Chrome does, so the test makes that blur by hand.
+  it("stays open when a press on an item clears focus, so the item gets the click", async () => {
+    const user = userEvent.setup();
+    render(<TestMenu />);
+
+    const trigger = screen.getByRole("button", { name: "Open menu" });
+    await user.click(trigger);
+    const [focusedItem, pressedItem] = getMenuItems();
+
+    fireEvent.pointerDown(pressedItem);
+    act(() => {
+      focusedItem.blur();
+    });
+
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("closes when focus leaves and the press was not in the menu", async () => {
+    const user = userEvent.setup();
+    render(<TestMenu />);
+
+    const trigger = screen.getByRole("button", { name: "Open menu" });
+    await user.click(trigger);
+
+    act(() => {
+      getMenuItems()[0].blur();
+    });
+
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
   });
 });
 

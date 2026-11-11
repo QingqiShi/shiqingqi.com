@@ -215,6 +215,24 @@ export function MenuButton({
     }
   }, [isMenuShown]);
 
+  // Safari does not focus a link or a button on a press: it clears focus, so
+  // the focused item blurs to nothing. If the menu closes on that blur, it is
+  // inert before the click, and the pressed item never gets the click.
+  const pressBeganInMenuRef = useRef(false);
+  useEffect(() => {
+    if (!isMenuShown) return;
+    pressBeganInMenuRef.current = false;
+    const trackPress = (event: PointerEvent) => {
+      pressBeganInMenuRef.current =
+        event.target instanceof Node &&
+        menuRef.current?.contains(event.target) === true;
+    };
+    document.addEventListener("pointerdown", trackPress, true);
+    return () => {
+      document.removeEventListener("pointerdown", trackPress, true);
+    };
+  }, [isMenuShown]);
+
   // Escape and backdrop click restore focus to the trigger. onBlur doesn't:
   // by then focus has already moved to wherever the user tabbed.
   // `preventScroll`, because the trigger is on screen under its own open menu,
@@ -255,10 +273,13 @@ export function MenuButton({
         onMenuKeyDown(e);
       }}
       onBlur={(e) => {
+        const focusClearedByPressInMenu =
+          e.relatedTarget === null && pressBeganInMenuRef.current;
         if (
           isMenuShown &&
           !containerRef.current?.contains(e.relatedTarget) &&
-          !outsideClickedRef.current
+          !outsideClickedRef.current &&
+          !focusClearedByPressInMenu
         ) {
           setIsMenuShown(false);
         }
