@@ -25,6 +25,7 @@ The names are those of shadcn/ui. Choose the token by what the element is, then 
 | The page                                                           | `background`                 | `foreground`            |
 | A container on the page, an island of an app shell                 | `card`                       | `cardForeground`        |
 | A menu, a popover, anything that floats                            | `popover`                    | `popoverForeground`     |
+| The sidebar beside a page                                          | `sidebar`                    | `sidebarForeground`     |
 | A quiet region: a well, a code block, a disabled control           | `muted`                      | `foreground`            |
 | An item under the pointer, pressed or selected                     | `accent`                     | `accentForeground`      |
 | A neutral piece: a secondary button, a neutral badge, a track      | `secondary`                  | `secondaryForeground`   |

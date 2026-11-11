@@ -34,6 +34,7 @@ const SURFACES = [
   "background",
   "card",
   "popover",
+  "sidebar",
 ] as const satisfies readonly (keyof Theme)[];
 
 /** The neutral fills that text lands on. */
