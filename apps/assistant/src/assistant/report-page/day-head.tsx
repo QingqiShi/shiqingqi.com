@@ -79,7 +79,7 @@ const styles = stylex.create({
   },
   dateTitle: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   end: {
     marginInlineStart: "auto",

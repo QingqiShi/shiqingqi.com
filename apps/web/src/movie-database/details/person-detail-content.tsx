@@ -358,11 +358,11 @@ const styles = stylex.create({
     margin: 0,
   },
   meta: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     margin: 0,
   },
   readMoreButton: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     cursor: "pointer",
     paddingTop: space._1,
     textDecoration: {
@@ -376,12 +376,12 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: color.bgSurfaceRaised,
-    color: color.fgMuted,
+    backgroundColor: color.popover,
+    color: color.mutedForeground,
   },
   errorText: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     fontStyle: "italic",
   },
   filmographyTitle: {

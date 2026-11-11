@@ -135,6 +135,6 @@ const styles = stylex.create({
     fontWeight: font.weight_5,
   },
   detail: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

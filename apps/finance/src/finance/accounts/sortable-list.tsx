@@ -273,7 +273,7 @@ const styles = stylex.create({
     inlineSize: controlSize._8,
     blockSize: controlSize._8,
     fontSize: controlSize._5,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     cursor: "grab",
     touchAction: "none",
   },
@@ -288,7 +288,7 @@ const styles = stylex.create({
     position: "relative",
     zIndex: layer.overlay,
     cursor: "grabbing",
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
     boxShadow: `0 0 0 ${border.size_1} ${color.border}, ${shadow._4}`,
     scale: 1.02,
     animationName: {

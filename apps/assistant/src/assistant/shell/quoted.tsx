@@ -23,6 +23,6 @@ export function Quoted({
 
 const styles = stylex.create({
   quoted: {
-    color: color.fg,
+    color: color.foreground,
   },
 });

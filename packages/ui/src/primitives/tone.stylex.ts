@@ -9,11 +9,11 @@ import { color } from "../color.stylex.ts";
  * @internal
  */
 export const toneColor = stylex.create({
-  default: { color: color.fg },
-  muted: { color: color.fgMuted },
-  accent: { color: color.fgAccent },
-  success: { color: color.fgSuccess },
-  warning: { color: color.fgWarning },
-  danger: { color: color.fgDanger },
-  info: { color: color.fgInfo },
+  default: { color: color.foreground },
+  muted: { color: color.mutedForeground },
+  primary: { color: color.primaryText },
+  success: { color: color.successText },
+  warning: { color: color.warningText },
+  destructive: { color: color.destructiveText },
+  info: { color: color.infoText },
 });

@@ -1,21 +1,28 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
   GuideNote,
   GuideSection,
 } from "#src/design-system/guide/guide-section.tsx";
 
+const FILLS = [
+  { name: "muted", style: "muted" },
+  { name: "accent", style: "accent" },
+  { name: "secondary", style: "secondary" },
+] as const;
+
 export function ColorNamesShowcase() {
-  const parts = [
-    { part: "bg", slot: t({ en: "Paints", zh: "绘制" }) },
-    { part: "Control", slot: t({ en: "Element", zh: "元素" }) },
-    { part: "Strong", slot: t({ en: "Variant, if any", zh: "变体，可省" }) },
-    { part: "Selected", slot: t({ en: "State, if any", zh: "状态，可省" }) },
+  const surfaces = [
+    { name: "background", style: styles.background },
+    { name: "card", style: [cardSurface.base, styles.surface] },
+    { name: "popover", style: [popoverSurface.base, styles.surface] },
   ];
 
   return (
@@ -25,50 +32,47 @@ export function ColorNamesShowcase() {
         zh: "说出元素，令牌随之而定。",
       })}
       lead={t({
-        en: "Every colour token in @tuja/ui/color.stylex reads in one order: what it paints (bg, fg, border), the element (Canvas, Surface, Control, an Intent), then any variant and state. Each holds a light and a dark value, so one style paints both themes.",
-        zh: "@tuja/ui/color.stylex 中的每个颜色令牌都按同一顺序命名：绘制什么（bg、fg、border）、什么元素（Canvas、Surface、Control、意图色），再加上变体与状态。每个令牌都同时含有浅色与深色值，因此一份样式即可绘制两种主题。",
+        en: "A token in @tuja/ui/color.stylex has the name of the thing it paints: background is the page, card a container, and popover what floats. On any of them, muted is a quiet region, accent the fill under the pointer, and secondary a neutral piece.",
+        zh: "@tuja/ui/color.stylex 中的令牌以它所绘制的东西命名：background 是页面，card 是容器，popover 是浮层。在任何一种表面上，muted 是安静的区域，accent 是指针下的填充，secondary 是中性的小块。",
       })}
     >
-      <figure css={[cardSurface.base, styles.card]}>
-        <ol
-          css={styles.parts}
-          aria-label={parts.map(({ part }) => part).join("")}
-        >
-          {parts.map(({ part, slot }, index) => {
-            const isAbove = index % 2 === 0;
-            return (
-              <li key={part} css={styles.part}>
-                <span css={styles.word}>{part}</span>
+      {/* Safari drops the list role from a list without markers. */}
+      <ul role="list" css={styles.grid}>
+        {surfaces.map((surface) => (
+          <li key={surface.name} css={[stack.item, surface.style]}>
+            <span css={[typeRole.bodySmall, styles.token]}>{surface.name}</span>
+            <span css={stack.tight}>
+              {FILLS.map((fill) => (
                 <span
-                  aria-hidden
-                  css={[
-                    styles.bracket,
-                    isAbove ? styles.bracketAbove : styles.bracketBelow,
-                  ]}
-                />
-                <span
-                  css={[
-                    styles.label,
-                    isAbove ? styles.labelAbove : styles.labelBelow,
-                  ]}
+                  key={fill.name}
+                  css={[corner.radius_2, styles.fill, styles[fill.style]]}
                 >
-                  <span css={[typeRole.label, styles.slot]}>{slot}</span>
+                  <span css={[typeRole.bodySmall, styles.token]}>
+                    {fill.name}
+                  </span>
+                  <span css={[typeRole.bodySmall, styles.sample]}>Aa</span>
                 </span>
-              </li>
-            );
-          })}
-        </ol>
-      </figure>
+              ))}
+            </span>
+          </li>
+        ))}
+      </ul>
       <GuideNote>
         {t({
-          en: "Text on a filled element takes fgOn and that element, such as fgOnControlStrong, not fg.",
-          zh: "填充元素上的文字用 fgOn 加上该元素，例如 fgOnControlStrong，不用 fg。",
+          en: "Text on a fill takes the name of the fill and Foreground, such as primaryForeground on primary.",
+          zh: "填充上的文字用该填充的名字加 Foreground，例如 primary 上用 primaryForeground。",
         })}
       </GuideNote>
       <GuideNote>
         {t({
-          en: "The page already paints bgCanvas and sets fg, so plain text needs no token.",
-          zh: "页面已绘制 bgCanvas 并设置 fg，因此普通文字无需令牌。",
+          en: "muted, accent and secondary are opaque and have the same value. The three names let a theme give them different values, so choose by what the element is.",
+          zh: "muted、accent 与 secondary 不透明，且取值相同。三个名字让主题可以给它们不同的值，所以按元素是什么来选。",
+        })}
+      </GuideNote>
+      <GuideNote>
+        {t({
+          en: "Each token holds a light and a dark value, so one style paints both themes.",
+          zh: "每个令牌都同时含有浅色与深色值，因此一份样式即可绘制两种主题。",
         })}
       </GuideNote>
     </GuideSection>
@@ -76,74 +80,36 @@ export function ColorNamesShowcase() {
 }
 
 const styles = stylex.create({
-  card: {
-    containerType: "inline-size",
-    margin: 0,
-    paddingBlock: { default: space._8, [breakpoints.md]: space._9 },
-    paddingInline: space._5,
-  },
-  parts: {
+  grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(4, max-content)",
-    gridTemplateRows: "repeat(5, auto)",
-    justifyContent: "center",
+    gridTemplateColumns: "repeat(auto-fit, minmax(11rem, 1fr))",
+    gap: rhythm.item,
     margin: 0,
     padding: 0,
     listStyle: "none",
   },
-  part: {
-    display: "grid",
-    gridTemplateRows: "subgrid",
-    gridRow: "1 / -1",
+  // The page paints `color.background` already, so this column has no fill.
+  background: {
+    padding: space._5,
   },
-  word: {
-    gridRow: "3",
+  surface: {
+    padding: space._5,
+  },
+  token: {
     fontFamily: font.familyMono,
-    fontSize: "min(1.5rem, 7cqi)",
-    fontWeight: font.weight_4,
-    lineHeight: font.lineHeight_3,
-    color: color.fg,
-    whiteSpace: "nowrap",
+    color: color.foreground,
   },
-  bracket: {
-    blockSize: space._1,
-    marginInline: rhythm.inline,
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.fg,
-  },
-  bracketAbove: {
-    gridRow: "2",
-    marginBlockEnd: rhythm.inline,
-    borderBlockEndWidth: 0,
-  },
-  bracketBelow: {
-    gridRow: "4",
-    marginBlockStart: rhythm.inline,
-    borderBlockStartWidth: 0,
-  },
-  label: {
+  fill: {
     display: "flex",
-    justifyContent: "center",
-    inlineSize: 0,
-    minInlineSize: "100%",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingBlock: space._3,
+    paddingInline: space._4,
   },
-  labelAbove: {
-    gridRow: "1",
-    alignItems: "flex-end",
-    paddingBlockEnd: rhythm.tight,
+  sample: {
+    color: color.mutedForeground,
   },
-  labelBelow: {
-    gridRow: "5",
-    alignItems: "flex-start",
-    paddingBlockStart: rhythm.tight,
-  },
-  slot: {
-    flexShrink: 0,
-    maxInlineSize: "max(100%, 6em)",
-    fontWeight: font.weight_5,
-    color: color.fg,
-    textAlign: "center",
-    textWrap: "balance",
-  },
+  muted: { backgroundColor: color.muted },
+  accent: { backgroundColor: color.accent },
+  secondary: { backgroundColor: color.secondary },
 });

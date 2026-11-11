@@ -19,13 +19,13 @@ interface TableRowProps extends Omit<
   current?: boolean;
   /**
    * Tints the row in the colour of an Intent. `"warning"` marks a row that
-   * waits for the visitor, such as a transaction with no category; `"danger"`
+   * waits for the visitor, such as a transaction with no category; `"destructive"`
    * marks a row where something failed. The tint does not say why, so put
    * the reason or the action in a cell of the row.
    *
-   * @zh 以意图的颜色为整行着色。`"warning"` 标记等待访客处理的行，例如尚未分类的交易；`"danger"` 标记出错的行。色调本身不说明原因，因此请在该行的某个单元格中写明原因或操作。
+   * @zh 以意图的颜色为整行着色。`"warning"` 标记等待访客处理的行，例如尚未分类的交易；`"destructive"` 标记出错的行。色调本身不说明原因，因此请在该行的某个单元格中写明原因或操作。
    */
-  intent?: "warning" | "danger";
+  intent?: "warning" | "destructive";
   /**
    * StyleX styles merged over the row's own — the config-layer escape
    * hatch.
@@ -72,16 +72,16 @@ const styles = stylex.create({
     borderBlockStartColor: color.border,
   },
   currentRow: {
-    backgroundColor: color.bgAccentSubtle,
+    backgroundColor: color.primarySubtle,
     fontWeight: font.weight_6,
   },
 });
 
 const intentStyles = stylex.create({
   warning: {
-    backgroundColor: color.bgWarningSubtle,
+    backgroundColor: color.warningSubtle,
   },
-  danger: {
-    backgroundColor: color.bgDangerSubtle,
+  destructive: {
+    backgroundColor: color.destructiveSubtle,
   },
 });

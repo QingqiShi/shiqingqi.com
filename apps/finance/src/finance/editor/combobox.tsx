@@ -289,6 +289,6 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   detail: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

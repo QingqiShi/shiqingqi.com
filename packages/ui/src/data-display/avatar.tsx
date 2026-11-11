@@ -235,8 +235,8 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurface,
-    color: color.fg,
+    backgroundColor: color.card,
+    color: color.foreground,
     boxShadow: shadow._1,
   },
 });
@@ -288,11 +288,11 @@ const badgeSizeStyles = stylex.create({
 
 const lookStyles = stylex.create({
   subtle: {
-    backgroundColor: color.bgNeutralSubtle,
-    color: color.fgMuted,
+    backgroundColor: color.secondary,
+    color: color.mutedForeground,
   },
   solid: {
-    backgroundColor: color.bgInverse,
-    color: color.fgOnInverse,
+    backgroundColor: color.foreground,
+    color: color.background,
   },
 });

@@ -99,7 +99,7 @@ const styles = stylex.create({
     animationDelay: skeletonTokens.delay,
     // Inherited, so an ancestor can hold the pulse still — see `motionTokens`.
     animationPlayState: motionTokens.playState,
-    backgroundColor: color.bgNeutral,
+    backgroundColor: color.input,
     overflow: "hidden",
     opacity: 0.3,
     width: skeletonTokens.width,

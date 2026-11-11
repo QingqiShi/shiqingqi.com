@@ -60,8 +60,8 @@ export function TextShowcase() {
       <Showcase label={t({ en: "Tones", zh: "色调" })} leadsWithText>
         <ShowcaseHelper>
           {t({
-            en: "Tones resolve per theme, never a hand-picked colour. Success, warning, danger and info take the text colour of their Intent, so the words must say what the colour means too: danger is for a line that says something went wrong, as a field says its error.",
-            zh: "各色调随主题自动解析，无需手动挑选颜色。success、warning、danger 与 info 使用各自意图的文字颜色，因此文字本身也要说明颜色的含义：danger 用于说明出了问题的一行文字，与字段显示错误的方式一致。",
+            en: "Tones resolve per theme, never a hand-picked colour. Success, warning, destructive and info take the text colour of their Intent, so the words must say what the colour means too: destructive is for a line that says something went wrong, as a field says its error.",
+            zh: "各色调随主题自动解析，无需手动挑选颜色。success、warning、destructive 与 info 使用各自意图的文字颜色，因此文字本身也要说明颜色的含义：destructive 用于说明出了问题的一行文字，与字段显示错误的方式一致。",
           })}
         </ShowcaseHelper>
         <div css={stack.item}>
@@ -78,8 +78,8 @@ export function TextShowcase() {
               })}
             </Text>
           </Specimen>
-          <Specimen caption="accent">
-            <Text tone="accent">
+          <Specimen caption="primary">
+            <Text tone="primary">
               {t({
                 en: "Highlighted, on-brand phrases",
                 zh: "突出显示的品牌语句",
@@ -99,8 +99,8 @@ export function TextShowcase() {
               })}
             </Text>
           </Specimen>
-          <Specimen caption="danger">
-            <Text tone="danger">
+          <Specimen caption="destructive">
+            <Text tone="destructive">
               {t({
                 en: "That did not save. Try again.",
                 zh: "没有保存成功，请重试。",

@@ -302,7 +302,7 @@ const styles = stylex.create({
   }),
   muted: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // The rows share their columns, so the middle of every bar lines up.
   movers: {
@@ -344,14 +344,14 @@ const styles = stylex.create({
   track: {
     position: "relative",
     blockSize: space._1,
-    backgroundColor: color.bgNeutralSubtle,
+    backgroundColor: color.secondary,
   },
   axis: {
     position: "absolute",
     insetBlock: `calc(-1 * ${space._0})`,
     insetInlineStart: "50%",
     inlineSize: border.size_1,
-    backgroundColor: color.borderControl,
+    backgroundColor: color.borderStrong,
   },
   bar: {
     position: "absolute",
@@ -362,10 +362,10 @@ const styles = stylex.create({
   }),
   gain: {
     insetInlineStart: "50%",
-    backgroundColor: color.bgSuccess,
+    backgroundColor: color.success,
   },
   loss: {
     insetInlineEnd: "50%",
-    backgroundColor: color.bgDanger,
+    backgroundColor: color.destructive,
   },
 });

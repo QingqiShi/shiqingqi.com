@@ -92,23 +92,23 @@ export function EffectLayerRippleBench() {
       <div css={styles.grid}>
         <TileWithRipple
           name="raised"
-          token="color.bgSurfaceRaised"
+          token="color.popover"
           css={[corner.radius_3, styles.raised]}
         />
         <TileWithRipple
           ambient={ambient}
           name="accent"
-          token="color.bgAccent"
+          token="color.primary"
           css={[corner.radius_4, styles.accent]}
         />
         <TileWithRipple
           name="accent-subtle"
-          token="color.bgAccentSubtle"
+          token="color.primarySubtle"
           css={[corner.radius_3, styles.accentSubtle]}
         />
         <TileWithRipple
           name="glass"
-          token="color.bgMaterialGlass"
+          token="color.glass"
           css={[corner.radius_2, styles.glass]}
         />
         <TileWithBoundary
@@ -122,7 +122,7 @@ export function EffectLayerRippleBench() {
         </TileWithBoundary>
         <TileWithRipple
           name="info"
-          token="color.bgInfo"
+          token="color.info"
           css={[corner.radius_5, styles.info]}
         />
       </div>
@@ -167,33 +167,33 @@ const styles = stylex.create({
     overflowWrap: "anywhere",
   },
   raised: {
-    color: color.fg,
-    backgroundColor: color.bgSurfaceRaised,
+    color: color.foreground,
+    backgroundColor: color.popover,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
   },
   accent: {
-    color: color.fgOnAccent,
-    backgroundColor: color.bgAccent,
+    color: color.primaryForeground,
+    backgroundColor: color.primary,
   },
   accentSubtle: {
-    color: color.fgAccent,
-    backgroundColor: color.bgAccentSubtle,
+    color: color.primaryText,
+    backgroundColor: color.primarySubtle,
   },
   glass: {
-    color: color.fg,
-    backgroundColor: color.bgMaterialGlass,
+    color: color.foreground,
+    backgroundColor: color.glass,
   },
   plain: {
-    color: color.fg,
-    backgroundColor: color.bgSurface,
+    color: color.foreground,
+    backgroundColor: color.card,
     borderWidth: border.size_1,
     borderStyle: "dashed",
     borderColor: color.border,
   },
   info: {
-    color: color.fgOnInfo,
-    backgroundColor: color.bgInfo,
+    color: color.infoForeground,
+    backgroundColor: color.info,
   },
 });

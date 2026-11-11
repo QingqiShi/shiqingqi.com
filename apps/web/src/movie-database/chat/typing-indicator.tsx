@@ -58,7 +58,7 @@ const styles = stylex.create({
     animationFillMode: "forwards",
   },
   shimmerText: {
-    backgroundImage: `linear-gradient(135deg, ${color.fgMuted}, ${color.fgAccent}, ${color.fgMuted})`,
+    backgroundImage: `linear-gradient(135deg, ${color.mutedForeground}, ${color.primaryText}, ${color.mutedForeground})`,
     backgroundSize: "200% 100%",
     backgroundClip: "text",
     color: "transparent",

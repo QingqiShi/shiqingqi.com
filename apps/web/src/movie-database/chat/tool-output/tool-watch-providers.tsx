@@ -466,7 +466,7 @@ export function ToolWatchProviders({ data }: { data: WatchProviderOutput }) {
 
 const styles = stylex.create({
   card: {
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
     padding: space._3,
     marginTop: rhythm.item,
   },
@@ -477,19 +477,19 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
   },
   sectionLabel: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   logo: {
     objectFit: "cover",
   },
   emptyText: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     fontStyle: "italic",
     paddingBlock: space._1,
   },
   typeLabel: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     fontWeight: font.weight_6,
     marginBottom: rhythm.tight,
   },
@@ -498,14 +498,14 @@ const styles = stylex.create({
   },
   showMoreButton: {
     fontFamily: font.family,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     textDecoration: {
       default: "none",
       ":hover": { default: null, [pointer.canHover]: "underline" },
     },
   },
   attribution: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     marginTop: rhythm.item,
     paddingTop: space._1,
     borderTopWidth: border.size_1,
@@ -513,7 +513,7 @@ const styles = stylex.create({
     borderTopColor: color.border,
   },
   attributionLink: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     textDecoration: {
       default: "none",
       ":hover": { default: null, [pointer.canHover]: "underline" },

@@ -102,9 +102,9 @@ export function Progress({
 const styles = stylex.create({
   track: {
     inlineSize: "100%",
-    // A mid-tone fill, not `bgNeutralSubtle`, which hits only 1.04:1 against
-    // a raised card in dark theme and hides the unfilled remainder.
-    backgroundColor: color.bgNeutral,
+    // A firm neutral, not `color.muted`, which hides the unfilled remainder
+    // on a popover in dark.
+    backgroundColor: color.input,
     overflow: "hidden",
     "::before": {
       content: "",

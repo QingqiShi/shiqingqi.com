@@ -401,6 +401,6 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     padding: space._3,
-    color: color.fg,
+    color: color.foreground,
   },
 });

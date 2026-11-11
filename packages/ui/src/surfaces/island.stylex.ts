@@ -18,7 +18,7 @@ const GAP = rhythm.tight;
  * @internal
  */
 export const islandTokens = stylex.defineVars({
-  fill: color.bgSurface,
+  fill: color.card,
   radius: border.radius_3,
   insetBlockStart: `max(${GAP}, env(safe-area-inset-top))`,
   insetBlockEnd: `max(${GAP}, env(safe-area-inset-bottom))`,

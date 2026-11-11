@@ -100,7 +100,7 @@ export function PasswordConnectForm({
       }}
     >
       {error ? (
-        <Callout intent="danger" role="alert">
+        <Callout intent="destructive" role="alert">
           {error}
         </Callout>
       ) : null}

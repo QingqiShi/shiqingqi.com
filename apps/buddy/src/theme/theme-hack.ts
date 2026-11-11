@@ -10,7 +10,7 @@ interface ThemeColor {
 
 /**
  * The mobile browser-chrome tint, as `<meta name="theme-color">` tags in
- * order: the first that matches wins. It is `color.bgCanvas`, the colour at
+ * order: the first that matches wins. It is `color.background`, the colour at
  * the top edge of the page.
  */
 export const themeColors: ThemeColor[] = [CANVAS_COLORS];

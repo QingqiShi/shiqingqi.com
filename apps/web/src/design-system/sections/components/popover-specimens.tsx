@@ -196,11 +196,11 @@ const styles = stylex.create({
     minInlineSize: space._12,
     textAlign: "center",
     fontFamily: font.familyMono,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   code: {
     fontFamily: font.familyMono,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // Dashed, because the box is a destination rather than a surface — nothing
   // ever paints inside it where the reader can see.

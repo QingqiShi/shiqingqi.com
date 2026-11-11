@@ -68,11 +68,11 @@ const styles = stylex.create({
   },
   markerLabel: {
     fontFamily: font.familyMono,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   markerValue: {
     fontFamily: font.familyMono,
-    color: color.fg,
+    color: color.foreground,
   },
   markerBand: {
     fontWeight: font.weight_6,

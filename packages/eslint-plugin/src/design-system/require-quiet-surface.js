@@ -28,12 +28,12 @@ function isControlHoverToken(value) {
     value.object.type === "Identifier" &&
     value.object.name === "color" &&
     value.property.type === "Identifier" &&
-    value.property.name === "bgControlHover"
+    value.property.name === "accent"
   );
 }
 
 /**
- * Whether a style value has `color.bgControlHover` under a hover key, at any
+ * Whether a style value has `color.accent` under a hover key, at any
  * depth, whichever of the hover key and the `pointer.canHover` gate is outside.
  * @param {import("estree").Node} value
  * @param {boolean} [underHover]
@@ -68,7 +68,7 @@ const requireQuietSurface = {
     type: "problem",
     docs: {
       description:
-        "Refuse a hand-written hover fill of `color.bgControlHover` on an element that is transparent at rest",
+        "Refuse a hand-written hover fill of `color.accent` on an element that is transparent at rest",
     },
     messages: {
       handBuilt:

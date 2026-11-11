@@ -55,7 +55,7 @@ export function ToolWatchProvidersSkeleton() {
 
 const styles = stylex.create({
   card: {
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
     padding: space._3,
     marginTop: rhythm.item,
   },

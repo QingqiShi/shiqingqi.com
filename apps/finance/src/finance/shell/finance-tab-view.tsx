@@ -79,5 +79,5 @@ export function FinanceTabView({
 
 const ATTENTION_INTENTS = {
   waiting: "warning",
-  problem: "danger",
+  problem: "destructive",
 } as const;

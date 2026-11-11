@@ -16,7 +16,7 @@ interface EditSheetProps {
   onSave: () => boolean;
   initialFocusRef?: RefObject<HTMLElement | null>;
   /** A destructive action at the end of the actions, such as "Delete". */
-  danger?: { label: string; onAction: () => void };
+  destructive?: { label: string; onAction: () => void };
   children: ReactNode;
 }
 
@@ -27,7 +27,7 @@ export function EditSheet({
   title,
   onSave,
   initialFocusRef,
-  danger,
+  destructive,
   children,
 }: EditSheetProps) {
   const headingId = useId();
@@ -59,16 +59,16 @@ export function EditSheet({
             <Button look="ghost" onClick={onClose}>
               {t({ en: "Cancel", zh: "取消" })}
             </Button>
-            {danger ? (
+            {destructive ? (
               <Button
-                look="danger"
-                css={styles.danger}
+                look="destructive"
+                css={styles.destructive}
                 onClick={() => {
-                  danger.onAction();
+                  destructive.onAction();
                   onClose();
                 }}
               >
-                {danger.label}
+                {destructive.label}
               </Button>
             ) : null}
           </div>
@@ -86,7 +86,7 @@ const styles = stylex.create({
   actions: {
     justifyContent: "flex-start",
   },
-  danger: {
+  destructive: {
     marginInlineStart: "auto",
   },
 });

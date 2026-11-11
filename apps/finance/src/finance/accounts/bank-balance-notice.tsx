@@ -346,19 +346,19 @@ const styles = stylex.create({
     padding: space._3,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.borderWarning,
-    backgroundColor: color.bgWarningSubtle,
+    borderColor: color.warning,
+    backgroundColor: color.warningSubtle,
   },
   summary: {
     paddingBlock: space._1,
     paddingInline: space._2,
-    color: color.fg,
+    color: color.foreground,
     textDecoration: "none",
     backgroundImage: {
       default: "none",
       ":hover": {
         default: null,
-        [pointer.canHover]: `linear-gradient(${color.bgWarningSubtle}, ${color.bgWarningSubtle})`,
+        [pointer.canHover]: `linear-gradient(${color.warningSubtle}, ${color.warningSubtle})`,
       },
     },
   },
@@ -369,14 +369,14 @@ const styles = stylex.create({
   caret: {
     display: "flex",
     flexShrink: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   text: {
     margin: 0,
-    color: color.fg,
+    color: color.foreground,
   },
   muted: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

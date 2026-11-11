@@ -35,7 +35,7 @@ export function LayoutMeasureSpecimen() {
 const styles = stylex.create({
   token: {
     fontFamily: font.familyMono,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // The rule under the text shows how far the cap lets a line run.
   edge: {

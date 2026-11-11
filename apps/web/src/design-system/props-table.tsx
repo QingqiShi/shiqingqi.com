@@ -345,20 +345,20 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     fontWeight: font.weight_6,
     letterSpacing: font.trackingNormal,
-    color: color.fg,
+    color: color.foreground,
   },
   mark: {
     marginInlineStart: rhythm.tight,
     fontWeight: font.weight_5,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   deprecated: {
-    color: color.fgWarning,
+    color: color.warningText,
   },
   code: {
     fontFamily: font.familyMono,
     letterSpacing: font.trackingNormal,
-    color: color.fg,
+    color: color.foreground,
   },
   // A name breaks at its own seams, and a run with no seam at any point, so
   // the whole type shows in the panel.
@@ -370,7 +370,7 @@ const styles = stylex.create({
     marginBlockEnd: rhythm.tight,
   },
   punct: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   defaultMember: {
     fontWeight: font.weight_7,
@@ -380,12 +380,12 @@ const styles = stylex.create({
     whiteSpace: "nowrap",
   },
   codeLink: {
-    color: color.fg,
+    color: color.foreground,
     textDecorationLine: "underline",
     textDecorationColor: {
       default: color.border,
-      ":hover": { default: null, [pointer.canHover]: color.fgMuted },
-      ":focus-visible": color.fgMuted,
+      ":hover": { default: null, [pointer.canHover]: color.mutedForeground },
+      ":focus-visible": color.mutedForeground,
     },
     textDecorationThickness: border.size_1,
     textUnderlineOffset: space._0,
@@ -402,6 +402,6 @@ const styles = stylex.create({
   inherited: {
     margin: 0,
     marginBlockStart: rhythm.item,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

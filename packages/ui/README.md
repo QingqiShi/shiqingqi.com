@@ -23,7 +23,7 @@ import { color } from "@tuja/ui/color.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 
 const styles = stylex.create({
-  card: { padding: space._4, backgroundColor: color.bgSurface },
+  card: { padding: space._4, backgroundColor: color.card },
 });
 
 export function Example() {

@@ -16,7 +16,7 @@ import vs from "./vs.glsl";
 
 // Foreground gradient hues only. The background colour the gradient blends into
 // is NOT defined here — it is read at runtime from the canvas's resolved
-// `background-color` (color.bgCanvas, see styles.canvas) so it always matches
+// `background-color` (color.background, see styles.canvas) so it always matches
 // the single token the page background uses, with no second copy to drift.
 const DARK_COLORS = {} satisfies ColorOptions;
 
@@ -28,7 +28,7 @@ const LIGHT_COLORS = {
 } satisfies ColorOptions;
 
 /**
- * Resolve the canvas's computed `background-color` (which is `color.bgCanvas`)
+ * Resolve the canvas's computed `background-color` (which is `color.background`)
  * to a normalised RGB triple for the shader's `u_colorBackground`, keeping the
  * gradient's base colour sourced from the same token as the page background.
  */
@@ -52,7 +52,7 @@ export function FlowGradient() {
   const rendererRef =
     useRef<ReturnType<typeof createFlowGradientRenderer>>(undefined);
 
-  // Re-pick the hue preset and re-read the bgCanvas value whenever the resolved
+  // Re-pick the hue preset and re-read the `color.background` value whenever the resolved
   // theme flips. The <html> class is already correct here: `themeHack` set it
   // before hydration, and ThemeApplier's layout effect sets it on later flips.
   useEffect(() => {
@@ -87,7 +87,7 @@ const styles = stylex.create({
   canvas: {
     width: "100%",
     height: "100%",
-    backgroundColor: color.bgCanvas,
+    backgroundColor: color.background,
     willChange: {
       default: "transform",
       [motionConstants.REDUCED_MOTION]: null,

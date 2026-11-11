@@ -118,7 +118,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   mockBar: {
     gap: rhythm.item,

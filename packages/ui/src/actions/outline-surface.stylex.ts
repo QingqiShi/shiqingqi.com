@@ -35,7 +35,7 @@ export const outlineSurface = stylex.create({
     gap: controlSize._1,
     boxSizing: "border-box",
     whiteSpace: "nowrap",
-    color: color.fg,
+    color: color.foreground,
     fontWeight: font.weight_5,
     textDecoration: "none",
   },
@@ -47,7 +47,7 @@ export const outlineSurface = stylex.create({
       default: "transparent",
       [pointer.canHover]: {
         default: null,
-        ":hover": color.bgControlHover,
+        ":hover": color.accent,
         ":disabled:hover": "transparent",
       },
     },
@@ -59,7 +59,7 @@ export const outlineSurface = stylex.create({
     outlineStyle: "solid",
     outlineColor: {
       default: "transparent",
-      ":focus-visible": color.borderAccent,
+      ":focus-visible": color.ring,
     },
     outlineOffset: border.size_2,
     WebkitTapHighlightColor: "transparent",
@@ -74,16 +74,16 @@ export const outlineSurface = stylex.create({
     },
   },
   active: {
-    borderColor: color.borderAccent,
+    borderColor: color.primary,
     backgroundColor: {
-      default: color.bgAccent,
+      default: color.primary,
       [pointer.canHover]: {
         default: null,
-        ":hover": color.bgAccentHover,
-        ":disabled:hover": color.bgAccent,
+        ":hover": `color-mix(in srgb, ${color.primary} 90%, transparent)`,
+        ":disabled:hover": color.primary,
       },
     },
-    color: color.fgOnAccent,
+    color: color.primaryForeground,
   },
 });
 

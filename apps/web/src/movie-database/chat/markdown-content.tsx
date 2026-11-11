@@ -26,7 +26,7 @@ const styles = stylex.create({
     marginBlock: 0,
   },
   a: {
-    color: color.fgAccent,
+    color: color.primaryText,
     textDecoration: "underline",
   },
   ul: {
@@ -53,14 +53,14 @@ const styles = stylex.create({
   blockquote: {
     borderInlineStartWidth: border.size_2,
     borderInlineStartStyle: "solid",
-    borderInlineStartColor: color.borderAccent,
+    borderInlineStartColor: color.primary,
     paddingLeft: space._3,
     marginInline: 0,
     marginBlock: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   pre: {
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
     padding: space._2,
     marginBlock: 0,
     overflowX: "auto",
@@ -74,7 +74,7 @@ const styles = stylex.create({
   },
   codeInline: {
     fontFamily: font.familyMono,
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
     paddingInline: space._00,
     paddingBlock: space._00,
   },

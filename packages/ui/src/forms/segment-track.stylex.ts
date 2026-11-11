@@ -8,22 +8,7 @@ import {
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
-
-/**
- * The shadows of the selected surface of a SegmentedControl and of the
- * thumb of a Switch. The selected option is `bgControlRaised` on the
- * `bgControlSunken` track, with a hairline and a faint tight shadow. In dark
- * it has a ring instead of a shadow.
- *
- * @internal
- */
-export const selectedSurface = stylex.defineVars({
-  edge: "0 0 0 0.5px light-dark(rgba(0, 0, 0, 0.08), transparent), 0 1px 2px light-dark(rgba(0, 0, 0, 0.06), transparent), 0 2px 8px light-dark(rgba(0, 0, 0, 0.06), transparent), inset 0 0 0 1px light-dark(transparent, rgba(255, 255, 255, 0.1)), inset 0 1px 0 light-dark(transparent, rgba(255, 255, 255, 0.06))",
-  thumbShadow:
-    "0 0 0 0.5px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.18), 0 3px 8px rgba(0, 0, 0, 0.12)",
-  thumbShadowHover:
-    "0 0 0 0.5px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.22), 0 4px 12px rgba(0, 0, 0, 0.16)",
-});
+import { shadow } from "../tokens.stylex.ts";
 
 /**
  * Marks the track of a SegmentedControl, a TabBar or the rail of a TabView,
@@ -69,18 +54,19 @@ const MOVED = ":is([data-moving])";
  * @internal
  */
 export const segmentSurfaces = stylex.create({
-  // A SegmentedControl: the raised surface on the sunken track.
+  // A SegmentedControl: a card on the neutral track. A dark card is darker
+  // than the track, so in dark the piece is a light tint with an edge.
   solid: {
-    [segmentSurface.fill]: color.bgControlRaised,
-    [segmentSurface.edge]: selectedSurface.edge,
+    [segmentSurface.fill]: `light-dark(${color.card}, color-mix(in srgb, ${color.input} 30%, transparent))`,
+    [segmentSurface.edge]: `${shadow._1}, inset 0 0 0 1px light-dark(transparent, ${color.input})`,
   },
   // A TabBar: a tint of the bar's own Glass.
   tint: {
-    [segmentSurface.fill]: color.bgMaterialGlassSelected,
+    [segmentSurface.fill]: color.accent,
   },
   // The rail of a TabView, which sits on the canvas.
   flat: {
-    [segmentSurface.fill]: color.bgControlRaised,
+    [segmentSurface.fill]: color.card,
   },
 });
 
@@ -137,7 +123,7 @@ export const segmentTrack = stylex.create({
     zIndex: -2,
     pointerEvents: "none",
     filter: "opacity(0)",
-    backgroundColor: color.bgControlHover,
+    backgroundColor: color.accent,
     opacity: {
       default: 1,
       [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]: 0,
@@ -149,7 +135,7 @@ export const segmentTrack = stylex.create({
       default: "transparent",
       ":hover": {
         default: null,
-        [pointer.canHover]: color.bgControlHover,
+        [pointer.canHover]: color.accent,
       },
     },
   },

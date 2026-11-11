@@ -383,6 +383,6 @@ const styles = stylex.create({
   },
   price: {
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
   },
 });

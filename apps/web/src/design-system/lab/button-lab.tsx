@@ -35,14 +35,14 @@ export const ButtonLab = defineLab({
       props: { children: LABEL, look: "ghost" },
     },
     {
-      id: "danger",
-      label: { en: "Danger", zh: "危险" },
-      props: { children: "Delete", look: "danger", icon: "trash" },
+      id: "destructive",
+      label: { en: "Destructive", zh: "破坏性" },
+      props: { children: "Delete", look: "destructive", icon: "trash" },
     },
     {
       id: "dangerIntent",
-      label: { en: "Danger intent", zh: "危险意图" },
-      props: { children: "Delete", look: "outline", intent: "danger" },
+      label: { en: "Destructive intent", zh: "破坏性意图" },
+      props: { children: "Delete", look: "outline", intent: "destructive" },
     },
     {
       id: "bleed",

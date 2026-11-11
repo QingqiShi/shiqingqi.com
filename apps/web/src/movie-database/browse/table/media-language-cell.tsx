@@ -21,6 +21,6 @@ export function MediaLanguageCell({ api, column, row }: MediaCellParams) {
 
 const styles = stylex.create({
   language: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

@@ -58,7 +58,7 @@ function StatusBadge({ run }: { run: ActivityRun }) {
   switch (run.status) {
     case "failed":
       return (
-        <Badge size="sm" intent="danger">
+        <Badge size="sm" intent="destructive">
           {t({ en: "Failed", zh: "失败" })}
         </Badge>
       );

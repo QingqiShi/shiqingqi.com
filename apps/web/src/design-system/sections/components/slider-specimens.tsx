@@ -267,14 +267,14 @@ const styles = stylex.create({
     flexDirection: "column",
     paddingBlock: space._2,
     paddingInline: space._3,
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
   },
   meterName: {
     fontFamily: font.familyMono,
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
   },
   meterStat: {
     display: "flex",
@@ -284,11 +284,11 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   meterLabel: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // A tally that climbs on every move must not shift the row it sits in.
   meterFigure: {
     fontFamily: font.familyMono,
-    color: color.fg,
+    color: color.foreground,
   },
 });

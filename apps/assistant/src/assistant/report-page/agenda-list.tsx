@@ -78,9 +78,9 @@ const styles = stylex.create({
   time: {
     display: "flex",
     flexDirection: "column",
-    color: color.fg,
+    color: color.foreground,
   },
   zone: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

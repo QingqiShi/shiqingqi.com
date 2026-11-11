@@ -275,16 +275,16 @@ const styles = stylex.create({
     margin: 0,
   },
   crumb: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     textDecoration: "underline",
     textUnderlineOffset: "0.2em",
   },
   current: {
-    color: color.fg,
+    color: color.foreground,
     fontWeight: font.weight_6,
   },
   caret: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     flexShrink: 0,
   },
   name: {

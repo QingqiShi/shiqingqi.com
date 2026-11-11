@@ -232,7 +232,7 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   verdict: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   glyph: {
     display: "inline-block",
@@ -260,10 +260,10 @@ const styles = stylex.create({
   },
   token: {
     fontFamily: font.familyMono,
-    color: color.fg,
+    color: color.foreground,
   },
   name: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   panel: {
     flexShrink: 0,
@@ -271,7 +271,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   mark: {
     inlineSize: controlSize._5,
@@ -306,7 +306,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
     overflow: "clip",
     display: "grid",
     gridTemplateColumns: {
@@ -324,7 +324,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
   },
 });
 
@@ -332,13 +332,13 @@ const nested = stylex.create({
   outer: {
     maxInlineSize: "16rem",
     padding: space._4,
-    backgroundColor: color.bgNeutralSubtle,
+    backgroundColor: color.muted,
   },
   inner: {
     blockSize: "4.5rem",
     borderRadius: `calc(${border.radius_4} - ${space._4})`,
     cornerShape: "squircle",
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
 });
 
@@ -349,13 +349,13 @@ const nested = stylex.create({
   outer: {
     maxInlineSize: "16rem",
     padding: space._4,
-    backgroundColor: color.bgNeutralSubtle,
+    backgroundColor: color.muted,
   },
   inner: {
     blockSize: "4.5rem",
     borderRadius: \`calc(\${border.radius_4} - \${space._4})\`,
     cornerShape: "squircle",
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
 });`;
 

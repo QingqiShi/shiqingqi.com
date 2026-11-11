@@ -114,13 +114,13 @@ export function MarkedSelectedSpecimen() {
 const styles = stylex.create({
   segments: {
     padding: space._0,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
     boxShadow: `inset 0 0 0 ${border.size_1} ${color.border}`,
   },
   segment: {
     paddingBlock: space._1,
     paddingInline: space._3,
-    color: color.fg,
+    color: color.foreground,
   },
   cards: {
     inlineSize: "100%",
@@ -131,12 +131,12 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._3,
     textAlign: "start",
-    color: color.fg,
+    color: color.foreground,
     borderWidth: border.size_2,
     borderStyle: "solid",
-    [selectedTokens.rest]: color.bgCanvas,
+    [selectedTokens.rest]: color.background,
   },
   price: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

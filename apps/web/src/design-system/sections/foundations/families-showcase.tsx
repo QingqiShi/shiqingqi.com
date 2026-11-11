@@ -122,7 +122,7 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   faceName: {
-    color: color.fg,
+    color: color.foreground,
     fontWeight: font.weight_6,
   },
   weights: {
@@ -138,13 +138,13 @@ const styles = stylex.create({
     minInlineSize: "3.5rem",
   },
   glyph: {
-    color: color.fg,
+    color: color.foreground,
   },
   mono: {
     fontFamily: font.familyMono,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   prop: {
-    color: color.fg,
+    color: color.foreground,
   },
 });

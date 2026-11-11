@@ -28,7 +28,6 @@ import {
 import type { StyleProp } from "../types.ts";
 import { fieldStyles } from "./field-shared.stylex.ts";
 import { DRAG_THRESHOLD, indexAt } from "./index-at.ts";
-import { selectedSurface } from "./segment-track.stylex.ts";
 import { useSettingRowControl } from "./setting-row-context.ts";
 import { switchTokens } from "./switch.stylex.ts";
 import { useFieldAria } from "./use-field-aria.ts";
@@ -435,7 +434,7 @@ const styles = stylex.create({
   },
   label: {
     justifySelf: "start",
-    color: color.fg,
+    color: color.foreground,
     cursor: "pointer",
   },
   labelDisabled: {
@@ -460,16 +459,13 @@ const styles = stylex.create({
       default: `background-color ${duration._200} ${easing.ease}, box-shadow ${duration._200} ${easing.ease}`,
       [DRAWN_BY_EFFECT]: "none",
     },
+    // The fill is the only sign of the off track, so it takes the edge that
+    // holds 3:1 against each surface.
     backgroundColor: {
-      default: color.bgControlStrong,
-      ":checked": color.bgControlStrongSelected,
+      default: color.borderStrong,
+      ":checked": color.primary,
     },
-    // The ring inside the edge belongs to the off track. It fades out as the
-    // track turns on, while the fill changes.
-    boxShadow: {
-      default: `inset 0 0 0 ${border.size_1} ${color.borderControlStrong}, ${shadow._2}`,
-      ":checked": `inset 0 0 0 ${border.size_1} transparent, ${shadow._2}`,
-    },
+    boxShadow: shadow._2,
     touchAction: "none",
 
     [switchTokens.thumbPosition]: {
@@ -477,17 +473,24 @@ const styles = stylex.create({
       ":checked": switchTokens.trackHeight,
       ":indeterminate": `calc(${switchTokens.trackHeight} / 2)`,
     },
+    // The thumb is the content on the track. On the primary track it takes
+    // the foreground of the primary. The off track has no paired foreground:
+    // there the thumb is the card in light and the foreground in dark.
+    [switchTokens.thumbFill]: {
+      default: `light-dark(${color.card}, ${color.foreground})`,
+      ":checked": color.primaryForeground,
+    },
     [switchTokens.thumbShadow]: {
-      default: selectedSurface.thumbShadow,
+      default: shadow._1,
       [pointer.canHover]: {
-        default: selectedSurface.thumbShadow,
-        ":hover": selectedSurface.thumbShadowHover,
+        default: shadow._1,
+        ":hover": shadow._2,
         ":disabled:hover": "none",
       },
     },
 
     "::before": {
-      backgroundColor: color.fgOnControlStrong,
+      backgroundColor: switchTokens.thumbFill,
       borderRadius: border.radius_round,
       cornerShape: "round",
       boxShadow: switchTokens.thumbShadow,
@@ -528,18 +531,14 @@ const styles = stylex.create({
   // `::after`, not its background: on a coarse pointer, `buttonReset` makes
   // the `::after` the touch target, and a background there covers the
   // track. The `::after` has no text, so this colour does not show. The
-  // ring inside the edge that the track takes is its border colour, which
-  // does not show, because the `::after` has no border.
+  // track has no ring inside its edge, so the border colour is clear.
   otherFill: {
     "::after": {
       color: {
-        default: color.bgControlStrongSelected,
-        ":checked": color.bgControlStrong,
+        default: color.primary,
+        ":checked": color.borderStrong,
       },
-      borderColor: {
-        default: "transparent",
-        ":checked": color.borderControlStrong,
-      },
+      borderColor: "transparent",
     },
   },
 });

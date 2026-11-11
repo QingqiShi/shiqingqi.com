@@ -394,7 +394,7 @@ const styles = stylex.create({
   },
   ringShown: {
     "::after": {
-      outlineColor: color.borderAccent,
+      outlineColor: color.ring,
     },
   },
   // The box takes the width of its longest line, so the scroller's

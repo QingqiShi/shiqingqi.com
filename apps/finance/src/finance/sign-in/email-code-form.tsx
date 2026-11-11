@@ -52,7 +52,7 @@ export function EmailCodeForm({
 
   const errorCallout =
     error === null ? null : (
-      <Callout intent="danger" role="alert">
+      <Callout intent="destructive" role="alert">
         {messageOf(error)}
       </Callout>
     );

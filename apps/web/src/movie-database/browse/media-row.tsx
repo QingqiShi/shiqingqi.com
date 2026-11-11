@@ -138,7 +138,7 @@ const standaloneStyles = stylex.create({
 
 const styles = stylex.create({
   title: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     margin: 0,
   },
   cardWrapper: {

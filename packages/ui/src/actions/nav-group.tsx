@@ -242,7 +242,7 @@ const styles = stylex.create({
       [navListQueries.sidebarPage]: space._1,
     },
     fontWeight: font.weight_5,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   toggle: {
     inlineSize: "100%",

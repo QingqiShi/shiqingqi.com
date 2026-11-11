@@ -33,6 +33,6 @@ export function MediaPopularityCell({ api, row }: MediaCellParams) {
 
 const styles = stylex.create({
   meterFillAccent: {
-    backgroundColor: color.bgAccent,
+    backgroundColor: color.primary,
   },
 });

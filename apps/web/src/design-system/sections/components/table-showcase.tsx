@@ -484,8 +484,8 @@ export function TableShowcase() {
         </Specimen>
         <Text look="bodySmall" tone="muted">
           {t({
-            en: 'intent tints a row: "warning" for a row that waits for the visitor, "danger" for one where something failed. The tint does not say why, so a cell must. Cells sit at the top of their row by default; verticalAlign="middle" centres them, for a row that holds a control taller than a line of text.',
-            zh: 'intent 为整行着色："warning" 用于等待访客处理的行，"danger" 用于出错的行。色调本身不说明原因，因此必须由某个单元格写明。单元格默认位于行的顶部；verticalAlign="middle" 让它们垂直居中，适合含有比一行文字更高的控件的行。',
+            en: 'intent tints a row: "warning" for a row that waits for the visitor, "destructive" for one where something failed. The tint does not say why, so a cell must. Cells sit at the top of their row by default; verticalAlign="middle" centres them, for a row that holds a control taller than a line of text.',
+            zh: 'intent 为整行着色："warning" 用于等待访客处理的行，"destructive" 用于出错的行。色调本身不说明原因，因此必须由某个单元格写明。单元格默认位于行的顶部；verticalAlign="middle" 让它们垂直居中，适合含有比一行文字更高的控件的行。',
           })}
         </Text>
       </Showcase>

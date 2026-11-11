@@ -210,7 +210,7 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   verdict: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   mark: {
     display: "inline-block",

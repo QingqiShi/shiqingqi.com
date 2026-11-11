@@ -8,9 +8,9 @@ import { color } from "@tuja/ui/color.stylex";
  */
 export const cellShared = stylex.create({
   empty: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   numeric: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

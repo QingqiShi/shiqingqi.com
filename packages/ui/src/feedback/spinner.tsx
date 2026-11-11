@@ -26,11 +26,11 @@ interface SpinnerBaseProps extends Omit<
   size?: "inline" | "sm" | "md" | "lg";
   /**
    * Colour. `"current"` (default) inherits `currentColor` so the spinner picks
-   * up the surrounding text colour; `"accent"` pins the brand accent.
+   * up the surrounding text colour; `"primary"` pins the primary colour.
    *
-   * @zh 颜色。`current`（默认）继承 `currentColor`，使加载指示器取得周围文本的颜色；`accent` 固定使用品牌强调色。
+   * @zh 颜色。`current`（默认）继承 `currentColor`，使加载指示器取得周围文本的颜色；`primary` 固定使用主色。
    */
-  tone?: "accent" | "current";
+  tone?: "primary" | "current";
   /**
    * StyleX overrides, composed last so a caller can win over the defaults.
    *
@@ -178,5 +178,5 @@ const sizeStyles = stylex.create({
 
 const toneStyles = stylex.create({
   current: { color: "currentColor" },
-  accent: { color: color.borderAccent },
+  primary: { color: color.primary },
 });

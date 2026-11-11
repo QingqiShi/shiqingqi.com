@@ -25,7 +25,7 @@ function ActivityFilter() {
           value: "problems",
           label: t({ en: "Problems", zh: "问题" }),
           count: 1,
-          countIntent: "danger",
+          countIntent: "destructive",
         },
       ]}
     />

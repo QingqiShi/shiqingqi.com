@@ -219,7 +219,7 @@ const styles = stylex.create({
     display: "block",
     inlineSize: "100%",
     blockSize: space._8,
-    backgroundColor: color.bgControlSunken,
+    backgroundColor: color.muted,
     cursor: "pointer",
   },
   // The puck reads the width of the lane through `cqi`, so a resize needs no new pose.
@@ -236,7 +236,7 @@ const styles = stylex.create({
     insetInlineEnd: 0,
     inlineSize: PUCK,
     blockSize: PUCK,
-    boxShadow: `inset 0 0 0 1.5px ${color.borderControl}`,
+    boxShadow: `inset 0 0 0 1.5px ${color.borderStrong}`,
   },
   puck: {
     position: "relative",
@@ -244,7 +244,7 @@ const styles = stylex.create({
     flexShrink: 0,
     inlineSize: PUCK,
     blockSize: PUCK,
-    backgroundColor: color.fg,
+    backgroundColor: color.foreground,
     cursor: "grab",
     touchAction: "pan-y",
   },
@@ -258,16 +258,16 @@ const styles = stylex.create({
   readout: {
     gap: rhythm.inline,
     alignItems: "baseline",
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   number: {
     margin: 0,
     minInlineSize: "6ch",
     fontFamily: font.familyMono,
-    color: color.fg,
+    color: color.foreground,
   },
   note: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

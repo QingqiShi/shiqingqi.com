@@ -107,7 +107,7 @@ const HANG_CH = 2;
 
 const styles = stylex.create({
   block: {
-    backgroundColor: color.bgControlSunken,
+    backgroundColor: color.muted,
   },
   header: {
     justifyContent: "space-between",
@@ -116,7 +116,7 @@ const styles = stylex.create({
     paddingInlineEnd: space._1,
   },
   label: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   body: {
     margin: 0,
@@ -125,7 +125,7 @@ const styles = stylex.create({
     paddingInline: space._2,
   },
   message: {
-    color: color.fg,
+    color: color.foreground,
   },
   // A name moves to the next line whole. Only a name wider than the line
   // breaks inside.

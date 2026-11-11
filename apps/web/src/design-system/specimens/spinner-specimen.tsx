@@ -11,5 +11,5 @@ import { Spinner } from "@tuja/ui/components/spinner";
  * plate sets `motionTokens.playState` and the spin inherits it.
  */
 export function SpinnerSpecimen() {
-  return <Spinner size="lg" tone="accent" aria-hidden />;
+  return <Spinner size="lg" tone="primary" aria-hidden />;
 }

@@ -125,7 +125,7 @@ const styles = stylex.create({
     margin: 0,
   },
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   tile: {
     display: "flex",
@@ -133,7 +133,7 @@ const styles = stylex.create({
     justifyContent: "center",
     inlineSize: "100%",
     blockSize: "100%",
-    color: color.fg,
+    color: color.foreground,
     fontWeight: font.weight_7,
   },
 });

@@ -16,9 +16,9 @@ export const SpinnerLab = defineLab({
       props: { label: LABEL },
     },
     {
-      id: "accent",
-      label: { en: "Accent", zh: "强调色" },
-      props: { label: LABEL, tone: "accent" },
+      id: "primary",
+      label: { en: "Primary", zh: "主要" },
+      props: { label: LABEL, tone: "primary" },
     },
     {
       id: "small",

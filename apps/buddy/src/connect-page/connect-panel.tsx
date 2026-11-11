@@ -114,7 +114,7 @@ export function ConnectPanel({
         })}
       </Text>
       {error ? (
-        <Callout intent="danger" role="alert">
+        <Callout intent="destructive" role="alert">
           {errorMessages[error.code] ?? fallback}
         </Callout>
       ) : null}

@@ -94,7 +94,7 @@ const styles = stylex.create({
     inlineSize: space._2,
     blockSize: space._2,
     marginBlockEnd: rhythm.inline,
-    backgroundColor: color.fgMuted,
+    backgroundColor: color.mutedForeground,
   },
   sidebarItem: {
     display: "flex",
@@ -106,10 +106,10 @@ const styles = stylex.create({
     flexShrink: 0,
     inlineSize: space._1,
     blockSize: space._1,
-    backgroundColor: color.bgNeutral,
+    backgroundColor: color.input,
   },
   current: {
-    backgroundColor: color.bgControlSelected,
+    backgroundColor: color.secondary,
   },
   content: {
     display: "flex",
@@ -127,7 +127,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
   },
   barItem: {
     inlineSize: space._3,
@@ -135,6 +135,6 @@ const styles = stylex.create({
     backgroundColor: color.border,
   },
   barCurrent: {
-    backgroundColor: color.bgControlSelected,
+    backgroundColor: color.secondary,
   },
 });

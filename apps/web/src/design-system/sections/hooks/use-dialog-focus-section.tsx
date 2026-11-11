@@ -127,7 +127,7 @@ const styles = stylex.create({
     inlineSize: "100%",
     maxInlineSize: "320px",
     padding: space._5,
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
     boxShadow: shadow._4,
   },
   dialogActions: {

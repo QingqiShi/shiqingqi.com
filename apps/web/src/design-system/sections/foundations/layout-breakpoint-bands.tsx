@@ -57,7 +57,7 @@ const styles = stylex.create({
     gap: gridlineTokens.width,
     overflow: "hidden",
     boxShadow: `inset 0 0 0 1px ${color.border}`,
-    backgroundColor: color.bgCanvas,
+    backgroundColor: color.background,
   },
   band: {
     display: "flex",
@@ -72,65 +72,65 @@ const styles = stylex.create({
   },
   bandThreshold: {
     fontFamily: font.familyMono,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });
 
 const bandLit = stylex.create({
   base: {
     backgroundColor: {
-      default: color.bgNeutralSubtle,
-      [breakpoints.sm]: color.bgSurface,
+      default: color.muted,
+      [breakpoints.sm]: color.card,
     },
     boxShadow: {
-      default: `inset 0 -2px 0 0 ${color.fg}`,
+      default: `inset 0 -2px 0 0 ${color.foreground}`,
       [breakpoints.sm]: "inset 0 -2px 0 0 transparent",
     },
   },
   sm: {
     backgroundColor: {
-      default: color.bgSurface,
-      [breakpoints.sm]: color.bgNeutralSubtle,
-      [breakpoints.md]: color.bgSurface,
+      default: color.card,
+      [breakpoints.sm]: color.muted,
+      [breakpoints.md]: color.card,
     },
     boxShadow: {
       default: "inset 0 -2px 0 0 transparent",
-      [breakpoints.sm]: `inset 0 -2px 0 0 ${color.fg}`,
+      [breakpoints.sm]: `inset 0 -2px 0 0 ${color.foreground}`,
       [breakpoints.md]: "inset 0 -2px 0 0 transparent",
     },
   },
   md: {
     backgroundColor: {
-      default: color.bgSurface,
-      [breakpoints.md]: color.bgNeutralSubtle,
-      [breakpoints.lg]: color.bgSurface,
+      default: color.card,
+      [breakpoints.md]: color.muted,
+      [breakpoints.lg]: color.card,
     },
     boxShadow: {
       default: "inset 0 -2px 0 0 transparent",
-      [breakpoints.md]: `inset 0 -2px 0 0 ${color.fg}`,
+      [breakpoints.md]: `inset 0 -2px 0 0 ${color.foreground}`,
       [breakpoints.lg]: "inset 0 -2px 0 0 transparent",
     },
   },
   lg: {
     backgroundColor: {
-      default: color.bgSurface,
-      [breakpoints.lg]: color.bgNeutralSubtle,
-      [breakpoints.xl]: color.bgSurface,
+      default: color.card,
+      [breakpoints.lg]: color.muted,
+      [breakpoints.xl]: color.card,
     },
     boxShadow: {
       default: "inset 0 -2px 0 0 transparent",
-      [breakpoints.lg]: `inset 0 -2px 0 0 ${color.fg}`,
+      [breakpoints.lg]: `inset 0 -2px 0 0 ${color.foreground}`,
       [breakpoints.xl]: "inset 0 -2px 0 0 transparent",
     },
   },
   xl: {
     backgroundColor: {
-      default: color.bgSurface,
-      [breakpoints.xl]: color.bgNeutralSubtle,
+      default: color.card,
+      [breakpoints.xl]: color.muted,
     },
     boxShadow: {
       default: "inset 0 -2px 0 0 transparent",
-      [breakpoints.xl]: `inset 0 -2px 0 0 ${color.fg}`,
+      [breakpoints.xl]: `inset 0 -2px 0 0 ${color.foreground}`,
     },
   },
 });
@@ -138,35 +138,35 @@ const bandLit = stylex.create({
 const labelLit = stylex.create({
   base: {
     color: {
-      default: color.fg,
-      [breakpoints.sm]: color.fgMuted,
+      default: color.foreground,
+      [breakpoints.sm]: color.mutedForeground,
     },
   },
   sm: {
     color: {
-      default: color.fgMuted,
-      [breakpoints.sm]: color.fg,
-      [breakpoints.md]: color.fgMuted,
+      default: color.mutedForeground,
+      [breakpoints.sm]: color.foreground,
+      [breakpoints.md]: color.mutedForeground,
     },
   },
   md: {
     color: {
-      default: color.fgMuted,
-      [breakpoints.md]: color.fg,
-      [breakpoints.lg]: color.fgMuted,
+      default: color.mutedForeground,
+      [breakpoints.md]: color.foreground,
+      [breakpoints.lg]: color.mutedForeground,
     },
   },
   lg: {
     color: {
-      default: color.fgMuted,
-      [breakpoints.lg]: color.fg,
-      [breakpoints.xl]: color.fgMuted,
+      default: color.mutedForeground,
+      [breakpoints.lg]: color.foreground,
+      [breakpoints.xl]: color.mutedForeground,
     },
   },
   xl: {
     color: {
-      default: color.fgMuted,
-      [breakpoints.xl]: color.fg,
+      default: color.mutedForeground,
+      [breakpoints.xl]: color.foreground,
     },
   },
 });

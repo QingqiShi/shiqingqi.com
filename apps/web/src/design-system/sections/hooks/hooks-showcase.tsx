@@ -311,7 +311,7 @@ const styles = stylex.create({
     gap: controlSize._2,
     paddingBlock: space._1,
     paddingInline: space._2,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   stepBtn: {
@@ -320,15 +320,15 @@ const styles = stylex.create({
     fontSize: controlSize._4,
     fontWeight: font.weight_5,
     color: {
-      default: color.fg,
+      default: color.foreground,
       ":hover": {
         default: null,
-        [pointer.canHover]: color.fgOnAccent,
+        [pointer.canHover]: color.primaryForeground,
       },
     },
     backgroundColor: {
-      default: color.bgControl,
-      ":hover": { default: null, [pointer.canHover]: color.bgAccent },
+      default: color.card,
+      ":hover": { default: null, [pointer.canHover]: color.primary },
     },
   },
   stepValue: {
@@ -336,7 +336,7 @@ const styles = stylex.create({
     textAlign: "center",
     fontFamily: font.familyMono,
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
   },
   alignStart: {
     alignItems: "flex-start",
@@ -344,18 +344,18 @@ const styles = stylex.create({
   readout: {
     fontFamily: font.familyMono,
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
     paddingInline: space._1,
     paddingBlock: space._00,
-    backgroundColor: color.bgControl,
+    backgroundColor: color.card,
   },
   // usePressHandlers
   pressTile: {
     paddingBlock: space._3,
     paddingInline: space._5,
     fontWeight: font.weight_6,
-    color: color.fgOnAccent,
-    backgroundColor: color.bgAccent,
+    color: color.primaryForeground,
+    backgroundColor: color.primary,
     touchAction: "manipulation",
     transform: "scale(1) translate(0, 0)",
     filter: "brightness(1)",
@@ -378,22 +378,22 @@ const styles = stylex.create({
   segmented: {
     gap: controlSize._0,
     padding: space._00,
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   segment: {
     paddingBlock: space._1,
     paddingInline: space._3,
     color: {
-      default: color.fgMuted,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
+      default: color.mutedForeground,
+      ":hover": { default: null, [pointer.canHover]: color.foreground },
     },
     backgroundColor: "transparent",
     whiteSpace: "nowrap",
   },
   segmentSelected: {
-    color: color.fg,
-    backgroundColor: color.bgSurface,
+    color: color.foreground,
+    backgroundColor: color.card,
     boxShadow: shadow._1,
     fontWeight: font.weight_6,
   },

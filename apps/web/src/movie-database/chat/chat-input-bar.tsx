@@ -4,12 +4,11 @@ import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import { StopIcon } from "@phosphor-icons/react/dist/ssr/Stop";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
-import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { controlSize, space } from "@tuja/ui/tokens.stylex";
@@ -71,6 +70,7 @@ export function ChatInputBar({
                   flex.inlineCenter,
                   buttonReset.base,
                   corner.radius_round,
+                  quietSurface.interactive,
                   styles.attachmentDismiss,
                 ]}
               >
@@ -152,11 +152,11 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: controlSize._2,
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
     paddingBlock: space._0,
     paddingLeft: space._2,
     paddingRight: space._1,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     maxWidth: "100%",
   },
   attachmentDismiss: {
@@ -164,14 +164,6 @@ const styles = stylex.create({
     width: "1rem",
     height: "1rem",
     fontSize: controlSize._3,
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgNeutralSubtle,
-      },
-    },
-    color: color.fgMuted,
-    transition: `background-color ${duration._150} ${easing.ease}`,
+    color: color.mutedForeground,
   },
 });

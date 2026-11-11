@@ -23,8 +23,8 @@ export function SurfacesFloatingElements() {
       <div css={stack.tight}>
         <GuideNote>
           {t({
-            en: "A Sheet blocks the whole page, so it dims all of it with color.bgScrim.",
-            zh: "Sheet 挡住整个页面，所以用 color.bgScrim 把整个页面压暗。",
+            en: "A Sheet blocks the whole page, so it dims all of it with color.overlay.",
+            zh: "Sheet 挡住整个页面，所以用 color.overlay 把整个页面压暗。",
           })}
         </GuideNote>
         <GuideNote>

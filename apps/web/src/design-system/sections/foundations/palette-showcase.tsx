@@ -139,7 +139,7 @@ const styles = stylex.create({
     flexShrink: 0,
     inlineSize: "4.5rem",
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
   },
   code: {
     fontFamily: font.familyMono,
@@ -165,7 +165,7 @@ const styles = stylex.create({
     justifyContent: "center",
     minInlineSize: 0,
     whiteSpace: "nowrap",
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   lastToneLabel: {
     justifyContent: {
@@ -182,7 +182,7 @@ const styles = stylex.create({
   ramp: {
     blockSize: space._4,
     boxSizing: "border-box",
-    backgroundColor: color.bgCanvas,
+    backgroundColor: color.background,
     borderWidth: gridlineTokens.width,
     borderStyle: "solid",
     borderColor: color.border,

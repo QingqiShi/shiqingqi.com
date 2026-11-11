@@ -61,8 +61,8 @@ export function StatShowcase() {
           zh: "只在数字有含义时为它着色。",
         })}
         lead={t({
-          en: "intent colours the figure: success for a good result, danger for a loss, warning for something that needs a look. Say the same in the label or the detail, because colour alone does not reach everyone.",
-          zh: "intent 为数字着色：success 表示好的结果，danger 表示亏损，warning 表示需要查看的事。同时要在标签或说明中写明同样的意思，因为仅靠颜色并不能传达给所有人。",
+          en: "intent colours the figure: success for a good result, destructive for a loss, warning for something that needs a look. Say the same in the label or the detail, because colour alone does not reach everyone.",
+          zh: "intent 为数字着色：success 表示好的结果，destructive 表示亏损，warning 表示需要查看的事。同时要在标签或说明中写明同样的意思，因为仅靠颜色并不能传达给所有人。",
         })}
       >
         <Specimen caption='intent="success", intent="warning"'>

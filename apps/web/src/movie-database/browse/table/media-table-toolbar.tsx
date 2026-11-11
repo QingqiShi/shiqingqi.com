@@ -112,7 +112,7 @@ const styles = stylex.create({
     borderBlockEndWidth: border.size_1,
     borderBlockEndStyle: "solid",
     borderBlockEndColor: color.border,
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
   },
   search: {
     inlineSize: { default: "100%", [breakpoints.md]: space._15 },

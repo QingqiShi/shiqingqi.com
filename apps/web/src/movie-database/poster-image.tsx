@@ -72,10 +72,10 @@ const styles = stylex.create({
   errored: {
     position: "absolute",
     flexDirection: "column",
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
     zIndex: layer.background,
   },
   errorText: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

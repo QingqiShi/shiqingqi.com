@@ -153,12 +153,12 @@ const styles = stylex.create({
     inlineSize: controlSize._9,
     blockSize: controlSize._9,
     fontWeight: font.weight_6,
-    color: { default: color.fgMuted, [CURRENT]: color.fg },
+    color: { default: color.mutedForeground, [CURRENT]: color.foreground },
     textDecoration: "none",
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
     boxShadow: {
       default: `inset 0 0 0 ${border.size_1} ${color.border}`,
-      [CURRENT]: `inset 0 0 0 ${border.size_2} ${color.fg}`,
+      [CURRENT]: `inset 0 0 0 ${border.size_2} ${color.foreground}`,
     },
   },
   icon: {

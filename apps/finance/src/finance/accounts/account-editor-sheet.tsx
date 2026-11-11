@@ -391,10 +391,10 @@ function AccountEditorForm({
         </Button>
       </div>
       {account ? (
-        <div css={[stack.tight, styles.danger]}>
+        <div css={[stack.tight, styles.destructive]}>
           <div>
             <Button
-              look="danger"
+              look="destructive"
               size="sm"
               icon={<TrashIcon weight="bold" />}
               disabled={inUse}
@@ -429,7 +429,7 @@ const styles = stylex.create({
     borderWidth: 0,
     minInlineSize: 0,
   },
-  danger: {
+  destructive: {
     paddingBlockStart: space._4,
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: "solid",

@@ -108,8 +108,8 @@ const styles = stylex.create({
     inlineSize: controlSize._10,
     blockSize: controlSize._10,
     fontSize: controlSize._6,
-    color: color.fgMuted,
-    backgroundColor: color.bgNeutralSubtle,
+    color: color.mutedForeground,
+    backgroundColor: color.secondary,
   },
   text: {
     alignItems: "center",

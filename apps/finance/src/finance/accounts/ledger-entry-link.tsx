@@ -74,6 +74,6 @@ export function LedgerEntryLink({
 
 const styles = stylex.create({
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

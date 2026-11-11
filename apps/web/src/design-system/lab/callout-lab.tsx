@@ -37,20 +37,20 @@ export const CalloutLab = defineLab({
       },
     },
     {
-      id: "danger",
-      label: { en: "Danger", zh: "危险" },
+      id: "destructive",
+      label: { en: "Destructive", zh: "破坏性" },
       props: {
-        intent: "danger",
+        intent: "destructive",
         title: "Payment failed",
         children:
           "We couldn't charge the card ending in 4242. Update it to keep your subscription.",
       },
     },
     {
-      id: "accent",
-      label: { en: "Accent", zh: "强调" },
+      id: "primary",
+      label: { en: "Primary", zh: "主要" },
       props: {
-        intent: "accent",
+        intent: "primary",
         title: "New in 2.0",
         children: "Segmented button groups now support leading icons.",
       },

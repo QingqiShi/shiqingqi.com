@@ -40,11 +40,11 @@ export function SectionHeading({
 const styles = stylex.create({
   label: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   heading: {
     margin: 0,
-    color: color.fg,
+    color: color.foreground,
   },
 });
 

@@ -15,7 +15,7 @@ export const globalStyles = stylex.create({
     position: "relative",
   },
   html: {
-    backgroundColor: color.bgCanvas,
+    backgroundColor: color.background,
   },
 });
 

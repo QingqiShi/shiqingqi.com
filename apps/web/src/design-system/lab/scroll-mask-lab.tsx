@@ -23,7 +23,7 @@ const region = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
 });
 
@@ -34,7 +34,7 @@ const rowRegion = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
 });
 
@@ -68,7 +68,7 @@ const card = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
   },
 });
 

@@ -114,7 +114,7 @@ export function RecoveryEmailSettings() {
         </Callout>
       )}
       {error === null ? null : (
-        <Callout intent="danger" role="alert">
+        <Callout intent="destructive" role="alert">
           {messageOf(error)}
         </Callout>
       )}

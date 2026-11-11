@@ -21,6 +21,7 @@ import { useFlowBlock } from "../motion/use-flow-block.tsx";
 import { useMotionEngine } from "../motion/use-motion-engine.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
+import { stateFillTokens } from "../primitives/selected.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { border, controlSize, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
@@ -224,7 +225,7 @@ function IconDust({
  * marker draws it. In light it is the hover of a control, so it shows on the
  * white rail. In dark it is a tint of that hover, so it stays quiet.
  */
-const LOOK = `light-dark(${color.bgControlHover}, color-mix(in srgb, ${color.bgControlHover} 55%, transparent))`;
+const LOOK = `light-dark(${color.accent}, color-mix(in srgb, ${color.accent} 55%, transparent))`;
 
 const styles = stylex.create({
   // `isolate` keeps the fills under the rows and over the surface behind
@@ -239,7 +240,7 @@ const styles = stylex.create({
     cornerShape: "squircle",
     backgroundColor: {
       default: "transparent",
-      [navListQueries.sidebarPage]: color.bgSurface,
+      [navListQueries.sidebarPage]: color.card,
     },
     overflow: { default: "visible", [navListQueries.sidebarPage]: "clip" },
   },
@@ -252,7 +253,7 @@ const styles = stylex.create({
       default: null,
       [navListQueries.sidebarPage]: "0px",
     },
-    [color.bgControlSelected]: {
+    [stateFillTokens.selected]: {
       default: LOOK,
       [navListQueries.sidebarPage]: "transparent",
     },
@@ -268,7 +269,7 @@ const styles = stylex.create({
   look: {
     backgroundColor: {
       default: LOOK,
-      ":is([data-pressed])": color.bgControlPressed,
+      ":is([data-pressed])": stateFillTokens.pressed,
     },
   },
   // The effect layer measures only an element with a box, and not one at
@@ -280,16 +281,16 @@ const styles = stylex.create({
   },
   // The dust takes this fill.
   iconColor: {
-    backgroundColor: color.fgMuted,
+    backgroundColor: color.mutedForeground,
   },
   // Until the fills are on their rows, each row paints its own hover and
   // current fill, such as in the first paint of a page from the server.
   drawnByFills: {
-    [color.bgControlHover]: "transparent",
-    [color.bgControlSelected]: "transparent",
+    [stateFillTokens.hover]: "transparent",
+    [stateFillTokens.selected]: "transparent",
     // Under a mouse the hover fill shows the press. A touch has no hover fill,
     // so its row paints the press.
-    [color.bgControlPressed]: {
+    [stateFillTokens.pressed]: {
       default: null,
       [pointer.canHover]: "transparent",
     },

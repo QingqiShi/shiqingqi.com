@@ -53,7 +53,7 @@ export const fieldStyles = stylex.create({
     display: "inline-flex",
     alignItems: "baseline",
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
   },
   // Decorative asterisk via `::after`, so it never enters the label's text or
   // the control's accessible name — semantics come from the native
@@ -62,11 +62,11 @@ export const fieldStyles = stylex.create({
     "::after": {
       content: '"*"',
       marginInlineStart: rhythm.inline,
-      color: color.fgDanger,
+      color: color.destructiveText,
     },
   },
   description: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     maxInlineSize: measure.prose,
   },
   // A live region must be in the DOM before its text arrives, so the status
@@ -74,7 +74,7 @@ export const fieldStyles = stylex.create({
   // in the field's stack.
   status: {
     position: { default: null, ":empty": "absolute" },
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // Positioning context for the absolutely-placed affix slots and the dust
   // frame. Also carries the size variable so both the control and the affixes
@@ -88,10 +88,10 @@ export const fieldStyles = stylex.create({
     boxSizing: "border-box",
     borderStyle: "solid",
     borderWidth: border.size_1,
-    borderColor: color.borderField,
+    borderColor: color.input,
     borderRadius: border.radius_3,
     cornerShape: "squircle",
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   control: {
     appearance: "none",
@@ -101,31 +101,21 @@ export const fieldStyles = stylex.create({
     fontFamily: font.family,
     fontWeight: font.weight_4,
     lineHeight: font.lineHeight_4,
-    color: color.fg,
-    // A field with focus looks like a selected OptionCard. Hover gives no
-    // fill while the field has focus, so the fill stays still under typing.
+    color: color.foreground,
     backgroundColor: {
-      default: color.bgSurface,
-      ":focus": {
-        default: color.bgSurfaceSelected,
-        [pointer.canHover]: color.bgSurfaceSelected,
-      },
-      ":disabled": color.bgControlDisabled,
-      [pointer.canHover]: {
-        default: null,
-        ":hover:not(:disabled, :focus)": color.bgSurfaceHover,
-      },
+      default: color.card,
+      ":disabled": color.muted,
     },
     // The keyboard-only ring layers on separately via `a11y.focusRing`.
     borderColor: {
-      default: color.borderField,
-      ":focus": color.borderSurfaceSelected,
+      default: color.input,
+      ":focus": color.foreground,
     },
     paddingInline: fieldVars.paddingInline,
     cursor: { default: "text", ":disabled": "not-allowed" },
     opacity: { default: null, ":disabled": opacity.disabled },
     "::placeholder": {
-      color: color.fgMuted,
+      color: color.mutedForeground,
       opacity: 1,
     },
     // The clear button of a search field, which only WebKit and Blink draw.
@@ -139,7 +129,7 @@ export const fieldStyles = stylex.create({
       inlineSize: controlSize._4,
       blockSize: controlSize._4,
       marginInlineStart: controlSize._2,
-      backgroundColor: color.fgMuted,
+      backgroundColor: color.mutedForeground,
       maskImage: `url("${CLEAR_MASK}")`,
       maskRepeat: "no-repeat",
       maskPosition: "center",
@@ -151,7 +141,7 @@ export const fieldStyles = stylex.create({
   // Text that recedes, such as a done step of a checklist. It is at full
   // contrast while it has focus, so that the text a person edits is legible.
   controlMuted: {
-    color: { default: color.fgMuted, ":focus": color.fg },
+    color: { default: color.mutedForeground, ":focus": color.foreground },
   },
   // A field that sits in a row of text, such as a step of a checklist: no
   // frame or fill until the pointer is over it or it has focus. Its text then
@@ -160,15 +150,15 @@ export const fieldStyles = stylex.create({
     [fieldVars.paddingInline]: controlSize._2,
     backgroundColor: {
       default: "transparent",
-      ":focus": color.bgSurfaceSelected,
-      ":disabled": color.bgControlDisabled,
+      ":focus": color.secondary,
+      ":disabled": color.muted,
     },
     borderColor: {
       default: "transparent",
-      ":hover": { default: null, [pointer.canHover]: color.borderField },
+      ":hover": { default: null, [pointer.canHover]: color.input },
       ":focus": {
-        default: color.borderSurfaceSelected,
-        [pointer.canHover]: color.borderSurfaceSelected,
+        default: color.foreground,
+        [pointer.canHover]: color.foreground,
       },
       [pointer.canHover]: { default: null, ":disabled:hover": "transparent" },
     },
@@ -189,19 +179,19 @@ export const fieldStyles = stylex.create({
   keyboardRing: {
     outlineColor: {
       default: "transparent",
-      ":focus-visible:not([data-pointer-focus])": color.borderAccent,
+      ":focus-visible:not([data-pointer-focus])": color.ring,
     },
   },
   // Composed after `a11y.focusRing` and `keyboardRing`, so its
-  // danger-coloured outline and border win over the default accent ones.
+  // destructive outline and border win over the default primary ones.
   controlInvalid: {
     borderColor: {
-      default: color.borderDanger,
-      ":focus": color.borderDanger,
+      default: color.destructive,
+      ":focus": color.destructive,
     },
     outlineColor: {
       default: "transparent",
-      ":focus-visible:not([data-pointer-focus])": color.borderDanger,
+      ":focus-visible:not([data-pointer-focus])": color.destructive,
     },
   },
   hasLeadingAffix: {
@@ -219,7 +209,7 @@ export const fieldStyles = stylex.create({
     alignItems: "center",
     justifyContent: "center",
     inlineSize: AFFIX_SLOT,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     pointerEvents: "none",
   },
   affixStart: {
@@ -229,7 +219,7 @@ export const fieldStyles = stylex.create({
     insetInlineEnd: fieldVars.paddingInline,
   },
   errorText: {
-    color: color.fgDanger,
+    color: color.destructiveText,
   },
   // The frame that sheds dust while the visitor types. The dust takes its
   // fill, which is the colour of the border of a field with focus. It does
@@ -239,7 +229,7 @@ export const fieldStyles = stylex.create({
     inset: 0,
     borderRadius: border.radius_3,
     cornerShape: "squircle",
-    backgroundColor: color.borderSurfaceSelected,
+    backgroundColor: color.foreground,
     filter: "opacity(0)",
     pointerEvents: "none",
   },

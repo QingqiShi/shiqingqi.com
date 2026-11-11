@@ -103,7 +103,7 @@ export const navListStyles = stylex.create({
       [navListQueries.sidebarPage]: space._8,
     },
     paddingBlock: space._0,
-    color: color.fg,
+    color: color.foreground,
     fontWeight: font.weight_4,
     textAlign: "start",
     textDecoration: "none",
@@ -113,7 +113,7 @@ export const navListStyles = stylex.create({
     display: "inline-flex",
     flexShrink: 0,
     fontSize: controlSize._4,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   /** What sits at the end of a row, such as a count, in the muted colour. */
   trailing: {
@@ -122,7 +122,7 @@ export const navListStyles = stylex.create({
     alignItems: "center",
     gap: rhythm.tight,
     marginInlineStart: "auto",
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   row: {
     marginBlockStart: {

@@ -235,11 +235,11 @@ const styles = stylex.create({
   remove: {
     [buttonTokens.height]: `calc(${font.uiBodySmall} * ${font.lineHeight_4} + ${space._00} * 2)`,
     marginBlock: `calc(${space._00} * -1)`,
-    [buttonTokens.color]: color.fgMuted,
+    [buttonTokens.color]: color.mutedForeground,
   },
   muted: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   more: {
     inlineSize: "100%",
@@ -248,6 +248,6 @@ const styles = stylex.create({
     gap: rhythm.tight,
     paddingBlock: space._2,
     paddingInline: space._2,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

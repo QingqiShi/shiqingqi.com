@@ -23,13 +23,13 @@ interface CardProps extends Omit<ComponentProps<"div">, "className" | "style"> {
   interactive?: boolean;
   /**
    * Draws the edge in the colour of an Intent and leaves the rest of the card
-   * as it is. `"danger"` marks a card of actions that cannot be undone, such
+   * as it is. `"destructive"` marks a card of actions that cannot be undone, such
    * as a danger zone at the end of a settings page. Say the danger in the
    * card's title too, because a colour alone does not say it.
    *
-   * @zh 以意图的颜色绘制卡片边缘，其余部分保持不变。`"danger"` 标记一张包含无法撤销操作的卡片，例如设置页末尾的危险区。请在卡片标题中也说明危险，因为颜色本身无法表达。
+   * @zh 以意图的颜色绘制卡片边缘，其余部分保持不变。`"destructive"` 标记一张包含无法撤销操作的卡片，例如设置页末尾的危险区。请在卡片标题中也说明危险，因为颜色本身无法表达。
    */
-  intent?: "danger";
+  intent?: "destructive";
   /**
    * Card contents.
    *
@@ -107,7 +107,7 @@ const styles = stylex.create({
 });
 
 const intentStyles = stylex.create({
-  danger: {
-    borderColor: color.borderDanger,
+  destructive: {
+    borderColor: color.destructive,
   },
 });

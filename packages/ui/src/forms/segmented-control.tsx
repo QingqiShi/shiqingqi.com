@@ -326,8 +326,8 @@ const styles = stylex.create({
     gap: controlSize._0,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.borderControlSunken,
-    backgroundColor: color.bgControlSunken,
+    borderColor: "transparent",
+    backgroundColor: color.secondary,
   },
   trackFullWidth: {
     display: "flex",
@@ -352,8 +352,8 @@ const styles = stylex.create({
     // cropped by the neighbouring segments.
     fontWeight: font.weight_5,
     color: {
-      default: color.fgControl,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
+      default: color.mutedForeground,
+      ":hover": { default: null, [pointer.canHover]: color.foreground },
     },
   },
   // A non-wrapping label's min-content width blocks an even flex split, even
@@ -369,7 +369,7 @@ const styles = stylex.create({
   },
   // The weight and the colour are the selection signal in forced colours.
   optionSelected: {
-    color: color.fg,
+    color: color.foreground,
     fontWeight: font.weight_6,
     borderColor: "transparent",
   },

@@ -85,7 +85,7 @@ const styles = stylex.create({
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: "solid",
     borderBlockStartColor: color.border,
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
   },
   counts: {
     display: "flex",
@@ -94,16 +94,16 @@ const styles = stylex.create({
     margin: 0,
   },
   countLabel: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   countValue: {
-    color: color.fg,
+    color: color.foreground,
     fontWeight: font.weight_6,
   },
   hint: {
     display: { default: "none", [breakpoints.lg]: "block" },
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   footerActions: {
     display: "flex",
@@ -112,6 +112,6 @@ const styles = stylex.create({
     marginInlineStart: "auto",
   },
   endNote: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

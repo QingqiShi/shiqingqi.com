@@ -62,7 +62,7 @@ function DueBadge({
     <Badge
       size="sm"
       intent={
-        !started || days > 1 ? "neutral" : days < 0 ? "danger" : "warning"
+        !started || days > 1 ? "neutral" : days < 0 ? "destructive" : "warning"
       }
     >
       {days < 0
@@ -456,7 +456,7 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   title: {
-    color: color.fg,
+    color: color.foreground,
     textAlign: "start",
   },
   wide: {

@@ -45,8 +45,8 @@ const mark = stylex.create({
     inlineSize: controlSize._9,
     blockSize: controlSize._9,
     fontSize: controlSize._5,
-    color: color.fg,
-    backgroundColor: color.bgNeutralSubtle,
+    color: color.foreground,
+    backgroundColor: color.muted,
   },
 });
 
@@ -55,7 +55,7 @@ const badge = stylex.create({
     display: "block",
     inlineSize: space._1,
     blockSize: space._1,
-    backgroundColor: color.fg,
+    backgroundColor: color.foreground,
   },
 });
 

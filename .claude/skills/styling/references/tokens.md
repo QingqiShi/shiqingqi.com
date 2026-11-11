@@ -6,7 +6,7 @@ Import `color` from `@tuja/ui/color.stylex`, `breakpoints` and `pointer` from `@
 
 | Group                                       | File                                                                                  | What to read there                                                                             |
 | ------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `color`                                     | `packages/ui/src/color.stylex.ts`                                                     | The naming grammar at the top, and the comment on each token in the `light` object             |
+| `color`                                     | `packages/ui/src/color.stylex.ts`                                                     | The naming rules at the top, and the comment on each token in the `light` object               |
 | `rhythm`, `space`                           | `packages/ui/src/tokens.stylex.ts`                                                    | The JSDoc on `rhythm`: which relationship takes which step, and when lines of text take no gap |
 | `font`, `latinType`                         | `packages/ui/src/tokens.stylex.ts`                                                    | The steps the type roles are built from. Compose a role, not a size                            |
 | `controlSize`, `controlHeight`              | `packages/ui/src/tokens.stylex.ts`                                                    | Sizes in a control, larger on touch and smaller from `md`                                      |
@@ -18,9 +18,29 @@ Import `color` from `@tuja/ui/color.stylex`, `breakpoints` and `pointer` from `@
 
 ## Colour
 
-- Choose the property first, then the subject: a divider is a border drawn as a box, so it takes a `border*` token.
-- An Intent drawn as a mark at fill strength, such as an icon's `color`, `fill` or `stroke`, takes `bg<Intent>`. A ring or an outline takes `border<Intent>`.
-- To make a token translucent, mix it: `color-mix(in srgb, ${color.bgCanvasFade} 45%, transparent)`. The `*Fade` tokens are the colours that a translucent gradient blends toward.
+The names are those of shadcn/ui. Choose the token by what the element is, then give its content the paired foreground.
+
+| The element                                                        | Fill                         | Content on it           |
+| ------------------------------------------------------------------ | ---------------------------- | ----------------------- |
+| The page                                                           | `background`                 | `foreground`            |
+| A container on the page, an island of an app shell                 | `card`                       | `cardForeground`        |
+| A menu, a popover, anything that floats                            | `popover`                    | `popoverForeground`     |
+| A quiet region: a well, a code block, a disabled control           | `muted`                      | `foreground`            |
+| An item under the pointer, pressed or selected                     | `accent`                     | `accentForeground`      |
+| A neutral piece: a secondary button, a neutral badge, a track      | `secondary`                  | `secondaryForeground`   |
+| The main action, a selected mark                                   | `primary`                    | `primaryForeground`     |
+| Something that destroys, or that is wrong                          | `destructive`                | `destructiveForeground` |
+| A status                                                           | `success`, `warning`, `info` | `<name>Foreground`      |
+| A tint of `primary`, `destructive`, `success`, `warning` or `info` | `<name>Subtle`               | `<name>Text`            |
+| The scrim behind a modal                                           | `overlay`                    | `overlayForeground`     |
+
+- Secondary text is `mutedForeground`, on every surface and fill.
+- Text or an icon in the colour of a meaning is `<name>Text`. A mark at fill strength, such as a dot or the stroke of a chart, takes `<name>`.
+- A line is `border` (an edge, a divider), `input` (the edge of a field, and a neutral mark such as a track or a grabber), `borderStrong` (an edge that is the only sign of a control: it holds 3:1) or `ring` (the focus ring). A divider drawn as a box takes `border` as its `backgroundColor`.
+- `muted`, `accent` and `secondary` are opaque and have the same value. The three names let a theme give them different values, so choose by what the element is. An item with an `accent` state on a `muted` region does not show the state: put it on a surface.
+- A state has no token. Under the pointer, pressed or selected, an element takes `accent`. `quietSurface.interactive` does this. A solid fill takes `color-mix(in srgb, ${color.primary} 90%, transparent)`.
+- A component prop that names a meaning takes the name of the token: `intent="destructive"` paints `destructive`, and `tone="primary"` paints `primary`.
+- To make a token translucent, mix it: `color-mix(in srgb, ${color.background} 45%, transparent)`.
 
 ## Space
 

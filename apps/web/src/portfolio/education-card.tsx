@@ -86,7 +86,7 @@ const styles = stylex.create({
     },
   },
   name: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   subText: {
     fontWeight: font.weight_6,
@@ -100,6 +100,6 @@ const styles = stylex.create({
     transition: `filter ${duration._200} ${easing.ease}`,
   },
   dates: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

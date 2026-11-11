@@ -174,7 +174,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgCanvas,
+    backgroundColor: color.background,
   },
   scrollContent: {
     position: "relative",
@@ -188,13 +188,13 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   poster: {
     flexShrink: 0,
     inlineSize: space._8,
     aspectRatio: ratio.poster,
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
   },
   backdropClip: {
     inlineSize: "34rem",
@@ -209,7 +209,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   backdropText: {
     flexGrow: 1,

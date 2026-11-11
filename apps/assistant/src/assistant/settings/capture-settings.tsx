@@ -113,7 +113,7 @@ function TokenRow({
       actions={
         <Button
           size="sm"
-          look={confirming ? "danger" : "ghost"}
+          look={confirming ? "destructive" : "ghost"}
           icon={<TrashIcon weight="bold" />}
           hideLabelOnMobile
           aria-label={revokeLabel}

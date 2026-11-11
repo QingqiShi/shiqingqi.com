@@ -22,7 +22,19 @@ export const selectedTokens = stylex.defineVars({
 });
 
 /**
- * The accent look of the selected state, read from the ARIA state already on
+ * The fill of an item under the pointer, of a pressed item and of a selected
+ * item. A container that draws these fills itself sets them to `transparent`.
+ *
+ * @internal
+ */
+export const stateFillTokens = stylex.defineVars({
+  hover: color.accent,
+  pressed: color.secondary,
+  selected: color.secondary,
+});
+
+/**
+ * The primary look of the selected state, read from the ARIA state already on
  * the element: `aria-pressed`, `aria-checked` or `aria-selected` set to `true`,
  * or any `aria-current` other than `false`. An item that holds a checked
  * `Checkbox` with `look="selection"` is selected too, so a list item in a
@@ -41,19 +53,19 @@ export const selected = stylex.create({
   marked: {
     borderColor: {
       default: "transparent",
-      [SELECTED]: color.borderAccent,
+      [SELECTED]: color.primary,
     },
     backgroundColor: {
       default: selectedTokens.rest,
       [pointer.canHover]: {
         default: null,
-        ":hover:not(:disabled)": color.bgControlHover,
+        ":hover:not(:disabled)": stateFillTokens.hover,
       },
       [SELECTED]: {
-        default: color.bgAccentSubtle,
+        default: color.primarySubtle,
         ":hover": {
           default: null,
-          [pointer.canHover]: color.bgAccentSubtle,
+          [pointer.canHover]: color.primarySubtle,
         },
       },
     },

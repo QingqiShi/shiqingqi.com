@@ -222,7 +222,7 @@ const styles = stylex.create({
     fontSize: "inherit",
     fontWeight: font.weight_5,
     lineHeight: font.lineHeight_3,
-    color: color.fg,
+    color: color.foreground,
     textAlign: "start",
   },
   // `em` boxes so every icon tracks the header's font-size.
@@ -233,7 +233,7 @@ const styles = stylex.create({
     flexShrink: 0,
     inlineSize: "1em",
     blockSize: "1em",
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   summary: {
     flexGrow: 1,
@@ -245,7 +245,7 @@ const styles = stylex.create({
   },
   trailing: {
     flexShrink: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   indicatorOpen: {
     rotate: "180deg",

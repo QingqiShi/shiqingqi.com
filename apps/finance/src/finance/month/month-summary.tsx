@@ -163,7 +163,7 @@ const styles = stylex.create({
     fontWeight: font.weight_7,
   },
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   figures: {
     display: "flex",
@@ -179,10 +179,10 @@ const styles = stylex.create({
     whiteSpace: "nowrap",
   },
   in: {
-    color: color.fgSuccess,
+    color: color.successText,
   },
   out: {
-    color: color.fgDanger,
+    color: color.destructiveText,
   },
   pill: {
     display: "inline-block",
@@ -190,11 +190,11 @@ const styles = stylex.create({
     paddingInline: space._2,
   },
   pillUp: {
-    backgroundColor: color.bgSuccess,
-    color: color.fgOnSuccess,
+    backgroundColor: color.success,
+    color: color.successForeground,
   },
   pillDown: {
-    backgroundColor: color.bgDanger,
-    color: color.fgOnDanger,
+    backgroundColor: color.destructive,
+    color: color.destructiveForeground,
   },
 });

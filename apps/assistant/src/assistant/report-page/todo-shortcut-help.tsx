@@ -107,7 +107,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgNeutralSubtle,
+    backgroundColor: color.secondary,
   },
   text: {
     margin: 0,

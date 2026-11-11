@@ -72,6 +72,6 @@ export function FieldLabel({ id, mark, children }: FieldLabelProps) {
 const styles = stylex.create({
   label: {
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
   },
 });

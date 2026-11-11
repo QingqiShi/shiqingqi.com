@@ -124,8 +124,8 @@ const styles = stylex.create({
 });
 
 const toneStyles = stylex.create({
-  quiet: { color: color.fgMuted },
-  busy: { color: color.fgMuted },
-  waiting: { color: color.fgWarning },
-  problem: { color: color.fgDanger },
+  quiet: { color: color.mutedForeground },
+  busy: { color: color.mutedForeground },
+  waiting: { color: color.warningText },
+  problem: { color: color.destructiveText },
 });

@@ -12,12 +12,12 @@ interface ThemeColor {
 /**
  * The mobile browser-chrome tint, as `<meta name="theme-color">` tags in
  * order: the first that matches wins. It is the colour at the top edge of the
- * page: `color.bgSurfaceSunken` where an island fills the screen, and
- * `color.bgCanvas` of `assistantTheme` elsewhere. `gray` is a `defineConsts`
+ * page: `color.card` where an island fills the screen, and
+ * `color.background` of `assistantTheme` elsewhere. `gray` is a `defineConsts`
  * palette, so these bake in as literal hex in `themeHack`.
  */
 export const themeColors: ThemeColor[] = [
-  { media: "(width < 768px)", dark: gray._2, light: gray._98 },
+  { media: "(width < 768px)", dark: gray._5, light: gray._100 },
   CANVAS_COLORS,
 ];
 

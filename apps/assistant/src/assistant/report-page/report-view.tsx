@@ -450,7 +450,7 @@ const styles = stylex.create({
     inlineSize: controlSize._5,
     blockSize: controlSize._5,
     fontSize: controlSize._5,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   lineText: {
     flexGrow: 1,

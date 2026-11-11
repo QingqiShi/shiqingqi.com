@@ -163,9 +163,9 @@ export function TimeSeriesPickMarks({
 
 const styles = stylex.create({
   extreme: {
-    fill: color.fg,
+    fill: color.foreground,
   },
   trendDot: {
-    fill: color.fgMuted,
+    fill: color.mutedForeground,
   },
 });

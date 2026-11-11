@@ -74,7 +74,7 @@ const styles = stylex.create({
     rowGap: rhythm.inline,
   },
   label: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   value: {
     margin: 0,

@@ -347,11 +347,11 @@ const styles = stylex.create({
   },
   icon: {
     display: "flex",
-    color: color.fg,
+    color: color.foreground,
   },
   name: {
     margin: 0,
-    color: color.fg,
+    color: color.foreground,
   },
   section: {
     // Below `md`, the menu button floats over the top of the page.

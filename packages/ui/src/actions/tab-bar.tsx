@@ -277,7 +277,7 @@ const styles = stylex.create({
   // with them.
   track: {
     [glassTokens.blur]: "24px",
-    [glassTokens.fill]: `color-mix(in srgb, ${color.bgSurface} 30%, ${color.bgMaterialGlass})`,
+    [glassTokens.fill]: `color-mix(in srgb, ${color.card} 30%, ${color.glass})`,
     display: "flex",
     blockSize: tabBarTokens.blockSize,
     padding: space._0,
@@ -310,12 +310,12 @@ const styles = stylex.create({
     minInlineSize: 0,
     paddingInline: space._0,
     color: {
-      default: color.fgControl,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
+      default: color.mutedForeground,
+      ":hover": { default: null, [pointer.canHover]: color.foreground },
     },
     backgroundColor: {
       default: "transparent",
-      ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
+      ":hover": { default: null, [pointer.canHover]: color.accent },
     },
     fontWeight: font.weight_5,
     textDecoration: "none",

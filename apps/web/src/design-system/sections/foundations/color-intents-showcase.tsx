@@ -21,7 +21,7 @@ interface IntentColumn {
 export function ColorIntentsShowcase() {
   const intents: IntentColumn[] = [
     {
-      name: "accent",
+      name: "primary",
       job: t({
         en: "Highlights, such as on or selected",
         zh: "突出显示，例如开启或选中",
@@ -30,7 +30,7 @@ export function ColorIntentsShowcase() {
       tint: styles.tintAccent,
     },
     {
-      name: "danger",
+      name: "destructive",
       job: t({
         en: "Destroys, or is wrong",
         zh: "会销毁，或有错误",
@@ -55,12 +55,6 @@ export function ColorIntentsShowcase() {
       job: t({ en: "A status that needs care", zh: "需要小心的状态" }),
       fill: styles.fillWarning,
       tint: styles.tintWarning,
-    },
-    {
-      name: "neutral",
-      job: t({ en: "Carries no meaning", zh: "不带含义" }),
-      fill: styles.fillNeutral,
-      tint: styles.tintNeutral,
     },
   ];
   const fillLabel = t({ en: "Fill", zh: "填充" });
@@ -100,8 +94,8 @@ export function ColorIntentsShowcase() {
       </div>
       <GuideNote>
         {t({
-          en: "Put fgOn<Intent> on a fill and fg<Intent> on a tint. Swapped, they are hard to read.",
-          zh: "填充上用 fgOn<Intent>，淡色底上用 fg<Intent>。两者对调就难以辨读。",
+          en: "Put <name>Foreground on a fill, and <name>Text on its <name>Subtle tint or on a surface. Swapped, they are hard to read.",
+          zh: "填充上用 <name>Foreground；它的淡色底 <name>Subtle 上或表面上用 <name>Text。两者对调就难以辨读。",
         })}
       </GuideNote>
       <GuideNote>
@@ -125,7 +119,7 @@ const styles = stylex.create({
     gridTemplateColumns: {
       default: "repeat(2, minmax(0, 1fr))",
       "@container (min-width: 24rem)": "repeat(3, minmax(0, 1fr))",
-      "@container (min-width: 44rem)": "repeat(6, minmax(0, 1fr))",
+      "@container (min-width: 44rem)": "repeat(5, minmax(0, 1fr))",
     },
     rowGap: rhythm.group,
     columnGap: rhythm.item,
@@ -147,28 +141,44 @@ const styles = stylex.create({
   },
   name: {
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
   },
   job: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 
-  fillAccent: { backgroundColor: color.bgAccent, color: color.fgOnAccent },
-  tintAccent: { backgroundColor: color.bgAccentSubtle, color: color.fgAccent },
-  fillDanger: { backgroundColor: color.bgDanger, color: color.fgOnDanger },
-  tintDanger: { backgroundColor: color.bgDangerSubtle, color: color.fgDanger },
-  fillInfo: { backgroundColor: color.bgInfo, color: color.fgOnInfo },
-  tintInfo: { backgroundColor: color.bgInfoSubtle, color: color.fgInfo },
-  fillSuccess: { backgroundColor: color.bgSuccess, color: color.fgOnSuccess },
+  fillAccent: {
+    backgroundColor: color.primary,
+    color: color.primaryForeground,
+  },
+  tintAccent: {
+    backgroundColor: color.primarySubtle,
+    color: color.primaryText,
+  },
+  fillDanger: {
+    backgroundColor: color.destructive,
+    color: color.destructiveForeground,
+  },
+  tintDanger: {
+    backgroundColor: color.destructiveSubtle,
+    color: color.destructiveText,
+  },
+  fillInfo: { backgroundColor: color.info, color: color.infoForeground },
+  tintInfo: { backgroundColor: color.infoSubtle, color: color.infoText },
+  fillSuccess: {
+    backgroundColor: color.success,
+    color: color.successForeground,
+  },
   tintSuccess: {
-    backgroundColor: color.bgSuccessSubtle,
-    color: color.fgSuccess,
+    backgroundColor: color.successSubtle,
+    color: color.successText,
   },
-  fillWarning: { backgroundColor: color.bgWarning, color: color.fgOnWarning },
+  fillWarning: {
+    backgroundColor: color.warning,
+    color: color.warningForeground,
+  },
   tintWarning: {
-    backgroundColor: color.bgWarningSubtle,
-    color: color.fgWarning,
+    backgroundColor: color.warningSubtle,
+    color: color.warningText,
   },
-  fillNeutral: { backgroundColor: color.bgNeutral, color: color.fgOnNeutral },
-  tintNeutral: { backgroundColor: color.bgNeutralSubtle, color: color.fg },
 });

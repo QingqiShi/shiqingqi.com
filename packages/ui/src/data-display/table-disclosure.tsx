@@ -220,7 +220,7 @@ const styles = stylex.create({
   indicatorCell: {
     verticalAlign: "middle",
     textAlign: "end",
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // An `em` box, so the caret follows the row's font size.
   indicator: {
@@ -250,7 +250,7 @@ const styles = stylex.create({
     insetInlineStart: 0,
     boxSizing: "border-box",
     inlineSize: tableTokens.scrollport,
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
     whiteSpace: "normal",
   },
 });
@@ -266,15 +266,15 @@ const fills = stylex.create({
       default: null,
       [stylex.when.ancestor(STICKY_COLUMN, tableMarker)]:
         tableTokens.stickyFill,
-      ":hover": { default: null, [pointer.canHover]: color.bgCanvas },
+      ":hover": { default: null, [pointer.canHover]: color.accent },
     },
   },
   open: {
     backgroundColor: {
-      default: color.bgSurfaceSunken,
+      default: color.muted,
       ":hover": {
-        default: color.bgSurfaceSunken,
-        [pointer.canHover]: color.bgCanvas,
+        default: color.muted,
+        [pointer.canHover]: color.accent,
       },
     },
   },

@@ -62,8 +62,8 @@ const styles = stylex.create({
   chip: {
     paddingBlock: space._00,
     paddingInline: space._2,
-    color: color.fgMuted,
-    backgroundColor: color.bgControl,
+    color: color.mutedForeground,
+    backgroundColor: color.card,
     whiteSpace: "nowrap",
   },
 });

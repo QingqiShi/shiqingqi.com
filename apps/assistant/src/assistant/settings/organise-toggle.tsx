@@ -46,7 +46,7 @@ export function OrganiseToggle({ initial }: { initial: boolean }) {
         }}
       />
       {failed ? (
-        <Callout intent="danger" role="alert">
+        <Callout intent="destructive" role="alert">
           {t({
             en: "That did not work. Try again.",
             zh: "没有成功，请重试。",

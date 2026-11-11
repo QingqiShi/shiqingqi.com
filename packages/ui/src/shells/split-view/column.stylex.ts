@@ -11,6 +11,7 @@ import {
   pageColumnTokens,
   pageGutter,
 } from "../../primitives/page-column.stylex.ts";
+import { stateFillTokens } from "../../primitives/selected.stylex.ts";
 import { islandTokens } from "../../surfaces/island.stylex.ts";
 import {
   controlHeight,
@@ -65,7 +66,7 @@ export const columnStyles = stylex.create({
     position: "absolute",
     inset: 0,
     zIndex: layer.overlay,
-    backgroundColor: color.bgScrim,
+    backgroundColor: color.overlay,
     opacity: 0,
     pointerEvents: "none",
   },
@@ -125,7 +126,7 @@ export const columnStyles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: rhythm.inline,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     textDecoration: "none",
   },
   detailHeader: {
@@ -149,7 +150,7 @@ export const columnStyles = stylex.create({
     gap: rhythm.inline,
     minInlineSize: 0,
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   breadcrumbCurrent: {
     flexShrink: 0,
@@ -287,7 +288,7 @@ export const stackStyles = stylex.create({
   // A row of a page has no current look, and it opens in place of the page. The
   // sidebar is the container of the look of a `NavList` only while it is a page.
   sidebar: {
-    [color.bgControlSelected]: {
+    [stateFillTokens.selected]: {
       default: null,
       [splitViewQueries.noSidebarBeside]: "transparent",
     },

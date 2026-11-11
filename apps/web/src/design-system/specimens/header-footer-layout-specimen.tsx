@@ -50,7 +50,7 @@ const styles = stylex.create({
   footer: {
     justifyContent: "center",
     marginBlockStart: "auto",
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: "solid",
     borderBlockStartColor: color.border,

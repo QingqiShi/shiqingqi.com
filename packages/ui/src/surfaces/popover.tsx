@@ -217,7 +217,7 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._3,
     // Portalled content inherits from `<body>`, not from the trigger's context.
-    color: color.fg,
+    color: color.foreground,
     // Caps the box just inside the gutter `usePopover`'s placement maths keeps,
     // so a tall panel scrolls itself rather than running off screen. `contain`
     // stops a flick that reaches the end scrolling the page behind it.

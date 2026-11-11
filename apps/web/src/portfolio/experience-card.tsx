@@ -49,6 +49,6 @@ const styles = stylex.create({
   },
   dates: {
     fontWeight: font.weight_6,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

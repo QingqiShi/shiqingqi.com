@@ -355,6 +355,6 @@ const styles = stylex.create({
   detail: {
     flexShrink: 0,
     whiteSpace: "nowrap",
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

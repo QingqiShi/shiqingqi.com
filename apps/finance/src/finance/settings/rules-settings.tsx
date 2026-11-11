@@ -154,7 +154,7 @@ export function RulesSettings() {
         }
         initialFocusRef={draft?.rule === null ? payeeRef : nameRef}
         onSave={save}
-        danger={
+        destructive={
           draft?.rule
             ? {
                 label: t({ en: "Delete", zh: "删除" }),

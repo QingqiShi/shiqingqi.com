@@ -23,14 +23,14 @@ import {
 import type { StyleProp } from "../types.ts";
 
 type CalloutIntent =
-  "info" | "success" | "warning" | "danger" | "accent" | "neutral";
+  "info" | "success" | "warning" | "destructive" | "primary" | "neutral";
 
 const defaultIcons: { [key in CalloutIntent]: ReactNode } = {
   info: <InfoIcon weight="regular" />,
   success: <CheckCircleIcon weight="regular" />,
   warning: <WarningIcon weight="regular" />,
-  danger: <XCircleIcon weight="regular" />,
-  accent: <SparkleIcon weight="fill" />,
+  destructive: <XCircleIcon weight="regular" />,
+  primary: <SparkleIcon weight="fill" />,
   neutral: <DotOutlineIcon weight="fill" />,
 };
 
@@ -75,11 +75,11 @@ interface CalloutBaseProps extends Omit<
    */
   icon?: ReactNode;
   /**
-   * ARIA live role for the box. Defaults to `"alert"` for `danger`/`warning`
+   * ARIA live role for the box. Defaults to `"alert"` for `destructive`/`warning`
    * (assertive — interrupts the screen reader) and `"status"` otherwise
    * (polite).
    *
-   * @zh 提示框的 ARIA live 角色。`danger`/`warning` 默认为 `alert`（强制式——打断屏幕阅读器），其余默认为 `status`（礼貌式）。
+   * @zh 提示框的 ARIA live 角色。`destructive`/`warning` 默认为 `alert`（强制式——打断屏幕阅读器），其余默认为 `status`（礼貌式）。
    */
   role?: "status" | "alert";
   /**
@@ -135,7 +135,8 @@ export function Callout({
   ...restProps
 }: CalloutProps) {
   const resolvedRole =
-    role ?? (intent === "danger" || intent === "warning" ? "alert" : "status");
+    role ??
+    (intent === "destructive" || intent === "warning" ? "alert" : "status");
   const resolvedIcon = icon === undefined ? defaultIcons[intent] : icon;
   const tone = toneColor[intent === "neutral" ? "default" : intent];
   const message = (
@@ -198,7 +199,7 @@ const styles = stylex.create({
     paddingInline: space._4,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    color: color.fg,
+    color: color.foreground,
   },
   icon: {
     display: "inline-flex",
@@ -232,7 +233,7 @@ const styles = stylex.create({
     lineHeight: font.lineHeightBody,
   },
   body: {
-    color: color.fg,
+    color: color.foreground,
   },
   // The button is taller than the first line. It centres on that line, so
   // that it does not push the box taller.
@@ -243,27 +244,27 @@ const styles = stylex.create({
 
 const surfaceStyles = stylex.create({
   info: {
-    backgroundColor: color.bgInfoSubtle,
-    borderColor: color.borderInfo,
+    backgroundColor: color.infoSubtle,
+    borderColor: color.info,
   },
   success: {
-    backgroundColor: color.bgSuccessSubtle,
-    borderColor: color.borderSuccess,
+    backgroundColor: color.successSubtle,
+    borderColor: color.success,
   },
   warning: {
-    backgroundColor: color.bgWarningSubtle,
-    borderColor: color.borderWarning,
+    backgroundColor: color.warningSubtle,
+    borderColor: color.warning,
   },
-  danger: {
-    backgroundColor: color.bgDangerSubtle,
-    borderColor: color.borderDanger,
+  destructive: {
+    backgroundColor: color.destructiveSubtle,
+    borderColor: color.destructive,
   },
-  accent: {
-    backgroundColor: color.bgAccentSubtle,
-    borderColor: color.borderAccent,
+  primary: {
+    backgroundColor: color.primarySubtle,
+    borderColor: color.primary,
   },
   neutral: {
-    backgroundColor: color.bgNeutralSubtle,
+    backgroundColor: color.muted,
     borderColor: color.border,
   },
 });

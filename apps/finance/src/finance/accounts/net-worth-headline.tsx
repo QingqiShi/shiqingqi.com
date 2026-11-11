@@ -204,7 +204,7 @@ const styles = stylex.create({
   },
   label: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   figure: {
     fontWeight: font.weight_7,
@@ -218,12 +218,12 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
   },
   up: {
-    color: color.fgSuccess,
+    color: color.successText,
   },
   down: {
-    color: color.fgDanger,
+    color: color.destructiveText,
   },
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

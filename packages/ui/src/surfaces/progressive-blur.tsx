@@ -365,7 +365,7 @@ const styles = stylex.create({
   // still glare through; the Wash dims it. Each layer's mask ramps its share
   // of the Wash to match the blur's own falloff.
   wash: {
-    backgroundColor: `color-mix(in srgb, ${color.bgCanvasFade} 6%, transparent)`,
+    backgroundColor: `color-mix(in srgb, ${color.background} 6%, transparent)`,
   },
 });
 

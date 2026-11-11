@@ -30,7 +30,7 @@ ruleTester.run("no-custom-properties", rule, {
       code: `const styles = stylex.create({ root: { anchorName: "--segment-selected" } });`,
     },
     {
-      code: `const styles = stylex.create({ grid: { "--ln-text": color.fg } });`,
+      code: `const styles = stylex.create({ grid: { "--ln-text": color.foreground } });`,
       options: allowLyteNyte,
     },
   ],
@@ -49,7 +49,7 @@ ruleTester.run("no-custom-properties", rule, {
       errors: [{ messageId: "customProperty", data: { name: "--fill" } }],
     },
     {
-      code: "const styles = stylex.create({ root: { color: `var(--accent, ${color.fg})` } });",
+      code: "const styles = stylex.create({ root: { color: `var(--accent, ${color.foreground})` } });",
       errors: [{ messageId: "customProperty", data: { name: "--accent" } }],
     },
     {

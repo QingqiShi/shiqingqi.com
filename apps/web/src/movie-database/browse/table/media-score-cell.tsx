@@ -41,13 +41,13 @@ export function MediaScoreCell({ api, row }: MediaCellParams) {
 
 const styles = stylex.create({
   meterFillGood: {
-    backgroundColor: color.bgSuccess,
+    backgroundColor: color.success,
   },
   meterFillPoor: {
-    backgroundColor: color.bgDanger,
+    backgroundColor: color.destructive,
   },
   scoreValue: {
-    color: color.fg,
+    color: color.foreground,
     fontWeight: font.weight_6,
   },
 });

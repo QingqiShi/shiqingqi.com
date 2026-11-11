@@ -86,8 +86,8 @@ export function ToastShowcase() {
         </Text>
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "Once it has arrived, a Ring light runs once round its edge in the accent colour, drawn on the effect layer. The light marks the arrival and carries no meaning of its own: without WebGPU, with ?effects=off, under forced colours or under reduced motion, the toast is the same toast without it.",
-            zh: "提示到位后，环形光会以强调色沿它的边缘跑一圈，绘制在效果层上。这道光只标示出现，本身不承载任何含义：没有 WebGPU、使用 ?effects=off、处于强制颜色模式或减少动态效果时，提示没有它也完全一样。",
+            en: "Once it has arrived, a Ring light runs once round its edge in the primary colour, drawn on the effect layer. The light marks the arrival and carries no meaning of its own: without WebGPU, with ?effects=off, under forced colours or under reduced motion, the toast is the same toast without it.",
+            zh: "提示到位后，环形光会以主色沿它的边缘跑一圈，绘制在效果层上。这道光只标示出现，本身不承载任何含义：没有 WebGPU、使用 ?effects=off、处于强制颜色模式或减少动态效果时，提示没有它也完全一样。",
           })}
         </Text>
       </Showcase>

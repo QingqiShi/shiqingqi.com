@@ -33,11 +33,13 @@ export function BadgeShowcase() {
           <Specimen caption="warning">
             <Badge intent="warning">{t({ en: "Warning", zh: "警告" })}</Badge>
           </Specimen>
-          <Specimen caption="danger">
-            <Badge intent="danger">{t({ en: "Danger", zh: "危险" })}</Badge>
+          <Specimen caption="destructive">
+            <Badge intent="destructive">
+              {t({ en: "Destructive", zh: "破坏性" })}
+            </Badge>
           </Specimen>
-          <Specimen caption="accent">
-            <Badge intent="accent">{t({ en: "Accent", zh: "强调" })}</Badge>
+          <Specimen caption="primary">
+            <Badge intent="primary">{t({ en: "Primary", zh: "主要" })}</Badge>
           </Specimen>
         </SpecimenGrid>
       </Showcase>
@@ -45,12 +47,12 @@ export function BadgeShowcase() {
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
         <SpecimenGrid>
           <Specimen caption="sm">
-            <Badge size="sm" intent="accent">
+            <Badge size="sm" intent="primary">
               {t({ en: "Small", zh: "小" })}
             </Badge>
           </Specimen>
           <Specimen caption="md">
-            <Badge size="md" intent="accent">
+            <Badge size="md" intent="primary">
               {t({ en: "Medium", zh: "中" })}
             </Badge>
           </Specimen>
@@ -97,11 +99,11 @@ export function BadgeShowcase() {
               />
             </span>
           </Specimen>
-          <Specimen caption="danger">
+          <Specimen caption="destructive">
             <span css={[row.tight, typeRole.label]}>
               {t({ en: "Sync", zh: "同步" })}
               <StatusDot
-                intent="danger"
+                intent="destructive"
                 label={t({ en: "(failed)", zh: "（失败）" })}
               />
             </span>

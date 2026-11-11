@@ -128,7 +128,7 @@ const styles = stylex.create({
     marginInlineStart: breakoutBox.marginInlineStart,
   },
   label: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // Overlays whichever label style is in play, so a code label keeps that
   // style's size, colour and weight and changes only what the uppercase eyebrow
@@ -140,14 +140,14 @@ const styles = stylex.create({
     letterSpacing: font.trackingNormal,
   },
   headingPlain: {
-    color: color.fg,
+    color: color.foreground,
   },
   stateValue: {
     fontFamily: font.familyMono,
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
     paddingInline: space._1,
     paddingBlock: space._00,
-    backgroundColor: color.bgControl,
+    backgroundColor: color.card,
   },
 });

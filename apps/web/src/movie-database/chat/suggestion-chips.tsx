@@ -69,22 +69,22 @@ const styles = stylex.create({
       default: color.border,
       ":hover": {
         default: null,
-        [pointer.canHover]: color.borderAccent,
+        [pointer.canHover]: color.primary,
       },
       ":disabled": color.border,
     },
     backgroundColor: {
       default: "transparent",
-      ":hover": { default: null, [pointer.canHover]: color.bgAccent },
+      ":hover": { default: null, [pointer.canHover]: color.primary },
       ":disabled": "transparent",
     },
     color: {
-      default: color.fgMuted,
+      default: color.mutedForeground,
       ":hover": {
         default: null,
-        [pointer.canHover]: color.fgOnAccent,
+        [pointer.canHover]: color.primaryForeground,
       },
-      ":disabled": color.fgMuted,
+      ":disabled": color.mutedForeground,
     },
     fontFamily: font.family,
     paddingBlock: space._1,

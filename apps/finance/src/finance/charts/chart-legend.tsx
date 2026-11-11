@@ -34,7 +34,7 @@ const styles = stylex.create({
     listStyle: "none",
   },
   item: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   lineKey: {
     display: "inline-block",

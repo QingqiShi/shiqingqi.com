@@ -41,7 +41,7 @@ const styles = stylex.create({
     borderColor: color.border,
     // Lighter than the sunken plate it sits on, in both themes, so the region
     // reads as lying on the plate rather than dissolving into it.
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   // Grid, not a flex column: the scroller has a definite height, and flex would
   // shrink these empty rows — whose min-content height is zero — until nothing

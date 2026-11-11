@@ -210,7 +210,7 @@ export function ToolReviewSummary({
 
 const styles = stylex.create({
   card: {
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
     padding: space._3,
     marginTop: rhythm.item,
   },
@@ -221,11 +221,11 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
   },
   ratingBadge: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   countBadge: {
-    color: color.fgMuted,
-    backgroundColor: color.bgSurface,
+    color: color.mutedForeground,
+    backgroundColor: color.card,
     paddingInline: space._1,
     paddingBlock: space._00,
   },
@@ -254,14 +254,14 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: "transparent",
-    color: color.fgMuted,
+    color: color.mutedForeground,
     transition: `background-color ${duration._150} ${easing.ease}, color ${duration._150} ${easing.ease}, border-color ${duration._150} ${easing.ease}`,
   },
 
   selectedLabel: {
     margin: 0,
     marginTop: rhythm.tight,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     textAlign: "center",
   },
 });

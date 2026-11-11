@@ -236,16 +236,16 @@ const styles = stylex.create({
   key: {
     fontFamily: font.familyMono,
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
     paddingInline: space._1,
     paddingBlock: space._00,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgControl,
+    backgroundColor: color.card,
   },
   keyEffect: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

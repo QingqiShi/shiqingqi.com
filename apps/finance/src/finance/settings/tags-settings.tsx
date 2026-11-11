@@ -94,7 +94,7 @@ export function TagsSettings() {
         }
         initialFocusRef={nameRef}
         onSave={save}
-        danger={
+        destructive={
           current
             ? {
                 label: t({ en: "Delete", zh: "删除" }),

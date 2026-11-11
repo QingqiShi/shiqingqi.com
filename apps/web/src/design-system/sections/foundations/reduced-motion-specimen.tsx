@@ -132,6 +132,6 @@ const styles = stylex.create({
   },
   hint: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

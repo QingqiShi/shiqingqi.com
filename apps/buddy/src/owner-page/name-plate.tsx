@@ -80,7 +80,7 @@ const styles = stylex.create({
     flexWrap: "wrap",
   },
   level: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   pips: {
     display: "inline-flex",
@@ -98,10 +98,10 @@ const styles = stylex.create({
     cornerShape: "round",
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.borderControl,
+    borderColor: color.borderStrong,
   },
   pipOn: {
-    borderColor: color.bgSuccess,
-    backgroundColor: color.bgSuccess,
+    borderColor: color.success,
+    backgroundColor: color.success,
   },
 });

@@ -30,26 +30,26 @@ import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 import { hooksSpecimen } from "./hooks-specimen.stylex.ts";
 
 type LabelIntent =
-  "accent" | "info" | "success" | "warning" | "danger" | "neutral";
+  "primary" | "info" | "success" | "warning" | "destructive" | "neutral";
 
 /** A picker whose popup is a bare colour grid — markup that `Popover`'s padded surface would fight. */
 function IntentPickerSpecimen() {
-  const [selected, setSelected] = useState<LabelIntent>("accent");
+  const [selected, setSelected] = useState<LabelIntent>("primary");
   const { open, setOpen, triggerProps, contentProps } = usePopover();
   const intents: readonly LabelIntent[] = [
-    "accent",
+    "primary",
     "info",
     "success",
     "warning",
-    "danger",
+    "destructive",
     "neutral",
   ];
   const labels: Record<LabelIntent, string> = {
-    accent: t({ en: "Accent", zh: "强调" }),
+    primary: t({ en: "Primary", zh: "主要" }),
     info: t({ en: "Info", zh: "信息" }),
     success: t({ en: "Success", zh: "成功" }),
     warning: t({ en: "Warning", zh: "警告" }),
-    danger: t({ en: "Danger", zh: "危险" }),
+    destructive: t({ en: "Destructive", zh: "破坏性" }),
     neutral: t({ en: "Neutral", zh: "中性" }),
   };
   const fieldLabel = t({ en: "Label colour", zh: "标签颜色" });
@@ -219,12 +219,12 @@ const styles = stylex.create({
     gap: controlSize._2,
     paddingBlock: space._1,
     paddingInline: space._3,
-    color: color.fg,
+    color: color.foreground,
     backgroundColor: {
-      default: color.bgControl,
+      default: color.card,
       ":hover": {
         default: null,
-        [pointer.canHover]: color.bgControlHover,
+        [pointer.canHover]: color.accent,
       },
     },
     boxShadow: `inset 0 0 0 1px ${color.border}`,
@@ -257,13 +257,13 @@ const styles = stylex.create({
   // Two rings so the mark survives every hue in both themes: the overlay colour
   // reads on the saturated fills, the text colour on the pale neutral one.
   pickerCellSelected: {
-    boxShadow: `inset 0 0 0 3px ${color.bgSurfaceRaised}, inset 0 0 0 4px ${color.fg}`,
+    boxShadow: `inset 0 0 0 3px ${color.popover}, inset 0 0 0 4px ${color.foreground}`,
   },
   hintTrigger: {
     paddingBlock: space._1,
     color: {
-      default: color.fgMuted,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
+      default: color.mutedForeground,
+      ":hover": { default: null, [pointer.canHover]: color.foreground },
     },
     textDecorationLine: "underline",
     textDecorationStyle: "dotted",
@@ -287,17 +287,17 @@ const styles = stylex.create({
 
     marginInlineStart: `calc(-1 * ${space._1})`,
     fontWeight: font.weight_6,
-    color: color.fgAccent,
+    color: color.primaryText,
     cursor: "pointer",
   },
 });
 
 /** Keyed by intent so the picker can look a fill up by value. */
 const intentFill = stylex.create({
-  accent: { backgroundColor: color.bgAccent },
-  info: { backgroundColor: color.bgInfo },
-  success: { backgroundColor: color.bgSuccess },
-  warning: { backgroundColor: color.bgWarning },
-  danger: { backgroundColor: color.bgDanger },
-  neutral: { backgroundColor: color.bgNeutral },
+  primary: { backgroundColor: color.primary },
+  info: { backgroundColor: color.info },
+  success: { backgroundColor: color.success },
+  warning: { backgroundColor: color.warning },
+  destructive: { backgroundColor: color.destructive },
+  neutral: { backgroundColor: color.input },
 });

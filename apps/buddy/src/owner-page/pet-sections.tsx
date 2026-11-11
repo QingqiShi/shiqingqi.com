@@ -258,7 +258,7 @@ function LimitsSection({
                 <Text
                   as="span"
                   look="caption"
-                  tone={isOver ? "danger" : "muted"}
+                  tone={isOver ? "destructive" : "muted"}
                 >
                   {sentence}
                 </Text>
@@ -373,7 +373,7 @@ const styles = stylex.create({
     textAlign: "end",
   },
   quiet: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     fontWeight: font.weight_6,
   },
   rangeBar: {

@@ -3,7 +3,7 @@ import { pointer } from "../breakpoints.stylex.ts";
 import { color } from "../color.stylex.ts";
 import { border } from "../tokens.stylex.ts";
 import { duration, easing } from "./motion.stylex.ts";
-import { selectedTokens } from "./selected.stylex.ts";
+import { selectedTokens, stateFillTokens } from "./selected.stylex.ts";
 
 // StyleX cannot read a selector from another module, and it compiles a
 // `defineConsts` key as an at-rule, so that selector does not match this
@@ -27,20 +27,20 @@ export const quietSurface = stylex.create({
       default: selectedTokens.rest,
       [pointer.canHover]: {
         default: null,
-        ":hover": color.bgControlHover,
-        ":active": color.bgControlPressed,
+        ":hover": stateFillTokens.hover,
+        ":active": stateFillTokens.pressed,
         ":disabled:hover": selectedTokens.rest,
       },
-      ":active": color.bgControlPressed,
+      ":active": stateFillTokens.pressed,
       [SELECTED]: {
-        default: color.bgControlSelected,
+        default: stateFillTokens.selected,
         [pointer.canHover]: {
           default: null,
-          ":hover": color.bgControlSelected,
-          ":active": color.bgControlSelected,
-          ":disabled:hover": color.bgControlSelected,
+          ":hover": stateFillTokens.selected,
+          ":active": stateFillTokens.selected,
+          ":disabled:hover": stateFillTokens.selected,
         },
-        ":active": color.bgControlSelected,
+        ":active": stateFillTokens.selected,
       },
     },
     transition: `color ${duration._200} ${easing.ease}, background-color ${duration._200} ${easing.ease}, border-color ${duration._200} ${easing.ease}`,
@@ -48,7 +48,7 @@ export const quietSurface = stylex.create({
     outlineStyle: "solid",
     outlineColor: {
       default: "transparent",
-      ":focus-visible": color.borderAccent,
+      ":focus-visible": color.ring,
     },
     outlineOffset: `calc(-1 * ${border.size_2})`,
     WebkitTapHighlightColor: "transparent",

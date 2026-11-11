@@ -131,7 +131,7 @@ const styles = stylex.create({
     blockSize: "4px",
     borderRadius: "2px",
     cornerShape: "round",
-    backgroundColor: color.bgNeutralSubtle,
+    backgroundColor: color.secondary,
   },
   bar: {
     display: "block",

@@ -60,6 +60,6 @@ const styles = stylex.create({
   },
   title: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

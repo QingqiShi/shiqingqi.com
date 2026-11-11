@@ -55,7 +55,7 @@ export function SignInPanel({ next }: SignInPanelProps) {
           </Text>
         </div>
         {error ? (
-          <Callout intent="danger" role="alert">
+          <Callout intent="destructive" role="alert">
             {messageOf(error)}
           </Callout>
         ) : null}
@@ -123,7 +123,7 @@ function DemoEntry() {
         </Text>
       </div>
       {error ? (
-        <Callout intent="danger" role="alert">
+        <Callout intent="destructive" role="alert">
           {messageOf(error)}
         </Callout>
       ) : null}

@@ -110,7 +110,7 @@ export function SettingsForm({
         </Callout>
       ) : null}
       {notice === "failed" ? (
-        <Callout intent="danger" role="alert">
+        <Callout intent="destructive" role="alert">
           {t({
             en: "The settings were not saved. Try again.",
             zh: "设置没有保存成功，请重试。",

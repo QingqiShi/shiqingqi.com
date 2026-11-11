@@ -68,7 +68,7 @@ function RefusalText({ outcome }: { outcome: Refused }) {
     <Text
       as="p"
       look="bodySmall"
-      tone={retryable ? "danger" : "muted"}
+      tone={retryable ? "destructive" : "muted"}
       measure="none"
     >
       {refusalText(outcome)}
@@ -347,7 +347,7 @@ export function UndoStatus({ css }: { css?: StyleProp }) {
         <RefusalText key={key} outcome={outcome} />
       ))}
       {failed ? (
-        <Text as="p" look="bodySmall" tone="danger" measure="none">
+        <Text as="p" look="bodySmall" tone="destructive" measure="none">
           {t({
             en: "That did not go through. Try again.",
             zh: "没有成功，请重试。",

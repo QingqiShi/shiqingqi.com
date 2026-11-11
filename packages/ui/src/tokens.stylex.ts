@@ -310,7 +310,7 @@ export const opacityValue = stylex.defineConsts({
 // together against whatever is behind, which is what keeps it right on any
 // surface in either theme without a disabled color per variant. 0.6 lands
 // disabled text just under the AA floor the text ladder is held to (~4.0:1 for
-// a field's value and an accent button's label in light mode): legible, but
+// a field's value and a primary button's label in light mode): legible, but
 // never as loud as something active.
 export const opacity = stylex.defineVars({
   disabled: stylex.types.number(opacityValue.disabled),

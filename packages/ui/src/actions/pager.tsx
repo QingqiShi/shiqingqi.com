@@ -166,16 +166,16 @@ const styles = stylex.create({
   label: {
     gridArea: "label",
     color: {
-      default: color.fgMuted,
+      default: color.mutedForeground,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover")]: color.fg,
+        [stylex.when.ancestor(":hover")]: color.foreground,
       },
     },
   },
   title: {
     gridArea: "title",
-    color: color.fg,
+    color: color.foreground,
   },
   // One line high, so the caret stays on the first line of a title that wraps.
   caret: {

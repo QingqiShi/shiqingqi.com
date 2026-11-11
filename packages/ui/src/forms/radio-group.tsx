@@ -231,19 +231,19 @@ const styles = stylex.create({
     blockSize: controlSize._5,
     borderWidth: { default: border.size_1, ":checked": border.size_2 },
     borderColor: {
-      default: color.borderControl,
+      default: color.borderStrong,
       ":hover": {
         default: null,
-        [pointer.canHover]: color.borderAccent,
+        [pointer.canHover]: color.primary,
       },
-      ":checked": color.fg,
-      ":disabled": color.borderControl,
+      ":checked": color.foreground,
+      ":disabled": color.borderStrong,
     },
     backgroundColor: {
-      default: color.bgSurface,
-      ":disabled": color.bgControlDisabled,
+      default: color.card,
+      ":disabled": color.muted,
     },
-    color: color.fg,
+    color: color.foreground,
     [checkboxTokens.glyph]: {
       default: null,
       ":checked": `url("${DOT_MASK}")`,
@@ -251,7 +251,7 @@ const styles = stylex.create({
     [checkboxTokens.glyphSize]: "100% 100%",
   },
   label: {
-    color: color.fg,
+    color: color.foreground,
   },
   // The width of the mark and the gap of the row, so that the description
   // starts under the label.

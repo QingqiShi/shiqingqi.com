@@ -29,7 +29,7 @@ export const seriesFill = stylex.create({
   series7: { fill: seriesColor.series7 },
   series8: { fill: seriesColor.series8 },
   other: { fill: seriesColor.other },
-  accent: { fill: color.bgAccent },
+  primary: { fill: color.primary },
 });
 
 /** The same colours as `seriesFill`, for a legend key or a list swatch. */
@@ -43,7 +43,7 @@ export const seriesKey = stylex.create({
   series7: { backgroundColor: seriesColor.series7 },
   series8: { backgroundColor: seriesColor.series8 },
   other: { backgroundColor: seriesColor.other },
-  accent: { backgroundColor: color.bgAccent },
+  primary: { backgroundColor: color.primary },
 });
 
 /** The same colours as `seriesFill`, for a stroke, such as a slice of a ring. */
@@ -57,7 +57,7 @@ export const seriesStroke = stylex.create({
   series7: { stroke: seriesColor.series7 },
   series8: { stroke: seriesColor.series8 },
   other: { stroke: seriesColor.other },
-  accent: { stroke: color.bgAccent },
+  primary: { stroke: color.primary },
 });
 
 /** The same colours as `seriesFill`, faint, for the tile behind an icon. "Other" takes twice the share, as its grey is pale. */
@@ -89,5 +89,5 @@ export const seriesTint = stylex.create({
   other: {
     backgroundColor: `light-dark(color-mix(in srgb, ${seriesColor.other} 24%, transparent), color-mix(in srgb, ${seriesColor.other} 40%, transparent))`,
   },
-  accent: { backgroundColor: color.bgAccentSubtle },
+  primary: { backgroundColor: color.primarySubtle },
 });

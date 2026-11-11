@@ -33,7 +33,7 @@ export const TextLab = defineLab({
     {
       id: "overline",
       label: { en: "Overline", zh: "上标题" },
-      props: { children: "New feature", look: "overline", tone: "accent" },
+      props: { children: "New feature", look: "overline", tone: "primary" },
     },
     {
       id: "verbatim",

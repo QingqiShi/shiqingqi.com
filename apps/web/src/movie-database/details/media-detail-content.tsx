@@ -320,7 +320,7 @@ const styles = stylex.create({
     width: "100%",
     height: "50%",
     zIndex: layer.base,
-    backgroundImage: `linear-gradient(to bottom, transparent, ${color.bgSurface})`,
+    backgroundImage: `linear-gradient(to bottom, transparent, ${color.card})`,
   },
   body: {
     position: "relative",
@@ -355,13 +355,13 @@ const styles = stylex.create({
     alignItems: "baseline",
   },
   voteCount: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   title: {
     margin: 0,
   },
   meta: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     margin: 0,
   },
   description: {
@@ -370,7 +370,7 @@ const styles = stylex.create({
   },
   errorText: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     fontStyle: "italic",
   },
   actions: {
@@ -384,12 +384,12 @@ const styles = stylex.create({
     alignItems: "center",
     gap: rhythm.inline,
     color: {
-      default: color.fgMuted,
+      default: color.mutedForeground,
       ":hover": {
         default: null,
-        [pointer.canHover]: color.fgOnAccent,
+        [pointer.canHover]: color.primaryForeground,
       },
-      ":focus-visible": color.fgOnAccent,
+      ":focus-visible": color.primaryForeground,
     },
     textDecoration: "none",
     borderWidth: border.size_1,
@@ -398,14 +398,14 @@ const styles = stylex.create({
       default: color.border,
       ":hover": {
         default: null,
-        [pointer.canHover]: color.borderAccent,
+        [pointer.canHover]: color.primary,
       },
-      ":focus-visible": color.borderAccent,
+      ":focus-visible": color.ring,
     },
     backgroundColor: {
       default: "transparent",
-      ":hover": { default: null, [pointer.canHover]: color.bgAccent },
-      ":focus-visible": color.bgAccent,
+      ":hover": { default: null, [pointer.canHover]: color.primary },
+      ":focus-visible": color.primary,
     },
     paddingBlock: space._1,
     paddingInline: space._3,
@@ -415,8 +415,8 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: color.bgSurface,
-    color: color.fgMuted,
+    backgroundColor: color.card,
+    color: color.mutedForeground,
   },
 });
 

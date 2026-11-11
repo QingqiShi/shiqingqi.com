@@ -57,6 +57,6 @@ const styles = stylex.create({
     margin: 0,
   },
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

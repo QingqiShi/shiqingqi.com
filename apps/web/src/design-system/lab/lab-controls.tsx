@@ -179,6 +179,6 @@ const styles = stylex.create({
   },
   propName: {
     fontFamily: font.familyMono,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

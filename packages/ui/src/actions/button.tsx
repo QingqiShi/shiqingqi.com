@@ -85,23 +85,23 @@ interface SharedProps {
    * filters. `"ghost"` has no surface at all and holds its colour back until
    * hover, for an affordance inline over existing content. `"bright"` lifts
    * the button onto a bright surface that brightens further on hover.
-   * `"danger"` is for the action that destroys something.
+   * `"destructive"` is for the action that destroys something.
    *
    * @zh 视觉外观。省略则为默认的凸起表面。
    *
-   * `"primary"` 与 `isActive` 共用同一种高亮，但不表示任何状态。`"outline"` 以描边取代填充，是一排筛选项所用的外观；`"ghost"` 完全没有表面，颜色在悬停前保持克制，适合置于已有内容之上的行内控件；`"bright"` 将按钮置于明亮表面，悬停时进一步提亮；`"danger"` 用于真正具有破坏性的操作。
+   * `"primary"` 与 `isActive` 共用同一种高亮，但不表示任何状态。`"outline"` 以描边取代填充，是一排筛选项所用的外观；`"ghost"` 完全没有表面，颜色在悬停前保持克制，适合置于已有内容之上的行内控件；`"bright"` 将按钮置于明亮表面，悬停时进一步提亮；`"destructive"` 用于真正具有破坏性的操作。
    */
-  look?: "primary" | "outline" | "ghost" | "bright" | "danger";
+  look?: "primary" | "outline" | "ghost" | "bright" | "destructive";
   /**
-   * `"danger"` marks a secondary destructive action on an `outline` or
+   * `"destructive"` marks a secondary destructive action on an `outline` or
    * `ghost` button, such as Delete in a bar of other actions: the label and
-   * the hover fill turn danger, and the button keeps the weight of the
+   * the hover fill turn destructive, and the button keeps the weight of the
    * buttons beside it. Other looks ignore it. The one action that destroys
-   * takes `look="danger"`, the filled form.
+   * takes `look="destructive"`, the filled form.
    *
-   * @zh `"danger"` 用于 `outline` 或 `ghost` 按钮上次要的破坏性操作，例如一排操作中的“删除”：标签和悬停填充变为危险色，按钮与旁边的按钮保持同样的分量。其他外观会忽略它。真正具有破坏性的唯一操作使用 `look="danger"`，即填充形式。
+   * @zh `"destructive"` 用于 `outline` 或 `ghost` 按钮上次要的破坏性操作，例如一排操作中的“删除”：标签和悬停填充变为危险色，按钮与旁边的按钮保持同样的分量。其他外观会忽略它。真正具有破坏性的唯一操作使用 `look="destructive"`，即填充形式。
    */
-  intent?: "danger";
+  intent?: "destructive";
   /**
    * Lets a `ghost` button reach past its edge of the content, so that its
    * label or glyph, not its padded box, lines up with the text above and
@@ -370,9 +370,9 @@ function splitFace<Props extends FaceProps>({
 }
 
 function paintsHighlight({ isActive, look }: FaceProps) {
-  // `danger` keeps its own fill, so a destructive button doesn't repaint
-  // brand-accent when toggled on.
-  return (isActive === true || look === "primary") && look !== "danger";
+  // `destructive` keeps its own fill, so a destructive button doesn't repaint
+  // primary when toggled on.
+  return (isActive === true || look === "primary") && look !== "destructive";
 }
 
 interface FaceState {
@@ -407,7 +407,7 @@ function faceCss(
     sizeStyles[size],
     look !== undefined && look !== "primary" && lookStyles[look],
     isOutline && outlineSurface.skin,
-    intent === "danger" &&
+    intent === "destructive" &&
       (look === "outline" || look === "ghost") &&
       dangerIntentStyles[look],
     shape === "iconOnlyBelowMd" && sharedStyles.iconOnlyBelowMd,
@@ -469,7 +469,7 @@ function Face({
   // On a filled look there's nothing to mute against, and dimming its text
   // further would drop it below the WCAG 1.4.3 contrast floor.
   const inheritsTrailingColor =
-    paintsHighlight(face) || look === "danger" || look === "bright";
+    paintsHighlight(face) || look === "destructive" || look === "bright";
 
   return (
     <>
@@ -556,7 +556,7 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     flexShrink: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   trailingInherited: {
     color: "inherit",

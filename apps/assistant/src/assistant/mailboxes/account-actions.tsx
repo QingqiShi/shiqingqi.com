@@ -49,7 +49,7 @@ export function AccountActions({ accountId }: { accountId: string }) {
       </Button>
       <Button
         size="sm"
-        look={confirming ? "danger" : "ghost"}
+        look={confirming ? "destructive" : "ghost"}
         icon={<TrashIcon weight="bold" />}
         hideLabelOnMobile
         aria-label={removeLabel}

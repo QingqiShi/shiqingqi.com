@@ -51,12 +51,12 @@ const styles = stylex.create({
     inlineSize: "100%",
     blockSize: "3px",
     overflow: "hidden",
-    backgroundColor: color.bgNeutralSubtle,
+    backgroundColor: color.secondary,
   },
   fill: {
     display: "block",
     blockSize: "100%",
-    backgroundColor: color.bgWarning,
+    backgroundColor: color.warning,
   },
   fillSize: (percent: string) => ({
     inlineSize: percent,

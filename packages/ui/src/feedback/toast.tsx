@@ -197,7 +197,7 @@ const styles = stylex.create({
   light: {
     position: "absolute",
     inset: 0,
-    color: color.bgAccent,
+    color: color.primary,
     pointerEvents: "none",
   },
   surface: {
@@ -211,7 +211,7 @@ const styles = stylex.create({
     minBlockSize: LINE_HEIGHT,
     paddingBlock: INSET,
     paddingInline: controlSize._5,
-    color: color.fg,
+    color: color.foreground,
     // Forced colours drop the shadow and the rim, and paint the fill as the
     // canvas, so an outline the system colours draws the edge instead.
     outlineWidth: "1px",

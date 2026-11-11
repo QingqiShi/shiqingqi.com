@@ -224,14 +224,14 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     minBlockSize: controlHeight.sm,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     textDecoration: {
       default: "none",
       ":hover": { default: null, [pointer.canHover]: "underline" },
     },
   },
   wordmark: {
-    color: color.fg,
+    color: color.foreground,
     fontWeight: font.weight_6,
   },
   main: {
@@ -267,7 +267,7 @@ const styles = stylex.create({
   },
   phoneFrame: {
     padding: { default: 0, [breakpoints.lg]: BEZEL },
-    backgroundColor: { default: null, [breakpoints.lg]: color.bgSurface },
+    backgroundColor: { default: null, [breakpoints.lg]: color.card },
     borderWidth: { default: 0, [breakpoints.lg]: border.size_1 },
     borderStyle: "solid",
     borderColor: color.border,

@@ -25,8 +25,8 @@ export function FilterChipsShowcase() {
         <FilterChipsCountsExample />
         <GuideNote>
           {t({
-            en: 'The count is part of the chip\'s name, so a screen reader reads "Problems 1". countIntent="danger" marks items that need attention.',
-            zh: '数字是筛选项名称的一部分，因此读屏软件会读出「问题 1」。countIntent="danger" 标记需要关注的条目。',
+            en: 'The count is part of the chip\'s name, so a screen reader reads "Problems 1". countIntent="destructive" marks items that need attention.',
+            zh: '数字是筛选项名称的一部分，因此读屏软件会读出「问题 1」。countIntent="destructive" 标记需要关注的条目。',
           })}
         </GuideNote>
         <GuideNote>

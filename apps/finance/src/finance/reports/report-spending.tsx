@@ -255,10 +255,10 @@ const styles = stylex.create({
     margin: 0,
   },
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   fact: {
-    color: color.fg,
+    color: color.foreground,
   },
   facts: {
     justifyContent: "space-between",

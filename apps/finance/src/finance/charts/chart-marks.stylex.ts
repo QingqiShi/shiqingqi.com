@@ -15,12 +15,12 @@ export const chartMarks = stylex.create({
     shapeRendering: "crispEdges",
   },
   zeroLine: {
-    stroke: color.fgMuted,
+    stroke: color.mutedForeground,
     strokeWidth: 1,
     shapeRendering: "crispEdges",
   },
   axisLabel: {
-    fill: color.fgMuted,
+    fill: color.mutedForeground,
   },
   line: {
     fill: "none",
@@ -37,32 +37,32 @@ export const chartMarks = stylex.create({
   },
   trendLine: {
     fill: "none",
-    stroke: color.fgMuted,
+    stroke: color.mutedForeground,
     strokeWidth: 2,
     strokeLinejoin: "round",
     strokeLinecap: "round",
     opacity: 0.7,
   },
   crosshair: {
-    stroke: color.fgMuted,
+    stroke: color.mutedForeground,
     strokeWidth: 1,
     shapeRendering: "crispEdges",
   },
   dotRing: {
-    stroke: color.bgSurface,
+    stroke: color.card,
     strokeWidth: 2,
   },
   primaryKey: {
-    backgroundColor: color.bgAccent,
+    backgroundColor: color.primary,
   },
   trendKey: {
-    backgroundColor: color.fgMuted,
+    backgroundColor: color.mutedForeground,
     opacity: 0.7,
   },
   neutralKey: {
-    backgroundColor: `color-mix(in srgb, ${color.fgMuted} 60%, transparent)`,
+    backgroundColor: `color-mix(in srgb, ${color.mutedForeground} 60%, transparent)`,
   },
   referenceKey: {
-    backgroundColor: color.fg,
+    backgroundColor: color.foreground,
   },
 });

@@ -37,7 +37,7 @@ const styles = stylex.create({
   dim: {
     position: "absolute",
     inset: 0,
-    backgroundColor: color.bgScrim,
+    backgroundColor: color.overlay,
   },
   // Inset by `space._0` from a page cornered at `radius_2`, so its own corner
   // is the step below.
@@ -50,12 +50,12 @@ const styles = stylex.create({
     gap: rhythm.tight,
     paddingBlock: space._1,
     paddingInline: space._2,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   grabber: {
     alignSelf: "center",
     inlineSize: space._5,
     blockSize: space._00,
-    backgroundColor: color.bgNeutral,
+    backgroundColor: color.input,
   },
 });

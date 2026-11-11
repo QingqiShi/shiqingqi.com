@@ -44,9 +44,9 @@ export function CalloutShowcase() {
               })}
             </Callout>
           </Specimen>
-          <Specimen caption="danger">
+          <Specimen caption="destructive">
             <Callout
-              intent="danger"
+              intent="destructive"
               title={t({ en: "Payment failed", zh: "付款失败" })}
             >
               {t({
@@ -55,9 +55,9 @@ export function CalloutShowcase() {
               })}
             </Callout>
           </Specimen>
-          <Specimen caption="accent">
+          <Specimen caption="primary">
             <Callout
-              intent="accent"
+              intent="primary"
               title={t({ en: "New in 2.0", zh: "2.0 新功能" })}
             >
               {t({
@@ -124,7 +124,7 @@ export function CalloutShowcase() {
           })}
         </ShowcaseHelper>
         <Specimen caption={t({ en: "custom icon", zh: "自定义图标" })}>
-          <Callout intent="accent" icon={<MegaphoneIcon weight="fill" />}>
+          <Callout intent="primary" icon={<MegaphoneIcon weight="fill" />}>
             {t({
               en: "Swap in a Phosphor icon when an intent's default icon isn't specific enough.",
               zh: "当意图色的默认图标不够贴切时，可换用 Phosphor 图标。",

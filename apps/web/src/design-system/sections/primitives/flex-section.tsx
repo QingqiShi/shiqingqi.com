@@ -163,7 +163,7 @@ const styles = stylex.create({
     inlineSize: "100%",
     paddingBlock: space._2,
     paddingInline: space._3,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   barActions: {
@@ -173,13 +173,13 @@ const styles = stylex.create({
     paddingBlock: space._00,
     paddingInline: space._2,
     fontWeight: font.weight_6,
-    color: color.fgMuted,
-    backgroundColor: color.bgControl,
+    color: color.mutedForeground,
+    backgroundColor: color.card,
     whiteSpace: "nowrap",
   },
   pillAccent: {
-    color: color.fgAccent,
-    backgroundColor: color.bgAccentSubtle,
+    color: color.primaryText,
+    backgroundColor: color.primarySubtle,
   },
   chipRow: {
     gap: rhythm.tight,
@@ -191,8 +191,8 @@ const styles = stylex.create({
   growField: {
     paddingBlock: space._1,
     paddingInline: space._3,
-    color: color.fgMuted,
-    backgroundColor: color.bgSurfaceSunken,
+    color: color.mutedForeground,
+    backgroundColor: color.muted,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
     whiteSpace: "nowrap",
     overflow: "hidden",

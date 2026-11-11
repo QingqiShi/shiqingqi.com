@@ -120,10 +120,10 @@ const markStyles = stylex.create({
     blockSize: optionCardMark.size,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    color: color.bgSurface,
+    color: color.card,
   },
   ring: {
-    borderColor: color.borderControl,
+    borderColor: color.borderStrong,
   },
   // It covers the ring, so that a fill can rise past it.
   shown: {
@@ -131,14 +131,14 @@ const markStyles = stylex.create({
     inset: `calc(-1 * ${border.size_1})`,
   },
   fill: {
-    backgroundColor: color.fg,
+    backgroundColor: color.foreground,
   },
   // A dot in the colour of the surface reads as a hole in a filled disc, so
   // the checked radio has the ink in its centre.
   checkedRing: {
     borderWidth: border.size_2,
     borderStyle: "solid",
-    borderColor: color.fg,
+    borderColor: color.foreground,
   },
   hidden: {
     transform: "scale(0)",
@@ -146,6 +146,6 @@ const markStyles = stylex.create({
   dot: {
     inlineSize: `calc(${optionCardMark.size} / 2)`,
     blockSize: `calc(${optionCardMark.size} / 2)`,
-    backgroundColor: color.fg,
+    backgroundColor: color.foreground,
   },
 });

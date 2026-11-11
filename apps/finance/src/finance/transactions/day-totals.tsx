@@ -50,6 +50,6 @@ export function DayTotals({
 const styles = stylex.create({
   totals: {
     gap: rhythm.item,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

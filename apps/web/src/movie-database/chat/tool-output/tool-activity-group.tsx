@@ -110,7 +110,7 @@ const styles = stylex.create({
   disclosureButton: {
     gap: controlSize._2,
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     minHeight: "1.5rem",
   },
   caret: {

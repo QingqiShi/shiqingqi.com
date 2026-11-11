@@ -77,7 +77,7 @@ const styles = stylex.create({
     backgroundColor: color.border,
   },
   picked: {
-    backgroundColor: color.bgControlSelected,
+    backgroundColor: color.secondary,
   },
   content: {
     display: "flex",
@@ -101,7 +101,7 @@ const styles = stylex.create({
     borderInlineStartWidth: border.size_1,
     borderInlineStartStyle: "solid",
     borderInlineStartColor: color.border,
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
   },
   detailHeader: {
     display: "flex",
@@ -112,6 +112,6 @@ const styles = stylex.create({
   close: {
     inlineSize: space._1,
     blockSize: space._1,
-    backgroundColor: color.bgNeutral,
+    backgroundColor: color.input,
   },
 });

@@ -156,7 +156,7 @@ export function ToolVisualOutput({
 const styles = stylex.create({
   error: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     fontStyle: "italic",
     paddingBlock: space._1,
   },

@@ -60,7 +60,7 @@ export function OrganiseNotesForm({ initial }: { initial: string }) {
         </Callout>
       ) : null}
       {notice === "failed" ? (
-        <Callout intent="danger" role="alert">
+        <Callout intent="destructive" role="alert">
           {t({
             en: "The rules were not saved. Try again.",
             zh: "规则没有保存成功，请重试。",

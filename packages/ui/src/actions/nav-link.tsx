@@ -157,7 +157,7 @@ const styles = stylex.create({
     display: { default: "none", [navListQueries.sidebarPage]: "inline-flex" },
     flexShrink: 0,
     marginInlineStart: "auto",
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   caretAfterTrailing: {
     marginInlineStart: 0,

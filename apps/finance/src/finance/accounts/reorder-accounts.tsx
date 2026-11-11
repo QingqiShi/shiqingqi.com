@@ -190,12 +190,12 @@ const styles = stylex.create({
   },
   groupName: {
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
   },
   empty: {
     margin: 0,
     paddingInline: space._2,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   account: {
     display: "flex",
@@ -203,7 +203,7 @@ const styles = stylex.create({
     gap: rhythm.item,
     paddingBlock: space._1,
     paddingInlineStart: space._2,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
     cursor: "grab",
     userSelect: "none",
   },
@@ -220,6 +220,6 @@ const styles = stylex.create({
     fontWeight: font.weight_5,
   },
   detail: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

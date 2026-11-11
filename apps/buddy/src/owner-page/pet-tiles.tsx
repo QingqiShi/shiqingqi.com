@@ -221,7 +221,7 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   tileLabel: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   tileBody: {
     display: "flex",
@@ -258,18 +258,18 @@ const styles = stylex.create({
     whiteSpace: "nowrap",
   },
   barFill: {
-    fill: color.fgMuted,
+    fill: color.mutedForeground,
     fillOpacity: 0.35,
   },
   trackFill: {
-    fill: color.fgMuted,
+    fill: color.mutedForeground,
     fillOpacity: 0.18,
   },
   clayFill: {
     fill: CLAY,
   },
   trackStroke: {
-    stroke: color.fgMuted,
+    stroke: color.mutedForeground,
     strokeOpacity: 0.18,
   },
   clayStroke: {

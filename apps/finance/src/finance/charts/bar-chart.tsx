@@ -399,12 +399,12 @@ const styles = stylex.create({
   },
   readout: {
     minBlockSize: space._5,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     flexWrap: "wrap",
     columnGap: rhythm.item,
   },
   readoutValue: {
-    color: color.fg,
+    color: color.foreground,
     fontWeight: font.weight_6,
   },
   plot: {
@@ -429,23 +429,23 @@ const styles = stylex.create({
     fillOpacity: 0.4,
   },
   activeBand: {
-    fill: color.bgNeutralSubtle,
+    fill: color.accent,
   },
   reference: {
-    stroke: color.fg,
+    stroke: color.foreground,
     strokeWidth: 1,
     strokeDasharray: "4 3",
     shapeRendering: "crispEdges",
   },
   referenceNote: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   referenceKey: {
     display: "inline-block",
     inlineSize: space._3,
     borderBlockStartWidth: 1,
     borderBlockStartStyle: "dashed",
-    borderBlockStartColor: color.fg,
+    borderBlockStartColor: color.foreground,
   },
 });

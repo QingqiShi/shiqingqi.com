@@ -216,7 +216,7 @@ const styles = stylex.create({
     display: "flex",
     justifyContent: "center",
     paddingBlock: space._5,
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
   },
   ring: {
     position: "relative",
@@ -231,7 +231,7 @@ const styles = stylex.create({
   },
   track: {
     fill: "none",
-    stroke: color.bgNeutralSubtle,
+    stroke: color.secondary,
     strokeWidth: STROKE,
     opacity: 0.5,
   },
@@ -253,7 +253,7 @@ const styles = stylex.create({
     fontWeight: font.weight_7,
   },
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   empty: {
     margin: 0,

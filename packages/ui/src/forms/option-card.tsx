@@ -354,7 +354,7 @@ const styles = stylex.create({
     paddingInline: `calc(${cornerCentre} + ${optionCardMark.size} / 2 + ${rhythm.tight})`,
   },
   icon: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   text: {
     minInlineSize: 0,
@@ -369,7 +369,7 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
   },
   description: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // `truncate.base` cannot apply only under an ancestor, so these are its
   // values.

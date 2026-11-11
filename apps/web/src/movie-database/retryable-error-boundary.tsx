@@ -70,7 +70,7 @@ const styles = stylex.create({
     textAlign: "center",
   },
   errorText: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     margin: 0,
   },
   retryButton: {
@@ -78,7 +78,7 @@ const styles = stylex.create({
     paddingInline: space._5,
     fontWeight: font.weight_5,
     fontFamily: font.family,
-    backgroundColor: color.bgAccent,
-    color: color.fgOnAccent,
+    backgroundColor: color.primary,
+    color: color.primaryForeground,
   },
 });

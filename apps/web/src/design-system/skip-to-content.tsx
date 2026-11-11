@@ -52,7 +52,7 @@ const styles = stylex.create({
     zIndex: layer.toaster,
     // Lifts the link off what it covers. The outline alone reads as in-flow
     // chrome rather than as an overlay.
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
     boxShadow: shadow._4,
   },
 });

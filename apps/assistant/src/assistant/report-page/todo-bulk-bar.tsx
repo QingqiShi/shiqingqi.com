@@ -164,7 +164,7 @@ export function TodoBulkBar({
           <Button
             size="sm"
             look="outline"
-            intent="danger"
+            intent="destructive"
             disabled={count === 0}
             onClick={finish(() => {
               removeMany(ids);
@@ -197,7 +197,7 @@ const styles = stylex.create({
     gap: rhythm.tight,
     paddingBlock: space._2,
     paddingInline: space._3,
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
     boxShadow: shadow._4,
   },
   count: {

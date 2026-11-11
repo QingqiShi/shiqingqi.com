@@ -63,14 +63,14 @@ const styles = stylex.create({
     borderColor: color.border,
     fontSize: controlSize._4,
     color: {
-      default: color.fgMuted,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
+      default: color.mutedForeground,
+      ":hover": { default: null, [pointer.canHover]: color.foreground },
     },
     backgroundColor: {
-      default: color.bgSurface,
+      default: color.card,
       ":hover": {
         default: null,
-        [pointer.canHover]: color.bgControlHover,
+        [pointer.canHover]: color.accent,
       },
     },
   },

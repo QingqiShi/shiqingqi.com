@@ -138,7 +138,7 @@ export function VisibilitySwitch({
         }}
       />
       {didFail ? (
-        <Callout intent="danger" role="alert">
+        <Callout intent="destructive" role="alert">
           {t({
             en: "That did not save. Try again.",
             zh: "未能保存，请重试。",

@@ -130,20 +130,20 @@ const styles = stylex.create({
     alignItems: "baseline",
   },
   count: {
-    color: color.fg,
+    color: color.foreground,
   },
   unit: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   name: {
     alignSelf: "flex-start",
-    color: color.fg,
+    color: color.foreground,
   },
   paths: {
     display: "flex",
     flexDirection: "column",
     marginBlockStart: rhythm.tight,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   path: {
     fontFamily: font.familyMono,

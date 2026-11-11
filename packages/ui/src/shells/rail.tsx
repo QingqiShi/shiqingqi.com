@@ -258,14 +258,14 @@ const styles = stylex.create({
   },
   // A labelled row marks the current destination as a `NavLink` does.
   trackLabels: {
-    [segmentSurface.fill]: color.bgControlSelected,
+    [segmentSurface.fill]: color.accent,
   },
   link: {
     display: "flex",
     minInlineSize: 0,
     color: {
-      default: color.fgControl,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
+      default: color.mutedForeground,
+      ":hover": { default: null, [pointer.canHover]: color.foreground },
     },
     textDecoration: "none",
     // A press on a destination can drag the indicator, so it does not
@@ -308,7 +308,7 @@ const styles = stylex.create({
   // in `secondary` matches it. The current row is filled, and its icon is
   // filled in `fg`.
   rowIconShown: {
-    color: color.fg,
+    color: color.foreground,
   },
   rowLabel: {
     flexGrow: 1,

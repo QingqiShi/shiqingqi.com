@@ -138,7 +138,7 @@ const styles = stylex.create({
   // positioned or z-indexed sibling would otherwise paint over the rest.
   link: {
     zIndex: 3,
-    color: color.fg,
+    color: color.foreground,
     textDecoration: "none",
     // The element's own outline is declared solid-and-transparent purely to
     // suppress the UA focus ring, the same way `cardSurface.interactive` and
@@ -162,12 +162,12 @@ const styles = stylex.create({
     },
     outlineColor: {
       default: "transparent",
-      ":focus-visible": { "::after": color.bgAccent },
+      ":focus-visible": { "::after": color.primary },
     },
   },
   description: {
     zIndex: 1,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // A sunken plate, inset within the card's padding: a fill and a radius, no
   // border. That is the difference between this and a card inside a card —
@@ -186,7 +186,7 @@ const styles = stylex.create({
     alignItems: "center",
     flexGrow: 1,
     padding: space._3,
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
   },
   // At rest the specimen is drained of colour and held back, then returns to
   // full strength when the tile is engaged — the same move the tile
@@ -246,11 +246,11 @@ const styles = stylex.create({
       },
     },
     // 0.9, not the deeper fade this started at: the specimens render real text,
-    // and compositing `fgMuted` at 0.62 over the sunken plate lands at 2.71:1
+    // and compositing `mutedForeground` at 0.62 over the sunken plate lands at 2.71:1
     // in the light theme, well under the 4.5:1 floor. At 0.9 it clears (4.89:1)
     // and greyscale carries the recession, which it was doing most of anyway.
     // Anything lower here has to be checked against light-theme muted text on
-    // `bgSurfaceSunken`, which is the binding case.
+    // `color.muted`, which is the binding case.
     opacity: {
       default: 0.9,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]: 1,

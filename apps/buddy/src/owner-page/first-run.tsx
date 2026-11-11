@@ -127,12 +127,12 @@ const styles = stylex.create({
     borderRadius: border.radius_round,
     cornerShape: "round",
     fontWeight: font.weight_6,
-    color: color.fgMuted,
-    backgroundColor: color.bgControlSunken,
+    color: color.mutedForeground,
+    backgroundColor: color.muted,
   },
   badgeDone: {
-    color: color.fgOnSuccess,
-    backgroundColor: color.bgSuccess,
+    color: color.successForeground,
+    backgroundColor: color.success,
   },
   wait: {
     justifyContent: "center",
@@ -144,9 +144,9 @@ const styles = stylex.create({
     flexShrink: 0,
     borderRadius: border.radius_round,
     cornerShape: "round",
-    backgroundColor: color.fgMuted,
+    backgroundColor: color.mutedForeground,
   },
   dotLive: {
-    backgroundColor: color.bgSuccess,
+    backgroundColor: color.success,
   },
 });

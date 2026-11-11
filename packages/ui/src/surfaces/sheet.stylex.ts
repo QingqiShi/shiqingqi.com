@@ -101,7 +101,7 @@ export const styles = stylex.create({
     insetBlockEnd: "calc(-100lvh - 1px)",
     insetInlineStart: 0,
     inlineSize: "100%",
-    backgroundColor: color.bgScrim,
+    backgroundColor: color.overlay,
     zIndex: `calc(${layer.overlay} - 1)`,
   },
   // A tap on the page while the card leaves goes to the page.
@@ -132,7 +132,7 @@ export const styles = stylex.create({
     boxSizing: "border-box",
     inlineSize: "100%",
     overflow: "hidden",
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
     pointerEvents: "auto",
   },
   cardFit: (visibleHeight: string) => ({
@@ -162,7 +162,7 @@ export const styles = stylex.create({
   grabberBar: {
     inlineSize: space._7,
     blockSize: space._0,
-    backgroundColor: color.bgNeutral,
+    backgroundColor: color.input,
   },
   scroller: {
     flexGrow: 0,

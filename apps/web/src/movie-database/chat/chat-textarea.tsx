@@ -257,14 +257,14 @@ export const chatTextareaStyles = stylex.create({
     borderRadius: border.radius_round,
     cornerShape: "round",
     cursor: { default: "pointer", ":disabled": "default" },
-    backgroundColor: color.bgNeutralSubtle,
-    color: color.fgMuted,
+    backgroundColor: color.muted,
+    color: color.mutedForeground,
     opacity: { default: null, ":disabled": opacity.disabled },
     transition: `background-color ${duration._150} ${easing.ease}, color ${duration._150} ${easing.ease}`,
   },
   iconButtonActive: {
-    backgroundColor: color.bgAccent,
-    color: color.fgOnAccent,
+    backgroundColor: color.primary,
+    color: color.primaryForeground,
   },
 });
 
@@ -272,7 +272,7 @@ const styles = stylex.create({
   container: {
     width: "100%",
     gap: controlSize._2,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
     paddingBlock: space._2,
     paddingLeft: space._3,
     paddingRight: space._2,
@@ -294,11 +294,11 @@ const styles = stylex.create({
     borderStyle: "none",
     outline: "none",
     backgroundColor: "transparent",
-    color: color.fg,
+    color: color.foreground,
     fontFamily: font.family,
     padding: 0,
     "::placeholder": {
-      color: color.fgMuted,
+      color: color.mutedForeground,
     },
   },
   fieldMultiline: {

@@ -43,14 +43,14 @@ interface StatProps extends Omit<
   icon?: ReactNode;
   /**
    * Colours the figure by what it means: `success` for a good result such as
-   * money in, `danger` for a loss or a fault, `warning` for something that
+   * money in, `destructive` for a loss or a fault, `warning` for something that
    * needs attention, `info` for a neutral note. Defaults to `default`, the
    * text colour. Say the meaning in the label or the detail too, as colour
    * alone does not reach everyone.
    *
-   * @zh 按含义为数值着色：`success` 表示好的结果，例如收入；`danger` 表示亏损或故障；`warning` 表示需要注意的事；`info` 表示中性的提示。默认为 `default`，即正文颜色。同时也要在标签或说明中写明含义，因为仅靠颜色并不能传达给所有人。
+   * @zh 按含义为数值着色：`success` 表示好的结果，例如收入；`destructive` 表示亏损或故障；`warning` 表示需要注意的事；`info` 表示中性的提示。默认为 `default`，即正文颜色。同时也要在标签或说明中写明含义，因为仅靠颜色并不能传达给所有人。
    */
-  intent?: "default" | "success" | "warning" | "danger" | "info";
+  intent?: "default" | "success" | "warning" | "destructive" | "info";
   /**
    * StyleX styles merged over the stat's own — the config-layer escape
    * hatch.
@@ -135,7 +135,7 @@ const styles = stylex.create({
     borderColor: { default: null, [ON_CARD]: color.border },
     borderRadius: { default: null, [ON_CARD]: border.radius_3 },
     cornerShape: { default: null, [ON_CARD]: "squircle" },
-    backgroundColor: { default: null, [ON_CARD]: color.bgSurface },
+    backgroundColor: { default: null, [ON_CARD]: color.card },
     boxShadow: { default: null, [ON_CARD]: shadow._1 },
   },
   labelLine: {
@@ -143,7 +143,7 @@ const styles = stylex.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: rhythm.tight,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   label: {
     minInlineSize: 0,
@@ -160,7 +160,7 @@ const styles = stylex.create({
   },
   detail: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });
 export { StatGroup } from "./stat-group.tsx";
