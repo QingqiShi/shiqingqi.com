@@ -9,6 +9,7 @@ import {
 import { Badge } from "../data-display/badge.tsx";
 import { useRadioGroup } from "../hooks/use-radio-group.ts";
 import { corner } from "../primitives/corner.stylex.ts";
+import { scrollX } from "../primitives/layout.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { row } from "../primitives/stack.stylex.ts";
 import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
@@ -157,7 +158,7 @@ export function FilterChips<TValue extends string>({
       aria-label={ariaLabel}
       aria-labelledby={ariaLabelledBy}
       css={css}
-      contentCss={row.tight}
+      contentCss={[scrollX.base, row.tight]}
     >
       {options.map((option) => (
         <button

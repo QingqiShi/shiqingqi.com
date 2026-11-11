@@ -73,7 +73,12 @@ export function OverviewTile({
         <Link href={href} {...stylex.props(typeRole.h3, styles.link)}>
           {label}
         </Link>
-        <Text as="span" look="bodySmall" tone="muted" css={styles.description}>
+        <Text
+          as="span"
+          look="bodySmall"
+          tone="muted"
+          css={[styles.description, specimen ? styles.descriptionFixed : null]}
+        >
           {description}
         </Text>
       </div>
@@ -169,6 +174,15 @@ const styles = stylex.create({
   description: {
     zIndex: 1,
   },
+  // Every component tile holds three lines of description, so that all the
+  // tiles have one height. A longer description ends in an ellipsis.
+  descriptionFixed: {
+    display: "-webkit-box",
+    overflow: "hidden",
+    minBlockSize: "3lh",
+    WebkitBoxOrient: "vertical",
+    WebkitLineClamp: 3,
+  },
   // A sunken plate, inset within the card's padding: a fill and a radius, no
   // border. That is the difference between this and a card inside a card —
   // nineteen bordered wells add nineteen edges to the grid, whereas an unbordered
@@ -176,15 +190,17 @@ const styles = stylex.create({
   // down from the card's own (`radius_3` outer, `radius_2` inner) so the two
   // curves nest rather than compete.
   //
-  // `flexGrow` makes the plate absorb whatever height the row's tallest tile
-  // leaves over, so every plate in a row is exactly the same size regardless of
-  // how long its copy runs or how small its specimen is.
+  // The plate is a golden rectangle, so its height comes from its width
+  // alone and every plate on the page is the same size, however small or tall
+  // its specimen is. A specimen taller than the plate does not make it
+  // taller: it shows past the plate, so keep each specimen within it.
   plate: {
     zIndex: 1,
     pointerEvents: "none",
     display: "flex",
     alignItems: "center",
-    flexGrow: 1,
+    aspectRatio: "1.618",
+    minBlockSize: 0,
     padding: space._3,
     backgroundColor: color.muted,
   },

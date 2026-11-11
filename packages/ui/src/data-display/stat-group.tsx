@@ -40,7 +40,7 @@ interface StatGroupProps extends Omit<
  * least 8rem wide (10rem in a wide group), and wraps the rest. The stats
  * share the row equally. In a narrow group, such as on a phone, two stats
  * share a row with a smaller figure, and a last stat alone in its row takes
- * the whole row.
+ * the whole row. A group too narrow for two stats stacks them.
  */
 export function StatGroup({
   children,
