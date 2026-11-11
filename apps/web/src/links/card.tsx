@@ -6,6 +6,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
@@ -15,7 +16,7 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, layer, rhythm, shadow, space } from "@tuja/ui/tokens.stylex";
+import { layer, rhythm, shadow, space } from "@tuja/ui/tokens.stylex";
 import { svgTokens } from "#src/brand/svg.stylex.ts";
 import { Anchor } from "./anchor";
 import { cardTokens } from "./card.stylex";
@@ -38,12 +39,15 @@ export function Card({ children, css, ...rest }: CardProps) {
     >
       {children}
       <div css={styles.detailsBackdrop} />
-      <div css={[typeRole.label, styles.detailsIndicator]}>
-        <span css={styles.detailsText}>
-          {isExternal
-            ? t({ en: "Visit", zh: "访问" })
-            : t({ en: "Details", zh: "详情" })}
-        </span>
+      <Text
+        as="div"
+        look="label"
+        weight="semibold"
+        css={styles.detailsIndicator}
+      >
+        {isExternal
+          ? t({ en: "Visit", zh: "访问" })
+          : t({ en: "Details", zh: "详情" })}
         {isExternal ? (
           <ArrowSquareOutIcon weight="bold" aria-hidden="true" />
         ) : (
@@ -57,7 +61,7 @@ export function Card({ children, css, ...rest }: CardProps) {
             })}
           </span>
         )}
-      </div>
+      </Text>
     </Anchor>
   );
 }
@@ -71,13 +75,13 @@ const styles = stylex.create({
     textAlign: "left",
     padding: space._3,
     overflow: "hidden",
+    color: color.foreground,
     transition: {
       default: `box-shadow ${duration._200} ${easing.ease}, transform ${duration._500} ${easing.spring}, background-color ${duration._200} ${easing.ease}, fill ${duration._200} ${easing.ease}`,
       [motionConstants.REDUCED_MOTION]: `box-shadow ${duration._200} ${easing.ease}, background-color ${duration._200} ${easing.ease}, fill ${duration._200} ${easing.ease}`,
     },
     cursor: "pointer",
     position: "relative",
-    color: color.foreground,
     boxShadow: {
       default: "none",
       ":hover": { default: null, [pointer.canHover]: shadow._5 },
@@ -152,7 +156,6 @@ const styles = stylex.create({
   },
   detailsIndicator: {
     alignItems: "center",
-    color: color.foreground,
     display: "flex",
     gap: rhythm.inline,
     opacity: cardTokens.detailsIndicatorOpacity,
@@ -166,8 +169,5 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: `opacity ${duration._200} ${easing.ease}`,
     },
     zIndex: layer.content,
-  },
-  detailsText: {
-    fontWeight: font.weight_6,
   },
 });

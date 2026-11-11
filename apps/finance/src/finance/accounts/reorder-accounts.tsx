@@ -5,11 +5,11 @@ import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { useReplica } from "../replica/use-replica.ts";
 import { moveTo, reorderMutations } from "../settings/reorder.ts";
@@ -42,20 +42,13 @@ function AccountFace({
         css={styles.avatar}
       />
       <span css={styles.main}>
-        <span
-          css={[
-            typeRole.body,
-            typeModifier.verbatim,
-            truncate.base,
-            styles.name,
-          ]}
-        >
+        <Text as="span" weight="medium" verbatim css={truncate.base}>
           {accountName(account)}
-        </span>
+        </Text>
         {detail ? (
-          <span css={[typeRole.caption, truncate.base, styles.detail]}>
+          <Text as="span" look="caption" tone="muted" css={truncate.base}>
             {detail}
-          </span>
+          </Text>
         ) : null}
       </span>
       {handle}
@@ -88,7 +81,11 @@ export function ReorderAccounts({ sheet }: { sheet: BalanceSheet }) {
 
   function accountsOf(section: Section, isLifted: boolean) {
     if (section.lines.length === 0) {
-      return <p css={[typeRole.bodySmall, styles.empty]}>{empty}</p>;
+      return (
+        <Text look="bodySmall" tone="muted" measure="none" css={styles.empty}>
+          {empty}
+        </Text>
+      );
     }
     if (isLifted) {
       return (
@@ -153,11 +150,9 @@ export function ReorderAccounts({ sheet }: { sheet: BalanceSheet }) {
       renderItem={(section, handle, isLifted) => (
         <>
           <div css={styles.groupHeader}>
-            <span
-              css={[typeRole.label, typeModifier.verbatim, styles.groupName]}
-            >
+            <Text as="span" look="label" weight="semibold" verbatim>
               {section.name}
-            </span>
+            </Text>
             {handle}
           </div>
           {accountsOf(section, isLifted)}
@@ -188,14 +183,8 @@ const styles = stylex.create({
     gap: rhythm.item,
     paddingInlineStart: space._2,
   },
-  groupName: {
-    fontWeight: font.weight_6,
-    color: color.foreground,
-  },
   empty: {
-    margin: 0,
     paddingInline: space._2,
-    color: color.mutedForeground,
   },
   account: {
     display: "flex",
@@ -215,11 +204,5 @@ const styles = stylex.create({
     flexDirection: "column",
     flexGrow: 1,
     minInlineSize: 0,
-  },
-  name: {
-    fontWeight: font.weight_5,
-  },
-  detail: {
-    color: color.mutedForeground,
   },
 });

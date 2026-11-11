@@ -42,11 +42,7 @@ export function FinanceRailMember({
           </button>
         )}
       >
-        <SignedInMember
-          memberName={memberName}
-          householdName={householdName}
-          css={styles.member}
-        />
+        <SignedInMember memberName={memberName} householdName={householdName} />
       </Popover>
     </div>
   );
@@ -58,9 +54,5 @@ const styles = stylex.create({
   },
   popover: {
     inlineSize: "16rem",
-  },
-  member: {
-    paddingBlockStart: 0,
-    borderBlockStartWidth: 0,
   },
 });

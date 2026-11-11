@@ -3,6 +3,7 @@ import type { ComponentProps } from "react";
 import { color } from "../color.stylex.ts";
 import { border, font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
+import { tableTokens } from "./table.stylex.ts";
 
 interface TableRowProps extends Omit<
   ComponentProps<"tr">,
@@ -27,6 +28,14 @@ interface TableRowProps extends Omit<
    */
   intent?: "warning" | "destructive";
   /**
+   * Marks a row that sums other rows. `"subtotal"` is the sum of a group and
+   * takes heavier type. `"total"` is the sum of a whole side or of the table
+   * and also takes a quiet fill.
+   *
+   * @zh 标记汇总其他行的行。`"subtotal"` 是一组的小计，字重更重；`"total"` 是一侧或整张表的合计，另带安静的填充。
+   */
+  look?: "subtotal" | "total";
+  /**
    * StyleX styles merged over the row's own — the config-layer escape
    * hatch.
    *
@@ -39,6 +48,7 @@ interface TableRowProps extends Omit<
 export function TableRow({
   current = false,
   intent,
+  look,
   css,
   ref,
   children,
@@ -52,6 +62,7 @@ export function TableRow({
       aria-current={ariaCurrent ?? (current ? "true" : undefined)}
       css={[
         styles.row,
+        look && lookStyles[look],
         intent && intentStyles[intent],
         current && styles.currentRow,
         css,
@@ -74,6 +85,18 @@ const styles = stylex.create({
   currentRow: {
     backgroundColor: color.primarySubtle,
     fontWeight: font.weight_6,
+  },
+});
+
+const lookStyles = stylex.create({
+  subtotal: {
+    fontWeight: font.weight_6,
+  },
+  total: {
+    fontWeight: font.weight_7,
+    backgroundColor: color.muted,
+    [tableTokens.rowHeaderWeight]: font.weight_7,
+    [tableTokens.stickyFill]: color.muted,
   },
 });
 

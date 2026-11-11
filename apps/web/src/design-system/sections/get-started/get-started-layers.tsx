@@ -80,7 +80,9 @@ export function GetStartedLayers() {
             <span css={[typeRole.h1, typeModifier.numeric, styles.count]}>
               {countRoutes(section)}
             </span>
-            <span css={[typeRole.caption, styles.unit]}>{unit}</span>
+            <Text as="span" look="caption" tone="muted">
+              {unit}
+            </Text>
           </div>
           <div css={stack.text}>
             <Anchor
@@ -90,7 +92,7 @@ export function GetStartedLayers() {
               {sections[section]}
             </Anchor>
             <Text tone="muted">{what}</Text>
-            <span css={[typeRole.bodySmall, styles.paths]}>
+            <Text as="span" look="bodySmall" tone="muted" css={styles.paths}>
               {paths.map((path) => (
                 <code key={path} css={styles.path}>
                   {path.split("/").map((segment, index) => (
@@ -105,7 +107,7 @@ export function GetStartedLayers() {
                   ))}
                 </code>
               ))}
-            </span>
+            </Text>
           </div>
         </li>
       ))}
@@ -132,9 +134,6 @@ const styles = stylex.create({
   count: {
     color: color.foreground,
   },
-  unit: {
-    color: color.mutedForeground,
-  },
   name: {
     alignSelf: "flex-start",
     color: color.foreground,
@@ -143,7 +142,6 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     marginBlockStart: rhythm.tight,
-    color: color.mutedForeground,
   },
   path: {
     fontFamily: font.familyMono,

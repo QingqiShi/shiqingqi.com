@@ -3,15 +3,16 @@ import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, font, measure, space } from "@tuja/ui/tokens.stylex";
 
 /** Real text at each Measure cap. */
 export function LayoutMeasureSpecimen() {
   return (
     <div css={stack.group}>
-      <div css={stack.tight}>
-        <code css={[typeRole.caption, styles.token]}>measure.prose · 41em</code>
+      <div css={stack.text}>
+        <Text as="span" look="caption" tone="muted">
+          <code css={styles.token}>measure.prose · 41em</code>
+        </Text>
         <Text css={styles.edge}>
           {t({
             en: "Running prose, such as a paragraph, a lead or a note, stops at this width: 41 Chinese characters at any size, around 88 Latin.",
@@ -19,8 +20,10 @@ export function LayoutMeasureSpecimen() {
           })}
         </Text>
       </div>
-      <div css={stack.tight}>
-        <code css={[typeRole.caption, styles.token]}>measure.short · 24em</code>
+      <div css={stack.text}>
+        <Text as="span" look="caption" tone="muted">
+          <code css={styles.token}>measure.short · 24em</code>
+        </Text>
         <Text css={[styles.edge, styles.short]}>
           {t({
             en: "A short block that stands alone, such as an empty state or a hint, stops at this width.",
@@ -35,7 +38,6 @@ export function LayoutMeasureSpecimen() {
 const styles = stylex.create({
   token: {
     fontFamily: font.familyMono,
-    color: color.mutedForeground,
   },
   // The rule under the text shows how far the cap lets a line run.
   edge: {

@@ -1,21 +1,15 @@
 "use client";
 
-import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
+import { Anchor } from "@tuja/ui/components/anchor";
 import { Button } from "@tuja/ui/components/button";
-import { listSurface } from "@tuja/ui/components/list.stylex";
+import { Callout } from "@tuja/ui/components/callout";
+import { List } from "@tuja/ui/components/list";
 import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, space } from "@tuja/ui/tokens.stylex";
+import { Text } from "@tuja/ui/components/text";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
@@ -73,27 +67,21 @@ export function BankBalanceSummary({
   }
 
   return (
-    <div role="status">
-      <SplitViewLink
-        href={href}
-        {...stylex.props(
-          row.tight,
-          corner.radius_3,
-          transition.colors,
-          a11y.focusRing,
-          styles.notice,
-          styles.summary,
-        )}
-      >
-        <span css={[typeRole.bodySmall, typeModifier.numeric, styles.line]}>
-          <strong>{parts[0]}</strong>
-          {` · ${parts.slice(1).join(" · ")}`}
-        </span>
-        <span aria-hidden css={styles.caret}>
-          <CaretRightIcon weight="bold" />
-        </span>
-      </SplitViewLink>
-    </div>
+    <Callout intent="warning" role="status">
+      <Text look="bodySmall" numeric measure="none">
+        <Anchor
+          href={href}
+          linkComponent={SplitViewLink}
+          newTabLabel={t({
+            en: "(opens in new tab)",
+            zh: "(在新标签页中打开)",
+          })}
+        >
+          {parts[0]}
+        </Anchor>
+        {` · ${parts.slice(1).join(" · ")}`}
+      </Text>
+    </Callout>
   );
 }
 
@@ -115,17 +103,19 @@ export function BankBalanceNotice({ link }: { link: BankLinkRow }) {
   const money = (minor: number) => formatMoney(minor, link.currency, locale);
 
   return (
-    <div role="status" css={[corner.radius_3, stack.tight, styles.notice]}>
-      <p css={[typeRole.bodySmall, styles.text]}>
-        <span css={typeModifier.numeric}>
-          {`${bankSaysLabel} ${money(check.bankMinor)} · ${weSayLabel} ${money(check.oursMinor)}`}
-        </span>
-        <span css={styles.muted}>
-          {` · ${displayDay(check.on, locale, "day")}`}
-        </span>
-      </p>
-      <UnbackedEntryList link={link} view={view} />
-    </div>
+    <Callout intent="warning" role="status">
+      <div css={stack.tight}>
+        <Text look="bodySmall" measure="none">
+          <Text as="span" look="bodySmall" numeric>
+            {`${bankSaysLabel} ${money(check.bankMinor)} · ${weSayLabel} ${money(check.oursMinor)}`}
+          </Text>
+          <Text as="span" look="bodySmall" tone="muted">
+            {` · ${displayDay(check.on, locale, "day")}`}
+          </Text>
+        </Text>
+        <UnbackedEntryList link={link} view={view} />
+      </div>
+    </Callout>
   );
 }
 
@@ -173,13 +163,13 @@ function UnbackedEntryList({
     <>
       {rows.length > 0 ? (
         <>
-          <p css={[typeRole.bodySmall, styles.muted]}>
+          <Text look="bodySmall" tone="muted" measure="none">
             {t({
               en: "The bank doesn't show these. Delete any that are duplicates, and keep any that are real.",
               zh: "银行没有显示这些交易。重复的请删除，真实的请保留。",
             })}
-          </p>
-          <ul css={[listSurface.rows, listSurface.plain]}>
+          </Text>
+          <List form="plain">
             {shown.map(({ entry, transaction }) => {
               const description = describe(transaction, accountId);
               const { title } = description;
@@ -228,7 +218,7 @@ function UnbackedEntryList({
                 />
               );
             })}
-          </ul>
+          </List>
           {shown.length < rows.length ? (
             <div>
               <Button
@@ -248,7 +238,7 @@ function UnbackedEntryList({
         </>
       ) : null}
       {view.unexplainedMinor === 0 ? null : (
-        <p css={[typeRole.bodySmall, styles.muted]}>
+        <Text look="bodySmall" tone="muted" measure="none">
           {view.unexplainedMinor > 0
             ? rows.length > 0
               ? restMissingOutLabel
@@ -256,7 +246,7 @@ function UnbackedEntryList({
             : rows.length > 0
               ? restOlderLabel
               : olderLabel}
-        </p>
+        </Text>
       )}
     </>
   );
@@ -311,72 +301,35 @@ function UnbackedTransactionBanner({
     return null;
   }
   return (
-    <div role="status" css={[corner.radius_3, stack.tight, styles.notice]}>
-      <p css={[typeRole.bodySmall, styles.text]}>
-        {t({
-          en: "The bank did not show this entry. Keep it if it is real, or delete it if it is a duplicate.",
-          zh: "银行没有显示这笔交易。真实的请保留，重复的请删除。",
-        })}
-      </p>
-      <div css={row.tight}>
-        <Button size="sm" onClick={() => void view.keep(transactionId)}>
-          {t({ en: "Keep it", zh: "保留" })}
-        </Button>
-        <Button
-          size="sm"
-          look="ghost"
-          icon={<TrashIcon weight="bold" />}
-          onClick={() => {
-            runUndoable(
-              [{ name: "deleteTransaction", args: { id: transactionId } }],
-              { message: deletedLabel },
-            );
-            onDeleted();
-          }}
-        >
-          {t({ en: "Delete", zh: "删除" })}
-        </Button>
-      </div>
-    </div>
+    <Callout
+      intent="warning"
+      role="status"
+      action={
+        <>
+          <Button size="sm" onClick={() => void view.keep(transactionId)}>
+            {t({ en: "Keep it", zh: "保留" })}
+          </Button>
+          <Button
+            size="sm"
+            look="ghost"
+            icon={<TrashIcon weight="bold" />}
+            onClick={() => {
+              runUndoable(
+                [{ name: "deleteTransaction", args: { id: transactionId } }],
+                { message: deletedLabel },
+              );
+              onDeleted();
+            }}
+          >
+            {t({ en: "Delete", zh: "删除" })}
+          </Button>
+        </>
+      }
+    >
+      {t({
+        en: "The bank did not show this entry. Keep it if it is real, or delete it if it is a duplicate.",
+        zh: "银行没有显示这笔交易。真实的请保留，重复的请删除。",
+      })}
+    </Callout>
   );
 }
-
-const styles = stylex.create({
-  notice: {
-    padding: space._3,
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.warning,
-    backgroundColor: color.warningSubtle,
-  },
-  summary: {
-    paddingBlock: space._1,
-    paddingInline: space._2,
-    color: color.foreground,
-    textDecoration: "none",
-    backgroundImage: {
-      default: "none",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: `linear-gradient(${color.warningSubtle}, ${color.warningSubtle})`,
-      },
-    },
-  },
-  line: {
-    flexGrow: 1,
-    minInlineSize: 0,
-  },
-  caret: {
-    display: "flex",
-    flexShrink: 0,
-    color: color.mutedForeground,
-  },
-  text: {
-    margin: 0,
-    color: color.foreground,
-  },
-  muted: {
-    margin: 0,
-    color: color.mutedForeground,
-  },
-});

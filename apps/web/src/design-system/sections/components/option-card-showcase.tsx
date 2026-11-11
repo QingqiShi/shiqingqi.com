@@ -38,7 +38,9 @@ function KeyHint({ keys, effect }: KeyHintProps) {
           </kbd>
         ))}
       </dt>
-      <dd css={[typeRole.bodySmall, styles.keyEffect]}>{effect}</dd>
+      <Text as="dd" look="bodySmall" tone="muted">
+        {effect}
+      </Text>
     </div>
   );
 }
@@ -234,18 +236,14 @@ const styles = stylex.create({
     alignItems: "baseline",
   },
   key: {
+    color: color.foreground,
     fontFamily: font.familyMono,
     fontWeight: font.weight_6,
-    color: color.foreground,
     paddingInline: space._1,
     paddingBlock: space._00,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
     backgroundColor: color.card,
-  },
-  keyEffect: {
-    margin: 0,
-    color: color.mutedForeground,
   },
 });

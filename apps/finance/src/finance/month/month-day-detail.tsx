@@ -3,14 +3,14 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
+import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
 import { TabViewLink } from "@tuja/ui/components/tab-view";
+import { Text } from "@tuja/ui/components/text";
 import { animate } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { AnalyticsIndex } from "../analytics/types.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { fromEpochDay } from "../domain/dates/to-epoch-day.ts";
@@ -56,7 +56,11 @@ export function MonthDayDetail({ day, index, currency }: MonthDayDetailProps) {
   });
 
   if (day === null) {
-    return <p css={[typeRole.bodySmall, styles.muted, styles.hint]}>{hint}</p>;
+    return (
+      <Text look="bodySmall" tone="muted" measure="none">
+        {hint}
+      </Text>
+    );
   }
 
   const shownRows = day.rows.toSorted(largestFirst(index)).slice(0, MAX_ROWS);
@@ -70,19 +74,21 @@ export function MonthDayDetail({ day, index, currency }: MonthDayDetailProps) {
   return (
     <div key={day.epochDay} css={[stack.tight, animate.fadeIn]}>
       <div css={styles.header}>
-        <h3 css={[typeRole.label, styles.heading]}>
+        <Heading level={3} look="h4">
           {displayDay(day.epochDay, locale, "weekday")}
-        </h3>
+        </Heading>
         {spent === 0 ? null : (
-          <span css={[typeRole.caption, typeModifier.numeric, styles.muted]}>
+          <Text as="span" look="caption" tone="muted" numeric>
             {formatMoney(-Math.round(spent), currency, locale, {
               signDisplay: "exceptZero",
             })}
-          </span>
+          </Text>
         )}
       </div>
       {day.rows.length === 0 ? (
-        <p css={[typeRole.bodySmall, styles.muted, styles.hint]}>{nothing}</p>
+        <Text look="bodySmall" tone="muted" measure="none">
+          {nothing}
+        </Text>
       ) : (
         <List form="plain">
           {shownRows.map((row) => {
@@ -125,11 +131,9 @@ export function MonthDayDetail({ day, index, currency }: MonthDayDetailProps) {
               )}
               linkComponent={TabViewLink}
               trailing={
-                <span
-                  css={[typeRole.bodySmall, typeModifier.numeric, styles.muted]}
-                >
+                <Text as="span" look="bodySmall" tone="muted" numeric>
                   {`+${hiddenCount.toLocaleString(locale)}`}
-                </span>
+                </Text>
               }
             >
               {t({
@@ -150,15 +154,5 @@ const styles = stylex.create({
     alignItems: "baseline",
     justifyContent: "space-between",
     gap: rhythm.item,
-  },
-  heading: {
-    margin: 0,
-    fontWeight: font.weight_6,
-  },
-  hint: {
-    margin: 0,
-  },
-  muted: {
-    color: color.mutedForeground,
   },
 });

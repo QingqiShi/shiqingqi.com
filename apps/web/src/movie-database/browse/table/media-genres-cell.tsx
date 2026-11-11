@@ -1,12 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/color.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { Badge } from "@tuja/ui/components/badge";
+import { Text } from "@tuja/ui/components/text";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { cellShared } from "./cell-shared.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useMediaTable } from "./media-table-context";
 import type { MediaCellParams } from "./types";
 
@@ -18,7 +16,12 @@ export function MediaGenresCell({ api, row }: MediaCellParams) {
     .map((id) => genreNames.get(id))
     .filter((name) => name !== undefined);
 
-  if (!names.length) return <span css={cellShared.empty}>—</span>;
+  if (!names.length)
+    return (
+      <Text as="span" look="bodySmall" tone="muted">
+        —
+      </Text>
+    );
 
   const shown = names.slice(0, 2);
   const overflow = names.length - shown.length;
@@ -26,20 +29,14 @@ export function MediaGenresCell({ api, row }: MediaCellParams) {
   return (
     <div css={styles.chipRow} title={names.join(", ")}>
       {shown.map((name) => (
-        <span
-          key={name}
-          css={[
-            typeRole.caption,
-            corner.radius_round,
-            styles.chip,
-            truncate.base,
-          ]}
-        >
-          {name}
-        </span>
+        <Badge key={name} intent="primary" size="sm" css={styles.chip}>
+          <span css={truncate.base}>{name}</span>
+        </Badge>
       ))}
       {overflow > 0 && (
-        <span css={[typeRole.caption, styles.chipMore]}>+{overflow}</span>
+        <Text as="span" look="caption" weight="semibold" tone="muted">
+          +{overflow}
+        </Text>
       )}
     </div>
   );
@@ -54,15 +51,5 @@ const styles = stylex.create({
   },
   chip: {
     maxInlineSize: "8rem",
-    paddingBlock: space._00,
-    paddingInline: space._1,
-    backgroundColor: color.primarySubtle,
-    color: color.primaryText,
-    fontWeight: font.weight_6,
-    whiteSpace: "nowrap",
-  },
-  chipMore: {
-    color: color.mutedForeground,
-    fontWeight: font.weight_6,
   },
 });

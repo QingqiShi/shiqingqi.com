@@ -4,13 +4,10 @@ import { ClockCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ClockC
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { Button } from "@tuja/ui/components/button";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { controlSize, rhythm } from "@tuja/ui/tokens.stylex";
 import { ViewTransition } from "react";
 import { useHeroVisibility } from "#src/movie-database/browse/hero-visibility-context.ts";
 import { PreferenceManager } from "#src/movie-database/taste/preference-panel.tsx";
@@ -85,21 +82,19 @@ export function HeroChatInput({
       </div>
       <div css={[flex.between, styles.meta]}>
         {hasPreviousSession ? (
-          <button
-            type="button"
+          <Button
+            look="ghost"
+            size="xs"
+            bleed="start"
             onClick={openChatWithSession}
             disabled={continueSessionStatus === "pending"}
-            css={[
-              typeRole.label,
-              buttonReset.base,
-              flex.inlineCenter,
-              styles.restoreLink,
-            ]}
             aria-busy={continueSessionStatus === "pending" ? true : undefined}
+            icon={
+              <ClockCounterClockwiseIcon weight="bold" role="presentation" />
+            }
           >
-            <ClockCounterClockwiseIcon weight="bold" role="presentation" />
-            <span css={styles.restoreLabel}>{continueLabel}</span>
-          </button>
+            {continueLabel}
+          </Button>
         ) : (
           <span aria-hidden="true" />
         )}
@@ -130,42 +125,13 @@ const styles = stylex.create({
     display: "block",
   },
   icon: {
-    color: color.primaryText,
     fontSize: controlSize._5,
+    color: color.primaryText,
   },
   meta: {
     alignItems: "center",
     gap: rhythm.item,
     marginTop: rhythm.tight,
-  },
-  restoreLink: {
-    gap: controlSize._2,
-    paddingBlock: space._0,
-    paddingInline: space._2,
-    color: {
-      default: color.mutedForeground,
-      ":hover": { default: null, [pointer.canHover]: color.primaryText },
-      ":disabled": color.mutedForeground,
-    },
-    textDecorationLine: {
-      default: "none",
-      ":hover": { default: null, [pointer.canHover]: "underline" },
-    },
-    textDecorationStyle: "dotted",
-    textUnderlineOffset: "3px",
-    borderWidth: 0,
-    backgroundColor: "transparent",
-    cursor: {
-      default: "pointer",
-      ":disabled": "progress",
-    },
-    transition: `color ${duration._150} ${easing.ease}`,
-  },
-  restoreLabel: {
-    borderBottomWidth: border.size_1,
-    borderBottomStyle: "dashed",
-    borderBottomColor: "currentColor",
-    paddingBottom: "1px",
   },
   suggestions: {
     marginTop: rhythm.item,

@@ -5,7 +5,6 @@ import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlHeight, rhythm } from "@tuja/ui/tokens.stylex";
 
@@ -25,7 +24,7 @@ const RANKED_ROWS = 5;
 export function AnalyticsSkeleton() {
   return (
     <div css={stack.group} aria-busy>
-      <Heading level={1} look="h3" css={styles.title}>
+      <Heading level={1} look="h3">
         {t({ en: "Analytics", zh: "分析" })}
       </Heading>
       <div css={stack.section}>
@@ -35,13 +34,19 @@ export function AnalyticsSkeleton() {
               <Skeleton
                 key={index}
                 width={width}
-                css={[corner.radius_round, styles.range]}
+                height={controlHeight.xs}
+                shape="round"
               />
             ))}
           </div>
           <div css={styles.segmentedControls}>
             {Array.from({ length: SEGMENTED_CONTROLS }, (_, index) => (
-              <Skeleton key={index} width="100%" css={styles.segmented} />
+              <Skeleton
+                key={index}
+                width="100%"
+                height={controlHeight.sm}
+                shape="control"
+              />
             ))}
           </div>
         </div>
@@ -79,12 +84,6 @@ export function AnalyticsSkeleton() {
 }
 
 const styles = stylex.create({
-  title: {
-    margin: 0,
-  },
-  range: {
-    height: controlHeight.xs,
-  },
   segmentedControls: {
     display: "grid",
     gap: rhythm.tight,
@@ -92,9 +91,6 @@ const styles = stylex.create({
       default: "minmax(0, 1fr)",
       [breakpoints.md]: "repeat(auto-fit, minmax(14rem, 1fr))",
     },
-  },
-  segmented: {
-    height: controlHeight.sm,
   },
   columns: {
     display: "grid",

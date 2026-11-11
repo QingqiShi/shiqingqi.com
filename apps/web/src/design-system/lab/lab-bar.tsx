@@ -5,7 +5,6 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import {
@@ -13,9 +12,9 @@ import {
   glassTokens,
 } from "@tuja/ui/components/glass-surface.stylex";
 import { MenuButton } from "@tuja/ui/components/menu-button";
+import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { Identifier } from "#src/design-system/identifier.tsx";
@@ -148,8 +147,10 @@ export function LabBar({ variants, controls, state, dispatch }: LabBarProps) {
               {/* The control carries the prop name as its accessible name, so
                 the visible copy is hidden from assistive technology and the
                 name is announced once. */}
-              <span aria-hidden css={[typeRole.caption, styles.propName]}>
-                <Identifier>{activeControl.name}</Identifier>
+              <span aria-hidden css={styles.propName}>
+                <Text as="span" look="caption" tone="muted">
+                  <Identifier>{activeControl.name}</Identifier>
+                </Text>
               </span>
               <div ref={controlRef} css={styles.control}>
                 <LabControl
@@ -213,7 +214,6 @@ const styles = stylex.create({
   },
   propName: {
     fontFamily: font.familyMono,
-    color: color.mutedForeground,
   },
   control: {
     flexGrow: 1,

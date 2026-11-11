@@ -11,7 +11,7 @@ import { Button } from "@tuja/ui/components/button";
 import { Checkbox } from "@tuja/ui/components/checkbox";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { TextField } from "@tuja/ui/components/text-field";
-import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { MediaColumn } from "./types";
 
 interface MediaTableToolbarProps {
@@ -109,9 +109,6 @@ const styles = stylex.create({
     gap: rhythm.tight,
     paddingBlock: space._2,
     paddingInline: space._3,
-    borderBlockEndWidth: border.size_1,
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: color.border,
     backgroundColor: color.muted,
   },
   search: {

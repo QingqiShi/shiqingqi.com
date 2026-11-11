@@ -1,24 +1,18 @@
 "use client";
 
-import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import { ScalesIcon } from "@phosphor-icons/react/dist/ssr/Scales";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Link } from "@tuja/next-links/link";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
-import { buttonTokens } from "@tuja/ui/components/button.stylex";
+import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
-import { listSurface } from "@tuja/ui/components/list.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { type ReactNode, useState } from "react";
 import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
@@ -125,12 +119,12 @@ export function AccountLedger({ account, today }: AccountLedgerProps) {
   return (
     <section css={stack.item} aria-label={t({ en: "Ledger", zh: "明细" })}>
       {ledger.days.length === 0 ? (
-        <p css={[typeRole.bodySmall, styles.muted]}>
+        <Text look="bodySmall" tone="muted" measure="none">
           {t({
             en: "Nothing recorded on this account yet.",
             zh: "这个账户还没有记录。",
           })}
-        </p>
+        </Text>
       ) : (
         <div>
           {ledger.days.map((day) => (
@@ -143,7 +137,7 @@ export function AccountLedger({ account, today }: AccountLedgerProps) {
                   locale={locale}
                 />
               </DayHeader>
-              <ol css={[listSurface.rows, listSurface.plain, styles.dayList]}>
+              <List form="plain" css={styles.flush}>
                 {day.items.map((item) =>
                   item.type === "valuation" ? (
                     <ListRow
@@ -154,11 +148,10 @@ export function AccountLedger({ account, today }: AccountLedgerProps) {
                       value={money(item.valuation.amountMinor)}
                       valueDetail={
                         <Button
-                          size="sm"
+                          size="xs"
                           look="ghost"
                           icon={<TrashIcon weight="bold" />}
                           aria-label={`${removeLabel} ${displayDay(item.day, locale, "dayYear")}`}
-                          css={styles.remove}
                           onClick={() => {
                             runUndoable(
                               [
@@ -187,7 +180,7 @@ export function AccountLedger({ account, today }: AccountLedgerProps) {
                     )
                   ),
                 )}
-              </ol>
+              </List>
             </div>
           ))}
         </div>
@@ -196,7 +189,7 @@ export function AccountLedger({ account, today }: AccountLedgerProps) {
         {ledger.hasMore ? (
           <Button
             look="ghost"
-            css={styles.more}
+            css={fill.inline}
             onClick={() => {
               setLimit(limit + PAGE);
             }}
@@ -204,50 +197,30 @@ export function AccountLedger({ account, today }: AccountLedgerProps) {
             {t({ en: "Show more", zh: "显示更多" })}
           </Button>
         ) : null}
-        <Link
-          href={financeHref(
-            { screen: "transactions", filters: { accountIds: [account.id] } },
-            locale,
-          )}
-          {...stylex.props(
-            flex.between,
-            typeRole.bodySmall,
-            corner.radius_3,
-            quietSurface.interactive,
-            styles.all,
-          )}
-        >
-          {t({
-            en: "All transactions on this account",
-            zh: "此账户的全部交易",
-          })}
-          <CaretRightIcon weight="bold" aria-hidden />
-        </Link>
+        <List form="plain" css={styles.flush}>
+          <ListRow
+            href={financeHref(
+              { screen: "transactions", filters: { accountIds: [account.id] } },
+              locale,
+            )}
+            linkComponent={Link}
+          >
+            {t({
+              en: "All transactions on this account",
+              zh: "此账户的全部交易",
+            })}
+          </ListRow>
+        </List>
       </div>
     </section>
   );
 }
 
 const styles = stylex.create({
-  dayList: {
-    paddingBlockStart: space._0,
-  },
-  remove: {
-    [buttonTokens.height]: `calc(${font.uiBodySmall} * ${font.lineHeight_4} + ${space._00} * 2)`,
-    marginBlock: `calc(${space._00} * -1)`,
-    [buttonTokens.color]: color.mutedForeground,
-  },
-  muted: {
-    margin: 0,
-    color: color.mutedForeground,
-  },
-  more: {
-    inlineSize: "100%",
-  },
-  all: {
-    gap: rhythm.tight,
-    paddingBlock: space._2,
-    paddingInline: space._2,
-    color: color.mutedForeground,
+  // The card around the ledger has no padding, so the plain lists do not
+  // reach into its gutter.
+  flush: {
+    marginInlineStart: 0,
+    marginInlineEnd: 0,
   },
 });

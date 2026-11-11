@@ -7,8 +7,8 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Spinner } from "@tuja/ui/components/spinner";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { Text } from "@tuja/ui/components/text";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 
 interface MediaTableFooterProps {
   query: string;
@@ -44,22 +44,24 @@ export function MediaTableFooter({
       <p css={styles.counts}>
         {query && (
           <>
-            <span css={[typeRole.overline, styles.countLabel]}>
+            <Text as="span" look="overline" tone="muted">
               {shownLabel}
-            </span>
-            <span
-              css={[typeRole.label, typeModifier.numeric, styles.countValue]}
-            >
+            </Text>
+            <Text as="span" look="label" weight="semibold" numeric>
               {numberFormat.format(visibleCount)}
-            </span>
+            </Text>
           </>
         )}
-        <span css={[typeRole.overline, styles.countLabel]}>{loadedLabel}</span>
-        <span css={[typeRole.label, typeModifier.numeric, styles.countValue]}>
+        <Text as="span" look="overline" tone="muted">
+          {loadedLabel}
+        </Text>
+        <Text as="span" look="label" weight="semibold" numeric>
           {numberFormat.format(loadedCount)}
-        </span>
+        </Text>
       </p>
-      <p css={[typeRole.caption, styles.hint]}>{hintLabel}</p>
+      <Text look="caption" tone="muted" css={styles.hint}>
+        {hintLabel}
+      </Text>
       <div css={styles.footerActions}>
         {isFetchingNextPage && <Spinner size="sm" label={loadingLabel} />}
         {hasNextPage ? (
@@ -67,7 +69,9 @@ export function MediaTableFooter({
             {loadMoreLabel}
           </Button>
         ) : (
-          <span css={[typeRole.caption, styles.endNote]}>{endLabel}</span>
+          <Text as="span" look="caption" tone="muted">
+            {endLabel}
+          </Text>
         )}
       </div>
     </div>
@@ -82,9 +86,6 @@ const styles = stylex.create({
     gap: rhythm.tight,
     paddingBlock: space._1,
     paddingInline: space._3,
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
     backgroundColor: color.muted,
   },
   counts: {
@@ -93,25 +94,13 @@ const styles = stylex.create({
     gap: rhythm.tight,
     margin: 0,
   },
-  countLabel: {
-    color: color.mutedForeground,
-  },
-  countValue: {
-    color: color.foreground,
-    fontWeight: font.weight_6,
-  },
   hint: {
     display: { default: "none", [breakpoints.lg]: "block" },
-    margin: 0,
-    color: color.mutedForeground,
   },
   footerActions: {
     display: "flex",
     alignItems: "center",
     gap: rhythm.tight,
     marginInlineStart: "auto",
-  },
-  endNote: {
-    color: color.mutedForeground,
   },
 });

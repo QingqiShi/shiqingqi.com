@@ -57,8 +57,8 @@ const styles = stylex.create({
     textAlign: "center",
   },
   heading: {
-    color: color.mutedForeground,
     margin: 0,
+    color: color.mutedForeground,
   },
   inputWrapper: {
     maxInlineSize: "600px",

@@ -13,6 +13,7 @@ import {
 } from "@tuja/ui/components/card";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
@@ -31,18 +32,22 @@ export function CardShowcase() {
     <>
       <Showcase label={t({ en: "Surface", zh: "表面" })}>
         <Specimen caption={t({ en: "static", zh: "静态" })}>
-          <Card css={[styles.fill, styles.lines]}>
+          <Card css={[fill.inline, styles.lines]}>
             <span css={[typeRole.h3, styles.title]}>{sampleTitle}</span>
-            <span css={[typeRole.bodySmall, styles.body]}>{sampleBody}</span>
+            <Text as="span" look="bodySmall" tone="muted">
+              {sampleBody}
+            </Text>
           </Card>
         </Specimen>
       </Showcase>
 
       <Showcase label={t({ en: "Interactive", zh: "可交互" })}>
         <Specimen caption="interactive">
-          <Card interactive css={[styles.fill, styles.lines]}>
+          <Card interactive css={[fill.inline, styles.lines]}>
             <span css={[typeRole.h3, styles.title]}>{sampleTitle}</span>
-            <span css={[typeRole.bodySmall, styles.body]}>{sampleBody}</span>
+            <Text as="span" look="bodySmall" tone="muted">
+              {sampleBody}
+            </Text>
           </Card>
         </Specimen>
       </Showcase>
@@ -62,14 +67,16 @@ export function CardShowcase() {
             ]}
           >
             <span css={[typeRole.h3, styles.title]}>{sampleTitle}</span>
-            <span css={[typeRole.bodySmall, styles.body]}>{sampleBody}</span>
+            <Text as="span" look="bodySmall" tone="muted">
+              {sampleBody}
+            </Text>
           </a>
         </Specimen>
       </Showcase>
 
       <Showcase label={t({ en: "Destructive", zh: "破坏性" })}>
         <Specimen caption='intent="destructive"'>
-          <Card intent="destructive" css={styles.fill}>
+          <Card intent="destructive" css={fill.inline}>
             <CardHeader>
               <CardTitle>
                 {t({ en: "Delete this account", zh: "删除此账户" })}
@@ -144,15 +151,13 @@ export function CardShowcase() {
 }
 
 const styles = stylex.create({
-  // The specimen stage sizes its child to its content, so a card that has to
-  // span its container asks for the width.
-  fill: {
-    inlineSize: "100%",
-  },
   // Card puts a gap between its blocks. The title and the text are lines of
   // one item, so they take no gap.
   lines: {
     gap: 0,
+  },
+  title: {
+    color: color.foreground,
   },
   link: {
     display: "flex",
@@ -160,11 +165,5 @@ const styles = stylex.create({
     padding: space._5,
     textDecoration: "none",
     inlineSize: "100%",
-  },
-  title: {
-    color: color.foreground,
-  },
-  body: {
-    color: color.mutedForeground,
   },
 });

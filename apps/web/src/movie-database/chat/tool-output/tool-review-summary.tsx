@@ -9,23 +9,14 @@ import { SmileyWinkIcon } from "@phosphor-icons/react/dist/ssr/SmileyWink";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { Badge } from "@tuja/ui/components/badge";
+import { Button } from "@tuja/ui/components/button";
+import { Card } from "@tuja/ui/components/card";
+import { Divider } from "@tuja/ui/components/divider";
+import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
-import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import {
-  border,
-  controlSize,
-  font,
-  rhythm,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { ComponentType } from "react";
 import { useState } from "react";
 import { useChatActions } from "#src/movie-database/chat/chat-actions-context.tsx";
@@ -134,134 +125,99 @@ export function ToolReviewSummary({
   }
 
   return (
-    <div css={[corner.radius_2, styles.card]}>
-      <div css={[flex.between, styles.header]}>
-        <span css={[typeRole.label, styles.title]}>
+    <Card padding="sm" css={styles.card}>
+      <div css={flex.between}>
+        <Text as="span" look="label" weight="semibold">
           {t({ en: "Review Summary", zh: "评论摘要" })}
-        </span>
+        </Text>
         <div css={row.tight}>
           {formattedRating !== null && (
             <span
-              css={[typeRole.label, styles.ratingBadge]}
               role="img"
               aria-label={`${t({ en: "Average rating", zh: "平均评分" })}: ${formattedRating}${t({ en: " out of 10", zh: "/10" })}`}
             >
-              <span aria-hidden="true">{`★ ${formattedRating}`}</span>
+              <Text as="span" look="label" tone="muted">
+                <span aria-hidden="true">{`★ ${formattedRating}`}</span>
+              </Text>
             </span>
           )}
-          <span css={[typeRole.label, corner.radius_1, styles.countBadge]}>
+          <Badge intent="neutral" size="sm">
             {data.reviewCount === 1
               ? t({ en: "1 review", zh: "1 条评论" })
               : `${String(data.reviewCount)} ${t({ en: "reviews", zh: "条评论" })}`}
-          </span>
+          </Badge>
         </div>
       </div>
 
-      <p css={[typeRole.body, styles.summary]}>{data.summary}</p>
+      <Text measure="none" css={styles.summary}>
+        {data.summary}
+      </Text>
 
       {isInteractive && (
-        <div css={styles.controlSection}>
-          <div css={[flex.row, styles.levelButtons]}>
-            {LEVEL_ICONS.map(({ level, Icon }) => {
-              const isCurrent = level === data.spiciness;
-              const isSelected = level === selectedLevel;
-              return (
-                <button
-                  key={level}
-                  type="button"
-                  css={[
-                    buttonReset.base,
-                    corner.radius_2,
-                    !isSelected && [quietSurface.interactive, a11y.focusRing],
-                    styles.levelButton,
-                    isSelected && selected.marked,
-                  ]}
-                  onClick={() => {
-                    handleTap(level);
-                  }}
-                  aria-label={
-                    isSelected ? confirmLabels[level] : spicinessLabels[level]
-                  }
-                  aria-current={isCurrent ? "true" : undefined}
-                  aria-pressed={isSelected}
-                >
-                  {isSelected ? (
-                    <ArrowUpIcon weight="bold" aria-hidden={true} />
-                  ) : (
-                    <Icon
-                      weight={isCurrent ? "fill" : "regular"}
-                      aria-hidden={true}
-                    />
-                  )}
-                </button>
-              );
-            })}
+        <>
+          <Divider />
+          <div>
+            <div css={[flex.row, styles.levelButtons]}>
+              {LEVEL_ICONS.map(({ level, Icon }) => {
+                const isCurrent = level === data.spiciness;
+                const isSelected = level === selectedLevel;
+                return (
+                  <Button
+                    key={level}
+                    look="ghost"
+                    size="sm"
+                    isActive={isSelected}
+                    onClick={() => {
+                      handleTap(level);
+                    }}
+                    aria-label={
+                      isSelected ? confirmLabels[level] : spicinessLabels[level]
+                    }
+                    aria-current={isCurrent ? "true" : undefined}
+                    aria-pressed={isSelected}
+                    icon={
+                      isSelected ? (
+                        <ArrowUpIcon weight="bold" aria-hidden={true} />
+                      ) : (
+                        <Icon
+                          weight={isCurrent ? "fill" : "regular"}
+                          aria-hidden={true}
+                        />
+                      )
+                    }
+                  />
+                );
+              })}
+            </div>
+            {selectedLevel !== null && (
+              <p css={styles.selectedLabel} role="status">
+                <Text as="span" look="bodySmall" tone="muted">
+                  {spicinessLabels[selectedLevel]}
+                </Text>
+              </p>
+            )}
           </div>
-          {selectedLevel !== null && (
-            <p css={[typeRole.bodySmall, styles.selectedLabel]} role="status">
-              {spicinessLabels[selectedLevel]}
-            </p>
-          )}
-        </div>
+        </>
       )}
-    </div>
+    </Card>
   );
 }
 
 const styles = stylex.create({
   card: {
-    backgroundColor: color.popover,
-    padding: space._3,
     marginTop: rhythm.item,
-  },
-  header: {
-    marginBottom: rhythm.tight,
-  },
-  title: {
-    fontWeight: font.weight_6,
-  },
-  ratingBadge: {
-    color: color.mutedForeground,
-  },
-  countBadge: {
-    color: color.mutedForeground,
-    backgroundColor: color.card,
-    paddingInline: space._1,
-    paddingBlock: space._00,
   },
   summary: {
-    margin: 0,
     whiteSpace: "pre-wrap",
-  },
-  controlSection: {
-    marginTop: rhythm.item,
-    paddingTop: space._3,
-    borderTopWidth: border.size_1,
-    borderTopStyle: "solid",
-    borderTopColor: color.border,
   },
   levelButtons: {
     justifyContent: "center",
     flexWrap: "wrap",
+    gap: rhythm.tight,
   },
-  levelButton: {
-    display: "flex",
-    fontSize: controlSize._4,
-    flexDirection: "column",
-    alignItems: "center",
-    paddingBlock: space._1,
-    paddingInline: space._2,
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: "transparent",
-    color: color.mutedForeground,
-    transition: `background-color ${duration._150} ${easing.ease}, color ${duration._150} ${easing.ease}, border-color ${duration._150} ${easing.ease}`,
-  },
-
   selectedLabel: {
     margin: 0,
     marginTop: rhythm.tight,
-    color: color.mutedForeground,
     textAlign: "center",
   },
 });

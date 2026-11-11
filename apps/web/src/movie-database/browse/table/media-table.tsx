@@ -16,9 +16,10 @@ import {
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, rhythm, shadow, space } from "@tuja/ui/tokens.stylex";
+import { Card } from "@tuja/ui/components/card";
+import { Divider } from "@tuja/ui/components/divider";
+import { EmptyState } from "@tuja/ui/components/empty-state";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { configurationQuery } from "#src/movie-database/tmdb/queries/configuration-query.ts";
@@ -299,7 +300,12 @@ export function MediaTable({
         toggleSort,
       }}
     >
-      <section css={[corner.radius_3, styles.panel]} aria-label={tableLabel}>
+      <Card
+        padding="none"
+        role="region"
+        aria-label={tableLabel}
+        css={styles.panel}
+      >
         <MediaTableToolbar
           search={search}
           onSearchChange={setSearch}
@@ -308,12 +314,13 @@ export function MediaTable({
           exportDisabled={visibleItems.length === 0}
           onExport={exportCsv}
         />
+        <Divider />
 
         {visibleItems.length === 0 ? (
-          <p css={styles.empty}>
-            <span aria-hidden="true">🙉 </span>
-            {query ? noMatchesLabel : notFoundLabel}
-          </p>
+          <EmptyState
+            icon="🙉"
+            title={query ? noMatchesLabel : notFoundLabel}
+          />
         ) : (
           <MediaTableGrid
             apiRef={apiRef}
@@ -328,6 +335,7 @@ export function MediaTable({
           />
         )}
 
+        <Divider />
         <MediaTableFooter
           query={query}
           visibleCount={visibleItems.length}
@@ -336,7 +344,7 @@ export function MediaTable({
           hasNextPage={hasNextPage}
           onLoadMore={loadMore}
         />
-      </section>
+      </Card>
     </MediaTableContext>
   );
 }
@@ -344,20 +352,7 @@ export function MediaTable({
 const styles = stylex.create({
   panel: {
     marginBlockEnd: rhythm.group,
-    display: "flex",
-    flexDirection: "column",
+    gap: 0,
     overflow: "hidden",
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.border,
-    backgroundColor: color.card,
-    boxShadow: shadow._3,
-  },
-  empty: {
-    marginBlock: 0,
-    paddingBlock: space._8,
-    paddingInline: space._3,
-    color: color.mutedForeground,
-    textAlign: "center",
   },
 });

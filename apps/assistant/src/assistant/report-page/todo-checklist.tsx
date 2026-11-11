@@ -4,7 +4,6 @@ import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { MenuItem } from "@tuja/ui/components/menu-item";
 import { Popover } from "@tuja/ui/components/popover";
@@ -13,8 +12,7 @@ import { TextField } from "@tuja/ui/components/text-field";
 import { Textarea } from "@tuja/ui/components/textarea";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { controlHeight, font, rhythm } from "@tuja/ui/tokens.stylex";
+import { controlHeight, rhythm } from "@tuja/ui/tokens.stylex";
 import { mergeRefs } from "@tuja/ui/utils/merge-refs";
 import { useId, useRef, useState } from "react";
 import type { ChecklistItem } from "../report/own-todo.ts";
@@ -221,9 +219,9 @@ export function TodoChecklist({
   return (
     <div role="group" aria-labelledby={headingId} css={stack.tight}>
       <div css={[cluster.tight, styles.heading]}>
-        <span id={headingId} css={[typeRole.control, styles.title]}>
+        <Text as="span" id={headingId} look="control" weight="semibold">
           {t({ en: "Checklist", zh: "清单" })}
-        </span>
+        </Text>
         <Text look="caption" tone="muted">
           {checklistProgress(steps)}
         </Text>
@@ -285,10 +283,6 @@ const styles = stylex.create({
   },
   heading: {
     alignItems: "baseline",
-  },
-  title: {
-    fontWeight: font.weight_6,
-    color: color.foreground,
   },
   steps: {
     listStyleType: "none",

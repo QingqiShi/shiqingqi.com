@@ -5,9 +5,9 @@ import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { useEffectSticky } from "@tuja/ui/hooks/use-effect-sticky";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { layer, space } from "@tuja/ui/tokens.stylex";
-import { floatingAction } from "../shell/floating-action.stylex.ts";
 import { FloatingActions } from "../shell/floating-actions.tsx";
 import type { TransactionForm } from "./use-transaction-form.ts";
 
@@ -30,7 +30,6 @@ export function EditorFooter({ form }: { form: TransactionForm }) {
 
   const secondaryAction = isNew ? (
     <Button
-      css={floatingAction.lift}
       onClick={() => {
         save(true);
       }}
@@ -38,9 +37,7 @@ export function EditorFooter({ form }: { form: TransactionForm }) {
       {t({ en: "Save and add another", zh: "保存并再记一笔" })}
     </Button>
   ) : isExpected ? (
-    <Button css={floatingAction.lift} onClick={remove}>
-      {t({ en: "Skip", zh: "跳过" })}
-    </Button>
+    <Button onClick={remove}>{t({ en: "Skip", zh: "跳过" })}</Button>
   ) : null;
 
   return column === null ? (
@@ -54,7 +51,6 @@ export function EditorFooter({ form }: { form: TransactionForm }) {
           type="submit"
           look="primary"
           size={secondaryAction ? "md" : "lg"}
-          css={floatingAction.lift}
         >
           {saveLabel}
         </Button>
@@ -62,12 +58,12 @@ export function EditorFooter({ form }: { form: TransactionForm }) {
     </FloatingActions>
   ) : (
     <div css={[stack.tight, styles.inlineFooter]}>
-      <Button type="submit" look="primary" size="lg" css={styles.wide}>
+      <Button type="submit" look="primary" size="lg" css={fill.inline}>
         {saveLabel}
       </Button>
       {isNew ? (
         <Button
-          css={styles.wide}
+          css={fill.inline}
           onClick={() => {
             save(true);
           }}
@@ -75,7 +71,7 @@ export function EditorFooter({ form }: { form: TransactionForm }) {
           {t({ en: "Save and add another", zh: "保存并再记一笔" })}
         </Button>
       ) : isExpected ? (
-        <Button css={styles.wide} onClick={remove}>
+        <Button css={fill.inline} onClick={remove}>
           {t({ en: "Skip", zh: "跳过" })}
         </Button>
       ) : null}
@@ -92,8 +88,5 @@ const styles = stylex.create({
   // In a column or its sheet, Save ends the form and covers no field.
   inlineFooter: {
     paddingBlockStart: space._1,
-  },
-  wide: {
-    inlineSize: "100%",
   },
 });

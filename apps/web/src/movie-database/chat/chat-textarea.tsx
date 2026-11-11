@@ -3,19 +3,12 @@
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { Button } from "@tuja/ui/components/button";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import {
-  border,
-  controlSize,
-  font,
-  opacity,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { controlSize, font, space } from "@tuja/ui/tokens.stylex";
 import {
   createContext,
   use,
@@ -229,44 +222,19 @@ export function ChatTextarea({
           />
         )}
         {children ?? (
-          <button
+          <Button
             type="submit"
+            look={trimmed ? "primary" : undefined}
+            size="sm"
             aria-label={sendLabel}
             disabled={!trimmed || sendBlocked}
-            css={[
-              flex.inlineCenter,
-              buttonReset.base,
-              chatTextareaStyles.iconButton,
-              !!trimmed && chatTextareaStyles.iconButtonActive,
-            ]}
-          >
-            <ArrowUpIcon weight="bold" role="presentation" />
-          </button>
+            icon={<ArrowUpIcon weight="bold" role="presentation" />}
+          />
         )}
       </form>
     </ChatTextareaContext>
   );
 }
-
-/** Shared icon-button styles for custom action buttons composed by consumers. */
-export const chatTextareaStyles = stylex.create({
-  iconButton: {
-    flexShrink: 0,
-    width: "1.75rem",
-    height: "1.75rem",
-    borderRadius: border.radius_round,
-    cornerShape: "round",
-    cursor: { default: "pointer", ":disabled": "default" },
-    backgroundColor: color.muted,
-    color: color.mutedForeground,
-    opacity: { default: null, ":disabled": opacity.disabled },
-    transition: `background-color ${duration._150} ${easing.ease}, color ${duration._150} ${easing.ease}`,
-  },
-  iconButtonActive: {
-    backgroundColor: color.primary,
-    color: color.primaryForeground,
-  },
-});
 
 const styles = stylex.create({
   container: {

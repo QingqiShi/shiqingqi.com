@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
+import { Text } from "@tuja/ui/components/text";
 import { unit } from "@tuja/ui/motion/mix";
 import { springOf, springRoles } from "@tuja/ui/motion/spring-roles";
 import { useBinding } from "@tuja/ui/motion/use-binding";
@@ -16,7 +17,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
   useEffect,
@@ -188,26 +189,30 @@ export function MotionEngineSpecimen() {
         />
         <dl css={[cluster.item, styles.readouts]}>
           <div css={[flex.row, typeRole.caption, styles.readout]}>
-            <dt>{t({ en: "Position", zh: "位置" })}</dt>
-            <dd css={[typeModifier.numeric, styles.number]}>
+            <Text as="dt" look="caption" tone="muted">
+              {t({ en: "Position", zh: "位置" })}
+            </Text>
+            <Text as="dd" look="caption" numeric css={styles.number}>
               <span ref={positionRef} />
-            </dd>
+            </Text>
           </div>
           <div css={[flex.row, typeRole.caption, styles.readout]}>
-            <dt>{t({ en: "Velocity", zh: "速度" })}</dt>
-            <dd css={[typeModifier.numeric, styles.number]}>
+            <Text as="dt" look="caption" tone="muted">
+              {t({ en: "Velocity", zh: "速度" })}
+            </Text>
+            <Text as="dd" look="caption" numeric css={styles.number}>
               <span ref={velocityRef} />
-            </dd>
+            </Text>
           </div>
         </dl>
       </div>
       {reduced ? (
-        <p css={[typeRole.bodySmall, styles.note]}>
+        <Text look="bodySmall" tone="muted" measure="none">
           {t({
             en: "Reduced motion is on, so the puck snaps to its end. A drag still follows your finger.",
             zh: "已开启减弱动效，因此圆块直接跳到终点。拖动时它仍会跟随手指。",
           })}
-        </p>
+        </Text>
       ) : null}
     </div>
   );
@@ -258,16 +263,9 @@ const styles = stylex.create({
   readout: {
     gap: rhythm.inline,
     alignItems: "baseline",
-    color: color.mutedForeground,
   },
   number: {
-    margin: 0,
     minInlineSize: "6ch",
     fontFamily: font.familyMono,
-    color: color.foreground,
-  },
-  note: {
-    margin: 0,
-    color: color.mutedForeground,
   },
 });

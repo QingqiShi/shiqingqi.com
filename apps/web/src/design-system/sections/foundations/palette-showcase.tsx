@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import {
   type SystemHuePalette,
   SYSTEM_PALETTE_TONES,
@@ -8,7 +9,6 @@ import {
 } from "@tuja/ui/palette-table";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { gridlineTokens } from "#src/design-system/gridline-ground.stylex.ts";
 import {
@@ -45,18 +45,21 @@ export function PaletteShowcase() {
             ]}
           >
             {SYSTEM_PALETTE_TONES.map((tone) => (
-              <span
+              <Text
                 key={tone}
+                as="span"
+                look="caption"
+                tone="muted"
+                numeric
+                wrap="nowrap"
                 css={[
-                  typeRole.caption,
-                  typeModifier.numeric,
                   styles.toneLabel,
                   !KEY_TONES.has(tone) && styles.minorToneLabel,
                   tone === 100 && styles.lastToneLabel,
                 ]}
               >
                 {tone}
-              </span>
+              </Text>
             ))}
           </div>
         </div>
@@ -96,9 +99,14 @@ function PaletteRow({ palette }: { palette: SystemHuePalette }) {
     // The label wraps above the ramp when space runs out, so the ramp keeps a
     // usable width.
     <li css={cluster.tight}>
-      <span css={[typeRole.label, styles.name, styles.code]}>
+      <Text
+        as="span"
+        look="label"
+        weight="semibold"
+        css={[styles.name, styles.code]}
+      >
         {palette.name.toLowerCase()}
-      </span>
+      </Text>
       <div
         css={[
           corner.radius_2,
@@ -138,8 +146,6 @@ const styles = stylex.create({
   name: {
     flexShrink: 0,
     inlineSize: "4.5rem",
-    fontWeight: font.weight_6,
-    color: color.foreground,
   },
   code: {
     fontFamily: font.familyMono,
@@ -164,8 +170,6 @@ const styles = stylex.create({
     display: "flex",
     justifyContent: "center",
     minInlineSize: 0,
-    whiteSpace: "nowrap",
-    color: color.mutedForeground,
   },
   lastToneLabel: {
     justifyContent: {

@@ -76,7 +76,7 @@ const styles = stylex.create({
   },
   intro: {
     margin: 0,
-    color: color.mutedForeground,
     maxInlineSize: measure.prose,
+    color: color.mutedForeground,
   },
 });

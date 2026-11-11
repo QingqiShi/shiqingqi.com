@@ -3,7 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
-import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { Card } from "@tuja/ui/components/card";
+import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -84,18 +85,22 @@ function Tile({
   cue: ReactNode;
 }) {
   return (
-    <div css={[cardSurface.base, styles.tile]}>
-      <dt css={[typeRole.caption, styles.tileLabel]}>{label}</dt>
+    <Card padding="sm" css={styles.tile}>
+      <Text as="dt" look="caption" tone="muted">
+        {label}
+      </Text>
       <dd css={styles.tileBody}>
         <span css={styles.tileValue}>
           <span css={[typeRole.h1, typeModifier.numeric]}>{value}</span>
           {unit === undefined ? null : (
-            <span css={[typeRole.caption, styles.tileLabel]}>{unit}</span>
+            <Text as="span" look="caption" tone="muted">
+              {unit}
+            </Text>
           )}
         </span>
         {cue === null ? null : <span css={styles.tileCue}>{cue}</span>}
       </dd>
-    </div>
+    </Card>
   );
 }
 
@@ -215,13 +220,8 @@ const styles = stylex.create({
     flexDirection: "column",
     justifyContent: "space-between",
     gap: rhythm.inline,
-    paddingBlock: space._2,
-    paddingInline: space._2,
     containerType: "inline-size",
     minInlineSize: 0,
-  },
-  tileLabel: {
-    color: color.mutedForeground,
   },
   tileBody: {
     display: "flex",

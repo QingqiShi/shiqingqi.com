@@ -4,13 +4,13 @@ import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import { t } from "@tuja/i18n";
 import { NavLink } from "@tuja/ui/components/nav-link";
 import { NavList } from "@tuja/ui/components/nav-list";
-import { specimenLayout } from "./specimen.stylex.ts";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 
 export function NavListSpecimen() {
   return (
     <nav
       aria-label={t({ en: "Navigation list", zh: "导航列表" })}
-      css={specimenLayout.fill}
+      css={fill.inline}
     >
       <NavList>
         <NavLink href="#" current icon={<HouseIcon weight="bold" />}>

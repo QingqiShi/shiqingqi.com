@@ -1,17 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/color.stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
+import { Text } from "@tuja/ui/components/text";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, space } from "@tuja/ui/tokens.stylex";
-import type { StyleProp } from "@tuja/ui/types";
 import { SignOutButton } from "./sign-out-button.tsx";
 import { SyncStatusIndicator } from "./sync-status-indicator.tsx";
 
 interface SignedInMemberProps {
   memberName: string;
   householdName: string;
-  css?: StyleProp;
 }
 
 /**
@@ -21,18 +17,19 @@ interface SignedInMemberProps {
 export function SignedInMember({
   memberName,
   householdName,
-  css,
 }: SignedInMemberProps) {
   return (
-    <div css={[stack.tight, styles.root, css]}>
+    <div css={[stack.tight, styles.root]}>
       <SyncStatusIndicator />
       <div css={[row.tight, styles.member]}>
         <Avatar name={memberName} size="sm" />
         <div css={styles.names}>
-          <span css={[typeRole.label, styles.name]}>{memberName}</span>
-          <span css={[typeRole.caption, styles.household]}>
+          <Text as="span" look="label" lines={1}>
+            {memberName}
+          </Text>
+          <Text as="span" look="caption" tone="muted" lines={1}>
             {householdName}
-          </span>
+          </Text>
         </div>
         <SignOutButton />
       </div>
@@ -42,10 +39,6 @@ export function SignedInMember({
 
 const styles = stylex.create({
   root: {
-    paddingBlockStart: space._3,
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
     minInlineSize: 0,
   },
   member: {
@@ -56,17 +49,5 @@ const styles = stylex.create({
     flexDirection: "column",
     flexGrow: 1,
     minInlineSize: 0,
-  },
-  name: {
-    color: color.foreground,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
-  household: {
-    color: color.mutedForeground,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
   },
 });

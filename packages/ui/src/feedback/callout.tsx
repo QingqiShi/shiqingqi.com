@@ -11,7 +11,7 @@ import { Button } from "../actions/button.tsx";
 import { color } from "../color.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
-import { toneColor } from "../primitives/tone.stylex.ts";
+import { textTone } from "../primitives/tone.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import {
   border,
@@ -138,7 +138,7 @@ export function Callout({
     role ??
     (intent === "destructive" || intent === "warning" ? "alert" : "status");
   const resolvedIcon = icon === undefined ? defaultIcons[intent] : icon;
-  const tone = toneColor[intent === "neutral" ? "default" : intent];
+  const tone = textTone[intent === "neutral" ? "default" : intent];
   const message = (
     <div css={[stack.text, styles.content, action ? styles.message : null]}>
       {title != null ? (

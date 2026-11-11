@@ -1,9 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { corner, cornerTokens } from "@tuja/ui/primitives/corner.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { controlHeight, font, space } from "@tuja/ui/tokens.stylex";
+import { controlHeight, space } from "@tuja/ui/tokens.stylex";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
@@ -52,11 +52,15 @@ export function CornerSection() {
           <div css={[corner.radius_3, styles.cornerCard]} />
         </Specimen>
         <Specimen caption="corner.radius_round — pill">
-          <span
-            css={[typeRole.caption, corner.radius_round, styles.cornerPill]}
+          <Text
+            as="span"
+            look="caption"
+            tone="primary"
+            weight="semibold"
+            css={[corner.radius_round, styles.cornerPill]}
           >
             {t({ en: "Popular", zh: "热门" })}
-          </span>
+          </Text>
         </Specimen>
         <Specimen caption="corner.squircle_round — button">
           <div css={[corner.squircle_round, styles.cornerButton]} />
@@ -88,8 +92,6 @@ const styles = stylex.create({
     alignItems: "center",
     paddingBlock: space._1,
     paddingInline: space._4,
-    fontWeight: font.weight_6,
-    color: color.primaryText,
     backgroundColor: color.primarySubtle,
   },
   // corner.squircle_round closes at half of cornerTokens.height, so this sets

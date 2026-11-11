@@ -4,7 +4,6 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
 import { Table } from "@tuja/ui/components/table";
 import { TableBody } from "@tuja/ui/components/table-body";
 import { TableCell } from "@tuja/ui/components/table-cell";
@@ -12,8 +11,8 @@ import { TableFoot } from "@tuja/ui/components/table-foot";
 import { TableHead } from "@tuja/ui/components/table-head";
 import { TableHeaderCell } from "@tuja/ui/components/table-header-cell";
 import { TableRow } from "@tuja/ui/components/table-row";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, space } from "@tuja/ui/tokens.stylex";
+import { Text } from "@tuja/ui/components/text";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { accountDetailLine } from "../accounts/account-detail-line.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
@@ -57,11 +56,8 @@ export function ReportBalanceSheet({
   const changeCell = (changeMinor: number, strong = false) => (
     <TableCell
       numeric
-      css={[
-        styles.wideOnly,
-        strong ? styles.strongChange : styles.muted,
-        changeMinor === 0 && styles.muted,
-      ]}
+      tone={!strong || changeMinor === 0 ? "muted" : undefined}
+      css={styles.wideOnly}
     >
       {formatWeekChange(changeMinor, currency, locale)}
     </TableCell>
@@ -85,49 +81,49 @@ export function ReportBalanceSheet({
         </TableHead>
         {sides.map(({ key, label, side }) => (
           <TableBody key={key}>
-            <TableRow css={styles.sideRow}>
-              <TableHeaderCell scope="row" css={styles.sideLabel}>
-                {label}
-              </TableHeaderCell>
-              <TableCell numeric css={styles.sideTotal}>
-                {money(side.totalMinor)}
-              </TableCell>
+            <TableRow look="total">
+              <TableHeaderCell scope="row">{label}</TableHeaderCell>
+              <TableCell numeric>{money(side.totalMinor)}</TableCell>
               {changeCell(sideChange(side), true)}
             </TableRow>
             {side.groups.flatMap((group) => [
-              <TableRow key={group.id} css={styles.groupRow}>
-                <TableHeaderCell scope="row" css={styles.groupLabel}>
+              <TableRow key={group.id} look="subtotal">
+                <TableHeaderCell scope="row" indent={1}>
                   <span css={typeModifier.verbatim}>{group.name}</span>
                 </TableHeaderCell>
-                <TableCell numeric css={styles.groupTotal}>
-                  {money(group.totalMinor)}
-                </TableCell>
+                <TableCell numeric>{money(group.totalMinor)}</TableCell>
                 {changeCell(groupChange(group), true)}
               </TableRow>,
               ...group.accounts.map((account) => {
                 const detail = accountDetailLine(account, account.ownerName);
                 return (
                   <TableRow key={account.id}>
-                    <TableHeaderCell scope="row" css={styles.accountLabel}>
+                    <TableHeaderCell scope="row" indent={2}>
                       <span css={[typeModifier.verbatim, styles.block]}>
                         {accountName(account)}
                       </span>
                       {detail === "" ? null : (
-                        <span
-                          css={[typeRole.caption, styles.block, styles.muted]}
+                        <Text
+                          as="span"
+                          look="caption"
+                          tone="muted"
+                          css={styles.block}
                         >
                           {detail}
-                        </span>
+                        </Text>
                       )}
                     </TableHeaderCell>
                     <TableCell numeric>
                       <span css={styles.block}>{money(account.baseMinor)}</span>
                       {account.currency === currency ? null : (
-                        <span
-                          css={[typeRole.caption, styles.block, styles.muted]}
+                        <Text
+                          as="span"
+                          look="caption"
+                          tone="muted"
+                          css={styles.block}
                         >
                           {money(account.balanceMinor, account.currency)}
-                        </span>
+                        </Text>
                       )}
                     </TableCell>
                     {changeCell(account.baseMinor - account.previousBaseMinor)}
@@ -138,11 +134,11 @@ export function ReportBalanceSheet({
           </TableBody>
         ))}
         <TableFoot>
-          <TableRow css={styles.netRow}>
-            <TableHeaderCell scope="row" css={styles.sideLabel}>
+          <TableRow look="total">
+            <TableHeaderCell scope="row">
               {t({ en: "Net worth", zh: "净资产" })}
             </TableHeaderCell>
-            <TableCell numeric css={styles.sideTotal}>
+            <TableCell numeric>
               {money(data.balanceSheet.netWorthMinor)}
             </TableCell>
             {changeCell(data.comparisons.previousWeek.changeMinor, true)}
@@ -154,42 +150,8 @@ export function ReportBalanceSheet({
 }
 
 const styles = stylex.create({
-  sideRow: {
-    backgroundColor: color.muted,
-  },
-  sideLabel: {
-    fontWeight: font.weight_7,
-  },
-  sideTotal: {
-    fontWeight: font.weight_7,
-  },
-  groupRow: {
-    backgroundColor: color.card,
-  },
-  groupLabel: {
-    paddingInlineStart: space._5,
-    fontWeight: font.weight_6,
-  },
-  groupTotal: {
-    fontWeight: font.weight_6,
-  },
-  accountLabel: {
-    paddingInlineStart: space._7,
-    fontWeight: font.weight_4,
-  },
-  netRow: {
-    borderBlockStartWidth: "2px",
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.foreground,
-  },
   block: {
     display: "block",
-  },
-  muted: {
-    color: color.mutedForeground,
-  },
-  strongChange: {
-    fontWeight: font.weight_6,
   },
   wideOnly: {
     display: { default: "none", [breakpoints.md]: "table-cell" },

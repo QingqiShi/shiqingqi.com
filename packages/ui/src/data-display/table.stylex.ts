@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { color } from "../color.stylex.ts";
+import { font } from "../tokens.stylex.ts";
 
 const NO_SHADOW = "0 0 transparent";
 
@@ -7,6 +8,8 @@ export const tableTokens = stylex.defineVars({
   // `position` takes no `var()`, so `Table` switches this token instead of
   // position; `auto` leaves the head in flow.
   headInset: "auto",
+  // The weight of the label at the start of a row. A total row sets it.
+  rowHeaderWeight: font.weight_6,
   // Painted behind the head only while it sticks, so rows scrolling under it do
   // not show through.
   headBackground: "transparent",

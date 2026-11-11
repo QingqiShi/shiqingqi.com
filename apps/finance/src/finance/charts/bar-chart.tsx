@@ -3,12 +3,13 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
   useId,
   type KeyboardEvent,
@@ -245,9 +246,9 @@ export function BarChart({
             {readout ? (
               readout(active)
             ) : (
-              <span css={[typeModifier.numeric, styles.readoutValue]}>
+              <Text as="span" look="caption" weight="semibold" numeric>
                 {formatValue(totals[active])}
-              </span>
+              </Text>
             )}
             <span>{periodLabel(active)}</span>
           </>
@@ -374,10 +375,10 @@ export function BarChart({
       </div>
       {series.length > 1 ? <ChartLegend items={legendItems} /> : null}
       {referenceLine ? (
-        <p css={[row.tight, typeRole.caption, styles.referenceNote]}>
+        <Text look="caption" tone="muted" css={row.tight}>
           <span aria-hidden css={styles.referenceKey} />
           <span css={typeModifier.numeric}>{referenceLine.label}</span>
-        </p>
+        </Text>
       ) : null}
       <ChartDataTable
         caption={label}
@@ -399,13 +400,9 @@ const styles = stylex.create({
   },
   readout: {
     minBlockSize: space._5,
-    color: color.mutedForeground,
     flexWrap: "wrap",
     columnGap: rhythm.item,
-  },
-  readoutValue: {
-    color: color.foreground,
-    fontWeight: font.weight_6,
+    color: color.mutedForeground,
   },
   plot: {
     position: "relative",
@@ -436,10 +433,6 @@ const styles = stylex.create({
     strokeWidth: 1,
     strokeDasharray: "4 3",
     shapeRendering: "crispEdges",
-  },
-  referenceNote: {
-    margin: 0,
-    color: color.mutedForeground,
   },
   referenceKey: {
     display: "inline-block",

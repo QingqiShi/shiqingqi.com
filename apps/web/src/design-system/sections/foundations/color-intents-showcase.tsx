@@ -2,9 +2,9 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
   GuideNote,
@@ -85,8 +85,12 @@ export function ColorIntentsShowcase() {
                 </span>
               </div>
               <span css={stack.text}>
-                <span css={[typeRole.label, styles.name]}>{intent.name}</span>
-                <span css={[typeRole.bodySmall, styles.job]}>{intent.job}</span>
+                <Text as="span" look="label" weight="semibold">
+                  {intent.name}
+                </Text>
+                <Text as="span" look="bodySmall" tone="muted">
+                  {intent.job}
+                </Text>
               </span>
             </li>
           ))}
@@ -138,13 +142,6 @@ const styles = stylex.create({
     justifyContent: "center",
     blockSize: space._8,
     fontWeight: font.weight_6,
-  },
-  name: {
-    fontWeight: font.weight_6,
-    color: color.foreground,
-  },
-  job: {
-    color: color.mutedForeground,
   },
 
   fillAccent: {

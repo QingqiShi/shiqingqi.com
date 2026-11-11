@@ -1,6 +1,6 @@
 import { t } from "@tuja/i18n";
 import { Select } from "@tuja/ui/components/select";
-import { specimenLayout } from "./specimen.stylex.ts";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 
 /** The options-array form, which is how most callsites use it. */
 export function SelectSpecimen() {
@@ -14,7 +14,7 @@ export function SelectSpecimen() {
         { value: "rating", label: t({ en: "Top rated", zh: "高分" }) },
         { value: "newest", label: t({ en: "Newest", zh: "最新" }) },
       ]}
-      css={specimenLayout.fill}
+      css={fill.inline}
     />
   );
 }

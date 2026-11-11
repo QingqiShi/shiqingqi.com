@@ -1,7 +1,5 @@
-import * as stylex from "@stylexjs/stylex";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { skeletonTokens } from "@tuja/ui/components/skeleton.stylex";
 import { controlHeight } from "@tuja/ui/tokens.stylex";
 import { FiltersContainer } from "./filters-container";
 
@@ -16,17 +14,45 @@ export function FiltersSkeleton({ locale }: FiltersSkeletonProps) {
     <FiltersContainer
       desktopChildren={
         <>
-          <Skeleton css={styles.control} width={widths.desktopMediaType} />
-          <Skeleton css={styles.control} width={widths.desktopGenre} />
-          <Skeleton css={styles.control} width={widths.desktopSort} />
-          <Skeleton css={styles.control} width={widths.desktopView} />
-          <Skeleton css={styles.control} width={widths.desktopInfo} />
+          <Skeleton
+            height={controlHeight.md}
+            shape="control"
+            width={widths.desktopMediaType}
+          />
+          <Skeleton
+            height={controlHeight.md}
+            shape="control"
+            width={widths.desktopGenre}
+          />
+          <Skeleton
+            height={controlHeight.md}
+            shape="control"
+            width={widths.desktopSort}
+          />
+          <Skeleton
+            height={controlHeight.md}
+            shape="control"
+            width={widths.desktopView}
+          />
+          <Skeleton
+            height={controlHeight.md}
+            shape="control"
+            width={widths.desktopInfo}
+          />
         </>
       }
       mobileChildren={
         <>
-          <Skeleton css={styles.control} width={widths.mobileMediaType} />
-          <Skeleton css={styles.control} width={widths.mobileFilters} />
+          <Skeleton
+            height={controlHeight.md}
+            shape="control"
+            width={widths.mobileMediaType}
+          />
+          <Skeleton
+            height={controlHeight.md}
+            shape="control"
+            width={widths.mobileFilters}
+          />
         </>
       }
     />
@@ -54,9 +80,3 @@ const controlWidths = {
     mobileFilters: 91,
   },
 };
-
-const styles = stylex.create({
-  control: {
-    [skeletonTokens.height]: controlHeight.md,
-  },
-});

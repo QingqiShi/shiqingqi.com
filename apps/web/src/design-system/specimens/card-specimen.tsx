@@ -2,8 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Card } from "@tuja/ui/components/card";
 import { Text } from "@tuja/ui/components/text";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
-import { specimenLayout } from "./specimen.stylex.ts";
 
 /**
  * One card. This tile is the only one whose subject is itself a bordered
@@ -16,7 +16,7 @@ import { specimenLayout } from "./specimen.stylex.ts";
  */
 export function CardSpecimen() {
   return (
-    <Card css={[specimenLayout.fill, styles.card]}>
+    <Card css={[fill.inline, styles.card]}>
       <Text look="bodySmall" weight="semibold">
         {t({ en: "Blade Runner 2049", zh: "银翼杀手 2049" })}
       </Text>

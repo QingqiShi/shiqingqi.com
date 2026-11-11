@@ -9,23 +9,19 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { Badge } from "@tuja/ui/components/badge";
+import { Button } from "@tuja/ui/components/button";
+import { Callout } from "@tuja/ui/components/callout";
+import { Divider } from "@tuja/ui/components/divider";
+import { EmptyState } from "@tuja/ui/components/empty-state";
+import { Heading } from "@tuja/ui/components/heading";
+import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
-import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import {
-  border,
-  controlSize,
-  measure,
-  rhythm,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { DetailOverlay } from "#src/movie-database/detail-overlay.tsx";
 import type { StoredPreference } from "./types.ts";
@@ -84,37 +80,27 @@ export function PreferenceTrigger({
       : t({ en: "Preferences", zh: "偏好设置" });
 
   return (
-    <button
-      type="button"
-      css={[
-        buttonReset.base,
-        flex.inlineCenter,
-        corner.radius_round,
-        quietSurface.interactive,
-        triggerStyles.button,
-      ]}
+    <Button
+      look="ghost"
+      size="sm"
       onClick={onOpen}
       aria-label={label}
-    >
-      <SlidersHorizontalIcon weight="bold" role="presentation" />
-      {count > 0 && (
-        <span
-          css={[corner.radius_round, triggerStyles.dot]}
-          aria-hidden="true"
-        />
-      )}
-    </button>
+      icon={
+        <>
+          <SlidersHorizontalIcon weight="bold" role="presentation" />
+          {count > 0 && (
+            <span
+              css={[corner.radius_round, triggerStyles.dot]}
+              aria-hidden="true"
+            />
+          )}
+        </>
+      }
+    />
   );
 }
 
 const triggerStyles = stylex.create({
-  button: {
-    position: "relative",
-    width: "1.75rem",
-    height: "1.75rem",
-    fontSize: controlSize._4,
-    color: color.mutedForeground,
-  },
   dot: {
     position: "absolute",
     top: "3px",
@@ -190,50 +176,38 @@ export function PreferencePanel({
       initialFocusRef={closeButtonRef}
     >
       <div css={[flex.between, styles.header]}>
-        <h2 css={[typeRole.h2, styles.title]}>
+        <Heading level={2} look="h2">
           {t({ en: "Your Preferences", zh: "你的偏好" })}
-        </h2>
-        <button
+        </Heading>
+        <Button
           ref={closeButtonRef}
-          type="button"
-          css={[
-            buttonReset.base,
-            flex.inlineCenter,
-            corner.radius_round,
-            quietSurface.interactive,
-            styles.closeButton,
-          ]}
+          look="ghost"
+          size="sm"
           onClick={onClose}
           aria-label={t({ en: "Close", zh: "关闭" })}
-        >
-          <XIcon weight="bold" />
-        </button>
+          icon={<XIcon weight="bold" />}
+        />
       </div>
 
-      <div css={[flex.row, corner.radius_2, styles.infoBanner]}>
-        <InfoIcon
-          weight="regular"
-          role="presentation"
-          {...stylex.props(styles.infoIcon)}
-        />
-        <p css={[typeRole.bodySmall, styles.infoText]}>
-          {t({
-            en: "Preferences are stored locally in your browser. When you chat with the AI, they're included as context to personalise its replies.",
-            zh: "偏好仅存储在你的浏览器中。当你与 AI 对话时，它们会作为上下文一起发送，以便个性化回复。",
-          })}
-        </p>
-      </div>
+      <Callout
+        intent="neutral"
+        icon={<InfoIcon weight="regular" />}
+        css={styles.infoBanner}
+      >
+        {t({
+          en: "Preferences are stored locally in your browser. When you chat with the AI, they're included as context to personalise its replies.",
+          zh: "偏好仅存储在你的浏览器中。当你与 AI 对话时，它们会作为上下文一起发送，以便个性化回复。",
+        })}
+      </Callout>
 
       <div css={[stack.group, styles.body]}>
         {preferences.length === 0 ? (
-          <div css={[flex.center, styles.emptyState]}>
-            <p css={[typeRole.body, styles.emptyText]}>
-              {t({
-                en: "No preferences yet. Chat with the AI and it will learn what you like.",
-                zh: "还没有偏好记录。和 AI 聊天，它会了解你的喜好。",
-              })}
-            </p>
-          </div>
+          <EmptyState
+            title={t({
+              en: "No preferences yet. Chat with the AI and it will learn what you like.",
+              zh: "还没有偏好记录。和 AI 聊天，它会了解你的喜好。",
+            })}
+          />
         ) : (
           CATEGORY_ORDER.filter((cat) => grouped.has(cat)).map((category) => (
             <CategorySection
@@ -246,65 +220,51 @@ export function PreferencePanel({
         )}
       </div>
 
+      {preferences.length > 0 && <Divider />}
       {preferences.length > 0 && (
         <div css={styles.footer}>
           {confirmingClear ? (
             <div css={[row.tight, styles.confirmRow]}>
-              <p css={[typeRole.bodySmall, styles.confirmText]}>
+              <Text look="bodySmall" measure="none">
                 {t({
                   en: "Clear all preferences?",
                   zh: "清除所有偏好？",
                 })}
-              </p>
-              <button
-                type="button"
-                css={[
-                  typeRole.label,
-                  buttonReset.base,
-                  corner.radius_round,
-                  styles.confirmButton,
-                ]}
+              </Text>
+              <Button
+                look="destructive"
+                size="sm"
                 onClick={() => void handleClearAll()}
               >
                 {t({ en: "Yes, clear", zh: "确认清除" })}
-              </button>
-              <button
+              </Button>
+              <Button
                 ref={cancelButtonRef}
-                type="button"
-                css={[
-                  typeRole.label,
-                  buttonReset.base,
-                  corner.radius_round,
-                  quietSurface.interactive,
-                  styles.cancelButton,
-                ]}
+                look="ghost"
+                size="sm"
                 onClick={() => {
                   setConfirmingClear(false);
                 }}
               >
                 {t({ en: "Cancel", zh: "取消" })}
-              </button>
+              </Button>
             </div>
           ) : (
-            <button
+            <Button
               ref={clearTriggerRef}
-              type="button"
-              css={[
-                typeRole.label,
-                buttonReset.base,
-                flex.row,
-                styles.clearButton,
-              ]}
+              look="ghost"
+              size="sm"
+              bleed="start"
               onClick={() => {
                 setConfirmingClear(true);
               }}
+              icon={<TrashIcon weight="bold" role="presentation" />}
             >
-              <TrashIcon weight="bold" role="presentation" />
               {t({
                 en: "Clear all preferences",
                 zh: "清除所有偏好",
               })}
-            </button>
+            </Button>
           )}
           {/* Stable live region: mounted whenever the footer is, populated
               only while confirming, so AT reliably detects the content
@@ -343,7 +303,9 @@ function CategorySection({
 
   return (
     <div css={stack.tight}>
-      <h3 css={[typeRole.overline, styles.categoryLabel]}>{label}</h3>
+      <Text look="overline" tone="muted">
+        {label}
+      </Text>
       <div css={cluster.tight}>
         {prefs.map((pref) => (
           <PreferenceChip
@@ -368,36 +330,26 @@ function PreferenceChip({
 }) {
   const isLike = preference.sentiment === "like";
   return (
-    <span
-      css={[
-        typeRole.label,
-        corner.radius_round,
-        styles.chip,
-        isLike ? styles.chipLike : styles.chipDislike,
-      ]}
-    >
-      <span css={[flex.inlineCenter, styles.sentimentIcon]}>
-        {isLike ? (
-          <ThumbsUpIcon weight="fill" role="presentation" />
-        ) : (
-          <ThumbsDownIcon weight="fill" role="presentation" />
-        )}
-      </span>
-      <span css={styles.chipLabel}>{preference.value}</span>
-      <button
-        type="button"
-        css={[
-          buttonReset.base,
-          flex.inlineCenter,
-          corner.radius_round,
-          quietSurface.interactive,
-          styles.chipRemove,
-        ]}
+    <span css={[flex.inlineCenter, styles.chip]}>
+      <Badge
+        intent={isLike ? "primary" : "destructive"}
+        icon={
+          isLike ? (
+            <ThumbsUpIcon weight="fill" role="presentation" />
+          ) : (
+            <ThumbsDownIcon weight="fill" role="presentation" />
+          )
+        }
+      >
+        <span css={styles.chipLabel}>{preference.value}</span>
+      </Badge>
+      <Button
+        look="ghost"
+        size="xs"
         onClick={onRemove}
         aria-label={`${t({ en: "Remove", zh: "移除" })} ${preference.value}`}
-      >
-        <XIcon weight="bold" />
-      </button>
+        icon={<XIcon weight="bold" />}
+      />
     </span>
   );
 }
@@ -411,35 +363,9 @@ const styles = stylex.create({
     paddingLeft: space._5,
     paddingRight: space._4,
   },
-  title: {
-    margin: 0,
-    color: color.foreground,
-  },
-  closeButton: {
-    width: "2rem",
-    height: "2rem",
-    fontSize: controlSize._4,
-    color: color.mutedForeground,
-  },
   infoBanner: {
-    gap: rhythm.tight,
-    fontSize: controlSize._4,
     marginInline: BODY_INLINE_INSET,
     marginBottom: rhythm.item,
-    paddingBlock: space._2,
-    paddingInline: space._3,
-    backgroundColor: color.muted,
-    alignItems: "flex-start",
-  },
-  infoIcon: {
-    flexShrink: 0,
-    color: color.mutedForeground,
-    position: "relative",
-    top: "0.15rem",
-  },
-  infoText: {
-    margin: 0,
-    color: color.mutedForeground,
   },
   body: {
     flex: 1,
@@ -447,108 +373,17 @@ const styles = stylex.create({
     paddingInline: BODY_INLINE_INSET,
     paddingBottom: space._3,
   },
-  emptyState: {
-    paddingBlock: space._9,
-  },
-  emptyText: {
-    margin: 0,
-    color: color.mutedForeground,
-    textAlign: "center",
-    maxInlineSize: measure.short,
-  },
-  categoryLabel: {
-    margin: 0,
-    color: color.mutedForeground,
-  },
   chip: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: controlSize._2,
-    paddingBlock: space._0,
-    paddingLeft: space._2,
-    paddingRight: space._1,
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    transition: `background-color ${duration._150} ${easing.ease}, border-color ${duration._150} ${easing.ease}`,
-  },
-  chipLike: {
-    borderColor: `color-mix(in srgb, ${color.primary} 30%, transparent)`,
-    backgroundColor: {
-      default: `color-mix(in srgb, ${color.primary} 8%, transparent)`,
-      ":hover": {
-        default: null,
-        [pointer.canHover]: `color-mix(in srgb, ${color.primary} 14%, transparent)`,
-      },
-    },
-    color: color.foreground,
-  },
-  chipDislike: {
-    borderColor: `color-mix(in srgb, ${color.destructive} 25%, transparent)`,
-    backgroundColor: {
-      default: `color-mix(in srgb, ${color.destructive} 6%, transparent)`,
-      ":hover": {
-        default: null,
-        [pointer.canHover]: `color-mix(in srgb, ${color.destructive} 12%, transparent)`,
-      },
-    },
-    color: color.foreground,
-  },
-  sentimentIcon: {
-    flexShrink: 0,
-    fontSize: controlSize._3,
+    gap: rhythm.inline,
   },
   chipLabel: {
     whiteSpace: "nowrap",
   },
-  chipRemove: {
-    flexShrink: 0,
-    width: "1.1rem",
-    height: "1.1rem",
-    fontSize: controlSize._3,
-    color: color.mutedForeground,
-    opacity: 0.5,
-    transition: `opacity ${duration._150} ${easing.ease}, background-color ${duration._150} ${easing.ease}`,
-  },
   footer: {
     paddingBlock: space._3,
     paddingInline: space._5,
-    borderTopWidth: border.size_1,
-    borderTopStyle: "solid",
-    borderTopColor: color.border,
-  },
-  clearButton: {
-    gap: controlSize._2,
-    color: {
-      default: color.mutedForeground,
-      ":hover": { default: null, [pointer.canHover]: color.foreground },
-    },
-    cursor: "pointer",
-    transition: `color ${duration._150} ${easing.ease}`,
   },
   confirmRow: {
     alignItems: "center",
-  },
-  confirmText: {
-    margin: 0,
-    color: color.foreground,
-  },
-  confirmButton: {
-    paddingBlock: space._0,
-    paddingInline: space._3,
-    backgroundColor: {
-      default: color.primary,
-      ":hover": {
-        default: null,
-        [pointer.canHover]: `color-mix(in srgb, ${color.primary} 90%, transparent)`,
-      },
-    },
-    color: color.primaryForeground,
-    cursor: "pointer",
-    transition: `background-color ${duration._150} ${easing.ease}`,
-  },
-  cancelButton: {
-    paddingBlock: space._0,
-    paddingInline: space._3,
-    color: color.mutedForeground,
   },
 });

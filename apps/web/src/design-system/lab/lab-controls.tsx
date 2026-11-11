@@ -3,7 +3,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { glassSurface } from "@tuja/ui/components/glass-surface.stylex";
@@ -74,8 +73,10 @@ export function LabControls({
                 {/* The control carries the prop name as its accessible name, so
                   the visible copy is hidden from assistive technology and the
                   name is announced once. */}
-                <span aria-hidden css={[typeRole.caption, styles.propName]}>
-                  <Identifier>{control.name}</Identifier>
+                <span aria-hidden css={styles.propName}>
+                  <Text as="span" look="caption" tone="muted">
+                    <Identifier>{control.name}</Identifier>
+                  </Text>
                 </span>
                 <LabControl
                   control={control}
@@ -179,6 +180,5 @@ const styles = stylex.create({
   },
   propName: {
     fontFamily: font.familyMono,
-    color: color.mutedForeground,
   },
 });

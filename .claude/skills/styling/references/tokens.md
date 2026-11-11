@@ -34,7 +34,7 @@ The names are those of shadcn/ui. Choose the token by what the element is, then 
 | A tint of `primary`, `destructive`, `success`, `warning` or `info` | `<name>Subtle`               | `<name>Text`            |
 | The scrim behind a modal                                           | `overlay`                    | `overlayForeground`     |
 
-- Secondary text is `mutedForeground`, on every surface and fill.
+- Secondary text is `mutedForeground`, on every surface and fill. In a screen, write it as `tone="muted"` on `Text`.
 - Text or an icon in the colour of a meaning is `<name>Text`. A mark at fill strength, such as a dot or the stroke of a chart, takes `<name>`.
 - A line is `border` (an edge, a divider), `input` (the edge of a field, and a neutral mark such as a track or a grabber), `borderStrong` (an edge that is the only sign of a control: it holds 3:1) or `ring` (the focus ring). A divider drawn as a box takes `border` as its `backgroundColor`.
 - `muted`, `accent` and `secondary` are opaque and have the same value. The three names let a theme give them different values, so choose by what the element is. An item with an `accent` state on a `muted` region does not show the state: put it on a surface.

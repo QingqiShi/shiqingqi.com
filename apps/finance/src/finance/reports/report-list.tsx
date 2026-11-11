@@ -11,7 +11,6 @@ import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
-import { listSurface } from "@tuja/ui/components/list.stylex";
 import {
   SplitViewLink,
   useSplitViewColumn,
@@ -91,11 +90,9 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
       list.fetchStatus !== "paused" ? (
         <List aria-busy>
           {Array.from({ length: LOADING_ROWS }, (_, index) => (
-            <li key={index} css={listSurface.item}>
-              <span css={listSurface.row}>
-                <Skeleton width="8rem" height="1em" delay={index * 100} />
-              </span>
-            </li>
+            <ListRow key={index}>
+              <Skeleton width="8rem" height="1em" delay={index * 100} />
+            </ListRow>
           ))}
         </List>
       ) : list.data === undefined ? (

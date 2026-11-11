@@ -75,7 +75,6 @@ const styles = stylex.create({
   card: {
     gap: rhythm.tight,
     padding: space._5,
-    color: color.foreground,
     backgroundColor: color.popover,
     borderWidth: border.size_1,
     borderStyle: "solid",

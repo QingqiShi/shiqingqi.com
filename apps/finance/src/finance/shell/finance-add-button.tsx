@@ -4,14 +4,9 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
-import { buttonTokens } from "@tuja/ui/components/button.stylex";
 import type { LinkSlotProps } from "@tuja/ui/components/link-provider";
 import { viewWidth } from "@tuja/ui/primitives/view-width.stylex";
 import { ColumnLink } from "../navigation/column-link.tsx";
-import {
-  floatingAction,
-  floatingActionTokens,
-} from "./floating-action.stylex.ts";
 import { useNewTransactionHref } from "./use-new-transaction-href.ts";
 
 export function NewTransactionLink(props: LinkSlotProps) {
@@ -38,7 +33,6 @@ export function FinanceAddButton() {
         size="lg"
         icon={<PlusIcon weight="bold" />}
         aria-keyshortcuts="n"
-        css={[floatingAction.lift, styles.button]}
       >
         {t({ en: "Add", zh: "记一笔" })}
       </Button>
@@ -49,8 +43,5 @@ export function FinanceAddButton() {
 const styles = stylex.create({
   barOnly: {
     display: { default: "block", [viewWidth.fromMd]: "none" },
-  },
-  button: {
-    [buttonTokens.height]: floatingActionTokens.blockSize,
   },
 });

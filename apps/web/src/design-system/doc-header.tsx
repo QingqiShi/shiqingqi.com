@@ -1,10 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/color.stylex";
 import { headerControlsTokens } from "@tuja/ui/components/header-controls.stylex";
+import { Heading } from "@tuja/ui/components/heading";
+import { Text } from "@tuja/ui/components/text";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { measure } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { LabViewSwitch } from "#src/design-system/lab/lab-view-switch.tsx";
 import { getDesignSystemRouteLabel } from "#src/design-system/route-copy/get-design-system-route-label.ts";
@@ -36,14 +36,12 @@ export function DocHeader({ path, description }: DocHeaderProps) {
       <DocBreadcrumb path={path} />
       <div data-prose css={stack.tight}>
         <div css={[cluster.item, justify.between, styles.titleRow]}>
-          <h1 css={[typeRole.subDisplay, styles.title]}>
+          <Heading level={1} css={typeRole.subDisplay}>
             {getDesignSystemRouteLabel(path)}
-          </h1>
+          </Heading>
           {hasDesignSystemLab(path) ? <LabViewSwitch docsPath={path} /> : null}
         </div>
-        {description == null ? null : (
-          <p css={[typeRole.body, styles.description]}>{description}</p>
-        )}
+        {description == null ? null : <Text tone="muted">{description}</Text>}
       </div>
     </header>
   );
@@ -58,14 +56,5 @@ const styles = stylex.create({
   // away. Without this padding, the button covers the view switch.
   titleRow: {
     paddingInlineEnd: headerControlsTokens.inlineEndClearance,
-  },
-  title: {
-    margin: 0,
-    color: color.foreground,
-  },
-  description: {
-    margin: 0,
-    color: color.mutedForeground,
-    maxInlineSize: measure.prose,
   },
 });

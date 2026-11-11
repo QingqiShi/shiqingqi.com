@@ -3,6 +3,7 @@ import { t } from "@tuja/i18n";
 import { Divider } from "@tuja/ui/components/divider";
 import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlSize, rhythm } from "@tuja/ui/tokens.stylex";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -15,7 +16,7 @@ export function DividerShowcase() {
       <Showcase label={t({ en: "Horizontal", zh: "水平" })}>
         <div css={stack.group}>
           <Specimen caption="subtle">
-            <div css={[stack.item, styles.fullWidth]}>
+            <div css={[stack.item, fill.inline]}>
               <Text look="bodySmall" tone="muted">
                 {t({
                   en: "Subtle dividers separate related content within a flow.",
@@ -32,7 +33,7 @@ export function DividerShowcase() {
             </div>
           </Specimen>
           <Specimen caption="bold">
-            <div css={[stack.item, styles.fullWidth]}>
+            <div css={[stack.item, fill.inline]}>
               <Text look="bodySmall" tone="muted">
                 {t({
                   en: "Bold dividers signal stronger separation between groups.",
@@ -49,7 +50,7 @@ export function DividerShowcase() {
             </div>
           </Specimen>
           <Specimen caption="decorative">
-            <div css={[stack.item, styles.fullWidth]}>
+            <div css={[stack.item, fill.inline]}>
               <Text look="bodySmall" tone="muted">
                 {t({
                   en: "Decorative dividers add accent for special moments.",
@@ -108,7 +109,7 @@ export function DividerShowcase() {
 
       <Showcase label={t({ en: "Decorative", zh: "装饰" })}>
         <Specimen caption="css">
-          <div css={[stack.item, styles.fullWidth]}>
+          <div css={[stack.item, fill.inline]}>
             <Text look="bodySmall" tone="muted">
               {t({
                 en: "An accent stroke for marquee moments — wider and bolder for emphasis.",
@@ -132,11 +133,6 @@ export function DividerShowcase() {
 }
 
 const styles = stylex.create({
-  // The specimen stage sizes its child to its content, so a rule that has to
-  // span its container asks for the width.
-  fullWidth: {
-    inlineSize: "100%",
-  },
   verticalRow: {
     gap: rhythm.item,
     alignItems: "center",

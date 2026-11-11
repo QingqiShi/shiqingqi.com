@@ -6,7 +6,6 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Card, CardTitle } from "@tuja/ui/components/card";
@@ -401,6 +400,5 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     padding: space._3,
-    color: color.foreground,
   },
 });

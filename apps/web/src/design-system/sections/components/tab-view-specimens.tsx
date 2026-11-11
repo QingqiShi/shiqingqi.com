@@ -7,7 +7,6 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGl
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Link, LinkStatus } from "@tuja/next-links/link";
-import { color } from "@tuja/ui/color.stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
@@ -291,9 +290,15 @@ export function TabViewDemo() {
               <li key={row.title} css={listSurface.item}>
                 <div css={[listSurface.row, styles.row]}>
                   <span css={typeRole.body}>{row.title}</span>
-                  <span css={[typeRole.bodySmall, styles.detail]}>
+                  <Text
+                    as="span"
+                    look="bodySmall"
+                    tone="muted"
+                    wrap="nowrap"
+                    css={styles.detail}
+                  >
                     {row.detail}
-                  </span>
+                  </Text>
                 </div>
               </li>
             ))}
@@ -354,7 +359,5 @@ const styles = stylex.create({
   },
   detail: {
     flexShrink: 0,
-    whiteSpace: "nowrap",
-    color: color.mutedForeground,
   },
 });

@@ -1,7 +1,6 @@
 "use client";
 
 import { FingerprintIcon } from "@phosphor-icons/react/dist/ssr/Fingerprint";
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
@@ -9,6 +8,7 @@ import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
 import {
@@ -75,16 +75,10 @@ export function SignUpPanel({ token, email }: SignUpPanelProps) {
         icon={<FingerprintIcon weight="bold" />}
         loading={busy}
         disabled={busy}
-        css={styles.wide}
+        css={fill.inline}
       >
         {t({ en: "Create a passkey", zh: "创建通行密钥" })}
       </Button>
     </form>
   );
 }
-
-const styles = stylex.create({
-  wide: {
-    inlineSize: "100%",
-  },
-});

@@ -5,8 +5,9 @@ import { border, rhythm } from "@tuja/ui/tokens.stylex";
 /**
  * Shared layout styles for the component specimens rendered under each overview
  * tile's copy. Each specimen module picks one of these and nothing more: `row`
- * for a small cluster, `stack` for a vertical sample, and `fill` for the
- * controls (fields, a callout, a card) that span the tile.
+ * for a small cluster, `stack` for a vertical sample, and `fill.inline` from
+ * `@tuja/ui/primitives/layout.stylex` for the controls (fields, a callout, a
+ * card) that span the tile.
  *
  * Everything centres on the plate. The plate is a frame around the specimen
  * rather than a continuation of the copy above it, so the specimen sits in the
@@ -21,13 +22,13 @@ import { border, rhythm } from "@tuja/ui/tokens.stylex";
  * it asked to be, or because its content overran — that declaration has nothing
  * left to move, and placing the contents inside it falls to the styles here.
  *
- * `fill` sets width only, never `align-self: stretch` — stretching would pull a
+ * `fill.inline` sets width only, never `align-self: stretch` — stretching would pull a
  * callout or a field to the full height of its row and make it read as a panel
  * rather than as one specimen. Note it does not always produce a plate-wide
  * specimen. Where it lands is the receiving component's decision: Callout,
  * Card, Divider, Skeleton, Select and the Menu button stage put `css` on their
  * rendered root. Text field and Textarea take it as `controlCss`, on their
- * inner control, and leave the field root content-sized. So `fill` is not
+ * inner control, and leave the field root content-sized. So `fill.inline` is not
  * evidence that a specimen fills its plate — check the rendered root — and the
  * wrapper's centring is load-bearing for those two callsites too.
  *
@@ -69,9 +70,6 @@ export const specimenLayout = stylex.create({
     alignItems: "center",
     textAlign: "center",
     gap: rhythm.tight,
-  },
-  fill: {
-    inlineSize: "100%",
   },
 });
 

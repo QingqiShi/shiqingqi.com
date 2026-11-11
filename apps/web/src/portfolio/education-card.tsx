@@ -1,10 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
+import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, ratio, rhythm } from "@tuja/ui/tokens.stylex";
+import { ratio, rhythm } from "@tuja/ui/tokens.stylex";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { Suspense } from "react";
@@ -47,13 +48,22 @@ export function EducationCard({
         <div css={[typeRole.cardTitle, styles.name]}>
           <span>{name}</span>
           {nameSubText && (
-            <span css={[typeRole.label, styles.subText]}> {nameSubText}</span>
+            <Text
+              as="span"
+              look="label"
+              tone="muted"
+              weight="semibold"
+              css={styles.subText}
+            >
+              {" "}
+              {nameSubText}
+            </Text>
           )}
         </div>
       </div>
-      <time dateTime={dateTime} css={[typeRole.bodySmall, styles.dates]}>
-        {dates}
-      </time>
+      <Text as="span" look="bodySmall" tone="muted">
+        <time dateTime={dateTime}>{dates}</time>
+      </Text>
     </Card>
   );
 }
@@ -89,7 +99,6 @@ const styles = stylex.create({
     color: color.mutedForeground,
   },
   subText: {
-    fontWeight: font.weight_6,
     display: "block",
   },
   img: {
@@ -98,8 +107,5 @@ const styles = stylex.create({
     objectFit: "contain",
     filter: cardTokens.imageFilter,
     transition: `filter ${duration._200} ${easing.ease}`,
-  },
-  dates: {
-    color: color.mutedForeground,
   },
 });

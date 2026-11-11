@@ -1,18 +1,16 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
-import { listSurface } from "@tuja/ui/components/list.stylex";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { Sheet } from "@tuja/ui/components/sheet";
 import { Text } from "@tuja/ui/components/text";
 import { useIsHydrated } from "@tuja/ui/hooks/use-is-hydrated";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { postJson } from "../http/post-json.ts";
@@ -92,29 +90,27 @@ export function MacsList({ macs }: { macs: readonly MacEntry[] }) {
       ) : (
         <List>
           {shown.map((mac) => (
-            <li key={mac.machineId} css={listSurface.item}>
-              <div css={[listSurface.row, styles.row]}>
-                <div css={[stack.text, styles.text]}>
-                  <Text>{mac.name}</Text>
-                  <Text look="bodySmall" tone="muted">
-                    {hydrated
-                      ? copy.connected.replace(
-                          "{date}",
-                          day.format(mac.connectedAt),
-                        )
-                      : " "}
-                  </Text>
-                  <Text look="bodySmall" tone="muted">
-                    {mac.lastUploadAt === null
-                      ? copy.noUpload
-                      : hydrated
-                        ? copy.lastUpload.replace(
-                            "{date}",
-                            time.format(mac.lastUploadAt),
-                          )
-                        : " "}
-                  </Text>
-                </div>
+            <ListRow
+              key={mac.machineId}
+              detail={
+                hydrated
+                  ? copy.connected.replace(
+                      "{date}",
+                      day.format(mac.connectedAt),
+                    )
+                  : " "
+              }
+              extra={
+                mac.lastUploadAt === null
+                  ? copy.noUpload
+                  : hydrated
+                    ? copy.lastUpload.replace(
+                        "{date}",
+                        time.format(mac.lastUploadAt),
+                      )
+                    : " "
+              }
+              actions={
                 <Button
                   size="sm"
                   look="ghost"
@@ -128,8 +124,10 @@ export function MacsList({ macs }: { macs: readonly MacEntry[] }) {
                 >
                   {copy.remove}
                 </Button>
-              </div>
-            </li>
+              }
+            >
+              {mac.name}
+            </ListRow>
           ))}
         </List>
       )}
@@ -181,13 +179,3 @@ export function MacsList({ macs }: { macs: readonly MacEntry[] }) {
     </div>
   );
 }
-
-const styles = stylex.create({
-  row: {
-    paddingBlock: space._2,
-  },
-  text: {
-    flexGrow: 1,
-    minInlineSize: 0,
-  },
-});

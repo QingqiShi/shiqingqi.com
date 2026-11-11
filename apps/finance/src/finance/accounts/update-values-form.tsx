@@ -5,7 +5,6 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
@@ -30,10 +29,7 @@ import { formatMoney } from "../domain/money/format-money.ts";
 import { formatPercentChange } from "../domain/money/format-percent-change.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
-import {
-  floatingAction,
-  floatingActionTokens,
-} from "../shell/floating-action.stylex.ts";
+import { floatingActionTokens } from "../shell/floating-action.stylex.ts";
 import { FloatingActions } from "../shell/floating-actions.tsx";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { useUndoableMutations } from "../shell/use-undoable-mutations.ts";
@@ -245,10 +241,17 @@ export function UpdateValuesForm() {
             return (
               <div key={account.id} css={styles.field}>
                 <div aria-hidden css={styles.fieldText}>
-                  <span css={[typeRole.body, styles.fieldName]}>{label}</span>
-                  <span css={[typeRole.caption, styles.fieldFacts]}>
+                  <Text as="span" weight="medium" css={styles.fieldName}>
+                    {label}
+                  </Text>
+                  <Text
+                    as="span"
+                    look="caption"
+                    tone="muted"
+                    css={styles.fieldFacts}
+                  >
                     {facts.join(" · ")}
-                  </span>
+                  </Text>
                 </div>
                 <div css={styles.input}>
                   <TextField
@@ -307,14 +310,14 @@ export function UpdateValuesForm() {
                     }}
                   />
                 </div>
-                <span
+                <Text
+                  as="span"
                   id={changeId}
-                  css={[
-                    typeRole.caption,
-                    typeModifier.numeric,
-                    styles.change,
-                    change?.isLarge === true && styles.large,
-                  ]}
+                  look="caption"
+                  numeric
+                  tone={change?.isLarge === true ? "warning" : "muted"}
+                  weight={change?.isLarge === true ? "semibold" : undefined}
+                  css={styles.change}
                 >
                   {change
                     ? changeText(
@@ -323,7 +326,7 @@ export function UpdateValuesForm() {
                         current * valuationInputSign(account.kind),
                       ) + (change.isLarge ? ` · ${checkLabel}` : "")
                     : ""}
-                </span>
+                </Text>
                 {extraIds.includes(account.id) ? (
                   <Button
                     size="sm"
@@ -395,15 +398,8 @@ export function UpdateValuesForm() {
           </Callout>
         ) : null}
         <FloatingActions>
-          <Button href={pathname} css={floatingAction.lift}>
-            {t({ en: "Cancel", zh: "取消" })}
-          </Button>
-          <Button
-            ref={saveRef}
-            type="submit"
-            look="primary"
-            css={floatingAction.lift}
-          >
+          <Button href={pathname}>{t({ en: "Cancel", zh: "取消" })}</Button>
+          <Button ref={saveRef} type="submit" look="primary">
             {reviewing
               ? t({ en: "Save anyway", zh: "仍然保存" })
               : changed === 0
@@ -452,13 +448,11 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   fieldName: {
-    fontWeight: font.weight_5,
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
   },
   fieldFacts: {
-    color: color.mutedForeground,
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
@@ -470,11 +464,6 @@ const styles = stylex.create({
   change: {
     gridArea: "change",
     minInlineSize: 0,
-    color: color.mutedForeground,
-  },
-  large: {
-    color: color.warningText,
-    fontWeight: font.weight_6,
   },
   remove: {
     gridArea: "remove",

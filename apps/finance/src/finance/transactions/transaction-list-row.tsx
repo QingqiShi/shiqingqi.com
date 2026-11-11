@@ -3,16 +3,12 @@
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { ListRow, type ListRowLinkProps } from "@tuja/ui/components/list-row";
-import { listRowSizes, listRowTokens } from "@tuja/ui/components/list.stylex";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { Select } from "@tuja/ui/components/select";
+import { Text } from "@tuja/ui/components/text";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { createContext, type MouseEvent, use } from "react";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
@@ -60,7 +56,9 @@ interface TransactionListRowProps {
 function ReviewReasonCaption({ reason }: { reason: ReviewReason }) {
   const reasonText = useReviewReasonText();
   return (
-    <span css={[typeRole.caption, styles.muted]}>{reasonText(reason)}</span>
+    <Text as="span" look="caption" tone="muted">
+      {reasonText(reason)}
+    </Text>
   );
 }
 
@@ -198,94 +196,82 @@ export function TransactionListRow({
               </>
             )
           }
-          value={isExpected ? <span css={styles.muted}>{amount}</span> : amount}
+          value={
+            isExpected ? (
+              <Text as="span" tone="muted">
+                {amount}
+              </Text>
+            ) : (
+              amount
+            )
+          }
           valueDetail={countedText}
+          below={
+            isExpected || (reviewMode && inReview && !isTransfer) ? (
+              <>
+                {isExpected ? (
+                  <div css={cluster.tight}>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        actions.onConfirm(row);
+                      }}
+                    >
+                      {t({ en: "Confirm", zh: "确认" })}
+                    </Button>
+                    <Button
+                      size="sm"
+                      look="ghost"
+                      onClick={() => {
+                        actions.onSkip(row);
+                      }}
+                    >
+                      {t({ en: "Skip", zh: "跳过" })}
+                    </Button>
+                  </div>
+                ) : null}
+                {reviewMode && inReview && !isTransfer ? (
+                  <div css={cluster.tight}>
+                    <Select
+                      size="sm"
+                      label={t({ en: "Category", zh: "分类" })}
+                      labelHidden
+                      value={row.categoryId ?? ""}
+                      options={categoriesOfKind.map((option) => ({
+                        value: option.id,
+                        label: categoryName(option),
+                      }))}
+                      onChange={(event) => {
+                        if (event.target.value !== "") {
+                          actions.onRecategorise(row, event.target.value);
+                        }
+                      }}
+                      css={styles.select}
+                    />
+                    <Button
+                      size="sm"
+                      icon={<CheckIcon weight="bold" />}
+                      onClick={() => {
+                        actions.onLooksRight(row);
+                      }}
+                    >
+                      {t({ en: "Looks right", zh: "没问题" })}
+                    </Button>
+                  </div>
+                ) : null}
+              </>
+            ) : null
+          }
         >
           {title}
         </ListRow>
       </TransactionLinkContext>
-      {isExpected ? (
-        <div css={[cluster.tight, styles.actions]}>
-          <Button
-            size="sm"
-            onClick={() => {
-              actions.onConfirm(row);
-            }}
-          >
-            {t({ en: "Confirm", zh: "确认" })}
-          </Button>
-          <Button
-            size="sm"
-            look="ghost"
-            onClick={() => {
-              actions.onSkip(row);
-            }}
-          >
-            {t({ en: "Skip", zh: "跳过" })}
-          </Button>
-        </div>
-      ) : null}
-      {reviewMode && inReview && !isTransfer ? (
-        <div css={[cluster.tight, styles.actions]}>
-          <label css={styles.selectWrap}>
-            <span css={a11y.srOnly}>{t({ en: "Category", zh: "分类" })}</span>
-            <select
-              value={row.categoryId ?? ""}
-              onChange={(event) => {
-                if (event.target.value !== "") {
-                  actions.onRecategorise(row, event.target.value);
-                }
-              }}
-              css={[
-                typeRole.controlCaption,
-                corner.radius_round,
-                a11y.focusRing,
-                styles.select,
-              ]}
-            >
-              {categoriesOfKind.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {categoryName(option)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <Button
-            size="sm"
-            icon={<CheckIcon weight="bold" />}
-            onClick={() => {
-              actions.onLooksRight(row);
-            }}
-          >
-            {t({ en: "Looks right", zh: "没问题" })}
-          </Button>
-        </div>
-      ) : null}
     </div>
   );
 }
 
 const styles = stylex.create({
-  muted: {
-    color: color.mutedForeground,
-  },
-  actions: {
-    paddingInlineStart: `calc(${listRowSizes.media_md} + ${rhythm.item} + ${listRowTokens.rowPaddingInline})`,
-    paddingBlockEnd: space._1,
-  },
-  selectWrap: {
-    display: "inline-flex",
-    minInlineSize: 0,
-  },
   select: {
     maxInlineSize: "12rem",
-    paddingBlock: space._00,
-    paddingInline: space._2,
-    color: color.foreground,
-    backgroundColor: {
-      default: color.card,
-      [pointer.canHover]: { default: null, ":hover": color.accent },
-    },
-    borderWidth: 0,
   },
 });

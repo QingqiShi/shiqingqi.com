@@ -8,8 +8,8 @@ import { Popover } from "@tuja/ui/components/popover";
 import { Text } from "@tuja/ui/components/text";
 import type { PopoverPlacement } from "@tuja/ui/hooks/use-popover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, font, measure, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { StateReadout } from "#src/design-system/showcase.tsx";
@@ -52,7 +52,15 @@ export function PlacementDemo({ placement }: { placement: PopoverPlacement }) {
         </Button>
       )}
     >
-      <span css={[typeRole.caption, styles.placementPanel]}>{placement}</span>
+      <Text
+        as="span"
+        look="caption"
+        tone="muted"
+        align="center"
+        css={styles.placementPanel}
+      >
+        {placement}
+      </Text>
     </Popover>
   );
 }
@@ -105,7 +113,7 @@ export function DismissalDemo() {
   // Hoisted out of the render prop: `t()` has to be called in render scope.
   const triggerLabel = t({ en: "Open the panel", zh: "打开面板" });
   return (
-    <div css={[cluster.item, styles.fill]}>
+    <div css={[cluster.item, fill.inline]}>
       <Popover
         open={open}
         onOpenChange={setOpen}
@@ -172,16 +180,15 @@ export function PortalTargetDemo() {
         </Text>
       </Popover>
       <div ref={setHost} css={[corner.radius_2, styles.portalHost]}>
-        <span css={[typeRole.caption, styles.code]}>portalTarget</span>
+        <Text as="span" look="caption" tone="muted" css={styles.code}>
+          portalTarget
+        </Text>
       </div>
     </div>
   );
 }
 
 const styles = stylex.create({
-  fill: {
-    inlineSize: "100%",
-  },
   // The cap a popover's prose takes, so the panel reads as a paragraph rather
   // than as a line running the width of the page.
   narrowPanel: {
@@ -194,13 +201,10 @@ const styles = stylex.create({
   placementPanel: {
     display: "block",
     minInlineSize: space._12,
-    textAlign: "center",
     fontFamily: font.familyMono,
-    color: color.mutedForeground,
   },
   code: {
     fontFamily: font.familyMono,
-    color: color.mutedForeground,
   },
   // Dashed, because the box is a destination rather than a surface — nothing
   // ever paints inside it where the reader can see.

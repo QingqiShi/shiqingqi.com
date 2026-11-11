@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { measure } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
@@ -20,7 +20,7 @@ interface GuideSectionProps {
 export function GuideSection({ title, lead, children }: GuideSectionProps) {
   return (
     <DocSection title={title} titleCss={[typeRole.h1, styles.title]}>
-      <p css={[typeRole.body, styles.lead]}>{lead}</p>
+      <Text tone="muted">{lead}</Text>
       {children}
     </DocSection>
   );
@@ -32,22 +32,15 @@ interface GuideNoteProps {
 
 /** A qualification that follows an example — the exception, or the next layer. */
 export function GuideNote({ children }: GuideNoteProps) {
-  return <p css={[typeRole.bodySmall, styles.note]}>{children}</p>;
+  return (
+    <Text look="bodySmall" tone="muted">
+      {children}
+    </Text>
+  );
 }
 
 const styles = stylex.create({
   title: {
-    maxInlineSize: measure.prose,
-    color: color.foreground,
-  },
-  lead: {
-    margin: 0,
-    maxInlineSize: measure.prose,
-    color: color.mutedForeground,
-  },
-  note: {
-    margin: 0,
-    color: color.mutedForeground,
     maxInlineSize: measure.prose,
   },
 });

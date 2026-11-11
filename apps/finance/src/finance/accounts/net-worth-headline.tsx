@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font } from "@tuja/ui/tokens.stylex";
@@ -80,21 +81,25 @@ export function NetWorthHeadline({
             hidden={pick !== null}
           />
           {pick === null ? null : (
-            <span
-              aria-hidden
-              css={[row.tight, typeRole.bodySmall, styles.layer, styles.muted]}
-            >
+            <span aria-hidden css={[row.tight, styles.layer]}>
               {pick.kind === "point" ? (
-                displayDay(pick.day, locale, "dayYear")
+                <Text as="span" look="bodySmall" tone="muted">
+                  {displayDay(pick.day, locale, "dayYear")}
+                </Text>
               ) : (
                 <>
-                  <span
-                    css={[
-                      typeModifier.numeric,
-                      styles.value,
-                      pick.to > pick.from && styles.up,
-                      pick.to < pick.from && styles.down,
-                    ]}
+                  <Text
+                    as="span"
+                    look="bodySmall"
+                    weight="semibold"
+                    numeric
+                    tone={
+                      pick.to > pick.from
+                        ? "success"
+                        : pick.to < pick.from
+                          ? "destructive"
+                          : "muted"
+                    }
                   >
                     {formatPercentChange(
                       pick.to - pick.from,
@@ -104,10 +109,10 @@ export function NetWorthHeadline({
                         short: true,
                       },
                     )}
-                  </span>
-                  <span>
+                  </Text>
+                  <Text as="span" look="bodySmall" tone="muted">
                     {displayDayRange(pick.startDay, pick.endDay, locale)}
-                  </span>
+                  </Text>
                 </>
               )}
             </span>
@@ -183,8 +188,12 @@ function TodayChanges({
 function Fact({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div css={row.inline}>
-      <dt css={styles.muted}>{label}</dt>
-      <dd css={[typeModifier.numeric, styles.value]}>{children}</dd>
+      <Text as="dt" look="bodySmall" tone="muted">
+        {label}
+      </Text>
+      <Text as="dd" look="bodySmall" weight="semibold" numeric>
+        {children}
+      </Text>
     </div>
   );
 }
@@ -212,18 +221,5 @@ const styles = stylex.create({
   facts: {
     margin: 0,
     rowGap: 0,
-  },
-  value: {
-    margin: 0,
-    fontWeight: font.weight_6,
-  },
-  up: {
-    color: color.successText,
-  },
-  down: {
-    color: color.destructiveText,
-  },
-  muted: {
-    color: color.mutedForeground,
   },
 });

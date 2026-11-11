@@ -2,10 +2,9 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
+import { Callout } from "@tuja/ui/components/callout";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { ChatStatus, UIMessage } from "ai";
 import { type ReactNode, useEffect, useEffectEvent, useRef } from "react";
@@ -140,19 +139,19 @@ export function ChatMessageList({
             />
           )}
           {showError && (
-            <p css={[typeRole.bodySmall, styles.errorMessage]} role="alert">
+            <Callout intent="destructive" role="alert">
               {errorLabel}
-            </p>
+            </Callout>
           )}
         </div>
       )}
       {showUsageWarning && (
-        <p css={[typeRole.bodySmall, styles.usageWarning]} role="status">
+        <Callout intent="warning" role="status">
           {t({
             en: "The conversation is getting lengthy",
             zh: "对话越来越长",
           })}
-        </p>
+        </Callout>
       )}
     </div>
   );
@@ -169,18 +168,5 @@ const styles = stylex.create({
     justifyContent: "flex-start",
     flexGrow: 1,
     paddingTop: space._8,
-  },
-  usageWarning: {
-    margin: 0,
-    textAlign: "center",
-    color: color.mutedForeground,
-    paddingBlock: space._1,
-  },
-  errorMessage: {
-    margin: 0,
-    textAlign: "center",
-    color: color.mutedForeground,
-    fontStyle: "italic",
-    paddingBlock: space._2,
   },
 });

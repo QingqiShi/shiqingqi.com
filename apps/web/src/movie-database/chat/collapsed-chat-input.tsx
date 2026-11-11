@@ -73,7 +73,7 @@ const styles = stylex.create({
     pointerEvents: "none",
   },
   icon: {
-    color: color.primaryText,
     fontSize: controlSize._4,
+    color: color.primaryText,
   },
 });

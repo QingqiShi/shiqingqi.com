@@ -7,14 +7,16 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
+import { Button } from "@tuja/ui/components/button";
+import { Card } from "@tuja/ui/components/card";
+import { Divider } from "@tuja/ui/components/divider";
 import { MetaLine } from "@tuja/ui/components/meta-line";
+import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { ExternalLinkIndicator } from "#src/links/external-link-indicator.tsx";
 import { isRecord } from "#src/movie-database/is-record.ts";
@@ -257,9 +259,9 @@ function ProviderSection({
   if (providers.length === 0) return null;
   return (
     <div css={stack.tight}>
-      <div css={[typeRole.label, styles.sectionLabel]}>
+      <Text as="div" look="label" tone="muted">
         <TypeLabel type={type} />
-      </div>
+      </Text>
       <div css={cluster.tight}>
         {providers.map((p) => (
           <ProviderLogo key={p.id} logoPath={p.logoPath} name={p.name} />
@@ -276,20 +278,25 @@ function RegionWatchProviders({ data }: { data: WatchProviderData }) {
   const regionDisplay = displayNames?.of(region) ?? region;
 
   return (
-    <div css={[corner.radius_2, styles.card]}>
-      <div css={[flex.between, styles.header]}>
-        <span css={[typeRole.label, styles.title]}>
+    <Card padding="sm" css={styles.card}>
+      <div css={flex.between}>
+        <Text as="span" look="label" weight="semibold">
           {t({ en: "Where to Watch", zh: "在哪里看" })}
-        </span>
+        </Text>
         <Badge intent="neutral">{regionDisplay}</Badge>
       </div>
 
       {providers === null ? (
-        <p css={[typeRole.bodySmall, styles.emptyText]}>
+        <Text
+          look="bodySmall"
+          tone="muted"
+          measure="none"
+          css={styles.emptyText}
+        >
           {t({ en: "Not available in ", zh: "在" })}
           {regionDisplay}
           {t({ en: "", zh: "不可用" })}
-        </p>
+        </Text>
       ) : (
         <div css={stack.item}>
           {CATEGORY_KEYS.map((key) => (
@@ -298,7 +305,8 @@ function RegionWatchProviders({ data }: { data: WatchProviderData }) {
         </div>
       )}
 
-      <div css={[typeRole.bodySmall, styles.attribution]}>
+      <Divider />
+      <Text as="div" look="bodySmall" tone="muted">
         {providers?.link ? (
           <a
             href={providers.link}
@@ -320,8 +328,8 @@ function RegionWatchProviders({ data }: { data: WatchProviderData }) {
             })}
           </span>
         )}
-      </div>
-    </div>
+      </Text>
+    </Card>
   );
 }
 
@@ -363,32 +371,28 @@ function CountryList({ countries }: { countries: ReadonlyArray<string> }) {
   const remaining = countries.length - INITIAL_VISIBLE_COUNT;
 
   return (
-    <p css={[typeRole.bodySmall, styles.countryList]}>
+    <Text look="bodySmall" measure="none">
       <MetaLine
         facts={[
           ...visible.map((code) => (
             <span key={code}>{displayNames?.of(code) ?? code}</span>
           )),
           !expanded && needsTruncation && (
-            <button
+            <Button
               key="more"
-              type="button"
+              look="ghost"
+              size="xs"
               onClick={() => {
                 setExpanded(true);
               }}
-              css={[
-                buttonReset.base,
-                typeRole.bodySmall,
-                styles.showMoreButton,
-              ]}
             >
               {`+${String(remaining)} `}
               {t({ en: "more", zh: "更多" })}
-            </button>
+            </Button>
           ),
         ]}
       />
-    </p>
+    </Text>
   );
 }
 
@@ -397,8 +401,8 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
   const groups = groupRegionsByType(regions);
 
   return (
-    <div css={[corner.radius_2, styles.card]}>
-      <div css={[flex.between, styles.header]}>
+    <Card padding="sm" css={styles.card}>
+      <div css={flex.between}>
         <div css={row.tight}>
           {providerLogoPath && (
             <ProviderLogo
@@ -407,7 +411,9 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
               size={HEADER_LOGO_SIZE}
             />
           )}
-          <span css={[typeRole.label, styles.title]}>{providerName}</span>
+          <Text as="span" look="label" weight="semibold">
+            {providerName}
+          </Text>
         </div>
         <Badge intent="neutral">
           {regions.length === 1
@@ -417,7 +423,12 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
       </div>
 
       {regions.length === 0 ? (
-        <p css={[typeRole.bodySmall, styles.emptyText]}>
+        <Text
+          look="bodySmall"
+          tone="muted"
+          measure="none"
+          css={styles.emptyText}
+        >
           {t({
             en: "Not available on ",
             zh: "在 ",
@@ -427,7 +438,7 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
             en: " in any region",
             zh: " 上不可用",
           })}
-        </p>
+        </Text>
       ) : (
         <div css={stack.item}>
           {CATEGORY_KEYS.map((key) => {
@@ -435,9 +446,15 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
             if (!countries) return null;
             return (
               <div key={key}>
-                <div css={[typeRole.label, styles.typeLabel]}>
+                <Text
+                  as="div"
+                  look="label"
+                  tone="muted"
+                  weight="semibold"
+                  css={styles.typeLabel}
+                >
                   <TypeLabel type={key} />
-                </div>
+                </Text>
                 <CountryList countries={countries} />
               </div>
             );
@@ -445,15 +462,14 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
         </div>
       )}
 
-      <div css={[typeRole.bodySmall, styles.attribution]}>
-        <span>
-          {t({
-            en: "Data provided by JustWatch",
-            zh: "数据由 JustWatch 提供",
-          })}
-        </span>
-      </div>
-    </div>
+      <Divider />
+      <Text as="div" look="bodySmall" tone="muted">
+        {t({
+          en: "Data provided by JustWatch",
+          zh: "数据由 JustWatch 提供",
+        })}
+      </Text>
+    </Card>
   );
 }
 
@@ -466,51 +482,17 @@ export function ToolWatchProviders({ data }: { data: WatchProviderOutput }) {
 
 const styles = stylex.create({
   card: {
-    backgroundColor: color.popover,
-    padding: space._3,
     marginTop: rhythm.item,
-  },
-  header: {
-    marginBottom: rhythm.tight,
-  },
-  title: {
-    fontWeight: font.weight_6,
-  },
-  sectionLabel: {
-    color: color.mutedForeground,
   },
   logo: {
     objectFit: "cover",
   },
   emptyText: {
-    margin: 0,
-    color: color.mutedForeground,
     fontStyle: "italic",
     paddingBlock: space._1,
   },
   typeLabel: {
-    color: color.mutedForeground,
-    fontWeight: font.weight_6,
     marginBottom: rhythm.tight,
-  },
-  countryList: {
-    margin: 0,
-  },
-  showMoreButton: {
-    fontFamily: font.family,
-    color: color.mutedForeground,
-    textDecoration: {
-      default: "none",
-      ":hover": { default: null, [pointer.canHover]: "underline" },
-    },
-  },
-  attribution: {
-    color: color.mutedForeground,
-    marginTop: rhythm.item,
-    paddingTop: space._1,
-    borderTopWidth: border.size_1,
-    borderTopStyle: "solid",
-    borderTopColor: color.border,
   },
   attributionLink: {
     color: color.mutedForeground,

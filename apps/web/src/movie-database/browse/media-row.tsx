@@ -138,8 +138,8 @@ const standaloneStyles = stylex.create({
 
 const styles = stylex.create({
   title: {
-    color: color.mutedForeground,
     margin: 0,
+    color: color.mutedForeground,
   },
   cardWrapper: {
     flexShrink: 0,

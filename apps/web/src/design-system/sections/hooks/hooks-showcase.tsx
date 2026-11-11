@@ -66,7 +66,15 @@ function StepperControl({
       >
         −
       </button>
-      <span css={[typeRole.body, styles.stepValue]}>{value}</span>
+      <Text
+        as="span"
+        look="body"
+        weight="semibold"
+        align="center"
+        css={styles.stepValue}
+      >
+        {value}
+      </Text>
       <button
         type="button"
         aria-label={incLabel}
@@ -95,7 +103,14 @@ function ControlledStepperSpecimen() {
       <StepperControl value={value} onChange={setValue} />
       <Text look="caption" tone="muted">
         {stateLabel}:{" "}
-        <span css={[corner.radius_1, styles.readout]}>{value}</span>
+        <Text
+          as="span"
+          look="caption"
+          weight="semibold"
+          css={[corner.radius_1, styles.readout]}
+        >
+          {value}
+        </Text>
       </Text>
     </div>
   );
@@ -253,7 +268,14 @@ function DensityRadioGroup() {
       </div>
       <Text look="caption" tone="muted">
         {selectedLabel}:{" "}
-        <span css={[corner.radius_1, styles.readout]}>{labels[value]}</span>
+        <Text
+          as="span"
+          look="caption"
+          weight="semibold"
+          css={[corner.radius_1, styles.readout]}
+        >
+          {labels[value]}
+        </Text>
       </Text>
     </div>
   );
@@ -333,18 +355,13 @@ const styles = stylex.create({
   },
   stepValue: {
     minInlineSize: "2ch",
-    textAlign: "center",
     fontFamily: font.familyMono,
-    fontWeight: font.weight_6,
-    color: color.foreground,
   },
   alignStart: {
     alignItems: "flex-start",
   },
   readout: {
     fontFamily: font.familyMono,
-    fontWeight: font.weight_6,
-    color: color.foreground,
     paddingInline: space._1,
     paddingBlock: space._00,
     backgroundColor: color.card,
@@ -392,9 +409,9 @@ const styles = stylex.create({
     whiteSpace: "nowrap",
   },
   segmentSelected: {
-    color: color.foreground,
     backgroundColor: color.card,
     boxShadow: shadow._1,
     fontWeight: font.weight_6,
+    color: color.foreground,
   },
 });

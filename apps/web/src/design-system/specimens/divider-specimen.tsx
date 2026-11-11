@@ -1,8 +1,8 @@
 import { t } from "@tuja/i18n";
 import { Divider } from "@tuja/ui/components/divider";
 import { Text } from "@tuja/ui/components/text";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { specimenLayout } from "./specimen.stylex.ts";
 
 /**
  * A rule doing its job: two pieces of content, separated. All three looks and
@@ -11,7 +11,7 @@ import { specimenLayout } from "./specimen.stylex.ts";
  */
 export function DividerSpecimen() {
   return (
-    <div css={[specimenLayout.fill, stack.tight]}>
+    <div css={[fill.inline, stack.tight]}>
       <Text look="bodySmall" tone="muted">
         {t({ en: "Details", zh: "详情" })}
       </Text>

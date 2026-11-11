@@ -51,6 +51,15 @@ interface ProgressProps extends Omit<
    */
   size?: "sm" | "md" | "lg";
   /**
+   * Paints the fill in the colour of an Intent, for a meter whose level has a
+   * meaning: `"success"` for a good level, `"warning"` for one to watch and
+   * `"destructive"` for a poor one. A colour alone does not say the level, so
+   * show the figure too.
+   *
+   * @zh 用某个意图的颜色绘制填充，适用于数值高低有含义的计量条：`"success"` 表示良好，`"warning"` 表示需要留意，`"destructive"` 表示较差。颜色本身不能说明数值，因此也要显示数字。
+   */
+  intent?: "success" | "warning" | "destructive";
+  /**
    * StyleX overrides, composed last so a caller can win over the defaults.
    * The indicator fill is a `::before` pseudo-element `css` can't reach —
    * retint it via `progressTokens.indicatorColor` instead.
@@ -70,6 +79,7 @@ export function Progress({
   max = 100,
   label,
   size = "md",
+  intent,
   css,
   ...restProps
 }: ProgressProps) {
@@ -93,6 +103,7 @@ export function Progress({
         styles.track,
         sizeStyles[size],
         styles.indicator((safeValue / safeMax) * 100),
+        intent && intentStyles[intent],
         css,
       ]}
     />
@@ -129,4 +140,10 @@ const sizeStyles = stylex.create({
   sm: { blockSize: space._0 },
   md: { blockSize: space._1 },
   lg: { blockSize: space._2 },
+});
+
+const intentStyles = stylex.create({
+  success: { [progressTokens.indicatorColor]: color.success },
+  warning: { [progressTokens.indicatorColor]: color.warning },
+  destructive: { [progressTokens.indicatorColor]: color.destructive },
 });

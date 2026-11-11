@@ -7,7 +7,6 @@ import { Heading } from "@tuja/ui/components/heading";
 import { listSurface } from "@tuja/ui/components/list.stylex";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
@@ -56,25 +55,28 @@ function ListSkeleton() {
       <div css={stack.item}>
         <div css={styles.titleRow}>
           <div css={stack.tight}>
-            <Heading level={1} look="h3" css={styles.title}>
+            <Heading level={1} look="h3">
               {t({ en: "Transactions", zh: "交易" })}
             </Heading>
             <Skeleton width="16rem" height="1.25rem" />
           </div>
           <Skeleton
             width="4.75rem"
-            css={[corner.radius_3, styles.add, styles.wideOnly]}
+            height={controlHeight.md}
+            shape="control"
+            css={styles.wideOnly}
           />
         </div>
-        <Skeleton width="100%" css={styles.field} />
+        <Skeleton width="100%" height={controlHeight.md} shape="control" />
         <div css={stack.tight}>
-          <Skeleton width="100%" css={styles.field} />
+          <Skeleton width="100%" height={controlHeight.md} shape="control" />
           <div css={[cluster.tight, styles.narrowOnly]}>
             {NARROW_FILTERS.map((width, index) => (
               <Skeleton
                 key={index}
                 width={width}
-                css={[corner.radius_round, styles.filter]}
+                height={controlHeight.sm}
+                shape="round"
               />
             ))}
           </div>
@@ -83,14 +85,15 @@ function ListSkeleton() {
               <Skeleton
                 key={index}
                 width={width}
-                css={[corner.radius_round, styles.filter]}
+                height={controlHeight.sm}
+                shape="round"
               />
             ))}
           </div>
         </div>
       </div>
       <div css={[plainList.list, listSurface.plain]}>
-        <Skeleton width="100%" height="2.625rem" css={corner.radius_3} />
+        <Skeleton width="100%" height="2.625rem" shape="control" />
         <div css={[plainList.row, styles.day]}>
           <Skeleton width="8rem" height="1.125rem" />
           <Skeleton width="7rem" height="1rem" />
@@ -114,18 +117,6 @@ const styles = stylex.create({
     justifyContent: "space-between",
     alignItems: "flex-end",
     gap: rhythm.item,
-  },
-  title: {
-    margin: 0,
-  },
-  add: {
-    height: controlHeight.md,
-  },
-  field: {
-    height: controlHeight.md,
-  },
-  filter: {
-    height: controlHeight.sm,
   },
   narrowOnly: {
     display: { default: "flex", [breakpoints.lg]: "none" },

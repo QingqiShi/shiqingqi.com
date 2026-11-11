@@ -2,10 +2,9 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { formatMoney } from "../domain/money/format-money.ts";
 
@@ -24,8 +23,12 @@ export function DayTotals({
   const spentLabel = t({ en: "spent", zh: "支出" });
   const receivedLabel = t({ en: "received", zh: "收入" });
   return (
-    <span
-      css={[flex.row, typeRole.caption, typeModifier.numeric, styles.totals]}
+    <Text
+      as="span"
+      look="caption"
+      tone="muted"
+      numeric
+      css={[flex.row, styles.totals]}
     >
       {expenseMinor !== 0 ? (
         <span>
@@ -43,13 +46,12 @@ export function DayTotals({
           })}
         </span>
       ) : null}
-    </span>
+    </Text>
   );
 }
 
 const styles = stylex.create({
   totals: {
     gap: rhythm.item,
-    color: color.mutedForeground,
   },
 });

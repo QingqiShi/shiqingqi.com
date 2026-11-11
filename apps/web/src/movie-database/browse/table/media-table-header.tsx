@@ -81,7 +81,7 @@ export function MediaTableHeader({ column }: MediaHeaderParams) {
         buttonReset.base,
         styles.headerButton,
         isNumeric && styles.headerButtonNumeric,
-        !!column.sort && styles.headerButtonActive,
+        !!column.sort && styles.headerButtonSorted,
       ]}
       onClick={() => {
         toggleSort(column.id);
@@ -120,11 +120,11 @@ const styles = stylex.create({
     },
     cursor: "pointer",
   },
+  headerButtonSorted: {
+    color: color.primaryText,
+  },
   headerButtonNumeric: {
     justifyContent: "flex-end",
-  },
-  headerButtonActive: {
-    color: color.primaryText,
   },
   headerIcon: {
     display: "flex",

@@ -11,7 +11,6 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { align, flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { controlSize, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { definitionRows } from "#src/design-system/definition-rows.stylex.ts";
@@ -66,16 +65,17 @@ function KeyTable() {
     <dl css={[stack.item, definitionRows.list, styles.keyTable]}>
       {rows.map((row) => (
         <div key={row.keys} css={[definitionRows.row, styles.keyRow]}>
-          <dt css={[typeRole.caption, styles.keyName]}>{row.keys}</dt>
-          <dd
-            css={[
-              typeRole.caption,
-              definitionRows.definition,
-              styles.keyEffect,
-            ]}
+          <Text as="dt" look="caption" weight="semibold" css={styles.keyName}>
+            {row.keys}
+          </Text>
+          <Text
+            as="dd"
+            look="caption"
+            tone="muted"
+            css={[definitionRows.definition, styles.keyEffect]}
           >
             {row.effect}
-          </dd>
+          </Text>
         </div>
       ))}
     </dl>
@@ -135,9 +135,14 @@ function MenuDemo() {
       <div css={[stack.item, styles.notes]}>
         <Text look="bodySmall" tone="muted">
           {t({ en: "Opened →", zh: "已打开 →" })}{" "}
-          <span css={[corner.radius_1, styles.stateValue]}>
+          <Text
+            as="span"
+            look="bodySmall"
+            weight="semibold"
+            css={[corner.radius_1, styles.stateValue]}
+          >
             {opened ? opened.label : t({ en: "nothing yet", zh: "尚无" })}
-          </span>
+          </Text>
         </Text>
         <KeyTable />
         <ShowcaseHelper>
@@ -242,12 +247,9 @@ const styles = stylex.create({
   },
   keyName: {
     fontFamily: font.familyMono,
-    fontWeight: font.weight_6,
-    color: color.foreground,
     overflowWrap: "anywhere",
   },
   keyEffect: {
-    color: color.mutedForeground,
     minInlineSize: 0,
   },
   // A popup is out of flow, so each stage reserves the height of its own open
@@ -278,8 +280,6 @@ const styles = stylex.create({
   },
   stateValue: {
     fontFamily: font.familyMono,
-    fontWeight: font.weight_6,
-    color: color.foreground,
     paddingInline: space._1,
     paddingBlock: space._00,
     backgroundColor: color.card,

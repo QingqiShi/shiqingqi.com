@@ -31,6 +31,15 @@ interface CardProps extends Omit<ComponentProps<"div">, "className" | "style"> {
    */
   intent?: "destructive";
   /**
+   * The space between the edge and the content. `"md"` suits a card that
+   * stands alone. `"sm"` suits a card in a dense screen, such as a dashboard
+   * tile. `"none"` suits a card whose content reaches its edge, such as a
+   * list or a chart.
+   *
+   * @zh 边缘与内容之间的间距。`"md"` 适合独立的卡片；`"sm"` 适合密集界面中的卡片，例如仪表盘的小块；`"none"` 适合内容贴边的卡片，例如列表或图表。
+   */
+  padding?: "none" | "sm" | "md";
+  /**
    * Card contents.
    *
    * @zh 卡片内容。
@@ -54,6 +63,7 @@ interface CardProps extends Omit<ComponentProps<"div">, "className" | "style"> {
 export function Card({
   interactive = false,
   intent,
+  padding = "md",
   css,
   ref,
   children,
@@ -81,6 +91,7 @@ export function Card({
       css={[
         stack.item,
         styles.base,
+        paddingStyles[padding],
         cardSurface.base,
         interactive && transition.colors,
         interactive && cardSurface.interactive,
@@ -102,8 +113,13 @@ export { CardFooter } from "./card-footer.tsx";
 const styles = stylex.create({
   base: {
     boxSizing: "border-box",
-    padding: space._5,
   },
+});
+
+const paddingStyles = stylex.create({
+  none: { padding: 0 },
+  sm: { padding: space._3 },
+  md: { padding: space._5 },
 });
 
 const intentStyles = stylex.create({

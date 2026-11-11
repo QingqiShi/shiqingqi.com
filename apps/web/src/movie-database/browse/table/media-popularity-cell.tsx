@@ -1,38 +1,31 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/color.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { cellShared } from "./cell-shared.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { MediaMeter } from "./media-meter";
 import { useMediaTable } from "./media-table-context";
 import { toPercent } from "./to-percent";
 import type { MediaCellParams } from "./types";
 
-export function MediaPopularityCell({ api, row }: MediaCellParams) {
+export function MediaPopularityCell({ api, row, column }: MediaCellParams) {
   const { compact, maxPopularity } = useMediaTable();
 
   if (!api.rowIsLeaf(row)) return null;
   const popularity = row.data.popularity;
   if (typeof popularity !== "number")
-    return <span css={cellShared.empty}>—</span>;
+    return (
+      <Text as="span" look="bodySmall" tone="muted">
+        —
+      </Text>
+    );
 
   return (
     <MediaMeter
       percent={toPercent(popularity, maxPopularity)}
-      fillCss={styles.meterFillAccent}
+      label={column.name ?? column.id}
     >
-      <span
-        css={[typeRole.bodySmall, typeModifier.numeric, cellShared.numeric]}
-      >
+      <Text as="span" look="bodySmall" tone="muted" numeric>
         {compact.format(popularity)}
-      </span>
+      </Text>
     </MediaMeter>
   );
 }
-
-const styles = stylex.create({
-  meterFillAccent: {
-    backgroundColor: color.primary,
-  },
-});

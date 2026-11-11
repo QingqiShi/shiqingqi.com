@@ -1,12 +1,12 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { TextField } from "@tuja/ui/components/text-field";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState, type ReactNode } from "react";
 import {
@@ -96,7 +96,7 @@ export function EmailCodeForm({
           look="outline"
           loading={busy}
           disabled={busy}
-          css={styles.wide}
+          css={fill.inline}
         >
           {submitLabel}
         </Button>
@@ -140,14 +140,14 @@ export function EmailCodeForm({
         look="primary"
         loading={busy}
         disabled={busy}
-        css={styles.wide}
+        css={fill.inline}
       >
         {t({ en: "Continue", zh: "继续" })}
       </Button>
       <Button
         look="ghost"
         disabled={busy}
-        css={styles.wide}
+        css={fill.inline}
         onClick={() => {
           setError(null);
           setStep("email");
@@ -158,9 +158,3 @@ export function EmailCodeForm({
     </form>
   );
 }
-
-const styles = stylex.create({
-  wide: {
-    inlineSize: "100%",
-  },
-});

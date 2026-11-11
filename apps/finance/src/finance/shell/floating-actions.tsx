@@ -5,9 +5,8 @@ import type { ReactNode, Ref } from "react";
 
 interface FloatingActionsProps {
   /**
-   * The actions, each a Button that takes
-   * `floatingAction.lift`. Put the main action last, so that it sits at the
-   * inline end, where the Add button floats.
+   * The actions, each a Button. Put the main action last, so that it sits at
+   * the inline end, where the Add button floats.
    */
   children: ReactNode;
   /** Places the group, such as a sticky offset. */

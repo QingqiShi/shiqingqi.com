@@ -3,10 +3,8 @@
 import { ListChecksIcon } from "@phosphor-icons/react/dist/ssr/ListChecks";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
+import { Button } from "@tuja/ui/components/button";
 import { Text } from "@tuja/ui/components/text";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { ChecklistItem } from "../report/own-todo.ts";
 
@@ -29,24 +27,20 @@ export function ChecklistProgress({
     en: "Checklist: {progress} done",
     zh: "清单：已完成 {progress}",
   }).replace("{progress}", checklistProgress(steps) ?? "");
-  const content = (
-    <>
-      <ListChecksIcon weight="bold" aria-hidden />
-      <span>{checklistProgress(steps)}</span>
-    </>
-  );
   return onOpen ? (
-    <button
-      type="button"
+    <Button
+      look="ghost"
+      size="xs"
+      icon={<ListChecksIcon weight="bold" />}
       aria-label={label}
-      css={[buttonReset.base, typeRole.caption, styles.label, styles.button]}
       onClick={onOpen}
     >
-      {content}
-    </button>
+      {checklistProgress(steps)}
+    </Button>
   ) : (
     <Text look="caption" tone="muted" aria-label={label} css={styles.label}>
-      {content}
+      <ListChecksIcon weight="bold" aria-hidden />
+      <span>{checklistProgress(steps)}</span>
     </Text>
   );
 }
@@ -56,8 +50,5 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: rhythm.inline,
-  },
-  button: {
-    color: color.mutedForeground,
   },
 });

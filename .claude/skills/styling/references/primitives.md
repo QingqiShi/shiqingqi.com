@@ -19,6 +19,8 @@ When a container also owns the space between its children, take `stack.*` (a col
 
 Copy goes through `Text` and `Heading` first, with their `look` prop. Compose a `typeRole.*` yourself only for text that these do not render.
 
+The colour of text goes the same way: `tone` on `Text`, which has `default`, `muted`, `primary`, `success`, `warning`, `destructive` and `info`. `Text` renders a `p`, a `span`, a `div`, an `li`, a `dt`, a `dd` and a `figcaption`, so text in a screen seldom needs an element of its own. A raw element with a type role and a colour is the sign that it must be a `Text`.
+
 **`data-prose`** marks a layout box that holds running text, such as each `DocSection` body. On a Chinese page, its direct child paragraphs justify when the box is wide enough (`apps/web/src/app/global.css` has the rule and the width). Put a paragraph directly in the box, not in a wrapper `div`. Do not mark a box that holds other text, such as a card or a caption, where a short justified line opens wide gaps. `data-prose` also makes the box an `inline-size` container, so a `cqi` unit or an unnamed container query inside it measures that box.
 
 ## Corner

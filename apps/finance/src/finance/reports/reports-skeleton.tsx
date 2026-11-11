@@ -4,7 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
-import { listSurface } from "@tuja/ui/components/list.stylex";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -26,11 +26,9 @@ function ReportListSkeleton() {
         </Text>
         <List>
           {Array.from({ length: WEEKS }, (_, index) => (
-            <li key={index} css={listSurface.item}>
-              <span css={listSurface.row}>
-                <Skeleton width="8rem" height="1em" delay={index * 100} />
-              </span>
-            </li>
+            <ListRow key={index}>
+              <Skeleton width="8rem" height="1em" delay={index * 100} />
+            </ListRow>
           ))}
         </List>
       </div>

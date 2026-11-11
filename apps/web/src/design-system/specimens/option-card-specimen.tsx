@@ -1,10 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { OptionCard } from "@tuja/ui/components/option-card";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
-import { specimenLayout } from "./specimen.stylex.ts";
 
 /**
  * Two rows, the first chosen — the smallest arrangement in which the selected
@@ -22,7 +22,7 @@ export function OptionCardSpecimen() {
     <div
       role="radiogroup"
       aria-label={t({ en: "Plan", zh: "套餐" })}
-      css={[specimenLayout.fill, stack.tight]}
+      css={[fill.inline, stack.tight]}
     >
       <OptionCard
         role="radio"

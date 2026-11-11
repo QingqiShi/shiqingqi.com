@@ -1,10 +1,7 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
-import { typeModifier } from "@tuja/ui/primitives/type.stylex";
-import { font } from "@tuja/ui/tokens.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { formatMoney } from "./format-money.ts";
 import { formatPercentChange } from "./format-percent-change.ts";
 
@@ -17,6 +14,8 @@ interface MoneyChangeProps {
   tone?: boolean;
   /** Whole currency units and a short percentage, for a summary figure. */
   whole?: boolean;
+  /** The size of the line it sits in: `"caption"` in a chart readout or a row's detail. */
+  look?: "bodySmall" | "caption";
 }
 
 /** A signed change in money, such as `+£5,259.27 (+0.95%)`. */
@@ -26,6 +25,7 @@ export function MoneyChange({
   currency,
   tone = false,
   whole = false,
+  look = "bodySmall",
 }: MoneyChangeProps) {
   const locale = useLocale();
   const percent =
@@ -33,32 +33,24 @@ export function MoneyChange({
       ? null
       : formatPercentChange(changeMinor, fromMinor, locale, { short: whole });
   return (
-    <span
-      css={[
-        typeModifier.numeric,
-        styles.change,
-        tone && changeMinor > 0 && styles.up,
-        tone && changeMinor < 0 && styles.down,
-      ]}
+    <Text
+      as="span"
+      look={look}
+      weight="semibold"
+      numeric
+      tone={
+        tone && changeMinor > 0
+          ? "success"
+          : tone && changeMinor < 0
+            ? "destructive"
+            : "default"
+      }
     >
       {formatMoney(changeMinor, currency, locale, {
         signDisplay: "exceptZero",
         wholeUnits: whole,
       })}
       {percent === null ? "" : ` (${percent})`}
-    </span>
+    </Text>
   );
 }
-
-const styles = stylex.create({
-  change: {
-    fontWeight: font.weight_6,
-    color: color.foreground,
-  },
-  up: {
-    color: color.successText,
-  },
-  down: {
-    color: color.destructiveText,
-  },
-});

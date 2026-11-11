@@ -8,6 +8,7 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
 import { Card } from "@tuja/ui/components/card";
 import { Heading } from "@tuja/ui/components/heading";
+import { StatusDot } from "@tuja/ui/components/status-dot";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { animate } from "@tuja/ui/primitives/motion.stylex";
@@ -90,9 +91,9 @@ export function FirstRun({ stage }: { stage: FirstRunStage }) {
         </ol>
       </Card>
       <div role="status" css={[row.tight, styles.wait]}>
-        <span
-          aria-hidden
-          css={[styles.dot, isConnected && styles.dotLive, animate.pulse]}
+        <StatusDot
+          intent={isConnected ? "success" : "neutral"}
+          css={animate.pulse}
         />
         <Text as="span" look="bodySmall" tone="muted">
           {isConnected
@@ -137,16 +138,5 @@ const styles = stylex.create({
   wait: {
     justifyContent: "center",
     paddingBlockStart: rhythm.tight,
-  },
-  dot: {
-    inlineSize: space._1,
-    blockSize: space._1,
-    flexShrink: 0,
-    borderRadius: border.radius_round,
-    cornerShape: "round",
-    backgroundColor: color.mutedForeground,
-  },
-  dotLive: {
-    backgroundColor: color.success,
   },
 });

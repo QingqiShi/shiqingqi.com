@@ -3,13 +3,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import {
   buildDays,
@@ -96,7 +94,7 @@ export function PetSections({
             title={t({ en: "Records", zh: "记录" })}
             aside={
               <div css={styles.rangeBar}>
-                <Text as="span" look="caption" tone="muted" css={styles.aside}>
+                <Text as="span" look="caption" tone="muted" align="end">
                   {rangeText(days, copy)}
                 </Text>
                 <SegmentedControl
@@ -284,16 +282,11 @@ function Section({
   return (
     <section css={stack.tight}>
       <div css={styles.between}>
-        <Heading
-          level={2}
-          look="h4"
-          weight="semibold"
-          css={[typeRole.overline, styles.quiet]}
-        >
+        <Heading level={2} look="h4" weight="semibold">
           {title}
         </Heading>
         {typeof aside === "string" ? (
-          <Text as="span" look="caption" tone="muted" css={styles.aside}>
+          <Text as="span" look="caption" tone="muted" align="end">
             {aside}
           </Text>
         ) : (
@@ -318,11 +311,11 @@ function Record({
   return (
     <div css={stack.tight}>
       <div css={styles.between}>
-        <Heading level={3} look="h4" css={typeRole.label}>
+        <Heading level={3} look="h4">
           {title}
         </Heading>
         {aside === undefined ? null : (
-          <Text as="span" look="caption" tone="muted" css={styles.aside}>
+          <Text as="span" look="caption" tone="muted" align="end">
             {aside}
           </Text>
         )}
@@ -368,13 +361,6 @@ const styles = stylex.create({
     justifyContent: "space-between",
     gap: rhythm.tight,
     minBlockSize: space._7,
-  },
-  aside: {
-    textAlign: "end",
-  },
-  quiet: {
-    color: color.mutedForeground,
-    fontWeight: font.weight_6,
   },
   rangeBar: {
     display: "flex",

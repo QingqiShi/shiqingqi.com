@@ -2,8 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { border, space } from "@tuja/ui/tokens.stylex";
-import { specimenLayout } from "./specimen.stylex.ts";
 import { WireframeBar } from "./wireframe-bar.tsx";
 
 /**
@@ -18,7 +18,7 @@ export function ScrollMaskSpecimen() {
     <ScrollMask
       radius={6}
       depth={space._2}
-      css={[corner.radius_2, specimenLayout.fill, styles.region]}
+      css={[corner.radius_2, fill.inline, styles.region]}
       contentCss={styles.content}
     >
       <WireframeBar width="70%" strong />

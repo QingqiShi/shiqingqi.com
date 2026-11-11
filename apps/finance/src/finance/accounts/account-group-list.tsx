@@ -4,16 +4,15 @@ import { ArrowsDownUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowsDownUp";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Disclosure } from "@tuja/ui/components/disclosure";
 import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { List } from "@tuja/ui/components/list";
 import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
 import { Switch } from "@tuja/ui/components/switch";
+import { Text } from "@tuja/ui/components/text";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { AccountRow } from "./account-row.tsx";
@@ -86,40 +85,30 @@ export function AccountGroupList({
             css={styles.section}
           >
             <Disclosure
-              css={form === "plain" && styles.group}
               open={!collapsed.has(section.group.id)}
               onOpenChange={(open) => {
                 toggle(section.group.id, open);
               }}
               summary={
-                <span
-                  css={[
-                    typeRole.label,
-                    typeModifier.verbatim,
-                    styles.groupName,
-                  ]}
-                >
+                <Text as="span" look="label" weight="semibold" verbatim>
                   {section.group.name}
-                </span>
+                </Text>
               }
               trailing={
-                <span
-                  css={[typeRole.label, typeModifier.numeric, styles.subtotal]}
-                >
+                <Text as="span" look="label" weight="semibold" numeric>
                   {formatMoney(section.subtotal, baseCurrency, locale)}
-                </span>
+                </Text>
               }
             >
               {lines.length === 0 ? (
-                <p
-                  css={[
-                    typeRole.bodySmall,
-                    styles.empty,
-                    form === "card" && styles.body,
-                  ]}
+                <Text
+                  look="bodySmall"
+                  tone="muted"
+                  measure="none"
+                  css={form === "card" && styles.body}
                 >
                   {emptyGroup}
-                </p>
+                </Text>
               ) : (
                 <List
                   form={form}
@@ -133,7 +122,7 @@ export function AccountGroupList({
           </section>
         );
       })}
-      <FlowBlock css={[row.tight, styles.footer]}>
+      <FlowBlock css={row.tight}>
         {hiddenCount > 0 ? (
           <Switch
             label={`${t({ en: "Show hidden accounts", zh: "显示隐藏的账户" })} (${new Intl.NumberFormat(locale).format(hiddenCount)})`}
@@ -161,28 +150,8 @@ const styles = stylex.create({
   section: {
     scrollMarginBlockStart: space._5,
   },
-  groupName: {
-    fontWeight: font.weight_6,
-    color: color.foreground,
-  },
-  subtotal: {
-    fontWeight: font.weight_6,
-    color: color.foreground,
-  },
-  // The Group's name and subtotal line up with the text of its rows, and
-  // the rows take the full width for their selected background.
-  group: {
-    paddingInline: space._2,
-  },
   body: {
     marginBlockStart: rhythm.tight,
-  },
-  empty: {
-    margin: 0,
-    color: color.mutedForeground,
-  },
-  footer: {
-    paddingInline: space._2,
   },
   noWrap: {
     whiteSpace: "nowrap",

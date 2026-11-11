@@ -6,25 +6,16 @@ import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
+import { Heading } from "@tuja/ui/components/heading";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { imageCover } from "@tuja/ui/primitives/layout.stylex";
-import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import {
-  border,
-  layer,
-  measure,
-  ratio,
-  rhythm,
-  shadow,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { layer, ratio, rhythm, shadow, space } from "@tuja/ui/tokens.stylex";
 import { ExternalLinkIndicator } from "#src/links/external-link-indicator.tsx";
 import { useChatActions } from "#src/movie-database/chat/chat-actions-context.tsx";
 import { configurationQuery } from "#src/movie-database/tmdb/queries/configuration-query.ts";
@@ -106,12 +97,16 @@ export function MediaDetailContent({
   if (detailQuery.isError) {
     return (
       <div css={styles.body}>
-        <h2 css={[typeRole.h1, styles.title]}>{displayTitle}</h2>
-        <p css={[typeRole.bodySmall, styles.errorText]} role="alert">
-          {t({
-            en: "Failed to load details",
-            zh: "加载详情失败",
-          })}
+        <Heading level={2} look="h1">
+          {displayTitle}
+        </Heading>
+        <p css={styles.errorText} role="alert">
+          <Text as="span" look="bodySmall" tone="muted">
+            {t({
+              en: "Failed to load details",
+              zh: "加载详情失败",
+            })}
+          </Text>
         </p>
         <div css={styles.actions}>
           <AddToChatButton id={id} mediaType={mediaType} title={displayTitle} />
@@ -129,7 +124,9 @@ export function MediaDetailContent({
           path={detail.backdropPath}
         />
       ) : (
-        detailQuery.isPending && <Skeleton css={skeletonStyles.backdrop} />
+        detailQuery.isPending && (
+          <Skeleton width="100%" aspect={16 / 9} shape="square" />
+        )
       )}
       <div css={[styles.body, hasBackdrop && styles.bodyWithBackdrop]}>
         <div css={[row.item, styles.header]}>
@@ -144,7 +141,7 @@ export function MediaDetailContent({
             </div>
           ) : posterPath ? (
             <div css={[corner.radius_2, styles.posterWrapper]}>
-              <Skeleton css={skeletonStyles.poster} />
+              <Skeleton shape="square" css={skeletonStyles.inset} />
             </div>
           ) : null}
           <div css={styles.headerInfo}>
@@ -162,40 +159,40 @@ export function MediaDetailContent({
                   <span css={typeRole.h2} aria-hidden="true">
                     {formatter.format(detail.voteAverage)}
                   </span>
-                  <span
-                    css={[typeRole.bodySmall, styles.voteCount]}
-                    aria-hidden="true"
-                  >
-                    ({formatter.format(detail.voteCount)})
+                  <span aria-hidden="true">
+                    <Text as="span" look="bodySmall" tone="muted">
+                      ({formatter.format(detail.voteCount)})
+                    </Text>
                   </span>
                 </div>
               )
             ) : (
               <Skeleton width={60} height={20} />
             )}
-            <h2 css={[typeRole.h1, styles.title]}>{displayTitle}</h2>
+            <Heading level={2} look="h1">
+              {displayTitle}
+            </Heading>
             {metaParts ? (
-              <div css={[typeRole.bodySmall, styles.meta]}>{metaParts}</div>
+              <Text as="div" look="bodySmall" tone="muted">
+                {metaParts}
+              </Text>
             ) : (
               detailQuery.isPending && <Skeleton width={180} height={14} />
             )}
           </div>
         </div>
         {overview ? (
-          <p css={[typeRole.body, styles.description]}>{overview}</p>
+          <Text>{overview}</Text>
         ) : (
           detailQuery.isPending && <Skeleton height={48} />
         )}
         <div css={styles.actions}>
           {trailer?.key && (
-            <a
+            <Button
               href={`https://www.youtube.com/watch?v=${trailer.key}`}
-              css={[
-                typeRole.label,
-                corner.radius_round,
-                a11y.focusRing,
-                styles.trailerLink,
-              ]}
+              look="outline"
+              icon={<PlayIcon weight="fill" />}
+              trailing={<ExternalLinkIndicator />}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={
@@ -204,10 +201,8 @@ export function MediaDetailContent({
                   : `Watch trailer for ${displayTitle} (opens in new tab)`
               }
             >
-              <PlayIcon weight="fill" aria-hidden="true" />
               {t({ en: "Trailer", zh: "预告" })}
-              <ExternalLinkIndicator />
-            </a>
+            </Button>
           )}
           <AddToChatButton id={id} mediaType={mediaType} title={displayTitle} />
         </div>
@@ -263,7 +258,8 @@ function PosterImage({
       alt=""
       sizes="90px"
       imgCss={imageCover.base}
-      skeletonCss={skeletonStyles.poster}
+      skeletonShape="square"
+      skeletonCss={skeletonStyles.inset}
       errorFallback={
         <div css={[typeRole.h1, imageCover.base, styles.imageFallback]}>
           {fallbackInitial}
@@ -293,7 +289,8 @@ function BackdropImage({
         alt=""
         sizes="600px"
         imgCss={styles.backdropImage}
-        skeletonCss={skeletonStyles.backdropOverlay}
+        skeletonShape="square"
+        skeletonCss={skeletonStyles.inset}
       />
       <div role="presentation" css={styles.backdropGradient} />
     </div>
@@ -354,23 +351,8 @@ const styles = stylex.create({
   ratingRow: {
     alignItems: "baseline",
   },
-  voteCount: {
-    color: color.mutedForeground,
-  },
-  title: {
-    margin: 0,
-  },
-  meta: {
-    color: color.mutedForeground,
-    margin: 0,
-  },
-  description: {
-    margin: 0,
-    maxInlineSize: measure.prose,
-  },
   errorText: {
     margin: 0,
-    color: color.mutedForeground,
     fontStyle: "italic",
   },
   actions: {
@@ -379,61 +361,18 @@ const styles = stylex.create({
     gap: rhythm.tight,
     paddingTop: space._2,
   },
-  trailerLink: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: rhythm.inline,
-    color: {
-      default: color.mutedForeground,
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.primaryForeground,
-      },
-      ":focus-visible": color.primaryForeground,
-    },
-    textDecoration: "none",
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: {
-      default: color.border,
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.primary,
-      },
-      ":focus-visible": color.ring,
-    },
-    backgroundColor: {
-      default: "transparent",
-      ":hover": { default: null, [pointer.canHover]: color.primary },
-      ":focus-visible": color.primary,
-    },
-    paddingBlock: space._1,
-    paddingInline: space._3,
-    transition: `background-color ${duration._150} ${easing.ease}, color ${duration._150} ${easing.ease}, border-color ${duration._150} ${easing.ease}`,
-  },
   imageFallback: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: color.card,
     color: color.mutedForeground,
+    backgroundColor: color.card,
   },
 });
 
 const skeletonStyles = stylex.create({
-  backdrop: {
-    width: "100%",
-    aspectRatio: ratio.wide,
-    borderRadius: 0,
-  },
-  backdropOverlay: {
+  inset: {
     position: "absolute",
     inset: 0,
-    borderRadius: 0,
-  },
-  poster: {
-    position: "absolute",
-    inset: 0,
-    borderRadius: 0,
   },
 });

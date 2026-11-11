@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -45,18 +46,13 @@ export function MediaPoster({ media, compact, decorative }: MediaPosterProps) {
           fallbackLabel={fallbackLabel}
         />
       ) : (
-        <div
-          css={[
-            typeRole.bodySmall,
-            flex.center,
-            corner.radius_2,
-            styles.noPoster,
-          ]}
-        >
-          <div>{media.title}</div>
-          <div css={[typeRole.caption, styles.noPosterLabel]}>
+        <div css={[flex.center, corner.radius_2, styles.noPoster]}>
+          <Text as="div" look="bodySmall" tone="muted">
+            {media.title}
+          </Text>
+          <Text as="div" look="caption" tone="muted">
             {t({ en: "No Poster", zh: "无海报" })}
-          </div>
+          </Text>
         </div>
       )}
       {media.rating ? (
@@ -88,10 +84,6 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    color: color.mutedForeground,
-  },
-  noPosterLabel: {
-    color: color.mutedForeground,
   },
   rating: {
     position: "absolute",

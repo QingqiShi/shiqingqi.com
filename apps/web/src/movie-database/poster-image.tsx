@@ -4,9 +4,9 @@ import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { imageCover } from "@tuja/ui/primitives/layout.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { layer } from "@tuja/ui/tokens.stylex";
 import { configurationQuery } from "#src/movie-database/tmdb/queries/configuration-query.ts";
 import { TmdbImage } from "#src/movie-database/tmdb/tmdb-image.tsx";
@@ -38,9 +38,9 @@ export function PosterImage({
     return (
       <div css={[imageCover.base, flex.center, styles.errored]}>
         <div>{visibleLabel}</div>
-        <div css={[typeRole.bodySmall, styles.errorText]}>
+        <Text as="div" look="bodySmall" tone="muted">
           {t({ en: "No Poster", zh: "无海报" })}
-        </div>
+        </Text>
       </div>
     );
   }
@@ -54,13 +54,14 @@ export function PosterImage({
       sizes="auto,(max-width: 326px) 100vw,(max-width: 485px) 50vw,(max-width: 644px) 33.3vw,(max-width: 767px) 25vw,(max-width: 969px) 33.3vw,(max-width: 1079px) 25vw,(max-width: 1259px) 33.3vw,(max-width: 1571px) 25vw,362px"
       imgCss={imageCover.base}
       skeletonFill
-      skeletonCss={[flex.center, styles.errored]}
+      skeletonShape="square"
+      skeletonCss={styles.skeleton}
       errorFallback={
         <div css={[imageCover.base, flex.center, styles.errored]}>
           <div>{visibleLabel}</div>
-          <div css={[typeRole.bodySmall, styles.errorText]}>
+          <Text as="div" look="bodySmall" tone="muted">
             {t({ en: "No Poster", zh: "无海报" })}
-          </div>
+          </Text>
         </div>
       }
       loading="lazy"
@@ -69,13 +70,14 @@ export function PosterImage({
 }
 
 const styles = stylex.create({
+  skeleton: {
+    position: "absolute",
+    zIndex: layer.background,
+  },
   errored: {
     position: "absolute",
     flexDirection: "column",
     backgroundColor: color.card,
     zIndex: layer.background,
-  },
-  errorText: {
-    color: color.mutedForeground,
   },
 });

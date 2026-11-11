@@ -1,6 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { Spinner } from "@tuja/ui/components/spinner";
@@ -197,13 +196,13 @@ function TeachAiForm({ title, draft, onRetry, onClose }: TeachAiFormProps) {
       ) : (
         <div css={stack.item}>
           {draft.change.replaces === null ? null : (
-            <div css={stack.tight}>
+            <div css={stack.text}>
               <Text as="span" look="caption" tone="muted">
                 {t({ en: "Replaces", zh: "替换" })}
               </Text>
-              <del css={[typeRole.bodySmall, styles.replaced]}>
-                {draft.change.replaces}
-              </del>
+              <Text as="span" look="bodySmall" tone="muted">
+                <del>{draft.change.replaces}</del>
+              </Text>
             </div>
           )}
           <Textarea
@@ -250,8 +249,5 @@ function TeachAiForm({ title, draft, onRetry, onClose }: TeachAiFormProps) {
 const styles = stylex.create({
   form: {
     maxInlineSize: "40rem",
-  },
-  replaced: {
-    color: color.mutedForeground,
   },
 });

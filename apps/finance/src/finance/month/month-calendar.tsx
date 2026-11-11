@@ -5,6 +5,8 @@ import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
+import { StatusDot } from "@tuja/ui/components/status-dot";
+import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
@@ -112,8 +114,13 @@ export function MonthCalendar({
               {day.dayOfMonth}
             </span>
             {day.everyday === 0 ? null : (
-              <span
-                css={[typeRole.caption, typeModifier.numeric, styles.everyday]}
+              <Text
+                as="span"
+                look="caption"
+                tone="muted"
+                numeric
+                wrap="nowrap"
+                css={styles.everyday}
               >
                 <span css={styles.wide}>{whole(day.everyday)}</span>
                 <span css={styles.narrow}>
@@ -122,7 +129,7 @@ export function MonthCalendar({
                     compact: true,
                   })}
                 </span>
-              </span>
+              </Text>
             )}
           </div>
           <div css={[styles.chips, styles.wideFlex]} aria-hidden>
@@ -131,7 +138,7 @@ export function MonthCalendar({
                 key={row}
                 size="sm"
                 intent={index.amounts[row] > 0 ? "success" : "destructive"}
-                css={[corner.radius_1, styles.chip]}
+                css={styles.chip}
               >
                 <span css={[truncate.base, styles.chipName]}>
                   {nameOf(row)}
@@ -142,20 +149,16 @@ export function MonthCalendar({
               </Badge>
             ))}
             {extra > 0 ? (
-              <span css={[typeRole.caption, styles.more]}>
+              <Text as="span" look="caption" tone="muted" css={styles.more}>
                 {`+${String(extra)} ${moreLabel}`}
-              </span>
+              </Text>
             ) : null}
           </div>
           <div css={[styles.dots, styles.narrowFlex]} aria-hidden>
             {day.notable.slice(0, MAX_DOTS).map((row) => (
-              <span
+              <StatusDot
                 key={row}
-                css={[
-                  corner.radius_round,
-                  styles.dot,
-                  index.amounts[row] > 0 ? styles.dotIn : styles.dotOut,
-                ]}
+                intent={index.amounts[row] > 0 ? "success" : "destructive"}
               />
             ))}
           </div>
@@ -168,9 +171,16 @@ export function MonthCalendar({
     <div css={styles.calendar}>
       <div css={styles.week} aria-hidden>
         {WEEKDAYS.map((weekday) => (
-          <span key={weekday} css={[typeRole.caption, styles.weekday]}>
+          <Text
+            key={weekday}
+            as="span"
+            look="caption"
+            tone="muted"
+            align="center"
+            css={styles.weekday}
+          >
             {displayWeekday(weekday, locale)}
-          </span>
+          </Text>
         ))}
       </div>
       <div ref={gridRef} css={styles.grid}>
@@ -198,8 +208,6 @@ const styles = stylex.create({
     justifySelf: { default: "center", [WIDE]: "start" },
     minInlineSize: "1.6rem",
     paddingInlineStart: { default: 0, [WIDE]: space._0 },
-    color: color.mutedForeground,
-    textAlign: "center",
   },
   grid: {
     display: "grid",
@@ -251,9 +259,7 @@ const styles = stylex.create({
     color: color.primaryForeground,
   },
   everyday: {
-    color: color.mutedForeground,
     paddingBlockStart: { default: 0, [WIDE]: space._0 },
-    whiteSpace: "nowrap",
   },
   wide: {
     display: { default: "none", [WIDE]: "inline" },
@@ -289,21 +295,10 @@ const styles = stylex.create({
     flexShrink: 0,
   },
   more: {
-    color: color.mutedForeground,
     paddingInline: space._1,
   },
   dots: {
     justifyContent: "center",
     gap: rhythm.inline,
-  },
-  dot: {
-    inlineSize: "6px",
-    blockSize: "6px",
-  },
-  dotIn: {
-    backgroundColor: color.success,
-  },
-  dotOut: {
-    backgroundColor: color.destructive,
   },
 });

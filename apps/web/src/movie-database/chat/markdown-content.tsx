@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { Divider } from "@tuja/ui/components/divider";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -26,8 +27,8 @@ const styles = stylex.create({
     marginBlock: 0,
   },
   a: {
-    color: color.primaryText,
     textDecoration: "underline",
+    color: color.primaryText,
   },
   ul: {
     paddingLeft: space._4,
@@ -41,14 +42,6 @@ const styles = stylex.create({
   },
   li: {
     marginBlock: rhythm.inline,
-  },
-  hr: {
-    width: "100%",
-    borderStyle: "none",
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
-    marginBlock: 0,
   },
   blockquote: {
     borderInlineStartWidth: border.size_2,
@@ -131,7 +124,7 @@ const components: Components = {
   ul: ({ node, ...props }) => <ul css={styles.ul} {...props} />,
   ol: ({ node, ...props }) => <ol css={styles.ol} {...props} />,
   li: ({ node, ...props }) => <li css={styles.li} {...props} />,
-  hr: ({ node, ...props }) => <hr css={styles.hr} {...props} />,
+  hr: () => <Divider />,
   blockquote: ({ node, ...props }) => (
     <blockquote css={styles.blockquote} {...props} />
   ),

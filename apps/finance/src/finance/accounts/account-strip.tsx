@@ -4,6 +4,7 @@ import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
+import { Divider } from "@tuja/ui/components/divider";
 import {
   SplitViewLink,
   useSplitViewShared,
@@ -13,7 +14,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, controlSize, font, rhythm } from "@tuja/ui/tokens.stylex";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
 import { useAccountInitials } from "./use-account-initials.ts";
@@ -57,25 +58,23 @@ export function AccountStrip({
         <HouseIcon weight="bold" />
       </StripLink>
       {groups.map((group) => (
-        <ul
-          key={group.id}
-          role="list"
-          aria-label={group.name}
-          css={[styles.list, styles.group]}
-        >
-          {group.lines.map((line) => (
-            <li key={line.account.id}>
-              <StripLink
-                href={url.hrefOf({ account: line.account.id })}
-                label={accountName(line.account)}
-                current={url.account === line.account.id}
-                shared={`account:${line.account.id}`}
-              >
-                {initials.get(line.account.id)}
-              </StripLink>
-            </li>
-          ))}
-        </ul>
+        <Fragment key={group.id}>
+          <Divider css={styles.rule} />
+          <ul role="list" aria-label={group.name} css={styles.list}>
+            {group.lines.map((line) => (
+              <li key={line.account.id}>
+                <StripLink
+                  href={url.hrefOf({ account: line.account.id })}
+                  label={accountName(line.account)}
+                  current={url.account === line.account.id}
+                  shared={`account:${line.account.id}`}
+                >
+                  {initials.get(line.account.id)}
+                </StripLink>
+              </li>
+            ))}
+          </ul>
+        </Fragment>
       ))}
     </nav>
   );
@@ -136,11 +135,7 @@ const styles = stylex.create({
     listStyle: "none",
   },
   // A rule above each Group, as wide as an account.
-  group: {
-    paddingBlockStart: rhythm.tight,
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
+  rule: {
     inlineSize: controlSize._8,
   },
   // The open account keeps its fill and takes a ring, so that it shows

@@ -164,7 +164,7 @@ const styles = stylex.create({
   },
   destinationIcon: {
     fontSize: controlSize._7,
-    color: color.primaryText,
     lineHeight: font.lineHeight_0,
+    color: color.primaryText,
   },
 });

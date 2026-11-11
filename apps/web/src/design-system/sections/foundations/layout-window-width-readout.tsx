@@ -2,9 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font } from "@tuja/ui/tokens.stylex";
 import { useEffect, useState } from "react";
 
@@ -43,12 +42,10 @@ export function LayoutWindowWidthReadout({
 
   return (
     <p css={[stack.text, styles.marker]}>
-      <span css={[typeRole.overline, styles.markerLabel]}>
+      <Text as="span" look="overline" tone="muted" css={styles.markerLabel}>
         {t({ en: "your window", zh: "你的窗口" })}
-      </span>
-      <span
-        css={[typeRole.bodySmall, typeModifier.numeric, styles.markerValue]}
-      >
+      </Text>
+      <Text as="span" look="bodySmall" numeric css={styles.markerValue}>
         {viewport === undefined ? (
           "\u00A0"
         ) : (
@@ -57,7 +54,7 @@ export function LayoutWindowWidthReadout({
             <span css={styles.markerBand}>{active?.label}</span>
           </>
         )}
-      </span>
+      </Text>
     </p>
   );
 }
@@ -68,11 +65,9 @@ const styles = stylex.create({
   },
   markerLabel: {
     fontFamily: font.familyMono,
-    color: color.mutedForeground,
   },
   markerValue: {
     fontFamily: font.familyMono,
-    color: color.foreground,
   },
   markerBand: {
     fontWeight: font.weight_6,

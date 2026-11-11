@@ -5,22 +5,15 @@ import { KeyIcon } from "@phosphor-icons/react/dist/ssr/Key";
 import { PlusSquareIcon } from "@phosphor-icons/react/dist/ssr/PlusSquare";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
-import { cardSurface } from "@tuja/ui/components/card.stylex";
-import { listSurface } from "@tuja/ui/components/list.stylex";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { Sheet } from "@tuja/ui/components/sheet";
 import { Text } from "@tuja/ui/components/text";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import {
-  border,
-  controlSize,
-  rhythm,
-  shadow,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { shadow, space } from "@tuja/ui/tokens.stylex";
 import {
   useEffect,
   useId,
@@ -143,10 +136,9 @@ export function InstallSheet() {
 
         {offer === "steps" ? (
           <div css={stack.item}>
-            <ol css={[cardSurface.base, listSurface.list, styles.steps]}>
+            <List>
               <Step
                 glyph={<ExportIcon weight="bold" />}
-                isFirst
                 action={t(
                   {
                     en: "Tap <strong>Share</strong>",
@@ -188,7 +180,7 @@ export function InstallSheet() {
                   zh: "之后从主屏幕上的图标打开家庭账本。",
                 })}
               />
-            </ol>
+            </List>
             <Text look="bodySmall" tone="muted" align="center">
               <span css={styles.inlineGlyph}>
                 <KeyIcon weight="bold" aria-hidden />
@@ -205,7 +197,7 @@ export function InstallSheet() {
           <Button
             look="primary"
             size="lg"
-            css={styles.action}
+            css={fill.inline}
             onClick={() => {
               close();
               if (isPrompt) deferredInstallPrompt.show();
@@ -216,7 +208,7 @@ export function InstallSheet() {
               : t({ en: "Got it", zh: "知道了" })}
           </Button>
           {isPrompt ? (
-            <Button look="ghost" size="lg" css={styles.action} onClick={close}>
+            <Button look="ghost" size="lg" css={fill.inline} onClick={close}>
               {t({ en: "Not now", zh: "以后再说" })}
             </Button>
           ) : null}
@@ -230,38 +222,23 @@ interface StepProps {
   glyph: ReactNode;
   /** The glyph is a picture that fills its tile, not an icon on the tile. */
   isArt?: boolean;
-  isFirst?: boolean;
   action: ReactNode;
   hint: ReactNode;
 }
 
-function Step({
-  glyph,
-  isArt = false,
-  isFirst = false,
-  action,
-  hint,
-}: StepProps) {
+function Step({ glyph, isArt = false, action, hint }: StepProps) {
   return (
-    <li css={styles.step}>
-      <span
-        css={[corner.radius_2, styles.glyph, !isArt && styles.glyphTile]}
-        aria-hidden="true"
-      >
-        {glyph}
-      </span>
-      <div css={[styles.stepText, !isFirst && styles.separated]}>
-        <Text as="div">{action}</Text>
-        <Text as="div" look="bodySmall" tone="muted">
-          {hint}
-        </Text>
-      </div>
-    </li>
+    <ListRow
+      wrap
+      leading={glyph}
+      leadingSize="md"
+      leadingShape={isArt ? undefined : "square"}
+      detail={hint}
+    >
+      {action}
+    </ListRow>
   );
 }
-
-const GLYPH_SIZE = space._7;
-const STEP_INSET = space._3;
 
 const styles = stylex.create({
   body: {
@@ -291,46 +268,7 @@ const styles = stylex.create({
     inlineSize: "100%",
     blockSize: "100%",
   },
-  steps: {
-    backgroundColor: color.muted,
-  },
-  step: {
-    display: "flex",
-    alignItems: "center",
-    gap: rhythm.item,
-    paddingInlineStart: STEP_INSET,
-  },
-  glyph: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-    inlineSize: GLYPH_SIZE,
-    blockSize: GLYPH_SIZE,
-    overflow: "hidden",
-  },
-  glyphTile: {
-    fontSize: controlSize._5,
-    color: color.foreground,
-    backgroundColor: color.card,
-    boxShadow: shadow._1,
-  },
-  stepText: {
-    flexGrow: 1,
-    minInlineSize: 0,
-    paddingBlock: space._2,
-    paddingInlineEnd: STEP_INSET,
-  },
-  // The separator starts at the text, as in an inset grouped list.
-  separated: {
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
-  },
   inlineGlyph: {
     verticalAlign: "-0.125em",
-  },
-  action: {
-    inlineSize: "100%",
   },
 });

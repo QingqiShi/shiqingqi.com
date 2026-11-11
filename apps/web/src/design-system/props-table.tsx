@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@tuja/ui/components/table";
 import { TableDisclosureTrigger } from "@tuja/ui/components/table-disclosure-trigger";
+import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
@@ -108,20 +109,26 @@ export function PropsTable({ component }: PropsTableProps) {
                         {prop.name}
                       </TableDisclosureTrigger>
                       {prop.required ? (
-                        <span css={[typeRole.caption, styles.mark]}>
+                        <Text
+                          as="span"
+                          look="caption"
+                          tone="muted"
+                          weight="medium"
+                          css={styles.mark}
+                        >
                           {requiredLabel}
-                        </span>
+                        </Text>
                       ) : null}
                       {prop.deprecated === undefined ? null : (
-                        <span
-                          css={[
-                            typeRole.caption,
-                            styles.mark,
-                            styles.deprecated,
-                          ]}
+                        <Text
+                          as="span"
+                          look="caption"
+                          tone="warning"
+                          weight="medium"
+                          css={styles.mark}
                         >
                           {deprecatedLabel}
-                        </span>
+                        </Text>
                       )}
                     </>
                   }
@@ -151,7 +158,9 @@ export function PropsTable({ component }: PropsTableProps) {
         // the sentence that is not translated.
         <FlowBlock css={[typeRole.bodySmall, styles.inherited]}>
           {t({ en: "Also accepts every ", zh: "同时接受 " })}
-          <code css={styles.code}>{`<${doc.extendsHtml}>`}</code>
+          <Text as="span" look="bodySmall">
+            <code css={styles.code}>{`<${doc.extendsHtml}>`}</code>
+          </Text>
           {t({ en: " attribute.", zh: " 元素的原生属性。" })}
         </FlowBlock>
       )}
@@ -175,6 +184,12 @@ const BREAKS_AFTER = new Set(["|", ",", ";", "<"]);
 
 const NO_BREAK_SPACE = " ";
 
+const punctStyles = stylex.create({
+  punct: {
+    color: color.mutedForeground,
+  },
+});
+
 const tokenStyles = {
   string: codeRun.string,
   number: codeRun.number,
@@ -182,7 +197,7 @@ const tokenStyles = {
   type: codeRun.component,
   label: codeRun.property,
   name: codeRun.plain,
-  punct: null,
+  punct: punctStyles.punct,
   space: null,
 } satisfies Record<TypeTokenKind, unknown>;
 
@@ -203,51 +218,54 @@ function PropType({ prop, wraps = false }: { prop: PropDoc; wraps?: boolean }) {
       : tokens.findIndex(([, text]) => text === defaultValue);
 
   return (
-    <code css={[styles.code, wraps && styles.wrappingType]}>
-      {tokens.map(([kind, text], index) => {
-        const key = `${String(index)}${text}`;
-        if (kind === "space") {
-          const isBreak =
-            wraps && BREAKS_AFTER.has(tokens[index - 1]?.[1] ?? "");
-          return isBreak ? (
-            <Fragment key={key}>
-              <wbr />{" "}
-            </Fragment>
-          ) : (
-            <Fragment key={key}>{wraps ? NO_BREAK_SPACE : " "}</Fragment>
+    <Text as="span" look="bodySmall">
+      <code css={[styles.code, wraps && styles.wrappingType]}>
+        {tokens.map(([kind, text], index) => {
+          const key = `${String(index)}${text}`;
+          if (kind === "space") {
+            const isBreak =
+              wraps && BREAKS_AFTER.has(tokens[index - 1]?.[1] ?? "");
+            return isBreak ? (
+              <Fragment key={key}>
+                <wbr />{" "}
+              </Fragment>
+            ) : (
+              <Fragment key={key}>{wraps ? NO_BREAK_SPACE : " "}</Fragment>
+            );
+          }
+          const run =
+            wraps &&
+            (kind === "type" || kind === "name" || kind === "label") ? (
+              <Identifier>{text}</Identifier>
+            ) : (
+              text
+            );
+          return (
+            <span
+              key={key}
+              css={[
+                tokenStyles[kind],
+                index === defaultAt && styles.defaultMember,
+              ]}
+            >
+              {run}
+              {index === defaultAt ? (
+                <span css={a11y.srOnly}>{defaultHint}</span>
+              ) : null}
+            </span>
           );
-        }
-        const run =
-          wraps && (kind === "type" || kind === "name" || kind === "label") ? (
-            <Identifier>{text}</Identifier>
-          ) : (
-            text
-          );
-        return (
-          <span
-            key={key}
-            css={[
-              kind === "punct" ? styles.punct : tokenStyles[kind],
-              index === defaultAt && styles.defaultMember,
-            ]}
-          >
-            {run}
-            {index === defaultAt ? (
-              <span css={a11y.srOnly}>{defaultHint}</span>
-            ) : null}
-          </span>
-        );
-      })}
-      {defaultValue === undefined || defaultAt !== -1 ? null : (
-        <span css={styles.punct}>
-          {" "}
-          <span css={a11y.srOnly}>{t({ en: "Default", zh: "默认值" })}</span>
-          {"="}
-          {NO_BREAK_SPACE}
-          {wraps ? <Identifier>{defaultValue}</Identifier> : defaultValue}
-        </span>
-      )}
-    </code>
+        })}
+        {defaultValue === undefined || defaultAt !== -1 ? null : (
+          <Text as="span" look="bodySmall" tone="muted">
+            {" "}
+            <span css={a11y.srOnly}>{t({ en: "Default", zh: "默认值" })}</span>
+            {"="}
+            {NO_BREAK_SPACE}
+            {wraps ? <Identifier>{defaultValue}</Identifier> : defaultValue}
+          </Text>
+        )}
+      </code>
+    </Text>
   );
 }
 
@@ -304,12 +322,14 @@ function setInlineCode(
     if (index % 2 === 0) return <Fragment key={key}>{part}</Fragment>;
     const target = linkFor(part);
     return target === undefined ? (
-      <code key={key} css={[styles.code, styles.inlineCode]}>
-        {part}
-      </code>
+      <Text key={key} as="span" look="bodySmall">
+        <code css={[styles.code, styles.inlineCode]}>{part}</code>
+      </Text>
     ) : (
       <a key={key} href={`#${target}`} css={[a11y.focusRing, styles.codeLink]}>
-        <code css={[styles.code, styles.inlineCode]}>{part}</code>
+        <Text as="span" look="bodySmall">
+          <code css={[styles.code, styles.inlineCode]}>{part}</code>
+        </Text>
       </a>
     );
   });
@@ -341,24 +361,18 @@ const styles = stylex.create({
     boxShadow: `inset 0 calc(-1 * ${border.size_1}) 0 ${color.border}`,
   },
   name: {
+    color: color.foreground,
     whiteSpace: "nowrap",
     fontFamily: font.familyMono,
     fontWeight: font.weight_6,
     letterSpacing: font.trackingNormal,
-    color: color.foreground,
   },
   mark: {
     marginInlineStart: rhythm.tight,
-    fontWeight: font.weight_5,
-    color: color.mutedForeground,
-  },
-  deprecated: {
-    color: color.warningText,
   },
   code: {
     fontFamily: font.familyMono,
     letterSpacing: font.trackingNormal,
-    color: color.foreground,
   },
   // A name breaks at its own seams, and a run with no seam at any point, so
   // the whole type shows in the panel.
@@ -368,9 +382,6 @@ const styles = stylex.create({
   fullType: {
     margin: 0,
     marginBlockEnd: rhythm.tight,
-  },
-  punct: {
-    color: color.mutedForeground,
   },
   defaultMember: {
     fontWeight: font.weight_7,
@@ -401,7 +412,7 @@ const styles = stylex.create({
   // With the section's gap, this sets the note a group apart from the table.
   inherited: {
     margin: 0,
-    marginBlockStart: rhythm.item,
     color: color.mutedForeground,
+    marginBlockStart: rhythm.item,
   },
 });

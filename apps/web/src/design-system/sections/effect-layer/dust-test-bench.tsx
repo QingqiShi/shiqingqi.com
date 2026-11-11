@@ -90,7 +90,9 @@ function Obstacle() {
       data-dust-test="obstacle"
       css={[flex.center, corner.radius_round, styles.surface, styles.obstacle]}
     >
-      <span css={[typeRole.caption, styles.token]}>useEffectBoundary</span>
+      <Text as="span" look="caption" tone="muted" css={styles.token}>
+        useEffectBoundary
+      </Text>
     </div>
   );
 }
@@ -217,7 +219,6 @@ const styles = stylex.create({
   obstacle: {
     blockSize: space._8,
     paddingInline: space._4,
-    color: color.mutedForeground,
   },
   name: {
     fontWeight: font.weight_6,

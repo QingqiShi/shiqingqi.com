@@ -1,5 +1,4 @@
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlSize } from "@tuja/ui/tokens.stylex";
 
@@ -10,7 +9,7 @@ function FieldSkeleton({ label }: { label: string }) {
   return (
     <div css={stack.tight}>
       <Skeleton width={label} height="1.5rem" />
-      <Skeleton width="100%" height={controlSize._10} />
+      <Skeleton width="100%" height={controlSize._10} shape="control" />
     </div>
   );
 }
@@ -28,7 +27,7 @@ export function TransactionEditorSkeleton() {
         <Skeleton width="10rem" height="1.25rem" />
       </div>
       <div css={stack.item}>
-        <Skeleton width="100%" height={controlSize._8} />
+        <Skeleton width="100%" height={controlSize._8} shape="control" />
         <FieldSkeleton label="5rem" />
         <FieldSkeleton label="4.5rem" />
         <div css={stack.tight}>
@@ -39,7 +38,7 @@ export function TransactionEditorSkeleton() {
                 key={index}
                 width={`${String(width)}rem`}
                 height={controlSize._8}
-                css={corner.radius_round}
+                shape="round"
               />
             ))}
           </div>

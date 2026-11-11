@@ -1,6 +1,6 @@
 import { t } from "@tuja/i18n";
 import { Progress } from "@tuja/ui/components/progress";
-import { specimenLayout } from "./specimen.stylex.ts";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 
 /**
  * One bar, part-filled, at the thickest size — at thumbnail scale a thin track
@@ -9,7 +9,7 @@ import { specimenLayout } from "./specimen.stylex.ts";
  */
 export function ProgressSpecimen() {
   return (
-    <div css={specimenLayout.fill}>
+    <div css={fill.inline}>
       <Progress
         value={62}
         size="lg"

@@ -6,15 +6,15 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
-import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { Card } from "@tuja/ui/components/card";
 import { Spinner } from "@tuja/ui/components/spinner";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex, shrink } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { createContext, type ReactNode, use } from "react";
 import { Anchor } from "#src/links/anchor.tsx";
 import type { AgentActivity } from "../agent/agent-activity.ts";
@@ -68,7 +68,7 @@ function RunningCard({ run, elapsedMs }: { run: HomeRun; elapsedMs: number }) {
   const locale = useLocale();
   const { inFlight, recent } = run.progress;
   return (
-    <div css={[cardSurface.base, stack.tight, styles.card]}>
+    <Card padding="sm" css={[stack.tight, styles.card]}>
       <div css={[flex.between, styles.head]}>
         <div css={[row.inline, styles.title]}>
           <span css={[typeRole.label, flex.row, shrink._0]}>
@@ -101,12 +101,15 @@ function RunningCard({ run, elapsedMs }: { run: HomeRun; elapsedMs: number }) {
       {recent.length > 0 ? (
         <ul css={stack.rows}>
           {recent.slice(0, RECENT_SHOWN).map((activity, index) => (
-            <li
+            <Text
               key={index}
-              css={[typeRole.caption, truncate.base, styles.recent]}
+              as="li"
+              look="caption"
+              tone="muted"
+              css={[truncate.base, styles.recent]}
             >
               <ActivitySentence activity={activity} ended />
-            </li>
+            </Text>
           ))}
         </ul>
       ) : null}
@@ -115,14 +118,14 @@ function RunningCard({ run, elapsedMs }: { run: HomeRun; elapsedMs: number }) {
           {t({ en: "See the activity", zh: "查看动态" })}
         </Anchor>
       </Text>
-    </div>
+    </Card>
   );
 }
 
 function CountdownLine({ remainingMs }: { remainingMs: number }) {
   return (
     <div css={[row.inline, styles.quiet]}>
-      <span css={[typeRole.bodySmall, flex.row, shrink._0]}>
+      <span css={[typeRole.bodySmall, flex.row, shrink._0, styles.icon]}>
         <ClockCountdownIcon weight="regular" aria-hidden />
       </span>
       <Text look="bodySmall" tone="muted">
@@ -130,9 +133,15 @@ function CountdownLine({ remainingMs }: { remainingMs: number }) {
           t({ en: "Organising in {time}", zh: "{time} 后开始整理" }),
           {
             time: (
-              <span css={[typeModifier.numeric, styles.time]}>
+              <Text
+                as="span"
+                look="bodySmall"
+                tone="muted"
+                weight="semibold"
+                numeric
+              >
                 {formatClock(Math.ceil(remainingMs / 1000))}
-              </span>
+              </Text>
             ),
           },
         )}
@@ -144,7 +153,7 @@ function CountdownLine({ remainingMs }: { remainingMs: number }) {
 function CheckingLine() {
   return (
     <div css={[row.inline, styles.quiet]}>
-      <span css={[typeRole.bodySmall, flex.row, shrink._0]}>
+      <span css={[typeRole.bodySmall, flex.row, shrink._0, styles.icon]}>
         <Spinner size="inline" aria-hidden />
       </span>
       <Text look="bodySmall" tone="muted">
@@ -247,8 +256,6 @@ export function HomeStatusLine() {
 
 const styles = stylex.create({
   card: {
-    paddingBlock: space._3,
-    paddingInline: space._4,
     minInlineSize: 0,
   },
   head: {
@@ -259,11 +266,10 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   quiet: {
-    color: color.mutedForeground,
     marginInlineStart: "auto",
   },
-  time: {
-    fontWeight: font.weight_6,
+  icon: {
+    color: color.mutedForeground,
   },
   list: {
     gap: rhythm.inline,
@@ -273,7 +279,6 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   recent: {
-    color: color.mutedForeground,
     minInlineSize: 0,
   },
 });

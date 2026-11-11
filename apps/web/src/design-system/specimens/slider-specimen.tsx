@@ -1,6 +1,6 @@
 import { t } from "@tuja/i18n";
 import { Slider } from "@tuja/ui/components/slider";
-import { specimenLayout } from "./specimen.stylex.ts";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 
 /**
  * A labelled panel part way along its groove: the whole shape of the control
@@ -15,7 +15,7 @@ export function SliderSpecimen() {
       size="sm"
       label={t({ en: "Budget", zh: "预算" })}
       defaultValue={62}
-      css={specimenLayout.fill}
+      css={fill.inline}
     />
   );
 }

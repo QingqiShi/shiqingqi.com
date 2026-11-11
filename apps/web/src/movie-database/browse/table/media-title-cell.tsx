@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -66,9 +67,9 @@ export function MediaTitleCell({ api, row }: MediaCellParams) {
           {media.title}
         </Anchor>
         {meta && (
-          <span css={[typeRole.caption, styles.titleMeta, truncate.base]}>
+          <Text as="span" look="caption" tone="muted" css={truncate.base}>
             {meta}
-          </span>
+          </Text>
         )}
       </span>
     </div>
@@ -114,8 +115,5 @@ const styles = stylex.create({
       default: "none",
       ":hover": { default: null, [pointer.canHover]: "underline" },
     },
-  },
-  titleMeta: {
-    color: color.mutedForeground,
   },
 });

@@ -4,15 +4,13 @@ import { ListIcon } from "@phosphor-icons/react/dist/ssr/List";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Switch } from "@tuja/ui/components/switch";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { BarChart } from "../charts/bar-chart.tsx";
 import { formatAxisMoney } from "../charts/format-axis-money.ts";
@@ -134,7 +132,7 @@ export function CategoryTrend({
           <Text look="caption" tone="muted">
             {t({ en: "Category trend", zh: "分类趋势" })}
           </Text>
-          <Heading level={2} look="h4" id={headingId} css={styles.heading}>
+          <Heading level={2} look="h4" id={headingId}>
             {title}
           </Heading>
         </div>
@@ -168,10 +166,12 @@ export function CategoryTrend({
           <dl css={styles.figures}>
             {figures.map((figure) => (
               <div key={figure.label} css={styles.figure}>
-                <dt css={[typeRole.caption, styles.muted]}>{figure.label}</dt>
-                <dd css={[typeRole.body, typeModifier.numeric, styles.value]}>
+                <Text as="dt" look="caption" tone="muted">
+                  {figure.label}
+                </Text>
+                <Text as="dd" weight="semibold" numeric>
                   {figure.value}
-                </dd>
+                </Text>
               </div>
             ))}
           </dl>
@@ -250,9 +250,6 @@ const styles = stylex.create({
     justifyContent: "space-between",
     alignItems: "flex-end",
   },
-  heading: {
-    margin: 0,
-  },
   figures: {
     display: "grid",
     gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
@@ -263,12 +260,5 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     minInlineSize: 0,
-  },
-  value: {
-    margin: 0,
-    fontWeight: font.weight_6,
-  },
-  muted: {
-    color: color.mutedForeground,
   },
 });

@@ -3,8 +3,8 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
-import { specimenLayout } from "./specimen.stylex.ts";
 
 /**
  * The expanded state, which is what distinguishes this from a plain Button —
@@ -19,7 +19,7 @@ import { specimenLayout } from "./specimen.stylex.ts";
  */
 export function MenuButtonSpecimen() {
   return (
-    <div css={[specimenLayout.fill, styles.stage]}>
+    <div css={[fill.inline, styles.stage]}>
       <Button size="sm" icon={<FunnelIcon weight="bold" />}>
         {t({ en: "Filters", zh: "筛选" })}
       </Button>

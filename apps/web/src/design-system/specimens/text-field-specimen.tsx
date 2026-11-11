@@ -1,7 +1,7 @@
 import { EnvelopeIcon } from "@phosphor-icons/react/dist/ssr/Envelope";
 import { t } from "@tuja/i18n";
 import { TextField } from "@tuja/ui/components/text-field";
-import { specimenLayout } from "./specimen.stylex.ts";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 
 /**
  * Label, leading slot, and a filled value — the field's everyday shape. The
@@ -15,7 +15,7 @@ export function TextFieldSpecimen() {
       label={t({ en: "Email", zh: "邮箱" })}
       leading={<EnvelopeIcon weight="bold" />}
       defaultValue="ada@mail.test"
-      controlCss={specimenLayout.fill}
+      controlCss={fill.inline}
     />
   );
 }

@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, constants, shadow, space } from "@tuja/ui/tokens.stylex";
@@ -118,12 +119,15 @@ export function ChatMessage({
         if (isReasoningUIPart(part)) {
           if (part.text.length === 0) return null;
           return (
-            <p
+            <Text
               key={key}
-              css={[typeRole.bodySmall, styles.partBase, styles.reasoning]}
+              look="bodySmall"
+              tone="muted"
+              measure="none"
+              css={styles.reasoning}
             >
               {part.text}
-            </p>
+            </Text>
           );
         }
 
@@ -292,6 +296,7 @@ const styles = stylex.create({
   },
   assistantBubble: {
     marginRight: "auto",
+    color: color.foreground,
     backgroundColor: {
       default: color.card,
       [constants.DARK]: `color-mix(in srgb, ${color.card} 60%, transparent)`,
@@ -301,7 +306,6 @@ const styles = stylex.create({
       default: shadow._1,
       [constants.DARK]: "none",
     },
-    color: color.foreground,
     borderBottomLeftRadius: border.radius_1,
     cornerBottomLeftShape: "squircle",
   },
@@ -313,8 +317,8 @@ const styles = stylex.create({
     whiteSpace: "pre-wrap",
   },
   reasoning: {
+    wordBreak: "break-word",
     whiteSpace: "pre-wrap",
-    color: color.mutedForeground,
     fontStyle: "italic",
   },
 });

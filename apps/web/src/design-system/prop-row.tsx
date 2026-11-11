@@ -155,13 +155,13 @@ const styles = stylex.create({
     overflow: "hidden",
     textOverflow: "ellipsis",
   },
+  summaryCell: {
+    color: color.mutedForeground,
+  },
   // The containing block of the screen-reader hint, so it moves with the row.
   typeCell: {
     position: "relative",
     inlineSize: "40%",
-  },
-  summaryCell: {
-    color: color.mutedForeground,
   },
   // The end clears the blur at the end edge of a table that scrolls.
   panel: {

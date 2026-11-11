@@ -7,7 +7,6 @@ import { color } from "@tuja/ui/color.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { row } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { fillTemplate } from "#src/pet/fill-template.ts";
 import { PIPS } from "#src/pet/levels.ts";
@@ -36,9 +35,9 @@ export function NamePlate({ name, detail }: NamePlateProps) {
         </Heading>
         {detail === null ? null : (
           <>
-            <span css={[typeRole.label, styles.level]}>
+            <Text as="span" look="label" tone="muted">
               {detail.levelLabel}
-            </span>
+            </Text>
             <Pips filled={detail.pips} />
           </>
         )}
@@ -78,9 +77,6 @@ const styles = stylex.create({
   head: {
     alignItems: "baseline",
     flexWrap: "wrap",
-  },
-  level: {
-    color: color.mutedForeground,
   },
   pips: {
     display: "inline-flex",

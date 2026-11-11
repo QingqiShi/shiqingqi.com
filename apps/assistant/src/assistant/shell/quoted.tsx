@@ -18,11 +18,13 @@ export function Quoted({
   lift?: boolean;
 }) {
   const shown = text.trim() || t({ en: "(no subject)", zh: "（无主题）" });
-  return <span css={lift && styles.quoted}>“{keepHyphenated(shown)}”</span>;
+  // It is a raw span, not `Text`, because it takes the size of the line it
+  // is in, and those lines have different type roles.
+  return <span css={lift && styles.lifted}>“{keepHyphenated(shown)}”</span>;
 }
 
 const styles = stylex.create({
-  quoted: {
+  lifted: {
     color: color.foreground,
   },
 });

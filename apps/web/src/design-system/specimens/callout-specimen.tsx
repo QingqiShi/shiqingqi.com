@@ -1,6 +1,6 @@
 import { t } from "@tuja/i18n";
 import { Callout } from "@tuja/ui/components/callout";
-import { specimenLayout } from "./specimen.stylex.ts";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 
 /**
  * One callout at full tile width, in the component's default intent — the
@@ -11,7 +11,7 @@ export function CalloutSpecimen() {
   return (
     <Callout
       title={t({ en: "Region locked", zh: "地区限制" })}
-      css={specimenLayout.fill}
+      css={fill.inline}
     >
       {t({ en: "Not streaming in the UK.", zh: "英国地区暂无流媒体。" })}
     </Callout>

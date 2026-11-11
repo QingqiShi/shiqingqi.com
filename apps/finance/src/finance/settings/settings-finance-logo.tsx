@@ -3,9 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { FinanceLogo } from "../pwa/finance-logo.tsx";
 
@@ -14,9 +13,9 @@ export function SettingsFinanceLogo() {
   return (
     <div css={[stack.tight, styles.root]}>
       <FinanceLogo css={styles.logo} />
-      <span css={[typeRole.label, styles.name]}>
+      <Text as="span" look="label" tone="muted">
         {t({ en: "Finance", zh: "家庭账本" })}
-      </span>
+      </Text>
     </div>
   );
 }
@@ -29,8 +28,5 @@ const styles = stylex.create({
   logo: {
     inlineSize: space._8,
     blockSize: space._8,
-  },
-  name: {
-    color: color.mutedForeground,
   },
 });

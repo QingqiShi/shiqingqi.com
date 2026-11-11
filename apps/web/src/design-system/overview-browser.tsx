@@ -7,7 +7,9 @@ import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { headerControlsTokens } from "@tuja/ui/components/header-controls.stylex";
+import { Heading } from "@tuja/ui/components/heading";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
+import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
@@ -215,13 +217,17 @@ export function OverviewBrowser({
         {/* Always mounted and holding its line, empty until there is a query: a
             live region that only appears once results change has nothing to
             announce from, and one that appears at all shifts the page. */}
-        <p role="status" css={[typeRole.bodySmall, styles.resultCount]}>
-          {resultCount}
+        <p role="status" css={styles.resultCount}>
+          <Text as="span" look="bodySmall" tone="muted">
+            {resultCount}
+          </Text>
         </p>
       </div>
 
       {visible.length === 0 ? (
-        <p css={[typeRole.body, styles.emptyHint]}>{emptyHint}</p>
+        <Text tone="muted" measure="none" css={styles.emptyHint}>
+          {emptyHint}
+        </Text>
       ) : (
         visible.map((block) => (
           // The h2 stands an item above its content, not tight: an h3 can
@@ -233,7 +239,9 @@ export function OverviewBrowser({
             css={[stack.item, styles.section]}
           >
             {block.heading !== null && (
-              <h2 css={[typeRole.h1, styles.sectionTitle]}>{block.heading}</h2>
+              <Heading level={2} look="h1">
+                {block.heading}
+              </Heading>
             )}
             <div css={stack.group}>
               {block.entries.length > 0 && <Grid entries={block.entries} />}
@@ -297,15 +305,10 @@ const styles = stylex.create({
   resultCount: {
     margin: 0,
     minBlockSize: "1lh",
-    color: color.mutedForeground,
   },
   // Below `md`, the menu button floats over the top of the page.
   section: {
     scrollMarginBlockStart: `calc(${headerControlsTokens.clearance} + ${rhythm.item})`,
-  },
-  sectionTitle: {
-    margin: 0,
-    color: color.foreground,
   },
   // A rank below the section title and read as one: uppercase and tracked out,
   // the same move the sidebar makes to separate its two levels.
@@ -324,8 +327,6 @@ const styles = stylex.create({
     gap: rhythm.item,
   },
   emptyHint: {
-    margin: 0,
-    color: color.mutedForeground,
     maxInlineSize: measure.short,
   },
 });

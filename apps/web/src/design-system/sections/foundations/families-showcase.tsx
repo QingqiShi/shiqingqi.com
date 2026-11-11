@@ -1,8 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm } from "@tuja/ui/tokens.stylex";
 import {
   GuideNote,
@@ -39,7 +40,9 @@ function WeightFace({
 }) {
   return (
     <figure css={[stack.tight, styles.face]}>
-      <figcaption css={[typeRole.label, styles.faceName]}>{name}</figcaption>
+      <Text as="figcaption" look="label" weight="semibold">
+        {name}
+      </Text>
       <ol css={styles.weights}>
         {cells.map(({ token, prop }) => (
           <li key={token} css={[stack.tight, styles.weight]}>
@@ -50,12 +53,18 @@ function WeightFace({
               Ag
             </span>
             <span css={stack.text}>
-              <span css={[typeRole.caption, typeModifier.numeric, styles.mono]}>
+              <Text
+                as="span"
+                look="caption"
+                tone="muted"
+                numeric
+                css={styles.mono}
+              >
                 {token}
-              </span>
-              <span css={[typeRole.caption, styles.mono, styles.prop]}>
+              </Text>
+              <Text as="span" look="caption" css={styles.mono}>
                 {prop ?? " "}
-              </span>
+              </Text>
             </span>
           </li>
         ))}
@@ -121,10 +130,6 @@ const styles = stylex.create({
     margin: 0,
     minInlineSize: 0,
   },
-  faceName: {
-    color: color.foreground,
-    fontWeight: font.weight_6,
-  },
   weights: {
     display: "flex",
     flexWrap: "wrap",
@@ -142,9 +147,5 @@ const styles = stylex.create({
   },
   mono: {
     fontFamily: font.familyMono,
-    color: color.mutedForeground,
-  },
-  prop: {
-    color: color.foreground,
   },
 });

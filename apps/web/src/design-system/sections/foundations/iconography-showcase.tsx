@@ -7,11 +7,9 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { getLocale } from "@tuja/i18n/server-locale";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Text } from "@tuja/ui/components/text";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { Example } from "#src/design-system/example.tsx";
@@ -192,9 +190,9 @@ function WeightSide({ mark, verdict, children }: WeightSideProps) {
   return (
     <figure css={[stack.item, styles.side]}>
       <div>{children}</div>
-      <figcaption css={[typeRole.bodySmall, styles.verdict]}>
+      <Text as="figcaption" look="bodySmall" tone="muted">
         <span css={styles.mark}>{mark}</span> {verdict}
-      </figcaption>
+      </Text>
     </figure>
   );
 }
@@ -208,9 +206,6 @@ const styles = stylex.create({
   side: {
     margin: 0,
     minInlineSize: 0,
-  },
-  verdict: {
-    color: color.mutedForeground,
   },
   mark: {
     display: "inline-block",
