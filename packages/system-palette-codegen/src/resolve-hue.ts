@@ -15,6 +15,10 @@ const targets = SYSTEM_PALETTE_TONES.map((tone) => {
   return { lstar, lightness: hellwigLightness(hexAt(0, 0, lstar)) };
 });
 
+function isSrgbGray(hex: string): boolean {
+  return /^#(..)\1\1$/i.test(hex);
+}
+
 /**
  * A hue's ramp: the hex at every tone step, each solved so its Hellwig
  * lightness equals the achromatic ramp's at that step. Every hue then reads as
@@ -23,7 +27,11 @@ const targets = SYSTEM_PALETTE_TONES.map((tone) => {
 export function resolveHue(
   hue: SystemHueDefinition,
 ): ReadonlyMap<number, string> {
-  const source = Hct.fromInt(argbFromHex(hue.source));
+  // HCT reads an sRGB gray as slightly chromatic, and that chroma held across
+  // the tones tints the light ones pink. A gray source gets no chroma.
+  const source = isSrgbGray(hue.source)
+    ? { hue: 0, chroma: 0 }
+    : Hct.fromInt(argbFromHex(hue.source));
   const tones = new Map<number, string>();
   SYSTEM_PALETTE_TONES.forEach((tone, index) => {
     const { lstar, lightness } = targets[index];

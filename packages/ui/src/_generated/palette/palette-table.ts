@@ -384,7 +384,7 @@ export const systemPalette: readonly SystemHuePalette[] = [
   },
   {
     name: "Gray",
-    source: "#777774",
+    source: "#777777",
     tones: {
       0: { bg: gray._0, fg: "#FFFFFF" },
       2: { bg: gray._2, fg: "#FFFFFF" },
