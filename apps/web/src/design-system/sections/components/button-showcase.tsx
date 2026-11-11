@@ -321,8 +321,8 @@ export function ButtonShowcase() {
       <Showcase label={t({ en: "Icon-only", zh: "纯图标" })} leadsWithText>
         <ShowcaseHelper>
           {t({
-            en: "With no children the button renders icon-only: a square of its own height, named by aria-label or aria-labelledby, since the icon itself is decorative. With no label beside it, the glyph is larger than a glyph beside a label, the size of a checkbox or a drag handle in the same row.",
-            zh: "没有 children 时，按钮渲染为纯图标：一个与自身高度相等的正方形，由 aria-label 或 aria-labelledby 命名，因为图标本身是装饰性的。旁边没有标签时，图标比标签旁的图标更大，与同一行中的复选框或拖动手柄一样大。",
+            en: "With no children the button renders icon-only: a square of its own height, named by aria-label or aria-labelledby, since the icon itself is decorative. The glyph is about 40% of the height, so the button carries the same weight as a labelled button beside it.",
+            zh: "没有 children 时，按钮渲染为纯图标：一个与自身高度相等的正方形，由 aria-label 或 aria-labelledby 命名，因为图标本身是装饰性的。图标约为高度的 40%，使按钮与旁边带标签的按钮分量相当。",
           })}
         </ShowcaseHelper>
         <SpecimenGrid>

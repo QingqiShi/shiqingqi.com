@@ -203,12 +203,12 @@ export const iconGlyphStyles = stylex.create({
 // Below `md`, the glyph of a button that shows its label from `md` up stands
 // for a word in a row of text, such as Undo at the end of each line of a log.
 // A column of lone-control glyphs there outweighs the text, so this glyph is
-// one step smaller.
+// one step smaller, but not smaller than `controlSize._3`.
 export const glyphBelowMdTokenStyles = stylex.create({
   xs: { [buttonTokens.glyph]: controlSize._3 },
   sm: { [buttonTokens.glyph]: controlSize._3 },
-  md: { [buttonTokens.glyph]: controlSize._4 },
-  lg: { [buttonTokens.glyph]: controlSize._5 },
+  md: { [buttonTokens.glyph]: controlSize._3 },
+  lg: { [buttonTokens.glyph]: controlSize._4 },
 });
 
 // A secondary destructive action. The label turns danger and the hover fill
@@ -259,7 +259,7 @@ export const bleedStyles = stylex.create({
 export const sizeStyles = stylex.create({
   xs: {
     [buttonTokens.height]: controlHeight.xs,
-    [buttonTokens.glyph]: controlSize._4,
+    [buttonTokens.glyph]: controlSize._3,
     [buttonTokens.paddingInline]: controlSize._2,
     gap: controlSize._1,
     paddingBlock: controlSize._0,
@@ -268,7 +268,7 @@ export const sizeStyles = stylex.create({
   },
   sm: {
     [buttonTokens.height]: controlHeight.sm,
-    [buttonTokens.glyph]: controlSize._4,
+    [buttonTokens.glyph]: controlSize._3,
     [buttonTokens.paddingInline]: controlSize._2,
     gap: controlSize._1,
     paddingBlock: controlSize._0,
@@ -278,7 +278,7 @@ export const sizeStyles = stylex.create({
   },
   lg: {
     [buttonTokens.height]: controlHeight.lg,
-    [buttonTokens.glyph]: controlSize._6,
+    [buttonTokens.glyph]: controlSize._5,
     [buttonTokens.paddingInline]: controlSize._4,
     paddingBlock: controlSize._2,
   },
