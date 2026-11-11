@@ -61,11 +61,11 @@ const styles = stylex.create({
   },
   title: {
     margin: 0,
-    color: color.fg,
+    color: color.foreground,
   },
   description: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     maxInlineSize: measure.prose,
   },
 });

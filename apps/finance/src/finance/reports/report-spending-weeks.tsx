@@ -45,7 +45,7 @@ export function ReportSpendingWeeks({ data }: { data: WeeklyReportData }) {
           key: "spending",
           label,
           values: history.map((week) => week.totalMinor),
-          tone: "accent",
+          tone: "primary",
         },
       ]}
       formatValue={(minor) => formatMoney(minor, currency, locale)}

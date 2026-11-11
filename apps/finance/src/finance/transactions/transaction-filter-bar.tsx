@@ -202,7 +202,7 @@ export function TransactionFilterBar({
           aria-controls={moreId}
           trailing={
             activeCount > 0 ? (
-              <Badge intent="accent" size="sm">
+              <Badge intent="primary" size="sm">
                 {String(activeCount)}
               </Badge>
             ) : undefined

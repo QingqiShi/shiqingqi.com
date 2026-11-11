@@ -174,7 +174,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   head: {
     justifyContent: "space-between",
@@ -192,6 +192,6 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
   },
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

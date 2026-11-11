@@ -6,6 +6,6 @@ import { color } from "@tuja/ui/color.stylex";
 // the edge of a control.
 export const outlineEdge = stylex.create({
   control: {
-    borderColor: color.borderControl,
+    borderColor: color.borderStrong,
   },
 });

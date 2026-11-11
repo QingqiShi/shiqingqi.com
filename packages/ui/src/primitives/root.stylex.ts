@@ -20,7 +20,7 @@ import { font, latinType } from "../tokens.stylex.ts";
 export const root = stylex.create({
   html: {
     colorScheme: "light dark",
-    backgroundColor: color.bgCanvas,
+    backgroundColor: color.background,
     textSizeAdjust: "100%",
     [latinType.trackingBody]: { default: null, ":lang(zh)": "0" },
     [latinType.trackingHeading]: { default: null, ":lang(zh)": "0" },
@@ -29,7 +29,7 @@ export const root = stylex.create({
     [latinType.lineHeightDisplay]: { default: null, ":lang(zh)": 1.1 },
   },
   body: {
-    color: color.fg,
+    color: color.foreground,
     fontFamily: font.family,
     lineHeight: font.lineHeightBody,
     letterSpacing: latinType.trackingBody,

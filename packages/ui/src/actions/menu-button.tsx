@@ -513,7 +513,7 @@ const styles = stylex.create({
     paddingBlockStart: controlSize._2,
     paddingBlockEnd: controlSize._1,
     paddingInline: controlSize._3,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   topRight: {
     insetBlockStart: 0,
@@ -562,7 +562,7 @@ const styles = stylex.create({
   stickyMenuTitle: {
     position: "sticky",
     insetBlockStart: 0,
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
     zIndex: layer.raised,
   },
   // A sheet is a Scroll region of the effect layer, and this box holds its

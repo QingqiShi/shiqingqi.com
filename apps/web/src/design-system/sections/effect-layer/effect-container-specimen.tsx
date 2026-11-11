@@ -75,8 +75,8 @@ const styles = stylex.create({
   card: {
     gap: rhythm.tight,
     padding: space._5,
-    color: color.fg,
-    backgroundColor: color.bgSurfaceRaised,
+    color: color.foreground,
+    backgroundColor: color.popover,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
@@ -92,11 +92,11 @@ const styles = stylex.create({
     blockSize: space._9,
   },
   info: {
-    color: color.fgOnInfo,
-    backgroundColor: color.bgInfo,
+    color: color.infoForeground,
+    backgroundColor: color.info,
   },
   success: {
-    color: color.fgOnSuccess,
-    backgroundColor: color.bgSuccess,
+    color: color.successForeground,
+    backgroundColor: color.success,
   },
 });

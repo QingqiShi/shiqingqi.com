@@ -47,6 +47,6 @@ const styles = stylex.create({
     display: "flex",
   },
   initial: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

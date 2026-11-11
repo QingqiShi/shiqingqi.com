@@ -163,11 +163,11 @@ const styles = stylex.create({
   },
   groupName: {
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
   },
   subtotal: {
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
   },
   // The Group's name and subtotal line up with the text of its rows, and
   // the rows take the full width for their selected background.
@@ -179,7 +179,7 @@ const styles = stylex.create({
   },
   empty: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   footer: {
     paddingInline: space._2,

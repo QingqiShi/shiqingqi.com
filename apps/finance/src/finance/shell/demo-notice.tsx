@@ -84,7 +84,7 @@ const styles = stylex.create({
   },
   // It floats over the content that scrolls behind it, so it needs a fill.
   trigger: {
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   popover: {
     inlineSize: "18rem",

@@ -8,7 +8,7 @@ const DEFAULT_INK = "20%";
 /** The gap between marks. `ink` is the mark's colour. */
 export const textureTokens = stylex.defineVars({
   pitch: space._1,
-  ink: `color-mix(in srgb, ${color.fg} ${DEFAULT_INK}, transparent)`,
+  ink: `color-mix(in srgb, ${color.foreground} ${DEFAULT_INK}, transparent)`,
 });
 
 // A Texture is one drawn dot of 1px or less, repeated across a surface at one

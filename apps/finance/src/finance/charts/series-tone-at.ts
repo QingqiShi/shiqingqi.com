@@ -9,8 +9,8 @@ export const SERIES_TONES = [
   "series8",
 ] as const;
 
-/** A categorical colour slot, the grey of "Other", or the accent for a lone series. */
-export type SeriesTone = (typeof SERIES_TONES)[number] | "other" | "accent";
+/** A categorical colour slot, the grey of "Other", or the primary for a lone series. */
+export type SeriesTone = (typeof SERIES_TONES)[number] | "other" | "primary";
 
 /**
  * The colour slot of the entity at `index` in a fixed order, such as a

@@ -270,7 +270,7 @@ function EditorForm({
       ) : null}
 
       {failure ? (
-        <Callout intent="danger" role="alert">
+        <Callout intent="destructive" role="alert">
           {failure}
         </Callout>
       ) : null}
@@ -291,7 +291,7 @@ function EditorForm({
 
 const styles = stylex.create({
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   hint: {
     display: { default: "none", [pointer.canHover]: "block" },

@@ -8,5 +8,5 @@ export const sceneHeight = stylex.defineConsts({
 
 export const sceneTokens = stylex.defineVars({
   /** What the ground fades into in dark mode: the page under the scene. */
-  seamFade: color.bgCanvas,
+  seamFade: color.background,
 });

@@ -162,7 +162,7 @@ const styles = stylex.create({
     position: "sticky",
     insetBlockStart: 0,
     zIndex: layer.raised,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   actions: {
     display: "flex",

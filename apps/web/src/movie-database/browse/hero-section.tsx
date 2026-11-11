@@ -57,7 +57,7 @@ const styles = stylex.create({
     textAlign: "center",
   },
   heading: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     margin: 0,
   },
   inputWrapper: {

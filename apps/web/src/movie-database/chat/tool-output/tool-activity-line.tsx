@@ -252,7 +252,7 @@ const pulseReduced = stylex.keyframes({
 const styles = stylex.create({
   line: {
     gap: rhythm.tight,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     minHeight: "1.5rem",
   },
   icon: {
@@ -263,7 +263,7 @@ const styles = stylex.create({
   pulsingDot: {
     width: "0.375rem",
     height: "0.375rem",
-    backgroundColor: color.bgNeutral,
+    backgroundColor: color.input,
     animationName: {
       default: pulse,
       [motionConstants.REDUCED_MOTION]: pulseReduced,

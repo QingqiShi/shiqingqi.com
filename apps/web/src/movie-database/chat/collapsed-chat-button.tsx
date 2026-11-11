@@ -68,6 +68,6 @@ const styles = stylex.create({
     pointerEvents: "none",
   },
   icon: {
-    color: color.fgAccent,
+    color: color.primaryText,
   },
 });

@@ -4,10 +4,10 @@ import { gray } from "../_generated/palette/hues/gray.stylex.ts";
 import { green } from "../_generated/palette/hues/green.stylex.ts";
 import { purple } from "../_generated/palette/hues/purple.stylex.ts";
 
-// Code sits on `bgSurfaceRaised` — gray._100 in light, gray._7 in dark. Every
+// Code sits on `color.popover` — gray._100 in light, gray._7 in dark. Every
 // colour below clears WCAG AA (4.5:1) there.
 //
-// Three hues, not nine. `plain` matches `color.fg`, so a snippet reads as
+// Three hues, not nine. `plain` matches `color.foreground`, so a snippet reads as
 // part of the page; `punct` then `comment` step down from it, at gray._20 and _30
 // in light and gray._80 and _60 in dark. Each hue holds one tone per theme, so
 // the three differ in hue alone. Green takes _60 in the dark theme because its

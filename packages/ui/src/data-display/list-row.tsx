@@ -430,7 +430,7 @@ const styles = stylex.create({
     alignContent: "center",
     rowGap: 0,
     columnGap: 0,
-    color: color.fg,
+    color: color.foreground,
     textAlign: "start",
   },
   side: {
@@ -475,7 +475,7 @@ const styles = stylex.create({
     minInlineSize: 0,
     fontSize: listRowTokens.detailSize,
     lineHeight: listRowTokens.detailLineHeight,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   detailUnderValue: {
     gridColumn: "2 / 4",
@@ -487,7 +487,7 @@ const styles = stylex.create({
     flexDirection: "column",
     alignItems: "flex-start",
     minInlineSize: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // Without a detail line, the extra lines move up to its row, so that no
   // empty line shows under the name.
@@ -519,7 +519,7 @@ const styles = stylex.create({
   },
   valueDetail: {
     whiteSpace: "nowrap",
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   valueDetailCell: {
     gridColumn: 3,
@@ -538,13 +538,13 @@ const styles = stylex.create({
     justifyContent: "center",
   },
   plate: {
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
   },
   caret: {
     display: listRowTokens.caretDisplay,
     gridColumn: 5,
     marginInlineStart: rhythm.tight,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // The actions are outside the row grid, so they cannot span its lines.
   // They fill the height of the row up to a name line and a detail line with

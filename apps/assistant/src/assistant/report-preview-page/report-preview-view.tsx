@@ -171,7 +171,7 @@ export function ReportPreviewView({
         {preview?.status === "failed" ? (
           <div css={[typeRole.bodySmall, styles.measure]}>
             <Callout
-              intent="danger"
+              intent="destructive"
               title={t({ en: "The preview failed", zh: "预览失败" })}
             >
               <FailureText reason={preview.reason} locale={locale} />
@@ -218,7 +218,7 @@ const styles = stylex.create({
     maxInlineSize: measure.prose,
   },
   sample: {
-    backgroundColor: color.bgCanvas,
+    backgroundColor: color.background,
     padding: { default: space._3, [breakpoints.md]: space._5 },
   },
 });

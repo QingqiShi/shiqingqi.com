@@ -21,8 +21,8 @@ export const globalStyles = stylex.create({
   // at the status bar and in the overscroll, so it is the island fill.
   html: {
     backgroundColor: {
-      default: color.bgSurfaceSunken,
-      [breakpoints.md]: color.bgCanvas,
+      default: color.card,
+      [breakpoints.md]: color.background,
     },
   },
 });

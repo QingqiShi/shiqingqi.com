@@ -108,7 +108,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   // The copy runs the height of the mock rather than sitting in a block at the
   // top: the ramp is only visible where there is page under it, so a dialog

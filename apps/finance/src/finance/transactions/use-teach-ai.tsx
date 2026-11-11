@@ -252,6 +252,6 @@ const styles = stylex.create({
     maxInlineSize: "40rem",
   },
   replaced: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

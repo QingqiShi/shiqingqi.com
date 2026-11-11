@@ -130,7 +130,7 @@ const styles = stylex.create({
     display: "block",
   },
   icon: {
-    color: color.fgAccent,
+    color: color.primaryText,
     fontSize: controlSize._5,
   },
   meta: {
@@ -143,9 +143,9 @@ const styles = stylex.create({
     paddingBlock: space._0,
     paddingInline: space._2,
     color: {
-      default: color.fgMuted,
-      ":hover": { default: null, [pointer.canHover]: color.fgAccent },
-      ":disabled": color.fgMuted,
+      default: color.mutedForeground,
+      ":hover": { default: null, [pointer.canHover]: color.primaryText },
+      ":disabled": color.mutedForeground,
     },
     textDecorationLine: {
       default: "none",

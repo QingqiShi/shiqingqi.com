@@ -167,7 +167,7 @@ export function GroupsSettings() {
         }
         initialFocusRef={nameRef}
         onSave={save}
-        danger={
+        destructive={
           current !== null && isEmpty
             ? {
                 label: t({ en: "Delete", zh: "删除" }),

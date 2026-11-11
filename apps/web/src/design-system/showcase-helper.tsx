@@ -20,7 +20,7 @@ export function ShowcaseHelper({ children }: ShowcaseHelperProps) {
 const styles = stylex.create({
   helper: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     maxInlineSize: measure.prose,
   },
 });

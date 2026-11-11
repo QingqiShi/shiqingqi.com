@@ -35,7 +35,7 @@ function StatusBadge({ status }: { status: AccountSummary["status"] }) {
     );
   }
   return (
-    <Badge intent="danger" size="sm">
+    <Badge intent="destructive" size="sm">
       {t({ en: "Last run failed", zh: "上次运行失败" })}
     </Badge>
   );

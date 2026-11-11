@@ -31,7 +31,7 @@ Fit a page into a reader's attention span: one to two screens, about 1,000–2,0
 ## Craft
 
 - Generous space, large quiet specimens, a calm hierarchy from the type roles, `rhythm` tokens, precise alignment to the page column. Almost no boxes, borders or rules: let space and alignment do the grouping.
-- Colour only where it carries a meaning, specimens included. Default to neutral looks: no accent fill, primary Button or Intent unless colour or that Intent is what the section teaches, because one coloured example pulls all the attention to itself. A neutral specimen must still be plainly visible in light and dark.
+- Colour only where it carries a meaning, specimens included. Default to neutral looks: no primary fill, primary Button or Intent unless colour or that Intent is what the section teaches, because one coloured example pulls all the attention to itself. A neutral specimen must still be plainly visible in light and dark.
 - Every specimen is made of real `@tuja/ui` components and tokens. Nothing fake or decorative.
 - One moment of delight per page is welcome if it answers what a person does and stays at the edge of attention: the system's springs and effect-layer hooks, never decoration that plays by itself. Respect reduced motion.
 

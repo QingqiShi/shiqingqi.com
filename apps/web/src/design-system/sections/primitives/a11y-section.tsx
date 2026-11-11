@@ -101,7 +101,7 @@ export function A11ySection() {
     },
     {
       token: "a11y.focusRing",
-      meta: "2px accent · offset 2px · :focus-visible",
+      meta: "2px ring · offset 2px · :focus-visible",
       description: t({
         en: "The shared keyboard focus indicator (WCAG 2.4.7), for any element that takes focus. buttonReset.base already carries it.",
         zh: "共享的键盘焦点指示器（WCAG 2.4.7），用于任何可获得焦点的元素。buttonReset.base 已经带有它。",
@@ -236,8 +236,8 @@ const styles = stylex.create({
     paddingBlock: space._1,
     paddingInline: space._3,
     fontWeight: font.weight_6,
-    color: color.fgOnAccent,
-    backgroundColor: color.bgAccent,
+    color: color.primaryForeground,
+    backgroundColor: color.primary,
   },
   icon: {
     display: "inline-flex",
@@ -247,27 +247,27 @@ const styles = stylex.create({
   iconButton: {
     inlineSize: "40px",
     blockSize: "40px",
-    color: color.fgMuted,
-    backgroundColor: color.bgControl,
+    color: color.mutedForeground,
+    backgroundColor: color.card,
   },
   focusTile: {
     paddingBlock: space._2,
     paddingInline: space._4,
-    color: color.fg,
-    backgroundColor: color.bgSurface,
+    color: color.foreground,
+    backgroundColor: color.card,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   clipFrame: {
     padding: space._1,
     overflow: "hidden",
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   insetTile: {
     inlineSize: "100%",
     paddingBlock: space._2,
     paddingInline: space._4,
-    color: color.fg,
-    backgroundColor: color.bgSurface,
+    color: color.foreground,
+    backgroundColor: color.card,
   },
 });

@@ -104,13 +104,13 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   // Stand-in for the artwork a real row carries, at the ratio a poster takes.
   poster: {
     flexShrink: 0,
     inlineSize: space._8,
     aspectRatio: ratio.poster,
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
   },
 });

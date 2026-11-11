@@ -181,6 +181,6 @@ const styles = stylex.create({
     paddingInlineStart: rhythm.item,
   },
   error: {
-    color: color.fgDanger,
+    color: color.destructiveText,
   },
 });

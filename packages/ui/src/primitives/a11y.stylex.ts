@@ -51,7 +51,7 @@ export const a11y = stylex.create({
     ...ringShape,
     outlineColor: {
       default: "transparent",
-      ":focus-visible": color.borderAccent,
+      ":focus-visible": color.ring,
     },
   },
   // Same ring pulled inside the element's box, for use where an ancestor
@@ -60,7 +60,7 @@ export const a11y = stylex.create({
     ...ringShape,
     outlineColor: {
       default: "transparent",
-      ":focus-visible": color.borderAccent,
+      ":focus-visible": color.ring,
     },
     outlineOffset: `calc(-1 * ${border.size_2})`,
   },
@@ -94,10 +94,10 @@ export const a11y = stylex.create({
     ...ringShape,
     outlineColor: {
       default: "transparent",
-      [stylex.when.descendant(":focus-visible")]: color.borderAccent,
+      [stylex.when.descendant(":focus-visible")]: color.ring,
       "@supports not selector(:has(*))": {
         default: "transparent",
-        ":focus-within": color.borderAccent,
+        ":focus-within": color.ring,
       },
     },
   },

@@ -334,7 +334,7 @@ const styles = stylex.create({
   },
   glyph: {
     blockSize: "1lh",
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   mailRow: {
     display: "flex",

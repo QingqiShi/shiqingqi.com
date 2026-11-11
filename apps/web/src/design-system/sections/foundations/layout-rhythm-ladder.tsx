@@ -88,14 +88,14 @@ const styles = stylex.create({
   bar: {
     inlineSize: space._0,
     blockSize: space._8,
-    backgroundColor: color.fgMuted,
+    backgroundColor: color.mutedForeground,
   },
   term: {
     fontFamily: font.familyMono,
-    color: color.fg,
+    color: color.foreground,
   },
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   inline: { gap: rhythm.inline },
   tight: { gap: rhythm.tight },

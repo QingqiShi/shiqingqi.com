@@ -82,7 +82,7 @@ function StepMenu({
             {t({ en: "Move down", zh: "下移" })}
           </MenuItem>
         ) : null}
-        <MenuItem size="sm" intent="danger" onClick={closeThen(onDelete)}>
+        <MenuItem size="sm" intent="destructive" onClick={closeThen(onDelete)}>
           {t({ en: "Delete", zh: "删除" })}
         </MenuItem>
       </div>
@@ -288,7 +288,7 @@ const styles = stylex.create({
   },
   title: {
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
   },
   steps: {
     listStyleType: "none",

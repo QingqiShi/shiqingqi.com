@@ -319,7 +319,7 @@ function TodoRowActions({
           ) : null}
           <MenuItem
             size="sm"
-            intent="danger"
+            intent="destructive"
             onClick={closeThen(() => {
               remove(todo.id);
             })}

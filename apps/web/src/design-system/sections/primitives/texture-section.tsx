@@ -33,10 +33,10 @@ export function TextureSection() {
     },
     {
       token: "textureTokens.ink",
-      meta: "default: color.fg at 20%",
+      meta: "default: color.foreground at 20%",
       description: t({
-        en: "The dot's colour. The default mixes color.fg into transparent, so it follows the colour scheme.",
-        zh: "点的颜色。默认值把 color.fg 混入透明色，因此会随配色方案变化。",
+        en: "The dot's colour. The default mixes color.foreground into transparent, so it follows the colour scheme.",
+        zh: "点的颜色。默认值把 color.foreground 混入透明色，因此会随配色方案变化。",
       }),
     },
   ];
@@ -109,7 +109,7 @@ export function WashSection() {
     },
     {
       token: "washTokens.tone",
-      meta: "default: color.bgNeutralSubtle",
+      meta: "default: color.muted",
       description: t({
         en: "The tone the gradient starts from. It is the only dial, so it sets both the colour and how strong the wash is.",
         zh: "渐变起始的颜色。它是唯一的调节项，因此同时决定颜色与淡彩的强弱。",
@@ -146,7 +146,7 @@ export function WashSection() {
             ]}
           />
         </Specimen>
-        <Specimen caption="tone" token="color.bgAccentSubtle">
+        <Specimen caption="tone" token="color.primarySubtle">
           <div
             css={[
               wash.toBottom,
@@ -165,7 +165,7 @@ export function WashSection() {
 <div css={[wash.toBottom, styles.card]}>…</div>
 
 const styles = stylex.create({
-  card: { [washTokens.tone]: color.bgAccentSubtle },
+  card: { [washTokens.tone]: color.primarySubtle },
 });`}
       />
     </Showcase>
@@ -184,11 +184,11 @@ const styles = stylex.create({
   },
   washCard: {
     blockSize: "88px",
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
   },
   accentTone: {
-    [washTokens.tone]: color.bgAccentSubtle,
-    backgroundColor: color.bgAccentSubtle,
-    borderColor: color.borderAccent,
+    [washTokens.tone]: color.primarySubtle,
+    backgroundColor: color.primarySubtle,
+    borderColor: color.primary,
   },
 });

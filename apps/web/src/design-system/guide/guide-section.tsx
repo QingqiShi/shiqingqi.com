@@ -38,16 +38,16 @@ export function GuideNote({ children }: GuideNoteProps) {
 const styles = stylex.create({
   title: {
     maxInlineSize: measure.prose,
-    color: color.fg,
+    color: color.foreground,
   },
   lead: {
     margin: 0,
     maxInlineSize: measure.prose,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   note: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     maxInlineSize: measure.prose,
   },
 });

@@ -34,7 +34,7 @@ const wash = stylex.create({
     insetInline: 0,
     insetBlockStart: 0,
     blockSize: space._13,
-    backgroundImage: `linear-gradient(${color.bgNeutralSubtle}, transparent)`,
+    backgroundImage: `linear-gradient(${color.muted}, transparent)`,
   },
 });
 

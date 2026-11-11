@@ -21,7 +21,7 @@ export const tabBarTokens = stylex.defineVars({
 export const tabLink = stylex.create({
   // The colour and the filled icon are the signal in forced colours.
   shown: {
-    color: color.fgControlSelected,
+    color: color.primaryText,
     fontWeight: font.weight_6,
   },
 });
@@ -52,8 +52,8 @@ export const tabMark = stylex.create({
     minInlineSize: "1.125rem",
     blockSize: "1.125rem",
     paddingInline: space._0,
-    backgroundColor: color.bgAccent,
-    color: color.fgOnAccent,
+    backgroundColor: color.primary,
+    color: color.primaryForeground,
     fontWeight: font.weight_6,
     letterSpacing: 0,
   },

@@ -44,21 +44,21 @@ export function SpinnerShowcase() {
       <Showcase label={t({ en: "Tone", zh: "色调" })} leadsWithText>
         <ShowcaseHelper>
           {t({
-            en: 'tone="current" inherits the surrounding text colour; tone="accent" pins the brand accent regardless of context.',
-            zh: 'tone="current" 继承周围文本颜色；tone="accent" 无论上下文如何都固定使用品牌强调色。',
+            en: 'tone="current" inherits the surrounding text colour; tone="primary" pins the primary colour regardless of context.',
+            zh: 'tone="current" 继承周围文本颜色；tone="primary" 无论上下文如何都固定使用主色。',
           })}
         </ShowcaseHelper>
         <div css={[cluster.item, styles.toneRow]}>
-          <Specimen caption="accent">
-            <Spinner tone="accent" label={loadingLabel} />
+          <Specimen caption="primary">
+            <Spinner tone="primary" label={loadingLabel} />
           </Specimen>
           <Specimen caption="current">
             <Spinner tone="current" label={loadingLabel} />
           </Specimen>
           <Specimen
             caption={t({
-              en: "current · on accent",
-              zh: "current · 强调色上",
+              en: "current · on primary",
+              zh: "current · 主色上",
             })}
           >
             <span
@@ -115,8 +115,8 @@ const styles = stylex.create({
     gap: rhythm.tight,
     paddingBlock: space._1,
     paddingInline: space._3,
-    backgroundColor: color.bgAccent,
-    color: color.fgOnAccent,
+    backgroundColor: color.primary,
+    color: color.primaryForeground,
     fontWeight: font.weight_6,
   },
 });

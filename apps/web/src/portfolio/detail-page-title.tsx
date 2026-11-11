@@ -49,7 +49,7 @@ const styles = stylex.create({
   },
   subtitle: {
     order: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     margin: 0,
   },
   title: {
@@ -59,6 +59,6 @@ const styles = stylex.create({
   date: {
     order: 2,
     display: "block",
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

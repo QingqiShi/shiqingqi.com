@@ -135,7 +135,7 @@ const styles = stylex.create({
   }),
   mono: {
     fontFamily: font.familyMono,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   bandRow: {
     display: "grid",
@@ -144,7 +144,7 @@ const styles = stylex.create({
     columnGap: gridlineTokens.width,
     overflow: "hidden",
     boxShadow: `inset 0 0 0 1px ${color.border}`,
-    backgroundColor: color.bgCanvas,
+    backgroundColor: color.background,
   },
   band: {
     display: "flex",
@@ -162,7 +162,7 @@ const styles = stylex.create({
   },
   markerValue: {
     fontFamily: font.familyMono,
-    color: color.fg,
+    color: color.foreground,
   },
   markerBand: {
     fontWeight: font.weight_6,
@@ -172,46 +172,46 @@ const styles = stylex.create({
 const bandLit = stylex.create({
   base: {
     backgroundColor: {
-      default: color.bgNeutralSubtle,
-      [breakpoints.sm]: color.bgSurface,
+      default: color.muted,
+      [breakpoints.sm]: color.card,
     },
     boxShadow: {
-      default: `inset 0 -2px 0 0 ${color.fg}`,
+      default: `inset 0 -2px 0 0 ${color.foreground}`,
       [breakpoints.sm]: "inset 0 -2px 0 0 transparent",
     },
   },
   sm: {
     backgroundColor: {
-      default: color.bgSurface,
-      [breakpoints.sm]: color.bgNeutralSubtle,
-      [breakpoints.md]: color.bgSurface,
+      default: color.card,
+      [breakpoints.sm]: color.muted,
+      [breakpoints.md]: color.card,
     },
     boxShadow: {
       default: "inset 0 -2px 0 0 transparent",
-      [breakpoints.sm]: `inset 0 -2px 0 0 ${color.fg}`,
+      [breakpoints.sm]: `inset 0 -2px 0 0 ${color.foreground}`,
       [breakpoints.md]: "inset 0 -2px 0 0 transparent",
     },
   },
   md: {
     backgroundColor: {
-      default: color.bgSurface,
-      [breakpoints.md]: color.bgNeutralSubtle,
-      [breakpoints.lg]: color.bgSurface,
+      default: color.card,
+      [breakpoints.md]: color.muted,
+      [breakpoints.lg]: color.card,
     },
     boxShadow: {
       default: "inset 0 -2px 0 0 transparent",
-      [breakpoints.md]: `inset 0 -2px 0 0 ${color.fg}`,
+      [breakpoints.md]: `inset 0 -2px 0 0 ${color.foreground}`,
       [breakpoints.lg]: "inset 0 -2px 0 0 transparent",
     },
   },
   lg: {
     backgroundColor: {
-      default: color.bgSurface,
-      [breakpoints.lg]: color.bgNeutralSubtle,
+      default: color.card,
+      [breakpoints.lg]: color.muted,
     },
     boxShadow: {
       default: "inset 0 -2px 0 0 transparent",
-      [breakpoints.lg]: `inset 0 -2px 0 0 ${color.fg}`,
+      [breakpoints.lg]: `inset 0 -2px 0 0 ${color.foreground}`,
     },
   },
 });
@@ -219,28 +219,28 @@ const bandLit = stylex.create({
 const textLit = stylex.create({
   base: {
     color: {
-      default: color.fg,
-      [breakpoints.sm]: color.fgMuted,
+      default: color.foreground,
+      [breakpoints.sm]: color.mutedForeground,
     },
   },
   sm: {
     color: {
-      default: color.fgMuted,
-      [breakpoints.sm]: color.fg,
-      [breakpoints.md]: color.fgMuted,
+      default: color.mutedForeground,
+      [breakpoints.sm]: color.foreground,
+      [breakpoints.md]: color.mutedForeground,
     },
   },
   md: {
     color: {
-      default: color.fgMuted,
-      [breakpoints.md]: color.fg,
-      [breakpoints.lg]: color.fgMuted,
+      default: color.mutedForeground,
+      [breakpoints.md]: color.foreground,
+      [breakpoints.lg]: color.mutedForeground,
     },
   },
   lg: {
     color: {
-      default: color.fgMuted,
-      [breakpoints.lg]: color.fg,
+      default: color.mutedForeground,
+      [breakpoints.lg]: color.foreground,
     },
   },
 });

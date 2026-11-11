@@ -56,7 +56,7 @@ export function RemoveMemberSheet({
           </div>
           <div css={cluster.tight}>
             <Button
-              look="danger"
+              look="destructive"
               loading={busy}
               onClick={() => {
                 onConfirm(member);

@@ -77,7 +77,7 @@ export function CredentialSummary({
             <div css={cluster.tight}>
               <Button
                 size="sm"
-                look="danger"
+                look="destructive"
                 loading={removing}
                 onClick={() => void remove()}
               >

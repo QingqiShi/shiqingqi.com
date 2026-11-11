@@ -42,7 +42,7 @@ export function ProjectCard({
 const styles = stylex.create({
   card: {
     position: "relative",
-    color: color.fgMuted,
+    color: color.mutedForeground,
     containerType: "inline-size",
   },
   row: {
@@ -63,6 +63,6 @@ const styles = stylex.create({
     color: stylex.firstThatWorks(svgTokens.fill, projectCardTokens.brand),
   },
   name: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

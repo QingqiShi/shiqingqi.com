@@ -297,7 +297,7 @@ const styles = stylex.create({
   resultCount: {
     margin: 0,
     minBlockSize: "1lh",
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // Below `md`, the menu button floats over the top of the page.
   section: {
@@ -305,13 +305,13 @@ const styles = stylex.create({
   },
   sectionTitle: {
     margin: 0,
-    color: color.fg,
+    color: color.foreground,
   },
   // A rank below the section title and read as one: uppercase and tracked out,
   // the same move the sidebar makes to separate its two levels.
   categoryTitle: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // `auto-fill`, not `auto-fit`: the groups run from two tiles to eight, and
   // `auto-fit` collapses the empty tracks so a two-tile group would stretch into
@@ -325,7 +325,7 @@ const styles = stylex.create({
   },
   emptyHint: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     maxInlineSize: measure.short,
   },
 });

@@ -153,14 +153,14 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
   },
   name: {
-    color: color.fg,
+    color: color.foreground,
   },
   metrics: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   sample: {
     minInlineSize: 0,
     maxInlineSize: measure.prose,
-    color: color.fg,
+    color: color.foreground,
   },
 });

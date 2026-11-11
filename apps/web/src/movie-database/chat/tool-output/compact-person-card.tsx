@@ -194,13 +194,13 @@ const styles = stylex.create({
   photoFallback: {
     width: "100%",
     height: "100%",
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
     borderWidth: 1,
     borderStyle: "solid",
     borderColor: color.border,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   department: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

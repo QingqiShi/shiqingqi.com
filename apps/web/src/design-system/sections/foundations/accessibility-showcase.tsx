@@ -17,8 +17,8 @@ export function AccessibilityShowcase() {
       <GuideSection
         title={t({ en: "Show where focus is.", zh: "让焦点始终可见。" })}
         lead={t({
-          en: "When the keyboard moves focus to a control, the control draws a 2px accent ring, and a group with one choice is a single Tab stop that the arrow keys move through. Tab through the row below.",
-          zh: "键盘把焦点移到控件上时，控件会画出 2px 的强调色焦点环；只能选一项的组合只占一个 Tab 停靠点，用方向键在组内移动。按 Tab 依次经过下面这一行。",
+          en: "When the keyboard moves focus to a control, the control draws a 2px focus ring, and a group with one choice is a single Tab stop that the arrow keys move through. Tab through the row below.",
+          zh: "键盘把焦点移到控件上时，控件会画出 2px 的焦点环；只能选一项的组合只占一个 Tab 停靠点，用方向键在组内移动。按 Tab 依次经过下面这一行。",
         })}
       >
         <Stage>

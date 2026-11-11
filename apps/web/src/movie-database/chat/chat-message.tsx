@@ -285,23 +285,23 @@ const styles = stylex.create({
   },
   userBubble: {
     marginLeft: "auto",
-    backgroundColor: color.bgAccent,
-    color: color.fgOnAccent,
+    backgroundColor: color.primary,
+    color: color.primaryForeground,
     borderBottomRightRadius: border.radius_1,
     cornerBottomRightShape: "squircle",
   },
   assistantBubble: {
     marginRight: "auto",
     backgroundColor: {
-      default: color.bgSurface,
-      [constants.DARK]: `color-mix(in srgb, ${color.bgSurfaceFade} 60%, transparent)`,
+      default: color.card,
+      [constants.DARK]: `color-mix(in srgb, ${color.card} 60%, transparent)`,
     },
     backdropFilter: "blur(12px)",
     boxShadow: {
       default: shadow._1,
       [constants.DARK]: "none",
     },
-    color: color.fg,
+    color: color.foreground,
     borderBottomLeftRadius: border.radius_1,
     cornerBottomLeftShape: "squircle",
   },
@@ -314,7 +314,7 @@ const styles = stylex.create({
   },
   reasoning: {
     whiteSpace: "pre-wrap",
-    color: color.fgMuted,
+    color: color.mutedForeground,
     fontStyle: "italic",
   },
 });

@@ -18,8 +18,8 @@ ruleTester.run("require-quiet-surface", rule, {
       code: `const styles = stylex.create({
         button: {
           backgroundColor: {
-            default: color.bgSurface,
-            ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
+            default: color.card,
+            ":hover": { default: null, [pointer.canHover]: color.accent },
           },
         },
       });`,
@@ -27,7 +27,7 @@ ruleTester.run("require-quiet-surface", rule, {
     // V2: the token as a plain fill, not a hover
     {
       code: `const styles = stylex.create({
-        bar: { backgroundColor: color.bgControlHover },
+        bar: { backgroundColor: color.accent },
       });`,
     },
     // V3: a transparent element with a hover fill of another token
@@ -36,7 +36,7 @@ ruleTester.run("require-quiet-surface", rule, {
         row: {
           backgroundColor: {
             default: "transparent",
-            ":hover": { default: null, [pointer.canHover]: color.bgAccentSubtle },
+            ":hover": { default: null, [pointer.canHover]: color.primarySubtle },
           },
         },
       });`,
@@ -46,7 +46,7 @@ ruleTester.run("require-quiet-surface", rule, {
       code: `const plain = {
         backgroundColor: {
           default: "transparent",
-          ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
+          ":hover": { default: null, [pointer.canHover]: color.accent },
         },
       };`,
     },
@@ -59,7 +59,7 @@ ruleTester.run("require-quiet-surface", rule, {
         row: {
           backgroundColor: {
             default: "transparent",
-            ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
+            ":hover": { default: null, [pointer.canHover]: color.accent },
           },
         },
       });`,
@@ -71,7 +71,7 @@ ruleTester.run("require-quiet-surface", rule, {
         row: {
           backgroundColor: {
             default: "transparent",
-            [pointer.canHover]: { default: null, ":hover": color.bgControlHover },
+            [pointer.canHover]: { default: null, ":hover": color.accent },
           },
         },
       });`,
@@ -82,7 +82,7 @@ ruleTester.run("require-quiet-surface", rule, {
       code: `const styles = stylex.create({
         row: {
           backgroundColor: {
-            ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
+            ":hover": { default: null, [pointer.canHover]: color.accent },
           },
         },
       });`,

@@ -59,7 +59,7 @@ interface SliderOwnProps extends Omit<
    */
   description?: string;
   /**
-   * Error message. Turns the groove's edge and the handle danger-coloured,
+   * Error message. Turns the groove's edge and the handle destructive,
    * sets `aria-invalid`, renders with `role="alert"`, and joins
    * `aria-describedby`.
    *

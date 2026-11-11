@@ -19,7 +19,7 @@ const enterKeyframes = stylex.keyframes({
  */
 export const popoverSurface = stylex.create({
   base: {
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,

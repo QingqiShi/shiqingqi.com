@@ -129,7 +129,7 @@ const styles = stylex.create({
     margin: 0,
   },
   net: {
-    color: color.fg,
+    color: color.foreground,
     fontWeight: font.weight_6,
   },
 });

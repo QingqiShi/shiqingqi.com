@@ -53,7 +53,7 @@ const styles = stylex.create({
     blockSize: controlSize._9,
   },
   brand: {
-    color: color.fg,
+    color: color.foreground,
     fontWeight: font.weight_6,
   },
 });

@@ -75,6 +75,6 @@ export function ReviewNotice({ form }: { form: TransactionForm }) {
 
 const styles = stylex.create({
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

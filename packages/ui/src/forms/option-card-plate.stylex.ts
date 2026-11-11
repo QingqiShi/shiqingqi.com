@@ -1,15 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "../breakpoints.stylex.ts";
 import { color } from "../color.stylex.ts";
-import { duration, easing } from "../primitives/motion.stylex.ts";
 import { border } from "../tokens.stylex.ts";
-import { optionCardMarker } from "./option-card.stylex.ts";
-
-// Keep this the same as `SELECTED` in option-card.stylex.ts.
-const SELECTED =
-  ":is([aria-pressed=true], [aria-checked=true], [aria-selected=true], [aria-current]:not([aria-current=false], [aria-current='']))";
-const SELECTED_HOVER = `${SELECTED}:is(:hover, :active):not(:disabled)`;
-const SELECTED_ACTIVE = `${SELECTED}:active:not(:disabled)`;
 
 /** @internal */
 export const plateGroupStyles = stylex.create({
@@ -30,21 +22,21 @@ export const plateStyles = stylex.create({
   facade: {
     isolation: "isolate",
     backgroundColor: {
-      default: color.bgSurface,
-      ":disabled": color.bgControlDisabled,
+      default: color.card,
+      ":disabled": color.muted,
       [pointer.canHover]: {
         default: null,
-        ":hover:not(:disabled)": color.bgSurfaceHover,
-        ":active:not(:disabled)": color.bgSurfaceHover,
+        ":hover:not(:disabled)": color.accent,
+        ":active:not(:disabled)": color.accent,
       },
-      ":active:not(:disabled)": color.bgSurfaceHover,
+      ":active:not(:disabled)": color.accent,
     },
   },
   frame: {
     borderColor: color.border,
   },
   frameArrived: {
-    borderColor: color.borderSurfaceSelected,
+    borderColor: color.foreground,
   },
   layer: {
     position: "absolute",
@@ -58,17 +50,7 @@ export const plateStyles = stylex.create({
   piece: {
     position: "absolute",
     boxSizing: "border-box",
-    backgroundColor: {
-      default: color.bgSurfaceSelected,
-      [pointer.canHover]: {
-        default: null,
-        [stylex.when.ancestor(SELECTED_HOVER, optionCardMarker)]:
-          color.bgSurfaceSelectedHover,
-      },
-      [stylex.when.ancestor(SELECTED_ACTIVE, optionCardMarker)]:
-        color.bgSurfaceSelectedHover,
-    },
-    transition: `background-color ${duration._200} ${easing.ease}`,
+    backgroundColor: color.accent,
   },
   // A corner holds the whole arc and one more pixel, so that it overlaps the
   // bands and no seam shows between them.

@@ -221,7 +221,7 @@ const styles = stylex.create({
     insetBlockStart: space._5,
     insetBlockEnd: 0,
     insetInline: space._00,
-    backgroundColor: color.bgNeutralSubtle,
+    backgroundColor: color.secondary,
   },
   markerLabel: {
     position: "absolute",
@@ -230,7 +230,7 @@ const styles = stylex.create({
     transform: "translateX(-50%)",
     whiteSpace: "nowrap",
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
   },
   slot: {
     position: "relative",
@@ -254,7 +254,7 @@ const styles = stylex.create({
     insetInlineStart: "50%",
     inlineSize: "min(0.75rem, 46%)",
     transform: "translateX(-50%)",
-    backgroundColor: color.bgNeutralSubtle,
+    backgroundColor: color.secondary,
     opacity: 0.5,
   },
   clip: {
@@ -282,13 +282,13 @@ const styles = stylex.create({
     transform: "translateY(-100%)",
   },
   quietBar: {
-    backgroundColor: `color-mix(in srgb, ${color.fgMuted} 38%, transparent)`,
+    backgroundColor: `color-mix(in srgb, ${color.mutedForeground} 38%, transparent)`,
   },
   selectedUp: {
-    backgroundColor: color.bgSuccess,
+    backgroundColor: color.success,
   },
   selectedDown: {
-    backgroundColor: color.bgDanger,
+    backgroundColor: color.destructive,
   },
   baseline: {
     position: "absolute",
@@ -300,11 +300,11 @@ const styles = stylex.create({
     insetBlockStart: `${(baseline * 100).toFixed(2)}%`,
   }),
   tick: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     whiteSpace: "nowrap",
   },
   tickSelected: {
-    color: color.fg,
+    color: color.foreground,
     fontWeight: font.weight_7,
   },
   wideTick: {

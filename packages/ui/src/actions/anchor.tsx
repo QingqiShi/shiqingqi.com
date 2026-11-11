@@ -160,8 +160,8 @@ const styles = stylex.create({
   },
   muted: {
     color: {
-      default: color.fgMuted,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
+      default: color.mutedForeground,
+      ":hover": { default: null, [pointer.canHover]: color.foreground },
     },
     fontWeight: "inherit",
     textDecorationThickness: {

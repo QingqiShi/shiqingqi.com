@@ -72,7 +72,7 @@ function RunningCard({ run, elapsedMs }: { run: HomeRun; elapsedMs: number }) {
       <div css={[flex.between, styles.head]}>
         <div css={[row.inline, styles.title]}>
           <span css={[typeRole.label, flex.row, shrink._0]}>
-            <Spinner size="inline" tone="accent" aria-hidden />
+            <Spinner size="inline" tone="primary" aria-hidden />
           </span>
           <Text look="label" weight="semibold">
             {runTitle(run.task)}
@@ -259,7 +259,7 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   quiet: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     marginInlineStart: "auto",
   },
   time: {
@@ -273,7 +273,7 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   recent: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     minInlineSize: 0,
   },
 });

@@ -192,7 +192,7 @@ const styles = stylex.create({
   },
   label: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   inset: {
     paddingInline: space._2,

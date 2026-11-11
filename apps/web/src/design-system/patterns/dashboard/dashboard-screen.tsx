@@ -119,7 +119,9 @@ function TodoMenu({ todo }: { todo: Todo }) {
               ? t({ en: "Reopen", zh: "重新打开" })
               : t({ en: "Move to tomorrow", zh: "移到明天" })}
           </MenuItem>
-          <MenuItem intent="danger">{t({ en: "Delete", zh: "删除" })}</MenuItem>
+          <MenuItem intent="destructive">
+            {t({ en: "Delete", zh: "删除" })}
+          </MenuItem>
         </>
       }
     />
@@ -205,7 +207,7 @@ function NeedsYouCard() {
         zh: "缴纳 Camden 市政税（£187.40）",
       }),
       facts: [
-        <Badge key="due" size="sm" intent="danger">
+        <Badge key="due" size="sm" intent="destructive">
           {t({ en: "Overdue since 9 Nov", zh: "11月9日起逾期" })}
         </Badge>,
       ],

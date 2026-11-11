@@ -150,8 +150,8 @@ const styles = stylex.create({
   },
   link: {
     color: {
-      default: color.fgMuted,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
+      default: color.mutedForeground,
+      ":hover": { default: null, [pointer.canHover]: color.foreground },
     },
     textDecorationLine: {
       default: "none",
@@ -159,17 +159,17 @@ const styles = stylex.create({
     },
   },
   current: {
-    color: color.fg,
+    color: color.foreground,
     fontWeight: font.weight_6,
   },
   inert: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     fontWeight: font.weight_4,
   },
   separator: {
     display: "inline-flex",
     alignItems: "center",
     flexShrink: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

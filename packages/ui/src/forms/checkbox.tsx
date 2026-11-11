@@ -185,7 +185,7 @@ export function Checkbox({
             sizeStyles[size],
             !!error && styles.boxError,
             // After the error, so that a read-only mark with no box takes no
-            // danger edge. It keeps the danger focus ring.
+            // destructive edge. It keeps the destructive focus ring.
             readOnly && styles.readOnly,
           ]}
         />
@@ -239,22 +239,25 @@ const styles = stylex.create({
   box: {
     borderWidth: border.size_2,
     borderColor: {
-      default: color.borderControl,
+      default: color.borderStrong,
       ":hover": {
         default: null,
-        [pointer.canHover]: color.borderAccent,
+        [pointer.canHover]: color.primary,
       },
-      ":checked": color.borderAccent,
-      ":indeterminate": color.borderAccent,
-      ":disabled": color.borderControl,
+      ":checked": color.primary,
+      ":indeterminate": color.primary,
+      ":disabled": color.borderStrong,
     },
     backgroundColor: {
-      default: color.bgSurface,
-      ":checked": color.bgAccent,
-      ":indeterminate": color.bgAccent,
-      ":disabled": color.bgControlDisabled,
+      default: color.card,
+      ":checked": color.primary,
+      ":indeterminate": color.primary,
+      ":disabled": color.muted,
     },
-    color: { default: color.fgOnAccent, ":disabled": color.fgMuted },
+    color: {
+      default: color.primaryForeground,
+      ":disabled": color.mutedForeground,
+    },
     [checkboxTokens.glyph]: {
       default: null,
       ":checked": `url("${CHECK_MASK}")`,
@@ -262,31 +265,31 @@ const styles = stylex.create({
     },
   },
   // The hover edge stays off a ticked box, which would ring the muted fill
-  // in accent.
+  // in primary.
   done: {
     borderColor: {
-      default: color.borderControl,
+      default: color.borderStrong,
       ":hover": {
         default: null,
-        [pointer.canHover]: color.borderAccent,
+        [pointer.canHover]: color.primary,
       },
       ":is(:checked, :indeterminate)": {
-        default: color.fgMuted,
-        ":hover": { default: null, [pointer.canHover]: color.fgMuted },
+        default: color.mutedForeground,
+        ":hover": { default: null, [pointer.canHover]: color.mutedForeground },
       },
-      ":disabled": color.borderControl,
+      ":disabled": color.borderStrong,
     },
     backgroundColor: {
-      default: color.bgSurface,
-      ":checked": color.fgMuted,
-      ":indeterminate": color.fgMuted,
-      ":disabled": color.bgControlDisabled,
+      default: color.card,
+      ":checked": color.mutedForeground,
+      ":indeterminate": color.mutedForeground,
+      ":disabled": color.muted,
     },
   },
   readOnly: {
     borderColor: "transparent",
     backgroundColor: "transparent",
-    color: color.fgMuted,
+    color: color.mutedForeground,
     cursor: "default",
     // With no box around it, the tick or dash is the whole control, so it
     // takes the whole box. The dot is a mark on a line of text, which has the
@@ -305,19 +308,19 @@ const styles = stylex.create({
   },
   boxError: {
     borderColor: {
-      default: color.borderDanger,
-      ":checked": color.borderDanger,
-      ":indeterminate": color.borderDanger,
+      default: color.destructive,
+      ":checked": color.destructive,
+      ":indeterminate": color.destructive,
     },
-    // Recolours the shared focus ring to danger, matching
+    // Recolours the shared focus ring to destructive, matching
     // TextField/Textarea/Select; composed after `a11y.focusRing`, so it wins.
     outlineColor: {
       default: "transparent",
-      ":focus-visible": color.borderDanger,
+      ":focus-visible": color.destructive,
     },
   },
   labelText: {
-    color: color.fg,
+    color: color.foreground,
   },
 });
 

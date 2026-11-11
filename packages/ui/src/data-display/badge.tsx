@@ -25,8 +25,8 @@ interface BadgeProps extends Omit<
     | "info"
     | "success"
     | "warning"
-    | "danger"
-    | "accent";
+    | "destructive"
+    | "primary";
   /**
    * Padding scale. Both sizes set the text in the `caption` type role.
    *
@@ -97,7 +97,7 @@ export function Badge({
 const styles = stylex.create({
   base: {
     borderColor: "transparent",
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
     fontWeight: font.weight_6,
   },
   // `em` box so the icon tracks the badge's font-size across sizes.
@@ -125,32 +125,32 @@ const sizeStyles = stylex.create({
 const intentStyles = stylex.create({
   default: {
     borderColor: color.border,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // Neutral intent tint, not an opaque surface, so it stays visible on cards
   // and other raised surfaces instead of blending in.
   neutral: {
-    backgroundColor: color.bgNeutralSubtle,
-    color: color.fgMuted,
+    backgroundColor: color.secondary,
+    color: color.mutedForeground,
   },
   info: {
-    backgroundColor: color.bgInfoSubtle,
-    color: color.fgInfo,
+    backgroundColor: color.infoSubtle,
+    color: color.infoText,
   },
   success: {
-    backgroundColor: color.bgSuccessSubtle,
-    color: color.fgSuccess,
+    backgroundColor: color.successSubtle,
+    color: color.successText,
   },
   warning: {
-    backgroundColor: color.bgWarningSubtle,
-    color: color.fgWarning,
+    backgroundColor: color.warningSubtle,
+    color: color.warningText,
   },
-  danger: {
-    backgroundColor: color.bgDangerSubtle,
-    color: color.fgDanger,
+  destructive: {
+    backgroundColor: color.destructiveSubtle,
+    color: color.destructiveText,
   },
-  accent: {
-    backgroundColor: color.bgAccentSubtle,
-    color: color.fgAccent,
+  primary: {
+    backgroundColor: color.primarySubtle,
+    color: color.primaryText,
   },
 });

@@ -13,7 +13,7 @@ export const tableTokens = stylex.defineVars({
   // The opaque fill of a cell in a sticky column, so the cells that scroll
   // under it do not show through. A row with a fill of its own sets it, or
   // sets `data-row-fill` so that the cell takes the fill of the row.
-  stickyFill: color.bgSurface,
+  stickyFill: color.card,
   // The rule a cell draws on its top edge, as a shadow. A row group that
   // moves sets it, because a collapsed border stays where the layout put it.
   cellRule: NO_SHADOW,

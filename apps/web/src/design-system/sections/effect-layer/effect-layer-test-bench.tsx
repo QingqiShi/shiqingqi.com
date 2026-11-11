@@ -114,17 +114,17 @@ export function EffectLayerTestBench() {
 
       <div css={cluster.item}>
         <Swatch
-          token="color.bgSurfaceRaised"
+          token="color.popover"
           shape="corner.radius_3"
           css={[corner.radius_3, styles.raised]}
         />
         <Swatch
-          token="color.bgAccent"
+          token="color.primary"
           shape="corner.radius_4"
           css={[corner.radius_4, styles.accent]}
         />
         <Swatch
-          token="color.bgMaterialGlass"
+          token="color.glass"
           shape="corner.radius_2"
           css={[corner.radius_2, styles.glass]}
         />
@@ -176,19 +176,19 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
   },
   raised: {
-    color: color.fg,
-    backgroundColor: color.bgSurfaceRaised,
+    color: color.foreground,
+    backgroundColor: color.popover,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
   },
   accent: {
-    color: color.fgOnAccent,
-    backgroundColor: color.bgAccent,
+    color: color.primaryForeground,
+    backgroundColor: color.primary,
   },
   glass: {
-    color: color.fg,
-    backgroundColor: color.bgMaterialGlass,
+    color: color.foreground,
+    backgroundColor: color.glass,
   },
   fixed: {
     position: "fixed",

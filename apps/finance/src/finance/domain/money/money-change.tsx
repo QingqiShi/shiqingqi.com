@@ -53,12 +53,12 @@ export function MoneyChange({
 const styles = stylex.create({
   change: {
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
   },
   up: {
-    color: color.fgSuccess,
+    color: color.successText,
   },
   down: {
-    color: color.fgDanger,
+    color: color.destructiveText,
   },
 });

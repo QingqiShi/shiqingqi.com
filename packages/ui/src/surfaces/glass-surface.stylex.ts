@@ -4,9 +4,9 @@ import { border, shadow } from "../tokens.stylex.ts";
 
 /** Each part's colour, and the depth of the blur. */
 export const glassTokens = stylex.defineVars({
-  fill: color.bgMaterialGlass,
-  border: color.borderMaterialGlass,
-  highlight: color.borderMaterialGlassHighlight,
+  fill: color.glass,
+  border: color.glassBorder,
+  highlight: color.glassHighlight,
   blur: "8px",
 });
 

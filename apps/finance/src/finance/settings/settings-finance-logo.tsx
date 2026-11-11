@@ -31,6 +31,6 @@ const styles = stylex.create({
     blockSize: space._8,
   },
   name: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

@@ -42,7 +42,7 @@ const styles = stylex.create({
     blockSize: space._0,
   },
   strong: {
-    backgroundColor: color.bgNeutral,
+    backgroundColor: color.input,
   },
   width: (inlineSize: string) => ({ inlineSize }),
 });

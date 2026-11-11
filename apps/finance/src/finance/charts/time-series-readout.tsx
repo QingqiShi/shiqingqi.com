@@ -125,7 +125,7 @@ const styles = stylex.create({
   readout: {
     display: "grid",
     minBlockSize: space._5,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   readoutBesideAccessory: {
     flexGrow: 1,
@@ -139,7 +139,7 @@ const styles = stylex.create({
     visibility: "hidden",
   },
   readoutValue: {
-    color: color.fg,
+    color: color.foreground,
     fontWeight: font.weight_6,
   },
   readoutKey: {

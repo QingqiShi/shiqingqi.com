@@ -39,7 +39,7 @@ const styles = stylex.create({
   block: {
     gap: rhythm.tight,
     minInlineSize: 0,
-    color: color.fg,
+    color: color.foreground,
     textDecoration: "none",
   },
   tile: {
@@ -47,8 +47,8 @@ const styles = stylex.create({
     inlineSize: space._7,
     blockSize: space._7,
     fontSize: controlSize._4,
-    color: color.bgSurface,
-    backgroundColor: color.fg,
+    color: color.card,
+    backgroundColor: color.foreground,
   },
   title: {
     minInlineSize: 0,

@@ -74,7 +74,7 @@ function ConnectNotice({
   };
   if (error) {
     return (
-      <Callout intent="danger" role="alert">
+      <Callout intent="destructive" role="alert">
         {new Map<string, string>(Object.entries(errors)).get(error) ??
           errors.token}
       </Callout>

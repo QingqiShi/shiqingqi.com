@@ -107,19 +107,19 @@ const styles = stylex.create({
   // is transparent at rest takes `quietSurface.interactive` instead.
   row: {
     backgroundColor: {
-      default: color.bgSurface,
-      ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
+      default: color.card,
+      ":hover": { default: null, [pointer.canHover]: color.accent },
     },
   },
   // Several hover keys on one property, or a chained key such as
   // `:disabled:hover` (which takes no nested value): one branch for all.
   filter: {
     backgroundColor: {
-      default: color.bgSurface,
+      default: color.card,
       [pointer.canHover]: {
         default: null,
-        ":hover": color.bgControlHover,
-        ":disabled:hover": color.bgSurface,
+        ":hover": color.accent,
+        ":disabled:hover": color.card,
       },
     },
   },

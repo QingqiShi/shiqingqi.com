@@ -105,7 +105,7 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: rhythm.inline,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   key: {
     display: "inline-block",

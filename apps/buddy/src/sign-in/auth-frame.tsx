@@ -44,7 +44,7 @@ const styles = stylex.create({
   },
   brand: {
     alignSelf: "flex-start",
-    color: color.fgMuted,
+    color: color.mutedForeground,
     fontWeight: font.weight_6,
     textDecoration: "none",
   },

@@ -58,6 +58,6 @@ const styles = stylex.create({
     gap: rhythm.inline,
   },
   button: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

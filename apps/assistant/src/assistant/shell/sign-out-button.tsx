@@ -74,7 +74,7 @@ const styles = stylex.create({
     minBlockSize: { default: controlHeight.sm, [pointer.coarse]: "44px" },
     paddingBlock: space._0,
     paddingInline: space._1,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     textAlign: "start",
   },
   icon: {

@@ -49,7 +49,7 @@ export const optionCardGroupMarker = stylex.defineMarker();
  * The selectable-card skin: compose it over `cardSurface.base` and
  * `cardSurface.interactive`, which carry the border width, the radius and the
  * focus ring. This adds a full-width button box, and owns the border, the
- * fill and their states, so that the accent marks only the focus.
+ * fill and their states, so that the primary marks only the focus.
  */
 export const optionCardSurface = stylex.create({
   base: {
@@ -58,35 +58,29 @@ export const optionCardSurface = stylex.create({
     inlineSize: "100%",
     textAlign: "start",
     fontFamily: font.family,
-    color: color.fg,
+    color: color.foreground,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: null, ":disabled": opacity.disabled },
     borderColor: {
       default: color.border,
-      [SELECTED]: color.borderSurfaceSelected,
+      [SELECTED]: color.foreground,
     },
     // A press keeps the hover fill: a further step would hide the edge of a
     // card that is not selected. StyleX puts a state in a media query after a
     // bare state, so the press repeats in the query to stay on top of the
     // hover.
     backgroundColor: {
-      default: color.bgSurface,
-      ":disabled": color.bgControlDisabled,
+      default: color.card,
+      ":disabled": color.muted,
       [pointer.canHover]: {
         default: null,
-        ":hover:not(:disabled)": color.bgSurfaceHover,
-        ":active:not(:disabled)": color.bgSurfaceHover,
+        ":hover:not(:disabled)": color.accent,
+        ":active:not(:disabled)": color.accent,
       },
-      ":active:not(:disabled)": color.bgSurfaceHover,
+      ":active:not(:disabled)": color.accent,
       [SELECTED]: {
-        default: color.bgSurfaceSelected,
-        ":disabled": color.bgControlDisabled,
-        [pointer.canHover]: {
-          default: null,
-          ":hover:not(:disabled)": color.bgSurfaceSelectedHover,
-          ":active:not(:disabled)": color.bgSurfaceSelectedHover,
-        },
-        ":active:not(:disabled)": color.bgSurfaceSelectedHover,
+        default: color.accent,
+        ":disabled": color.muted,
       },
     },
     transition: `color ${EASE}, background-color ${EASE}, border-color ${EASE}`,
@@ -101,12 +95,12 @@ export const optionCardSurface = stylex.create({
 export const optionCardPart = stylex.create({
   mark: {
     borderColor: {
-      default: color.borderControl,
-      [stylex.when.ancestor(SELECTED, optionCardMarker)]: color.fg,
+      default: color.borderStrong,
+      [stylex.when.ancestor(SELECTED, optionCardMarker)]: color.foreground,
     },
     backgroundColor: {
       default: "transparent",
-      [stylex.when.ancestor(SELECTED, optionCardMarker)]: color.fg,
+      [stylex.when.ancestor(SELECTED, optionCardMarker)]: color.foreground,
     },
   },
 });

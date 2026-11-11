@@ -95,7 +95,7 @@ const horizontalLookStyles = stylex.create({
   },
   decorative: {
     blockSize: border.size_1,
-    backgroundImage: `linear-gradient(135deg, ${color.bgAccent} 0%, ${color.bgInfo} 100%)`,
+    backgroundImage: `linear-gradient(135deg, ${color.primary} 0%, ${color.info} 100%)`,
   },
 });
 
@@ -110,6 +110,6 @@ const verticalLookStyles = stylex.create({
   },
   decorative: {
     inlineSize: border.size_1,
-    backgroundImage: `linear-gradient(180deg, ${color.bgAccent} 0%, ${color.bgInfo} 100%)`,
+    backgroundImage: `linear-gradient(180deg, ${color.primary} 0%, ${color.info} 100%)`,
   },
 });

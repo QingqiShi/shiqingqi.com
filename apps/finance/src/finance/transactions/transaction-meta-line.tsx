@@ -82,10 +82,10 @@ const styles = stylex.create({
     marginBlockStart: rhythm.inline,
   },
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   pending: {
     gap: rhythm.inline,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

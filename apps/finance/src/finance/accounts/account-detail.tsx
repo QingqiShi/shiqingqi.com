@@ -288,7 +288,7 @@ const styles = stylex.create({
     paddingInline: space._1,
   },
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   balance: {
     fontWeight: font.weight_7,

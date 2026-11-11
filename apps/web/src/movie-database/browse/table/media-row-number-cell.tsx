@@ -16,6 +16,6 @@ export function MediaRowNumberCell({ rowIndex }: MediaCellParams) {
 
 const styles = stylex.create({
   rowNumber: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

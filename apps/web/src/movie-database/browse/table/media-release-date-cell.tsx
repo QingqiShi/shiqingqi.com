@@ -31,6 +31,6 @@ export function MediaReleaseDateCell({ api, row }: MediaCellParams) {
 
 const styles = stylex.create({
   date: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

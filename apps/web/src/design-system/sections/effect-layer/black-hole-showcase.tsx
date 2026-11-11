@@ -11,7 +11,7 @@ import { useLightBeam } from "@tuja/ui/hooks/use-light-beam";
 
 function Lamp() {
   const ref = useLightBeam();
-  return <Badge ref={ref} intent="accent">Lamp</Badge>;
+  return <Badge ref={ref} intent="primary">Lamp</Badge>;
 }
 
 function HeavyCard({ children }) {

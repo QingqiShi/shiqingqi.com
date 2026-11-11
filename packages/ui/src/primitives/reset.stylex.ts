@@ -23,7 +23,7 @@ export const buttonReset = stylex.create({
     outlineStyle: "solid",
     outlineColor: {
       default: "transparent",
-      ":focus-visible": color.borderAccent,
+      ":focus-visible": color.ring,
     },
     outlineOffset: border.size_2,
     // A copy of `a11y.touchTarget`. Keep it the same as the original.

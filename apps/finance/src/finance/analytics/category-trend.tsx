@@ -65,9 +65,9 @@ export function CategoryTrend({
     formatAnalyticsMoney(minor, currency, locale, state.kind);
   const tone =
     view.path.at(-1) === trend.categoryId
-      ? "accent"
+      ? "primary"
       : (view.rows.find((item) => item.categoryId === trend.categoryId)?.tone ??
-        "accent");
+        "primary");
   const byTransaction = trend.dimension === "transaction";
   const unit = byTransaction
     ? t({ en: "transactions", zh: "笔交易" })
@@ -269,6 +269,6 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
   },
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

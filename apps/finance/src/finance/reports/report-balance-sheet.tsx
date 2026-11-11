@@ -155,7 +155,7 @@ export function ReportBalanceSheet({
 
 const styles = stylex.create({
   sideRow: {
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
   },
   sideLabel: {
     fontWeight: font.weight_7,
@@ -164,7 +164,7 @@ const styles = stylex.create({
     fontWeight: font.weight_7,
   },
   groupRow: {
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   groupLabel: {
     paddingInlineStart: space._5,
@@ -180,13 +180,13 @@ const styles = stylex.create({
   netRow: {
     borderBlockStartWidth: "2px",
     borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.fg,
+    borderBlockStartColor: color.foreground,
   },
   block: {
     display: "block",
   },
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   strongChange: {
     fontWeight: font.weight_6,

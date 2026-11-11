@@ -101,7 +101,7 @@ const styles = stylex.create({
     transform: "translateZ(0)",
     borderRadius: border.radius_3,
     cornerShape: "round",
-    backgroundColor: color.bgCanvas,
+    backgroundColor: color.background,
   },
   // The columns of a shell fill the frame and cover its own box, so the edge is
   // a box over them.

@@ -177,7 +177,7 @@ const styles = stylex.create({
     paddingBlock: { default: space._2, [breakpoints.md]: space._4 },
   },
   dayDetail: {
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   columns: {
     display: "grid",

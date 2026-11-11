@@ -75,7 +75,7 @@ const styles = stylex.create({
   // there, where nothing sticky-paints anyway.
   columnHeaderCell: {
     fontWeight: font.weight_6,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     // `calc`, not a bare minus: the token is a `var()`, and `-var(...)` is not
     // a valid length, so the declaration is dropped.
     boxShadow: {
@@ -101,6 +101,6 @@ const styles = stylex.create({
   },
   rowHeaderCell: {
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
   },
 });

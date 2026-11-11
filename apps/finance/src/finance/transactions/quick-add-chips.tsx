@@ -563,16 +563,16 @@ const styles = stylex.create({
     maxInlineSize: "100%",
   },
   unsure: {
-    backgroundColor: color.bgWarningSubtle,
-    color: color.fgWarning,
+    backgroundColor: color.warningSubtle,
+    color: color.warningText,
   },
   missing: {
     borderStyle: "dashed",
-    borderColor: color.borderControl,
+    borderColor: color.borderStrong,
     backgroundColor: "transparent",
   },
   empty: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   popover: {
     maxInlineSize: `min(${measure.short}, calc(100dvw - ${space._1} * 2))`,

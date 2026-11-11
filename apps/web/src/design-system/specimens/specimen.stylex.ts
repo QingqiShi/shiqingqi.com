@@ -115,7 +115,7 @@ export const wireframe = stylex.create({
     cornerShape: "squircle",
     // Lighter than the sunken plate it sits on, in both themes, so the miniature
     // reads as a page lying on the specimen plate rather than dissolving into it.
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   // For a miniature whose own parts run out to the page's edge — a rail, a
   // header bar, a footer bar — which would otherwise show square corners over

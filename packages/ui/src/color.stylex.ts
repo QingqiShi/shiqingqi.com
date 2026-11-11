@@ -3,33 +3,41 @@ import { blue, blue_rgb } from "./_generated/palette/hues/blue.stylex.ts";
 import { gray, gray_rgb } from "./_generated/palette/hues/gray.stylex.ts";
 import { green, green_rgb } from "./_generated/palette/hues/green.stylex.ts";
 import { orange, orange_rgb } from "./_generated/palette/hues/orange.stylex.ts";
-import { purple, purple_rgb } from "./_generated/palette/hues/purple.stylex.ts";
 import { red, red_rgb } from "./_generated/palette/hues/red.stylex.ts";
 
-// Colour tokens are named `<property><subject>[<qualifier>][<state>]`:
+// A colour token is named for the thing it paints, not for the CSS property
+// and not for a level. The names are those of shadcn/ui, so the question is
+// the same: "what is this element?"
 //
-// • property — `fg`, `bg` or `border`. `fg` is anything drawn on a surface:
-//   text, icons, logos.
-// • subject — a Token Role (`canvas`, `surface`, `control`, or an Intent:
-//   `accent`, `info`, `success`, `warning`, `danger`, `neutral`) or a Material
-//   (`MaterialGlass`). `inverse` and `scrim` are treatments a surface takes,
-//   not Token Roles. `fgOn<X>` is the foreground for `bg<X>`.
-// • qualifier — `subtle` is an Intent's tint; `sunken`, `raised` and `fade`
-//   are the elevation of a surface or a control.
-// • state — `hover`, `pressed`, `selected`, `disabled`. Bare is rest.
+// • A fill and the content on it are a pair: `card` and `cardForeground`,
+//   `primary` and `primaryForeground`. The CSS property says which is which:
+//   `backgroundColor: color.card`, `color: color.cardForeground`.
 //
-// The bare form is the default: `fg` is body text, `border` the quiet edge,
-// `bgControl` a control at rest, `bgAccent` the solid fill. The foreground on
-// a solid Intent fill is `fgOn<Intent>`; on its tint it is `fg<Intent>`.
-// Neutral is the default Intent, so its foreground and border are `fg` and
-// `border`.
+// • A surface holds content. Choose it by what the element is: `background`
+//   is the page, `card` is a container on the page (also an island of an app
+//   shell), `popover` is what floats above the page. In light the three have
+//   the same fill, and an edge or a shadow sets them apart.
 //
-// The group holds every colour token of the design system.
+// • A neutral fill on a surface is opaque, and the three have the same
+//   value: `muted` is a quiet region, `accent` is the fill of an item under
+//   the pointer, pressed or selected, `secondary` is a neutral piece such as
+//   a secondary button, a neutral badge or a track. The three names let a
+//   theme give them different values.
 //
-// Translucent tokens compose `rgba()` strings from the `<hue>_rgb` group
-// (comma-separated channels per tone). CSS does lexical substitution, so
-// `rgba(var(--gray_rgb_92), 0.4)` evaluates to `rgba(233,232,228, 0.4)` at
-// paint time.
+// • A colour with a meaning is solid: `primary`, `destructive`, `success`,
+//   `warning`, `info`. `<name>Subtle` is its tint, and `<name>Text` is its
+//   colour as text or as an icon, on a surface or on the tint. The solid tone
+//   is also the edge of that meaning. A component prop takes the same name:
+//   `intent="destructive"` paints `destructive`.
+//
+// • A line is `border` (the quiet edge and the divider), `input` (the edge of
+//   a text field, and a neutral mark such as a track or a grabber),
+//   `borderStrong` (an edge that is the only sign of a control) or `ring`
+//   (the focus ring).
+//
+// • A state has no token. Under the pointer, pressed or selected, an element
+//   takes `accent`. A solid fill shows some of what is below it:
+//   `color-mix(in srgb, ${color.primary} 90%, transparent)`.
 //
 // Theming: each var in the `color` group below is a single constant
 // `light-dark(<light>, <dark>)` value that resolves against the element's
@@ -37,296 +45,142 @@ import { red, red_rgb } from "./_generated/palette/hues/red.stylex.ts";
 // OS), and forcing a theme just pins `color-scheme: light` or `dark` — see
 // `getDocumentClassName` in apps/web. No per-theme stylesheets are generated.
 //
+// Translucent tokens compose `rgba()` strings from the `<hue>_rgb` group
+// (comma-separated channels per tone). CSS does lexical substitution, so
+// `rgba(var(--gray_rgb_97), 0.05)` evaluates to `rgba(251,249,246, 0.05)` at
+// paint time.
+//
 // To change a token's palette mapping, edit the entry below. To change palette
 // values themselves, edit `packages/system-palette-codegen/src/system-hues.ts` and run
 // `pnpm codegen:palette`.
 
-// Each Intent's fill and its border share one tone per theme, so a retune
-// cannot split them.
-const lightIntentTone = {
-  accent: purple._40,
-  info: blue._40,
-  success: green._40,
-  warning: orange._40,
-  danger: red._40,
-};
-
-const darkIntentTone = {
-  accent: purple._70,
-  info: blue._70,
-  success: green._70,
-  warning: orange._70,
-  // Danger does not use _70 like the other Intents. The owner is colour-blind,
-  // and red._70 looks pink-grey to them, not red.
-  danger: red._50,
-};
-
 const light = {
-  // Foreground — two levels, measured with APCA against every fill they can
-  // land on, also with the neutral tint on that fill. `fg` clears the Lc 75
-  // body floor, `fgMuted` the Lc 60 non-body floor. contrast/color-ladder.test.ts
-  // keeps these floors.
-  //
-  // In light the worst fill is `bgSurfaceSelectedHover`: fg 90, muted 64. The
-  // worst tint is `bgNeutralSubtle` on `bgControlSelected` (gray._90), such
-  // as a neutral Badge in a selected row: muted 61.
-  //
-  // In dark the worst fill is `bgSurfaceSelectedHover`: fg 97, muted 62. The
-  // worst tint is `bgNeutralSubtle` on gray._13, the fill of
-  // `bgSurfaceSelected` and `bgControlHover`: muted 60.
-  //
-  // In both themes, `bgNeutralSubtle` on `bgSurfaceSelectedHover` gives muted
-  // 57, under the floor. A neutral Badge on a selected option card under the
-  // pointer has this contrast.
-  //
-  // gray._70 and gray._80 are too near `fg` in dark: done and secondary text
-  // did not recede as they do in light.
-  fg: gray._5,
-  fgMuted: gray._30,
-  // The label of an unselected item in a group of controls, such as a
-  // SegmentedControl option or a TabBar tab. It is as dim as `fgMuted`, so
-  // the selected item, in `fg`, stands out from it.
-  // `fgControlSelected` is the label of the selected item where its colour
-  // marks the selection, such as the shown tab of a TabBar.
-  fgControl: gray._30,
-  fgControlSelected: purple._30,
-  fgOnControlBright: gray._20,
-  // The same white in both themes, on the off and the on fill alike (the
-  // thumb of a switch).
-  fgOnControlStrong: gray._100,
-  fgOnInverse: gray._92,
-  // The scrim is the same black in both themes, so its foreground is the same
-  // white.
-  fgOnScrim: gray._100,
+  // The page, and the text on it. `foreground` clears the Lc 75 body floor
+  // (APCA) and `mutedForeground` the Lc 60 non-body floor on each surface and
+  // on the neutral fill. contrast/color-ladder.test.ts keeps these floors.
+  background: gray._100,
+  foreground: gray._5,
 
-  // Canvas — the app shell behind everything. `Fade` is the colour translucent
-  // gradients blend toward (consumed via color-mix()).
-  bgCanvas: gray._97,
-  bgCanvasFade: gray._92,
+  card: gray._100,
+  cardForeground: gray._5,
+  popover: gray._100,
+  popoverForeground: gray._5,
 
-  // Surface — cards, panels, dialog bodies. Raised is also the floating
-  // surface of a menu or a popover, which sits on `layer.raised`.
-  bgSurface: gray._100,
-  bgSurfaceSunken: gray._98,
-  bgSurfaceRaised: gray._100,
-  bgSurfaceFade: gray._95,
-  // A surface that the visitor can choose, such as an option card. Each state
-  // is one step further from the page: rest, hover, selected, selected hover.
-  // The selected edge has the colour of `fg`, as the filled mark has. A grey
-  // fill alone looks like a disabled field on the page.
-  bgSurfaceHover: gray._95,
-  bgSurfaceSelected: gray._90,
-  // The palette has no step between the selected fill and the next step, and
-  // that step is too heavy. Thus this token mixes the two steps.
-  bgSurfaceSelectedHover: `color-mix(in oklab, ${gray._90}, ${gray._80})`,
-  borderSurfaceSelected: gray._5,
+  muted: gray._95,
+  mutedForeground: gray._30,
+  accent: gray._95,
+  accentForeground: gray._5,
+  secondary: gray._95,
+  secondaryForeground: gray._5,
 
-  // A bright control stays light in both themes (a slider thumb).
-  // Inverse flips the theme (tooltips, snackbars). Scrim dims the page behind
-  // a modal.
-  bgControlBright: gray._100,
-  bgInverse: gray._20,
-  bgScrim: "rgba(0, 0, 0, 0.7)",
-
-  // Control — buttons, list rows, menu items. `Disabled` is the one tone that
-  // never lands at full strength: it is painted on the same element as
-  // `opacity.disabled`, so what you see is always this tone composited with
-  // whatever sits behind the control.
-  bgControl: gray._100,
-  // A control that is transparent at rest can land on the canvas or on any
-  // surface, so this tone must be different from all of them.
-  bgControlHover: gray._95,
-  bgControlPressed: gray._92,
-  bgControlSelected: gray._90,
-  bgControlDisabled: gray._95,
-  // The track that holds a group of controls, such as the options of a
-  // SegmentedControl, and the selected item raised on it. The raised fill
-  // holds the label of the selected item, in `fg` or `fgControlSelected`, and
-  // a StatusDot. An unselected label in `fgControl` crosses it only while the
-  // indicator moves. In dark that label is Lc 58 on it, under the floor.
-  bgControlSunken: gray._92,
-  bgControlRaised: gray._100,
-  // A neutral fill for an unselected control when the fill is its only sign,
-  // such as an off switch. Selected, it takes `bgControlStrongSelected`. Its
-  // foreground is `fgOnControlStrong` in both states.
-  bgControlStrong: gray._40,
-  bgControlStrongSelected: purple._40,
-  // The ring inside the edge of `bgControlStrong`. WCAG 1.4.11 sets a 3:1
-  // floor on the fill or on this ring against every surface a control sits
-  // on. In light the fill holds it, so there is no ring. In dark the fill is
-  // darker, so the ring holds it.
-  borderControlStrong: "transparent",
-
-  // The quiet default edge and the neutral Intent's border.
+  // Lines. `borderStrong` is not quiet: WCAG 1.4.11 sets a 3:1 floor on an
+  // edge that is the only sign of a control, such as an empty checkbox,
+  // against each surface.
   border: gray._87,
-  // The edge that is the only sign of an unselected control, such as an empty
-  // checkbox or radio. It is not quiet, because WCAG 1.4.11 sets a 3:1 floor on
-  // it against every surface a control sits on.
-  borderControl: gray._40,
-  // The edge of `bgControlSunken`.
-  borderControlSunken: gray._92,
-  // The edge of a text field at rest: firmer than `border`, so that an empty
-  // field does not look disabled, and still well below the 3:1 of
-  // `borderControl`, so that a form stays quiet.
-  borderField: gray._80,
+  borderStrong: gray._40,
+  input: gray._87,
+  ring: gray._13,
 
-  // Intents — a solid fill and its hover, a tint (alpha is fixed, colour comes
-  // from the palette), a solid border for rings and selected edges, a
-  // foreground on its own, and a foreground on the solid fill.
-  bgAccent: lightIntentTone.accent,
-  bgAccentHover: purple._50,
-  bgAccentSubtle: `rgba(${purple_rgb._30}, 0.08)`,
-  borderAccent: lightIntentTone.accent,
-  fgAccent: purple._20,
-  fgOnAccent: gray._100,
+  // Meanings: the solid fill and the content on it, the tint (the alpha is
+  // fixed, the colour comes from the palette), and the colour as text.
+  primary: gray._13,
+  primaryForeground: gray._100,
+  primarySubtle: `rgba(${gray_rgb._13}, 0.06)`,
+  primaryText: gray._13,
 
-  bgInfo: lightIntentTone.info,
-  bgInfoHover: blue._50,
-  bgInfoSubtle: `rgba(${blue_rgb._50}, 0.1)`,
-  borderInfo: lightIntentTone.info,
-  fgInfo: blue._20,
-  fgOnInfo: gray._100,
+  destructive: red._40,
+  destructiveForeground: gray._100,
+  destructiveSubtle: `rgba(${red_rgb._50}, 0.1)`,
+  destructiveText: red._30,
 
-  bgSuccess: lightIntentTone.success,
-  bgSuccessHover: green._50,
-  bgSuccessSubtle: `rgba(${green_rgb._50}, 0.1)`,
-  borderSuccess: lightIntentTone.success,
-  fgSuccess: green._20,
-  fgOnSuccess: gray._100,
+  success: green._40,
+  successForeground: gray._100,
+  successSubtle: `rgba(${green_rgb._50}, 0.1)`,
+  successText: green._20,
 
-  bgWarning: lightIntentTone.warning,
-  bgWarningHover: orange._50,
-  bgWarningSubtle: `rgba(${orange_rgb._50}, 0.12)`,
-  borderWarning: lightIntentTone.warning,
-  fgWarning: orange._20,
-  fgOnWarning: gray._100,
+  warning: orange._40,
+  warningForeground: gray._100,
+  warningSubtle: `rgba(${orange_rgb._50}, 0.12)`,
+  warningText: orange._20,
 
-  bgDanger: lightIntentTone.danger,
-  bgDangerHover: red._50,
-  bgDangerSubtle: `rgba(${red_rgb._50}, 0.1)`,
-  borderDanger: lightIntentTone.danger,
-  fgDanger: red._30,
-  fgOnDanger: gray._100,
+  info: blue._40,
+  infoForeground: gray._100,
+  infoSubtle: `rgba(${blue_rgb._50}, 0.1)`,
+  infoText: blue._20,
 
-  // Mid-tone neutrals for chrome, tracks and chips. Neutral's foreground and
-  // border are `fg` and `border`.
-  bgNeutral: gray._80,
-  bgNeutralHover: gray._90,
-  bgNeutralSubtle: `rgba(${gray_rgb._30}, 0.1)`,
-  fgOnNeutral: gray._0,
+  // The scrim that dims the page behind a modal. It is the same black in both
+  // themes, so the content on it is the same white.
+  overlay: "rgba(0, 0, 0, 0.7)",
+  overlayForeground: gray._100,
 
   // Glass — the translucent fill over the blur, the hairline rim all the way
   // round, and the light on that rim. Against a light page the rim reads as a
   // dark edge; against a dark one it is clear, and only the light on it shows.
-  bgMaterialGlass: `rgba(${gray_rgb._100}, 0.8)`,
-  borderMaterialGlass: `rgba(${gray_rgb._0}, 0.3)`,
-  borderMaterialGlassHighlight: `rgba(${gray_rgb._100}, 0.6)`,
-  // The tint that marks the selected item on Glass, such as the shown tab of
-  // a TabBar.
-  bgMaterialGlassSelected: `rgba(${gray_rgb._0}, 0.06)`,
+  glass: `rgba(${gray_rgb._100}, 0.8)`,
+  glassBorder: `rgba(${gray_rgb._0}, 0.3)`,
+  glassHighlight: `rgba(${gray_rgb._100}, 0.6)`,
 };
 
 const dark: { [key in keyof typeof light]: string } = {
-  fg: gray._97,
-  fgMuted: gray._60,
-  fgControl: gray._60,
-  // purple._70 is under the Lc 60 floor on `bgControlRaised` (gray._20), so
-  // the selected label is purple._80.
-  fgControlSelected: purple._80,
-  fgOnControlBright: gray._0,
-  fgOnControlStrong: gray._100,
-  fgOnInverse: gray._20,
-  fgOnScrim: gray._100,
+  background: gray._0,
+  // gray._70 and gray._80 are too near `foreground` in dark: done and
+  // secondary text did not recede as they do in light.
+  foreground: gray._97,
 
-  bgCanvas: gray._0,
-  bgCanvasFade: gray._0,
+  // In dark, a surface nearer to the reader is lighter.
+  card: gray._5,
+  cardForeground: gray._97,
+  popover: gray._7,
+  popoverForeground: gray._97,
 
-  bgSurface: gray._5,
-  bgSurfaceSunken: gray._2,
-  bgSurfaceRaised: gray._7,
-  bgSurfaceFade: gray._5,
-  bgSurfaceHover: gray._9,
-  bgSurfaceSelected: gray._13,
-  bgSurfaceSelectedHover: `color-mix(in oklab, ${gray._13}, ${gray._20})`,
-  borderSurfaceSelected: gray._97,
+  muted: gray._11,
+  mutedForeground: gray._60,
+  accent: gray._11,
+  accentForeground: gray._97,
+  secondary: gray._11,
+  secondaryForeground: gray._97,
 
-  bgControlBright: gray._80,
-  bgInverse: gray._92,
-  bgScrim: "rgba(0, 0, 0, 0.7)",
+  border: `rgba(${gray_rgb._97}, 0.1)`,
+  borderStrong: gray._35,
+  input: `rgba(${gray_rgb._97}, 0.15)`,
+  ring: gray._92,
 
-  bgControl: gray._7,
-  bgControlHover: gray._13,
-  // The selected fill is darker than the hover fill. A selected area can be
-  // large, such as the Net worth card, and a lighter fill is too bright there.
-  // Near black, a step looks smaller than the same step near white, so this
-  // fill is two tones from `bgSurface`. With gray._9 a selected row was
-  // almost the same as its neighbours.
-  // The pressed fill is the selected fill, and this is intended: a press
-  // shows the fill that the item has when it is selected. gray._9 is the only
-  // free tone, and it is almost the same as `bgControl` (1.06:1).
-  bgControlSelected: gray._11,
-  bgControlPressed: gray._11,
-  bgControlDisabled: gray._5,
-  bgControlSunken: gray._7,
-  bgControlRaised: gray._20,
-  bgControlStrong: gray._30,
-  bgControlStrongSelected: purple._40,
-  borderControlStrong: gray._35,
+  primary: gray._92,
+  primaryForeground: gray._0,
+  primarySubtle: `rgba(${gray_rgb._92}, 0.1)`,
+  primaryText: gray._92,
 
-  border: gray._13,
-  borderControl: gray._35,
-  borderControlSunken: gray._11,
-  borderField: gray._13,
-
-  bgAccent: darkIntentTone.accent,
-  bgAccentHover: purple._80,
-  bgAccentSubtle: `rgba(${purple_rgb._50}, 0.12)`,
-  borderAccent: darkIntentTone.accent,
-  fgAccent: purple._80,
-  fgOnAccent: gray._0,
-
-  bgInfo: darkIntentTone.info,
-  bgInfoHover: blue._80,
-  bgInfoSubtle: `rgba(${blue_rgb._50}, 0.14)`,
-  borderInfo: darkIntentTone.info,
-  fgInfo: blue._80,
-  fgOnInfo: gray._0,
-
-  bgSuccess: darkIntentTone.success,
-  bgSuccessHover: green._80,
-  bgSuccessSubtle: `rgba(${green_rgb._50}, 0.14)`,
-  borderSuccess: darkIntentTone.success,
-  fgSuccess: green._80,
-  fgOnSuccess: gray._0,
-
-  bgWarning: darkIntentTone.warning,
-  bgWarningHover: orange._80,
-  bgWarningSubtle: `rgba(${orange_rgb._50}, 0.16)`,
-  borderWarning: darkIntentTone.warning,
-  fgWarning: orange._80,
-  fgOnWarning: gray._0,
-
-  bgDanger: darkIntentTone.danger,
+  // Destructive does not use _70 like the other meanings. The owner is
+  // colour-blind, and red._70 looks pink-grey to them, not red.
   // The label on red._50 is white, not black: APCA gives Lc 58 for white and
-  // Lc 51 for black. No tone of the ramp lets either clear Lc 60. The hover is
-  // darker, because a lighter fill decreases the contrast of the white label.
-  bgDangerHover: red._40,
-  bgDangerSubtle: `rgba(${red_rgb._50}, 0.14)`,
-  borderDanger: darkIntentTone.danger,
-  // red._60 is under the Lc 60 floor on gray._13, so the text is red._70.
-  fgDanger: red._70,
-  fgOnDanger: gray._100,
+  // Lc 51 for black. No tone of the ramp lets either clear Lc 60.
+  destructive: red._50,
+  destructiveForeground: gray._100,
+  destructiveSubtle: `rgba(${red_rgb._50}, 0.14)`,
+  // red._60 is under the Lc 60 floor on a fill, so the text is red._70.
+  destructiveText: red._70,
 
-  bgNeutral: gray._20,
-  bgNeutralHover: gray._30,
-  // A stronger tint takes `fgMuted` under the Lc 60 floor on gray._13.
-  bgNeutralSubtle: `rgba(${gray_rgb._70}, 0.1)`,
-  fgOnNeutral: gray._100,
+  success: green._70,
+  successForeground: gray._0,
+  successSubtle: `rgba(${green_rgb._50}, 0.14)`,
+  successText: green._80,
 
-  bgMaterialGlass: `rgba(${gray_rgb._100}, 0.12)`,
-  borderMaterialGlass: "transparent",
-  borderMaterialGlassHighlight: `rgba(${gray_rgb._100}, 0.25)`,
-  bgMaterialGlassSelected: `rgba(${gray_rgb._100}, 0.1)`,
+  warning: orange._70,
+  warningForeground: gray._0,
+  warningSubtle: `rgba(${orange_rgb._50}, 0.16)`,
+  warningText: orange._80,
+
+  info: blue._70,
+  infoForeground: gray._0,
+  infoSubtle: `rgba(${blue_rgb._50}, 0.14)`,
+  infoText: blue._80,
+
+  overlay: "rgba(0, 0, 0, 0.7)",
+  overlayForeground: gray._100,
+
+  glass: `rgba(${gray_rgb._100}, 0.12)`,
+  glassBorder: "transparent",
+  glassHighlight: `rgba(${gray_rgb._100}, 0.25)`,
 };
 
 /**
@@ -340,89 +194,55 @@ export function colorThemes() {
 }
 
 export const color = stylex.defineVars({
-  fg: `light-dark(${light.fg}, ${dark.fg})`,
-  fgMuted: `light-dark(${light.fgMuted}, ${dark.fgMuted})`,
-  fgControl: `light-dark(${light.fgControl}, ${dark.fgControl})`,
-  fgControlSelected: `light-dark(${light.fgControlSelected}, ${dark.fgControlSelected})`,
-  fgOnControlBright: `light-dark(${light.fgOnControlBright}, ${dark.fgOnControlBright})`,
-  fgOnControlStrong: `light-dark(${light.fgOnControlStrong}, ${dark.fgOnControlStrong})`,
-  fgOnInverse: `light-dark(${light.fgOnInverse}, ${dark.fgOnInverse})`,
-  fgOnScrim: `light-dark(${light.fgOnScrim}, ${dark.fgOnScrim})`,
+  background: `light-dark(${light.background}, ${dark.background})`,
+  foreground: `light-dark(${light.foreground}, ${dark.foreground})`,
 
-  bgCanvas: `light-dark(${light.bgCanvas}, ${dark.bgCanvas})`,
-  bgCanvasFade: `light-dark(${light.bgCanvasFade}, ${dark.bgCanvasFade})`,
+  card: `light-dark(${light.card}, ${dark.card})`,
+  cardForeground: `light-dark(${light.cardForeground}, ${dark.cardForeground})`,
+  popover: `light-dark(${light.popover}, ${dark.popover})`,
+  popoverForeground: `light-dark(${light.popoverForeground}, ${dark.popoverForeground})`,
 
-  bgSurface: `light-dark(${light.bgSurface}, ${dark.bgSurface})`,
-  bgSurfaceSunken: `light-dark(${light.bgSurfaceSunken}, ${dark.bgSurfaceSunken})`,
-  bgSurfaceRaised: `light-dark(${light.bgSurfaceRaised}, ${dark.bgSurfaceRaised})`,
-  bgSurfaceFade: `light-dark(${light.bgSurfaceFade}, ${dark.bgSurfaceFade})`,
-  bgSurfaceHover: `light-dark(${light.bgSurfaceHover}, ${dark.bgSurfaceHover})`,
-  bgSurfaceSelected: `light-dark(${light.bgSurfaceSelected}, ${dark.bgSurfaceSelected})`,
-  bgSurfaceSelectedHover: `light-dark(${light.bgSurfaceSelectedHover}, ${dark.bgSurfaceSelectedHover})`,
-  borderSurfaceSelected: `light-dark(${light.borderSurfaceSelected}, ${dark.borderSurfaceSelected})`,
-
-  bgControlBright: `light-dark(${light.bgControlBright}, ${dark.bgControlBright})`,
-  bgInverse: `light-dark(${light.bgInverse}, ${dark.bgInverse})`,
-  bgScrim: `light-dark(${light.bgScrim}, ${dark.bgScrim})`,
-
-  bgControl: `light-dark(${light.bgControl}, ${dark.bgControl})`,
-  bgControlHover: `light-dark(${light.bgControlHover}, ${dark.bgControlHover})`,
-  bgControlPressed: `light-dark(${light.bgControlPressed}, ${dark.bgControlPressed})`,
-  bgControlSelected: `light-dark(${light.bgControlSelected}, ${dark.bgControlSelected})`,
-  bgControlDisabled: `light-dark(${light.bgControlDisabled}, ${dark.bgControlDisabled})`,
-  bgControlSunken: `light-dark(${light.bgControlSunken}, ${dark.bgControlSunken})`,
-  bgControlRaised: `light-dark(${light.bgControlRaised}, ${dark.bgControlRaised})`,
-  bgControlStrong: `light-dark(${light.bgControlStrong}, ${dark.bgControlStrong})`,
-  bgControlStrongSelected: `light-dark(${light.bgControlStrongSelected}, ${dark.bgControlStrongSelected})`,
-  borderControlStrong: `light-dark(${light.borderControlStrong}, ${dark.borderControlStrong})`,
+  muted: `light-dark(${light.muted}, ${dark.muted})`,
+  mutedForeground: `light-dark(${light.mutedForeground}, ${dark.mutedForeground})`,
+  accent: `light-dark(${light.accent}, ${dark.accent})`,
+  accentForeground: `light-dark(${light.accentForeground}, ${dark.accentForeground})`,
+  secondary: `light-dark(${light.secondary}, ${dark.secondary})`,
+  secondaryForeground: `light-dark(${light.secondaryForeground}, ${dark.secondaryForeground})`,
 
   border: `light-dark(${light.border}, ${dark.border})`,
-  borderControl: `light-dark(${light.borderControl}, ${dark.borderControl})`,
-  borderControlSunken: `light-dark(${light.borderControlSunken}, ${dark.borderControlSunken})`,
-  borderField: `light-dark(${light.borderField}, ${dark.borderField})`,
+  borderStrong: `light-dark(${light.borderStrong}, ${dark.borderStrong})`,
+  input: `light-dark(${light.input}, ${dark.input})`,
+  ring: `light-dark(${light.ring}, ${dark.ring})`,
 
-  bgAccent: `light-dark(${light.bgAccent}, ${dark.bgAccent})`,
-  bgAccentHover: `light-dark(${light.bgAccentHover}, ${dark.bgAccentHover})`,
-  bgAccentSubtle: `light-dark(${light.bgAccentSubtle}, ${dark.bgAccentSubtle})`,
-  borderAccent: `light-dark(${light.borderAccent}, ${dark.borderAccent})`,
-  fgAccent: `light-dark(${light.fgAccent}, ${dark.fgAccent})`,
-  fgOnAccent: `light-dark(${light.fgOnAccent}, ${dark.fgOnAccent})`,
+  primary: `light-dark(${light.primary}, ${dark.primary})`,
+  primaryForeground: `light-dark(${light.primaryForeground}, ${dark.primaryForeground})`,
+  primarySubtle: `light-dark(${light.primarySubtle}, ${dark.primarySubtle})`,
+  primaryText: `light-dark(${light.primaryText}, ${dark.primaryText})`,
 
-  bgInfo: `light-dark(${light.bgInfo}, ${dark.bgInfo})`,
-  bgInfoHover: `light-dark(${light.bgInfoHover}, ${dark.bgInfoHover})`,
-  bgInfoSubtle: `light-dark(${light.bgInfoSubtle}, ${dark.bgInfoSubtle})`,
-  borderInfo: `light-dark(${light.borderInfo}, ${dark.borderInfo})`,
-  fgInfo: `light-dark(${light.fgInfo}, ${dark.fgInfo})`,
-  fgOnInfo: `light-dark(${light.fgOnInfo}, ${dark.fgOnInfo})`,
+  destructive: `light-dark(${light.destructive}, ${dark.destructive})`,
+  destructiveForeground: `light-dark(${light.destructiveForeground}, ${dark.destructiveForeground})`,
+  destructiveSubtle: `light-dark(${light.destructiveSubtle}, ${dark.destructiveSubtle})`,
+  destructiveText: `light-dark(${light.destructiveText}, ${dark.destructiveText})`,
 
-  bgSuccess: `light-dark(${light.bgSuccess}, ${dark.bgSuccess})`,
-  bgSuccessHover: `light-dark(${light.bgSuccessHover}, ${dark.bgSuccessHover})`,
-  bgSuccessSubtle: `light-dark(${light.bgSuccessSubtle}, ${dark.bgSuccessSubtle})`,
-  borderSuccess: `light-dark(${light.borderSuccess}, ${dark.borderSuccess})`,
-  fgSuccess: `light-dark(${light.fgSuccess}, ${dark.fgSuccess})`,
-  fgOnSuccess: `light-dark(${light.fgOnSuccess}, ${dark.fgOnSuccess})`,
+  success: `light-dark(${light.success}, ${dark.success})`,
+  successForeground: `light-dark(${light.successForeground}, ${dark.successForeground})`,
+  successSubtle: `light-dark(${light.successSubtle}, ${dark.successSubtle})`,
+  successText: `light-dark(${light.successText}, ${dark.successText})`,
 
-  bgWarning: `light-dark(${light.bgWarning}, ${dark.bgWarning})`,
-  bgWarningHover: `light-dark(${light.bgWarningHover}, ${dark.bgWarningHover})`,
-  bgWarningSubtle: `light-dark(${light.bgWarningSubtle}, ${dark.bgWarningSubtle})`,
-  borderWarning: `light-dark(${light.borderWarning}, ${dark.borderWarning})`,
-  fgWarning: `light-dark(${light.fgWarning}, ${dark.fgWarning})`,
-  fgOnWarning: `light-dark(${light.fgOnWarning}, ${dark.fgOnWarning})`,
+  warning: `light-dark(${light.warning}, ${dark.warning})`,
+  warningForeground: `light-dark(${light.warningForeground}, ${dark.warningForeground})`,
+  warningSubtle: `light-dark(${light.warningSubtle}, ${dark.warningSubtle})`,
+  warningText: `light-dark(${light.warningText}, ${dark.warningText})`,
 
-  bgDanger: `light-dark(${light.bgDanger}, ${dark.bgDanger})`,
-  bgDangerHover: `light-dark(${light.bgDangerHover}, ${dark.bgDangerHover})`,
-  bgDangerSubtle: `light-dark(${light.bgDangerSubtle}, ${dark.bgDangerSubtle})`,
-  borderDanger: `light-dark(${light.borderDanger}, ${dark.borderDanger})`,
-  fgDanger: `light-dark(${light.fgDanger}, ${dark.fgDanger})`,
-  fgOnDanger: `light-dark(${light.fgOnDanger}, ${dark.fgOnDanger})`,
+  info: `light-dark(${light.info}, ${dark.info})`,
+  infoForeground: `light-dark(${light.infoForeground}, ${dark.infoForeground})`,
+  infoSubtle: `light-dark(${light.infoSubtle}, ${dark.infoSubtle})`,
+  infoText: `light-dark(${light.infoText}, ${dark.infoText})`,
 
-  bgNeutral: `light-dark(${light.bgNeutral}, ${dark.bgNeutral})`,
-  bgNeutralHover: `light-dark(${light.bgNeutralHover}, ${dark.bgNeutralHover})`,
-  bgNeutralSubtle: `light-dark(${light.bgNeutralSubtle}, ${dark.bgNeutralSubtle})`,
-  fgOnNeutral: `light-dark(${light.fgOnNeutral}, ${dark.fgOnNeutral})`,
+  overlay: `light-dark(${light.overlay}, ${dark.overlay})`,
+  overlayForeground: `light-dark(${light.overlayForeground}, ${dark.overlayForeground})`,
 
-  bgMaterialGlass: `light-dark(${light.bgMaterialGlass}, ${dark.bgMaterialGlass})`,
-  borderMaterialGlass: `light-dark(${light.borderMaterialGlass}, ${dark.borderMaterialGlass})`,
-  borderMaterialGlassHighlight: `light-dark(${light.borderMaterialGlassHighlight}, ${dark.borderMaterialGlassHighlight})`,
-  bgMaterialGlassSelected: `light-dark(${light.bgMaterialGlassSelected}, ${dark.bgMaterialGlassSelected})`,
+  glass: `light-dark(${light.glass}, ${dark.glass})`,
+  glassBorder: `light-dark(${light.glassBorder}, ${dark.glassBorder})`,
+  glassHighlight: `light-dark(${light.glassHighlight}, ${dark.glassHighlight})`,
 });

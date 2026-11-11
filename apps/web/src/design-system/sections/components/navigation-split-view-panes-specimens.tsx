@@ -173,7 +173,7 @@ const styles = stylex.create({
   stripLink: {
     display: "inline-flex",
     padding: space._1,
-    color: color.fg,
+    color: color.foreground,
     textDecoration: "none",
   },
   mark: {
@@ -183,17 +183,17 @@ const styles = stylex.create({
     inlineSize: controlSize._9,
     blockSize: controlSize._9,
     fontSize: controlSize._5,
-    color: color.fg,
-    backgroundColor: color.bgNeutralSubtle,
+    color: color.foreground,
+    backgroundColor: color.muted,
   },
   count: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   facts: {
     margin: 0,
   },
   term: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   value: {
     margin: 0,

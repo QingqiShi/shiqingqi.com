@@ -197,8 +197,8 @@ const styles = stylex.create({
     maxInlineSize: "220px",
     paddingBlock: space._1,
     paddingInline: space._3,
-    color: color.fg,
-    backgroundColor: color.bgSurface,
+    color: color.foreground,
+    backgroundColor: color.card,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   fillTile: {
@@ -206,7 +206,7 @@ const styles = stylex.create({
     inlineSize: "100%",
     blockSize: "96px",
     overflow: "hidden",
-    backgroundImage: `linear-gradient(135deg, ${color.bgAccent}, ${color.bgInfo})`,
+    backgroundImage: `linear-gradient(135deg, ${color.primary}, ${color.info})`,
   },
   fillScrim: {
     display: "flex",
@@ -214,11 +214,11 @@ const styles = stylex.create({
     justifyContent: "flex-start",
     paddingBlock: space._2,
     paddingInline: space._3,
-    backgroundImage: `linear-gradient(to top, ${color.bgScrim}, transparent)`,
+    backgroundImage: `linear-gradient(to top, ${color.overlay}, transparent)`,
   },
   fillLabel: {
     fontWeight: font.weight_6,
-    color: color.fgOnScrim,
+    color: color.overlayForeground,
   },
   scrollStrip: {
     inlineSize: "100%",
@@ -236,8 +236,8 @@ const styles = stylex.create({
     inlineSize: "72px",
     blockSize: "48px",
     fontFamily: font.familyMono,
-    color: color.fgMuted,
-    backgroundColor: color.bgSurface,
+    color: color.mutedForeground,
+    backgroundColor: color.card,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   imagePair: {
@@ -249,7 +249,7 @@ const styles = stylex.create({
     blockSize: "80px",
     flexShrink: 0,
     overflow: "hidden",
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
 });

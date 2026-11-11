@@ -108,7 +108,7 @@ const LINE = "1.25rem";
  * changes only colour, so it stays under reduced motion.
  */
 const arrive = stylex.keyframes({
-  from: { backgroundColor: color.bgAccentSubtle },
+  from: { backgroundColor: color.primarySubtle },
 });
 
 /**
@@ -161,7 +161,7 @@ const styles = stylex.create({
     inlineSize: "40%",
   },
   summaryCell: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // The end clears the blur at the end edge of a table that scrolls.
   panel: {

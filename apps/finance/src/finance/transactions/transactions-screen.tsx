@@ -455,6 +455,6 @@ const styles = stylex.create({
   },
   empty: {
     padding: space._5,
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
   },
 });

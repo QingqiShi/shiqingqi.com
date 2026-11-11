@@ -86,7 +86,7 @@ export const scrollY = stylex.create({
 // and a transparent thumb would hide even the platform's while-scrolling
 // indicator. On a pure-pointer device the thumb is transparent at rest and
 // reveals on pointer hover or keyboard `:focus-within`, using the low-contrast
-// `color.bgNeutral` (softer than `color.fgMuted`; against `bgCanvas` that's
+// `color.input` (softer than `color.mutedForeground`; against the page that is
 // about 1.3:1 in light and 2.1:1 in dark).
 //
 // `:focus-within`, not `:has(:focus-visible)`: `:has()` only shipped in Firefox
@@ -131,8 +131,8 @@ export const scrollbar = stylex.create({
       default: "auto",
       [NON_TOUCH_DEVICE]: {
         default: "transparent transparent",
-        ":hover": `${color.bgNeutral} transparent`,
-        ":focus-within": `${color.bgNeutral} transparent`,
+        ":hover": `${color.input} transparent`,
+        ":focus-within": `${color.input} transparent`,
       },
     },
   },

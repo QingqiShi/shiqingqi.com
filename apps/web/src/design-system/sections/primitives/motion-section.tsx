@@ -197,15 +197,15 @@ const styles = stylex.create({
     inlineSize: "100%",
     paddingBlock: space._3,
     color: {
-      default: color.fgMuted,
+      default: color.mutedForeground,
       ":hover": {
         default: null,
-        [pointer.canHover]: color.fgOnAccent,
+        [pointer.canHover]: color.primaryForeground,
       },
     },
     backgroundColor: {
-      default: color.bgControl,
-      ":hover": { default: null, [pointer.canHover]: color.bgAccent },
+      default: color.card,
+      ":hover": { default: null, [pointer.canHover]: color.primary },
     },
   },
   dotRow: {
@@ -214,7 +214,7 @@ const styles = stylex.create({
   dot: {
     inlineSize: "12px",
     blockSize: "12px",
-    backgroundColor: color.bgAccent,
+    backgroundColor: color.primary,
   },
   dotDelay0: {
     animationDelay: "0ms",
@@ -232,12 +232,12 @@ const styles = stylex.create({
   skeletonBar: {
     blockSize: "12px",
     inlineSize: "100%",
-    backgroundColor: color.bgControlHover,
+    backgroundColor: color.accent,
   },
   skeletonBarShort: {
     blockSize: "12px",
     inlineSize: "60%",
-    backgroundColor: color.bgControlHover,
+    backgroundColor: color.accent,
   },
   // Pauses infinite animations for viewers who prefer reduced motion.
   reduceMotionPause: {

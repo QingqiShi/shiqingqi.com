@@ -116,7 +116,7 @@ const styles = stylex.create({
     minInlineSize: 0,
     color: {
       default: "inherit",
-      ":hover": { default: null, [pointer.canHover]: color.fg },
+      ":hover": { default: null, [pointer.canHover]: color.foreground },
     },
     cursor: "pointer",
   },
@@ -124,7 +124,7 @@ const styles = stylex.create({
     justifyContent: "flex-end",
   },
   headerButtonActive: {
-    color: color.fgAccent,
+    color: color.primaryText,
   },
   headerIcon: {
     display: "flex",

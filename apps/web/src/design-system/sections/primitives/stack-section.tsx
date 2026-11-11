@@ -143,7 +143,7 @@ export function StackSection() {
 const styles = stylex.create({
   bar: {
     blockSize: space._5,
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
 });

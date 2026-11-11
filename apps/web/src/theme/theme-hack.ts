@@ -9,7 +9,7 @@ const classNames = JSON.stringify({
 
 /**
  * The mobile browser-chrome tint: the colour at the top edge of the page,
- * `color.bgCanvas`. `gray` is a `defineConsts` palette, so these bake in as
+ * `color.background`. `gray` is a `defineConsts` palette, so these bake in as
  * literal hex in `themeHack`.
  */
 export const themeColors = { dark: gray._0, light: gray._97 };

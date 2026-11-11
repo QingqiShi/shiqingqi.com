@@ -75,7 +75,7 @@ export function MacsList({ macs }: { macs: readonly MacEntry[] }) {
   return (
     <div css={stack.item}>
       {failed ? (
-        <Callout intent="danger" role="alert">
+        <Callout intent="destructive" role="alert">
           {t({
             en: "That Mac was not removed. Try again.",
             zh: "这台 Mac 没有移除，请重试。",
@@ -157,7 +157,7 @@ export function MacsList({ macs }: { macs: readonly MacEntry[] }) {
             </div>
             <div css={cluster.tight}>
               <Button
-                look="danger"
+                look="destructive"
                 onClick={() => {
                   remove(confirming);
                   setIsConfirmOpen(false);

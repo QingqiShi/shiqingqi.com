@@ -136,10 +136,10 @@ const styles = stylex.create({
   },
   label: {
     fontWeight: font.weight_5,
-    color: color.fg,
+    color: color.foreground,
   },
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   control: {
     display: "flex",

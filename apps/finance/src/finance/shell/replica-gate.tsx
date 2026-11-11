@@ -102,7 +102,7 @@ export function ReplicaGate({ children }: { children: ReactNode }) {
             <span
               css={[
                 styles.icon,
-                offline || serverBehind ? styles.muted : styles.danger,
+                offline || serverBehind ? styles.muted : styles.destructive,
               ]}
             >
               {offline ? (
@@ -137,9 +137,9 @@ const styles = stylex.create({
     fontSize: controlSize._6,
   },
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
-  danger: {
-    color: color.fgDanger,
+  destructive: {
+    color: color.destructiveText,
   },
 });

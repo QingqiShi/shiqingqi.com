@@ -267,7 +267,7 @@ export function TransactionListRow({
 
 const styles = stylex.create({
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   actions: {
     paddingInlineStart: `calc(${listRowSizes.media_md} + ${rhythm.item} + ${listRowTokens.rowPaddingInline})`,
@@ -281,10 +281,10 @@ const styles = stylex.create({
     maxInlineSize: "12rem",
     paddingBlock: space._00,
     paddingInline: space._2,
-    color: color.fg,
+    color: color.foreground,
     backgroundColor: {
-      default: color.bgControl,
-      [pointer.canHover]: { default: null, ":hover": color.bgControlHover },
+      default: color.card,
+      [pointer.canHover]: { default: null, ":hover": color.accent },
     },
     borderWidth: 0,
   },

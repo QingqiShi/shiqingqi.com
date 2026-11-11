@@ -24,6 +24,6 @@ export function MediaOverviewCell({ api, row }: MediaCellParams) {
 
 const styles = stylex.create({
   overview: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

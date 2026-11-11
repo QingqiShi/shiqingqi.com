@@ -62,7 +62,7 @@ const styles = stylex.create({
     inset: "min(0px, calc(50% - 22px))",
     borderWidth: border.size_1,
     borderStyle: "dashed",
-    borderColor: color.borderControl,
+    borderColor: color.borderStrong,
     pointerEvents: "none",
   },
 });

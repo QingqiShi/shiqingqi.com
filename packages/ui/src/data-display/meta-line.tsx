@@ -97,7 +97,7 @@ const styles = stylex.create({
     flexShrink: 0,
     inlineSize: rhythm.tight,
     marginInlineEnd: rhythm.inline,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     textAlign: "center",
   },
 });

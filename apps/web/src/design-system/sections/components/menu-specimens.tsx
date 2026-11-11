@@ -176,8 +176,8 @@ export function MenuItemShowcase() {
     >
       <ShowcaseHelper>
         {t({
-          en: 'In a MenuButton menu, a MenuItem takes role="menuitem" and joins the arrow keys; in a Popover it stays a plain button. trailing adds muted text at the end of the row, and intent="danger" marks a command that destroys something.',
-          zh: '在 MenuButton 菜单中，MenuItem 会带上 role="menuitem" 并响应方向键；在 Popover 中它仍是普通按钮。trailing 在行尾加上弱化文字，intent="danger" 标记会销毁内容的命令。',
+          en: 'In a MenuButton menu, a MenuItem takes role="menuitem" and joins the arrow keys; in a Popover it stays a plain button. trailing adds muted text at the end of the row, and intent="destructive" marks a command that destroys something.',
+          zh: '在 MenuButton 菜单中，MenuItem 会带上 role="menuitem" 并响应方向键；在 Popover 中它仍是普通按钮。trailing 在行尾加上弱化文字，intent="destructive" 标记会销毁内容的命令。',
         })}
       </ShowcaseHelper>
       <Specimen caption="MenuItem">
@@ -188,7 +188,9 @@ export function MenuItemShowcase() {
           <MenuItem trailing={t({ en: "Mon 17 Nov", zh: "11月17日周一" })}>
             {t({ en: "Next week", zh: "下周" })}
           </MenuItem>
-          <MenuItem intent="danger">{t({ en: "Delete", zh: "删除" })}</MenuItem>
+          <MenuItem intent="destructive">
+            {t({ en: "Delete", zh: "删除" })}
+          </MenuItem>
         </div>
       </Specimen>
       <GuideNote>
@@ -241,11 +243,11 @@ const styles = stylex.create({
   keyName: {
     fontFamily: font.familyMono,
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
     overflowWrap: "anywhere",
   },
   keyEffect: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     minInlineSize: 0,
   },
   // A popup is out of flow, so each stage reserves the height of its own open
@@ -277,9 +279,9 @@ const styles = stylex.create({
   stateValue: {
     fontFamily: font.familyMono,
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
     paddingInline: space._1,
     paddingBlock: space._00,
-    backgroundColor: color.bgControl,
+    backgroundColor: color.card,
   },
 });

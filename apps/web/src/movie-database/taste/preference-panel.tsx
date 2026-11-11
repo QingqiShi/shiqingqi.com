@@ -113,7 +113,7 @@ const triggerStyles = stylex.create({
     width: "1.75rem",
     height: "1.75rem",
     fontSize: controlSize._4,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   dot: {
     position: "absolute",
@@ -121,7 +121,7 @@ const triggerStyles = stylex.create({
     right: "3px",
     width: "6px",
     height: "6px",
-    backgroundColor: color.bgAccent,
+    backgroundColor: color.primary,
   },
 });
 
@@ -390,6 +390,7 @@ function PreferenceChip({
           buttonReset.base,
           flex.inlineCenter,
           corner.radius_round,
+          quietSurface.interactive,
           styles.chipRemove,
         ]}
         onClick={onRemove}
@@ -412,13 +413,13 @@ const styles = stylex.create({
   },
   title: {
     margin: 0,
-    color: color.fg,
+    color: color.foreground,
   },
   closeButton: {
     width: "2rem",
     height: "2rem",
     fontSize: controlSize._4,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   infoBanner: {
     gap: rhythm.tight,
@@ -427,18 +428,18 @@ const styles = stylex.create({
     marginBottom: rhythm.item,
     paddingBlock: space._2,
     paddingInline: space._3,
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
     alignItems: "flex-start",
   },
   infoIcon: {
     flexShrink: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     position: "relative",
     top: "0.15rem",
   },
   infoText: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   body: {
     flex: 1,
@@ -451,13 +452,13 @@ const styles = stylex.create({
   },
   emptyText: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     textAlign: "center",
     maxInlineSize: measure.short,
   },
   categoryLabel: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   chip: {
     display: "inline-flex",
@@ -471,26 +472,26 @@ const styles = stylex.create({
     transition: `background-color ${duration._150} ${easing.ease}, border-color ${duration._150} ${easing.ease}`,
   },
   chipLike: {
-    borderColor: `color-mix(in srgb, ${color.borderAccent} 30%, transparent)`,
+    borderColor: `color-mix(in srgb, ${color.primary} 30%, transparent)`,
     backgroundColor: {
-      default: `color-mix(in srgb, ${color.bgAccent} 8%, transparent)`,
+      default: `color-mix(in srgb, ${color.primary} 8%, transparent)`,
       ":hover": {
         default: null,
-        [pointer.canHover]: `color-mix(in srgb, ${color.bgAccent} 14%, transparent)`,
+        [pointer.canHover]: `color-mix(in srgb, ${color.primary} 14%, transparent)`,
       },
     },
-    color: color.fg,
+    color: color.foreground,
   },
   chipDislike: {
-    borderColor: `color-mix(in srgb, ${color.borderDanger} 25%, transparent)`,
+    borderColor: `color-mix(in srgb, ${color.destructive} 25%, transparent)`,
     backgroundColor: {
-      default: `color-mix(in srgb, ${color.bgDanger} 6%, transparent)`,
+      default: `color-mix(in srgb, ${color.destructive} 6%, transparent)`,
       ":hover": {
         default: null,
-        [pointer.canHover]: `color-mix(in srgb, ${color.bgDanger} 12%, transparent)`,
+        [pointer.canHover]: `color-mix(in srgb, ${color.destructive} 12%, transparent)`,
       },
     },
-    color: color.fg,
+    color: color.foreground,
   },
   sentimentIcon: {
     flexShrink: 0,
@@ -504,17 +505,9 @@ const styles = stylex.create({
     width: "1.1rem",
     height: "1.1rem",
     fontSize: controlSize._3,
-    color: color.fgMuted,
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgNeutralSubtle,
-      },
-    },
+    color: color.mutedForeground,
     opacity: 0.5,
     transition: `opacity ${duration._150} ${easing.ease}, background-color ${duration._150} ${easing.ease}`,
-    cursor: "pointer",
   },
   footer: {
     paddingBlock: space._3,
@@ -526,8 +519,8 @@ const styles = stylex.create({
   clearButton: {
     gap: controlSize._2,
     color: {
-      default: color.fgMuted,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
+      default: color.mutedForeground,
+      ":hover": { default: null, [pointer.canHover]: color.foreground },
     },
     cursor: "pointer",
     transition: `color ${duration._150} ${easing.ease}`,
@@ -537,25 +530,25 @@ const styles = stylex.create({
   },
   confirmText: {
     margin: 0,
-    color: color.fg,
+    color: color.foreground,
   },
   confirmButton: {
     paddingBlock: space._0,
     paddingInline: space._3,
     backgroundColor: {
-      default: color.bgAccent,
+      default: color.primary,
       ":hover": {
         default: null,
-        [pointer.canHover]: color.bgAccentHover,
+        [pointer.canHover]: `color-mix(in srgb, ${color.primary} 90%, transparent)`,
       },
     },
-    color: color.fgOnAccent,
+    color: color.primaryForeground,
     cursor: "pointer",
     transition: `background-color ${duration._150} ${easing.ease}`,
   },
   cancelButton: {
     paddingBlock: space._0,
     paddingInline: space._3,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

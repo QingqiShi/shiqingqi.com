@@ -224,7 +224,7 @@ const styles = stylex.create({
     boxSizing: "border-box",
     blockSize: "100%",
     padding: space._5,
-    [selectedTokens.rest]: color.bgSurface,
+    [selectedTokens.rest]: color.card,
     transform: {
       default: null,
       ":active": {
@@ -241,7 +241,7 @@ const styles = stylex.create({
     position: "relative",
     display: "inline-flex",
     flexShrink: 0,
-    color: color.fg,
+    color: color.foreground,
   },
   fan: {
     position: "absolute",
@@ -251,7 +251,7 @@ const styles = stylex.create({
   light: {
     position: "absolute",
     inset: `calc(-1 * ${space._0})`,
-    color: color.bgAccent,
+    color: color.primary,
     pointerEvents: "none",
   },
 });

@@ -28,7 +28,7 @@ export const cardSurface = stylex.create({
     borderColor: color.border,
     borderRadius: border.radius_3,
     cornerShape: "squircle",
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
     boxShadow: shadow._1,
   },
   interactive: {
@@ -37,25 +37,25 @@ export const cardSurface = stylex.create({
       default: color.border,
       ":hover": {
         default: null,
-        [pointer.canHover]: color.borderAccent,
+        [pointer.canHover]: color.primary,
       },
     },
     backgroundColor: {
-      default: color.bgSurface,
+      default: color.card,
       ":hover": {
         default: null,
-        [pointer.canHover]: color.bgControlHover,
+        [pointer.canHover]: color.accent,
       },
       ":active": {
-        default: color.bgControlPressed,
-        [pointer.canHover]: color.bgControlPressed,
+        default: color.accent,
+        [pointer.canHover]: color.accent,
       },
     },
     outlineWidth: border.size_2,
     outlineStyle: "solid",
     outlineColor: {
       default: "transparent",
-      ":focus-visible": color.borderAccent,
+      ":focus-visible": color.ring,
     },
     outlineOffset: `calc(-1 * ${border.size_2})`,
     WebkitTapHighlightColor: "transparent",

@@ -43,6 +43,6 @@ const styles = stylex.create({
     marginInline: "auto",
   },
   brand: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

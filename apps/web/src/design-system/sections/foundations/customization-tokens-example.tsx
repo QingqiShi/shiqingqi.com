@@ -13,7 +13,7 @@ import { color } from "@tuja/ui/color.stylex";
 const styles = stylex.create({
   outside: { inlineSize: "50%" },
   inside: {
-    [progressTokens.indicatorColor]: color.fg,
+    [progressTokens.indicatorColor]: color.foreground,
   },
 });`;
 
@@ -36,6 +36,6 @@ export function CustomizationTokensExample() {
 const styles = stylex.create({
   outside: { inlineSize: "50%" },
   inside: {
-    [progressTokens.indicatorColor]: color.fg,
+    [progressTokens.indicatorColor]: color.foreground,
   },
 });

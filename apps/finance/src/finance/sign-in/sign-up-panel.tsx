@@ -73,7 +73,7 @@ export function SignUpPanel({ token, email }: SignUpPanelProps) {
         </Text>
       </div>
       {error === null ? null : (
-        <Callout intent="danger" role="alert">
+        <Callout intent="destructive" role="alert">
           {messageOf(error)}
         </Callout>
       )}

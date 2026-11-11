@@ -292,7 +292,7 @@ const styles = stylex.create({
     blockSize: "100%",
   },
   steps: {
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
   },
   step: {
     display: "flex",
@@ -311,8 +311,8 @@ const styles = stylex.create({
   },
   glyphTile: {
     fontSize: controlSize._5,
-    color: color.fg,
-    backgroundColor: color.bgSurface,
+    color: color.foreground,
+    backgroundColor: color.card,
     boxShadow: shadow._1,
   },
   stepText: {

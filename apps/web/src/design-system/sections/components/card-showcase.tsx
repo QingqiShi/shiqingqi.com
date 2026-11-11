@@ -67,9 +67,9 @@ export function CardShowcase() {
         </Specimen>
       </Showcase>
 
-      <Showcase label={t({ en: "Danger", zh: "危险" })}>
-        <Specimen caption='intent="danger"'>
-          <Card intent="danger" css={styles.fill}>
+      <Showcase label={t({ en: "Destructive", zh: "破坏性" })}>
+        <Specimen caption='intent="destructive"'>
+          <Card intent="destructive" css={styles.fill}>
             <CardHeader>
               <CardTitle>
                 {t({ en: "Delete this account", zh: "删除此账户" })}
@@ -82,7 +82,7 @@ export function CardShowcase() {
               </CardDescription>
             </CardHeader>
             <CardFooter>
-              <Button size="sm" look="danger">
+              <Button size="sm" look="destructive">
                 {t({ en: "Delete account", zh: "删除账户" })}
               </Button>
             </CardFooter>
@@ -90,8 +90,8 @@ export function CardShowcase() {
         </Specimen>
         <Text look="bodySmall" tone="muted">
           {t({
-            en: 'intent="danger" draws the edge in the danger colour, for a card of actions that cannot be undone. A colour alone does not say it, so the title says it too.',
-            zh: 'intent="danger" 以危险色绘制卡片边缘，用于包含无法撤销操作的卡片。颜色本身无法表达危险，因此标题也要说明。',
+            en: 'intent="destructive" draws the edge in the destructive colour, for a card of actions that cannot be undone. A colour alone does not say it, so the title says it too.',
+            zh: 'intent="destructive" 以 destructive 色绘制卡片边缘，用于包含无法撤销操作的卡片。颜色本身无法表达危险，因此标题也要说明。',
           })}
         </Text>
       </Showcase>
@@ -162,9 +162,9 @@ const styles = stylex.create({
     inlineSize: "100%",
   },
   title: {
-    color: color.fg,
+    color: color.foreground,
   },
   body: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

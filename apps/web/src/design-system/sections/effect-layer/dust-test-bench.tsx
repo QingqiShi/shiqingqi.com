@@ -118,7 +118,7 @@ export function DustTestBench() {
         <div css={styles.stage}>
           <Source
             testId="alone-source"
-            token="color.bgSurfaceRaised"
+            token="color.popover"
             css={styles.surface}
           />
         </div>
@@ -128,7 +128,7 @@ export function DustTestBench() {
         <div css={[styles.stage, styles.near]}>
           <Source
             testId="near-source"
-            token="color.bgAccent"
+            token="color.primary"
             css={styles.accent}
           />
           <Fan testId="near-fan" reach={NEAR_REACH} />
@@ -151,7 +151,7 @@ export function DustTestBench() {
         })}
       >
         <div css={[styles.stage, styles.near, styles.far]}>
-          <Source testId="far-source" token="color.bgInfo" css={styles.info} />
+          <Source testId="far-source" token="color.info" css={styles.info} />
           <Obstacle />
           <Fan testId="far-fan" reach={FAR_REACH} />
         </div>
@@ -203,8 +203,8 @@ const styles = stylex.create({
     padding: space._3,
   },
   surface: {
-    color: color.fg,
-    backgroundColor: color.bgSurfaceRaised,
+    color: color.foreground,
+    backgroundColor: color.popover,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
@@ -217,7 +217,7 @@ const styles = stylex.create({
   obstacle: {
     blockSize: space._8,
     paddingInline: space._4,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   name: {
     fontWeight: font.weight_6,
@@ -226,14 +226,14 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
   },
   accent: {
-    color: color.fgOnAccent,
-    backgroundColor: color.bgAccent,
+    color: color.primaryForeground,
+    backgroundColor: color.primary,
   },
   info: {
-    color: color.fgOnInfo,
-    backgroundColor: color.bgInfo,
+    color: color.infoForeground,
+    backgroundColor: color.info,
   },
   success: {
-    backgroundColor: color.bgSuccess,
+    backgroundColor: color.success,
   },
 });

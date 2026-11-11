@@ -277,7 +277,7 @@ const styles = stylex.create({
     [projectCardTokens.brand]: brand.tmdb,
   },
   designSystem: {
-    [projectCardTokens.brand]: color.bgAccent,
+    [projectCardTokens.brand]: color.primary,
   },
   calculator: {
     [projectCardTokens.brand]: brand.calculator,

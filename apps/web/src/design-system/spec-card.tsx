@@ -32,7 +32,7 @@ const styles = stylex.create({
     flexDirection: "column",
     paddingBlock: space._3,
     paddingInline: space._3,
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
   },
@@ -43,11 +43,11 @@ const styles = stylex.create({
   token: {
     display: "block",
     fontFamily: font.familyMono,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   meta: {
     display: "block",
     fontFamily: font.familyMono,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

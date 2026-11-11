@@ -71,15 +71,15 @@ const styles = stylex.create({
   },
   term: {
     margin: 0,
-    color: color.fg,
+    color: color.foreground,
     overflowWrap: "anywhere",
   },
   value: {
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
   },
   note: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     maxInlineSize: measure.prose,
   },
 });

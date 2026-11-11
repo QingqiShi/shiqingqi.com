@@ -5,7 +5,7 @@ import { border, space } from "@tuja/ui/tokens.stylex";
 /**
  * Gridline-via-gap: the ground the token specimens are laid out on.
  *
- * The element is a solid `bgCanvas` rectangle and every cell inside it is an
+ * The element is a solid `color.background` rectangle and every cell inside it is an
  * opaque fill, so the only place the ground shows through is the gaps between
  * cells — and that is what draws the hairline dividers. No cell needs a border,
  * shadow, or radius of its own.
@@ -23,7 +23,7 @@ import { border, space } from "@tuja/ui/tokens.stylex";
  * corners. An inset ring (`box-shadow`) draws in the same place but takes no
  * space, so it loses that correction — prefer this recipe over re-deriving it.
  *
- * Translucent cell fills composite over the `bgCanvas` ground, so dividers read
+ * Translucent cell fills composite over the `color.background` ground, so dividers read
  * softer next to them. A consumer whose cells are carved *into* a panel rather
  * than laid *on* the canvas overrides `backgroundColor` and keeps the rest.
  */
@@ -34,7 +34,7 @@ export const gridlineTokens = stylex.defineVars({
 
 export const gridlineGround = stylex.create({
   base: {
-    backgroundColor: color.bgCanvas,
+    backgroundColor: color.background,
     borderWidth: gridlineTokens.width,
     borderStyle: "solid",
     borderColor: color.border,

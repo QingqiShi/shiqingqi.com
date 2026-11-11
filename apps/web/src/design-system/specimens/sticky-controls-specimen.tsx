@@ -63,7 +63,7 @@ const styles = stylex.create({
   },
   control: {
     blockSize: space._2,
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
     boxShadow: `inset 0 0 0 ${border.size_1} ${color.border}`,
   },
   // A segmented track and a single icon button, the pair the movie database's

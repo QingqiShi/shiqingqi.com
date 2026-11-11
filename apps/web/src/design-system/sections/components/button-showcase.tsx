@@ -54,18 +54,18 @@ export function ButtonShowcase() {
           <Specimen caption="ghost">
             <Button look="ghost">{t({ en: "Ghost", zh: "无框" })}</Button>
           </Specimen>
-          <Specimen caption="danger">
-            <Button look="danger" icon={<TrashIcon weight="bold" />}>
+          <Specimen caption="destructive">
+            <Button look="destructive" icon={<TrashIcon weight="bold" />}>
               {t({ en: "Delete", zh: "删除" })}
             </Button>
           </Specimen>
-          <Specimen caption='outline + intent="danger"'>
-            <Button look="outline" intent="danger">
+          <Specimen caption='outline + intent="destructive"'>
+            <Button look="outline" intent="destructive">
               {t({ en: "Delete", zh: "删除" })}
             </Button>
           </Specimen>
-          <Specimen caption='ghost + intent="danger"'>
-            <Button look="ghost" intent="danger">
+          <Specimen caption='ghost + intent="destructive"'>
+            <Button look="ghost" intent="destructive">
               {t({ en: "Delete", zh: "删除" })}
             </Button>
           </Specimen>
@@ -471,7 +471,7 @@ export function ButtonShowcase() {
                 en: "An action that destroys something",
                 zh: "具有破坏性的操作",
               }),
-              value: 'look="danger"',
+              value: 'look="destructive"',
               note: t({
                 en: "Reserved for what cannot be undone — deleting, discarding, revoking.",
                 zh: "只留给无法撤销的操作——删除、丢弃、撤回。",
@@ -482,10 +482,10 @@ export function ButtonShowcase() {
                 en: "A destructive action among others, such as Delete in a bar",
                 zh: "与其他操作并列的破坏性操作，例如操作栏中的“删除”",
               }),
-              value: 'intent="danger"',
+              value: 'intent="destructive"',
               note: t({
-                en: "On an outline or ghost button. The label turns danger and the button keeps the weight of its neighbours.",
-                zh: "用于 outline 或 ghost 按钮。标签变为危险色，按钮与相邻按钮保持同样的分量。",
+                en: "On an outline or ghost button. The label turns destructive and the button keeps the weight of its neighbours.",
+                zh: "用于 outline 或 ghost 按钮。标签变为 destructive 色，按钮与相邻按钮保持同样的分量。",
               }),
             },
           ]}

@@ -156,11 +156,11 @@ const styles = stylex.create({
     [tableTokens.cellAlignBlock]: "top",
     inlineSize: "100%",
     borderCollapse: "collapse",
-    color: color.fg,
+    color: color.foreground,
   },
   stickyHead: {
     [tableTokens.headInset]: "0px",
-    [tableTokens.headBackground]: color.bgSurface,
+    [tableTokens.headBackground]: color.card,
   },
   middle: {
     [tableTokens.cellAlignBlock]: "middle",
@@ -168,6 +168,6 @@ const styles = stylex.create({
   caption: {
     paddingBlockEnd: space._2,
     textAlign: "start",
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

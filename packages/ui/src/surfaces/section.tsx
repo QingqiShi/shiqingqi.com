@@ -160,7 +160,7 @@ const styles = stylex.create({
     flexShrink: 0,
     inlineSize: "1em",
     blockSize: "1lh",
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // The description makes the text two lines, so the icon and the actions
   // align with the label at the top.

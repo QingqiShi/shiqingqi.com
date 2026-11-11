@@ -10,10 +10,10 @@ import {
   border,
   controlHeight,
   controlSize,
+  shadow,
   font,
   opacity,
 } from "../tokens.stylex.ts";
-import { selectedSurface } from "./segment-track.stylex.ts";
 
 /**
  * The state of a Slider's motion, which its motion engine writes on the
@@ -105,13 +105,13 @@ export const sliderStyles = stylex.create({
     padding: controlSize._0,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.borderControlSunken,
-    backgroundColor: color.bgControlSunken,
+    borderColor: "transparent",
+    backgroundColor: color.secondary,
     overflow: "clip",
     fontWeight: font.weight_5,
   },
   grooveInvalid: {
-    borderColor: color.borderDanger,
+    borderColor: color.destructive,
   },
   inner: {
     position: "relative",
@@ -125,7 +125,7 @@ export const sliderStyles = stylex.create({
     inlineSize: border.size_1,
     blockSize: `calc(${MIN_EDGE} * 0.26)`,
     translate: "-50% -50%",
-    backgroundColor: color.fgMuted,
+    backgroundColor: color.mutedForeground,
     opacity: 0.22,
   },
   text: {
@@ -147,7 +147,7 @@ export const sliderStyles = stylex.create({
     alignItems: "center",
   },
   grooveText: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   // The snapshot of the groove holds the value at the end of the groove, so
   // the liquid can bend it. The page shows the copy that moves instead.
@@ -190,8 +190,8 @@ export const sliderStyles = stylex.create({
     inset: 0,
     [cornerTokens.height]: MIN_EDGE,
     overflow: "clip",
-    backgroundColor: color.bgControlRaised,
-    boxShadow: selectedSurface.edge,
+    backgroundColor: color.card,
+    boxShadow: shadow._1,
     translate: `calc((${sliderVars.fraction} - 1) * ${TRAVEL})`,
     clipPath: `polygon(${CAP_END} -1em, calc(100% + 1em) -1em, calc(100% + 1em) calc(100% + 1em), ${CAP_END} calc(100% + 1em), ${CAP_END} calc(100% - 1px), calc(${CAP_END} - 1px) calc(100% - 1px), calc(${CAP_END} - 1px) 1px, ${CAP_END} 1px)`,
   },
@@ -202,8 +202,8 @@ export const sliderStyles = stylex.create({
     insetInlineStart: 0,
     inlineSize: MIN_EDGE,
     [cornerTokens.height]: MIN_EDGE,
-    backgroundColor: color.bgControlRaised,
-    boxShadow: selectedSurface.edge,
+    backgroundColor: color.card,
+    boxShadow: shadow._1,
     clipPath: "inset(-1em 50% -1em -1em)",
   },
   labelRow: {
@@ -230,7 +230,7 @@ export const sliderStyles = stylex.create({
     translate: `calc((1 - ${sliderVars.fraction}) * ${TRAVEL})`,
   },
   panelText: {
-    color: color.fg,
+    color: color.foreground,
   },
   handle: {
     position: "absolute",
@@ -244,8 +244,8 @@ export const sliderStyles = stylex.create({
     inlineSize: sliderVars.handleWidth,
     blockSize: `calc(${HANDLE_LENGTH} / 2 + ${HALF_HANDLE})`,
     backgroundColor: {
-      default: color.fgMuted,
-      [stylex.when.ancestor(":active", sliderMarker)]: color.fg,
+      default: color.mutedForeground,
+      [stylex.when.ancestor(":active", sliderMarker)]: color.foreground,
     },
     transition: {
       default: `background-color ${duration._150} ${easing.ease}`,
@@ -265,7 +265,7 @@ export const sliderStyles = stylex.create({
     scale: `1 ${sliderVars.bottomScale}`,
   },
   pieceInvalid: {
-    backgroundColor: color.fgDanger,
+    backgroundColor: color.destructiveText,
   },
   // The input carries the keyboard, the focus ring and the value for a
   // screen reader. A pointer goes to the control, so the input draws
@@ -300,12 +300,12 @@ export const sliderStyles = stylex.create({
       opacity: 0,
     },
   },
-  // Composed after `a11y.focusRing`, so the danger ring wins — matching the
+  // Composed after `a11y.focusRing`, so the destructive ring wins — matching the
   // invalid treatment on the other fields.
   inputInvalid: {
     outlineColor: {
       default: "transparent",
-      ":focus-visible": color.borderDanger,
+      ":focus-visible": color.destructive,
     },
   },
 });

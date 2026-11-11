@@ -173,13 +173,13 @@ const styles = stylex.create({
   usageWarning: {
     margin: 0,
     textAlign: "center",
-    color: color.fgMuted,
+    color: color.mutedForeground,
     paddingBlock: space._1,
   },
   errorMessage: {
     margin: 0,
     textAlign: "center",
-    color: color.fgMuted,
+    color: color.mutedForeground,
     fontStyle: "italic",
     paddingBlock: space._2,
   },

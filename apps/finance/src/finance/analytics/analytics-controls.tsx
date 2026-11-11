@@ -157,8 +157,8 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   rangeChip: {
-    [selectedTokens.rest]: color.bgSurface,
-    color: color.fg,
+    [selectedTokens.rest]: color.card,
+    color: color.foreground,
   },
   segments: {
     display: "grid",

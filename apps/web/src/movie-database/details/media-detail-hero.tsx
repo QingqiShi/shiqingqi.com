@@ -91,7 +91,7 @@ const styles = stylex.create({
     margin: 0,
   },
   meta: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     margin: 0,
   },
   description: {
@@ -101,7 +101,7 @@ const styles = stylex.create({
   ratingContainer: {
     width: space._10,
     height: space._10,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
     borderWidth: space._0,
     borderColor: color.border,
     borderStyle: "solid",
@@ -111,7 +111,7 @@ const styles = stylex.create({
     justifyContent: "center",
   },
   count: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   trailerButtonSkeleton: {
     [skeletonTokens.height]: controlHeight.md,

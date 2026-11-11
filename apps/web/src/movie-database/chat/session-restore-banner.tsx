@@ -83,11 +83,11 @@ export function SessionRestoreBanner({
 const styles = stylex.create({
   text: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     flex: 1,
   },
   errorText: {
-    color: color.fg,
+    color: color.foreground,
   },
   actions: {
     gap: rhythm.tight,
@@ -99,9 +99,9 @@ const styles = stylex.create({
     paddingInline: space._3,
     backgroundColor: "transparent",
     color: {
-      default: color.fgMuted,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
-      ":disabled": color.fgMuted,
+      default: color.mutedForeground,
+      ":hover": { default: null, [pointer.canHover]: color.foreground },
+      ":disabled": color.mutedForeground,
     },
     cursor: {
       default: "pointer",
@@ -113,14 +113,14 @@ const styles = stylex.create({
     paddingBlock: space._1,
     paddingInline: space._3,
     backgroundColor: {
-      default: color.bgAccent,
+      default: color.primary,
       ":hover": {
         default: null,
-        [pointer.canHover]: color.bgAccentHover,
+        [pointer.canHover]: `color-mix(in srgb, ${color.primary} 90%, transparent)`,
       },
-      ":disabled": color.bgAccent,
+      ":disabled": color.primary,
     },
-    color: color.fgOnAccent,
+    color: color.primaryForeground,
     cursor: {
       default: "pointer",
       ":disabled": "not-allowed",

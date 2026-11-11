@@ -152,8 +152,8 @@ export function SliderShowcase() {
       >
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "Slider carries the same field contract as TextField and Checkbox. label is required and lands on the input itself; labelHidden keeps it in the accessibility tree when a nearby cue already names the control; description is wired through aria-describedby; error turns the groove's edge and the handle danger-coloured, sets aria-invalid, and announces itself. Drag the deposit to 5% or above to clear its error.",
-            zh: "滑块与文本框、复选框共用同一套字段契约。label 必填，直接落在 input 上；当附近已有提示为控件命名时，labelHidden 会把它保留在无障碍树中；description 通过 aria-describedby 关联；error 会把凹槽边缘和把手变为危险色、设置 aria-invalid 并主动播报。把首付比例拖到 5% 或以上即可清除错误。",
+            en: "Slider carries the same field contract as TextField and Checkbox. label is required and lands on the input itself; labelHidden keeps it in the accessibility tree when a nearby cue already names the control; description is wired through aria-describedby; error turns the groove's edge and the handle destructive, sets aria-invalid, and announces itself. Drag the deposit to 5% or above to clear its error.",
+            zh: "滑块与文本框、复选框共用同一套字段契约。label 必填，直接落在 input 上；当附近已有提示为控件命名时，labelHidden 会把它保留在无障碍树中；description 通过 aria-describedby 关联；error 会把凹槽边缘和把手变为 destructive 色、设置 aria-invalid 并主动播报。把首付比例拖到 5% 或以上即可清除错误。",
           })}
         </Text>
         <div css={styles.column}>
@@ -230,16 +230,16 @@ const styles = stylex.create({
   key: {
     fontFamily: font.familyMono,
     fontWeight: font.weight_6,
-    color: color.fg,
+    color: color.foreground,
     paddingInline: space._1,
     paddingBlock: space._00,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgControl,
+    backgroundColor: color.card,
   },
   keyEffect: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

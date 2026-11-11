@@ -60,14 +60,14 @@ const styles = stylex.create({
     gap: rhythm.tight,
   },
   meter: {
-    [progressTokens.indicatorColor]: color.fg,
+    [progressTokens.indicatorColor]: color.foreground,
   },
   caption: {
     gap: rhythm.tight,
     flexWrap: "wrap",
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   available: {
-    color: color.fg,
+    color: color.foreground,
   },
 });

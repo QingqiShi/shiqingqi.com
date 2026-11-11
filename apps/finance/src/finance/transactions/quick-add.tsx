@@ -314,7 +314,7 @@ export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
 const styles = stylex.create({
   footer: {
     gap: rhythm.inline,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   key: {
     fontFamily: "inherit",

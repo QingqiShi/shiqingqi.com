@@ -48,7 +48,7 @@ function SettingsCard({
 }: {
   title: string;
   description: string;
-  intent?: "danger";
+  intent?: "destructive";
   children: ReactNode;
 }) {
   return (
@@ -108,14 +108,14 @@ function MailboxesCard() {
           leadingShape="square"
           detail="q.shi@example.org"
           extra={
-            <Badge intent="danger" size="sm">
+            <Badge intent="destructive" size="sm">
               {t({ en: "Broken", zh: "已断开" })}
             </Badge>
           }
           actions={<RemoveButton address="q.shi@example.org" />}
           below={
             <Callout
-              intent="danger"
+              intent="destructive"
               title={t({
                 en: "Sign-in expired on 7 Nov",
                 zh: "登录已于11月7日过期",
@@ -337,7 +337,7 @@ function DangerCard() {
         en: "These actions cannot be undone.",
         zh: "这些操作无法撤销。",
       })}
-      intent="danger"
+      intent="destructive"
     >
       <SettingRow
         label={t({ en: "Delete all assistant data", zh: "删除助理的全部数据" })}
@@ -346,7 +346,11 @@ function DangerCard() {
           zh: "会删除待办、报告和动态，不会动你的邮件。",
         })}
         control={
-          <Button look="danger" size="sm" icon={<TrashIcon weight="bold" />}>
+          <Button
+            look="destructive"
+            size="sm"
+            icon={<TrashIcon weight="bold" />}
+          >
             {t({ en: "Delete all data", zh: "删除全部数据" })}
           </Button>
         }

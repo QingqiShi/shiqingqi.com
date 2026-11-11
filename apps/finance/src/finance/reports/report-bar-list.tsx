@@ -86,7 +86,7 @@ const styles = stylex.create({
     position: "absolute",
     insetBlock: `calc(-1 * ${space._0})`,
     inlineSize: "1px",
-    backgroundColor: color.fgMuted,
+    backgroundColor: color.mutedForeground,
   },
   at: (offset: string) => ({
     insetInlineStart: offset,

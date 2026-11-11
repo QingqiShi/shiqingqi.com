@@ -131,13 +131,13 @@ const styles = stylex.create({
   },
   propName: {
     fontFamily: font.familyMono,
-    color: color.fg,
+    color: color.foreground,
     minInlineSize: 0,
   },
   value: {
     marginInlineStart: "auto",
     fontFamily: font.familyMono,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
@@ -145,6 +145,6 @@ const styles = stylex.create({
   caret: {
     display: "flex",
     flexShrink: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

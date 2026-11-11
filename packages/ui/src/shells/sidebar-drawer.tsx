@@ -262,7 +262,7 @@ const styles = stylex.create({
     position: "fixed",
     inset: 0,
     zIndex: layer.overlay,
-    backgroundColor: color.bgScrim,
+    backgroundColor: color.overlay,
     opacity: 0,
     visibility: "hidden",
     pointerEvents: "none",
@@ -291,7 +291,7 @@ const styles = stylex.create({
     },
     zIndex: { default: layer.overlay, [BESIDE]: "auto" },
     backgroundColor: {
-      default: color.bgSurface,
+      default: color.card,
       [BESIDE]: islandTokens.fill,
     },
     borderStartStartRadius: {
@@ -374,8 +374,8 @@ const styles = stylex.create({
   close: {
     display: { default: "inline-flex", [BESIDE]: "none" },
     [buttonTokens.color]: {
-      default: color.fgMuted,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
+      default: color.mutedForeground,
+      ":hover": { default: null, [pointer.canHover]: color.foreground },
     },
   },
   // The controls of the footer show a box at rest, so they stay on the box edge.

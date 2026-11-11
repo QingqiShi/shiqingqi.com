@@ -28,8 +28,8 @@ export function ColorStartShowcase() {
       </Example>
       <GuideNote>
         {t({
-          en: "Only a primary, danger or isActive Button fills with colour.",
-          zh: "只有 primary、danger 或 isActive 的 Button 才用颜色填充。",
+          en: "Only a primary, destructive or isActive Button fills with colour.",
+          zh: "只有 primary、destructive 或 isActive 的 Button 才用颜色填充。",
         })}
       </GuideNote>
       <GuideNote>

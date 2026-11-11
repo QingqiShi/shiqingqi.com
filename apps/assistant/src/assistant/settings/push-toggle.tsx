@@ -170,7 +170,7 @@ export function PushToggle({ publicKey }: { publicKey: string | null }) {
         }}
       />
       {state === "failed" ? (
-        <Callout intent="danger" role="alert">
+        <Callout intent="destructive" role="alert">
           {t({
             en: "That did not work. Try again.",
             zh: "没有成功，请重试。",

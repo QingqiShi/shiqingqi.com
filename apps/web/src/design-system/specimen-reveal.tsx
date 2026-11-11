@@ -148,13 +148,13 @@ const styles = stylex.create({
     paddingBlock: space._00,
     fontWeight: font.weight_6,
     color: {
-      default: color.fgMuted,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
+      default: color.mutedForeground,
+      ":hover": { default: null, [pointer.canHover]: color.foreground },
     },
   },
   caret: {
     display: "inline-flex",
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   caretUp: {
     transform: "rotate(180deg)",
@@ -167,7 +167,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
     minInlineSize: 0,
   },
   code: {

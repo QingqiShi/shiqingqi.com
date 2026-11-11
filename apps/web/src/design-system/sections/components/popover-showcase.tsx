@@ -185,7 +185,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
   },
   railTrack: {
     display: "flex",
@@ -200,6 +200,6 @@ const styles = stylex.create({
     margin: 0,
     maxInlineSize: measure.prose,
     paddingInlineStart: space._4,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

@@ -34,6 +34,6 @@ export function MenuLabel({ children, css, ...props }: MenuLabelProps) {
 const styles = stylex.create({
   label: {
     paddingBlockEnd: controlSize._2,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

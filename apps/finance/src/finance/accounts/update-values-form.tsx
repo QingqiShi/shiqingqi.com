@@ -458,7 +458,7 @@ const styles = stylex.create({
     whiteSpace: "nowrap",
   },
   fieldFacts: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
@@ -470,10 +470,10 @@ const styles = stylex.create({
   change: {
     gridArea: "change",
     minInlineSize: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   large: {
-    color: color.fgWarning,
+    color: color.warningText,
     fontWeight: font.weight_6,
   },
   remove: {

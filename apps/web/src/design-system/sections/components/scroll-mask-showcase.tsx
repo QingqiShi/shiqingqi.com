@@ -255,7 +255,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   regionContent: {
     padding: space._5,
@@ -265,7 +265,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   rowContent: {
     display: "flex",
@@ -282,7 +282,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
   },
   // The ScrollMask root is the frame here rather than sitting inside one: a
   // clipping squircle above the bands is what flattens them. The root lays out
@@ -295,7 +295,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   // No border and no background: the bar sits directly on the blurred
   // content, and the blur is what separates it from the region.

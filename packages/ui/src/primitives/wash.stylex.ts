@@ -3,7 +3,7 @@ import { color } from "../color.stylex.ts";
 
 /** The tone that drifts across the surface. */
 export const washTokens = stylex.defineVars({
-  tone: color.bgNeutralSubtle,
+  tone: color.muted,
 });
 
 // A Wash is a broad gradient that gives a surface some volume: one tone

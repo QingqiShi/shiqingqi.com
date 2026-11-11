@@ -43,7 +43,7 @@ const styles = stylex.create({
     pointerEvents: "none",
     // The wash is `currentColor`, so that a transition of `color` fades it
     // from one mood to the next.
-    backgroundImage: `radial-gradient(circle, ${color.bgNeutral} 1px, transparent 1px), radial-gradient(ellipse at 80% 20%, currentColor 0%, transparent 70%)`,
+    backgroundImage: `radial-gradient(circle, ${color.input} 1px, transparent 1px), radial-gradient(ellipse at 80% 20%, currentColor 0%, transparent 70%)`,
     backgroundSize: "24px 24px, 100% 100%",
     backgroundRepeat: "repeat, no-repeat",
     opacity: 0.12,

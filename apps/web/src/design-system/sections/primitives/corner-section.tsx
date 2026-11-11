@@ -80,8 +80,8 @@ const styles = stylex.create({
   cornerCard: {
     inlineSize: "100%",
     blockSize: "72px",
-    backgroundColor: color.bgAccentSubtle,
-    boxShadow: `inset 0 0 0 1px ${color.borderAccent}`,
+    backgroundColor: color.primarySubtle,
+    boxShadow: `inset 0 0 0 1px ${color.primary}`,
   },
   cornerPill: {
     display: "inline-flex",
@@ -89,8 +89,8 @@ const styles = stylex.create({
     paddingBlock: space._1,
     paddingInline: space._4,
     fontWeight: font.weight_6,
-    color: color.fgAccent,
-    backgroundColor: color.bgAccentSubtle,
+    color: color.primaryText,
+    backgroundColor: color.primarySubtle,
   },
   // corner.squircle_round closes at half of cornerTokens.height, so this sets
   // it to the box's own height — skip it and the NO_CORNER_SHAPE fallback
@@ -99,7 +99,7 @@ const styles = stylex.create({
     [cornerTokens.height]: controlHeight.md,
     inlineSize: "120px",
     blockSize: cornerTokens.height,
-    backgroundColor: color.bgAccentSubtle,
-    boxShadow: `inset 0 0 0 1px ${color.borderAccent}`,
+    backgroundColor: color.primarySubtle,
+    boxShadow: `inset 0 0 0 1px ${color.primary}`,
   },
 });

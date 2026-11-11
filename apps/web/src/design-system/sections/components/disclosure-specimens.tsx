@@ -70,8 +70,8 @@ const styles = stylex.create({
   },
   link: {
     color: {
-      default: color.fg,
-      ":hover": { default: null, [pointer.canHover]: color.fgMuted },
+      default: color.foreground,
+      ":hover": { default: null, [pointer.canHover]: color.mutedForeground },
     },
     textUnderlineOffset: "0.25em",
   },

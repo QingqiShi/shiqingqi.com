@@ -20,7 +20,7 @@ export function CompactionNotice() {
 const styles = stylex.create({
   notice: {
     margin: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     fontStyle: "italic",
     paddingBlock: space._1,
   },

@@ -56,13 +56,13 @@ const styles = stylex.create({
     maxInlineSize: "8rem",
     paddingBlock: space._00,
     paddingInline: space._1,
-    backgroundColor: color.bgAccentSubtle,
-    color: color.fgAccent,
+    backgroundColor: color.primarySubtle,
+    color: color.primaryText,
     fontWeight: font.weight_6,
     whiteSpace: "nowrap",
   },
   chipMore: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     fontWeight: font.weight_6,
   },
 });

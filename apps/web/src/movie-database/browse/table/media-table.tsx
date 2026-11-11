@@ -350,14 +350,14 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
     boxShadow: shadow._3,
   },
   empty: {
     marginBlock: 0,
     paddingBlock: space._8,
     paddingInline: space._3,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     textAlign: "center",
   },
 });

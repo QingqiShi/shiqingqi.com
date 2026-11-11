@@ -153,7 +153,7 @@ const slideUp = stylex.keyframes({
 
 const styles = stylex.create({
   backdrop: {
-    backgroundColor: color.bgScrim,
+    backgroundColor: color.overlay,
     zIndex: layer.overlay,
     pointerEvents: "all",
     animationName: fadeIn,
@@ -177,7 +177,7 @@ const styles = stylex.create({
   card: {
     position: "relative",
     width: "100%",
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
     pointerEvents: "all",
     animationName: {
       default: slideUp,
@@ -221,8 +221,8 @@ const styles = stylex.create({
     // the composed `transition.colors`).
     backgroundColor: {
       default: "rgba(0, 0, 0, 0.5)",
-      ":hover": { default: null, [pointer.canHover]: color.bgScrim },
+      ":hover": { default: null, [pointer.canHover]: color.overlay },
     },
-    color: color.fgOnScrim,
+    color: color.overlayForeground,
   },
 });

@@ -77,8 +77,8 @@ const styles = stylex.create({
     borderWidth: 0,
     appearance: "unset",
     textTransform: "uppercase",
-    [buttonTokens.backgroundColor]: color.bgControl,
-    [buttonTokens.backgroundColorHover]: color.bgControlHover,
+    [buttonTokens.backgroundColor]: color.card,
+    [buttonTokens.backgroundColorHover]: color.accent,
     filter: {
       ":hover": {
         default: null,

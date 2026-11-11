@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { gray } from "../_generated/palette/hues/gray.stylex.ts";
 import { breakpoints, pointer } from "../breakpoints.stylex.ts";
 import { color } from "../color.stylex.ts";
 import { cornerTokens } from "../primitives/corner.stylex.ts";
@@ -112,13 +113,13 @@ export const sharedStyles = stylex.create({
     display: { default: "none", [breakpoints.md]: "inline-flex" },
   },
   active: {
-    [buttonTokens.color]: color.fgOnAccent,
+    [buttonTokens.color]: color.primaryForeground,
     backgroundColor: {
-      default: color.bgAccent,
+      default: color.primary,
       [pointer.canHover]: {
         default: null,
-        ":hover": color.bgAccentHover,
-        ":disabled:hover": color.bgAccent,
+        ":hover": `color-mix(in srgb, ${color.primary} 90%, transparent)`,
+        ":disabled:hover": color.primary,
       },
     },
   },
@@ -156,8 +157,9 @@ export const lookStyles = stylex.create({
     [buttonTokens.boxShadow]: "none",
   },
   bright: {
-    backgroundColor: color.bgControlBright,
-    [buttonTokens.color]: color.fgOnControlBright,
+    // A bright button stays light in both themes.
+    backgroundColor: `light-dark(${gray._100}, ${gray._80})`,
+    [buttonTokens.color]: `light-dark(${gray._20}, ${gray._0})`,
     filter: {
       default: "brightness(1)",
       ":hover": {
@@ -170,23 +172,23 @@ export const lookStyles = stylex.create({
   // pointer arrives. `:disabled:hover` keeps it drained, matching the fill.
   ghost: {
     [buttonTokens.backgroundColor]: "transparent",
-    [buttonTokens.backgroundColorHover]: color.bgControlHover,
+    [buttonTokens.backgroundColorHover]: color.accent,
     [buttonTokens.backgroundColorDisabledHover]: "transparent",
     [buttonTokens.boxShadow]: "none",
     [buttonTokens.color]: {
-      default: color.fg,
+      default: color.foreground,
       [pointer.canHover]: {
-        default: color.fgMuted,
-        ":hover": color.fg,
-        ":disabled:hover": color.fgMuted,
+        default: color.mutedForeground,
+        ":hover": color.foreground,
+        ":disabled:hover": color.mutedForeground,
       },
     },
   },
-  danger: {
-    [buttonTokens.backgroundColor]: color.bgDanger,
-    [buttonTokens.backgroundColorHover]: color.bgDangerHover,
-    [buttonTokens.backgroundColorDisabledHover]: color.bgDanger,
-    [buttonTokens.color]: color.fgOnDanger,
+  destructive: {
+    [buttonTokens.backgroundColor]: color.destructive,
+    [buttonTokens.backgroundColorHover]: `color-mix(in srgb, ${color.destructive} 90%, transparent)`,
+    [buttonTokens.backgroundColorDisabledHover]: color.destructive,
+    [buttonTokens.color]: color.destructiveForeground,
   },
 });
 
@@ -211,22 +213,22 @@ export const glyphBelowMdTokenStyles = stylex.create({
   lg: { [buttonTokens.glyph]: controlSize._5 },
 });
 
-// A secondary destructive action. The label turns danger and the hover fill
-// is a danger tint, while the edge of `outline` stays neutral, so the button
-// keeps the weight of the buttons beside it. `look="danger"` is the filled
+// A secondary destructive action. The label turns destructive and the hover fill
+// is a destructive tint, while the edge of `outline` stays neutral, so the button
+// keeps the weight of the buttons beside it. `look="destructive"` is the filled
 // form, for the one action that destroys.
 export const dangerIntentStyles = stylex.create({
   ghost: {
-    [buttonTokens.color]: color.fgDanger,
-    [buttonTokens.backgroundColorHover]: color.bgDangerSubtle,
+    [buttonTokens.color]: color.destructiveText,
+    [buttonTokens.backgroundColorHover]: color.destructiveSubtle,
   },
   outline: {
-    [buttonTokens.color]: color.fgDanger,
+    [buttonTokens.color]: color.destructiveText,
     backgroundColor: {
       default: "transparent",
       [pointer.canHover]: {
         default: null,
-        ":hover": color.bgDangerSubtle,
+        ":hover": color.destructiveSubtle,
         ":disabled:hover": "transparent",
       },
     },

@@ -29,7 +29,7 @@ const DIM = {
   columns: { light: 0.07, dark: 0.21 },
   stacked: { light: 0.1, dark: 0.5 },
 } as const;
-/** The opacity of `color.bgScrim`, which the dim layer paints. */
+/** The opacity of `color.overlay`, which the dim layer paints. */
 const SCRIM_OPACITY = 0.7;
 
 /** Whether `fill`, a fill from `opaqueFillOf`, is dark. */

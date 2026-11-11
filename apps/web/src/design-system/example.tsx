@@ -55,7 +55,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.card,
   },
   preview: {
     flexWrap: "wrap",
@@ -80,7 +80,7 @@ const styles = stylex.create({
     borderEndStartRadius: `calc(${border.radius_3} - ${border.size_1})`,
     borderEndEndRadius: `calc(${border.radius_3} - ${border.size_1})`,
     cornerShape: "squircle",
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.muted,
   },
   codeInset: {
     paddingBlock: space._4,

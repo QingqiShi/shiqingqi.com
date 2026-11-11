@@ -222,7 +222,7 @@ const styles = stylex.create({
     paddingBlockStart: rhythm.tight,
   },
   count: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     marginInlineStart: rhythm.inline,
   },
 });

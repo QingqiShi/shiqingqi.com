@@ -312,7 +312,7 @@ export function MembersSettings() {
             : t({ en: "Rename member", zh: "重命名成员" })
         }
         initialFocusRef={nameRef}
-        danger={
+        destructive={
           removable
             ? {
                 label: t({ en: "Remove", zh: "移除" }),

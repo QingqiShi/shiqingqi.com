@@ -58,13 +58,13 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   name: {
-    color: color.fg,
+    color: color.foreground,
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
   },
   household: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",

@@ -27,10 +27,10 @@ interface FilterChipsOption<TValue extends string> {
    */
   count?: number;
   /**
-   * The colour of `count`. `"danger"` says the items need attention, such
+   * The colour of `count`. `"destructive"` says the items need attention, such
    * as problems; `"neutral"`, the default, is a plain tally.
    */
-  countIntent?: "neutral" | "danger";
+  countIntent?: "neutral" | "destructive";
   /**
    * Replaces the label and the count as the chip's accessible name when
    * they do not say enough. Start it with the visible text (WCAG 2.5.3).
@@ -202,7 +202,7 @@ export function FilterChips<TValue extends string>({
 }
 
 const styles = stylex.create({
-  // The selected chip has the accent fill, on which the colours of a badge
+  // The selected chip has the primary fill, on which the colours of a badge
   // are not legible. Thus the count takes the colour of the chip's text.
   selectedCount: {
     color: "inherit",

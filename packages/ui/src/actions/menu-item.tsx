@@ -43,12 +43,12 @@ interface MenuItemBaseProps {
    */
   current?: boolean;
   /**
-   * `"danger"` marks an action that destroys something: the label and the
-   * hover fill turn danger, as on a `ghost` `Button` with `intent="danger"`.
+   * `"destructive"` marks an action that destroys something: the label and the
+   * hover fill turn destructive, as on a `ghost` `Button` with `intent="destructive"`.
    *
-   * @zh `"danger"` 标记会销毁内容的操作：标签和悬停填充变为危险色，与 `intent="danger"` 的 `ghost` `Button` 一致。
+   * @zh `"destructive"` 标记会销毁内容的操作：标签和悬停填充变为危险色，与 `intent="destructive"` 的 `ghost` `Button` 一致。
    */
-  intent?: "danger";
+  intent?: "destructive";
   /**
    * Row height. `"md"` matches a `md` control; `"sm"` is for a long menu of
    * many commands. Under a coarse pointer each row is at least 44px tall.
@@ -132,7 +132,7 @@ function itemCss({
   intent,
   size,
 }: {
-  intent: "danger" | undefined;
+  intent: "destructive" | undefined;
   size: "sm" | "md";
 }) {
   return [
@@ -142,7 +142,7 @@ function itemCss({
     quietSurface.interactive,
     styles.item,
     sizes[size],
-    intent === "danger" && styles.danger,
+    intent === "destructive" && styles.destructive,
   ];
 }
 
@@ -172,23 +172,23 @@ const styles = stylex.create({
     boxSizing: "border-box",
     inlineSize: "100%",
     paddingInline: controlSize._3,
-    color: color.fg,
+    color: color.foreground,
     textAlign: "start",
     opacity: { default: null, ":disabled": opacity.disabled },
   },
-  // It replaces the neutral fill of `quietSurface.interactive`. A danger item
+  // It replaces the neutral fill of `quietSurface.interactive`. A destructive item
   // is never the current one, so the selected states are not repeated.
-  danger: {
-    color: color.fgDanger,
+  destructive: {
+    color: color.destructiveText,
     backgroundColor: {
       default: selectedTokens.rest,
       [pointer.canHover]: {
         default: null,
-        ":hover": color.bgDangerSubtle,
-        ":active": color.bgDangerSubtle,
+        ":hover": color.destructiveSubtle,
+        ":active": color.destructiveSubtle,
         ":disabled:hover": selectedTokens.rest,
       },
-      ":active": color.bgDangerSubtle,
+      ":active": color.destructiveSubtle,
     },
   },
   currentLink: {
@@ -199,7 +199,7 @@ const styles = stylex.create({
   },
   trailing: {
     flexShrink: 0,
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });
 

@@ -16,7 +16,8 @@ interface StatusDotProps extends Omit<
    *
    * @zh 圆点所承载的颜色，与 `Badge` 使用同一组意图色。`"neutral"` 是柔和的那一种，用于只作提示的标记。
    */
-  intent: "neutral" | "info" | "success" | "warning" | "danger" | "accent";
+  intent:
+    "neutral" | "info" | "success" | "warning" | "destructive" | "primary";
   /**
    * What the dot means, read by a screen reader and not shown. Leave it out
    * only where the place that shows the dot already says it, such as the
@@ -67,10 +68,10 @@ const styles = stylex.create({
 });
 
 const intents = stylex.create({
-  neutral: { backgroundColor: color.fgMuted },
-  info: { backgroundColor: color.fgInfo },
-  success: { backgroundColor: color.fgSuccess },
-  warning: { backgroundColor: color.fgWarning },
-  danger: { backgroundColor: color.fgDanger },
-  accent: { backgroundColor: color.fgAccent },
+  neutral: { backgroundColor: color.mutedForeground },
+  info: { backgroundColor: color.infoText },
+  success: { backgroundColor: color.successText },
+  warning: { backgroundColor: color.warningText },
+  destructive: { backgroundColor: color.destructiveText },
+  primary: { backgroundColor: color.primaryText },
 });

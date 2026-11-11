@@ -137,7 +137,7 @@ const styles = stylex.create({
     inlineSize: controlSize._8,
     blockSize: controlSize._8,
     fontSize: controlSize._5,
-    color: color.fgMuted,
+    color: color.mutedForeground,
     cursor: "grab",
     touchAction: "none",
   },
@@ -156,7 +156,7 @@ const styles = stylex.create({
   lifted: {
     position: "relative",
     zIndex: layer.content,
-    backgroundColor: color.bgSurfaceRaised,
+    backgroundColor: color.popover,
     boxShadow: shadow._4,
   },
 });

@@ -77,7 +77,7 @@ const gridComponents = {
 
 const styles = stylex.create({
   notFound: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     textAlign: "center",
   },
 });

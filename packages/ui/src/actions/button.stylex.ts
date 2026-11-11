@@ -3,11 +3,11 @@ import { color } from "../color.stylex.ts";
 import { controlHeight, controlSize, shadow } from "../tokens.stylex.ts";
 
 export const buttonTokens = stylex.defineVars({
-  backgroundColor: color.bgControl,
-  backgroundColorHover: color.bgControlHover,
-  backgroundColorDisabledHover: color.bgControl,
+  backgroundColor: color.card,
+  backgroundColorHover: color.accent,
+  backgroundColorDisabledHover: color.card,
   boxShadow: shadow._2,
-  color: color.fg,
+  color: color.foreground,
   height: controlHeight.md,
   paddingInline: controlSize._3,
   // The glyph of an icon-only button. With no label beside it, the glyph is

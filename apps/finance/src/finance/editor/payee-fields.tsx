@@ -343,6 +343,6 @@ export function PayeeFields({ form, suggestion }: PayeeFieldsProps) {
 
 const styles = stylex.create({
   muted: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
 });

@@ -148,7 +148,7 @@ const styles = stylex.create({
   frame: {
     position: "relative",
     inlineSize: "100%",
-    backgroundColor: color.bgCanvas,
+    backgroundColor: color.background,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   // The scroller, so the groups can be watched staying pinned while the content
@@ -168,7 +168,7 @@ const styles = stylex.create({
     insetInlineEnd: 0,
     insetBlockStart: 0,
     blockSize: space._13,
-    backgroundImage: `linear-gradient(${color.bgNeutralSubtle}, transparent)`,
+    backgroundImage: `linear-gradient(${color.muted}, transparent)`,
   },
   article: {
     display: "flex",

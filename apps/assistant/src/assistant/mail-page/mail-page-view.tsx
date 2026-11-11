@@ -262,7 +262,7 @@ function Problem({
     <div css={[stack.group, typeModifier.verbatim]}>
       <KnownHeader known={result.known} />
       <Callout
-        intent={result.kind === "unavailable" ? "danger" : "warning"}
+        intent={result.kind === "unavailable" ? "destructive" : "warning"}
         role="alert"
       >
         {messages[result.kind]}

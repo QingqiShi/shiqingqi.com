@@ -114,7 +114,7 @@ const styles = stylex.create({
     gap: rhythm.inline,
   },
   label: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
   },
   count: {
     margin: 0,

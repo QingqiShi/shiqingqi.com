@@ -130,7 +130,7 @@ export function MonthCalendar({
               <Badge
                 key={row}
                 size="sm"
-                intent={index.amounts[row] > 0 ? "success" : "danger"}
+                intent={index.amounts[row] > 0 ? "success" : "destructive"}
                 css={[corner.radius_1, styles.chip]}
               >
                 <span css={[truncate.base, styles.chipName]}>
@@ -198,7 +198,7 @@ const styles = stylex.create({
     justifySelf: { default: "center", [WIDE]: "start" },
     minInlineSize: "1.6rem",
     paddingInlineStart: { default: 0, [WIDE]: space._0 },
-    color: color.fgMuted,
+    color: color.mutedForeground,
     textAlign: "center",
   },
   grid: {
@@ -247,11 +247,11 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
   },
   today: {
-    backgroundColor: color.bgAccent,
-    color: color.fgOnAccent,
+    backgroundColor: color.primary,
+    color: color.primaryForeground,
   },
   everyday: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     paddingBlockStart: { default: 0, [WIDE]: space._0 },
     whiteSpace: "nowrap",
   },
@@ -289,7 +289,7 @@ const styles = stylex.create({
     flexShrink: 0,
   },
   more: {
-    color: color.fgMuted,
+    color: color.mutedForeground,
     paddingInline: space._1,
   },
   dots: {
@@ -301,9 +301,9 @@ const styles = stylex.create({
     blockSize: "6px",
   },
   dotIn: {
-    backgroundColor: color.bgSuccess,
+    backgroundColor: color.success,
   },
   dotOut: {
-    backgroundColor: color.bgDanger,
+    backgroundColor: color.destructive,
   },
 });
