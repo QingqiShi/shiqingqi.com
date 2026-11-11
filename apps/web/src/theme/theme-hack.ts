@@ -12,7 +12,7 @@ const classNames = JSON.stringify({
  * `color.background`. `gray` is a `defineConsts` palette, so these bake in as
  * literal hex in `themeHack`.
  */
-export const themeColors = { dark: gray._0, light: gray._97 };
+export const themeColors = { dark: gray._0, light: gray._100 };
 
 /** Marks the tag of `themeHack`, so that `ThemeApplier` removes it once it renders its own. */
 export const prePaintThemeColorAttribute = "data-pre-paint-theme-color";
