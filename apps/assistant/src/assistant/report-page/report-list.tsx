@@ -7,6 +7,9 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
+import { NavGroup } from "@tuja/ui/components/nav-group";
+import { NavLink } from "@tuja/ui/components/nav-link";
+import { NavList } from "@tuja/ui/components/nav-list";
 import {
   SplitViewLink,
   useSplitViewColumn,
@@ -39,7 +42,9 @@ interface ReportListProps {
 
 /**
  * Every morning report, newest first and split by month. The newest opens in
- * the home page's Report view, which shows it with the day's status.
+ * the home page's Report view, which shows it with the day's status. Beside a
+ * report, the list is a narrow column of days. As a page of its own, each day
+ * also shows its headline.
  */
 export function ReportList({
   reports,
@@ -54,10 +59,38 @@ export function ReportList({
   const noMail = t({ en: "No new mail", zh: "没有新邮件" });
   const notWritten = t({ en: "Not written", zh: "没能写成" });
   const newestDate = reports.at(0)?.localDate;
+  const hrefOf = (report: ReportListItem) =>
+    report.localDate === newestDate
+      ? homeViewHref("report", locale)
+      : getLocalePath(`/reports/${report.localDate}`, locale);
 
   useEffect(() => {
     if (!isPage) currentRef.current?.scrollIntoView({ block: "nearest" });
   }, [currentDate, isPage]);
+
+  if (!isPage && reports.length > 0) {
+    return (
+      <nav aria-label={title}>
+        <NavList linkComponent={SplitViewLink}>
+          {groupByMonth(reports).map(({ month, reports: inMonth }) => (
+            <NavGroup key={month} label={formatMonth(month, dateLocale)}>
+              {inMonth.map((report) => (
+                <NavLink
+                  key={report.localDate}
+                  href={hrefOf(report)}
+                  current={report.localDate === currentDate}
+                >
+                  <span css={typeModifier.numeric}>
+                    {formatListDay(report.localDate, dateLocale)}
+                  </span>
+                </NavLink>
+              ))}
+            </NavGroup>
+          ))}
+        </NavList>
+      </nav>
+    );
+  }
 
   return (
     <nav aria-label={title} css={stack.item}>
@@ -88,11 +121,7 @@ export function ReportList({
                   <ListRow
                     key={report.localDate}
                     ref={isCurrent ? currentRef : undefined}
-                    href={
-                      report.localDate === newestDate
-                        ? homeViewHref("report", locale)
-                        : getLocalePath(`/reports/${report.localDate}`, locale)
-                    }
+                    href={hrefOf(report)}
                     linkComponent={SplitViewLink}
                     aria-current={isCurrent ? "page" : undefined}
                     wrap

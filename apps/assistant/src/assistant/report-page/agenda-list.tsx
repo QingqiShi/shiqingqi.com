@@ -16,10 +16,17 @@ function placeOf(timeZone: string) {
 }
 
 /** Today's events, each with its time, place and what the mail says of it. */
-export function AgendaList({ items }: { items: readonly AgendaItem[] }) {
+export function AgendaList({
+  items,
+  form,
+}: {
+  items: readonly AgendaItem[];
+  /** See `List`. */
+  form?: "card" | "plain";
+}) {
   const allDay = t({ en: "All day", zh: "全天" });
   return (
-    <List>
+    <List form={form}>
       {items.map((item, index) => {
         const start = clockOf(item.start);
         const end = clockOf(item.end);

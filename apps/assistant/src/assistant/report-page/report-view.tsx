@@ -7,6 +7,7 @@ import { color } from "@tuja/ui/color.stylex";
 import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
@@ -24,9 +25,9 @@ import { AgendaList } from "./agenda-list.tsx";
 import { DayHead } from "./day-head.tsx";
 import { formatDay } from "./format-day.ts";
 import { OpenMailLink } from "./open-mail-button.tsx";
+import { ReportCard } from "./report-card.tsx";
 import { reportColumns } from "./report-columns.stylex.ts";
 import { ReportFigures } from "./report-figures.tsx";
-import { ReportSection } from "./report-section.tsx";
 import { ReportTodoSection } from "./report-todo-section.tsx";
 import { toTodoItemData, type TodoItemData } from "./to-todo-item-data.ts";
 import { TodoItem } from "./todo-item.tsx";
@@ -69,7 +70,7 @@ function ItemLine({
 function ItemList({ items }: { items: readonly ReportItemView[] }) {
   const besideTodos = items.some((item) => item.todo);
   return (
-    <List>
+    <List form="plain">
       {items.map((item, index) =>
         item.todo ? (
           <TodoItem
@@ -81,6 +82,26 @@ function ItemList({ items }: { items: readonly ReportItemView[] }) {
           <ItemLine key={index} item={item} besideTodos={besideTodos} />
         ),
       )}
+    </List>
+  );
+}
+
+/** Lines that ask nothing of the owner, each marked as mail. */
+function NoteList({ items }: { items: readonly ReportItemView[] }) {
+  return (
+    <List form="plain">
+      {items.map((item, index) => (
+        <ListRow
+          key={index}
+          wrap
+          leading={<EnvelopeSimpleIcon weight="bold" />}
+          leadingShape="circle"
+          leadingSize="sm"
+          extra={item.openHref ? <OpenMailLink href={item.openHref} /> : null}
+        >
+          {item.text}
+        </ListRow>
+      ))}
     </List>
   );
 }
@@ -268,13 +289,13 @@ export function ReportView({
 
   const asks = [
     report.needsAction.length > 0 ? (
-      <ReportSection
+      <ReportCard
         key="needs"
         headingLevel={sectionLevel}
         title={t({ en: "Needs you", zh: "需要你处理" })}
       >
         <ItemList items={report.needsAction} />
-      </ReportSection>
+      </ReportCard>
     ) : null,
     report.repliedTodos.length > 0 ? (
       <ReportTodoSection
@@ -303,22 +324,22 @@ export function ReportView({
   ].filter((section) => section !== null);
   const tells = [
     report.agenda && report.agenda.length > 0 ? (
-      <ReportSection
+      <ReportCard
         key="agenda"
         headingLevel={sectionLevel}
         title={t({ en: "Calendar", zh: "日程" })}
       >
-        <AgendaList items={report.agenda} />
-      </ReportSection>
+        <AgendaList items={report.agenda} form="plain" />
+      </ReportCard>
     ) : null,
     report.worthKnowing.length > 0 ? (
-      <ReportSection
+      <ReportCard
         key="worth-knowing"
         headingLevel={sectionLevel}
         title={t({ en: "Good to know", zh: "知道就好" })}
       >
-        <ItemList items={report.worthKnowing} />
-      </ReportSection>
+        <NoteList items={report.worthKnowing} />
+      </ReportCard>
     ) : null,
   ].filter((section) => section !== null);
   const keptOpen =
@@ -345,14 +366,14 @@ export function ReportView({
       />
     ) : null;
   const rest = content.rest ? (
-    <ReportSection
+    <ReportCard
       headingLevel={sectionLevel}
       title={t({ en: "The rest", zh: "其他" })}
     >
-      <Text as="p" tone="muted">
+      <Text as="p" look="bodySmall" tone="muted">
         {content.rest}
       </Text>
-    </ReportSection>
+    </ReportCard>
   ) : null;
   const hasAsks = asks.length > 0 || keptOpen !== null;
   const hasTells = tells.length > 0 || rest !== null;

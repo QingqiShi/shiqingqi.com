@@ -1,10 +1,12 @@
 "use client";
 
+import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Link, LinkStatus } from "@tuja/next-links/link";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
+import { splitViewTokens } from "@tuja/ui/components/navigation-split-view.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import {
   useRouter,
@@ -102,7 +104,7 @@ export function ReportsColumns({
       linkComponent={Link}
       linkStatus={LinkStatus}
       skeleton={<ReportBodySkeleton />}
-      css={pageColumn.report}
+      css={[pageColumn.report, styles.view]}
       replace={(href) => {
         router.replace(href);
       }}
@@ -129,3 +131,9 @@ export function ReportsColumns({
     />
   );
 }
+
+const styles = stylex.create({
+  view: {
+    [splitViewTokens.sidebarInlineSize]: "13rem",
+  },
+});
