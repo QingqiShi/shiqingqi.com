@@ -7,8 +7,8 @@
  * against every dark control ground, for a control's edge in dark.
  */
 export const SYSTEM_PALETTE_TONES = [
-  0, 2, 5, 7, 9, 11, 13, 20, 30, 35, 40, 50, 60, 70, 80, 90, 92, 95, 97, 98, 99,
-  100,
+  0, 2, 5, 7, 9, 11, 13, 20, 30, 35, 40, 50, 60, 70, 80, 87, 90, 92, 95, 97, 98,
+  99, 100,
 ] as const;
 
 /** The tones a hue curve carries an L* offset for. */

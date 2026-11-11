@@ -10,6 +10,7 @@ import {
   ReorderList,
   ReportList,
   SpendingList,
+  UncategorisedList,
 } from "./list-specimens.tsx";
 
 export function ListShowcase() {
@@ -89,6 +90,18 @@ export function ListShowcase() {
           {t({
             en: "actions puts buttons beside the row, outside the part that opens it, so a press on Move up never opens the row. A row with actions shows no caret. Give each button a name that includes the row's, because a screen reader reads it on its own.",
             zh: "actions 把按钮放在行旁，位于打开该行的区域之外，因此按下「上移」不会打开该行。有操作按钮的行不显示箭头。每个按钮的名称都要包含该行的名称，因为读屏软件会单独读出它。",
+          })}
+        </Text>
+      </Showcase>
+
+      <Showcase label={t({ en: "Below the row", zh: "行下方" })}>
+        <Specimen caption="below">
+          <UncategorisedList />
+        </Specimen>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "below puts content under the row, outside the part that opens it, such as a Select that picks a category in place. It starts where the name starts and runs to the end of the row, so it does not squeeze the row on a phone.",
+            zh: "below 把内容放在行下方、打开该行的区域之外，例如就地选择分类的 Select。它从名称的起点开始，延伸到行尾，因此在手机上不会挤压该行。",
           })}
         </Text>
       </Showcase>

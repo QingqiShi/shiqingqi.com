@@ -94,6 +94,7 @@ export function AppFrame({
         <RecordShownPath />
       </Suspense>
       <TabView
+        rail="icons"
         label={appName}
         linkComponent={TabLink}
         linkStatus={LinkStatus}

@@ -58,26 +58,26 @@ export const font = stylex.defineVars({
   uiHeading2: "1.25rem",
   uiHeading3: "1.1rem",
   uiBody: "1rem",
-  uiBodySmall: ".85rem",
+  uiBodySmall: ".875rem",
   uiCaption: ".75rem",
-  uiOverline: ".85rem",
+  uiOverline: ".875rem",
 
   // Responsive UI control label size. `rem`-based so it honours the user's
-  // browser font size (WCAG 1.4.4), while resolving to the same computed px as
-  // `controlSize._4` at the default 16px root (1.2rem→19.2px, 1rem→16px). It is
+  // browser font size (WCAG 1.4.4). At the default 16px root it is 16px below
+  // `md` and 14px from `md`. That is not equal to `controlSize._4`. It is
   // responsive like the `vp*` sizes, so the registry skips it.
   uiControl: {
-    default: "1.2rem",
-    [breakpoints.md]: "1rem",
+    default: "1rem",
+    [breakpoints.md]: ".875rem",
   },
 
   // The caption step of the same scale, for muted labels inside control chrome
-  // (menu section titles and the like). Same bargain as `uiControl`: `rem`-based
-  // so it honours the user's browser font size, while resolving to the same
-  // computed px as `controlSize._3` at the default 16px root
-  // (0.9rem→14.4px, 0.75rem→12px). Also skipped by the registry.
+  // (menu section titles and the like). Like `uiControl`, it is `rem`-based so
+  // it honours the user's browser font size. At the default 16px root it is
+  // 13px below `md` and 12px from `md`. That is not equal to `controlSize._3`.
+  // Also skipped by the registry.
   uiControlCaption: {
-    default: "0.9rem",
+    default: "0.8125rem",
     [breakpoints.md]: "0.75rem",
   },
 
@@ -123,6 +123,10 @@ export const font = stylex.defineVars({
   weight_2: stylex.types.integer(200),
   weight_3: stylex.types.integer(300),
   weight_4: stylex.types.integer(400),
+  // Haffer has no face at 500 and font synthesis is off, so text at this
+  // weight shows at 400. The components that ask for a medium weight (a
+  // Button, the name of a ListRow, a tab) take this token, so that they all
+  // change together when `fonts.css` gets a Medium face.
   weight_5: stylex.types.integer(500),
   weight_6: stylex.types.integer(600),
   weight_7: stylex.types.integer(700),

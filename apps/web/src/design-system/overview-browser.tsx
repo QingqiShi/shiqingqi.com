@@ -93,8 +93,8 @@ function buildBlocks({
   }
 
   // The overview section stays in: the entries already leave out the overview
-  // itself, so what remains of the section is Get started, as an unheaded
-  // first tile.
+  // itself, so what remains of the section is Get started and Patterns, as
+  // the unheaded first tiles.
   return getDesignSystemRouteSections().map((section) => ({
     key: section.section,
     heading: groupLabels.sections[section.section],
@@ -187,7 +187,7 @@ export function OverviewBrowser({
                 setQuery(event.target.value);
               }}
               leading={<MagnifyingGlassIcon weight="bold" />}
-              css={styles.searchInput}
+              controlCss={styles.searchInput}
             />
             {query !== "" && (
               <Button

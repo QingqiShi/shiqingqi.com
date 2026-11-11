@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { isValidElement, type ComponentProps, type ReactNode } from "react";
 import { color } from "../color.stylex.ts";
+import { isShown } from "../is-shown.ts";
 import { border, rhythm } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
@@ -27,8 +28,9 @@ interface MetaLineProps extends Omit<
 
 /**
  * A line of facts with a "·" between each two, such as a status, a provider
- * and the time of the last check. It wraps between facts, never inside one,
- * and a fact that starts a new line shows no dot. It takes the type and the
+ * and the time of the last check. It wraps between facts, and a fact that
+ * starts a new line shows no dot. A fact wider than the whole line wraps, or
+ * ends in "…" where the line sits in a box that does not wrap. It takes the type and the
  * colour of where it sits; the dots are muted. A fact may shrink below its
  * text, so a chip that truncates its label can.
  */
@@ -45,19 +47,10 @@ export function MetaLine({ facts, css, ...restProps }: MetaLineProps) {
               ·
             </span>
           ) : null}
-          {fact}
+          <span css={styles.text}>{fact}</span>
         </span>
       ))}
     </span>
-  );
-}
-
-function isShown(fact: ReactNode) {
-  return (
-    fact !== null &&
-    fact !== undefined &&
-    typeof fact !== "boolean" &&
-    fact !== ""
   );
 }
 
@@ -82,12 +75,20 @@ const styles = stylex.create({
       ":dir(rtl)": `inset(${CLEAR} ${RING_OUTSET} ${CLEAR} ${CLEAR})`,
     },
   },
+  // A fact goes to the next line before it breaks. A fact that is wider than
+  // a whole line then follows the line breaks of where the line sits: in a
+  // box that does not wrap, such as the detail line of a `ListRow`, it ends
+  // in an ellipsis, and elsewhere it wraps.
   fact: {
     display: "inline-flex",
     alignItems: "center",
     minInlineSize: 0,
     maxInlineSize: "100%",
-    whiteSpace: "nowrap",
+  },
+  text: {
+    minInlineSize: 0,
+    overflowX: "clip",
+    textOverflow: "ellipsis",
   },
   follows: {
     marginInlineStart: `calc(-1 * (${rhythm.tight} + ${rhythm.inline}))`,

@@ -147,12 +147,12 @@ export function SurfacesShowcase() {
 
       <GuideSection
         title={t({
-          en: "Cast a shadow only from what sits on top.",
-          zh: "只有压在上面的东西才投阴影。",
+          en: "Cast a deep shadow only from what sits on top.",
+          zh: "只有压在上面的东西才投深阴影。",
         })}
         lead={t({
-          en: "Card, Popover and Table hold content, so they take an edge and a fill, not a shadow. What sits over the content casts one, and the higher it sits, the deeper the step.",
-          zh: "Card、Popover 与 Table 承载内容，所以用边框与填充，而不是阴影。压在内容之上的东西才投阴影，浮得越高，级别越深。",
+          en: "Card, Popover and Table hold content, so they take an edge and a fill. A Card adds only the faintest shadow, shadow._1. What sits over the content casts a deeper one, and the higher it sits, the deeper the step.",
+          zh: "Card、Popover 与 Table 承载内容，所以用边框与填充。Card 只多一层最浅的阴影 shadow._1。压在内容之上的东西才投更深的阴影，浮得越高，级别越深。",
         })}
       >
         <ul

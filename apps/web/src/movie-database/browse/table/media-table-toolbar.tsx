@@ -48,7 +48,7 @@ export function MediaTableToolbar({
         }}
         placeholder={searchLabel}
         leading={<MagnifyingGlassIcon weight="bold" />}
-        css={styles.search}
+        controlCss={styles.search}
       />
       <div css={styles.toolbarActions}>
         <MenuButton

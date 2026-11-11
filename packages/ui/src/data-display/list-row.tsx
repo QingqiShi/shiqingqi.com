@@ -11,6 +11,7 @@ import {
 } from "react";
 import { useShownCurrent } from "../actions/nav-list-context.tsx";
 import { color } from "../color.stylex.ts";
+import { isShown } from "../is-shown.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { truncate } from "../primitives/layout.stylex.ts";
@@ -19,6 +20,7 @@ import { buttonReset } from "../primitives/reset.stylex.ts";
 import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
 import { controlSize, font, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
+import { listRowBelow } from "./list-row-below.stylex.ts";
 import { listRowSizes, listRowTokens, listSurface } from "./list.stylex.ts";
 
 /**
@@ -110,6 +112,16 @@ interface ListRowBaseProps {
    * @zh 显示在末尾、箭头之前，例如 Badge。
    */
   trailing?: ReactNode;
+  /**
+   * Content under the row, outside the part that opens it, that starts where
+   * the name starts, such as a `Select` that picks a category in place. It
+   * takes the width from the name to the end of the row, so it does not
+   * squeeze the row on a phone. Its items stack, each as wide as its
+   * content, and a `Callout` spans the whole width.
+   *
+   * @zh 行下方的内容，位于打开该行的区域之外，起点与名称对齐，例如就地选择分类的 `Select`。它占据从名称到行尾的宽度，因此在手机上不会挤压该行。其中各项上下堆叠，各自与内容等宽；`Callout` 撑满整个宽度。
+   */
+  below?: ReactNode;
   /**
    * Buttons after the row, outside the part that opens it, such as "Move up".
    * A row with actions shows no caret.
@@ -214,6 +226,7 @@ export function ListRow({
   value,
   valueDetail,
   trailing,
+  below,
   actions,
   caret = true,
   "aria-current": ariaCurrent,
@@ -343,15 +356,17 @@ export function ListRow({
     </>
   );
   const setRef = mergeRefs(ref);
+  const hasBelow = isShown(below);
   const look = [
     listSurface.row,
     styles.row,
     mediaSize && listSurface.withMedia,
+    hasBelow && listRowBelow.row,
     css,
   ];
 
   return (
-    <li css={listSurface.item}>
+    <li css={[listSurface.item, hasBelow && listRowBelow.item]}>
       {target.href !== undefined ? (
         <LinkSlot
           href={target.href}
@@ -378,13 +393,14 @@ export function ListRow({
           {body}
         </div>
       )}
-      {actions ? <span css={styles.actions}>{actions}</span> : null}
+      {actions ? (
+        <span css={[styles.actions, hasBelow && listRowBelow.actions]}>
+          {actions}
+        </span>
+      ) : null}
+      {hasBelow ? <div css={listRowBelow.below}>{below}</div> : null}
     </li>
   );
-}
-
-function isShown(node: ReactNode) {
-  return node !== undefined && node !== null && node !== false && node !== "";
 }
 
 function LinkSlot({

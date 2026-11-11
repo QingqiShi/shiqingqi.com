@@ -1,12 +1,15 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "../breakpoints.stylex.ts";
 import { color } from "../color.stylex.ts";
-import { border } from "../tokens.stylex.ts";
+import { border, shadow } from "../tokens.stylex.ts";
 
 /**
  * The bordered-surface skin shared by every card, exposed as composable
  * StyleX so an element `Card` can't be — a `<Link>`, a plain `<a>`, an `<li>`
  * — can still carry the same surface.
+ *
+ * The surface has a hairline edge and a small shadow. The fill is the same
+ * as the fill of an island, so the edge and the shadow set a card apart.
  *
  * Its focus ring is inlined inset, not `a11y.focusRingInset`: an outward ring
  * would crop against the card's clipped overflow, and a primitive can't
@@ -26,6 +29,7 @@ export const cardSurface = stylex.create({
     borderRadius: border.radius_3,
     cornerShape: "squircle",
     backgroundColor: color.bgSurface,
+    boxShadow: shadow._1,
   },
   interactive: {
     cursor: "pointer",

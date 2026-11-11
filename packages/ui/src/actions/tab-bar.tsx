@@ -9,11 +9,11 @@ import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { truncate } from "../primitives/layout.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
-import { typeRole } from "../primitives/type.stylex.ts";
+import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
 import { glassSurface, glassTokens } from "../surfaces/glass-surface.stylex.ts";
 import { controlSize, font, rhythm, shadow, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
-import { tabBarTokens, tabLink } from "./tab-bar.stylex.ts";
+import { tabBarTokens, tabLink, tabMark } from "./tab-bar.stylex.ts";
 import { useTabPress } from "./use-tab-press.ts";
 
 /**
@@ -31,6 +31,62 @@ export interface TabBarLinkProps extends ComponentProps<"a"> {
 /** @internal */
 export function PlainAnchor(props: TabBarLinkProps) {
   return <a {...props} />;
+}
+
+const MAX_SHOWN_COUNT = 99;
+
+/**
+ * The text of a tab's count, or null where it shows no count.
+ *
+ * @internal
+ */
+export function countText(count: number | undefined) {
+  if (count === undefined || !(count > 0)) return null;
+  return count > MAX_SHOWN_COUNT
+    ? `${String(MAX_SHOWN_COUNT)}+`
+    : String(Math.floor(count));
+}
+
+/**
+ * The mark at the top-end corner of a tab's icon: its count, or else its
+ * badge. It goes in the icon, which a screen reader does not read, so put
+ * `CountForReader` after the label.
+ *
+ * @internal
+ */
+export function IconMark({ item }: { item: TabBarItem }) {
+  const count = countText(item.count);
+  if (count !== null) {
+    return (
+      <span
+        css={[
+          typeRole.caption,
+          typeModifier.numeric,
+          corner.radius_round,
+          tabMark.count,
+        ]}
+      >
+        {count}
+      </span>
+    );
+  }
+  return item.badge ? <span css={tabMark.badge}>{item.badge}</span> : null;
+}
+
+/**
+ * The count of a tab as hidden text, for the name of a tab whose count shows
+ * on its icon.
+ *
+ * @internal
+ */
+export function CountForReader({ count }: { count: number | undefined }) {
+  const text = countText(count);
+  return text === null ? null : (
+    <>
+      {" "}
+      <span css={a11y.srOnly}>{text}</span>
+    </>
+  );
 }
 
 /**
@@ -52,9 +108,17 @@ export interface TabBarItem {
   current?: boolean;
   /**
    * A small mark at the icon's top-end corner, such as a dot that says
-   * something waits. Decorative: say what it means in `status`.
+   * something waits. Decorative: say what it means in `status`. A `count`
+   * above 0 shows in its place.
    */
   badge?: ReactNode;
+  /**
+   * How many things wait at the destination, such as open to-dos. Above 0,
+   * it shows at the end of a labelled row, and as a small counter at the
+   * icon's top-end corner elsewhere, with `99+` above 99. It is part of the
+   * tab's name.
+   */
+  count?: number;
   /**
    * Visually hidden text in a `role="status"` region inside the link, so it
    * is announced when it changes and is part of the tab's name — what the
@@ -177,13 +241,12 @@ export function TabBar({
                 >
                   <span css={[styles.icon, track.contentCss]} aria-hidden>
                     <item.icon weight={isShown ? "fill" : "bold"} />
-                    {item.badge ? (
-                      <span css={styles.badge}>{item.badge}</span>
-                    ) : null}
+                    <IconMark item={item} />
                   </span>
                   <span css={[truncate.base, styles.label, track.contentCss]}>
                     {item.label}
                   </span>
+                  <CountForReader count={item.count} />
                   {item.status === undefined ? null : (
                     <>
                       {" "}
@@ -264,12 +327,6 @@ const styles = stylex.create({
     position: "relative",
     display: "inline-flex",
     fontSize: controlSize._5,
-  },
-  badge: {
-    position: "absolute",
-    insetBlockStart: 0,
-    insetInlineEnd: `calc(-1 * ${space._0})`,
-    display: "flex",
   },
   // Pairs with `truncate.base`: the ellipsis engages only once the label
   // can shrink below its min-content width.

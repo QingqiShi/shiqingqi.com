@@ -4,7 +4,6 @@ import { BooksIcon } from "@phosphor-icons/react/dist/ssr/Books";
 import { GearSixIcon } from "@phosphor-icons/react/dist/ssr/GearSix";
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
-import { SquaresFourIcon } from "@phosphor-icons/react/dist/ssr/SquaresFour";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Link, LinkStatus } from "@tuja/next-links/link";
@@ -13,14 +12,21 @@ import { Avatar } from "@tuja/ui/components/avatar";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
 import { listSurface } from "@tuja/ui/components/list.stylex";
+import { NavGroup } from "@tuja/ui/components/nav-group";
+import { NavLink } from "@tuja/ui/components/nav-link";
+import { NavList } from "@tuja/ui/components/nav-list";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { TabView, type TabViewLinkProps } from "@tuja/ui/components/tab-view";
+import {
+  TabView,
+  TabViewBrand,
+  TabViewLabelsOnly,
+  type TabViewLinkProps,
+} from "@tuja/ui/components/tab-view";
 import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
 import { Text } from "@tuja/ui/components/text";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { row as rowLayout, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { controlSize, space } from "@tuja/ui/tokens.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 import { Specimen } from "#src/design-system/specimen.tsx";
@@ -69,7 +75,7 @@ function DemoScreenSkeleton({ title, rows }: { title: string; rows: number }) {
   );
 }
 
-/** A frame as wide as the page or as narrow as a phone. */
+/** A frame as wide as the page, of a medium width, or as narrow as a phone. */
 function ReadingAppFrame({ children }: { children: ReactNode }) {
   return (
     <DeviceFrame
@@ -79,6 +85,12 @@ function ReadingAppFrame({ children }: { children: ReactNode }) {
           value: "wide",
           label: t({ en: "Wide", zh: "宽" }),
           inlineSize: "100%",
+          blockSize: FRAME_BLOCK_SIZE,
+        },
+        {
+          value: "medium",
+          label: t({ en: "Medium", zh: "中等" }),
+          inlineSize: "52rem",
           blockSize: FRAME_BLOCK_SIZE,
         },
         {
@@ -100,9 +112,9 @@ export function TabViewDemoPlaceholder() {
 }
 
 /**
- * A small reading app: four destinations in the rail where the frame is wide,
- * and in the tab bar where it is as narrow as a phone. Each one shows a screen
- * of its own.
+ * A small reading app: four destinations in the labelled sidebar where the
+ * frame is wide, in the icon rail at a medium width, and in the tab bar where
+ * it is as narrow as a phone. Each one shows a screen of its own.
  */
 export function TabViewDemo() {
   const pathname = usePathname();
@@ -177,6 +189,7 @@ export function TabViewDemo() {
       id: "library",
       label: t({ en: "Library", zh: "书架" }),
       icon: BooksIcon,
+      count: 3,
       title: t({ en: "Library", zh: "书架" }),
       text: t({
         en: "Twelve books, three of them unread.",
@@ -239,12 +252,25 @@ export function TabViewDemo() {
       rows={destination.rows.length}
     />
   );
-  const appMark = (
-    <span css={[corner.radius_2, styles.mark]} aria-hidden>
-      <SquaresFourIcon weight="fill" />
+  const brand = <TabViewBrand name={t({ en: "Reader", zh: "阅读" })} />;
+  const member = (
+    <span css={[rowLayout.tight, styles.member]}>
+      <Avatar name="Mei Lin" size="sm" />
+      <TabViewLabelsOnly>
+        <span css={typeRole.label}>Mei Lin</span>
+      </TabViewLabelsOnly>
     </span>
   );
-  const member = <Avatar name="Mei Lin" size="sm" />;
+  const shelves = (
+    <nav aria-label={t({ en: "Shelves", zh: "书单" })}>
+      <NavList>
+        <NavGroup label={t({ en: "Shelves", zh: "书单" })}>
+          <NavLink href="#">{t({ en: "Want to read", zh: "想读" })}</NavLink>
+          <NavLink href="#">{t({ en: "Finished", zh: "读完" })}</NavLink>
+        </NavGroup>
+      </NavList>
+    </nav>
+  );
   const screen = (
     <div css={styles.screen}>
       <div css={[stack.group, styles.screenContent]}>
@@ -281,8 +307,8 @@ export function TabViewDemo() {
     <Specimen
       stage={ReadingAppFrame}
       caption={t({
-        en: "press a destination, or drag along the rail or the bar",
-        zh: "按下目标页，或沿侧轨或标签栏拖动",
+        en: "press a destination, or drag along the sidebar, the rail or the bar",
+        zh: "按下目标页，或沿侧边栏、侧轨或标签栏拖动",
       })}
     >
       <TabView
@@ -290,12 +316,14 @@ export function TabViewDemo() {
         label={t({ en: "Demo app", zh: "演示应用" })}
         linkComponent={linkComponent}
         linkStatus={linkStatus}
-        header={appMark}
+        header={brand}
         footer={member}
+        secondary={shelves}
         items={destinations.map((destination) => ({
           href: hrefOf(destination.id),
           label: destination.label,
           icon: destination.icon,
+          count: destination.count,
           current: destination === current,
           skeleton: skeletonOf(destination),
         }))}
@@ -307,15 +335,8 @@ export function TabViewDemo() {
 }
 
 const styles = stylex.create({
-  mark: {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    inlineSize: controlSize._9,
-    blockSize: controlSize._9,
-    fontSize: controlSize._5,
-    color: color.fg,
-    backgroundColor: color.bgNeutralSubtle,
+  member: {
+    minInlineSize: 0,
   },
   // The frame does not scroll the page, so the screen scrolls itself. As
   // on a phone, its end scrolls clear of the floating tab bar.

@@ -13,7 +13,7 @@ export function TextareaSpecimen() {
         en: "Beautifully shot, and it earns its runtime.",
         zh: "镜头极美，片长也用得其所。",
       })}
-      css={specimenLayout.fill}
+      controlCss={specimenLayout.fill}
     />
   );
 }

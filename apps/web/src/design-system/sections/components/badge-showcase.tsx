@@ -138,8 +138,8 @@ export function BadgeShowcase() {
         </Specimen>
         <ShowcaseHelper>
           {t({
-            en: "MetaLine puts a dot between each two facts and wraps between them, never inside one. A fact that starts a new line shows no dot.",
-            zh: "MetaLine 在每两项事实之间放一个圆点，只在事实之间换行，不会在某项内部断开。换到新行开头的事实不显示圆点。",
+            en: 'MetaLine puts a dot between each two facts and wraps between them first. A fact that starts a new line shows no dot. A fact too wide for a whole line wraps, or ends in "…" where its box does not wrap.',
+            zh: "MetaLine 在每两项事实之间放一个圆点，并优先在事实之间换行。换到新行开头的事实不显示圆点。一项事实比整行还宽时会换行；若所在的框不换行，则以“…”结尾。",
           })}
         </ShowcaseHelper>
       </Showcase>

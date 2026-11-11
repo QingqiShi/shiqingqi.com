@@ -89,9 +89,10 @@ interface SegmentedControlBaseProps<TValue extends string> extends Omit<
   /**
    * Stretches the track to fill its container, sharing width equally
    * between segments. A label too long for its share truncates rather than
-   * pushing the track wider.
+   * pushing the track wider. Without it, the track is as wide as its
+   * segments, also in a column.
    *
-   * @zh 将轨道拉伸至填满容器，各分段均分宽度；超出所分宽度的标签会被截断，而不会把轨道撑宽。
+   * @zh 将轨道拉伸至填满容器，各分段均分宽度；超出所分宽度的标签会被截断，而不会把轨道撑宽。不设置时，轨道与其分段同宽，在纵向排列的容器中也是如此。
    */
   fullWidth?: boolean;
   /**
@@ -166,7 +167,9 @@ type SegmentedControlProps<TValue extends string> =
  * Single-select control whose options share one track, a Glass indicator
  * sliding to the selected one. A press on any option moves the indicator
  * there, and the same press can drag it along the track to another. For
- * two to four mutually exclusive views; a wider set belongs in `Select`.
+ * two to four mutually exclusive views. A filter among more options that
+ * must all show takes `FilterChips`; a long list that need not show takes
+ * `Select`.
  * Controlled only, and built on
  * `useRadioGroup`, so a bespoke option row can reach for the hook directly and
  * keep the same keyboard model.
@@ -314,8 +317,11 @@ export function SegmentedControl<TValue extends string>({
 }
 
 const styles = stylex.create({
+  // A track in a flex column or a grid cell is as wide as its options, not
+  // as wide as the column. `fullWidth` stretches it on purpose.
   track: {
     display: "inline-flex",
+    inlineSize: "fit-content",
     alignItems: "stretch",
     gap: controlSize._0,
     borderWidth: border.size_1,

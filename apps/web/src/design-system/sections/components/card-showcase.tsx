@@ -67,6 +67,35 @@ export function CardShowcase() {
         </Specimen>
       </Showcase>
 
+      <Showcase label={t({ en: "Danger", zh: "危险" })}>
+        <Specimen caption='intent="danger"'>
+          <Card intent="danger" css={styles.fill}>
+            <CardHeader>
+              <CardTitle>
+                {t({ en: "Delete this account", zh: "删除此账户" })}
+              </CardTitle>
+              <CardDescription>
+                {t({
+                  en: "Its transactions and balances go too. This cannot be undone.",
+                  zh: "其交易与余额也会一并删除。此操作无法撤销。",
+                })}
+              </CardDescription>
+            </CardHeader>
+            <CardFooter>
+              <Button size="sm" look="danger">
+                {t({ en: "Delete account", zh: "删除账户" })}
+              </Button>
+            </CardFooter>
+          </Card>
+        </Specimen>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: 'intent="danger" draws the edge in the danger colour, for a card of actions that cannot be undone. A colour alone does not say it, so the title says it too.',
+            zh: 'intent="danger" 以危险色绘制卡片边缘，用于包含无法撤销操作的卡片。颜色本身无法表达危险，因此标题也要说明。',
+          })}
+        </Text>
+      </Showcase>
+
       <Showcase label={t({ en: "Slots", zh: "插槽" })}>
         <Specimen caption={t({ en: "every slot", zh: "全部插槽" })}>
           <Card>

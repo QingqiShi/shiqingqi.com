@@ -46,15 +46,22 @@ function DemoLink({ onClick, ...props }: NavListLinkProps) {
 function DemoLinkItem({
   href,
   icon,
+  trailing,
   children,
 }: {
   href: string;
   icon?: ReactNode;
+  trailing?: ReactNode;
   children: ReactNode;
 }) {
   const [current] = use(CurrentContext);
   return (
-    <NavLink href={href} current={current === href} icon={icon}>
+    <NavLink
+      href={href}
+      current={current === href}
+      icon={icon}
+      trailing={trailing}
+    >
       {children}
     </NavLink>
   );
@@ -99,14 +106,18 @@ function DemoNav({
   );
 }
 
-/** Three destinations, each with an icon. */
+/** Three destinations, each with an icon, one with a count at its end. */
 export function DestinationsNavList() {
   return (
     <DemoNav label={t({ en: "Demo app", zh: "示例应用" })} initial="#home">
       <DemoLinkItem href="#home" icon={<HouseIcon weight="bold" />}>
         {t({ en: "Home", zh: "首页" })}
       </DemoLinkItem>
-      <DemoLinkItem href="#reports" icon={<ChartBarIcon weight="bold" />}>
+      <DemoLinkItem
+        href="#reports"
+        icon={<ChartBarIcon weight="bold" />}
+        trailing="3"
+      >
         {t({ en: "Reports", zh: "报告" })}
       </DemoLinkItem>
       <DemoLinkItem href="#settings" icon={<GearSixIcon weight="bold" />}>

@@ -1,6 +1,7 @@
 "use client";
 
 import type { Icon } from "@phosphor-icons/react";
+import { AppWindowIcon } from "@phosphor-icons/react/dist/ssr/AppWindow";
 import { BellIcon } from "@phosphor-icons/react/dist/ssr/Bell";
 import { BookOpenIcon } from "@phosphor-icons/react/dist/ssr/BookOpen";
 import { CardsIcon } from "@phosphor-icons/react/dist/ssr/Cards";
@@ -54,6 +55,7 @@ const CATEGORY_ICONS: Record<DesignSystemCategoryId, Icon> = {
 const LINK_ICONS: Partial<Record<DesignSystemPath, Icon>> = {
   "/design-system": SquaresFourIcon,
   "/design-system/get-started": CompassIcon,
+  "/design-system/patterns": AppWindowIcon,
   "/design-system/primitives": CubeIcon,
   "/design-system/hooks": PlugsIcon,
   "/design-system/effect-layer": SparkleIcon,

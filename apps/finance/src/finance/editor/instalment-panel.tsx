@@ -153,7 +153,7 @@ export function InstalmentPanel({
             autoComplete="off"
             value={monthsText}
             error={monthsError}
-            css={typeModifier.numeric}
+            controlCss={typeModifier.numeric}
             onChange={(event) => {
               setMonthsText(event.target.value);
               setFailed(false);
@@ -167,7 +167,7 @@ export function InstalmentPanel({
             leading={currencySymbol(currency, locale)}
             value={feeText}
             error={feeError}
-            css={typeModifier.numeric}
+            controlCss={typeModifier.numeric}
             onChange={(event) => {
               setFeeText(event.target.value);
               setFailed(false);

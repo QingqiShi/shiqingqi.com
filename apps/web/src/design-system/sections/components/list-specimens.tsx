@@ -13,6 +13,7 @@ import { Card, CardTitle } from "@tuja/ui/components/card";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { List } from "@tuja/ui/components/list";
 import { ListRow, type ListRowLinkProps } from "@tuja/ui/components/list-row";
+import { Select } from "@tuja/ui/components/select";
 import { Text } from "@tuja/ui/components/text";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { createContext, use, useState } from "react";
@@ -267,6 +268,53 @@ export function ReorderList() {
             }
           >
             {names[id]}
+          </ListRow>
+        ))}
+      </List>
+    </div>
+  );
+}
+
+/** Spending with no category yet, each picked in place under its row. */
+export function UncategorisedList() {
+  const categoryLabel = t({ en: "Category", zh: "分类" });
+  const placeholder = t({ en: "No category", zh: "未分类" });
+  const categories = [
+    { value: "food", label: t({ en: "Food and drink", zh: "餐饮" }) },
+    { value: "travel", label: t({ en: "Travel", zh: "出行" }) },
+    { value: "home", label: t({ en: "Home", zh: "居家" }) },
+  ];
+  const spending = [
+    {
+      id: "coffee",
+      name: t({ en: "Corner Café", zh: "街角咖啡馆" }),
+      value: "-£3.40",
+    },
+    {
+      id: "train",
+      name: t({ en: "Northern Rail", zh: "北方铁路" }),
+      value: "-£24.80",
+    },
+  ];
+  return (
+    <div css={styles.frame}>
+      <List aria-label={t({ en: "To categorise", zh: "待分类" })}>
+        {spending.map((item) => (
+          <ListRow
+            key={item.id}
+            href="#"
+            value={item.value}
+            below={
+              <Select
+                size="sm"
+                label={`${categoryLabel}: ${item.name}`}
+                labelHidden
+                placeholder={placeholder}
+                options={categories}
+              />
+            }
+          >
+            {item.name}
           </ListRow>
         ))}
       </List>

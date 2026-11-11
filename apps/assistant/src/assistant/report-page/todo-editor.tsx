@@ -67,7 +67,7 @@ function DateField({
         max={max}
         error={error}
         autoFocus={autoPick}
-        css={styles.dateField}
+        controlCss={styles.dateField}
         onChange={(event) => {
           onChange(event.target.value);
         }}

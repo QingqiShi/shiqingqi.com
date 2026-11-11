@@ -87,11 +87,20 @@ interface TextareaProps extends Omit<
    */
   autoGrow?: boolean;
   /**
-   * StyleX overrides merged over the control's own — the escape hatch.
+   * StyleX styles merged over the field root, composed last, such as how the
+   * field sits in the layout around it: a width, or `flexGrow` in a row.
    *
-   * @zh 合并到文本框上的 StyleX 覆盖样式——逃生舱口。
+   * @zh 合并到字段根容器上的 StyleX 样式，最后合成，例如字段在周围布局中的位置：宽度，或在一行中的 `flexGrow`。
    */
   css?: StyleProp;
+  /**
+   * StyleX styles merged over the `<textarea>` itself, such as
+   * `typeModifier.numeric` for an amount or a padding for a button laid
+   * over it.
+   *
+   * @zh 合并到 `<textarea>` 本身上的 StyleX 样式，例如金额所用的 `typeModifier.numeric`，或为叠放其上的按钮留出的内边距。
+   */
+  controlCss?: StyleProp;
 }
 
 /**
@@ -117,6 +126,7 @@ export function Textarea({
   required,
   disabled,
   css,
+  controlCss,
   value,
   defaultValue,
   onInput,
@@ -167,12 +177,12 @@ export function Textarea({
   }, [autoGrow, value]);
 
   return (
-    <div css={[stack.tight, fieldStyles.root]}>
+    <div css={[stack.tight, fieldStyles.root, css]}>
       <div css={[stack.text, labelHidden && !hasDescription && a11y.srOnly]}>
         <label
           htmlFor={fieldId}
           css={[
-            typeRole.control,
+            typeRole.label,
             fieldStyles.label,
             required && fieldStyles.labelRequired,
             labelHidden && a11y.srOnly,
@@ -229,7 +239,7 @@ export function Textarea({
             a11y.focusRing,
             fieldStyles.keyboardRing,
             hasError ? fieldStyles.controlInvalid : null,
-            css,
+            controlCss,
           ]}
         />
       </div>

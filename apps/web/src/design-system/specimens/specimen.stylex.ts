@@ -24,14 +24,12 @@ import { border, rhythm } from "@tuja/ui/tokens.stylex";
  * `fill` sets width only, never `align-self: stretch` — stretching would pull a
  * callout or a field to the full height of its row and make it read as a panel
  * rather than as one specimen. Note it does not always produce a plate-wide
- * specimen. The `css` prop compiles to a `className` at the callsite, so where it
- * lands is the receiving component's decision: Callout, Card, Divider, Skeleton
- * and the Menu button stage put it on their rendered root, while Select, Text
- * field and Textarea put it on their inner control and leave the field root
- * content-sized. (Select declares a `css` prop of its own that would reach its
- * root, but the callsite's `css` never arrives as that prop.) So `fill` is not
+ * specimen. Where it lands is the receiving component's decision: Callout,
+ * Card, Divider, Skeleton, Select and the Menu button stage put `css` on their
+ * rendered root. Text field and Textarea take it as `controlCss`, on their
+ * inner control, and leave the field root content-sized. So `fill` is not
  * evidence that a specimen fills its plate — check the rendered root — and the
- * wrapper's centring is load-bearing for those three callsites too.
+ * wrapper's centring is load-bearing for those two callsites too.
  *
  * Anything beyond arrangement — a wireframe's chrome, a component-specific
  * width cap — stays local to the specimen that needs it.

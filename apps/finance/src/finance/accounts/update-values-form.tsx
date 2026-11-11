@@ -272,7 +272,7 @@ export function UpdateValuesForm() {
                         account.currency,
                       )
                     }
-                    css={typeModifier.numeric}
+                    controlCss={typeModifier.numeric}
                     onFocus={(event) => {
                       event.currentTarget.select();
                     }}

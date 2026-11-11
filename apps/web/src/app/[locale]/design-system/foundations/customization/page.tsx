@@ -71,8 +71,8 @@ export default function CustomizationPage() {
         </GuideNote>
         <GuideNote>
           {t({
-            en: "TextField and Textarea put css on the field, so a margin lands under the label.",
-            zh: "TextField 与 Textarea 把 css 用在输入框上，因此外边距会落在标签下方。",
+            en: "TextField and Textarea put css on the whole field, label included. To style the input itself, use controlCss.",
+            zh: "TextField 与 Textarea 把 css 用在包含标签的整个字段上。要为输入框本身设置样式，请使用 controlCss。",
           })}
         </GuideNote>
         <GuideNote>

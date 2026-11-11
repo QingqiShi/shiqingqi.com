@@ -21,18 +21,24 @@ export const tabViewTokens = stylex.defineVars({
   },
   /** The gap between the bottom of the screen and the floating tab bar. */
   barInsetBlockEnd: BAR_INSET_BLOCK_END,
-  /** The width of the rail at `md` and wider. */
+  /** The width of the icon rail at `md` and wider. */
   railInlineSize: "4rem",
+  /** The width of the labelled sidebar. */
+  sidebarInlineSize: "15rem",
 });
 
 /**
- * Where the rail shows in place of the tab bar: where the view is as wide as
- * `breakpoints.md`. The view measures its own width, so a `TabView` in a
- * frame, such as a demo, takes the form that fits the frame. Content in the
- * view can take the same forms, such as an action that the tab bar leaves to
- * the content.
+ * The form of the rail, which the view sets for each value of `rail` and
+ * each width: the `display` of the parts of the icon rail and of the
+ * labelled sidebar, and the width, the inline padding and the alignment of
+ * the slots of the column that holds them.
+ *
+ * @internal
  */
-export const tabViewQueries = stylex.defineConsts({
-  rail: "@container tab-view (width >= 768px)",
-  bar: "@container tab-view (width < 768px)",
+export const tabViewForm = stylex.defineVars({
+  icons: "block",
+  labels: "none",
+  inlineSize: "4rem",
+  paddingInline: "0px",
+  slotJustify: "center",
 });
