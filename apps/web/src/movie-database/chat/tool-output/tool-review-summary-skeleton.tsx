@@ -1,17 +1,17 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/color.stylex";
+import { Card } from "@tuja/ui/components/card";
+import { Divider } from "@tuja/ui/components/divider";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { controlHeight, rhythm } from "@tuja/ui/tokens.stylex";
 
 const STAGGER_DELAY = 80;
 
 export function ToolReviewSummarySkeleton() {
   return (
-    <div css={[corner.radius_2, styles.card]}>
+    <Card padding="sm" css={styles.card}>
       <div css={styles.headerRow}>
         <Skeleton width={110} height={14} delay={0 * STAGGER_DELAY} />
         <Skeleton width={70} height={18} delay={1 * STAGGER_DELAY} />
@@ -21,40 +21,34 @@ export function ToolReviewSummarySkeleton() {
         <Skeleton fill height={14} delay={3 * STAGGER_DELAY} />
         <Skeleton width={200} height={14} delay={4 * STAGGER_DELAY} />
       </div>
+      <Divider />
       <div css={styles.buttonsArea}>
         {Array.from({ length: 5 }, (_, i) => (
           <Skeleton
             key={i}
-            width={40}
-            height={36}
+            width={controlHeight.sm}
+            height={controlHeight.sm}
+            shape="control"
             delay={(5 + i) * STAGGER_DELAY}
           />
         ))}
       </div>
-    </div>
+    </Card>
   );
 }
 
 const styles = stylex.create({
   card: {
-    backgroundColor: color.popover,
-    padding: space._3,
     marginTop: rhythm.item,
   },
   headerRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: rhythm.tight,
   },
   buttonsArea: {
     display: "flex",
     justifyContent: "center",
     gap: rhythm.tight,
-    marginTop: rhythm.item,
-    paddingTop: space._3,
-    borderTopWidth: border.size_1,
-    borderTopStyle: "solid",
-    borderTopColor: color.border,
   },
 });

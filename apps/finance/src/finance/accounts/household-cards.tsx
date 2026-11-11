@@ -14,11 +14,11 @@ import {
   SplitViewLink,
   UnlessStacked,
 } from "@tuja/ui/components/navigation-split-view";
+import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { Ref } from "react";
 import { MoneyChange } from "../domain/money/money-change.tsx";
@@ -116,12 +116,12 @@ function WhatMoved({
         {t({ en: "What moved this week", zh: "本周变动" })}
       </Heading>
       {movers.length === 0 ? (
-        <p css={[typeRole.bodySmall, styles.muted]}>
+        <Text look="bodySmall" tone="muted" measure="none">
           {t({
             en: "No balance moved this week.",
             zh: "本周余额没有变动。",
           })}
-        </p>
+        </Text>
       ) : (
         <ul
           role="list"
@@ -144,15 +144,14 @@ function WhatMoved({
                     styles.moverLink,
                   )}
                 >
-                  <span
-                    css={[
-                      typeRole.bodySmall,
-                      typeModifier.verbatim,
-                      styles.moverName,
-                    ]}
+                  <Text
+                    as="span"
+                    look="bodySmall"
+                    verbatim
+                    css={styles.moverName}
                   >
                     {accountName(mover.account)}
-                  </span>
+                  </Text>
                   <span aria-hidden css={[corner.radius_round, styles.track]}>
                     <span css={styles.axis} />
                     <span
@@ -164,14 +163,14 @@ function WhatMoved({
                       ]}
                     />
                   </span>
-                  <span css={[typeRole.bodySmall, styles.moverChange]}>
+                  <Text as="span" look="bodySmall" align="end">
                     <MoneyChange
                       changeMinor={mover.changeMinor}
                       currency={currency}
                       tone
                       whole
                     />
-                  </span>
+                  </Text>
                 </SplitViewLink>
               </li>
             );
@@ -232,13 +231,13 @@ function NeedsALook({
         role="region"
       >
         {title}
-        <p css={[row.tight, typeRole.bodySmall, styles.muted]}>
+        <Text look="bodySmall" tone="muted" measure="none" css={row.tight}>
           <CheckCircleIcon weight="bold" aria-hidden />
           {t({
             en: "Nothing needs a look.",
             zh: "暂时没有需要核对的。",
           })}
-        </p>
+        </Text>
       </Card>
     );
   }
@@ -300,10 +299,6 @@ const styles = stylex.create({
   cardsFloor: (minBlockSize: string) => ({
     minBlockSize,
   }),
-  muted: {
-    margin: 0,
-    color: color.mutedForeground,
-  },
   // The rows share their columns, so the middle of every bar lines up.
   movers: {
     display: "grid",
@@ -335,9 +330,6 @@ const styles = stylex.create({
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
-  },
-  moverChange: {
-    textAlign: "end",
   },
   // A gain grows right from the middle and a loss grows left, so that the
   // two read apart without their colour.

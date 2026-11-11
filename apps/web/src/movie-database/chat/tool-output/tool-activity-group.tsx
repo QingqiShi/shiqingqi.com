@@ -1,20 +1,10 @@
 "use client";
 
-import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import {
-  motionConstants,
-  duration,
-  easing,
-} from "@tuja/ui/primitives/motion.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { controlSize, space } from "@tuja/ui/tokens.stylex";
-import { useId, useState } from "react";
+import { Disclosure } from "@tuja/ui/components/disclosure";
+import { Text } from "@tuja/ui/components/text";
+import { space } from "@tuja/ui/tokens.stylex";
 import { TERMINAL_STATES, ToolActivityLine } from "./tool-activity-line";
 
 interface ToolPartData {
@@ -34,9 +24,6 @@ export function ToolActivityGroup({
   toolParts,
   isStreaming = false,
 }: ToolActivityGroupProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const expandedId = useId();
-
   if (toolParts.length === 0) return null;
 
   const allComplete =
@@ -66,39 +53,26 @@ export function ToolActivityGroup({
 
   return (
     <div css={styles.container}>
-      <button
-        type="button"
-        css={[
-          typeRole.bodySmall,
-          buttonReset.base,
-          flex.row,
-          a11y.focusRingInset,
-          styles.disclosureButton,
-        ]}
-        aria-expanded={isOpen}
-        aria-controls={expandedId}
-        onClick={() => {
-          setIsOpen((prev) => !prev);
-        }}
+      <Disclosure
+        look="inline"
+        summary={
+          <Text as="span" look="bodySmall" tone="muted">
+            {summaryText}
+          </Text>
+        }
       >
-        <CaretRightIcon
-          weight="bold"
-          aria-hidden="true"
-          {...stylex.props(styles.caret, isOpen && styles.caretOpen)}
-        />
-        <span>{summaryText}</span>
-      </button>
-      <div id={expandedId} css={styles.expandedContent} hidden={!isOpen}>
-        {toolParts.map((part) => (
-          <ToolActivityLine
-            key={part.toolCallId}
-            toolName={part.toolName}
-            state={part.state}
-            input={part.input}
-            output={part.output}
-          />
-        ))}
-      </div>
+        <div css={styles.expandedContent}>
+          {toolParts.map((part) => (
+            <ToolActivityLine
+              key={part.toolCallId}
+              toolName={part.toolName}
+              state={part.state}
+              input={part.input}
+              output={part.output}
+            />
+          ))}
+        </div>
+      </Disclosure>
     </div>
   );
 }
@@ -106,22 +80,6 @@ export function ToolActivityGroup({
 const styles = stylex.create({
   container: {
     paddingBlock: space._1,
-  },
-  disclosureButton: {
-    gap: controlSize._2,
-    margin: 0,
-    color: color.mutedForeground,
-    minHeight: "1.5rem",
-  },
-  caret: {
-    flexShrink: 0,
-    transition: {
-      default: `transform ${duration._400} ${easing.spring}`,
-      [motionConstants.REDUCED_MOTION]: "none",
-    },
-  },
-  caretOpen: {
-    transform: "rotate(90deg)",
   },
   expandedContent: {
     paddingLeft: space._4,

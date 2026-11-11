@@ -3,11 +3,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
+import { Divider } from "@tuja/ui/components/divider";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { MoneyChange } from "../domain/money/money-change.tsx";
 import { fillTemplate } from "./fill-template.ts";
@@ -57,17 +56,18 @@ export function ReportMovesChart({
               value: change(changeMinor),
             }))}
           />
-          <p css={[typeRole.bodySmall, styles.total]}>
-            <span css={styles.totalLabel}>
+          <Divider />
+          <Text look="bodySmall" measure="none" css={styles.total}>
+            <Text as="span" look="bodySmall" weight="semibold">
               {t({ en: "Net worth", zh: "净资产" })}
-            </span>
+            </Text>
             <MoneyChange
               changeMinor={data.comparisons.previousWeek.changeMinor}
               fromMinor={data.comparisons.previousWeek.netWorthMinor}
               currency={currency}
               tone
             />
-          </p>
+          </Text>
           {unchanged.length === 0 ? null : (
             <Text as="p" look="caption" tone="muted">
               {fillTemplate(
@@ -92,13 +92,5 @@ const styles = stylex.create({
     justifyContent: "space-between",
     alignItems: "baseline",
     gap: rhythm.item,
-    margin: 0,
-    paddingBlockStart: space._1,
-    borderBlockStartWidth: "1px",
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
-  },
-  totalLabel: {
-    fontWeight: font.weight_6,
   },
 });

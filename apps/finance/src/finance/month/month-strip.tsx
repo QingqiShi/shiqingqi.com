@@ -5,6 +5,7 @@ import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
 import { Heading } from "@tuja/ui/components/heading";
+import { Text } from "@tuja/ui/components/text";
 import type { MotionEngine } from "@tuja/ui/motion/create-motion-engine";
 import { useBinding } from "@tuja/ui/motion/use-binding";
 import {
@@ -15,8 +16,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef } from "react";
 import { displayDay } from "../domain/dates/display-day.ts";
 import type { MonthBar } from "./build-month-view.ts";
@@ -129,7 +129,7 @@ export function MonthStrip({
 
   return (
     <section css={stack.tight} aria-labelledby={headingId}>
-      <Heading level={2} look="h4" id={headingId} css={styles.heading}>
+      <Heading level={2} look="h4" id={headingId}>
         {t({ en: "Left over each month", zh: "每月结余" })}
       </Heading>
       <div css={styles.strip}>
@@ -139,11 +139,16 @@ export function MonthStrip({
           css={[styles.marker, styles.slotWidth(bars.length)]}
         >
           <span css={[corner.radius_3, styles.markerFill]} />
-          <span
-            css={[typeRole.caption, typeModifier.numeric, styles.markerLabel]}
+          <Text
+            as="span"
+            look="caption"
+            weight="semibold"
+            numeric
+            wrap="nowrap"
+            css={styles.markerLabel}
           >
             {money(picked.net)}
-          </span>
+          </Text>
         </span>
         {bars.map((bar, at) => {
           const day = `${bar.month}-01`;
@@ -169,21 +174,21 @@ export function MonthStrip({
                 baseline={baseline}
                 isSelected={isSelected}
               />
-              <span
-                aria-hidden
-                css={[
-                  typeRole.caption,
-                  transition.colors,
-                  styles.tick,
-                  isSelected && styles.tickSelected,
-                ]}
-              >
-                <span css={styles.wideTick}>
-                  {displayDay(day, locale, "month")}
-                </span>
-                <span css={styles.narrowTick}>
-                  {displayDay(day, locale, "narrowMonth")}
-                </span>
+              <span aria-hidden css={styles.tick}>
+                <Text
+                  as="span"
+                  look="caption"
+                  tone={isSelected ? "default" : "muted"}
+                  weight={isSelected ? "bold" : undefined}
+                  css={transition.colors}
+                >
+                  <span css={styles.wideTick}>
+                    {displayDay(day, locale, "month")}
+                  </span>
+                  <span css={styles.narrowTick}>
+                    {displayDay(day, locale, "narrowMonth")}
+                  </span>
+                </Text>
               </span>
             </button>
           );
@@ -196,9 +201,6 @@ export function MonthStrip({
 const NARROW = "@container (max-width: 26rem)";
 
 const styles = stylex.create({
-  heading: {
-    margin: 0,
-  },
   strip: {
     containerType: "inline-size",
     position: "relative",
@@ -228,9 +230,6 @@ const styles = stylex.create({
     insetBlockStart: 0,
     insetInlineStart: "50%",
     transform: "translateX(-50%)",
-    whiteSpace: "nowrap",
-    fontWeight: font.weight_6,
-    color: color.foreground,
   },
   slot: {
     position: "relative",
@@ -300,12 +299,7 @@ const styles = stylex.create({
     insetBlockStart: `${(baseline * 100).toFixed(2)}%`,
   }),
   tick: {
-    color: color.mutedForeground,
     whiteSpace: "nowrap",
-  },
-  tickSelected: {
-    color: color.foreground,
-    fontWeight: font.weight_7,
   },
   wideTick: {
     display: { default: "inline", [NARROW]: "none" },

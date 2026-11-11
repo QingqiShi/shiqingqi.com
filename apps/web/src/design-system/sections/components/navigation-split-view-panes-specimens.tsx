@@ -104,7 +104,9 @@ export function TaskDetail({
       <dl css={[stack.item, styles.facts]}>
         {facts.map((fact) => (
           <div key={fact.label} css={stack.text}>
-            <dt css={[typeRole.caption, styles.term]}>{fact.label}</dt>
+            <Text as="dt" look="caption" tone="muted">
+              {fact.label}
+            </Text>
             <dd css={[typeRole.body, styles.value]}>{fact.value}</dd>
           </div>
         ))}
@@ -162,7 +164,11 @@ export function ProjectMark({
 }
 
 export function Count({ children }: { children: number }) {
-  return <span css={[typeRole.bodySmall, styles.count]}>{children}</span>;
+  return (
+    <Text as="span" look="bodySmall" tone="muted">
+      {children}
+    </Text>
+  );
 }
 
 const styles = stylex.create({
@@ -186,14 +192,8 @@ const styles = stylex.create({
     color: color.foreground,
     backgroundColor: color.muted,
   },
-  count: {
-    color: color.mutedForeground,
-  },
   facts: {
     margin: 0,
-  },
-  term: {
-    color: color.mutedForeground,
   },
   value: {
     margin: 0,

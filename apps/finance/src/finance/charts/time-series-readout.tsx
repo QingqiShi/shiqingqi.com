@@ -4,10 +4,11 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { displayDay, displayDayRange } from "../domain/dates/display-day.ts";
 import { MoneyChange } from "../domain/money/money-change.tsx";
@@ -89,15 +90,16 @@ export function TimeSeriesReadout({
                   fromMinor={from}
                   currency={currency}
                   tone
+                  look="caption"
                 />
               </span>
               <span>{rangeDays}</span>
             </>
           ) : active === null ? null : (
             <>
-              <span css={[typeModifier.numeric, styles.readoutValue]}>
+              <Text as="span" look="caption" weight="semibold" numeric>
                 {formatValue(series.values[active])}
-              </span>
+              </Text>
               {activeTrend === null || trend === undefined ? null : (
                 <span css={[row.inline, typeModifier.numeric]}>
                   <span
@@ -137,10 +139,6 @@ const styles = stylex.create({
   },
   readoutHidden: {
     visibility: "hidden",
-  },
-  readoutValue: {
-    color: color.foreground,
-    fontWeight: font.weight_6,
   },
   readoutKey: {
     display: "inline-block",

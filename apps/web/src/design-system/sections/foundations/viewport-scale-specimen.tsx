@@ -4,9 +4,10 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useState } from "react";
 import { gridlineTokens } from "#src/design-system/gridline-ground.stylex.ts";
@@ -44,9 +45,15 @@ export function ViewportScaleSpecimen() {
             >
               Ag
             </span>
-            <span css={[typeRole.caption, typeModifier.numeric, styles.mono]}>
+            <Text
+              as="span"
+              look="caption"
+              tone="muted"
+              numeric
+              css={styles.mono}
+            >
               {`${step.size.toString()}rem`}
-            </span>
+            </Text>
           </div>
         ))}
         <div css={[corner.radius_2, styles.bandRow]}>
@@ -57,9 +64,15 @@ export function ViewportScaleSpecimen() {
               >
                 {step.label}
               </span>
-              <span css={[typeRole.caption, typeModifier.numeric, styles.mono]}>
+              <Text
+                as="span"
+                look="caption"
+                tone="muted"
+                numeric
+                css={styles.mono}
+              >
                 {step.threshold}
-              </span>
+              </Text>
             </div>
           ))}
         </div>
@@ -96,12 +109,10 @@ function WindowWidthReadout() {
 
   return (
     <p css={[stack.text, styles.marker]}>
-      <span css={[typeRole.overline, styles.mono]}>
+      <Text as="span" look="overline" tone="muted" css={styles.mono}>
         {t({ en: "your window", zh: "你的窗口" })}
-      </span>
-      <span
-        css={[typeRole.bodySmall, typeModifier.numeric, styles.markerValue]}
-      >
+      </Text>
+      <Text as="span" look="bodySmall" numeric css={styles.markerValue}>
         {viewport === undefined ? (
           " "
         ) : (
@@ -110,7 +121,7 @@ function WindowWidthReadout() {
             <span css={styles.markerBand}>{active?.label}</span>
           </>
         )}
-      </span>
+      </Text>
     </p>
   );
 }
@@ -135,7 +146,6 @@ const styles = stylex.create({
   }),
   mono: {
     fontFamily: font.familyMono,
-    color: color.mutedForeground,
   },
   bandRow: {
     display: "grid",
@@ -162,7 +172,6 @@ const styles = stylex.create({
   },
   markerValue: {
     fontFamily: font.familyMono,
-    color: color.foreground,
   },
   markerBand: {
     fontWeight: font.weight_6,

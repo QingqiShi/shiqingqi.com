@@ -2,7 +2,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { PageHeader } from "@tuja/ui/components/page-header";
-import { specimenLayout } from "./specimen.stylex.ts";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 
 /**
  * A title, a short description and one action: the three parts a reader
@@ -22,7 +22,7 @@ export function PageHeaderSpecimen() {
           {t({ en: "Add", zh: "添加" })}
         </Button>
       }
-      css={specimenLayout.fill}
+      css={fill.inline}
     />
   );
 }

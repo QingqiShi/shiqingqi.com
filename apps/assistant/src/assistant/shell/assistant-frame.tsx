@@ -1,10 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { controlSize, font, space } from "@tuja/ui/tokens.stylex";
+import { controlSize, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { AssistantLogo } from "../pwa/assistant-logo.tsx";
 
@@ -26,7 +25,9 @@ export function AssistantFrame({
       <div css={[stack.section, styles.column]}>
         <div css={row.tight}>
           <AssistantLogo css={styles.logo} />
-          <span css={[typeRole.control, styles.brand]}>{brand}</span>
+          <Text as="span" look="control" weight="semibold">
+            {brand}
+          </Text>
         </div>
         {children}
       </div>
@@ -51,9 +52,5 @@ const styles = stylex.create({
     flexShrink: 0,
     inlineSize: controlSize._9,
     blockSize: controlSize._9,
-  },
-  brand: {
-    color: color.foreground,
-    fontWeight: font.weight_6,
   },
 });

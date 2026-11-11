@@ -2,8 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
+import { Text } from "@tuja/ui/components/text";
 import { useReducedMotion } from "@tuja/ui/motion/use-reduced-motion";
 import {
   animate,
@@ -12,7 +12,6 @@ import {
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
@@ -92,12 +91,12 @@ export function ReducedMotionSpecimen() {
                 : t({ en: "Send it across", zh: "让它移过去" })}
             </Button>
           </span>
-          <p css={[typeRole.bodySmall, styles.hint]}>
+          <Text look="bodySmall" tone="muted" measure="none">
             {t({
               en: "Both follow your system setting. Change it, and they change on this page.",
               zh: "两者都跟随你的系统设置。改变设置，它们就在本页随之改变。",
             })}
-          </p>
+          </Text>
         </div>
       </div>
       <UsageSnippet label={t({ en: "Styles", zh: "样式" })} code={STYLES} />
@@ -129,9 +128,5 @@ const styles = stylex.create({
       default: "transform, background-color",
       [motionConstants.REDUCED_MOTION]: "background-color",
     },
-  },
-  hint: {
-    margin: 0,
-    color: color.mutedForeground,
   },
 });

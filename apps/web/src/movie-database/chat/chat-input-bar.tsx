@@ -4,20 +4,12 @@ import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import { StopIcon } from "@phosphor-icons/react/dist/ssr/Stop";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/color.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { Badge } from "@tuja/ui/components/badge";
+import { Button } from "@tuja/ui/components/button";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
-import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { controlSize, space } from "@tuja/ui/tokens.stylex";
 import type { AttachedMedia } from "./chat-actions-context";
-import {
-  ChatTextarea,
-  chatTextareaStyles,
-  useChatTextarea,
-} from "./chat-textarea.tsx";
+import { ChatTextarea, useChatTextarea } from "./chat-textarea.tsx";
 
 interface ChatInputBarProps {
   placeholder: string;
@@ -58,25 +50,16 @@ export function ChatInputBar({
       beforeTextarea={
         attachedMedia && (
           <div css={styles.attachmentRow}>
-            <span
-              css={[typeRole.label, corner.radius_round, styles.attachmentTag]}
-            >
+            <Badge intent="neutral" css={styles.attachmentTag}>
               <span css={truncate.base}>{attachedMedia.title}</span>
-              <button
-                type="button"
-                aria-label={removeAttachmentLabel}
-                onClick={onClearAttachment}
-                css={[
-                  flex.inlineCenter,
-                  buttonReset.base,
-                  corner.radius_round,
-                  quietSurface.interactive,
-                  styles.attachmentDismiss,
-                ]}
-              >
-                <XIcon weight="bold" aria-hidden="true" />
-              </button>
-            </span>
+            </Badge>
+            <Button
+              look="ghost"
+              size="xs"
+              aria-label={removeAttachmentLabel}
+              onClick={onClearAttachment}
+              icon={<XIcon weight="bold" aria-hidden="true" />}
+            />
           </div>
         )
       }
@@ -106,39 +89,28 @@ function ChatInputBarActions({
 
   if (isLoading) {
     return (
-      <button
-        type="button"
+      <Button
+        look="primary"
+        size="sm"
         aria-label={stopLabel}
         onClick={() => {
           onStop();
           focusTextarea();
         }}
-        css={[
-          flex.inlineCenter,
-          buttonReset.base,
-          chatTextareaStyles.iconButton,
-          chatTextareaStyles.iconButtonActive,
-        ]}
-      >
-        <StopIcon weight="fill" role="presentation" />
-      </button>
+        icon={<StopIcon weight="fill" role="presentation" />}
+      />
     );
   }
 
   return (
-    <button
+    <Button
       type="submit"
+      look={trimmedText ? "primary" : undefined}
+      size="sm"
       aria-label={sendLabel}
       disabled={!trimmedText}
-      css={[
-        flex.inlineCenter,
-        buttonReset.base,
-        chatTextareaStyles.iconButton,
-        !!trimmedText && chatTextareaStyles.iconButtonActive,
-      ]}
-    >
-      <ArrowUpIcon weight="bold" role="presentation" />
-    </button>
+      icon={<ArrowUpIcon weight="bold" role="presentation" />}
+    />
   );
 }
 
@@ -146,24 +118,12 @@ const styles = stylex.create({
   attachmentRow: {
     width: "100%",
     display: "flex",
+    alignItems: "center",
+    gap: controlSize._1,
     paddingBottom: space._1,
   },
   attachmentTag: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: controlSize._2,
-    backgroundColor: color.popover,
-    paddingBlock: space._0,
-    paddingLeft: space._2,
-    paddingRight: space._1,
-    color: color.mutedForeground,
+    minInlineSize: 0,
     maxWidth: "100%",
-  },
-  attachmentDismiss: {
-    flexShrink: 0,
-    width: "1rem",
-    height: "1rem",
-    fontSize: controlSize._3,
-    color: color.mutedForeground,
   },
 });

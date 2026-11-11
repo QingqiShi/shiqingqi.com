@@ -3,11 +3,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
 import { Progress } from "@tuja/ui/components/progress";
-import { progressTokens } from "@tuja/ui/components/progress.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { formatMoney } from "../domain/money/format-money.ts";
 
@@ -38,18 +36,14 @@ export function CreditUsageMeter({
         size="sm"
         label={t({ en: "Credit limit used", zh: "信用额度使用" })}
         aria-valuetext={`${usedText} / ${limitText}`}
-        css={styles.meter}
       />
-      <div
-        css={[
-          flex.between,
-          typeRole.caption,
-          typeModifier.numeric,
-          styles.caption,
-        ]}
-      >
-        <span>{`${usedText} / ${limitText}`}</span>
-        <span css={styles.available}>{availableText}</span>
+      <div css={[flex.between, styles.caption]}>
+        <Text as="span" look="caption" tone="muted" numeric>
+          {`${usedText} / ${limitText}`}
+        </Text>
+        <Text as="span" look="caption" numeric>
+          {availableText}
+        </Text>
       </div>
     </div>
   );
@@ -59,15 +53,8 @@ const styles = stylex.create({
   root: {
     gap: rhythm.tight,
   },
-  meter: {
-    [progressTokens.indicatorColor]: color.foreground,
-  },
   caption: {
     gap: rhythm.tight,
     flexWrap: "wrap",
-    color: color.mutedForeground,
-  },
-  available: {
-    color: color.foreground,
   },
 });

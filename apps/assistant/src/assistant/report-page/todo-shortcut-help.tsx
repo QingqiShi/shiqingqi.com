@@ -76,9 +76,9 @@ export function TodoShortcutHelp({
                 </kbd>
               ))}
             </dt>
-            <dd css={styles.text}>
-              <Text look="bodySmall">{text}</Text>
-            </dd>
+            <Text as="dd" look="bodySmall">
+              {text}
+            </Text>
           </div>
         ))}
       </dl>
@@ -108,8 +108,5 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: color.border,
     backgroundColor: color.secondary,
-  },
-  text: {
-    margin: 0,
   },
 });

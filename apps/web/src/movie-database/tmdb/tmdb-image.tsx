@@ -2,7 +2,7 @@
 
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import type { StyleProp } from "@tuja/ui/types";
-import { useState, type ReactNode } from "react";
+import { useState, type ComponentProps, type ReactNode } from "react";
 import { buildTmdbSrcSet } from "./build-tmdb-src-set.ts";
 
 interface TmdbImageProps {
@@ -12,8 +12,10 @@ interface TmdbImageProps {
   alt: string;
   sizes: string;
   imgCss?: StyleProp;
+  /** Layout of the loading skeleton in its box, such as an absolute inset. */
   skeletonCss?: StyleProp;
   skeletonFill?: boolean;
+  skeletonShape?: ComponentProps<typeof Skeleton>["shape"];
   errorFallback?: ReactNode;
   loading?: "lazy" | "eager";
 }
@@ -32,6 +34,7 @@ export function TmdbImage({
   imgCss,
   skeletonCss,
   skeletonFill,
+  skeletonShape,
   errorFallback = null,
   loading = "lazy",
 }: TmdbImageProps) {
@@ -60,7 +63,9 @@ export function TmdbImage({
 
   return (
     <>
-      {!loaded && <Skeleton fill={skeletonFill} css={[skeletonCss]} />}
+      {!loaded && (
+        <Skeleton fill={skeletonFill} shape={skeletonShape} css={skeletonCss} />
+      )}
       {/* TMDB images are already optimized by the provider — no need for next/image */}
       <img
         css={[imgCss]}

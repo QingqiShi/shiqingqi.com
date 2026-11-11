@@ -1,7 +1,6 @@
 import { ArrowsLeftRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowsLeftRight";
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/color.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { Text } from "@tuja/ui/components/text";
 import type { ReactNode } from "react";
 import type { TransactionRow } from "../sync/row-schemas.ts";
 import type { TransactionLookups } from "./select-transaction-lookups.ts";
@@ -36,17 +35,14 @@ function iconOf(
       : lookups.categoryEmojiById.get(transaction.categoryId);
   if (emoji !== undefined && emoji !== "") return emoji;
   return (
-    <span css={[typeRole.label, styles.initial]}>
+    <Text as="span" look="label" tone="muted">
       {(title || "·").trim().slice(0, 1).toUpperCase()}
-    </span>
+    </Text>
   );
 }
 
 const styles = stylex.create({
   icon: {
     display: "flex",
-  },
-  initial: {
-    color: color.mutedForeground,
   },
 });

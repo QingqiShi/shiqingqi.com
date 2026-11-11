@@ -42,7 +42,6 @@ export function ProjectCard({
 const styles = stylex.create({
   card: {
     position: "relative",
-    color: color.mutedForeground,
     containerType: "inline-size",
   },
   row: {
@@ -54,6 +53,9 @@ const styles = stylex.create({
     alignItems: "center",
     gap: rhythm.tight,
   },
+  name: {
+    color: color.mutedForeground,
+  },
   // This box has the same size as the brand logos on the other cards. That
   // size is not a step of a type role or of controlSize, thus the icon fills
   // the box.
@@ -61,8 +63,5 @@ const styles = stylex.create({
     inlineSize: "64px",
     blockSize: "64px",
     color: stylex.firstThatWorks(svgTokens.fill, projectCardTokens.brand),
-  },
-  name: {
-    color: color.mutedForeground,
   },
 });

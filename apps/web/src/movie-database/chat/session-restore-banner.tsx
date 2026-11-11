@@ -2,16 +2,12 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
+import { Button } from "@tuja/ui/components/button";
 import { Card } from "@tuja/ui/components/card";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { opacity, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 
 interface SessionRestoreBannerProps {
   onContinue: () => void;
@@ -44,37 +40,26 @@ export function SessionRestoreBanner({
 
   return (
     <Card css={row.item} role={hasError ? "alert" : undefined}>
-      <p css={[typeRole.body, styles.text, hasError && styles.errorText]}>
+      <Text
+        tone={hasError ? undefined : "muted"}
+        measure="none"
+        css={styles.text}
+      >
         {message}
-      </p>
+      </Text>
       <div css={[flex.row, styles.actions]}>
-        <button
-          type="button"
-          css={[
-            typeRole.label,
-            buttonReset.base,
-            corner.radius_round,
-            styles.dismissButton,
-          ]}
-          onClick={onDismiss}
-          disabled={isPending}
-        >
+        <Button look="ghost" size="sm" onClick={onDismiss} disabled={isPending}>
           {t({ en: "Dismiss", zh: "关闭" })}
-        </button>
-        <button
-          type="button"
-          css={[
-            typeRole.label,
-            buttonReset.base,
-            corner.radius_round,
-            styles.continueButton,
-          ]}
+        </Button>
+        <Button
+          look="primary"
+          size="sm"
           onClick={onContinue}
           disabled={isPending}
           aria-busy={isPending || undefined}
         >
           {continueLabel}
-        </button>
+        </Button>
       </div>
     </Card>
   );
@@ -82,53 +67,11 @@ export function SessionRestoreBanner({
 
 const styles = stylex.create({
   text: {
-    margin: 0,
-    color: color.mutedForeground,
     flex: 1,
-  },
-  errorText: {
-    color: color.foreground,
   },
   actions: {
     gap: rhythm.tight,
     alignItems: "center",
     flexShrink: 0,
-  },
-  dismissButton: {
-    paddingBlock: space._1,
-    paddingInline: space._3,
-    backgroundColor: "transparent",
-    color: {
-      default: color.mutedForeground,
-      ":hover": { default: null, [pointer.canHover]: color.foreground },
-      ":disabled": color.mutedForeground,
-    },
-    cursor: {
-      default: "pointer",
-      ":disabled": "not-allowed",
-    },
-    transition: `color ${duration._150} ${easing.ease}`,
-  },
-  continueButton: {
-    paddingBlock: space._1,
-    paddingInline: space._3,
-    backgroundColor: {
-      default: color.primary,
-      ":hover": {
-        default: null,
-        [pointer.canHover]: `color-mix(in srgb, ${color.primary} 90%, transparent)`,
-      },
-      ":disabled": color.primary,
-    },
-    color: color.primaryForeground,
-    cursor: {
-      default: "pointer",
-      ":disabled": "not-allowed",
-    },
-    opacity: {
-      default: 1,
-      ":disabled": opacity.disabled,
-    },
-    transition: `background-color ${duration._150} ${easing.ease}, opacity ${duration._150} ${easing.ease}`,
   },
 });

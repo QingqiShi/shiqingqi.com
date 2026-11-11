@@ -2,7 +2,7 @@
 
 import { t } from "@tuja/i18n";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
-import { specimenLayout } from "./specimen.stylex.ts";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 
 /**
  * Two segments, the first selected — the smallest arrangement in which the
@@ -16,7 +16,7 @@ import { specimenLayout } from "./specimen.stylex.ts";
  */
 export function SegmentedControlSpecimen() {
   return (
-    <div css={specimenLayout.fill}>
+    <div css={fill.inline}>
       <SegmentedControl
         aria-label={t({ en: "View", zh: "视图" })}
         size="sm"

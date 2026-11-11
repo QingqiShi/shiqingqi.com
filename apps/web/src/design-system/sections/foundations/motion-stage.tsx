@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
@@ -42,8 +42,12 @@ export function MotionStage({
         {children}
       </span>
       <span css={stack.text}>
-        <span css={[typeRole.caption, styles.name]}>{name}</span>
-        <span css={[typeRole.caption, styles.caption]}>{caption}</span>
+        <Text as="span" look="caption" css={styles.name}>
+          {name}
+        </Text>
+        <Text as="span" look="caption" tone="muted">
+          {caption}
+        </Text>
       </span>
     </li>
   );
@@ -106,10 +110,6 @@ const styles = stylex.create({
   },
   name: {
     fontFamily: font.familyMono,
-    color: color.foreground,
     overflowWrap: "anywhere",
-  },
-  caption: {
-    color: color.mutedForeground,
   },
 });

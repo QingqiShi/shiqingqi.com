@@ -2,8 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
-import { specimenLayout } from "./specimen.stylex.ts";
 import { WireframeBar } from "./wireframe-bar.tsx";
 
 /**
@@ -18,7 +18,7 @@ import { WireframeBar } from "./wireframe-bar.tsx";
  */
 export function PopoverSpecimen() {
   return (
-    <div css={[specimenLayout.fill, styles.stage]}>
+    <div css={[fill.inline, styles.stage]}>
       <Button size="sm">{t({ en: "Details", zh: "详情" })}</Button>
       <div css={[popoverSurface.base, styles.panel]}>
         <WireframeBar width="52%" strong />

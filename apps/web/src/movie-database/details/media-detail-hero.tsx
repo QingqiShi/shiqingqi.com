@@ -3,12 +3,12 @@ import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { skeletonTokens } from "@tuja/ui/components/skeleton.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { controlHeight, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { controlHeight, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
 import { BackdropImage } from "./backdrop-image.tsx";
@@ -53,20 +53,24 @@ export function MediaDetailHero({
             <div css={typeRole.h1} aria-hidden="true">
               {formatter.format(voteAverage)}
             </div>
-            <div css={[typeRole.bodySmall, styles.count]} aria-hidden="true">
-              {formatter.format(voteCount)}
+            <div aria-hidden="true">
+              <Text as="span" look="bodySmall" tone="muted">
+                {formatter.format(voteCount)}
+              </Text>
             </div>
           </div>
         )}
         <div css={stack.tight}>
           <h1 css={[typeRole.fluidH1, styles.h1]}>{title}</h1>
-          <div css={[typeRole.bodySmall, styles.meta]}>{meta}</div>
+          <Text as="div" look="bodySmall" tone="muted">
+            {meta}
+          </Text>
         </div>
-        {description && (
-          <p css={[typeRole.body, styles.description]}>{description}</p>
-        )}
+        {description && <Text>{description}</Text>}
         <Suspense
-          fallback={<Skeleton css={styles.trailerButtonSkeleton} width={120} />}
+          fallback={
+            <Skeleton width={120} height={controlHeight.md} shape="control" />
+          }
         >
           {trailer}
         </Suspense>
@@ -90,14 +94,6 @@ const styles = stylex.create({
   h1: {
     margin: 0,
   },
-  meta: {
-    color: color.mutedForeground,
-    margin: 0,
-  },
-  description: {
-    margin: 0,
-    maxInlineSize: measure.prose,
-  },
   ratingContainer: {
     width: space._10,
     height: space._10,
@@ -109,11 +105,5 @@ const styles = stylex.create({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-  },
-  count: {
-    color: color.mutedForeground,
-  },
-  trailerButtonSkeleton: {
-    [skeletonTokens.height]: controlHeight.md,
   },
 });

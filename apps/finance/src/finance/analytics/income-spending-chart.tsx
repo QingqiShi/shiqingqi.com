@@ -1,13 +1,11 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
 import { Heading } from "@tuja/ui/components/heading";
+import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
-import { font } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { BarChart } from "../charts/bar-chart.tsx";
 import { formatAxisMoney } from "../charts/format-axis-money.ts";
@@ -51,15 +49,15 @@ export function IncomeSpendingChart({
   const netReadout = (minor: number) => (
     <span css={typeModifier.numeric}>
       {`${netLabel} `}
-      <span css={styles.net}>
+      <Text as="span" look="caption" weight="semibold">
         {formatAnalyticsMoney(minor, currency, locale, "net")}
-      </span>
+      </Text>
     </span>
   );
 
   return (
     <section css={stack.item} aria-labelledby={headingId}>
-      <Heading level={2} look="h4" id={headingId} css={styles.heading}>
+      <Heading level={2} look="h4" id={headingId}>
         {t({ en: "Income and spending", zh: "收入与支出" })}
       </Heading>
       <BarChart
@@ -123,13 +121,3 @@ export function IncomeSpendingChart({
     </section>
   );
 }
-
-const styles = stylex.create({
-  heading: {
-    margin: 0,
-  },
-  net: {
-    color: color.foreground,
-    fontWeight: font.weight_6,
-  },
-});

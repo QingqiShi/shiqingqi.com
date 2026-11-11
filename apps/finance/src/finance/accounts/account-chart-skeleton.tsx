@@ -1,6 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlHeight, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { CHART_HEIGHT } from "./account-chart.tsx";
@@ -13,7 +12,11 @@ export function AccountChartSkeleton() {
         <div css={styles.readout}>
           <Skeleton width="11rem" height=".875rem" />
         </div>
-        <Skeleton css={[corner.radius_3, styles.chips]} />
+        <Skeleton
+          shape="control"
+          height={controlHeight.sm}
+          css={styles.chips}
+        />
       </div>
       <Skeleton width="100%" height={CHART_HEIGHT} />
     </div>
@@ -40,6 +43,5 @@ const styles = stylex.create({
     flexBasis: "18rem",
     minInlineSize: 0,
     maxInlineSize: "24rem",
-    blockSize: controlHeight.sm,
   },
 });

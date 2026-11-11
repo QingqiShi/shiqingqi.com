@@ -4,12 +4,11 @@ import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef, useState, type RefObject } from "react";
 import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
@@ -284,14 +283,12 @@ export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
         />
       ) : null}
       {text.trim() === "" ? null : (
-        <div
-          id={footerId}
-          role="status"
-          css={[flex.between, typeRole.caption, styles.footer]}
-        >
-          <span>{note}</span>
+        <div id={footerId} role="status" css={[flex.between, styles.footer]}>
+          <Text as="span" look="caption" tone="muted">
+            {note}
+          </Text>
           {enterDoes === null ? null : (
-            <span>
+            <Text as="span" look="caption" tone="muted">
               {enterDoes === undefined ? (
                 reads
               ) : (
@@ -303,7 +300,7 @@ export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
                   {enterDoes}
                 </>
               )}
-            </span>
+            </Text>
           )}
         </div>
       )}
@@ -314,7 +311,6 @@ export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
 const styles = stylex.create({
   footer: {
     gap: rhythm.inline,
-    color: color.mutedForeground,
   },
   key: {
     fontFamily: "inherit",

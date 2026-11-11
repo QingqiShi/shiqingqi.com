@@ -3,11 +3,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
+import { Stat } from "@tuja/ui/components/stat";
 import { Text } from "@tuja/ui/components/text";
-import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm } from "@tuja/ui/tokens.stylex";
+import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { MoneyChange } from "../domain/money/money-change.tsx";
 import type { WeeklyReportData } from "./weekly-report-data-schema.ts";
@@ -36,48 +35,43 @@ export function ReportHeadline({ data }: { data: WeeklyReportData }) {
   ];
 
   return (
-    <section
-      css={stack.tight}
-      aria-label={t({ en: "Net worth", zh: "净资产" })}
-    >
-      <Text look="caption" tone="muted">
-        {t({ en: "Net worth at the end of the week", zh: "本周末净资产" })}
-      </Text>
-      <span css={[typeRole.h1, typeModifier.numeric, styles.headline]}>
-        {formatMoney(data.balanceSheet.netWorthMinor, currency, locale)}
-      </span>
-      <dl css={[cluster.item, styles.changes]}>
-        {changes.map(({ key, label, comparison }) => (
-          <div key={key} css={[cluster.tight, typeRole.bodySmall]}>
-            <dt css={styles.label}>{label}</dt>
-            <dd css={styles.value}>
-              <MoneyChange
-                changeMinor={comparison.changeMinor}
-                fromMinor={comparison.netWorthMinor}
-                currency={currency}
-                tone
-              />
-            </dd>
-          </div>
-        ))}
-      </dl>
+    <section aria-label={t({ en: "Net worth", zh: "净资产" })}>
+      <Stat
+        label={t({
+          en: "Net worth at the end of the week",
+          zh: "本周末净资产",
+        })}
+        value={formatMoney(data.balanceSheet.netWorthMinor, currency, locale)}
+        detail={
+          <dl css={[cluster.item, styles.changes]}>
+            {changes.map(({ key, label, comparison }) => (
+              <div key={key} css={cluster.tight}>
+                <Text as="dt" look="bodySmall" tone="muted">
+                  {label}
+                </Text>
+                <Text as="dd" look="bodySmall" css={styles.value}>
+                  <MoneyChange
+                    changeMinor={comparison.changeMinor}
+                    fromMinor={comparison.netWorthMinor}
+                    currency={currency}
+                    tone
+                  />
+                </Text>
+              </div>
+            ))}
+          </dl>
+        }
+      />
     </section>
   );
 }
 
 const styles = stylex.create({
-  headline: {
-    fontWeight: font.weight_7,
-  },
   changes: {
     margin: 0,
     rowGap: rhythm.inline,
   },
-  label: {
-    color: color.mutedForeground,
-  },
   value: {
-    margin: 0,
     order: -1,
   },
 });

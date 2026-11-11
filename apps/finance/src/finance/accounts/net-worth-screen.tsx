@@ -206,7 +206,7 @@ function ReorderScreen({ url }: { url: NetWorthUrl }) {
     <div css={stack.group}>
       <header css={stack.tight}>
         <div css={[cluster.item, styles.header]}>
-          <Heading level={1} look="h3" css={styles.title}>
+          <Heading level={1} look="h3">
             {t({ en: "Reorder accounts", zh: "调整账户顺序" })}
           </Heading>
           <Button
@@ -239,8 +239,5 @@ const styles = stylex.create({
   header: {
     justifyContent: "space-between",
     rowGap: rhythm.tight,
-  },
-  title: {
-    margin: 0,
   },
 });

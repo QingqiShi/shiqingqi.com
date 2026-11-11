@@ -1,8 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, measure, rhythm } from "@tuja/ui/tokens.stylex";
 import {
   GuideNote,
@@ -105,10 +106,12 @@ export function TypeRolesShowcase() {
         {rows.map((row) => (
           <li key={row.name} css={styles.row}>
             <span css={[typeRole.caption, styles.meta]}>
-              <span css={styles.name}>{row.name}</span>{" "}
-              <span css={[typeModifier.numeric, styles.metrics]}>
+              <Text as="span" look="caption">
+                {row.name}
+              </Text>{" "}
+              <Text as="span" look="caption" tone="muted" numeric>
                 {row.metrics}
-              </span>
+              </Text>
             </span>
             <span css={[typeRole[row.name], styles.sample]}>{row.sample}</span>
           </li>
@@ -152,15 +155,9 @@ const styles = stylex.create({
     minInlineSize: 0,
     fontFamily: font.familyMono,
   },
-  name: {
-    color: color.foreground,
-  },
-  metrics: {
-    color: color.mutedForeground,
-  },
   sample: {
     minInlineSize: 0,
-    maxInlineSize: measure.prose,
     color: color.foreground,
+    maxInlineSize: measure.prose,
   },
 });

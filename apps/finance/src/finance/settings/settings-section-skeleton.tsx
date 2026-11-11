@@ -17,10 +17,10 @@ export function SettingsSectionSkeleton() {
         {Array.from({ length: FIELDS }, (_, index) => (
           <div key={index} css={stack.tight}>
             <Skeleton width="7rem" height="1.25rem" />
-            <Skeleton width="100%" css={styles.control} />
+            <Skeleton width="100%" height={controlHeight.md} shape="control" />
           </div>
         ))}
-        <Skeleton width="4rem" css={styles.control} />
+        <Skeleton width="4rem" height={controlHeight.md} shape="control" />
       </div>
     </div>
   );
@@ -29,8 +29,5 @@ export function SettingsSectionSkeleton() {
 const styles = stylex.create({
   section: {
     maxInlineSize: "32rem",
-  },
-  control: {
-    height: controlHeight.md,
   },
 });

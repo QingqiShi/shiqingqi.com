@@ -1,7 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { listRowSizes, listSurface } from "@tuja/ui/components/list.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { font, rhythm } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 
@@ -31,7 +30,12 @@ export function TransactionRowSkeleton({
 }: TransactionRowSkeletonProps) {
   return (
     <div css={[listSurface.row, listSurface.withMedia, styles.row, css]}>
-      <Skeleton css={[corner.radius_round, styles.icon]} />
+      <Skeleton
+        width={listRowSizes.media_md}
+        height={listRowSizes.media_md}
+        shape="round"
+        css={styles.icon}
+      />
       <div css={[styles.lines, styles.grow]}>
         {lines.map((line, index) => (
           <Skeleton key={index} width={line.width} height={line.height} />
@@ -56,8 +60,6 @@ const styles = stylex.create({
   // A ListRow centres its icon on the title and the first detail line.
   icon: {
     flexShrink: 0,
-    inlineSize: listRowSizes.media_md,
-    blockSize: listRowSizes.media_md,
     marginBlockStart: `calc((${headLines} - ${listRowSizes.media_md}) / 2)`,
   },
   lines: {

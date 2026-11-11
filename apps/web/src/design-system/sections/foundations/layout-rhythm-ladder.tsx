@@ -2,8 +2,8 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 
 interface RhythmStep {
@@ -58,13 +58,15 @@ export function LayoutRhythmLadder() {
             <span css={styles.bar} />
           </span>
           <span css={stack.text}>
-            <code css={[typeRole.label, styles.term]}>
-              {`rhythm.${step.term}`}
-            </code>
-            <span css={[typeRole.caption, typeModifier.numeric, styles.muted]}>
+            <Text as="span" look="label">
+              <code css={styles.term}>{`rhythm.${step.term}`}</code>
+            </Text>
+            <Text as="span" look="caption" tone="muted" numeric>
               {step.value}
-            </span>
-            <span css={[typeRole.caption, styles.muted]}>{step.relation}</span>
+            </Text>
+            <Text as="span" look="caption" tone="muted">
+              {step.relation}
+            </Text>
           </span>
         </li>
       ))}
@@ -92,10 +94,6 @@ const styles = stylex.create({
   },
   term: {
     fontFamily: font.familyMono,
-    color: color.foreground,
-  },
-  muted: {
-    color: color.mutedForeground,
   },
   inline: { gap: rhythm.inline },
   tight: { gap: rhythm.tight },

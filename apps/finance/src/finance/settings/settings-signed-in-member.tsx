@@ -2,8 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { cardSurface } from "@tuja/ui/components/card.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { Card } from "@tuja/ui/components/card";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { SignedInMember } from "../shell/signed-in-member.tsx";
@@ -19,19 +18,14 @@ export function SettingsSignedInMember() {
   );
 
   return (
-    <SignedInMember
-      memberName={memberName}
-      householdName={householdName}
-      css={[cardSurface.base, styles.root]}
-    />
+    <Card padding="sm" css={styles.root}>
+      <SignedInMember memberName={memberName} householdName={householdName} />
+    </Card>
   );
 }
 
 const styles = stylex.create({
   root: {
-    display: { default: "flex", [breakpoints.md]: "none" },
-    paddingBlockStart: space._2,
-    paddingBlockEnd: space._2,
-    paddingInline: space._3,
+    display: { default: null, [breakpoints.md]: "none" },
   },
 });

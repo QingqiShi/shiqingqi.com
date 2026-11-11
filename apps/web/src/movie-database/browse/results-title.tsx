@@ -44,7 +44,7 @@ export function ResultsTitle({ id }: { id: string }) {
 
 const styles = stylex.create({
   title: {
-    color: color.mutedForeground,
     margin: 0,
+    color: color.mutedForeground,
   },
 });

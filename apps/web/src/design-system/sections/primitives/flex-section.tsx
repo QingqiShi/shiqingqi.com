@@ -5,8 +5,7 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex, grow } from "@tuja/ui/primitives/flex.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
@@ -99,19 +98,26 @@ export function FlexSection() {
               {t({ en: "Library", zh: "媒体库" })}
             </Text>
             <div css={[flex.row, styles.barActions]}>
-              <span css={[typeRole.caption, corner.radius_round, styles.pill]}>
+              <Text
+                as="span"
+                look="caption"
+                tone="muted"
+                weight="semibold"
+                wrap="nowrap"
+                css={[corner.radius_round, styles.pill]}
+              >
                 {t({ en: "Filter", zh: "筛选" })}
-              </span>
-              <span
-                css={[
-                  typeRole.caption,
-                  corner.radius_round,
-                  styles.pill,
-                  styles.pillAccent,
-                ]}
+              </Text>
+              <Text
+                as="span"
+                look="caption"
+                tone="primary"
+                weight="semibold"
+                wrap="nowrap"
+                css={[corner.radius_round, styles.pill, styles.pillAccent]}
               >
                 {t({ en: "Sort", zh: "排序" })}
-              </span>
+              </Text>
             </div>
           </div>
         </Specimen>
@@ -122,26 +128,25 @@ export function FlexSection() {
         </Specimen>
         <Specimen caption="flex.row + grow._1">
           <div css={[flex.row, styles.growRow]}>
-            <span
-              css={[
-                typeRole.caption,
-                grow._1,
-                corner.radius_2,
-                styles.growField,
-              ]}
+            <Text
+              as="span"
+              look="caption"
+              tone="muted"
+              wrap="nowrap"
+              css={[grow._1, corner.radius_2, styles.growField]}
             >
               {t({ en: "Search titles", zh: "搜索标题" })}
-            </span>
-            <span
-              css={[
-                typeRole.caption,
-                corner.radius_round,
-                styles.pill,
-                styles.pillAccent,
-              ]}
+            </Text>
+            <Text
+              as="span"
+              look="caption"
+              tone="primary"
+              weight="semibold"
+              wrap="nowrap"
+              css={[corner.radius_round, styles.pill, styles.pillAccent]}
             >
               {t({ en: "Go", zh: "搜索" })}
-            </span>
+            </Text>
           </div>
         </Specimen>
       </SpecimenGrid>
@@ -172,13 +177,9 @@ const styles = stylex.create({
   pill: {
     paddingBlock: space._00,
     paddingInline: space._2,
-    fontWeight: font.weight_6,
-    color: color.mutedForeground,
     backgroundColor: color.card,
-    whiteSpace: "nowrap",
   },
   pillAccent: {
-    color: color.primaryText,
     backgroundColor: color.primarySubtle,
   },
   chipRow: {
@@ -191,10 +192,8 @@ const styles = stylex.create({
   growField: {
     paddingBlock: space._1,
     paddingInline: space._3,
-    color: color.mutedForeground,
     backgroundColor: color.muted,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
-    whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
   },

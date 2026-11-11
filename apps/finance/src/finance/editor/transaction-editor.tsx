@@ -3,12 +3,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
+import { Text } from "@tuja/ui/components/text";
 import type { ToastAction } from "@tuja/ui/components/toast";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { useState, type ReactNode, type RefObject } from "react";
 import { displayDay } from "../domain/dates/display-day.ts";
 import type { QuickAddInterpretation } from "../transactions/interpret-quick-add.ts";
@@ -144,7 +143,7 @@ export function TransactionEditor(props: TransactionEditorProps) {
   if (!draft || deleted) {
     return (
       <div css={stack.item}>
-        <p css={[typeRole.body, styles.muted]}>
+        <Text tone="muted" measure="none">
           {deleted
             ? t({
                 en: "This transaction was deleted.",
@@ -154,7 +153,7 @@ export function TransactionEditor(props: TransactionEditorProps) {
                 en: "This transaction can't be found.",
                 zh: "找不到这笔交易。",
               })}
-        </p>
+        </Text>
         <div>
           <Button onClick={props.host.close}>
             {t({ en: "Close", zh: "关闭" })}
@@ -277,12 +276,12 @@ function EditorForm({
 
       <ExistingTransactionActions form={form} makeRule={makeRule} />
 
-      <p css={[typeRole.caption, styles.muted, styles.hint]}>
+      <Text look="caption" tone="muted" css={styles.hint}>
         {t({
           en: "Enter saves. ⌘ or Ctrl + Enter saves and starts another.",
           zh: "按 Enter 保存；⌘ 或 Ctrl + Enter 保存并再记一笔。",
         })}
-      </p>
+      </Text>
 
       <EditorFooter form={form} />
     </form>
@@ -290,9 +289,6 @@ function EditorForm({
 }
 
 const styles = stylex.create({
-  muted: {
-    color: color.mutedForeground,
-  },
   hint: {
     display: { default: "none", [pointer.canHover]: "block" },
   },

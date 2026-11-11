@@ -4,13 +4,14 @@ import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { Button } from "@tuja/ui/components/button";
+import { Heading } from "@tuja/ui/components/heading";
 import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { layer, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -64,9 +65,13 @@ export function PersonDetailContent({
   if (detailQuery.isError) {
     return (
       <div css={styles.body}>
-        <h2 css={[typeRole.h1, styles.name]}>{displayName}</h2>
-        <p css={[typeRole.bodySmall, styles.errorText]} role="alert">
-          {t({ en: "Failed to load details", zh: "加载详情失败" })}
+        <Heading level={2} look="h1">
+          {displayName}
+        </Heading>
+        <p css={styles.errorText} role="alert">
+          <Text as="span" look="bodySmall" tone="muted">
+            {t({ en: "Failed to load details", zh: "加载详情失败" })}
+          </Text>
         </p>
       </div>
     );
@@ -86,13 +91,15 @@ export function PersonDetailContent({
           </div>
         ) : profilePath ? (
           <div css={[corner.radius_round, styles.photoWrapper]}>
-            <Skeleton css={skeletonStyles.photo} />
+            <Skeleton shape="square" css={skeletonStyles.inset} />
           </div>
         ) : null}
         <div css={styles.headerInfo}>
-          <h2 css={[typeRole.h1, styles.name]}>{displayName}</h2>
+          <Heading level={2} look="h1">
+            {displayName}
+          </Heading>
           {hasMeta ? (
-            <div css={[typeRole.bodySmall, styles.meta]}>
+            <Text as="div" look="bodySmall" tone="muted">
               <MetaLine
                 facts={[
                   detail.knownForDepartment ? (
@@ -104,7 +111,7 @@ export function PersonDetailContent({
                   lifespan,
                 ]}
               />
-            </div>
+            </Text>
           ) : (
             detailQuery.isPending && <Skeleton width={180} height={14} />
           )}
@@ -117,9 +124,9 @@ export function PersonDetailContent({
       )}
       {filmography.length > 0 && (
         <div css={stack.tight}>
-          <h3 css={[typeRole.h4, styles.filmographyTitle]}>
+          <Heading level={3} look="h4">
             {t({ en: "Filmography", zh: "作品" })}
-          </h3>
+          </Heading>
           <FilmographyScroller items={filmography} />
         </div>
       )}
@@ -146,7 +153,8 @@ function ProfileImage({
       alt={alt}
       sizes="90px"
       imgCss={styles.photo}
-      skeletonCss={skeletonStyles.photo}
+      skeletonShape="square"
+      skeletonCss={skeletonStyles.inset}
       errorFallback={
         <div css={[typeRole.h1, styles.profileFallback]}>{alt.charAt(0)}</div>
       }
@@ -194,9 +202,10 @@ export function ExpandableBiography({ text }: { text: string }) {
         {text}
       </Text>
       {(isClamped || expanded) && (
-        <button
-          type="button"
-          css={[typeRole.bodySmall, buttonReset.base, styles.readMoreButton]}
+        <Button
+          look="ghost"
+          size="xs"
+          bleed="start"
           aria-expanded={expanded}
           aria-controls={biographyId}
           onClick={() => {
@@ -206,7 +215,7 @@ export function ExpandableBiography({ text }: { text: string }) {
           {expanded
             ? t({ en: "Read less", zh: "收起" })
             : t({ en: "Read more", zh: "展开" })}
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -354,38 +363,18 @@ const styles = stylex.create({
     minWidth: 0,
     paddingTop: space._1,
   },
-  name: {
-    margin: 0,
-  },
-  meta: {
-    color: color.mutedForeground,
-    margin: 0,
-  },
-  readMoreButton: {
-    color: color.mutedForeground,
-    cursor: "pointer",
-    paddingTop: space._1,
-    textDecoration: {
-      default: "none",
-      ":hover": { default: null, [pointer.canHover]: "underline" },
-    },
-  },
   profileFallback: {
     width: "100%",
     height: "100%",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: color.popover,
     color: color.mutedForeground,
+    backgroundColor: color.popover,
   },
   errorText: {
     margin: 0,
-    color: color.mutedForeground,
     fontStyle: "italic",
-  },
-  filmographyTitle: {
-    margin: 0,
   },
 });
 
@@ -417,9 +406,8 @@ const filmStyles = stylex.create({
 });
 
 const skeletonStyles = stylex.create({
-  photo: {
+  inset: {
     position: "absolute",
     inset: 0,
-    borderRadius: 0,
   },
 });

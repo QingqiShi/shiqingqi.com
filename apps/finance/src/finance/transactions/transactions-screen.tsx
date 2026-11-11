@@ -4,20 +4,18 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGl
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
+import { EmptyState } from "@tuja/ui/components/empty-state";
 import { Heading } from "@tuja/ui/components/heading";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import type { ToastAction } from "@tuja/ui/components/toast";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier } from "@tuja/ui/primitives/type.stylex";
-import { rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
 import type { VirtuosoHandle } from "react-virtuoso";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
@@ -303,7 +301,7 @@ export function TransactionsScreen() {
             {t({ en: "Transactions", zh: "交易" })}
           </Heading>
           {bootstrapped ? (
-            <Text look="bodySmall" tone="muted" css={typeModifier.numeric}>
+            <Text look="bodySmall" tone="muted" numeric>
               {`${new Intl.NumberFormat(locale).format(summary.count)} ${t({
                 en: "transactions",
                 zh: "笔交易",
@@ -369,7 +367,7 @@ export function TransactionsScreen() {
               key={index}
               css={[flex.row, plainList.row, styles.skeletonRow]}
             >
-              <Skeleton width="2.25rem" height="2.25rem" />
+              <Skeleton width="2.25rem" height="2.25rem" shape="round" />
               <div css={[stack.tight, styles.grow]}>
                 <Skeleton width="60%" height="1rem" />
                 <Skeleton width="35%" height="0.75rem" />
@@ -378,9 +376,10 @@ export function TransactionsScreen() {
           ))}
         </div>
       ) : list.items.length === 0 ? (
-        <div css={[stack.item, corner.radius_3, styles.empty]}>
-          <Text tone="muted">
-            {rows.length === 0
+        <EmptyState
+          level={2}
+          title={
+            rows.length === 0
               ? t({
                   en: "No transactions yet. Type one above, such as 12.50 Tesco.",
                   zh: "还没有交易。在上方输入一笔，例如 12.50 Tesco。",
@@ -388,9 +387,9 @@ export function TransactionsScreen() {
               : t({
                   en: "Nothing matches these filters.",
                   zh: "没有符合筛选条件的交易。",
-                })}
-          </Text>
-        </div>
+                })
+          }
+        />
       ) : (
         <TransactionList
           virtuosoRef={virtuosoRef}
@@ -452,9 +451,5 @@ const styles = stylex.create({
   },
   grow: {
     flexGrow: 1,
-  },
-  empty: {
-    padding: space._5,
-    backgroundColor: color.muted,
   },
 });

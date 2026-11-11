@@ -4,7 +4,6 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
 import { Card } from "@tuja/ui/components/card";
 import { Divider } from "@tuja/ui/components/divider";
 import { FlowBlock } from "@tuja/ui/components/flow-block";
@@ -12,9 +11,8 @@ import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { useFlowChange } from "@tuja/ui/hooks/use-flow-change";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
 import { useHouseholdToday } from "../accounts/use-household-today.ts";
 import { selectAnalyticsIndex } from "../analytics/select-analytics-index.ts";
@@ -82,7 +80,7 @@ function MonthContent() {
           currency={currency}
           onMonth={goTo}
         />
-        <Card css={styles.stripCard}>
+        <Card padding="sm">
           <MonthStrip
             bars={bars}
             month={month}
@@ -92,7 +90,7 @@ function MonthContent() {
           />
         </Card>
       </div>
-      <Card css={styles.calendarCard}>
+      <Card padding="sm">
         <MonthCalendar
           view={view}
           index={index}
@@ -105,7 +103,7 @@ function MonthContent() {
             });
           }}
         />
-        <FlowBlock css={[stack.item, styles.dayDetail]}>
+        <FlowBlock css={stack.item}>
           <Divider />
           <MonthDayDetail day={day} index={index} currency={currency} />
         </FlowBlock>
@@ -126,8 +124,8 @@ function MonthSkeleton() {
   return (
     <div css={stack.group} aria-busy>
       <Skeleton width="12rem" height="2.5rem" />
-      <Skeleton width="100%" height="8rem" css={corner.radius_3} />
-      <Skeleton width="100%" height="28rem" css={corner.radius_3} />
+      <Skeleton width="100%" height="8rem" shape="control" />
+      <Skeleton width="100%" height="28rem" shape="control" />
     </div>
   );
 }
@@ -167,17 +165,6 @@ const styles = stylex.create({
     },
     alignItems: "center",
     gap: rhythm.group,
-  },
-  stripCard: {
-    paddingBlock: space._3,
-    paddingInline: space._4,
-  },
-  calendarCard: {
-    paddingInline: { default: space._1, [breakpoints.md]: space._4 },
-    paddingBlock: { default: space._2, [breakpoints.md]: space._4 },
-  },
-  dayDetail: {
-    backgroundColor: color.card,
   },
   columns: {
     display: "grid",

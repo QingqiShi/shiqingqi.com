@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { color } from "../color.stylex.ts";
 import { space } from "../tokens.stylex.ts";
 import { tableMarker, tableTokens } from "./table.stylex.ts";
 
@@ -67,6 +68,9 @@ export const styles = stylex.create({
   },
   // A figure broken across lines no longer reads as one value, so a narrow
   // table scrolls rather than wrap it.
+  muted: {
+    color: color.mutedForeground,
+  },
   numeric: {
     whiteSpace: "nowrap",
   },

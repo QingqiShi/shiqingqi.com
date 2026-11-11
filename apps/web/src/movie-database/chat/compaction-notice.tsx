@@ -2,17 +2,18 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { space } from "@tuja/ui/tokens.stylex";
 
 export function CompactionNotice() {
   return (
-    <p css={[typeRole.bodySmall, styles.notice]} role="status">
-      {t({
-        en: "Context was summarized to continue the conversation.",
-        zh: "已总结上下文以继续对话。",
-      })}
+    <p css={styles.notice} role="status">
+      <Text as="span" look="bodySmall" tone="muted">
+        {t({
+          en: "Context was summarized to continue the conversation.",
+          zh: "已总结上下文以继续对话。",
+        })}
+      </Text>
     </p>
   );
 }
@@ -20,7 +21,6 @@ export function CompactionNotice() {
 const styles = stylex.create({
   notice: {
     margin: 0,
-    color: color.mutedForeground,
     fontStyle: "italic",
     paddingBlock: space._1,
   },

@@ -5,6 +5,7 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { useMediaQuery } from "@tuja/ui/hooks/use-media-query";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
@@ -183,10 +184,7 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
         <div css={styles.specimenArea}>
           <ViewTransition name="lab-specimen" default={labMorph}>
             <div
-              css={[
-                styles.specimen,
-                config.scene !== undefined && styles.specimenInScene,
-              ]}
+              css={[styles.specimen, config.scene !== undefined && fill.inline]}
             >
               {binding?.trigger}
               {config.scene === undefined ? (
@@ -302,9 +300,6 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-  },
-  specimenInScene: {
-    inlineSize: "100%",
   },
   snippet: {
     inlineSize: "100%",

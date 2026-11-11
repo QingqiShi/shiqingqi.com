@@ -6,6 +6,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
+import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
@@ -13,7 +14,6 @@ import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, type ReactNode } from "react";
 import { useCopyToClipboard } from "#src/clipboard/use-copy-to-clipboard.ts";
-import { outlineEdge } from "./outline-edge.stylex.ts";
 
 type CopyBlockProps = {
   /** What the reader copies whole. */
@@ -35,11 +35,12 @@ export function CopyBlock({ text, label, kind }: CopyBlockProps) {
   return (
     <div css={[corner.radius_2, styles.block]}>
       <div css={[row.tight, styles.header]}>
-        <span css={[typeRole.caption, styles.label]}>{label}</span>
+        <Text as="span" look="caption" tone="muted">
+          {label}
+        </Text>
         <Button
           size="sm"
           look={kind === "message" ? "primary" : "outline"}
-          css={kind === "code" && outlineEdge.control}
           icon={
             isCopied ? (
               <CheckIcon weight="bold" aria-hidden />
@@ -55,9 +56,9 @@ export function CopyBlock({ text, label, kind }: CopyBlockProps) {
         </Button>
       </div>
       {kind === "message" ? (
-        <p css={[typeRole.bodySmall, styles.body, styles.message]}>
+        <Text look="bodySmall" measure="none" css={styles.body}>
           {setNames(text)}
-        </p>
+        </Text>
       ) : (
         <pre css={[typeRole.bodySmall, styles.body, styles.code]}>
           {text.split("\n").map((line, index) => (
@@ -115,17 +116,11 @@ const styles = stylex.create({
     paddingInlineStart: space._2,
     paddingInlineEnd: space._1,
   },
-  label: {
-    color: color.mutedForeground,
-  },
   body: {
     margin: 0,
     paddingBlockStart: space._1,
     paddingBlockEnd: space._2,
     paddingInline: space._2,
-  },
-  message: {
-    color: color.foreground,
   },
   // A name moves to the next line whole. Only a name wider than the line
   // breaks inside.

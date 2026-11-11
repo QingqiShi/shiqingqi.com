@@ -17,7 +17,6 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Popover } from "@tuja/ui/components/popover";
 import { Text } from "@tuja/ui/components/text";
@@ -514,15 +513,14 @@ export function QuickAddChips({
                 }
                 title={names[field]}
                 aria-label={label}
-                css={[
-                  styles.fieldChip,
-                  status === "unsure" && styles.unsure,
-                  status === "missing" && styles.missing,
-                  field === "amount" && typeModifier.numeric,
-                  field === "payee" && value === undefined && styles.empty,
-                ]}
+                css={styles.fieldChip}
               >
-                <span css={truncate.base}>
+                <span
+                  css={[
+                    truncate.base,
+                    field === "amount" && typeModifier.numeric,
+                  ]}
+                >
                   {status === "unsure" ? `${shown}?` : shown}
                 </span>
               </Button>
@@ -561,18 +559,6 @@ const styles = stylex.create({
   },
   fieldChip: {
     maxInlineSize: "100%",
-  },
-  unsure: {
-    backgroundColor: color.warningSubtle,
-    color: color.warningText,
-  },
-  missing: {
-    borderStyle: "dashed",
-    borderColor: color.borderStrong,
-    backgroundColor: "transparent",
-  },
-  empty: {
-    color: color.mutedForeground,
   },
   popover: {
     maxInlineSize: `min(${measure.short}, calc(100dvw - ${space._1} * 2))`,

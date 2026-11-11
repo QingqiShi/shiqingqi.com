@@ -116,10 +116,12 @@ export function TypeRoleSection() {
       </SpecimenGrid>
       <ApiGrid entries={api} />
       <UsageSnippet
-        code={`import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
+        code={`import { Text } from "@tuja/ui/components/text";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 
 <span css={[typeRole.label, styles.navItem]}>Overview</span>
-<span css={[typeRole.h1, typeModifier.numeric]}>4.8</span>`}
+<span css={[typeRole.h1, typeModifier.numeric]}>4.8</span>
+<Text as="dt" look="caption" tone="muted">Rating</Text>`}
       />
     </Showcase>
   );

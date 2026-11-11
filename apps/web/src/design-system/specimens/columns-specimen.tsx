@@ -2,8 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Card } from "@tuja/ui/components/card";
 import { Text } from "@tuja/ui/components/text";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
-import { specimenLayout } from "./specimen.stylex.ts";
 
 /**
  * Two real cards shared two to one. Not the component itself: a tile is
@@ -13,7 +13,7 @@ import { specimenLayout } from "./specimen.stylex.ts";
  */
 export function ColumnsSpecimen() {
   return (
-    <div css={[specimenLayout.fill, styles.grid]}>
+    <div css={[fill.inline, styles.grid]}>
       <Card css={styles.card}>
         <Text look="caption">{t({ en: "Main", zh: "主列" })}</Text>
       </Card>

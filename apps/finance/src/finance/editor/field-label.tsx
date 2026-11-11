@@ -1,12 +1,9 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
+import { Text } from "@tuja/ui/components/text";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
 /** The mark beside a field's name: where its value came from, a value to check, or a value a save needs. */
@@ -61,17 +58,10 @@ interface FieldLabelProps {
 export function FieldLabel({ id, mark, children }: FieldLabelProps) {
   return (
     <span css={cluster.tight}>
-      <span id={id} css={[typeRole.control, styles.label]}>
+      <Text as="span" id={id} look="control" weight="semibold">
         {children}
-      </span>
+      </Text>
       {mark ? <MarkBadge mark={mark} /> : null}
     </span>
   );
 }
-
-const styles = stylex.create({
-  label: {
-    fontWeight: font.weight_6,
-    color: color.foreground,
-  },
-});

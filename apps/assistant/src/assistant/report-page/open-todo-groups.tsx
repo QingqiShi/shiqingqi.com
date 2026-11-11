@@ -2,7 +2,6 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Section } from "@tuja/ui/components/section";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
@@ -10,7 +9,6 @@ import { Text } from "@tuja/ui/components/text";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { TitleAction } from "../shell/title-action.tsx";
@@ -72,9 +70,9 @@ export function OpenTodoGroups({
   const viewLabel = (name: string, key: TodoBoardView) => (
     <>
       {name}{" "}
-      <span css={[typeModifier.numeric, styles.count]}>
+      <Text as="span" look="label" tone="muted" numeric css={styles.count}>
         {views[key].reduce((sum, group) => sum + group.todos.length, 0)}
-      </span>
+      </Text>
     </>
   );
 
@@ -222,7 +220,6 @@ const styles = stylex.create({
     paddingBlockStart: rhythm.tight,
   },
   count: {
-    color: color.mutedForeground,
     marginInlineStart: rhythm.inline,
   },
 });

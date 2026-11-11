@@ -9,7 +9,6 @@ import { Slider } from "@tuja/ui/components/slider";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 
@@ -90,22 +89,24 @@ interface MeterProps {
 function Meter({ name, callsLabel, calls, valueLabel, value }: MeterProps) {
   return (
     <div css={[corner.radius_2, styles.meter]}>
-      <span css={[typeRole.label, styles.meterName]}>{name}</span>
+      <Text as="span" look="label" weight="semibold" css={styles.meterName}>
+        {name}
+      </Text>
       <span css={styles.meterStat}>
-        <span css={[typeRole.caption, styles.meterLabel]}>{callsLabel}</span>
-        <span
-          css={[typeRole.caption, typeModifier.numeric, styles.meterFigure]}
-        >
+        <Text as="span" look="caption" tone="muted">
+          {callsLabel}
+        </Text>
+        <Text as="span" look="caption" numeric css={styles.meterFigure}>
           {calls}
-        </span>
+        </Text>
       </span>
       <span css={styles.meterStat}>
-        <span css={[typeRole.caption, styles.meterLabel]}>{valueLabel}</span>
-        <span
-          css={[typeRole.caption, typeModifier.numeric, styles.meterFigure]}
-        >
+        <Text as="span" look="caption" tone="muted">
+          {valueLabel}
+        </Text>
+        <Text as="span" look="caption" numeric css={styles.meterFigure}>
           {value}
-        </span>
+        </Text>
       </span>
     </div>
   );
@@ -273,8 +274,6 @@ const styles = stylex.create({
   },
   meterName: {
     fontFamily: font.familyMono,
-    fontWeight: font.weight_6,
-    color: color.foreground,
   },
   meterStat: {
     display: "flex",
@@ -283,12 +282,8 @@ const styles = stylex.create({
     gap: rhythm.tight,
     minInlineSize: 0,
   },
-  meterLabel: {
-    color: color.mutedForeground,
-  },
   // A tally that climbs on every move must not shift the row it sits in.
   meterFigure: {
     fontFamily: font.familyMono,
-    color: color.foreground,
   },
 });

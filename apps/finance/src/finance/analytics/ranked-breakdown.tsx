@@ -61,7 +61,7 @@ export function RankedBreakdown({
   return (
     <section css={stack.item} aria-labelledby={headingId}>
       <div css={stack.text}>
-        <Heading level={2} look="h4" id={headingId} css={styles.heading}>
+        <Heading level={2} look="h4" id={headingId}>
           {heading}
         </Heading>
         {scope === null ? null : (
@@ -126,9 +126,3 @@ export function RankedBreakdown({
     </section>
   );
 }
-
-const styles = stylex.create({
-  heading: {
-    margin: 0,
-  },
-});

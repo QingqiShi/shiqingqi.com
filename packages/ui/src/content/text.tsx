@@ -1,25 +1,27 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode, Ref } from "react";
 import { mergeRefs } from "../merge-refs.ts";
-import { toneColor } from "../primitives/tone.stylex.ts";
+import { textTone } from "../primitives/tone.stylex.ts";
 import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
 import { font, measure } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
 interface TextProps {
   /**
-   * Semantic element to render, decoupled from the visual look.
+   * Semantic element to render, decoupled from the visual look. A term or a
+   * description of a `dl`, an item of a list and the caption of a figure
+   * are text too, so `Text` renders them.
    *
-   * @zh 要渲染的语义元素，与视觉字号相互独立。
+   * @zh 要渲染的语义元素，与视觉字号相互独立。`dl` 中的术语与描述、列表项和图注同样是文字，因此也由 `Text` 渲染。
    */
-  as?: "p" | "span" | "div";
+  as?: "p" | "span" | "div" | "li" | "dt" | "dd" | "figcaption";
   /**
    * Type role that sets the font size, line height, weight and tracking
    * together.
    *
    * @zh 字体角色，同时设定字号、行高、字重与字距。
    */
-  look?: "body" | "bodySmall" | "label" | "caption" | "overline";
+  look?: "body" | "bodySmall" | "control" | "label" | "caption" | "overline";
   /**
    * Foreground colour role, resolved per theme. `"destructive"` is for a line that
    * says something went wrong and asks the reader to act, such as an inline
@@ -114,9 +116,9 @@ interface TextProps {
    */
   css?: StyleProp;
   /**
-   * Ref to the rendered element (`<p>`, `<span>`, or `<div>`).
+   * Ref to the rendered element.
    *
-   * @zh 指向渲染的 `<p>`、`<span>` 或 `<div>` 元素的 ref。
+   * @zh 指向渲染元素的 ref。
    */
   ref?: Ref<HTMLElement>;
   /**
@@ -157,7 +159,7 @@ export function Text({
     styles.base,
     isProse && measure === "prose" ? measureStyles[align ?? "start"] : null,
     isProse ? wrapStyles.pretty : null,
-    toneColor[tone],
+    textTone[tone],
     weight ? weightStyles[weight] : null,
     transform ? transformStyles[transform] : null,
     align ? alignStyles[align] : null,
@@ -168,7 +170,7 @@ export function Text({
     css,
   ];
 
-  // Merges into one callback ref, since the three elements share `HTMLElement`
+  // Merges into one callback ref, since the elements share `HTMLElement`
   // but not a concrete ref type. `mergeRefs` returns `undefined` with no ref,
   // so nothing attaches during a Server Component render, where any ref is
   // illegal.
@@ -192,6 +194,30 @@ export function Text({
         <div ref={setRef} id={id} css={textCss}>
           {children}
         </div>
+      );
+    case "li":
+      return (
+        <li ref={setRef} id={id} css={textCss}>
+          {children}
+        </li>
+      );
+    case "dt":
+      return (
+        <dt ref={setRef} id={id} css={textCss}>
+          {children}
+        </dt>
+      );
+    case "dd":
+      return (
+        <dd ref={setRef} id={id} css={textCss}>
+          {children}
+        </dd>
+      );
+    case "figcaption":
+      return (
+        <figcaption ref={setRef} id={id} css={textCss}>
+          {children}
+        </figcaption>
       );
   }
 }

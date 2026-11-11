@@ -6,7 +6,6 @@ import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { measure, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { CopyBlock } from "./copy-block.tsx";
@@ -37,7 +36,7 @@ export function InstallGuide({ syncAction }: { syncAction: ReactNode }) {
   return (
     <section id={INSTALL_ID} css={[stack.group, styles.section]}>
       <div css={[stack.item, styles.intro]}>
-        <Heading level={2} css={typeRole.subDisplay}>
+        <Heading level={2} look="h1">
           {t({ en: "Set up Miao in two steps", zh: "两步装好小苗" })}
         </Heading>
         <Text>
@@ -72,7 +71,6 @@ export function InstallGuide({ syncAction }: { syncAction: ReactNode }) {
             })}
           />
           <Disclosure
-            css={typeRole.body}
             summary={t({ en: "Or install it by hand", zh: "或者自己动手装" })}
           >
             <ol css={[stack.item, styles.list]}>

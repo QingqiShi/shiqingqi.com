@@ -1,16 +1,12 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
-import { cardSurface } from "@tuja/ui/components/card.stylex";
-import { listSurface } from "@tuja/ui/components/list.stylex";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Text } from "@tuja/ui/components/text";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font } from "@tuja/ui/tokens.stylex";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
 import { useHouseholdToday } from "../accounts/use-household-today.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
@@ -81,7 +77,7 @@ export function ExchangeRatesSettings() {
           })}`}
         </Text>
       ) : (
-        <ul css={[cardSurface.base, listSurface.list]}>
+        <List>
           {rates.map((entry) => {
             const count = accountCount(entry.currency);
             const rateFacts =
@@ -98,43 +94,27 @@ export function ExchangeRatesSettings() {
                     ),
                   ];
             return (
-              <li key={entry.currency} css={listSurface.item}>
-                <div css={listSurface.row}>
-                  <div css={[stack.text, styles.text]}>
-                    <span
-                      css={[typeRole.body, typeModifier.numeric, styles.title]}
-                    >
-                      {entry.rate === null
-                        ? entry.currency
-                        : `1 ${entry.currency} = ${formatRate(entry.rate, locale)} ${baseCurrency}`}
-                    </span>
-                    <span css={[typeRole.caption, styles.detail]}>
-                      <MetaLine
-                        facts={[
-                          ...rateFacts,
-                          `${new Intl.NumberFormat(locale).format(count)} ${count === 1 ? labels.account : labels.accounts}`,
-                        ]}
-                      />
-                    </span>
-                  </div>
-                </div>
-              </li>
+              <ListRow
+                key={entry.currency}
+                detail={
+                  <MetaLine
+                    facts={[
+                      ...rateFacts,
+                      `${new Intl.NumberFormat(locale).format(count)} ${count === 1 ? labels.account : labels.accounts}`,
+                    ]}
+                  />
+                }
+              >
+                <span css={typeModifier.numeric}>
+                  {entry.rate === null
+                    ? entry.currency
+                    : `1 ${entry.currency} = ${formatRate(entry.rate, locale)} ${baseCurrency}`}
+                </span>
+              </ListRow>
             );
           })}
-        </ul>
+        </List>
       )}
     </SettingsPanel>
   );
 }
-
-const styles = stylex.create({
-  text: {
-    minInlineSize: 0,
-  },
-  title: {
-    fontWeight: font.weight_5,
-  },
-  detail: {
-    color: color.mutedForeground,
-  },
-});

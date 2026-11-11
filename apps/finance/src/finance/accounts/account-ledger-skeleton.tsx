@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { Divider } from "@tuja/ui/components/divider";
 import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
@@ -25,11 +26,10 @@ export function AccountLedgerSkeleton() {
       {DAY_ENTRIES.map((entries, day) => (
         <div key={day}>
           <div css={[plainList.row, dayHeader.day]}>
-            <div css={dayHeader.rule}>
-              <div css={[typeRole.label, styles.label]}>
-                <Skeleton width="8rem" height="1rem" />
-              </div>
+            <div css={[typeRole.label, styles.label]}>
+              <Skeleton width="8rem" height="1rem" />
             </div>
+            <Divider />
           </div>
           <div css={[listSurface.plain, styles.entries]}>
             {Array.from({ length: entries }, (_, entry) => (

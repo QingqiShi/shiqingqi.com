@@ -1,13 +1,11 @@
 "use client";
 
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
+import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { reviewReason } from "../transactions/review-reason.ts";
 import { useReviewReasonText } from "../transactions/use-review-reason-text.ts";
 import type { TransactionForm } from "./use-transaction-form.ts";
@@ -67,14 +65,8 @@ export function ReviewNotice({ form }: { form: TransactionForm }) {
       </div>
     </Callout>
   ) : reason?.type === "ai" ? (
-    <span css={[typeRole.caption, styles.muted]}>
+    <Text as="span" look="caption" tone="muted">
       {`${t({ en: "Labelled by AI", zh: "由 AI 标注" })} · ${reason.text}`}
-    </span>
+    </Text>
   ) : null;
 }
-
-const styles = stylex.create({
-  muted: {
-    color: color.mutedForeground,
-  },
-});

@@ -3,15 +3,15 @@
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Checkbox } from "@tuja/ui/components/checkbox";
+import { Divider } from "@tuja/ui/components/divider";
 import { Heading } from "@tuja/ui/components/heading";
 import { Select } from "@tuja/ui/components/select";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useId, useRef } from "react";
 import type { AccountKind } from "../domain/accounts/side-of-kind.ts";
 import { useReplica } from "../replica/use-replica.ts";
@@ -390,8 +390,9 @@ function AccountEditorForm({
           {t({ en: "Cancel", zh: "取消" })}
         </Button>
       </div>
+      {account ? <Divider /> : null}
       {account ? (
-        <div css={[stack.tight, styles.destructive]}>
+        <div css={stack.tight}>
           <div>
             <Button
               look="destructive"
@@ -428,12 +429,6 @@ const styles = stylex.create({
     padding: 0,
     borderWidth: 0,
     minInlineSize: 0,
-  },
-  destructive: {
-    paddingBlockStart: space._4,
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
   },
   pair: {
     alignItems: "flex-start",

@@ -1,21 +1,13 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/color.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
+import { Text } from "@tuja/ui/components/text";
 import type { MediaCellParams } from "./types";
 
 /** Row number in the current (possibly sorted) view. */
 export function MediaRowNumberCell({ rowIndex }: MediaCellParams) {
   return (
-    <span css={[typeRole.caption, typeModifier.numeric, styles.rowNumber]}>
+    <Text as="span" look="caption" tone="muted" numeric>
       {rowIndex + 1}
-    </span>
+    </Text>
   );
 }
-
-const styles = stylex.create({
-  rowNumber: {
-    color: color.mutedForeground,
-  },
-});

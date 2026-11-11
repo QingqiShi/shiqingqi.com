@@ -33,6 +33,22 @@ interface SkeletonProps {
    */
   height?: string | number;
   /**
+   * The corners, by what the block stands for: `"text"` for a line of text,
+   * `"control"` for a button, a field or a card, `"round"` for a pill, an
+   * avatar or a dot, and `"square"` for an image that runs to the edge of
+   * its box. Defaults to `"text"`.
+   *
+   * @zh 圆角，取决于占位块代表的东西：`"text"` 代表一行文字，`"control"` 代表按钮、输入框或卡片，`"round"` 代表胶囊、头像或圆点，`"square"` 代表铺满容器边缘的图片。默认为 `"text"`。
+   */
+  shape?: "text" | "control" | "round" | "square";
+  /**
+   * The ratio of width to height, for a block that stands for an image, such
+   * as `2 / 3` for a poster. Pass it with `width` or `fill`, without `height`.
+   *
+   * @zh 宽高比，用于代表图片的占位块，例如海报的 `2 / 3`。与 `width` 或 `fill` 一起传入，不要再传 `height`。
+   */
+  aspect?: number;
+  /**
    * Staggers the pulse start by N milliseconds — useful for lists of rows.
    *
    * @zh 将脉动起点错开 N 毫秒——适用于多行列表。
@@ -60,6 +76,8 @@ export function Skeleton({
   fill,
   width,
   height,
+  shape = "text",
+  aspect,
   delay,
   css,
   ref,
@@ -68,11 +86,12 @@ export function Skeleton({
     <div
       ref={ref}
       css={[
-        corner.radius_2,
+        shapeStyles[shape],
         styles.skeleton,
         fill && styles.fill,
         width !== undefined && styles.width(width),
         height !== undefined && styles.height(height),
+        aspect !== undefined && styles.aspect(aspect),
         delay !== undefined && styles.delay(delay),
         css,
       ]}
@@ -117,7 +136,18 @@ const styles = stylex.create({
     [skeletonTokens.height]:
       typeof height === "number" ? `${String(height)}px` : height,
   }),
+  aspect: (aspect: number) => ({
+    [skeletonTokens.height]: "auto",
+    aspectRatio: aspect,
+  }),
   delay: (delay: number) => ({
     [skeletonTokens.delay]: `${String(delay)}ms`,
   }),
 });
+
+const shapeStyles = {
+  text: corner.radius_2,
+  control: corner.radius_3,
+  round: corner.radius_round,
+  square: null,
+};

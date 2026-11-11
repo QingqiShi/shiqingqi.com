@@ -1,39 +1,41 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/color.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { Progress } from "@tuja/ui/components/progress";
 import { rhythm } from "@tuja/ui/tokens.stylex";
-import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
 
 interface MediaMeterProps {
   /** How full the track reads, 0 to 100. */
   percent: number;
-  /** The bar colour, when the neutral default does not carry the meaning. */
-  fillCss?: StyleProp;
+  /** The name of the column, for the bar. */
+  label: string;
+  /** The meaning of the level, when it has one. */
+  intent?: "success" | "destructive";
   /** The formatted value the bar sits under. */
   children: ReactNode;
 }
 
 /**
  * A formatted number with a bar under it — the shape Score and Popularity both
- * take. Only the bar colour differs between them.
+ * take.
  */
-export function MediaMeter({ percent, fillCss, children }: MediaMeterProps) {
+export function MediaMeter({
+  percent,
+  label,
+  intent,
+  children,
+}: MediaMeterProps) {
   return (
     <div css={styles.cell}>
       {children}
-      <span aria-hidden="true" css={[corner.radius_round, styles.track]}>
-        <span
-          css={[
-            corner.radius_round,
-            styles.fill,
-            styles.fillSize(`${String(percent)}%`),
-            fillCss,
-          ]}
-        />
-      </span>
+      <Progress
+        value={percent}
+        label={label}
+        size="sm"
+        intent={intent}
+        aria-hidden="true"
+      />
     </div>
   );
 }
@@ -46,19 +48,4 @@ const styles = stylex.create({
     gap: rhythm.tight,
     inlineSize: "100%",
   },
-  track: {
-    position: "relative",
-    inlineSize: "100%",
-    blockSize: "3px",
-    overflow: "hidden",
-    backgroundColor: color.secondary,
-  },
-  fill: {
-    display: "block",
-    blockSize: "100%",
-    backgroundColor: color.warning,
-  },
-  fillSize: (percent: string) => ({
-    inlineSize: percent,
-  }),
 });

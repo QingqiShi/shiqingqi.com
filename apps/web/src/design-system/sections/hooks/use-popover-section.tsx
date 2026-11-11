@@ -216,10 +216,10 @@ const styles = stylex.create({
   },
   // usePopover
   intentTrigger: {
+    color: color.foreground,
     gap: controlSize._2,
     paddingBlock: space._1,
     paddingInline: space._3,
-    color: color.foreground,
     backgroundColor: {
       default: color.card,
       ":hover": {

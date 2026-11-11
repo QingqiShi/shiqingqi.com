@@ -3,9 +3,9 @@ import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
   GuideNote,
@@ -40,17 +40,21 @@ export function ColorNamesShowcase() {
       <ul role="list" css={styles.grid}>
         {surfaces.map((surface) => (
           <li key={surface.name} css={[stack.item, surface.style]}>
-            <span css={[typeRole.bodySmall, styles.token]}>{surface.name}</span>
+            <Text as="span" look="bodySmall" css={styles.token}>
+              {surface.name}
+            </Text>
             <span css={stack.tight}>
               {FILLS.map((fill) => (
                 <span
                   key={fill.name}
                   css={[corner.radius_2, styles.fill, styles[fill.style]]}
                 >
-                  <span css={[typeRole.bodySmall, styles.token]}>
+                  <Text as="span" look="bodySmall" css={styles.token}>
                     {fill.name}
-                  </span>
-                  <span css={[typeRole.bodySmall, styles.sample]}>Aa</span>
+                  </Text>
+                  <Text as="span" look="bodySmall" tone="muted">
+                    Aa
+                  </Text>
                 </span>
               ))}
             </span>
@@ -97,7 +101,6 @@ const styles = stylex.create({
   },
   token: {
     fontFamily: font.familyMono,
-    color: color.foreground,
   },
   fill: {
     display: "flex",
@@ -105,9 +108,6 @@ const styles = stylex.create({
     justifyContent: "space-between",
     paddingBlock: space._3,
     paddingInline: space._4,
-  },
-  sample: {
-    color: color.mutedForeground,
   },
   muted: { backgroundColor: color.muted },
   accent: { backgroundColor: color.accent },

@@ -1,7 +1,7 @@
 import { t } from "@tuja/i18n";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
-import { specimenLayout } from "./specimen.stylex.ts";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 
 /**
  * Three link rows, each with a caret — the shape that tells a list of things
@@ -10,7 +10,7 @@ import { specimenLayout } from "./specimen.stylex.ts";
  */
 export function ListSpecimen() {
   return (
-    <div css={specimenLayout.fill}>
+    <div css={fill.inline}>
       <List aria-label={t({ en: "List", zh: "列表" })}>
         <ListRow href="#">{t({ en: "Accounts", zh: "账户" })}</ListRow>
         <ListRow href="#">{t({ en: "Categories", zh: "分类" })}</ListRow>

@@ -2,7 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
 import { color } from "../color.stylex.ts";
 import { typeModifier } from "../primitives/type.stylex.ts";
-import { border, font } from "../tokens.stylex.ts";
+import { border, font, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { alignStyles, styles as cellStyles } from "./table-cell.stylex.ts";
 import type { TableCellAlignment } from "./table-cell.tsx";
@@ -23,6 +23,13 @@ interface TableHeaderCellProps
    */
   scope: "col" | "row" | "colgroup" | "rowgroup";
   /**
+   * Sets the label of a row in from the start, by its depth in a tree of
+   * rows: `1` for a row below a group, `2` for a row below that.
+   *
+   * @zh 按行在层级中的深度，把行标签从起始侧缩进：`1` 用于某一组之下的行，`2` 用于再下一层的行。
+   */
+  indent?: 1 | 2;
+  /**
    * StyleX styles merged over the header cell's own — the config-layer escape
    * hatch.
    *
@@ -36,6 +43,7 @@ export function TableHeaderCell({
   scope,
   align,
   numeric = false,
+  indent,
   css,
   ref,
   children,
@@ -55,6 +63,7 @@ export function TableHeaderCell({
         numeric && cellStyles.numeric,
         numeric && typeModifier.numeric,
         resolvedAlign ? alignStyles[resolvedAlign] : null,
+        indent !== undefined && indentStyles[indent],
         css,
       ]}
     >
@@ -100,7 +109,12 @@ const styles = stylex.create({
     },
   },
   rowHeaderCell: {
-    fontWeight: font.weight_6,
+    fontWeight: tableTokens.rowHeaderWeight,
     color: color.foreground,
   },
+});
+
+const indentStyles = stylex.create({
+  1: { paddingInlineStart: space._5 },
+  2: { paddingInlineStart: space._7 },
 });

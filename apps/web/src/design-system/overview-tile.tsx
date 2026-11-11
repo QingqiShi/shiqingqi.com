@@ -3,6 +3,7 @@ import { Link } from "@tuja/next-links/link";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   duration,
@@ -72,9 +73,9 @@ export function OverviewTile({
         <Link href={href} {...stylex.props(typeRole.h3, styles.link)}>
           {label}
         </Link>
-        <span css={[typeRole.bodySmall, styles.description]}>
+        <Text as="span" look="bodySmall" tone="muted" css={styles.description}>
           {description}
-        </span>
+        </Text>
       </div>
       {specimen ? (
         // `inert` keeps the specimens out of the tab order and the
@@ -167,7 +168,6 @@ const styles = stylex.create({
   },
   description: {
     zIndex: 1,
-    color: color.mutedForeground,
   },
   // A sunken plate, inset within the card's padding: a fill and a radius, no
   // border. That is the difference between this and a card inside a card —

@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/color.stylex";
-import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { Card } from "@tuja/ui/components/card";
+import { Divider } from "@tuja/ui/components/divider";
 import { listSurface } from "@tuja/ui/components/list.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { border } from "@tuja/ui/tokens.stylex";
+import { Fragment } from "react";
 import { spanOfMove } from "../report/rearrange.ts";
 import {
   SortableRows,
@@ -46,7 +46,7 @@ function SortableRun({
   };
   return (
     <SortableRows ids={ids} onMove={move}>
-      <ul css={[listSurface.list, styles.run]}>
+      <ul css={listSurface.list}>
         {ids.map((id, index) => (
           <SortableRow
             key={id}
@@ -84,21 +84,23 @@ export function SortableTodoList({
 }) {
   const [status, noteMoved] = useMoveStatus();
   return (
-    <div css={[cardSurface.base, listSurface.list]}>
-      {runs.map((run) => (
-        <SortableRun key={run.key} todos={run.todos} onMoved={noteMoved} />
+    <Card padding="none" css={styles.runs}>
+      {runs.map((run, index) => (
+        <Fragment key={run.key}>
+          {index > 0 ? <Divider /> : null}
+          <SortableRun todos={run.todos} onMoved={noteMoved} />
+        </Fragment>
       ))}
       <div role="status" css={a11y.srOnly}>
         {status}
       </div>
-    </div>
+    </Card>
   );
 }
 
 const styles = stylex.create({
-  run: {
-    borderBlockStartWidth: { default: border.size_1, ":first-child": 0 },
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
+  runs: {
+    gap: 0,
+    overflow: "hidden",
   },
 });

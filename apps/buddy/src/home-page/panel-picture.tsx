@@ -54,7 +54,7 @@ export function PanelPicture() {
           css={[corner.radius_3, styles.picture]}
         />
       </picture>
-      <Text as="span" look="caption" tone="muted" css={styles.caption}>
+      <Text as="span" look="caption" tone="muted" align="center">
         {t({
           en: "Miao's pane on your Mac",
           zh: "Mac 上的小苗面板",
@@ -88,8 +88,5 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-  },
-  caption: {
-    textAlign: "center",
   },
 });

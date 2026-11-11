@@ -1,9 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
@@ -22,7 +21,9 @@ export function FinanceFrame({
   return (
     <main css={[pageColumn.base, styles.main]}>
       <div css={[stack.section, styles.column]}>
-        <span css={[typeRole.label, styles.brand]}>{brand}</span>
+        <Text as="span" look="label" tone="muted">
+          {brand}
+        </Text>
         {children}
       </div>
     </main>
@@ -41,8 +42,5 @@ const styles = stylex.create({
   column: {
     maxInlineSize: space._15,
     marginInline: "auto",
-  },
-  brand: {
-    color: color.mutedForeground,
   },
 });

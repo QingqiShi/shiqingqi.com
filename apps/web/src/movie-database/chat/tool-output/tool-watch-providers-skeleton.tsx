@@ -1,11 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/color.stylex";
+import { Card } from "@tuja/ui/components/card";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 
 const HEADER_SLOTS = 2;
 
@@ -23,10 +22,10 @@ const STAGGER_DELAY = 80;
 
 export function ToolWatchProvidersSkeleton() {
   return (
-    <div css={[corner.radius_2, styles.card]}>
+    <Card padding="sm" css={styles.card}>
       <div css={styles.headerRow}>
         <Skeleton width={100} height={14} delay={0} />
-        <Skeleton width={24} height={18} delay={STAGGER_DELAY} />
+        <Skeleton width={24} height={18} shape="round" delay={STAGGER_DELAY} />
       </div>
       <div css={stack.item}>
         {ROWS.map((row) => (
@@ -49,21 +48,18 @@ export function ToolWatchProvidersSkeleton() {
           </div>
         ))}
       </div>
-    </div>
+    </Card>
   );
 }
 
 const styles = stylex.create({
   card: {
-    backgroundColor: color.popover,
-    padding: space._3,
     marginTop: rhythm.item,
   },
   headerRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: rhythm.tight,
   },
   logoRow: {
     display: "flex",

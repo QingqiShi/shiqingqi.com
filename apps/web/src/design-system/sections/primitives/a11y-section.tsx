@@ -245,15 +245,15 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_0,
   },
   iconButton: {
+    color: color.mutedForeground,
     inlineSize: "40px",
     blockSize: "40px",
-    color: color.mutedForeground,
     backgroundColor: color.card,
   },
   focusTile: {
+    color: color.foreground,
     paddingBlock: space._2,
     paddingInline: space._4,
-    color: color.foreground,
     backgroundColor: color.card,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
@@ -264,10 +264,10 @@ const styles = stylex.create({
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   insetTile: {
+    color: color.foreground,
     inlineSize: "100%",
     paddingBlock: space._2,
     paddingInline: space._4,
-    color: color.foreground,
     backgroundColor: color.card,
   },
 });

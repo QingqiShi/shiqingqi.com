@@ -7,6 +7,7 @@ import { Link } from "@tuja/next-links/link";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
+import { Divider } from "@tuja/ui/components/divider";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -28,7 +29,6 @@ import {
   InstallGuide,
   MOD_URL,
 } from "#src/home-page/install-guide.tsx";
-import { outlineEdge } from "#src/home-page/outline-edge.stylex.ts";
 import { paneCrop } from "#src/home-page/pane-crop.stylex.ts";
 import { PanelPicture } from "#src/home-page/panel-picture.tsx";
 import { readDemoPetState } from "#src/home-page/read-demo-pet-state.ts";
@@ -179,11 +179,7 @@ export default async function HomePage({ params }: PageProps) {
           <InstallGuide
             syncAction={
               account ? null : (
-                <Button
-                  href={signInHref}
-                  look="outline"
-                  css={outlineEdge.control}
-                >
+                <Button href={signInHref} look="outline">
                   {t({ en: "Sign in or sign up", zh: "登录或注册" })}
                 </Button>
               )
@@ -192,7 +188,8 @@ export default async function HomePage({ params }: PageProps) {
         </div>
       </main>
       <footer css={pageColumn.base}>
-        <div css={[petPageColumn.content, styles.footerRow]}>
+        <Divider />
+        <div css={petPageColumn.content}>
           <Text as="span" look="caption" tone="muted">
             <Anchor href={MOD_URL} target="_blank" tone="muted">
               {t({ en: "Source on GitHub", zh: "源码在 GitHub" })}
@@ -231,8 +228,8 @@ const styles = stylex.create({
     },
   },
   wordmark: {
-    color: color.foreground,
     fontWeight: font.weight_6,
+    color: color.foreground,
   },
   main: {
     paddingBlockStart: { default: 0, [breakpoints.lg]: rhythm.section },
@@ -330,10 +327,5 @@ const styles = stylex.create({
     flexDirection: { default: "column", [breakpoints.md]: "row" },
     alignItems: { default: "start", [breakpoints.md]: "center" },
     rowGap: rhythm.tight,
-  },
-  footerRow: {
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
   },
 });

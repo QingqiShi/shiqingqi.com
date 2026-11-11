@@ -4,8 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
-import { color } from "@tuja/ui/color.stylex";
 import { TabViewLink } from "@tuja/ui/components/tab-view";
+import { Text } from "@tuja/ui/components/text";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
@@ -80,7 +80,7 @@ export function ReportFigures({
     <dl css={[cluster.item, styles.figures]}>
       {figures.map(({ key, count, label, href }) => (
         <div key={key} css={[typeRole.bodySmall, styles.figure]}>
-          <dt css={styles.label}>
+          <Text as="dt" look="bodySmall" tone="muted">
             {href ? (
               <Anchor
                 href={href}
@@ -93,7 +93,7 @@ export function ReportFigures({
             ) : (
               label
             )}
-          </dt>
+          </Text>
           <dd css={[typeRole.h3, typeModifier.numeric, styles.count]}>
             {count}
           </dd>
@@ -112,9 +112,6 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "baseline",
     gap: rhythm.inline,
-  },
-  label: {
-    color: color.mutedForeground,
   },
   count: {
     margin: 0,

@@ -5,6 +5,7 @@ import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
 import { Heading } from "@tuja/ui/components/heading";
+import { Text } from "@tuja/ui/components/text";
 import type { MotionEngine } from "@tuja/ui/motion/create-motion-engine";
 import { useBinding } from "@tuja/ui/motion/use-binding";
 import {
@@ -134,7 +135,7 @@ export function SpendingRing({
 
   return (
     <section css={stack.item} aria-labelledby={headingId}>
-      <Heading level={2} look="h4" id={headingId} css={styles.heading}>
+      <Heading level={2} look="h4" id={headingId}>
         {t({ en: "Spending by category", zh: "按分类支出" })}
       </Heading>
       <div css={[corner.radius_2, styles.panel]}>
@@ -165,16 +166,16 @@ export function SpendingRing({
               format={money}
               css={[typeRole.h2, typeModifier.numeric, styles.total]}
             />
-            <span css={[typeRole.caption, styles.muted]}>
+            <Text as="span" look="caption" tone="muted">
               {t({ en: "Spent", zh: "总支出" })}
-            </span>
+            </Text>
           </div>
         </div>
       </div>
       {legend.length === 0 ? (
-        <p css={[typeRole.bodySmall, styles.muted, styles.empty]}>
+        <Text look="bodySmall" tone="muted" measure="none">
           {t({ en: "No spending this month.", zh: "本月没有支出。" })}
-        </p>
+        </Text>
       ) : (
         <ul ref={listRef} css={[plainList.list, stack.text]}>
           {legend.map((slice) => (
@@ -190,11 +191,9 @@ export function SpendingRing({
               <span css={[typeRole.bodySmall, truncate.base, styles.name]}>
                 {labelOf(slice)}
               </span>
-              <span
-                css={[typeRole.caption, typeModifier.numeric, styles.muted]}
-              >
+              <Text as="span" look="caption" tone="muted" numeric>
                 {formatPercent(slice.value / total, locale)}
-              </span>
+              </Text>
               <span
                 css={[typeRole.bodySmall, typeModifier.numeric, styles.amount]}
               >
@@ -209,9 +208,6 @@ export function SpendingRing({
 }
 
 const styles = stylex.create({
-  heading: {
-    margin: 0,
-  },
   panel: {
     display: "flex",
     justifyContent: "center",
@@ -251,12 +247,6 @@ const styles = stylex.create({
   },
   total: {
     fontWeight: font.weight_7,
-  },
-  muted: {
-    color: color.mutedForeground,
-  },
-  empty: {
-    margin: 0,
   },
   row: {
     display: "grid",

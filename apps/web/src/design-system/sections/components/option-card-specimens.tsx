@@ -6,20 +6,17 @@ import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
 import { RocketLaunchIcon } from "@phosphor-icons/react/dist/ssr/RocketLaunch";
 import { ShieldIcon } from "@phosphor-icons/react/dist/ssr/Shield";
 import { UsersThreeIcon } from "@phosphor-icons/react/dist/ssr/UsersThree";
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import {
   OptionCard,
   OptionCardGroup,
   OptionCardStack,
 } from "@tuja/ui/components/option-card";
+import { Text } from "@tuja/ui/components/text";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font } from "@tuja/ui/tokens.stylex";
 import { useState, type ReactNode } from "react";
 import { StateReadout } from "#src/design-system/showcase.tsx";
 
@@ -65,7 +62,7 @@ export function SingleSelectDemo() {
     },
   ];
   return (
-    <div css={[stack.item, styles.fill]}>
+    <div css={[stack.item, fill.inline]}>
       <OptionCardGroup
         aria-label={t({ en: "Plan", zh: "套餐" })}
         options={options}
@@ -151,7 +148,7 @@ export function MultipleSelectDemo() {
     },
   ];
   return (
-    <div css={[stack.item, styles.fill]}>
+    <div css={[stack.item, fill.inline]}>
       <OptionCardGroup
         selection="multiple"
         aria-label={t({ en: "Add-ons", zh: "附加服务" })}
@@ -208,7 +205,7 @@ export function KeyboardDemo() {
     { value: "enterprise", label: t({ en: "Enterprise", zh: "企业版" }) },
   ];
   return (
-    <div css={[stack.item, styles.fill]}>
+    <div css={[stack.item, fill.inline]}>
       <OptionCardGroup
         aria-label={t({ en: "Plan", zh: "套餐" })}
         options={options}
@@ -261,7 +258,7 @@ export function SlotsDemo() {
     </Badge>
   );
   return (
-    <OptionCardStack css={styles.fill}>
+    <OptionCardStack css={fill.inline}>
       <SlotCard label={t({ en: "Label only", zh: "仅标签" })} />
       <SlotCard
         label={t({ en: "Label and description", zh: "标签与说明" })}
@@ -317,7 +314,7 @@ export function BespokeDemo() {
     <OptionCardStack
       role="radiogroup"
       aria-label={t({ en: "Plan", zh: "套餐" })}
-      css={styles.fill}
+      css={fill.inline}
     >
       {cards.map((card) => (
         <OptionCard
@@ -328,7 +325,9 @@ export function BespokeDemo() {
           label={card.label}
           description={card.description}
         >
-          <span css={[typeRole.label, styles.price]}>{card.price}</span>
+          <Text as="span" look="label" weight="semibold">
+            {card.price}
+          </Text>
         </OptionCard>
       ))}
     </OptionCardStack>
@@ -374,15 +373,3 @@ export function DisabledDemo() {
     />
   );
 }
-
-const styles = stylex.create({
-  // A `Specimen` lays its stage out with flex, so every demo root states its own
-  // width: without it a group of short labels shrinks to the widest card.
-  fill: {
-    inlineSize: "100%",
-  },
-  price: {
-    fontWeight: font.weight_6,
-    color: color.foreground,
-  },
-});

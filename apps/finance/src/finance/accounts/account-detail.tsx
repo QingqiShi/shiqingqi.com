@@ -5,7 +5,6 @@ import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Card } from "@tuja/ui/components/card";
@@ -13,7 +12,7 @@ import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { font, rhythm } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import type { AccountKind } from "../domain/accounts/side-of-kind.ts";
 import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";
@@ -127,8 +126,8 @@ export function AccountDetail({ accountId, onDeleted }: AccountDetailProps) {
           <Heading level={2} look="h3">
             <span css={typeModifier.verbatim}>{accountName(account)}</span>
           </Heading>
-          <div css={[cluster.tight, typeRole.bodySmall, styles.muted]}>
-            <span>
+          <div css={cluster.tight}>
+            <Text as="span" look="bodySmall" tone="muted">
               {[
                 detail,
                 account.isSystem ? "" : kindLabels[account.kind],
@@ -136,7 +135,7 @@ export function AccountDetail({ accountId, onDeleted }: AccountDetailProps) {
               ]
                 .filter((part) => part !== "")
                 .join(" · ")}
-            </span>
+            </Text>
             {account.closedOn !== null ? (
               <Badge size="sm" intent="neutral">
                 {`${t({ en: "Closed", zh: "已关闭" })} ${displayDay(account.closedOn, locale, "day")}`}
@@ -188,7 +187,7 @@ export function AccountDetail({ accountId, onDeleted }: AccountDetailProps) {
         </Text>
       ) : null}
       {bankLink ? <BankBalanceNotice link={bankLink} /> : null}
-      <Card css={styles.card}>
+      <Card padding="sm">
         <DrawnAfterRest
           contentKey={account.id}
           skeleton={<AccountChartSkeleton />}
@@ -208,16 +207,12 @@ export function AccountDetail({ accountId, onDeleted }: AccountDetailProps) {
           <dl css={styles.facts}>
             {facts.map((fact) => (
               <div key={fact.key} css={styles.fact}>
-                <dt css={[typeRole.caption, styles.muted]}>{fact.label}</dt>
-                <dd
-                  css={[
-                    typeRole.bodySmall,
-                    typeModifier.numeric,
-                    styles.factValue,
-                  ]}
-                >
+                <Text as="dt" look="caption" tone="muted">
+                  {fact.label}
+                </Text>
+                <Text as="dd" look="bodySmall" numeric>
                   {fact.value}
-                </dd>
+                </Text>
               </div>
             ))}
           </dl>
@@ -227,7 +222,7 @@ export function AccountDetail({ accountId, onDeleted }: AccountDetailProps) {
         <Heading level={3} look="h4">
           {t({ en: "Ledger", zh: "明细" })}
         </Heading>
-        <Card css={styles.ledgerCard}>
+        <Card padding="none">
           <DrawnAfterRest
             contentKey={account.id}
             skeleton={<AccountLedgerSkeleton />}
@@ -257,8 +252,6 @@ export function AccountDetail({ accountId, onDeleted }: AccountDetailProps) {
 
 /** Where the column has room for the balance and its actions beside the name. */
 const WIDE = "@container (min-width: 34rem)";
-/** Where the chart's range chips need the card's inset to show in full. */
-const NARROW = "@container (max-width: 24rem)";
 
 const styles = stylex.create({
   container: {
@@ -279,17 +272,6 @@ const styles = stylex.create({
   side: {
     alignItems: { default: "flex-start", [WIDE]: "flex-end" },
   },
-  card: {
-    paddingBlock: space._3,
-    paddingInline: { default: space._3, [NARROW]: space._2 },
-  },
-  ledgerCard: {
-    paddingBlock: space._1,
-    paddingInline: space._1,
-  },
-  muted: {
-    color: color.mutedForeground,
-  },
   balance: {
     fontWeight: font.weight_7,
   },
@@ -306,8 +288,5 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     minInlineSize: 0,
-  },
-  factValue: {
-    margin: 0,
   },
 });

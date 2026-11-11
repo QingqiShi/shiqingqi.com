@@ -1,13 +1,12 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/color.stylex";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { useEffectCover } from "@tuja/ui/hooks/use-effect-cover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { layer, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -216,13 +215,13 @@ export function Combobox({
               </span>
             ) : null}
             <span css={[flex.col, styles.text]}>
-              <span css={[typeRole.control, truncate.base]}>
+              <Text as="span" look="control" lines={1}>
                 {option.label}
-              </span>
+              </Text>
               {option.detail ? (
-                <span css={[typeRole.caption, truncate.base, styles.detail]}>
+                <Text as="span" look="caption" tone="muted" lines={1}>
                   {option.detail}
-                </span>
+                </Text>
               ) : null}
             </span>
           </li>
@@ -245,9 +244,9 @@ export function Combobox({
               pick(options.length);
             }}
           >
-            <span css={[typeRole.control, truncate.base, styles.detail]}>
+            <Text as="span" look="control" tone="muted" lines={1}>
               {createLabel(trimmed)}
-            </span>
+            </Text>
           </li>
         ) : null}
       </ul>
@@ -287,8 +286,5 @@ const styles = stylex.create({
   },
   text: {
     minInlineSize: 0,
-  },
-  detail: {
-    color: color.mutedForeground,
   },
 });

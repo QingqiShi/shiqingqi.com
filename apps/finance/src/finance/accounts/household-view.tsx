@@ -12,7 +12,7 @@ import {
   useSplitViewShared,
 } from "@tuja/ui/components/navigation-split-view";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useEffect } from "react";
 import { ChartRangeChips } from "../charts/chart-range-chips.tsx";
 import { useReplica } from "../replica/use-replica.ts";
@@ -113,7 +113,7 @@ export function HouseholdView({
       <StackedOnly>
         <div css={stack.tight}>
           <header css={[cluster.item, styles.header]}>
-            <Heading level={1} look="h3" css={styles.title}>
+            <Heading level={1} look="h3">
               {t({ en: "Net worth", zh: "净资产" })}
             </Heading>
             {actions}
@@ -162,7 +162,7 @@ export function HouseholdView({
                 <ChartRangeChips value={range} onChange={setRange} />
               </div>
             </div>
-            <Card css={styles.chartCard}>
+            <Card padding="sm" css={styles.chartCard}>
               <div ref={trendRef} css={styles.trend}>
                 <NetWorthTrend
                   range={range}
@@ -194,9 +194,6 @@ const styles = stylex.create({
     justifyContent: "space-between",
     rowGap: rhythm.tight,
   },
-  title: {
-    margin: 0,
-  },
   titleRow: {
     display: "flex",
     flexWrap: "wrap",
@@ -226,7 +223,6 @@ const styles = stylex.create({
     flexDirection: "column",
     flexGrow: 1,
     minBlockSize: { default: "15rem", [breakpoints.md]: "18.75rem" },
-    padding: space._3,
   },
   trend: {
     display: "flex",

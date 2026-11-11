@@ -130,7 +130,7 @@ export function AnalyticsScreen() {
         {bootstrapped ? (
           <div css={stack.group}>
             <div css={styles.titleRow}>
-              <Heading level={1} look="h3" css={styles.title}>
+              <Heading level={1} look="h3">
                 {title}
               </Heading>
               <Button
@@ -160,9 +160,6 @@ const styles = stylex.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: rhythm.item,
-  },
-  title: {
-    margin: 0,
   },
   columns: {
     display: "grid",

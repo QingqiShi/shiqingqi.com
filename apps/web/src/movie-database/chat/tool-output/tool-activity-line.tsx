@@ -6,6 +6,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
 import { MetaLine } from "@tuja/ui/components/meta-line";
+import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -16,7 +17,7 @@ import {
   easing,
 } from "@tuja/ui/primitives/motion.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { isToolError } from "#src/movie-database/chat/tools/tool-error.ts";
 import { isRecord } from "#src/movie-database/is-record.ts";
 
@@ -221,12 +222,19 @@ export function ToolActivityLine({
         {isError && <WarningCircleIcon weight="bold" aria-hidden="true" />}
         <span css={a11y.srOnly}>{statusText}</span>
       </span>
-      <span css={styles.facts}>
+      <Text as="span" look="bodySmall" tone="muted" css={styles.facts}>
         <MetaLine
           facts={[
-            <span key="label" css={styles.label}>
+            <Text
+              key="label"
+              as="span"
+              look="bodySmall"
+              tone="muted"
+              weight="medium"
+              wrap="nowrap"
+            >
               {label}
-            </span>,
+            </Text>,
             ...summaryFacts.map((fact) => (
               <span key={fact} css={truncate.base}>
                 {fact}
@@ -234,7 +242,7 @@ export function ToolActivityLine({
             )),
           ]}
         />
-      </span>
+      </Text>
     </div>
   );
 }
@@ -252,13 +260,13 @@ const pulseReduced = stylex.keyframes({
 const styles = stylex.create({
   line: {
     gap: rhythm.tight,
-    color: color.mutedForeground,
     minHeight: "1.5rem",
   },
   icon: {
     width: "14px",
     height: "14px",
     flexShrink: 0,
+    color: color.mutedForeground,
   },
   pulsingDot: {
     width: "0.375rem",
@@ -271,10 +279,6 @@ const styles = stylex.create({
     animationDuration: duration._1400,
     animationTimingFunction: easing.easeInOut,
     animationIterationCount: "infinite",
-  },
-  label: {
-    fontWeight: font.weight_5,
-    whiteSpace: "nowrap",
   },
   facts: {
     minInlineSize: 0,

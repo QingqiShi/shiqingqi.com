@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
@@ -36,9 +37,9 @@ export function DetailPageTitle({
       <h2 css={[typeRole.fluidH3, styles.subtitle]}>
         {typeLabel} - {title}
       </h2>
-      <time dateTime={dateTime} css={[typeRole.body, styles.date]}>
-        {date}
-      </time>
+      <Text as="span" look="body" tone="muted" css={styles.date}>
+        <time dateTime={dateTime}>{date}</time>
+      </Text>
     </header>
   );
 }
@@ -49,8 +50,8 @@ const styles = stylex.create({
   },
   subtitle: {
     order: 0,
-    color: color.mutedForeground,
     margin: 0,
+    color: color.mutedForeground,
   },
   title: {
     order: 1,
@@ -59,6 +60,5 @@ const styles = stylex.create({
   date: {
     order: 2,
     display: "block",
-    color: color.mutedForeground,
   },
 });

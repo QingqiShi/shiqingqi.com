@@ -2,8 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { captureException } from "@tuja/analytics/capture-exception";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
+import { Text } from "@tuja/ui/components/text";
 import { align, justify } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -50,7 +50,9 @@ export function ErrorScreen({ error, onRetry }: ErrorScreenProps) {
     >
       <div css={stack.tight}>
         <h1 css={[typeRole.fluidH1, styles.heading]}>{strings.heading}</h1>
-        <p css={[typeRole.body, styles.description]}>{strings.description}</p>
+        <Text tone="muted" measure="none">
+          {strings.description}
+        </Text>
       </div>
       <Button look="primary" onClick={onRetry}>
         {strings.retry}
@@ -66,10 +68,6 @@ const styles = stylex.create({
     padding: space._4,
   },
   heading: {
-    margin: 0,
-  },
-  description: {
-    color: color.mutedForeground,
     margin: 0,
   },
 });

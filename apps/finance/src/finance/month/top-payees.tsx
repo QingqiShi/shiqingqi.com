@@ -5,11 +5,11 @@ import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
 import { Heading } from "@tuja/ui/components/heading";
+import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
-import { listSurface } from "@tuja/ui/components/list.stylex";
 import { TabViewLink } from "@tuja/ui/components/tab-view";
+import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font } from "@tuja/ui/tokens.stylex";
@@ -49,7 +49,7 @@ export function TopPayees({
   const locale = useLocale();
   const names = useAnalyticsNames();
   const headingId = useId();
-  const listRef = useRef<HTMLOListElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
   useMonthSlide(listRef, view.month, 24);
   const one = t({ en: "transaction", zh: "笔交易" });
   const many = t({ en: "transactions", zh: "笔交易" });
@@ -58,15 +58,15 @@ export function TopPayees({
 
   return (
     <section css={stack.item} aria-labelledby={headingId}>
-      <Heading level={2} look="h4" id={headingId} css={styles.heading}>
+      <Heading level={2} look="h4" id={headingId}>
         {t({ en: "Top payees", zh: "主要商家" })}
       </Heading>
       {view.payees.length === 0 ? (
-        <p css={[typeRole.bodySmall, styles.muted, styles.empty]}>
+        <Text look="bodySmall" tone="muted" measure="none">
           {t({ en: "No payees this month.", zh: "本月没有商家记录。" })}
-        </p>
+        </Text>
       ) : (
-        <ol ref={listRef} css={[plainList.list, listSurface.plain]}>
+        <List ref={listRef} form="plain">
           {view.payees.map((payee) => {
             const name = names.payee(payee.payeeId);
             const emoji =
@@ -111,29 +111,20 @@ export function TopPayees({
               </ListRow>
             );
           })}
-        </ol>
+        </List>
       )}
     </section>
   );
 }
 
 const styles = stylex.create({
-  heading: {
-    margin: 0,
-  },
-  empty: {
-    margin: 0,
-  },
-  muted: {
-    color: color.mutedForeground,
-  },
   tile: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     inlineSize: "100%",
     blockSize: "100%",
-    color: color.foreground,
     fontWeight: font.weight_7,
+    color: color.foreground,
   },
 });

@@ -81,6 +81,12 @@ function createMediaQueryList(query: string): MediaQueryList {
  *   transform, because jsdom has no layout that a transform could move.
  */
 export function installJsdomShims() {
+  // jsdom does not implement the Pointer Capture API, which a press on a
+  // Button calls.
+  HTMLElement.prototype.setPointerCapture = () => {};
+  HTMLElement.prototype.releasePointerCapture = () => {};
+  HTMLElement.prototype.hasPointerCapture = () => false;
+
   Element.prototype.checkVisibility = function checkVisibility(
     this: Element,
     options: CheckVisibilityOptions = {},

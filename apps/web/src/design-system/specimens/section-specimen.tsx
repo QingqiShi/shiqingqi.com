@@ -2,7 +2,7 @@ import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
 import { t } from "@tuja/i18n";
 import { Section } from "@tuja/ui/components/section";
 import { Text } from "@tuja/ui/components/text";
-import { specimenLayout } from "./specimen.stylex.ts";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 
 /**
  * The heading row with something under it, which is the whole component: a
@@ -11,7 +11,7 @@ import { specimenLayout } from "./specimen.stylex.ts";
  */
 export function SectionSpecimen() {
   return (
-    <div css={specimenLayout.fill}>
+    <div css={fill.inline}>
       <Section
         title={t({ en: "Cast & crew", zh: "演职人员" })}
         icon={<FilmSlateIcon weight="bold" />}

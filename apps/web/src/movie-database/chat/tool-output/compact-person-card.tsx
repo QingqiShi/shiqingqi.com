@@ -66,7 +66,8 @@ function ProfilePhoto({
       alt={alt}
       sizes="80px"
       imgCss={styles.photo}
-      skeletonCss={[corner.radius_round, styles.photoSkeleton]}
+      skeletonShape="round"
+      skeletonCss={styles.photoSkeleton}
       errorFallback={
         <div
           css={[
@@ -118,9 +119,9 @@ export function CompactPersonCard({ person, onClick }: CompactPersonCardProps) {
         {label}
       </Text>
       {person.knownForDepartment && (
-        <span css={[typeRole.caption, styles.department]}>
+        <Text as="span" look="caption" tone="muted">
           <DepartmentLabel department={person.knownForDepartment} />
-        </span>
+        </Text>
       )}
     </>
   );
@@ -198,9 +199,6 @@ const styles = stylex.create({
     borderWidth: 1,
     borderStyle: "solid",
     borderColor: color.border,
-    color: color.mutedForeground,
-  },
-  department: {
     color: color.mutedForeground,
   },
 });

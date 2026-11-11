@@ -1,11 +1,11 @@
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { getLocale } from "@tuja/i18n/server-locale";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { AssistantFrame } from "./assistant-frame.tsx";
 
@@ -35,7 +35,7 @@ export function NotFoundScreen() {
           look="primary"
           size="lg"
           icon={<HouseIcon weight="bold" />}
-          css={styles.wide}
+          css={fill.inline}
         >
           {t({ en: "Back to Today", zh: "返回今天" })}
         </Button>
@@ -43,9 +43,3 @@ export function NotFoundScreen() {
     </AssistantFrame>
   );
 }
-
-const styles = stylex.create({
-  wide: {
-    inlineSize: "100%",
-  },
-});

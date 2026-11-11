@@ -2,7 +2,7 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import { List } from "@tuja/ui/components/list";
-import { listSurface } from "@tuja/ui/components/list.stylex";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -98,11 +98,9 @@ export function TodayCalendarFallback() {
   return (
     <List aria-busy>
       {Array.from({ length: FALLBACK_ROWS }, (_, index) => (
-        <li key={index} css={listSurface.item}>
-          <span css={listSurface.row}>
-            <Skeleton width="70%" height="1em" delay={index * 100} />
-          </span>
-        </li>
+        <ListRow key={index}>
+          <Skeleton width="70%" height="1em" delay={index * 100} />
+        </ListRow>
       ))}
     </List>
   );

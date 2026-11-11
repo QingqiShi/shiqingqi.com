@@ -79,7 +79,7 @@ describe("MediaVirtuosoGrid", () => {
     // The emoji lives inside an aria-hidden span so screen readers skip it
     // and announce only the localized label.
     const decorative = container.querySelector("[aria-hidden='true']");
-    expect(decorative?.textContent).toBe("🙉 ");
+    expect(decorative?.textContent).toBe("🙉");
 
     // The localized message is rendered as a sibling text node so AT users
     // hear it directly, with no emoji prefix bleeding through.

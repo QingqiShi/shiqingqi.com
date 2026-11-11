@@ -1,6 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/color.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { measure } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { onReadingColumn } from "./reading-column.stylex.ts";
@@ -11,16 +10,18 @@ interface ShowcaseHelperProps {
 
 export function ShowcaseHelper({ children }: ShowcaseHelperProps) {
   return (
-    <p css={[typeRole.caption, styles.helper, onReadingColumn.base]}>
+    <Text
+      look="caption"
+      tone="muted"
+      css={[styles.helper, onReadingColumn.base]}
+    >
       {children}
-    </p>
+    </Text>
   );
 }
 
 const styles = stylex.create({
   helper: {
-    margin: 0,
-    color: color.mutedForeground,
     maxInlineSize: measure.prose,
   },
 });

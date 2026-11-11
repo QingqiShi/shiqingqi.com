@@ -8,7 +8,7 @@ import { headerControlsTokens } from "@tuja/ui/components/header-controls.stylex
 import { Text } from "@tuja/ui/components/text";
 import { useScrollRegion } from "@tuja/ui/hooks/use-scroll-region";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { scrollbar } from "@tuja/ui/primitives/layout.stylex";
+import { fill, scrollbar } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { border, ratio, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -128,7 +128,7 @@ function FrameScene({ children }: { children: ReactNode }) {
     },
   ];
   return (
-    <div css={styles.frame}>
+    <div css={fill.inline}>
       <DeviceFrame
         label={t({ en: "Width of the frame", zh: "框的宽度" })}
         sizes={sizes}
@@ -214,9 +214,6 @@ const styles = stylex.create({
   backdropText: {
     flexGrow: 1,
     justifyContent: "space-between",
-  },
-  frame: {
-    inlineSize: "100%",
   },
   // The frame does not scroll, so a shell that the page scrolls takes this
   // box as its page.

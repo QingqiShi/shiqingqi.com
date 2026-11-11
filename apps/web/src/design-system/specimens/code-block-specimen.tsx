@@ -1,7 +1,7 @@
 import { t } from "@tuja/i18n";
 import { CodeBlock, type CodeToken } from "@tuja/ui/components/code-block";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { importLine } from "#src/design-system/lab/import-parts.ts";
-import { specimenLayout } from "./specimen.stylex.ts";
 
 const SOURCE: readonly CodeToken[] = [
   ...importLine("Button", "@tuja/ui/components/button"),
@@ -18,7 +18,7 @@ export function CodeBlockSpecimen() {
     <CodeBlock
       source={SOURCE}
       label={t({ en: "Code", zh: "代码" })}
-      css={specimenLayout.fill}
+      css={fill.inline}
     />
   );
 }

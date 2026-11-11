@@ -456,8 +456,8 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   title: {
-    color: color.foreground,
     textAlign: "start",
+    color: color.foreground,
   },
   wide: {
     gridColumn: "1 / -1",

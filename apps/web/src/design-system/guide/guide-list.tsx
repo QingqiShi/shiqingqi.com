@@ -1,8 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, measure, rhythm } from "@tuja/ui/tokens.stylex";
+import { measure, rhythm } from "@tuja/ui/tokens.stylex";
 import { Fragment } from "react";
 import { definitionRows } from "#src/design-system/definition-rows.stylex.ts";
 
@@ -32,9 +33,13 @@ export function GuideList({ items }: GuideListProps) {
           </dt>
           <dd css={[stack.text, definitionRows.definition]}>
             {item.value ? (
-              <span css={[typeRole.label, styles.value]}>{item.value}</span>
+              <Text as="span" look="label" weight="semibold">
+                {item.value}
+              </Text>
             ) : null}
-            <span css={[typeRole.bodySmall, styles.note]}>{item.note}</span>
+            <Text as="span" look="bodySmall" tone="muted" css={styles.note}>
+              {item.note}
+            </Text>
           </dd>
         </div>
       ))}
@@ -74,12 +79,7 @@ const styles = stylex.create({
     color: color.foreground,
     overflowWrap: "anywhere",
   },
-  value: {
-    fontWeight: font.weight_6,
-    color: color.foreground,
-  },
   note: {
-    color: color.mutedForeground,
     maxInlineSize: measure.prose,
   },
 });

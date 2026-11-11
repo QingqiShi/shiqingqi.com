@@ -1,10 +1,9 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
 import { ListRow } from "@tuja/ui/components/list-row";
 import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
+import { Text } from "@tuja/ui/components/text";
 import type { ReactNode } from "react";
 import { formatMoney } from "../domain/money/format-money.ts";
 import type { TransactionRow } from "../sync/row-schemas.ts";
@@ -63,7 +62,15 @@ export function LedgerEntryLink({
           />
         ) : null
       }
-      value={isExpected ? <span css={styles.muted}>{amount}</span> : amount}
+      value={
+        isExpected ? (
+          <Text as="span" weight="medium" tone="muted">
+            {amount}
+          </Text>
+        ) : (
+          amount
+        )
+      }
       valueDetail={trailing}
       actions={actions}
     >
@@ -71,9 +78,3 @@ export function LedgerEntryLink({
     </ListRow>
   );
 }
-
-const styles = stylex.create({
-  muted: {
-    color: color.mutedForeground,
-  },
-});

@@ -1,7 +1,6 @@
 "use client";
 
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { cellShared } from "./cell-shared.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { useMediaTable } from "./media-table-context";
 import type { MediaCellParams } from "./types";
 
@@ -10,11 +9,16 @@ export function MediaVotesCell({ api, row }: MediaCellParams) {
 
   if (!api.rowIsLeaf(row)) return null;
   const votes = row.data.voteCount;
-  if (typeof votes !== "number") return <span css={cellShared.empty}>—</span>;
+  if (typeof votes !== "number")
+    return (
+      <Text as="span" look="bodySmall" tone="muted">
+        —
+      </Text>
+    );
 
   return (
-    <span css={[typeRole.bodySmall, typeModifier.numeric, cellShared.numeric]}>
+    <Text as="span" look="bodySmall" tone="muted" numeric>
       {compact.format(votes)}
-    </span>
+    </Text>
   );
 }

@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -111,19 +112,16 @@ export function LayoutSection() {
       </ShowcaseHelper>
       <SpecimenGrid css={primitivesSpecimen.tracks}>
         <Specimen caption="truncate.base">
-          <div
-            css={[
-              typeRole.bodySmall,
-              corner.radius_2,
-              styles.truncateBox,
-              truncate.base,
-            ]}
+          <Text
+            as="div"
+            look="bodySmall"
+            css={[corner.radius_2, styles.truncateBox, truncate.base]}
           >
             {t({
               en: "The Shawshank Redemption — Extended Director's Cut, Remastered",
               zh: "肖申克的救赎——加长导演剪辑版，重制修复",
             })}
-          </div>
+          </Text>
         </Specimen>
         <Specimen
           caption={t({
@@ -152,12 +150,15 @@ export function LayoutSection() {
           >
             <div css={[flex.row, styles.scrollTrack]}>
               {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                <div
+                <Text
                   key={n}
-                  css={[typeRole.caption, corner.radius_2, styles.scrollTile]}
+                  as="div"
+                  look="caption"
+                  tone="muted"
+                  css={[corner.radius_2, styles.scrollTile]}
                 >
                   {n}
-                </div>
+                </Text>
               ))}
             </div>
           </div>
@@ -197,7 +198,6 @@ const styles = stylex.create({
     maxInlineSize: "220px",
     paddingBlock: space._1,
     paddingInline: space._3,
-    color: color.foreground,
     backgroundColor: color.card,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
@@ -236,7 +236,6 @@ const styles = stylex.create({
     inlineSize: "72px",
     blockSize: "48px",
     fontFamily: font.familyMono,
-    color: color.mutedForeground,
     backgroundColor: color.card,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },

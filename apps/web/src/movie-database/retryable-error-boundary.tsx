@@ -3,11 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { captureException } from "@tuja/analytics/capture-exception";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { Button } from "@tuja/ui/components/button";
+import { EmptyState } from "@tuja/ui/components/empty-state";
 import { ErrorBoundary } from "react-error-boundary";
 
 function ErrorFallback({
@@ -18,21 +15,16 @@ function ErrorFallback({
   message: string;
 }) {
   return (
-    <div css={styles.errorContainer} role="alert">
-      <p css={[typeRole.body, styles.errorText]}>{message}</p>
-      <button
-        type="button"
-        css={[
-          buttonReset.base,
-          typeRole.body,
-          corner.radius_round,
-          styles.retryButton,
-        ]}
-        onClick={resetErrorBoundary}
-      >
-        {t({ en: "Try again", zh: "重试" })}
-      </button>
-    </div>
+    <EmptyState
+      role="alert"
+      title={message}
+      action={
+        <Button look="primary" onClick={resetErrorBoundary}>
+          {t({ en: "Try again", zh: "重试" })}
+        </Button>
+      }
+      css={styles.errorContainer}
+    />
   );
 }
 
@@ -60,25 +52,7 @@ export function RetryableErrorBoundary({
 
 const styles = stylex.create({
   errorContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
     justifyContent: "center",
-    gap: rhythm.item,
     minHeight: "60vh",
-    padding: space._6,
-    textAlign: "center",
-  },
-  errorText: {
-    color: color.mutedForeground,
-    margin: 0,
-  },
-  retryButton: {
-    paddingBlock: space._2,
-    paddingInline: space._5,
-    fontWeight: font.weight_5,
-    fontFamily: font.family,
-    backgroundColor: color.primary,
-    color: color.primaryForeground,
   },
 });

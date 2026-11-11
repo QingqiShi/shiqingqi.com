@@ -1,7 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { cluster, row } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 
@@ -18,10 +17,16 @@ export function ChartLegend({ items }: { items: readonly ChartLegendItem[] }) {
   return (
     <ul css={[cluster.item, styles.list]}>
       {items.map((item) => (
-        <li key={item.label} css={[row.tight, typeRole.caption, styles.item]}>
+        <Text
+          key={item.label}
+          as="li"
+          look="caption"
+          tone="muted"
+          css={row.tight}
+        >
           <span aria-hidden css={[shapeKeys[item.shape], item.keyStyle]} />
           {item.label}
-        </li>
+        </Text>
       ))}
     </ul>
   );
@@ -32,9 +37,6 @@ const styles = stylex.create({
     margin: 0,
     padding: 0,
     listStyle: "none",
-  },
-  item: {
-    color: color.mutedForeground,
   },
   lineKey: {
     display: "inline-block",

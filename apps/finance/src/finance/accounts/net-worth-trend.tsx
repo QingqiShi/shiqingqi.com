@@ -95,6 +95,7 @@ export function NetWorthTrend({
             currency={currency}
             tone
             whole
+            look="caption"
           />
           {" · "}
           {t({ en: "Average", zh: "平均" })}{" "}

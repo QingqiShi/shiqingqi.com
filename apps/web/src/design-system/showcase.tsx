@@ -3,7 +3,7 @@ import { color } from "@tuja/ui/color.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { DocSection } from "./doc-section.tsx";
@@ -62,9 +62,7 @@ export function Showcase({
     <DocSection
       title={label}
       titleCss={[
-        plain
-          ? [typeRole.h2, styles.headingPlain]
-          : [typeRole.overline, styles.label],
+        plain ? typeRole.h2 : [typeRole.overline, styles.labelMuted],
         labelLook === "code" && styles.labelCode,
         breakout && onReadingColumn.base,
       ]}
@@ -102,15 +100,15 @@ export function StateReadout({
   return (
     <Text look="bodySmall" tone="muted">
       {label}{" "}
-      <span
-        css={[
-          corner.radius_1,
-          styles.stateValue,
-          tabular && typeModifier.numeric,
-        ]}
+      <Text
+        as="span"
+        look="bodySmall"
+        weight="semibold"
+        numeric={tabular}
+        css={[corner.radius_1, styles.stateValue]}
       >
         {children}
-      </span>
+      </Text>
     </Text>
   );
 }
@@ -127,25 +125,20 @@ const styles = stylex.create({
     inlineSize: breakoutBox.inlineSize,
     marginInlineStart: breakoutBox.marginInlineStart,
   },
-  label: {
-    color: color.mutedForeground,
-  },
   // Overlays whichever label style is in play, so a code label keeps that
   // style's size, colour and weight and changes only what the uppercase eyebrow
   // gets wrong for an identifier: the transform that eats its camel humps, and
   // the wide tracking that belongs to small caps rather than to code.
+  labelMuted: {
+    color: color.mutedForeground,
+  },
   labelCode: {
     fontFamily: font.familyMono,
     textTransform: "none",
     letterSpacing: font.trackingNormal,
   },
-  headingPlain: {
-    color: color.foreground,
-  },
   stateValue: {
     fontFamily: font.familyMono,
-    fontWeight: font.weight_6,
-    color: color.foreground,
     paddingInline: space._1,
     paddingBlock: space._00,
     backgroundColor: color.card,

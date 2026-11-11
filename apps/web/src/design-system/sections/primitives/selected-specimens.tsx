@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -102,9 +103,9 @@ export function MarkedSelectedSpecimen() {
           ]}
         >
           <span css={typeRole.label}>{labels[option].label}</span>
-          <span css={[typeRole.caption, styles.price]}>
+          <Text as="span" look="caption" tone="muted">
             {labels[option].price}
-          </span>
+          </Text>
         </button>
       ))}
     </div>
@@ -135,8 +136,5 @@ const styles = stylex.create({
     borderWidth: border.size_2,
     borderStyle: "solid",
     [selectedTokens.rest]: color.background,
-  },
-  price: {
-    color: color.mutedForeground,
   },
 });

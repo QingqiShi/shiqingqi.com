@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { specimenLayout } from "./specimen.stylex.ts";
 
 /**
  * The avatar-and-lines shape skeletons are usually arranged into, trimmed to two
@@ -14,7 +14,7 @@ import { specimenLayout } from "./specimen.stylex.ts";
  */
 export function SkeletonSpecimen() {
   return (
-    <div css={[specimenLayout.fill, row.tight]}>
+    <div css={[fill.inline, row.tight]}>
       <Skeleton
         width={36}
         height={36}

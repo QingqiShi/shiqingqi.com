@@ -1,8 +1,7 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import type { UseSuspenseInfiniteQueryResult } from "@tanstack/react-query";
-import { color } from "@tuja/ui/color.stylex";
+import { EmptyState } from "@tuja/ui/components/empty-state";
 import { VirtuosoGrid } from "react-virtuoso";
 import { Grid } from "./grid.tsx";
 import { MediaCard } from "./media-card";
@@ -36,12 +35,7 @@ export function MediaVirtuosoGrid({
   const height = useViewportHeight();
 
   if (!items.length) {
-    return (
-      <div css={styles.notFound}>
-        <span aria-hidden="true">🙉 </span>
-        {notFoundLabel}
-      </div>
-    );
+    return <EmptyState icon="🙉" title={notFoundLabel} />;
   }
 
   return (
@@ -74,10 +68,3 @@ export function MediaVirtuosoGrid({
 const gridComponents = {
   List: Grid,
 };
-
-const styles = stylex.create({
-  notFound: {
-    color: color.mutedForeground,
-    textAlign: "center",
-  },
-});

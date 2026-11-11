@@ -6,7 +6,7 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
-import { listSurface } from "@tuja/ui/components/list.stylex";
+import { ListRow } from "@tuja/ui/components/list-row";
 import {
   NavigationSplitView,
   StackedOnly,
@@ -14,7 +14,6 @@ import {
   UnlessStacked,
 } from "@tuja/ui/components/navigation-split-view";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { controlHeight, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -40,7 +39,7 @@ export function NetWorthSkeleton() {
                   key={index}
                   width="2.25rem"
                   height="2.25rem"
-                  css={corner.radius_3}
+                  shape="control"
                 />
               ))}
             </div>
@@ -61,7 +60,7 @@ export function NetWorthSkeleton() {
               <StackedOnly>
                 <div css={stack.tight}>
                   <div css={[cluster.item, styles.header]}>
-                    <Heading level={1} look="h3" css={styles.title}>
+                    <Heading level={1} look="h3">
                       {t({ en: "Net worth", zh: "净资产" })}
                     </Heading>
                     <ActionsSkeleton flush />
@@ -70,7 +69,7 @@ export function NetWorthSkeleton() {
                     <FiguresSkeleton form="page" />
                     <div css={stack.item}>
                       <Skeleton width="100%" height="12.5rem" />
-                      <Skeleton width="100%" css={styles.button} />
+                      <Skeleton width="100%" height={controlHeight.sm} />
                     </div>
                   </div>
                 </div>
@@ -87,19 +86,16 @@ export function NetWorthSkeleton() {
                     <Heading level={2} look="h3">
                       {t({ en: "Household", zh: "家庭" })}
                     </Heading>
-                    <Skeleton width="20rem" css={styles.button} />
+                    <Skeleton width="20rem" height={controlHeight.sm} />
                   </div>
-                  <Skeleton
-                    width="100%"
-                    css={[corner.radius_3, styles.chart]}
-                  />
+                  <Skeleton width="100%" shape="control" css={styles.chart} />
                 </div>
               </UnlessStacked>
               <div css={styles.cards}>
                 <UnlessStacked>
-                  <Skeleton width="100%" height="10rem" css={corner.radius_3} />
+                  <Skeleton width="100%" height="10rem" shape="control" />
                 </UnlessStacked>
-                <Skeleton width="100%" height="10rem" css={corner.radius_3} />
+                <Skeleton width="100%" height="10rem" shape="control" />
               </div>
               <StackedOnly>
                 <GroupsSkeleton form="card" />
@@ -130,8 +126,8 @@ function FiguresSkeleton({ form }: { form: NetWorthHeadlineForm }) {
 function ActionsSkeleton({ flush = false }: { flush?: boolean }) {
   return (
     <div css={[cluster.tight, !flush && styles.inset]}>
-      <Skeleton width="9rem" css={styles.button} />
-      <Skeleton width="5.5rem" css={styles.button} />
+      <Skeleton width="9rem" height={controlHeight.sm} />
+      <Skeleton width="5.5rem" height={controlHeight.sm} />
     </div>
   );
 }
@@ -141,26 +137,23 @@ function GroupsSkeleton({ form }: { form: "sidebar" | "card" }) {
     <div css={stack.group}>
       {GROUP_ROWS.map((rows, group) => {
         const accounts = Array.from({ length: rows }, (_, index) => {
-          const account = (
-            <>
-              <Skeleton width="2rem" height="2rem" />
-              <div css={[styles.lines, styles.grow]}>
+          return (
+            <ListRow
+              key={index}
+              leading={<Skeleton width="2rem" height="2rem" />}
+              detail={<Skeleton width="5rem" height=".875rem" />}
+              value={
                 <Skeleton
-                  width={form === "card" ? "8rem" : "7rem"}
+                  width={form === "card" ? "5.5rem" : "5rem"}
                   height="1.25rem"
                 />
-                <Skeleton width="5rem" height=".875rem" />
-              </div>
+              }
+            >
               <Skeleton
-                width={form === "card" ? "5.5rem" : "5rem"}
+                width={form === "card" ? "8rem" : "7rem"}
                 height="1.25rem"
               />
-            </>
-          );
-          return (
-            <li key={index} css={listSurface.item}>
-              <div css={listSurface.row}>{account}</div>
-            </li>
+            </ListRow>
           );
         });
         return (
@@ -187,9 +180,6 @@ const styles = stylex.create({
     justifyContent: "space-between",
     rowGap: rhythm.tight,
   },
-  title: {
-    margin: 0,
-  },
   label: {
     margin: 0,
     color: color.mutedForeground,
@@ -205,9 +195,6 @@ const styles = stylex.create({
     gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 18rem), 1fr))",
     gap: rhythm.item,
   },
-  button: {
-    height: controlHeight.sm,
-  },
   lines: {
     display: "flex",
     flexDirection: "column",
@@ -222,8 +209,5 @@ const styles = stylex.create({
   groupHeader: {
     justifyContent: "space-between",
     blockSize: "2.125rem",
-  },
-  grow: {
-    flexGrow: 1,
   },
 });

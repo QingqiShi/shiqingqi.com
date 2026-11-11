@@ -3,12 +3,10 @@
 import { CloudArrowUpIcon } from "@phosphor-icons/react/dist/ssr/CloudArrowUp";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
+import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { truncate } from "@tuja/ui/primitives/layout.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 
 interface TransactionMetaLineProps {
@@ -57,17 +55,22 @@ export function TransactionMetaLine({
         </Badge>
       ) : null}
       {meta === "" ? null : (
-        <span css={[typeRole.caption, truncate.base, styles.muted]}>
+        <Text as="span" look="caption" tone="muted" lines={1}>
           {meta}
-        </span>
+        </Text>
       )}
       {isPending ? (
-        <span css={[typeRole.caption, flex.row, styles.pending]}>
+        <Text
+          as="span"
+          look="caption"
+          tone="muted"
+          css={[flex.row, styles.pending]}
+        >
           <CloudArrowUpIcon weight="bold" aria-hidden />
           <span css={a11y.srOnly}>
             {t({ en: "Not synced yet", zh: "尚未同步" })}
           </span>
-        </span>
+        </Text>
       ) : null}
     </span>
   );
@@ -81,11 +84,7 @@ const styles = stylex.create({
   withBadge: {
     marginBlockStart: rhythm.inline,
   },
-  muted: {
-    color: color.mutedForeground,
-  },
   pending: {
     gap: rhythm.inline,
-    color: color.mutedForeground,
   },
 });

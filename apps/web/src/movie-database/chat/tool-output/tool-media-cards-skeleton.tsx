@@ -14,7 +14,7 @@ export function ToolMediaCardsSkeleton() {
       <div css={styles.scrollContainer}>
         {Array.from({ length: SKELETON_COUNT }, (_, i) => (
           <div key={i} css={styles.cardWrapper}>
-            <Skeleton fill delay={i * STAGGER_DELAY} css={styles.skeleton} />
+            <Skeleton fill aspect={2 / 3} delay={i * STAGGER_DELAY} />
           </div>
         ))}
       </div>
@@ -49,8 +49,5 @@ const styles = stylex.create({
     [breakpoints.lg]: {
       width: "175px",
     },
-  },
-  skeleton: {
-    aspectRatio: ratio.poster,
   },
 });

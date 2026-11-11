@@ -1,7 +1,7 @@
 import { t } from "@tuja/i18n";
 import { Disclosure } from "@tuja/ui/components/disclosure";
 import { Text } from "@tuja/ui/components/text";
-import { specimenLayout } from "./specimen.stylex.ts";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 
 /**
  * Shown open. Collapsed, a disclosure is a row with a caret and nothing to say
@@ -11,7 +11,7 @@ import { specimenLayout } from "./specimen.stylex.ts";
  */
 export function DisclosureSpecimen() {
   return (
-    <div css={specimenLayout.fill}>
+    <div css={fill.inline}>
       <Disclosure
         look="card"
         defaultOpen

@@ -97,12 +97,18 @@ export function LabBarMenu({
                 onOpenControl(control.name);
               }}
             >
-              <span css={[typeRole.bodySmall, styles.propName]}>
+              <Text as="span" look="bodySmall" css={styles.propName}>
                 <Identifier>{control.name}</Identifier>
-              </span>
-              <span css={[typeRole.caption, styles.value]}>
+              </Text>
+              <Text
+                as="span"
+                look="caption"
+                tone="muted"
+                wrap="nowrap"
+                css={styles.value}
+              >
                 {currentValue(control, props, defaultLabel)}
-              </span>
+              </Text>
               <span css={styles.caret}>
                 <CaretRightIcon weight="bold" aria-hidden />
               </span>
@@ -131,16 +137,13 @@ const styles = stylex.create({
   },
   propName: {
     fontFamily: font.familyMono,
-    color: color.foreground,
     minInlineSize: 0,
   },
   value: {
     marginInlineStart: "auto",
     fontFamily: font.familyMono,
-    color: color.mutedForeground,
     overflow: "hidden",
     textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
   },
   caret: {
     display: "flex",

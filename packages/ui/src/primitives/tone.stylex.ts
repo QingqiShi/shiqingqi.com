@@ -2,13 +2,12 @@ import * as stylex from "@stylexjs/stylex";
 import { color } from "../color.stylex.ts";
 
 /**
- * The text colour of each tone: the text colour, muted text, and the
- * foreground of each Intent. `Text` takes it for `tone`, `Stat` for the
- * colour of its figure, and `Callout` for its title and icon.
+ * The colour of text, by tone: the text colour, muted text, and the text
+ * colour of each Intent. The names are the values of `tone` on `Text`.
  *
  * @internal
  */
-export const toneColor = stylex.create({
+export const textTone = stylex.create({
   default: { color: color.foreground },
   muted: { color: color.mutedForeground },
   primary: { color: color.primaryText },

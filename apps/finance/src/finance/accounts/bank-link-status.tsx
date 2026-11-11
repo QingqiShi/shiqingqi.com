@@ -4,9 +4,9 @@ import { LinkSimpleIcon } from "@phosphor-icons/react/dist/ssr/LinkSimple";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { MetaLine } from "@tuja/ui/components/meta-line";
+import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -30,12 +30,12 @@ export function BankLinkStatus({ link }: { link: BankLinkRow }) {
   return (
     <div css={[flex.col, styles.root]}>
       <p css={[cluster.tight, typeRole.bodySmall, styles.line]}>
-        <span css={[cluster.inline, styles.muted]}>
+        <Text as="span" look="bodySmall" tone="muted" css={cluster.inline}>
           <LinkSimpleIcon weight="bold" aria-hidden />
           <MetaLine
             facts={[link.providerName || link.providerInstitution, synced]}
           />
-        </span>
+        </Text>
         {needsReconnect ? (
           <Badge size="sm" intent="warning">
             {t({ en: "Reconnect", zh: "需重新连接" })}
@@ -43,7 +43,9 @@ export function BankLinkStatus({ link }: { link: BankLinkRow }) {
         ) : null}
       </p>
       {reason === null ? null : (
-        <p css={[typeRole.bodySmall, styles.line, styles.muted]}>{reason}</p>
+        <Text look="bodySmall" tone="muted" measure="none">
+          {reason}
+        </Text>
       )}
     </div>
   );
@@ -55,8 +57,5 @@ const styles = stylex.create({
   },
   line: {
     margin: 0,
-  },
-  muted: {
-    color: color.mutedForeground,
   },
 });

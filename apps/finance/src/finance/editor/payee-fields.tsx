@@ -1,13 +1,11 @@
 "use client";
 
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Select } from "@tuja/ui/components/select";
+import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { useState } from "react";
 import type { SuggestResponse } from "../ai/types.ts";
 import { bankApiClient } from "../bank/bank-api-client.ts";
@@ -286,11 +284,13 @@ export function PayeeFields({ form, suggestion }: PayeeFieldsProps) {
               {t({ en: "Suggest", zh: "智能建议" })}
             </Button>
             {suggestState === "failed" ? (
-              <span role="status" css={[typeRole.caption, styles.muted]}>
-                {t({
-                  en: "No suggestion right now. Pick a category below.",
-                  zh: "暂时没有建议，请在下方选择分类。",
-                })}
+              <span role="status">
+                <Text as="span" look="caption" tone="muted">
+                  {t({
+                    en: "No suggestion right now. Pick a category below.",
+                    zh: "暂时没有建议，请在下方选择分类。",
+                  })}
+                </Text>
               </span>
             ) : null}
           </div>
@@ -340,9 +340,3 @@ export function PayeeFields({ form, suggestion }: PayeeFieldsProps) {
     </div>
   );
 }
-
-const styles = stylex.create({
-  muted: {
-    color: color.mutedForeground,
-  },
-});

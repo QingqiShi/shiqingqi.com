@@ -71,6 +71,7 @@ export function ReportTrend({
                 fromMinor={first.netWorthMinor}
                 currency={currency}
                 tone
+                look="caption"
               />
               {" · "}
               {averageLabel}{" "}

@@ -4,7 +4,7 @@ import { color } from "../color.stylex.ts";
 import { isShown } from "../is-shown.ts";
 import { containerWidth } from "../primitives/size-container.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
-import { toneColor } from "../primitives/tone.stylex.ts";
+import { textTone } from "../primitives/tone.stylex.ts";
 import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
 import { border, controlSize, rhythm, shadow } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
@@ -93,7 +93,7 @@ export function Stat({
           typeRole.h1,
           typeModifier.numeric,
           styles.value,
-          toneColor[intent],
+          textTone[intent],
         ]}
       >
         {value}

@@ -4,7 +4,7 @@ import { t } from "@tuja/i18n";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
-import { ratio, rhythm } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
 import * as tmdbServerFunctions from "#src/_generated/tmdb-server-functions.ts";
 import { Grid } from "#src/movie-database/grid.tsx";
@@ -59,7 +59,9 @@ export function SimilarMedia({
               {SKELETON_ITEMS.map((item) => (
                 <Skeleton
                   key={item.key}
-                  css={styles.skeleton}
+                  width="100%"
+                  aspect={2 / 3}
+                  shape="control"
                   delay={item.delay}
                 />
               ))}
@@ -86,9 +88,5 @@ const styles = stylex.create({
   heading: {
     marginBlock: 0,
     marginBlockEnd: rhythm.tight,
-  },
-  skeleton: {
-    aspectRatio: ratio.poster,
-    width: "100%",
   },
 });

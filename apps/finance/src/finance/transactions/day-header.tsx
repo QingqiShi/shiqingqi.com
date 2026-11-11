@@ -2,11 +2,11 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { Divider } from "@tuja/ui/components/divider";
 import { Heading } from "@tuja/ui/components/heading";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { dayHeader } from "./day-header.stylex.ts";
@@ -37,12 +37,13 @@ export function DayHeader({
         );
   return (
     <div css={[plainList.row, dayHeader.day]}>
-      <div css={[flex.between, dayHeader.rule, styles.rule]}>
-        <Heading level={level} css={[typeRole.label, styles.label]}>
+      <div css={[flex.between, styles.rule]}>
+        <Heading level={level} look="h4">
           {label}
         </Heading>
         {children}
       </div>
+      <Divider />
     </div>
   );
 }
@@ -50,8 +51,6 @@ export function DayHeader({
 const styles = stylex.create({
   rule: {
     gap: rhythm.tight,
-  },
-  label: {
-    fontWeight: font.weight_6,
+    paddingBlockEnd: space._1,
   },
 });

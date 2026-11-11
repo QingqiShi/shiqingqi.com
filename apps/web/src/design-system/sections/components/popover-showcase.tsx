@@ -103,30 +103,30 @@ export function PopoverShowcase() {
 
       <Showcase label={t({ en: "Dismissal and focus", zh: "关闭与焦点" })}>
         <ul css={[typeRole.bodySmall, styles.rules]}>
-          <li>
+          <Text as="li" look="bodySmall" tone="muted">
             {t({
               en: "Opening moves focus to the first focusable element inside, or to the panel itself when it holds none.",
               zh: "打开时焦点移到内部第一个可聚焦元素；若内部没有，则移到面板本身。",
             })}
-          </li>
-          <li>
+          </Text>
+          <Text as="li" look="bodySmall" tone="muted">
             {t({
               en: "Escape closes it and hands focus back to the trigger. The keystroke stops there, so an enclosing dialog does not close along with it.",
               zh: "Escape 关闭它并把焦点交还给触发元素。按键在此停止传播，外层对话框不会随之一起关闭。",
             })}
-          </li>
-          <li>
+          </Text>
+          <Text as="li" look="bodySmall" tone="muted">
             {t({
               en: "A pointer landing anywhere outside the panel and its trigger closes it, as does focus moving out — by Tab, by a skip link, or by a script.",
               zh: "指针落在面板与触发元素之外的任何位置都会关闭它；焦点移出时同样如此——无论是 Tab、跳转链接还是脚本。",
             })}
-          </li>
-          <li>
+          </Text>
+          <Text as="li" look="bodySmall" tone="muted">
             {t({
               en: "Tab past the last control leaves the panel. It never cycles back to the first: that is a focus trap, and only Sheet does it.",
               zh: "从最后一个控件继续按 Tab 会离开面板。它不会绕回第一个：那是焦点捕获，只有弹出面板才这么做。",
             })}
-          </li>
+          </Text>
         </ul>
         <Specimen caption={t({ en: "no focus trap", zh: "不捕获焦点" })}>
           <DismissalDemo />
@@ -200,6 +200,5 @@ const styles = stylex.create({
     margin: 0,
     maxInlineSize: measure.prose,
     paddingInlineStart: space._4,
-    color: color.mutedForeground,
   },
 });

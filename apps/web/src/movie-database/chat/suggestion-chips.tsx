@@ -1,15 +1,8 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { Button } from "@tuja/ui/components/button";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
-import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, font, opacity, space } from "@tuja/ui/tokens.stylex";
 import { use } from "react";
 import { ChatActionsContext } from "./chat-actions-context";
 
@@ -42,61 +35,16 @@ export function SuggestionChips({
       css={[cluster.tight, justify.center]}
     >
       {suggestions.map((text) => (
-        <button
+        <Button
           key={text}
-          type="button"
-          css={[
-            buttonReset.base,
-            typeRole.label,
-            corner.radius_round,
-            styles.chip,
-          ]}
+          look="outline"
+          size="sm"
           onClick={() => handleSelect?.(text)}
           disabled={disabled}
         >
           {text}
-        </button>
+        </Button>
       ))}
     </div>
   );
 }
-
-const styles = stylex.create({
-  chip: {
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: {
-      default: color.border,
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.primary,
-      },
-      ":disabled": color.border,
-    },
-    backgroundColor: {
-      default: "transparent",
-      ":hover": { default: null, [pointer.canHover]: color.primary },
-      ":disabled": "transparent",
-    },
-    color: {
-      default: color.mutedForeground,
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.primaryForeground,
-      },
-      ":disabled": color.mutedForeground,
-    },
-    fontFamily: font.family,
-    paddingBlock: space._1,
-    paddingInline: space._3,
-    cursor: {
-      default: "pointer",
-      ":disabled": "not-allowed",
-    },
-    opacity: {
-      default: 1,
-      ":disabled": opacity.disabled,
-    },
-    transition: `background-color ${duration._150} ${easing.ease}, color ${duration._150} ${easing.ease}, border-color ${duration._150} ${easing.ease}, opacity ${duration._150} ${easing.ease}`,
-  },
-});

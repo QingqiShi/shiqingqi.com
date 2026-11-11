@@ -3,10 +3,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { chartMarks } from "../charts/chart-marks.stylex.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { assetLiabilitySplit } from "./asset-liability-split.ts";
@@ -52,19 +52,19 @@ export function ReportSplitBar({ data }: { data: WeeklyReportData }) {
           ) : null,
         )}
       </div>
-      <dl css={[typeRole.bodySmall, styles.labels]}>
+      <dl css={styles.labels}>
         {sides.map((side) => (
           <div key={side.key} css={styles.item}>
-            <dt css={styles.keyed}>
+            <Text as="dt" look="bodySmall" tone="muted" css={styles.keyed}>
               <span css={[styles.key, side.keyStyle]} />
               {side.label}{" "}
               <span css={typeModifier.numeric}>
                 {shareFormat.format(side.share)}
               </span>
-            </dt>
-            <dd css={[typeModifier.numeric, styles.value]}>
+            </Text>
+            <Text as="dd" look="bodySmall" weight="semibold" numeric>
               {money(side.minor)}
-            </dd>
+            </Text>
           </div>
         ))}
       </dl>
@@ -105,7 +105,6 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: rhythm.inline,
-    color: color.mutedForeground,
   },
   key: {
     display: "inline-block",
@@ -113,9 +112,5 @@ const styles = stylex.create({
     blockSize: space._2,
     borderRadius: "2px",
     cornerShape: "round",
-  },
-  value: {
-    margin: 0,
-    fontWeight: font.weight_6,
   },
 });

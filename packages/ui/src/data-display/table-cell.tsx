@@ -30,6 +30,13 @@ interface TableCellProps
     Omit<ComponentProps<"td">, "align" | "className" | "style">,
     TableCellAlignment {
   /**
+   * `"muted"` quiets a value that matters less than the others in its row,
+   * such as a change of zero.
+   *
+   * @zh `"muted"` 让一行中不如其他值重要的值安静下来，例如为零的变化。
+   */
+  tone?: "muted";
+  /**
    * StyleX styles merged over the cell's own — the config-layer escape
    * hatch.
    *
@@ -42,6 +49,7 @@ interface TableCellProps
 export function TableCell({
   align,
   numeric = false,
+  tone,
   css,
   ref,
   children,
@@ -58,6 +66,7 @@ export function TableCell({
         numeric && styles.numeric,
         numeric && typeModifier.numeric,
         resolvedAlign ? alignStyles[resolvedAlign] : null,
+        tone === "muted" && styles.muted,
         css,
       ]}
     >

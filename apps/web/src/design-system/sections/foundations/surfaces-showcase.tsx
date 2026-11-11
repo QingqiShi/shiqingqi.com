@@ -8,7 +8,6 @@ import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   controlHeight,
@@ -165,7 +164,9 @@ export function SurfacesShowcase() {
               key={step.token}
               css={[corner.radius_3, styles.lifted, step.style]}
             >
-              <span css={[typeRole.caption, styles.token]}>{step.token}</span>
+              <Text as="span" look="caption" css={styles.token}>
+                {step.token}
+              </Text>
             </li>
           ))}
         </ul>
@@ -197,8 +198,12 @@ function Step({ token, name, shape }: StepProps) {
     <li css={[stack.tight, styles.step]}>
       {shape}
       <span css={stack.text}>
-        <span css={[typeRole.caption, styles.token]}>{token}</span>
-        <span css={[typeRole.caption, styles.name]}>{name}</span>
+        <Text as="span" look="caption" css={styles.token}>
+          {token}
+        </Text>
+        <Text as="span" look="caption" tone="muted">
+          {name}
+        </Text>
       </span>
     </li>
   );
@@ -214,9 +219,9 @@ function NestedSide({ mark, verdict, children }: NestedSideProps) {
   return (
     <figure css={[stack.tight, styles.side]}>
       {children}
-      <figcaption css={[typeRole.bodySmall, styles.verdict]}>
+      <Text as="figcaption" look="bodySmall" tone="muted">
         <span css={styles.glyph}>{mark}</span> {verdict}
-      </figcaption>
+      </Text>
     </figure>
   );
 }
@@ -230,9 +235,6 @@ const styles = stylex.create({
   side: {
     margin: 0,
     minInlineSize: 0,
-  },
-  verdict: {
-    color: color.mutedForeground,
   },
   glyph: {
     display: "inline-block",
@@ -260,10 +262,6 @@ const styles = stylex.create({
   },
   token: {
     fontFamily: font.familyMono,
-    color: color.foreground,
-  },
-  name: {
-    color: color.mutedForeground,
   },
   panel: {
     flexShrink: 0,

@@ -5,14 +5,12 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
+import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
-import { listSurface } from "@tuja/ui/components/list.stylex";
+import { List } from "@tuja/ui/components/list";
 import { Text } from "@tuja/ui/components/text";
-import { plainList } from "@tuja/ui/primitives/layout.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font } from "@tuja/ui/tokens.stylex";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { useId } from "react";
 import { BarChart, type BarSeries } from "../charts/bar-chart.tsx";
 import { formatAxisMoney } from "../charts/format-axis-money.ts";
@@ -121,40 +119,42 @@ export function CategoryBreakdown({
   return (
     <section css={stack.item} aria-labelledby={headingId}>
       <div css={stack.text}>
-        <Heading level={2} look="h4" id={headingId} css={styles.heading}>
+        <Heading level={2} look="h4" id={headingId}>
           {t({ en: "By category", zh: "按分类" })}
         </Heading>
         {view.path.length > 0 ? (
           <nav
             aria-label={t({ en: "Category path", zh: "分类路径" })}
-            css={[cluster.inline, typeRole.caption]}
+            css={cluster.inline}
           >
-            <button
-              type="button"
-              css={[buttonReset.base, styles.crumb]}
+            <Button
+              look="ghost"
+              size="xs"
               onClick={() => {
                 onChange({ category: null });
               }}
             >
               {allCategories}
-            </button>
+            </Button>
             {view.path.map((id, at) => (
               <span key={id} css={row.inline}>
                 <CaretRightIcon weight="bold" aria-hidden css={styles.caret} />
                 {at === view.path.length - 1 ? (
-                  <span aria-current="location" css={styles.current}>
-                    {nameOf(id, false)}
+                  <span aria-current="location">
+                    <Text as="span" look="caption" weight="semibold">
+                      {nameOf(id, false)}
+                    </Text>
                   </span>
                 ) : (
-                  <button
-                    type="button"
-                    css={[buttonReset.base, styles.crumb]}
+                  <Button
+                    look="ghost"
+                    size="xs"
                     onClick={() => {
                       onChange({ category: id });
                     }}
                   >
                     {nameOf(id, false)}
-                  </button>
+                  </Button>
                 )}
               </span>
             ))}
@@ -210,14 +210,7 @@ export function CategoryBreakdown({
               zh: "按回车查看交易。",
             })}
           />
-          <ul
-            css={[
-              stack.rows,
-              plainList.list,
-              listSurface.plain,
-              listSurface.compact,
-            ]}
-          >
+          <List form="plain" density="compact">
             {view.rows.map((item) => {
               const change =
                 item.previous === null || item.previous === 0
@@ -263,7 +256,7 @@ export function CategoryBreakdown({
                 />
               );
             })}
-          </ul>
+          </List>
         </>
       )}
     </section>
@@ -271,21 +264,9 @@ export function CategoryBreakdown({
 }
 
 const styles = stylex.create({
-  heading: {
-    margin: 0,
-  },
-  crumb: {
-    color: color.mutedForeground,
-    textDecoration: "underline",
-    textUnderlineOffset: "0.2em",
-  },
-  current: {
-    color: color.foreground,
-    fontWeight: font.weight_6,
-  },
   caret: {
-    color: color.mutedForeground,
     flexShrink: 0,
+    color: color.mutedForeground,
   },
   name: {
     minInlineSize: 0,

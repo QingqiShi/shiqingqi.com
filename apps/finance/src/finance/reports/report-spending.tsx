@@ -4,7 +4,6 @@ import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Text } from "@tuja/ui/components/text";
@@ -92,7 +91,11 @@ export function ReportSpending({
         mark={line.averageMinor / largest}
         detail={
           <>
-            <MoneyChange changeMinor={line.changeMinor} currency={currency} />{" "}
+            <MoneyChange
+              changeMinor={line.changeMinor}
+              currency={currency}
+              look="caption"
+            />{" "}
             {vsAverage}
           </>
         }
@@ -154,7 +157,7 @@ export function ReportSpending({
                 changeMinor={spending.changeMinor}
                 currency={currency}
               />
-              <span css={styles.muted}>
+              <Text as="span" look="bodySmall" tone="muted">
                 {fillTemplate(
                   t({
                     en: "vs the 4-week average of {amount}",
@@ -162,23 +165,23 @@ export function ReportSpending({
                   }),
                   { amount: money(spending.averageMinor) },
                 )}
-              </span>
+              </Text>
             </p>
           </div>
           <div css={[cluster.item, styles.facts]}>
-            <p css={[typeRole.bodySmall, styles.line, styles.muted]}>
+            <Text look="bodySmall" tone="muted" measure="none">
               <MetaLine
                 facts={[
                   <span key="income">
                     {t({ en: "Income", zh: "收入" })}{" "}
-                    <span css={[typeModifier.numeric, styles.fact]}>
+                    <Text as="span" look="bodySmall" numeric>
                       {money(data.incomeMinor)}
-                    </span>
+                    </Text>
                   </span>,
                   transactionCount,
                 ]}
               />
-            </p>
+            </Text>
             {data.reviewCount > 0 ? (
               <Button
                 href={transactionsHref({ review: true })}
@@ -253,12 +256,6 @@ export function ReportSpending({
 const styles = stylex.create({
   line: {
     margin: 0,
-  },
-  muted: {
-    color: color.mutedForeground,
-  },
-  fact: {
-    color: color.foreground,
   },
   facts: {
     justifyContent: "space-between",

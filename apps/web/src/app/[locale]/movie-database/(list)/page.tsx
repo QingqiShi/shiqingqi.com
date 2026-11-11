@@ -7,7 +7,6 @@ import { Skeleton } from "@tuja/ui/components/skeleton";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { ratio } from "@tuja/ui/tokens.stylex";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import * as tmdbServerFunctions from "#src/_generated/tmdb-server-functions.ts";
@@ -160,7 +159,9 @@ export default async function Page(
                               {SKELETON_ITEMS.map((item) => (
                                 <Skeleton
                                   key={item.key}
-                                  css={styles.skeleton}
+                                  width="100%"
+                                  aspect={2 / 3}
+                                  shape="control"
                                   delay={item.delay}
                                 />
                               ))}
@@ -236,10 +237,6 @@ export default async function Page(
 const styles = stylex.create({
   resultsBody: {
     flexBasis: "100%",
-  },
-  skeleton: {
-    aspectRatio: ratio.poster,
-    width: "100%",
   },
   welcomeContainer: {
     width: "100%",

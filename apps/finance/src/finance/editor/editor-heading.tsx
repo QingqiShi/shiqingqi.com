@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
+import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -65,14 +66,14 @@ export function EditorHeading({ form }: { form: TransactionForm }) {
       <span css={[typeRole.h1, typeModifier.numeric, styles.headlineAmount]}>
         {headlineAmount}
       </span>
-      <span css={[cluster.tight, typeRole.body, styles.headlineName]}>
+      <Text as="span" weight="medium" css={cluster.tight}>
         <span css={typeModifier.verbatim}>{headlineName}</span>
         {isExpected ? (
           <Badge size="sm" intent="neutral">
             {t({ en: "Expected", zh: "待确认" })}
           </Badge>
         ) : null}
-      </span>
+      </Text>
     </h2>
   ) : (
     <div css={cluster.tight}>
@@ -94,8 +95,5 @@ const styles = stylex.create({
   },
   headlineAmount: {
     fontWeight: font.weight_7,
-  },
-  headlineName: {
-    fontWeight: font.weight_5,
   },
 });

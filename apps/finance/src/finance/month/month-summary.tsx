@@ -5,14 +5,13 @@ import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { Heading } from "@tuja/ui/components/heading";
+import { Stat } from "@tuja/ui/components/stat";
+import { StatGroup } from "@tuja/ui/components/stat-group";
+import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useRef } from "react";
 import { displayDay } from "../domain/dates/display-day.ts";
 import type { MonthView } from "./build-month-view.ts";
@@ -62,12 +61,12 @@ export function MonthSummary({
     <header css={stack.item}>
       <div css={styles.titleRow}>
         <div css={[stack.tight, styles.title]}>
-          <h1 ref={titleRef} css={[typeRole.h1, styles.heading]}>
+          <Heading level={1} look="h1" weight="bold" ref={titleRef}>
             {monthName(view.month)}
-          </h1>
-          <span css={[typeRole.caption, typeModifier.numeric, styles.muted]}>
+          </Heading>
+          <Text as="span" look="caption" tone="muted" numeric>
             {`${view.count.toLocaleString(locale)} ${transactionsLabel}`}
-          </span>
+          </Text>
         </div>
         <nav
           aria-label={t({ en: "Months", zh: "按月浏览" })}
@@ -81,7 +80,6 @@ export function MonthSummary({
                 : previousLabel
             }
             disabled={!hasPrevious}
-            css={corner.radius_round}
             onClick={() => {
               onMonth(previous);
             }}
@@ -92,58 +90,33 @@ export function MonthSummary({
               hasNext ? `${nextLabel}${colon}${monthName(next)}` : nextLabel
             }
             disabled={!hasNext}
-            css={corner.radius_round}
             onClick={() => {
               onMonth(next);
             }}
           />
         </nav>
       </div>
-      <dl css={styles.figures}>
-        <div css={stack.text}>
-          <dt css={[typeRole.label, styles.muted]}>
-            {t({ en: "Money in", zh: "收入" })}
-          </dt>
-          <dd css={[typeRole.fluidH1, typeModifier.numeric, styles.figure]}>
-            <RollingFigure
-              value={view.moneyIn}
-              format={money}
-              css={styles.in}
-            />
-          </dd>
-        </div>
-        <div css={stack.text}>
-          <dt css={[typeRole.label, styles.muted]}>
-            {t({ en: "Money out", zh: "支出" })}
-          </dt>
-          <dd css={[typeRole.fluidH1, typeModifier.numeric, styles.figure]}>
-            <RollingFigure
-              value={-view.moneyOut}
-              format={money}
-              css={styles.out}
-            />
-          </dd>
-        </div>
-        <div css={stack.text}>
-          <dt css={[typeRole.label, styles.muted]}>
-            {isPositive
+      <StatGroup look="plain">
+        <Stat
+          label={t({ en: "Money in", zh: "收入" })}
+          value={<RollingFigure value={view.moneyIn} format={money} />}
+          intent="success"
+        />
+        <Stat
+          label={t({ en: "Money out", zh: "支出" })}
+          value={<RollingFigure value={-view.moneyOut} format={money} />}
+          intent="destructive"
+        />
+        <Stat
+          label={
+            isPositive
               ? t({ en: "Left over", zh: "结余" })
-              : t({ en: "Overspent", zh: "超支" })}
-          </dt>
-          <dd css={[typeRole.fluidH1, typeModifier.numeric, styles.figure]}>
-            <RollingFigure
-              value={view.net}
-              format={money}
-              css={[
-                corner.radius_round,
-                transition.colors,
-                styles.pill,
-                isPositive ? styles.pillUp : styles.pillDown,
-              ]}
-            />
-          </dd>
-        </div>
-      </dl>
+              : t({ en: "Overspent", zh: "超支" })
+          }
+          value={<RollingFigure value={view.net} format={money} />}
+          intent={isPositive ? "success" : "destructive"}
+        />
+      </StatGroup>
     </header>
   );
 }
@@ -157,44 +130,5 @@ const styles = stylex.create({
   },
   title: {
     minInlineSize: 0,
-  },
-  heading: {
-    margin: 0,
-    fontWeight: font.weight_7,
-  },
-  muted: {
-    color: color.mutedForeground,
-  },
-  figures: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "flex-end",
-    columnGap: { default: rhythm.item, [breakpoints.md]: rhythm.group },
-    rowGap: rhythm.item,
-    margin: 0,
-  },
-  figure: {
-    margin: 0,
-    fontWeight: font.weight_7,
-    whiteSpace: "nowrap",
-  },
-  in: {
-    color: color.successText,
-  },
-  out: {
-    color: color.destructiveText,
-  },
-  pill: {
-    display: "inline-block",
-    paddingBlock: space._00,
-    paddingInline: space._2,
-  },
-  pillUp: {
-    backgroundColor: color.success,
-    color: color.successForeground,
-  },
-  pillDown: {
-    backgroundColor: color.destructive,
-    color: color.destructiveForeground,
   },
 });
