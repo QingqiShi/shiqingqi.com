@@ -10,7 +10,7 @@ import {
 } from "@tuja/ui/components/table";
 
 /**
- * Three rows and one numeric column — the least that still shows what the
+ * Two rows and one numeric column — the least that still shows what the
  * component is: a ruled head, seamed rows, and figures aligned to the end. The
  * current row, the foot and the sticky head belong to the Table page, where a
  * reader can scroll them; here they would only crowd the plate.
@@ -54,12 +54,6 @@ export function TableSpecimen() {
             {t({ en: "Plan 2", zh: "计划 2" })}
           </TableHeaderCell>
           <TableCell numeric>{money.format(28470)}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableHeaderCell scope="row">
-            {t({ en: "Plan 5", zh: "计划 5" })}
-          </TableHeaderCell>
-          <TableCell numeric>{money.format(25000)}</TableCell>
         </TableRow>
       </TableBody>
     </Table>

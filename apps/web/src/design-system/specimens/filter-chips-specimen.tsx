@@ -8,7 +8,8 @@ function ignore() {
 }
 
 /**
- * Three chips with counts, the first picked. `FilterChips` is controlled
+ * Two chips with counts, the first picked: a row that fits the narrowest
+ * tile, so no chip is cut at the edge. `FilterChips` is controlled
  * only, so this client island gives it an `onChange` that does nothing: the
  * tile is inert, and nothing can call it.
  */
@@ -20,9 +21,8 @@ export function FilterChipsSpecimen() {
       value="all"
       onChange={ignore}
       options={[
-        { value: "all", label: t({ en: "All", zh: "全部" }), count: 212 },
-        { value: "filed", label: t({ en: "Filed", zh: "已归档" }), count: 148 },
-        { value: "junk", label: t({ en: "Junk", zh: "垃圾邮件" }), count: 19 },
+        { value: "all", label: t({ en: "All", zh: "全部" }), count: 64 },
+        { value: "filed", label: t({ en: "Filed", zh: "已归档" }), count: 48 },
       ]}
     />
   );

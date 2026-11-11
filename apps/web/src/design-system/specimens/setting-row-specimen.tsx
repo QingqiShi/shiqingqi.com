@@ -5,8 +5,9 @@ import { Switch } from "@tuja/ui/components/switch";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 
 /**
- * Two rows with a switch each and the divider between them. The switches are
- * controlled with no `onChange`, which is safe because the tile is inert.
+ * One row with its switch: two rows are taller than the plate at the
+ * narrowest tile. The switch is controlled with no `onChange`, which is safe
+ * because the tile is inert.
  */
 export function SettingRowSpecimen() {
   return (
@@ -14,10 +15,6 @@ export function SettingRowSpecimen() {
       <SettingRow
         label={t({ en: "Morning report", zh: "晨间报告" })}
         control={<Switch value="on" />}
-      />
-      <SettingRow
-        label={t({ en: "File receipts", zh: "归档收据" })}
-        control={<Switch value="off" />}
       />
     </SettingList>
   );

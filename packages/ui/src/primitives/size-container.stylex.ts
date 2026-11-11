@@ -30,6 +30,10 @@ export const containerWidth = stylex.defineConsts({
   statsWide: "@container (width >= 48rem)",
   /** Not `statsWide`, where the figure of a `Stat` steps down. */
   statsBelowWide: "@container (width < 48rem)",
-  /** A `StatGroup` holds two stats in a row, with a smaller figure. */
-  statsInPairs: "@container (width < 26rem)",
+  /**
+   * A `StatGroup` holds two stats in a row, with a smaller figure. Below
+   * 16rem, half the row is too narrow for a figure such as "£2,184.20", so
+   * the stats stack.
+   */
+  statsInPairs: "@container (16rem <= width < 26rem)",
 });
