@@ -155,13 +155,10 @@ export function NavList({
           motion.press(event.target, false);
         }}
       >
-        <span ref={hoverRef} aria-hidden css={FILL} />
-        <span
-          ref={markerRef}
-          aria-hidden
-          {...{ [NAV_MARKER]: "" }}
-          css={FILL}
-        />
+        <span aria-hidden css={styles.fills}>
+          <span ref={hoverRef} css={FILL} />
+          <span ref={markerRef} {...{ [NAV_MARKER]: "" }} css={FILL} />
+        </span>
         <EffectContainer value={container}>
           <IconDust
             shedRef={shedRef}
@@ -257,6 +254,16 @@ const styles = stylex.create({
       default: LOOK,
       [navListQueries.sidebarPage]: "transparent",
     },
+  },
+  // The spring moves a fill past the first and the last row. Without the
+  // clip, the fill makes a scroller around the list scroll for a moment, and
+  // a classic scrollbar then stays.
+  fills: {
+    position: "absolute",
+    inset: 0,
+    zIndex: -1,
+    overflow: "clip",
+    pointerEvents: "none",
   },
   fill: {
     position: "absolute",
