@@ -24,21 +24,21 @@ const COPY = {
 
 // The `@tuja/ui` colour tokens, resolved, because email has no CSS variables.
 const LIGHT = {
-  canvas: "#FBF9F6",
+  canvas: "#F8F8F8",
   surface: "#FFFFFF",
-  border: "#EAE8E5",
-  fg: "#131412",
-  fgMuted: "#656562",
+  border: "#E7E7E7",
+  fg: "#141414",
+  fgMuted: "#646464",
   accent: "#A043D0",
   fgOnAccent: "#FFFFFF",
 };
 
 const DARK: typeof LIGHT = {
   canvas: "#000000",
-  surface: "#131412",
-  border: "#2B2C29",
-  fg: "#FBF9F6",
-  fgMuted: "#C1C0BD",
+  surface: "#141414",
+  border: "#2B2B2B",
+  fg: "#F8F8F8",
+  fgMuted: "#BFBFBF",
   accent: "#E3A3FF",
   fgOnAccent: "#000000",
 };

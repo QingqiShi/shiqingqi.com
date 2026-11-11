@@ -9,10 +9,8 @@
  * ramp curve below reshapes the gray ramp that every hue is matched to. Its
  * anchors are L* offsets at tone {0, 25, 50, 75, 100}.
  *
- * Gray is a near-zero-chroma warm neutral whose source is tuned so its high
- * tones reproduce the tuned warm-cream background ramp (e.g. tone 92 ≈
- * #edece8). It is the source of every neutral token — backgrounds, text,
- * borders, dividers — so the whole neutral family shares one slight warmth.
+ * Gray has no tint: red, green and blue are equal at every tone. It is the
+ * source of every neutral token — backgrounds, text, borders, dividers.
  *
  * To regenerate the per-hue palette files and palette-table.ts:
  *   pnpm codegen:palette
@@ -38,10 +36,5 @@ export const SYSTEM_HUES: readonly SystemHueDefinition[] = [
   { name: "Purple", source: "#AF52DE" },
   { name: "Pink", source: "#FF2D55" },
   { name: "Brown", source: "#A2845E" },
-  // Gray source picked so HCT tones land on the tuned warm-cream background
-  // ramp (tone 90 ≈ #e6e5e1, tone 92 ≈ #edece8, tone 100 = #ffffff). Chroma is
-  // ~2.4 — barely perceptible warmth, vanishes at extreme lightness. This
-  // replaces Apple HIG's cool `#8E8E93` because the design system uses a single
-  // warm-neutral family across surfaces, text, and borders.
-  { name: "Gray", source: "#777774" },
+  { name: "Gray", source: "#777777" },
 ];
