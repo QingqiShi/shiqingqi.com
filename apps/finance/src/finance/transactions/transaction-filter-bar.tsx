@@ -7,14 +7,8 @@ import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
-import {
-  outlineSurface,
-  outlineSurfaceSize,
-} from "@tuja/ui/components/outline-surface.stylex";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { Select } from "@tuja/ui/components/select";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useId, useState, type ReactNode } from "react";
 import { addMonths } from "../domain/dates/add-months.ts";
@@ -79,42 +73,27 @@ const PRESETS = ["thisMonth", "lastMonth", "threeMonths", "thisYear"] as const;
 function FilterSelect({
   label,
   value,
-  isActive,
   onChange,
   children,
 }: {
   label: string;
   value: string;
-  isActive: boolean;
   onChange: (value: string) => void;
   children: ReactNode;
 }) {
-  const id = useId();
   return (
-    <>
-      <label htmlFor={id} css={a11y.srOnly}>
-        {label}
-      </label>
-      <select
-        id={id}
-        value={value}
-        onChange={(event) => {
-          onChange(event.target.value);
-        }}
-        css={[
-          typeRole.label,
-          outlineSurface.layout,
-          outlineSurface.skin,
-          outlineSurfaceSize.sm,
-          corner.squircle_round,
-          outlineSurface.interactive,
-          isActive && outlineSurface.active,
-          styles.select,
-        ]}
-      >
-        {children}
-      </select>
-    </>
+    <Select
+      size="sm"
+      label={label}
+      labelHidden
+      value={value}
+      onChange={(event) => {
+        onChange(event.target.value);
+      }}
+      css={styles.select}
+    >
+      {children}
+    </Select>
   );
 }
 
@@ -240,7 +219,6 @@ export function TransactionFilterBar({
         <FilterSelect
           label={t({ en: "Kind", zh: "类型" })}
           value={filters.kinds.length === 1 ? filters.kinds[0] : ""}
-          isActive={filters.kinds.length > 0}
           onChange={(value) => {
             set({
               kinds: isTransactionKind(value) ? [value] : [],
@@ -255,7 +233,6 @@ export function TransactionFilterBar({
         <FilterSelect
           label={t({ en: "Account", zh: "账户" })}
           value={filters.accountIds.length === 1 ? filters.accountIds[0] : ""}
-          isActive={filters.accountIds.length > 0}
           onChange={(value) => {
             set({ accountIds: value === "" ? [] : [value] });
           }}
@@ -276,7 +253,6 @@ export function TransactionFilterBar({
         <FilterSelect
           label={t({ en: "Category", zh: "分类" })}
           value={filters.categoryIds.length === 1 ? filters.categoryIds[0] : ""}
-          isActive={filters.categoryIds.length > 0}
           onChange={(value) => {
             set({ categoryIds: value === "" ? [] : [value] });
           }}
@@ -301,7 +277,6 @@ export function TransactionFilterBar({
         <FilterSelect
           label={t({ en: "Dates", zh: "日期" })}
           value={range}
-          isActive={range !== "any"}
           onChange={(value) => {
             const key = PRESETS.find((preset) => preset === value);
             if (key) set(rangeOf(key, today));
@@ -329,7 +304,7 @@ export function TransactionFilterBar({
         {range === "custom" ? (
           <>
             <DayInput
-              css={styles.select}
+              css={styles.day}
               label={t({ en: "From", zh: "开始" })}
               value={filters.from ?? ""}
               onChange={(from) => {
@@ -337,7 +312,7 @@ export function TransactionFilterBar({
               }}
             />
             <DayInput
-              css={styles.select}
+              css={styles.day}
               label={t({ en: "To", zh: "结束" })}
               value={filters.to ?? ""}
               onChange={(to) => {
@@ -408,6 +383,10 @@ const styles = stylex.create({
     display: { default: "none", [breakpoints.md]: "contents" },
   },
   select: {
+    inlineSize: "auto",
+    maxInlineSize: "14rem",
+  },
+  day: {
     appearance: "auto",
     maxInlineSize: "14rem",
     paddingInlineEnd: space._1,

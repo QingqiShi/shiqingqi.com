@@ -14,7 +14,7 @@ import type { ToastAction } from "@tuja/ui/components/toast";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
 import type { VirtuosoHandle } from "react-virtuoso";
@@ -312,7 +312,7 @@ export function TransactionsScreen() {
           ) : null}
         </div>
         {bootstrapped ? <QuickAdd onNeedsEditor={task.openNew} /> : null}
-        <search css={stack.tight}>
+        <search css={[cluster.tight, styles.toolbar]}>
           <TextField
             ref={searchRef}
             type="search"
@@ -329,6 +329,7 @@ export function TransactionsScreen() {
             leading={<MagnifyingGlassIcon weight="bold" />}
             aria-keyshortcuts="/"
             maxLength={MAX_QUERY_LENGTH}
+            css={styles.search}
             value={query}
             onChange={(event) => {
               setQuery(event.target.value);
@@ -418,7 +419,7 @@ export function TransactionsScreen() {
         linkComponent={ColumnLink}
         linkStatus={null}
         replace={replace}
-        css={pageColumn.list}
+        css={pageColumn.report}
         content={{
           label: t({ en: "Transactions", zh: "交易" }),
           accessory: <FinanceAddButton />,
@@ -446,6 +447,14 @@ export function TransactionsScreen() {
 }
 
 const styles = stylex.create({
+  toolbar: {
+    alignItems: "center",
+  },
+  search: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: "16rem",
+  },
   skeletonRow: {
     gap: rhythm.item,
   },

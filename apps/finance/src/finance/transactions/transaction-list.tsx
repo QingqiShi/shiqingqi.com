@@ -136,6 +136,7 @@ const styles = stylex.create({
   // goes up by the same amount, so that the first line of text sits one gap
   // below the block above the list.
   list: {
+    containerType: "inline-size",
     marginBlockStart: `calc(-1 * ${space._3})`,
   },
 });

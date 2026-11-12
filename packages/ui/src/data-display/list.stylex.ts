@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { color } from "../color.stylex.ts";
-import { border, font, rhythm, space } from "../tokens.stylex.ts";
+import { border, controlSize, font, rhythm, space } from "../tokens.stylex.ts";
 
 /**
  * The sizes of the leading box of a `ListRow` with a `leadingSize`, for a
@@ -29,6 +29,16 @@ export const listRowTokens = stylex.defineVars({
   titleSize: font.uiBody,
   detailSize: font.uiBodySmall,
   detailLineHeight: font.lineHeightBody,
+});
+
+/**
+ * `columns`: the container around a `ListRow` with `columns` is wide enough
+ * to hold the detail line and the extra lines in columns beside the name.
+ *
+ * @internal
+ */
+export const listRowQueries = stylex.defineConsts({
+  columns: "@container (width >= 48rem)",
 });
 
 /** The height of a name line and a detail line of a `ListRow`. */
@@ -105,5 +115,28 @@ export const listSurface = stylex.create({
   },
   withMedia: {
     minBlockSize: `calc(${space._1} * 2 + ${headLines})`,
+  },
+});
+
+/**
+ * The box of a `ListRow`'s leading item at each `leadingSize`.
+ *
+ * @internal
+ */
+export const listRowMedia = stylex.create({
+  sm: {
+    inlineSize: listRowSizes.media_sm,
+    blockSize: listRowSizes.media_sm,
+    fontSize: controlSize._4,
+  },
+  md: {
+    inlineSize: listRowSizes.media_md,
+    blockSize: listRowSizes.media_md,
+    fontSize: controlSize._5,
+  },
+  lg: {
+    inlineSize: listRowSizes.media_lg,
+    blockSize: listRowSizes.media_lg,
+    fontSize: controlSize._6,
   },
 });

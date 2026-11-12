@@ -183,6 +183,7 @@ export function TransactionListRow({
           linkComponent={TransactionLink}
           aria-current={isSelected ? "true" : undefined}
           caret={false}
+          columns
           leading={icon}
           leadingShape="circle"
           detail={subtitle}
