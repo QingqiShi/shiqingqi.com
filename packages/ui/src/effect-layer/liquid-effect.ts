@@ -31,7 +31,7 @@ import { ownedStops } from "./owned-stops.ts";
 import { segmentOf } from "./pill-at.ts";
 import type { LiquidBody } from "./resting-liquid.ts";
 import { dispatch } from "./set-bind-group.ts";
-import type { LiquidSnapshot } from "./step-liquid.ts";
+import type { LiquidSnapshot } from "./settle-liquid.ts";
 import type {
   Effect,
   EffectElementRecord,

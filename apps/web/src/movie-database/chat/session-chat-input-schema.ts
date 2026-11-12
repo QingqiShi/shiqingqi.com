@@ -17,5 +17,3 @@ export const sessionChatInputSchema = z.discriminatedUnion("trigger", [
     trigger: z.literal("regenerate-message"),
   }),
 ]);
-
-export type SessionChatInput = z.infer<typeof sessionChatInputSchema>;

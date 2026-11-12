@@ -23,11 +23,6 @@ import {
   type LiquidBody,
 } from "./resting-liquid.ts";
 import {
-  NO_EDGE_LIGHT,
-  stepEdgeLight,
-  type EdgeLight,
-} from "./step-edge-light.ts";
-import {
   finiteParticles,
   frozenLiquid,
   LINGER_SET,
@@ -35,7 +30,12 @@ import {
   mean,
   settleOnSnapshot,
   type LiquidSnapshot,
-} from "./step-liquid.ts";
+} from "./settle-liquid.ts";
+import {
+  NO_EDGE_LIGHT,
+  stepEdgeLight,
+  type EdgeLight,
+} from "./step-edge-light.ts";
 import { stepRise, type Rise } from "./step-rise.ts";
 import type { EffectElementRecord, EffectFrame, EffectInput } from "./types.ts";
 

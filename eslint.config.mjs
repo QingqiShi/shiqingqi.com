@@ -436,12 +436,7 @@ export default defineConfig([
   // builds them from the cap and the safe area.
   {
     files: ["apps/*/src/**/*.{ts,tsx}"],
-    ignores: [
-      "**/*.test.{ts,tsx}",
-      // The playground canvas covers the full screen. It extends past the
-      // safe area and does not set a gutter.
-      "apps/web/src/playground/full-screen-canvas.stylex.ts",
-    ],
+    ignores: ["**/*.test.{ts,tsx}"],
     rules: {
       "@tuja/require-page-column": "error",
     },

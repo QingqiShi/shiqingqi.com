@@ -1,16 +1,11 @@
 import { moveBeads, shed, type Shedding } from "./move-beads.ts";
 import {
-  PARTICLE_RADIUS,
   restingLiquid,
   scaleFor,
   type LiquidBody,
   type LiquidParticles,
 } from "./resting-liquid.ts";
-import {
-  simulateLiquid,
-  tiltBoost,
-  type LiquidInput,
-} from "./simulate-liquid.ts";
+import { tiltBoost, type LiquidInput } from "./simulate-liquid.ts";
 
 /**
  * The longest frame the liquid keeps up with. At 30 Hz, as in iOS Low Power
@@ -104,45 +99,6 @@ export function mean(values: ArrayLike<number>) {
  */
 export function liquidStep(delta: number) {
   return Math.min(delta, MAX_STEP) * PACE;
-}
-
-/** The particles this near the wall of an end count as where the liquid meets it. */
-const IMPACT_BAND = 0.15;
-
-/**
- * Where the liquid lands on the wall at `end`, which the liquid pours
- * towards in `direction` (1 along the track, -1 back), or `null` while it
- * does not touch that wall: the middle of the particles that meet the wall
- * there, pushed out onto the wall. Liquid past the wall, which a wall that
- * has moved in behind it leaves, does not touch it.
- *
- * @internal
- */
-export function impactOn(body: LiquidBody, end: number, direction: 1 | -1 = 1) {
-  const limit = 1 - PARTICLE_RADIUS * body.scale - 0.03;
-  let touches = false;
-  let sumX = 0;
-  let sumY = 0;
-  for (let i = 0; i < body.x.length; i++) {
-    const dx = (body.x[i] - end) * direction;
-    if (dx <= 0) {
-      continue;
-    }
-    const distance = Math.hypot(dx, body.y[i]);
-    if (distance > limit + IMPACT_BAND) {
-      continue;
-    }
-    touches ||= distance >= limit;
-    if (distance >= limit - IMPACT_BAND) {
-      sumX += dx;
-      sumY += body.y[i];
-    }
-  }
-  if (!touches) {
-    return null;
-  }
-  const length = Math.hypot(sumX, sumY);
-  return { x: end + (direction * sumX) / length, y: sumY / length };
 }
 
 /**
@@ -331,29 +287,4 @@ export function frozenLiquid(body: LiquidBody, input: LiquidInput) {
     from: input.from,
     to: input.to,
   });
-}
-
-/**
- * Moves the liquid on by `delta` seconds, all on the CPU, where the effect
- * runs the substeps on the GPU. Under reduced motion it goes straight to
- * the target as the frozen rest shape and sheds nothing.
- *
- * @internal
- */
-export function stepLiquid(
-  body: LiquidBody,
-  input: LiquidInput,
-  delta: number,
-): LiquidBody {
-  if (input.reducedMotion) {
-    return frozenLiquid(body, input);
-  }
-  const step = liquidStep(delta);
-  const scale = scaleAfter(body.scale, input.span, body.x.length, step);
-  return settleLiquid(
-    body,
-    simulateLiquid(body, input, scale, step),
-    input,
-    delta,
-  );
 }

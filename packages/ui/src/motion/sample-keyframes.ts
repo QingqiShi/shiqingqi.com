@@ -63,28 +63,6 @@ function toleranceOf(
   return TOLERANCE[unit] ?? OTHER_TOLERANCE;
 }
 
-function format(value: number) {
-  return String(Number(value.toFixed(4)));
-}
-
-/**
- * The CSS value a share `t` of the way from `from` to `to`, number by
- * number, or null where the two differ in more than their numbers.
- *
- * @internal
- */
-export function mixStyle(from: string, to: string, t: number): string | null {
-  const a = parse(from, noLength);
-  const b = parse(to, noLength);
-  if (a.shape !== b.shape) return null;
-  let index = 0;
-  return from.replace(NUMBER, (_match, unit: string) => {
-    const mixed = a.numbers[index] + (b.numbers[index] - a.numbers[index]) * t;
-    index++;
-    return `${format(mixed)}${unit}`;
-  });
-}
-
 /** Whether a straight line from `from` to `to` gives `sample` at a share `t` of the way. */
 function reproduces(from: Parsed, to: Parsed, sample: Parsed, t: number) {
   if (from.shape !== sample.shape || to.shape !== sample.shape) return false;
