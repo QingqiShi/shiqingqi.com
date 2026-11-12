@@ -4,8 +4,8 @@ import { validateLocale } from "@tuja/i18n/validate-locale";
 import { SiteHeaderFooterLayout } from "#src/site-shell/site-header-footer-layout.tsx";
 
 /**
- * Route group for the header-only surfaces — the tool pages (calculator,
- * playground, and friends). They share the site's floating header controls
+ * Route group for the header-only surfaces — the tool pages, such as the
+ * calculator. They share the site's floating header controls
  * but carry no footer, so they use SiteHeaderFooterLayout without a footer
  * slot. Content-and-footer surfaces (the home page and detail pages) and the
  * movie database, whose header controls sit on the wide page column, own their

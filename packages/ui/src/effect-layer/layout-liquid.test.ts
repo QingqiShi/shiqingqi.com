@@ -5,8 +5,8 @@ import type { LiquidBead } from "./liquid-layout.ts";
 import type { LiquidControl } from "./liquid-reader.ts";
 import { readFill } from "./read-element-box.ts";
 import type { LiquidParticles } from "./resting-liquid.ts";
+import { mean, type LiquidSnapshot } from "./settle-liquid.ts";
 import { simulateLiquid } from "./simulate-liquid.ts";
-import { mean, type LiquidSnapshot } from "./step-liquid.ts";
 import type { EffectSettings } from "./types.ts";
 
 type Liquid = NonNullable<EffectSettings["liquid"]>;

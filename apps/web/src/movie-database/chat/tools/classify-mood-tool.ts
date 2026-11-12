@@ -21,8 +21,6 @@ export const classifyMoodInputSchema = z.object({
     ),
 });
 
-export type ClassifyMoodInput = z.infer<typeof classifyMoodInputSchema>;
-
 const TOOL_DESCRIPTION =
   "Set the emotional tone of the response so the UI can shift its " +
   "background palette. Call this at the start of every reply, and again " +

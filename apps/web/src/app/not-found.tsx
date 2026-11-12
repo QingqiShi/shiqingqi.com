@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   // Belt-and-braces with the 404 status code — compliant crawlers already
   // drop the URL on status, but non-compliant AI scrapers and social-preview
   // unfurlers read metadata regardless. `noindex, nofollow` keeps the
-  // title/description out of those pipelines. Mirrors PR #2190's playground.
+  // title/description out of those pipelines.
   robots: { index: false, follow: false },
 };
 

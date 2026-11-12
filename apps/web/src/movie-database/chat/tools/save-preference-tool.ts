@@ -28,8 +28,6 @@ export const savePreferenceInputSchema = z.object({
     .describe("List of user preferences detected from the conversation."),
 });
 
-export type SavePreferenceInput = z.infer<typeof savePreferenceInputSchema>;
-
 const TOOL_DESCRIPTION =
   "Save user preferences detected during conversation. " +
   "Call this when the user expresses likes or dislikes about genres, actors, " +
