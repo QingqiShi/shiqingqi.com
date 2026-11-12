@@ -8,7 +8,13 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { controlSize, font, space } from "@tuja/ui/tokens.stylex";
+import {
+  border,
+  controlHeight,
+  controlSize,
+  font,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import {
   createContext,
   use,
@@ -59,7 +65,7 @@ interface ChatTextareaProps {
    * newline on.
    */
   multiline?: boolean;
-  /** Reduced vertical padding for use inside sticky toolbars. */
+  /** As tall as the other controls of a sticky toolbar. */
   compact?: boolean;
   /** Content rendered before the textarea (e.g. attachment row). */
   beforeTextarea?: ReactNode;
@@ -240,14 +246,20 @@ const styles = stylex.create({
   container: {
     width: "100%",
     gap: controlSize._2,
+    boxSizing: "border-box",
+    borderStyle: "solid",
+    borderWidth: border.size_1,
+    borderColor: color.input,
     backgroundColor: color.card,
     paddingBlock: space._2,
     paddingLeft: space._3,
     paddingRight: space._2,
   },
   containerCompact: {
-    paddingBlock: space._1,
+    minBlockSize: controlHeight.md,
+    paddingBlock: 0,
     paddingLeft: space._2,
+    paddingRight: `calc(${controlSize._1} - ${border.size_1})`,
   },
   field: {
     flexGrow: 1,
