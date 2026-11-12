@@ -19,7 +19,8 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ChartRangeChips } from "../charts/chart-range-chips.tsx";
 import { AccountGroupList } from "./account-group-list.tsx";
 import { AccountNavList } from "./account-nav-list.tsx";
 import { BankBalanceSummary } from "./bank-balance-notice.tsx";
@@ -28,7 +29,11 @@ import {
   NetWorthHeadline,
   type NetWorthHeadlineForm,
 } from "./net-worth-headline.tsx";
-import { useNetWorthPick } from "./net-worth-pick-provider.tsx";
+import {
+  useNetWorthPick,
+  useSetNetWorthPick,
+} from "./net-worth-pick-provider.tsx";
+import { NetWorthTrend, useNetWorthRange } from "./net-worth-trend.tsx";
 import type { NetWorthUrl } from "./use-net-worth-url.ts";
 
 interface NetWorthSheetProps {
@@ -36,6 +41,8 @@ interface NetWorthSheetProps {
   today: string;
   currency: string;
 }
+
+const STACKED_TREND_HEIGHT = 200;
 
 /** Whether the balance sheet has an account to show. */
 export function hasAccounts(sheet: BalanceSheet) {
@@ -45,7 +52,8 @@ export function hasAccounts(sheet: BalanceSheet) {
 /**
  * The first column of Net worth. Beside the content it is a list of links:
  * see `AccountNavList`. Where it is a page of its own, it is today's net
- * worth, which is the Household and opens it; "Update balances" and
+ * worth, which is the Household and opens it; its trend with the range to
+ * show; "Update balances" and
  * "+ Account"; each account whose bank balance differs; and every account
  * by Group.
  */
@@ -84,6 +92,7 @@ export function NetWorthSidebar({
           >
             <PickedHeadline sheet={sheet} today={today} currency={currency} />
           </SplitViewLink>
+          <StackedTrend />
           <div ref={actionsRef}>
             <NetWorthActions
               updateHref={url.modeHref("update")}
@@ -107,6 +116,29 @@ export function NetWorthSidebar({
         </div>
       </StackedOnly>
     </>
+  );
+}
+
+/** The net-worth trend of the page, with the range under it. A pick on it shows in the headline. */
+function StackedTrend() {
+  const [range, setRange] = useNetWorthRange();
+  const setPick = useSetNetWorthPick();
+  useEffect(
+    () => () => {
+      setPick(null);
+    },
+    [setPick],
+  );
+  return (
+    <section css={stack.item} aria-label={t({ en: "Trend", zh: "趋势" })}>
+      <NetWorthTrend
+        range={range}
+        height={STACKED_TREND_HEIGHT}
+        onPick={setPick}
+        bleeds
+      />
+      <ChartRangeChips value={range} onChange={setRange} />
+    </section>
   );
 }
 
