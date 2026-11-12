@@ -331,7 +331,7 @@ export function Calculator() {
 
 const styles = stylex.create({
   container: {
-    height: "600px",
+    inlineSize: "min(25rem, 100%)",
     aspectRatio: ratio.poster,
     backgroundColor: color.card,
     overflow: "hidden",

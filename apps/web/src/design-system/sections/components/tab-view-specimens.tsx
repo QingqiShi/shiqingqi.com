@@ -11,9 +11,6 @@ import { Avatar } from "@tuja/ui/components/avatar";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
 import { listSurface } from "@tuja/ui/components/list.stylex";
-import { NavGroup } from "@tuja/ui/components/nav-group";
-import { NavLink } from "@tuja/ui/components/nav-link";
-import { NavList } from "@tuja/ui/components/nav-list";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import {
   TabView,
@@ -260,16 +257,6 @@ export function TabViewDemo() {
       </TabViewLabelsOnly>
     </span>
   );
-  const shelves = (
-    <nav aria-label={t({ en: "Shelves", zh: "书单" })}>
-      <NavList>
-        <NavGroup label={t({ en: "Shelves", zh: "书单" })}>
-          <NavLink href="#">{t({ en: "Want to read", zh: "想读" })}</NavLink>
-          <NavLink href="#">{t({ en: "Finished", zh: "读完" })}</NavLink>
-        </NavGroup>
-      </NavList>
-    </nav>
-  );
   const screen = (
     <div css={styles.screen}>
       <div css={[stack.group, styles.screenContent]}>
@@ -323,7 +310,7 @@ export function TabViewDemo() {
         linkStatus={linkStatus}
         header={brand}
         footer={member}
-        secondary={shelves}
+        sidebarToggleLabel={t({ en: "Sidebar", zh: "侧边栏" })}
         items={destinations.map((destination) => ({
           href: hrefOf(destination.id),
           label: destination.label,

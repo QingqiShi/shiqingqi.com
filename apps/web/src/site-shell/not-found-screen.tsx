@@ -25,7 +25,7 @@ import {
   space,
 } from "@tuja/ui/tokens.stylex";
 import { BUDDY_ORIGIN } from "#src/buddy-origin.mjs";
-import { SiteHeaderFooterLayout } from "./site-header-footer-layout.tsx";
+import { SiteNavigationStack } from "./site-navigation-stack.tsx";
 
 /**
  * The site's 404: what happened, then somewhere to go. Rendered by both
@@ -81,7 +81,10 @@ export function NotFoundScreen() {
   ];
 
   return (
-    <SiteHeaderFooterLayout locale={locale} pageColumn>
+    <SiteNavigationStack
+      locale={locale}
+      label={t({ en: "Page not found", zh: "页面不存在" })}
+    >
       <div css={[stack.group, justify.center, styles.screen]}>
         <div css={[stack.item, align.center]}>
           <div css={[stack.tight, align.center]}>
@@ -131,7 +134,7 @@ export function NotFoundScreen() {
           ))}
         </nav>
       </div>
-    </SiteHeaderFooterLayout>
+    </SiteNavigationStack>
   );
 }
 

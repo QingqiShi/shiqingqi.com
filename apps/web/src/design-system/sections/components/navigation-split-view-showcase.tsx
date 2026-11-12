@@ -9,8 +9,8 @@ import { FrameBreakout } from "./device-frame.tsx";
 import {
   NavigationSplitViewDemo,
   NavigationSplitViewDemoPlaceholder,
-  NavigationSplitViewDrawerDemo,
-  NavigationSplitViewDrawerDemoPlaceholder,
+  NavigationSplitViewLandingDemo,
+  NavigationSplitViewLandingDemoPlaceholder,
 } from "./navigation-split-view-specimens.tsx";
 import { ShellChoice } from "./shell-choice.tsx";
 
@@ -50,29 +50,23 @@ export function NavigationSplitViewShowcase() {
 
       <GuideSection
         title={t({
-          en: "Say where the sidebar goes when it does not fit.",
-          zh: "说明侧栏放不下时的去向。",
+          en: "Give the list a URL of its own.",
+          zh: "给列表一个自己的 URL。",
         })}
         lead={t({
-          en: "A documentation site opens it from a menu button, a settings screen makes it the root of a stack, and a screen with another way in leaves it out.",
-          zh: "文档站从菜单按钮打开它，设置画面让它成为堆叠的根页面，另有入口的画面则不显示它。",
+          en: "Where the sidebar has no room beside the content, it is the first page of a stack. A page with a back link to the list shows alone there, so a visitor lands on the content and goes back to pick another page.",
+          zh: "内容旁放不下侧栏时，侧栏是堆叠的第一页。带有返回列表链接的页面在那里单独显示，于是访客先落在内容上，返回后再选别的页面。",
         })}
       >
         <FrameBreakout>
-          <Suspense fallback={<NavigationSplitViewDrawerDemoPlaceholder />}>
-            <NavigationSplitViewDrawerDemo />
+          <Suspense fallback={<NavigationSplitViewLandingDemoPlaceholder />}>
+            <NavigationSplitViewLandingDemo />
           </Suspense>
         </FrameBreakout>
         <GuideNote>
           {t({
-            en: 'The prop is stacked, with "drawer", "page" or "hidden". With "drawer", the page scrolls the content.',
-            zh: '对应的 prop 是 stacked，取值为 "drawer"、"page" 或 "hidden"。取 "drawer" 时，由页面滚动内容。',
-          })}
-        </GuideNote>
-        <GuideNote>
-          {t({
-            en: "Clear the menu button with headerControlsTokens.inlineEndClearance.",
-            zh: "用 headerControlsTokens.inlineEndClearance 避开菜单按钮。",
+            en: "Outside a TabView, the sidebar takes a header, a footer and toggleLabel, the name of the button that collapses it.",
+            zh: "不在 TabView 里时，侧栏可带 header、footer 与 toggleLabel，后者是收起按钮的名称。",
           })}
         </GuideNote>
         <GuideNote>

@@ -29,19 +29,21 @@ test("a category in the sidebar opens and closes, and the current one starts ope
   await expect(colour).toHaveAttribute("aria-current", "page");
 });
 
-test("the wheel scrolls the document, and the sidebar stays in place", async ({
+test("the wheel scrolls the page beside the sidebar, which stays in place", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(PATH);
   const sidebar = page.getByRole("region", { name: "Design system" });
+  const heading = page.getByRole("heading", { level: 1 });
   const sidebarTop = (await sidebar.boundingBox())?.y;
+  const headingTop = (await heading.boundingBox())?.y ?? 0;
 
   await page.mouse.move(900, 450);
   await page.mouse.wheel(0, 600);
   await expect
-    .poll(() => page.evaluate(() => document.scrollingElement?.scrollTop))
-    .toBeGreaterThan(0);
+    .poll(async () => (await heading.boundingBox())?.y)
+    .toBeLessThan(headingTop);
   expect((await sidebar.boundingBox())?.y).toBe(sidebarTop);
 });
 
@@ -52,26 +54,26 @@ test.describe("on a phone", () => {
     hasTouch: true,
   });
 
-  test("the menu opens the sidebar as a drawer, which a link closes on its way to the page", async ({
+  test("a page opens by itself, its way back leads to the list of pages, and a link there opens another page", async ({
     page,
   }) => {
     await page.goto(PATH);
-    const menu = page.getByRole("button", { name: "Design system menu" });
-    const drawer = page.getByRole("dialog", { name: "Design system menu" });
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "Principles",
+    );
 
-    await menu.click();
-    await expect(drawer).toBeVisible();
-    await expect(drawer.getByRole("link", { name: "Home" })).toBeInViewport();
+    await page
+      .getByRole("main")
+      .getByRole("link", { name: "Design system" })
+      .first()
+      .click();
+    await expect(page).toHaveURL(/design-system\/contents$/);
+    const nav = page.getByRole("navigation", { name: "Design system" });
+    await expect(nav.getByRole("link", { name: "Principles" })).toBeVisible();
     await waitForMotionToSettle(page);
-    await page.keyboard.press("Escape");
-    await expect(drawer).toBeHidden();
-    await expect(menu).toBeFocused();
 
-    await menu.click();
-    await waitForMotionToSettle(page);
-    await drawer.getByRole("link", { name: "Customisation" }).click();
+    await nav.getByRole("link", { name: "Customisation" }).click();
     await expect(page).toHaveURL(/foundations\/customization$/);
-    await expect(drawer).toBeHidden();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
       "Customisation",
     );

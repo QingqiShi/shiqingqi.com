@@ -18,7 +18,7 @@ import {
   type TabBarItem,
   type TabBarLinkProps,
 } from "../actions/tab-bar.tsx";
-import { pointer } from "../breakpoints.stylex.ts";
+import { color } from "../color.stylex.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
 import {
@@ -28,12 +28,16 @@ import {
   motionKeyframes,
 } from "../primitives/motion.stylex.ts";
 import { pageGutter } from "../primitives/page-column.stylex.ts";
-import { viewWidth } from "../primitives/view-width.stylex.ts";
-import { layer, rhythm, space } from "../tokens.stylex.ts";
+import { tabViewWidth } from "../primitives/view-width.stylex.ts";
+import { layer, rhythm } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { headerControlsTokens } from "./header-controls.stylex.ts";
-import { Rail, RailSidebar } from "./rail.tsx";
-import { tabViewForm, tabViewTokens } from "./tab-view.stylex.ts";
+import { splitViewQueries } from "./navigation-split-view-layout.stylex.ts";
+import { splitViewTokens } from "./navigation-split-view.stylex.ts";
+import { Rail, RailRows, RailSidebar } from "./rail.tsx";
+import { SidebarToggle, useSidebarCollapsed } from "./sidebar-toggle.tsx";
+import { formStyles } from "./tab-view-form.stylex.ts";
+import { sidebarEdge, tabViewForm, tabViewTokens } from "./tab-view.stylex.ts";
 import {
   StatusLink,
   useOpeningScreen,
@@ -41,6 +45,10 @@ import {
   type TabLinkStatusProps,
 } from "./use-opening-screen.tsx";
 import { useRise } from "./use-rise.ts";
+import {
+  TabViewSidebarNavContext,
+  type TabViewSidebarNav,
+} from "./use-tab-view-sidebar-nav.ts";
 
 export { TabViewBrand } from "./tab-view-brand.tsx";
 export type { TabLinkStatusProps } from "./use-opening-screen.tsx";
@@ -81,46 +89,40 @@ interface TabViewBaseProps {
    */
   linkComponent?: ComponentType<TabViewLinkProps>;
   /**
-   * How the rail shows the destinations at `md` and wider. `"auto"`, the
-   * default, shows the sidebar where the view is as wide as `breakpoints.lg`
-   * and the icon rail where it is narrower. `"labels"` is a sidebar of rows,
-   * each an icon and a label, with the count of a destination at the row
-   * end, and `secondary` under them. `"icons"` is a narrow rail of icons,
-   * each over a small label. Below `md`, the tab bar shows in each case.
-   * A screen with a `NavigationSplitView` sidebar already has a sidebar, so
-   * with `"auto"` the rail stays icons on such a screen. Give an app whose
-   * screens do not all have one `"icons"`, so that its frame does not change
-   * from screen to screen, or move the list of the sidebar to `secondary`.
+   * The top of the sidebar and of the rail, such as a `TabViewBrand`. Each
+   * child is a line: in the rail of icons it is centred, and in the sidebar
+   * it starts at the inline start, with the button that collapses the
+   * sidebar at the end of the first line. It shows from 34rem only; below
+   * that, give its content another place.
    *
-   * @zh 在 `md` 及以上，侧轨如何显示各目标页。默认的 `"auto"` 在视图宽度达到 `breakpoints.lg` 时显示侧边栏，更窄时显示图标侧轨。`"labels"` 是由行组成的侧边栏，每行是一个图标和一个标签，目标页的计数显示在行尾，`secondary` 显示在它们下方。`"icons"` 是一条窄的图标侧轨，每个图标下方有一个小标签。在 `md` 以下，任何情况下都显示标签栏。带有 `NavigationSplitView` 侧栏的画面已经有一个侧栏，因此使用 `"auto"` 时，侧轨在这样的画面上保持图标形式。如果应用并非每个画面都有这样的侧栏，请使用 `"icons"`，让框架不随画面变化，或把侧栏中的列表移到 `secondary`。 @default "auto"
-   */
-  rail?: "icons" | "labels" | "auto";
-  /**
-   * The top of the rail, such as the app's mark. In the icon rail it is as
-   * wide as the destinations, and centres what it holds; in the labelled
-   * sidebar it starts at the inline start, such as a mark and the app's
-   * name. It shows at `md` and wider only; below `md`, give its content
-   * another place.
-   *
-   * @zh 侧轨顶部，例如应用标志。在图标侧轨中，它与目标页同宽，并让其内容居中；在带标签的侧边栏中，它从行首开始排列，例如标志加上应用名称。只在 `md` 及以上显示；在 `md` 以下，请为其内容另找位置。
+   * @zh 侧边栏与侧轨的顶部，例如 `TabViewBrand`。每个子元素占一行：在图标侧轨中居中，在侧边栏中从行首开始，收起侧边栏的按钮在第一行行尾。只在 34rem 及以上显示；更窄时请为其内容另找位置。
    */
   header?: ReactNode;
   /**
-   * The bottom of the rail, such as the signed-in member. It shows at `md`
-   * and wider only; below `md`, give its content another place.
+   * The bottom of the rail, such as the signed-in member. It shows from 34rem
+   * only; below 34rem, give its content another place.
    *
-   * @zh 侧轨底部，例如已登录的成员。只在 `md` 及以上显示；在 `md` 以下，请为其内容另找位置。
+   * @zh 侧轨底部，例如已登录的成员。只在 34rem 及以上显示；在 34rem 以下，请为其内容另找位置。
    */
   footer?: ReactNode;
   /**
-   * A second list under the destinations, such as the reports of this
-   * month. It shows only in the labelled sidebar, so where the icon rail or
-   * the tab bar shows, the screen must give another way to it, such as a
-   * link on the screen.
+   * Names the button that collapses the sidebar to the rail of icons and
+   * expands it again, already localised. The button shows from 48rem, where
+   * the sidebar does.
    *
-   * @zh 位于各目标页下方的第二个列表，例如本月的报告。它只在带标签的侧边栏中显示，因此在显示图标侧轨或标签栏时，画面必须提供另一条通往它的途径，例如画面上的一个链接。
+   * @zh 把侧边栏收成图标侧轨、再展开的按钮的无障碍名称，需已本地化。按钮在 48rem 及以上、侧边栏显示的地方出现。
    */
-  secondary?: ReactNode;
+  sidebarToggleLabel: string;
+  /**
+   * Whether the server paints the sidebar collapsed to the rail of icons. The
+   * view keeps the visitor's choice in the `SIDEBAR_COLLAPSED_COOKIE` cookie
+   * and follows it once the page hydrates. Where the server can read the
+   * cookie, pass its value here, so that the first paint has the choice too.
+   *
+   * @default false
+   * @zh 服务端是否把侧边栏画成收起的图标侧轨。视图把访客的选择记在 `SIDEBAR_COLLAPSED_COOKIE` cookie 里，并在页面水合后跟随它。服务端能读到这个 cookie 时，把它的值传到这里，首次绘制也就符合访客的选择。
+   */
+  defaultCollapsed?: boolean;
   /**
    * The screen of the current destination.
    *
@@ -264,24 +266,36 @@ export function TabViewLabelsOnly({ children }: { children: ReactNode }) {
 }
 
 /**
- * The frame of an app with a few top-level destinations. Where the view is
- * `md` wide or wider, a narrow rail on the inline-start edge holds them, each
- * an icon over a small label, the current one raised on the canvas under an
- * indicator that a press can drag along the rail, with the
- * `header` at its top and the `footer` at its bottom. With `rail`, a wider
- * sidebar can hold them instead, each a row of an icon and a label, with a
- * `secondary` list under them. The rail has no fill
- * of its own, so the content beside it, such as the islands of a
- * `NavigationSplitView`, floats on the same canvas. Below that, a `TabBar`
- * floats over the bottom of the screen instead. A container query on the
- * view chooses, so the server paints the right one. The content goes under
- * the bar: `tabViewTokens.barClearance` is the strip the bar takes, and each
- * layout in the content keeps clear of it. With `linkStatus`, a tap on a
- * destination makes it current at once. With Next, pass it with the matching
- * `Link` as `linkComponent`. When its screen takes more than a moment to load,
- * its skeleton rises into place while the old screen stays mounted, hidden, and
- * the screen fades in over it. A screen that needs no wait rises into place by
- * itself.
+ * Content of the `header` or the `footer` of a `TabView` that shows only
+ * where the rail shows icons, such as an action with no label.
+ */
+export function TabViewIconsOnly({ children }: { children: ReactNode }) {
+  return <span css={styles.iconsOnly}>{children}</span>;
+}
+
+/**
+ * The frame of an app with a few top-level destinations. Its form follows its
+ * own width, so the server paints the right one. Below 34rem, a `TabBar`
+ * floats over the bottom of the screen. From 34rem, a narrow rail on the
+ * inline-start edge holds the destinations, each an icon over a small label,
+ * the current one under an indicator that a press can drag along the rail.
+ * From 48rem, the sidebar holds them, each a row of an icon and a label, with
+ * the `header` at its top and the `footer` at its bottom.
+ *
+ * The view paints the sidebar fill behind all of it, and the content floats on
+ * that as islands. A screen with a list, the `sidebar` of a
+ * `NavigationSplitView`, shows the list in the same sidebar, under the
+ * destinations: from 48rem that view draws the destinations above its list,
+ * and the view's own sidebar gives way. Below 48rem, the list is the first
+ * page of that screen, beside the rail or over the tab bar.
+ *
+ * The content goes under the bar: `tabViewTokens.barClearance` is the strip the
+ * bar takes, and each layout in the content keeps clear of it. With
+ * `linkStatus`, a tap on a destination makes it current at once. With Next,
+ * pass it with the matching `Link` as `linkComponent`. When its screen takes
+ * more than a moment to load, its skeleton rises into place while the old
+ * screen stays mounted, hidden, and the screen fades in over it. A screen that
+ * needs no wait rises into place by itself.
  *
  * The `"liquid"` effect draws the indicator as the SegmentedControl's does: plain
  * and solid at rest, with a lit edge only while a pointer is over it, and in motion
@@ -297,10 +311,10 @@ export function TabView({
   linkComponent = PlainAnchor,
   linkStatus = null,
   fallbackSkeleton,
-  rail = "auto",
   header,
   footer,
-  secondary,
+  sidebarToggleLabel,
+  defaultCollapsed = false,
   children,
   effect = "liquid",
   as = "main",
@@ -322,35 +336,63 @@ export function TabView({
   const sticky = useEffectSticky();
   const { ref, css: stickyCss } = sticky;
   const Content = as;
+  const isCollapsed = useSidebarCollapsed(defaultCollapsed);
+  const toggle = (
+    <SidebarToggle label={sidebarToggleLabel} css={styles.toggle} />
+  );
+  const top = (
+    <div css={styles.top}>
+      {header}
+      {toggle}
+    </div>
+  );
+  const sidebarNav: TabViewSidebarNav = {
+    isCollapsed,
+    top: (
+      <div css={styles.listNav}>
+        {top}
+        <RailRows
+          items={shownItems}
+          label={label}
+          linkComponent={TabViewLink}
+        />
+      </div>
+    ),
+    bottom:
+      footer == null ? null : (
+        <div css={[styles.listNav, styles.slot, styles.listFooter]}>
+          {footer}
+        </div>
+      ),
+  };
   return (
     <TabViewLinksContext value={{ linkComponent, linkStatus, setOpening }}>
       <TabViewOpeningContext value={opening}>
         <TabViewSkeletonContext value={screenSkeleton}>
-          <div css={[styles.container, css]}>
-            <div css={[styles.root, formStyles[rail]]}>
+          <div data-tab-view="" css={[styles.container, css]}>
+            <div
+              css={[
+                styles.root,
+                formStyles.form,
+                isCollapsed && formStyles.collapsed,
+              ]}
+            >
               <div ref={ref} css={[styles.rail, stickyCss]}>
                 <EffectCarrier value={sticky}>
-                  {header == null ? null : (
-                    <div css={styles.slot}>{header}</div>
-                  )}
-                  {rail === "labels" ? null : (
-                    <Rail
-                      items={shownItems}
-                      label={label}
-                      effect={effect}
-                      linkComponent={TabViewLink}
-                      css={styles.iconsOnly}
-                    />
-                  )}
-                  {rail === "icons" ? null : (
-                    <RailSidebar
-                      items={shownItems}
-                      label={label}
-                      linkComponent={TabViewLink}
-                      secondary={secondary}
-                      css={styles.labelsOnly}
-                    />
-                  )}
+                  {top}
+                  <Rail
+                    items={shownItems}
+                    label={label}
+                    effect={effect}
+                    linkComponent={TabViewLink}
+                    css={styles.iconsOnly}
+                  />
+                  <RailSidebar
+                    items={shownItems}
+                    label={label}
+                    linkComponent={TabViewLink}
+                    css={styles.labelsOnly}
+                  />
                   {footer == null ? null : (
                     <div css={[styles.slot, styles.footer]}>{footer}</div>
                   )}
@@ -364,7 +406,9 @@ export function TabView({
                 {/* The router scrolls a new page to its top if that top is
                     out of view. So the hidden screen comes before the skeleton. */}
                 <div css={waiting ? styles.screenHidden : styles.screen}>
-                  {children}
+                  <TabViewSidebarNavContext value={sidebarNav}>
+                    {children}
+                  </TabViewSidebarNavContext>
                 </div>
                 {waiting ? screenSkeleton : null}
               </Content>
@@ -389,83 +433,6 @@ function pathOfHref(href: string) {
   return href.split(/[?#]/, 1)[0];
 }
 
-const RAIL_PADDING_BLOCK_START = `calc(${space._3} + env(safe-area-inset-top))`;
-const RAIL_PADDING_BLOCK_END = `calc(${space._3} + env(safe-area-inset-bottom))`;
-// CSS cannot read the radius of a rounded display corner. These values
-// assume a radius of 55px, as on an iPhone Pro. With them, a 40px mark at
-// the top of the rail and a 32px avatar at the bottom are about 11px from
-// the curve, which is almost their distance from the side of the screen. A
-// touch screen can have rounded corners and give no safe area at a corner,
-// such as the inner screen of a foldable phone.
-const DISPLAY_CORNER_CLEARANCE_BLOCK_START = "2.5rem";
-const DISPLAY_CORNER_CLEARANCE_BLOCK_END = space._5;
-
-const SIDEBAR_PADDING_INLINE = space._2;
-const HAS_SPLIT_VIEW_SIDEBAR = ":has([data-split-view-column=sidebar])";
-
-// Each form sets every value, so a view in the content of another does not
-// take the form of the outer one. StyleX puts a plain value of a custom
-// property outside its cascade layers, where it wins over a value in a
-// container query. So `auto` gives each width its own query.
-const formStyles = stylex.create({
-  icons: {
-    [tabViewForm.icons]: "block",
-    [tabViewForm.labels]: "none",
-    [tabViewForm.inlineSize]: tabViewTokens.railInlineSize,
-    [tabViewForm.paddingInline]: space._0,
-    [tabViewForm.slotJustify]: "center",
-  },
-  labels: {
-    [tabViewForm.icons]: "none",
-    [tabViewForm.labels]: "block",
-    [tabViewForm.inlineSize]: tabViewTokens.sidebarInlineSize,
-    [tabViewForm.paddingInline]: SIDEBAR_PADDING_INLINE,
-    [tabViewForm.slotJustify]: "flex-start",
-  },
-  auto: {
-    [tabViewForm.icons]: {
-      default: null,
-      [viewWidth.belowLg]: "block",
-      [viewWidth.fromLg]: {
-        default: "none",
-        [HAS_SPLIT_VIEW_SIDEBAR]: "block",
-      },
-    },
-    [tabViewForm.labels]: {
-      default: null,
-      [viewWidth.belowLg]: "none",
-      [viewWidth.fromLg]: {
-        default: "block",
-        [HAS_SPLIT_VIEW_SIDEBAR]: "none",
-      },
-    },
-    [tabViewForm.inlineSize]: {
-      default: null,
-      [viewWidth.belowLg]: tabViewTokens.railInlineSize,
-      [viewWidth.fromLg]: {
-        default: tabViewTokens.sidebarInlineSize,
-        [HAS_SPLIT_VIEW_SIDEBAR]: tabViewTokens.railInlineSize,
-      },
-    },
-    [tabViewForm.paddingInline]: {
-      default: null,
-      [viewWidth.belowLg]: space._0,
-      [viewWidth.fromLg]: {
-        default: SIDEBAR_PADDING_INLINE,
-        [HAS_SPLIT_VIEW_SIDEBAR]: space._0,
-      },
-    },
-    [tabViewForm.slotJustify]: {
-      default: null,
-      [viewWidth.belowLg]: "center",
-      [viewWidth.fromLg]: {
-        default: "flex-start",
-        [HAS_SPLIT_VIEW_SIDEBAR]: "center",
-      },
-    },
-  },
-});
-
 const styles = stylex.create({
   container: {
     containerName: "tab-view split-view-screen",
@@ -480,26 +447,32 @@ const styles = stylex.create({
     // the status bar.
     [headerControlsTokens.clearance]: {
       default: null,
-      [viewWidth.belowMd]: "env(safe-area-inset-top)",
-      [viewWidth.fromMd]: "0px",
+      [tabViewWidth.bar]: "env(safe-area-inset-top)",
+      [tabViewWidth.fromRail]: "0px",
     },
     [tabViewTokens.barClearance]: {
       default: null,
-      [viewWidth.belowMd]: `calc(${tabBarTokens.blockSize} + ${tabViewTokens.barInsetBlockEnd})`,
-      [viewWidth.fromMd]: "0px",
+      [tabViewWidth.bar]: `calc(${tabBarTokens.blockSize} + ${tabViewTokens.barInsetBlockEnd})`,
+      [tabViewWidth.fromRail]: "0px",
     },
+    [splitViewTokens.sidebarInlineSize]: tabViewTokens.sidebarInlineSize,
     display: "grid",
     gridTemplateColumns: {
       default: "minmax(0, 1fr)",
-      [viewWidth.fromMd]: "auto minmax(0, 1fr)",
+      [tabViewWidth.fromRail]: "auto minmax(0, 1fr)",
     },
     gridTemplateRows: "minmax(0, 1fr)",
     blockSize: "100%",
+    backgroundColor: color.sidebar,
+    color: color.sidebarForeground,
   },
   // The rail is as tall as the screen, and as tall as its container where
   // that is shorter.
   rail: {
-    display: { default: "none", [viewWidth.fromMd]: "flex" },
+    display: {
+      default: "none",
+      [tabViewWidth.fromRail]: tabViewForm.railDisplay,
+    },
     flexDirection: "column",
     gap: rhythm.item,
     position: "sticky",
@@ -509,16 +482,27 @@ const styles = stylex.create({
     inlineSize: `calc(${tabViewForm.inlineSize} + env(safe-area-inset-left))`,
     blockSize: "100dvh",
     maxBlockSize: "100%",
-    paddingBlockStart: {
-      default: RAIL_PADDING_BLOCK_START,
-      [pointer.coarse]: `max(${RAIL_PADDING_BLOCK_START}, ${DISPLAY_CORNER_CLEARANCE_BLOCK_START})`,
-    },
-    paddingBlockEnd: {
-      default: RAIL_PADDING_BLOCK_END,
-      [pointer.coarse]: `max(${RAIL_PADDING_BLOCK_END}, ${DISPLAY_CORNER_CLEARANCE_BLOCK_END})`,
-    },
+    paddingBlockStart: sidebarEdge.paddingBlockStart,
+    paddingBlockEnd: sidebarEdge.paddingBlockEnd,
     paddingInlineStart: `calc(${tabViewForm.paddingInline} + env(safe-area-inset-left))`,
     paddingInlineEnd: tabViewForm.paddingInline,
+  },
+  // Each child of the `header` is a line. In the sidebar, the button that
+  // collapses it is at the end of the first line. In the rail of icons, the
+  // button is under the first line of the `header`.
+  top: {
+    display: "grid",
+    gridTemplateColumns: tabViewForm.topColumns,
+    alignItems: "center",
+    justifyItems: tabViewForm.slotJustify,
+    gap: rhythm.tight,
+    flexShrink: 0,
+    minInlineSize: 0,
+  },
+  toggle: {
+    display: tabViewForm.toggleDisplay,
+    gridColumnEnd: -1,
+    gridRowStart: tabViewForm.toggleRow,
   },
   slot: {
     display: "flex",
@@ -535,9 +519,33 @@ const styles = stylex.create({
   footer: {
     marginBlockStart: "auto",
   },
+  // The destinations above the list of a screen, and the `footer` under it,
+  // only where that list shows in the sidebar.
+  listNav: {
+    display: {
+      default: "none",
+      [splitViewQueries.contentBesideSidebar]: "flex",
+    },
+    flexDirection: "column",
+    gap: rhythm.item,
+    marginBlockEnd: rhythm.item,
+  },
+  listFooter: {
+    display: {
+      default: "none",
+      [splitViewQueries.contentBesideSidebar]: "flex",
+    },
+    marginBlockStart: "auto",
+    marginBlockEnd: 0,
+    paddingBlockStart: rhythm.item,
+  },
   // The screen rises with a transform. WebKit anchors the scroll of the page
   // through it, and the scroll that a view restores then follows the rise.
+  // The rail has the first column, also where it does not show. From the rail
+  // up, the page does not scroll, so an app can float a part in the content.
   content: {
+    position: "relative",
+    gridColumnStart: { default: "auto", [tabViewWidth.fromRail]: 2 },
     minInlineSize: 0,
     overflowAnchor: "none",
   },
@@ -564,7 +572,7 @@ const styles = stylex.create({
   // never covers the top-centre point that iOS Safari samples for the status
   // bar colour.
   bar: {
-    display: { default: "block", [viewWidth.fromMd]: "none" },
+    display: { default: "block", [tabViewWidth.fromRail]: "none" },
     position: "fixed",
     insetInlineStart: pageGutter.inlineStart,
     insetInlineEnd: pageGutter.inlineEnd,

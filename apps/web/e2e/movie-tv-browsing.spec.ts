@@ -43,7 +43,7 @@ test.describe("Movie and TV Show Browsing", () => {
 
   test("should load more movies when scrolling to bottom", async ({ page }) => {
     // Cards are links wrapping a poster image. The grid is window-virtualized
-    // (react-virtuoso with `useWindowScroll`): only a sliding window of cards is
+    // (react-virtuoso, on the box that scrolls the screen): only a sliding window of cards is
     // mounted at any time, so neither the mounted card count nor the "last"
     // mounted card is a reliable signal — scrolling just remounts a different
     // window of the *same* page. The virtualization-proof signal that another
@@ -57,34 +57,40 @@ test.describe("Movie and TV Show Browsing", () => {
     // trigger load-more.
     await page.waitForLoadState("networkidle");
 
-    const pageHeight = () =>
-      page.evaluate(() => document.documentElement.scrollHeight);
-    const initialHeight = await pageHeight();
+    // The screen scrolls in its column at this width, and the page on a phone.
+    // With `sweep`, the box first scrolls from its top to its bottom in steps
+    // of a viewport: a one-shot jump to the bottom pins the window at the
+    // rendered bottom without registering as the incremental scroll that
+    // virtuoso's `endReached` needs.
+    const scrollHeight = (sweep: boolean) =>
+      page.evaluate(async (sweeps) => {
+        const scroller =
+          [...document.querySelectorAll<HTMLElement>("main *")].find((box) => {
+            const { overflowY } = getComputedStyle(box);
+            return (
+              (overflowY === "auto" || overflowY === "scroll") &&
+              box.scrollHeight > box.clientHeight
+            );
+          }) ?? document.documentElement;
+        if (sweeps) {
+          const step = window.innerHeight;
+          for (let y = 0; y <= scroller.scrollHeight; y += step) {
+            scroller.scrollTo(0, y);
+            await new Promise((resolve) =>
+              requestAnimationFrame(() => {
+                resolve(null);
+              }),
+            );
+          }
+        }
+        return scroller.scrollHeight;
+      }, sweep);
+    const initialHeight = await scrollHeight(false);
 
-    // Drive virtuoso's scroll-based `endReached` with a top-to-bottom sweep in
-    // viewport-sized steps (a one-shot jump to `scrollHeight` pins the window at
-    // the rendered bottom without registering as the incremental scroll it
-    // needs). Re-sweep on each poll until the document has grown past its
-    // settled height — the virtualization-proof signal that another page loaded.
+    // Re-sweep on each poll until the content has grown past its settled
+    // height: the virtualization-proof signal that another page loaded.
     await expect
-      .poll(
-        async () => {
-          await page.evaluate(async () => {
-            const step = window.innerHeight;
-            const end = document.documentElement.scrollHeight;
-            for (let y = 0; y <= end; y += step) {
-              window.scrollTo(0, y);
-              await new Promise((resolve) =>
-                requestAnimationFrame(() => {
-                  resolve(null);
-                }),
-              );
-            }
-          });
-          return pageHeight();
-        },
-        { timeout: 10000 },
-      )
+      .poll(() => scrollHeight(true), { timeout: 10000 })
       .toBeGreaterThan(initialHeight);
 
     // The grid is still rendered after loading more.

@@ -10,11 +10,7 @@ import { a11y } from "../../primitives/a11y.stylex.ts";
 import { islandSurface } from "../../surfaces/island.stylex.ts";
 import type { StyleProp } from "../../types.ts";
 import { STACK_ROOT_KEY } from "../create-page-scroll.ts";
-import {
-  columnPageScrollAlwaysStyles,
-  columnPageScrollStyles,
-  columnStyles,
-} from "./column.stylex.ts";
+import { columnPageScrollStyles, columnStyles } from "./column.stylex.ts";
 import type {
   NavigationSplitViewColumn,
   NavigationSplitViewDetail,
@@ -33,24 +29,21 @@ export interface ColumnPage {
   column: NavigationSplitViewColumn | NavigationSplitViewDetail;
   /** The part of the page in the stack, where it is the sidebar at its root. */
   stack?: "root" | "under";
-  leftAs?: "skeleton" | "blank";
+  leftAs?: "skeleton" | "blank" | "copy";
 }
 
 /** @internal */
-export type ColumnPageScroll = "never" | "narrow" | "always";
+export type ColumnPageScroll = "never" | "narrow";
 
 interface ColumnProps {
   column: SplitViewColumnState["column"];
-  /** The form of the sidebar, for a sidebar column. */
-  form?: "full" | "collapsed";
   /** The landmark of the column. */
   as?: "main" | "section";
   /** Whether the page scrolls the column instead of its scroller. */
   pageScrolls: boolean;
   /**
    * Where the view can leave the scroll of the column to the page: nowhere, as
-   * in a box that does not fill the screen, on a screen narrower than 30rem, or
-   * at every width.
+   * in a box that does not fill the screen, or on a screen narrower than 30rem.
    */
   pageScroll: ColumnPageScroll;
   /** Whether the view shows the column now, for `useSplitViewColumn`. */
@@ -69,6 +62,16 @@ interface ColumnProps {
   header?: ReactNode;
   /** What a page shows above its node, such as its back link. */
   top?: (page: ColumnPage) => ReactNode;
+  /** What stays at the bottom of the column, under its pages. */
+  footer?: ReactNode;
+  /**
+   * Whether the column draws the destinations of the `TabView` around its node:
+   * at each width where it shows beside the content, or only where a detail
+   * fits beside them too.
+   */
+  carriesNav?: "always" | "wide";
+  /** Where the column does not show at all, after every other style. */
+  awayCss?: StyleProp;
   /** What a page shows, where that is not its node. */
   body?: (page: ColumnPage) => ReactNode;
   css: StyleProp;
@@ -80,7 +83,6 @@ interface ColumnProps {
 /** @internal */
 export function Column({
   column,
-  form,
   as: Landmark = "section",
   pageScrolls,
   pageScroll,
@@ -92,6 +94,9 @@ export function Column({
   isLeaving = false,
   header,
   top,
+  footer,
+  carriesNav,
+  awayCss,
   body,
   css,
   pageCss,
@@ -104,12 +109,14 @@ export function Column({
       tabIndex={-1}
       inert={isLeaving}
       data-split-view-column={column}
-      data-split-view-sidebar={form}
+      data-split-view-sidebar={column === "sidebar" ? "" : undefined}
+      data-split-view-nav={carriesNav}
       {...stylex.props(
         islandSurface.base,
         columnStyles.column,
         a11y.focusRingInset,
         css,
+        awayCss,
       )}
     >
       {header}
@@ -132,6 +139,7 @@ export function Column({
           />
         ))}
       </div>
+      {footer}
       {column === "sidebar" ? null : (
         <span data-split-view-edge="" aria-hidden css={columnStyles.edge} />
       )}
@@ -169,12 +177,7 @@ function ColumnPageView({
   const [box, setBox] = useState<HTMLElement | null>(null);
   const scroller = pageScrolls ? undefined : box;
   const isCurrent = page.role === "current";
-  const scrollStyles =
-    pageScroll === "never"
-      ? null
-      : pageScroll === "narrow"
-        ? columnPageScrollStyles
-        : columnPageScrollAlwaysStyles;
+  const scrollStyles = pageScroll === "never" ? null : columnPageScrollStyles;
   const accessory = "accessory" in page.column ? page.column.accessory : null;
   return (
     <div

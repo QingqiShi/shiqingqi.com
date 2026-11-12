@@ -6,7 +6,6 @@ import { TrayIcon } from "@phosphor-icons/react/dist/ssr/Tray";
 import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
-import { headerControlsTokens } from "@tuja/ui/components/header-controls.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { NavLink } from "@tuja/ui/components/nav-link";
 import { NavList } from "@tuja/ui/components/nav-list";
@@ -20,18 +19,13 @@ import { markCurrent } from "./mark-current.ts";
 import { labSource } from "./print-lab-value.ts";
 import type { LabSample } from "./types.ts";
 
-const firstRow = stylex.create({
-  // The menu button of the drawer floats over the end of the first row.
-  clear: { paddingInlineEnd: headerControlsTokens.inlineEndClearance },
-});
-
 const SIDEBAR_SAMPLES: LabSample[] = [
   NONE_SAMPLE,
   {
     id: "beside",
     label: { en: "Beside the content", zh: "在内容旁" },
     value: labSource({
-      stacked: "hidden",
+      href: "#projects",
       label: "Projects",
       node: (
         <NavList>
@@ -49,13 +43,12 @@ const SIDEBAR_SAMPLES: LabSample[] = [
     }),
   },
   {
-    id: "drawer",
-    label: { en: "Drawer", zh: "抽屉" },
+    id: "titled",
+    label: { en: "With a header", zh: "带页眉" },
     value: labSource({
-      stacked: "drawer",
+      href: "#projects",
       label: "Projects",
-      menuLabel: "Projects",
-      closeLabel: "Close",
+      toggleLabel: "Sidebar",
       header: (
         <Text look="bodySmall" weight="semibold">
           Tasks
@@ -86,7 +79,7 @@ const CONTENT_SAMPLES: LabSample[] = [
       label: "Inbox",
       node: (
         <div css={stack.group}>
-          <Heading level={2} look="h3" css={firstRow.clear}>
+          <Heading level={2} look="h3">
             Inbox
           </Heading>
           <div css={stack.item}>
@@ -108,7 +101,7 @@ const CONTENT_SAMPLES: LabSample[] = [
       label: "Inbox",
       node: (
         <div css={stack.group}>
-          <Heading level={2} look="h3" css={firstRow.clear}>
+          <Heading level={2} look="h3">
             Inbox
           </Heading>
           <div css={stack.item}>
@@ -218,14 +211,14 @@ export const NavigationSplitViewLab = defineLab({
       props: { ...BASE, sidebar: "beside", content: "list", detail: "task" },
     },
     {
-      id: "drawer",
-      label: { en: "Drawer sidebar", zh: "抽屉侧栏" },
-      props: { ...BASE, sidebar: "drawer", content: "list" },
+      id: "titled",
+      label: { en: "Sidebar that collapses", zh: "可收起的侧栏" },
+      props: { ...BASE, sidebar: "titled", content: "list" },
     },
     {
-      id: "pane",
-      label: { en: "One pane", zh: "单栏" },
-      props: { ...BASE, content: "accessory" },
+      id: "accessory",
+      label: { en: "With an accessory", zh: "带浮动操作" },
+      props: { ...BASE, sidebar: "beside", content: "accessory" },
     },
   ],
   controls: [

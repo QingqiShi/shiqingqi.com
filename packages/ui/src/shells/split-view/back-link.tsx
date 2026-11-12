@@ -15,9 +15,12 @@ import type { SplitViewBackLink } from "./types.ts";
 /** @internal */
 export function BackLink({
   back,
+  floats = false,
   onTakeOff,
 }: {
   back: SplitViewBackLink;
+  /** Whether the link floats over content that fills the screen, on a fill of its own. */
+  floats?: boolean;
   onTakeOff: (href: string) => void;
 }) {
   const view = use(SplitViewContext);
@@ -35,8 +38,9 @@ export function BackLink({
           typeRole.label,
           a11y.touchTarget,
           a11y.focusRing,
-          corner.radius_1,
+          floats ? corner.radius_round : corner.radius_1,
           columnStyles.backLink,
+          floats && columnStyles.backLinkFloats,
         )}
       >
         <CaretLeftIcon weight="bold" aria-hidden />

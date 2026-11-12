@@ -2,7 +2,7 @@ import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import { Heading } from "@tuja/ui/components/heading";
-import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
+import { NavigationStack } from "@tuja/ui/components/navigation-stack";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
@@ -51,57 +51,52 @@ export default async function Page({
   const title = t({ en: "Activity", zh: "动态" });
 
   return (
-    <NavigationSplitView
-      content={{
-        label: title,
-        node: (
-          <div css={stack.group}>
-            <header css={stack.tight}>
-              <Heading level={1} look="h1">
-                {title}
-              </Heading>
-              <Text as="p" look="bodySmall" tone="muted">
-                {keepHyphenated(
-                  t({
-                    en: "What the assistant did in your mailbox, calendar and to-dos, and why. Undo anything that is not what you want.",
-                    zh: "助手在你的邮箱、日历和待办里做了什么、为什么这样做。不合你意的都可以撤销。",
-                  }),
-                )}
-              </Text>
-            </header>
-            {activity.entries.length === 0 ? (
-              <Text as="p" tone="muted">
-                {mailboxes.connected === 0
-                  ? fillTemplate(
-                      t({
-                        en: "Nothing yet. Once you connect a mailbox in {mailboxes}, this page lists each run that files your mail or writes the morning report, with what it changed and why.",
-                        zh: "还没有记录。在{mailboxes}中连接邮箱后，助手每次整理邮件或写晨报都会列在这里，写明改了什么、为什么。",
-                      }),
-                      {
-                        mailboxes: <MailboxesLink />,
-                      },
-                    )
-                  : t({
-                      en: "Nothing yet. This page lists each run that files your mail or writes the morning report, with what it changed and why.",
-                      zh: "还没有记录。助手每次整理邮件或写晨报都会列在这里，写明改了什么、为什么。",
-                    })}
-              </Text>
-            ) : (
-              <ActivityView
-                entries={activity.entries}
-                earlier={activity.earlier}
-                now={now}
-                place={{
-                  timeZone: settings.timeZone,
-                  locale,
-                  dateLocale: await getDateLocale(locale),
-                }}
-                reconnect={mailboxes.reconnect}
-              />
+    <NavigationStack label={title}>
+      <div css={stack.group}>
+        <header css={stack.tight}>
+          <Heading level={1} look="h1">
+            {title}
+          </Heading>
+          <Text as="p" look="bodySmall" tone="muted">
+            {keepHyphenated(
+              t({
+                en: "What the assistant did in your mailbox, calendar and to-dos, and why. Undo anything that is not what you want.",
+                zh: "助手在你的邮箱、日历和待办里做了什么、为什么这样做。不合你意的都可以撤销。",
+              }),
             )}
-          </div>
-        ),
-      }}
-    />
+          </Text>
+        </header>
+        {activity.entries.length === 0 ? (
+          <Text as="p" tone="muted">
+            {mailboxes.connected === 0
+              ? fillTemplate(
+                  t({
+                    en: "Nothing yet. Once you connect a mailbox in {mailboxes}, this page lists each run that files your mail or writes the morning report, with what it changed and why.",
+                    zh: "还没有记录。在{mailboxes}中连接邮箱后，助手每次整理邮件或写晨报都会列在这里，写明改了什么、为什么。",
+                  }),
+                  {
+                    mailboxes: <MailboxesLink />,
+                  },
+                )
+              : t({
+                  en: "Nothing yet. This page lists each run that files your mail or writes the morning report, with what it changed and why.",
+                  zh: "还没有记录。助手每次整理邮件或写晨报都会列在这里，写明改了什么、为什么。",
+                })}
+          </Text>
+        ) : (
+          <ActivityView
+            entries={activity.entries}
+            earlier={activity.earlier}
+            now={now}
+            place={{
+              timeZone: settings.timeZone,
+              locale,
+              dateLocale: await getDateLocale(locale),
+            }}
+            reconnect={mailboxes.reconnect}
+          />
+        )}
+      </div>
+    </NavigationStack>
   );
 }

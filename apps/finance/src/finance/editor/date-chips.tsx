@@ -41,7 +41,7 @@ export function DateChips({ value, today, onChange, mark }: DateChipsProps) {
           <Button
             look="outline"
             key={choice.day}
-            size="xs"
+            size="sm"
             isActive={value === choice.day}
             onClick={() => {
               onChange(choice.day);
@@ -62,7 +62,7 @@ export function DateChips({ value, today, onChange, mark }: DateChipsProps) {
             if (isValidDay(event.target.value)) onChange(event.target.value);
           }}
           css={[
-            typeRole.controlCaption,
+            typeRole.control,
             fieldStyles.box,
             fieldStyles.control,
             corner.squircle_round,
@@ -77,7 +77,8 @@ export function DateChips({ value, today, onChange, mark }: DateChipsProps) {
 
 const styles = stylex.create({
   input: {
-    [cornerTokens.height]: controlHeight.xs,
+    [cornerTokens.height]: controlHeight.sm,
+    blockSize: controlHeight.sm,
     inlineSize: "auto",
     paddingBlock: space._00,
     paddingInline: space._2,

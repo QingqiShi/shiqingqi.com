@@ -2,6 +2,7 @@
 
 import type { UseSuspenseInfiniteQueryResult } from "@tanstack/react-query";
 import { EmptyState } from "@tuja/ui/components/empty-state";
+import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
 import { VirtuosoGrid } from "react-virtuoso";
 import { Grid } from "./grid.tsx";
 import { MediaCard } from "./media-card";
@@ -33,6 +34,8 @@ export function MediaVirtuosoGrid({
     isFetchingNextPage,
   } = queryResult;
   const height = useViewportHeight();
+  // The column of the screen scrolls the grid, and on a phone the page does.
+  const scroller = useSplitViewColumn()?.scroller ?? null;
 
   if (!items.length) {
     return <EmptyState icon="🙉" title={notFoundLabel} />;
@@ -40,7 +43,7 @@ export function MediaVirtuosoGrid({
 
   return (
     <VirtuosoGrid
-      key={virtuosoKey}
+      key={`${virtuosoKey}-${scroller === null ? "page" : "column"}`}
       data={items}
       components={gridComponents}
       itemContent={(index) => (
@@ -60,7 +63,9 @@ export function MediaVirtuosoGrid({
       }}
       increaseViewportBy={height}
       initialItemCount={Math.min(initialItemCount, items.length)}
-      useWindowScroll
+      {...(scroller === null
+        ? { useWindowScroll: true }
+        : { customScrollParent: scroller })}
     />
   );
 }

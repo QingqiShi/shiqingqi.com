@@ -5,7 +5,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import type { LinkSlotProps } from "@tuja/ui/components/link-provider";
-import { viewWidth } from "@tuja/ui/primitives/view-width.stylex";
+import { tabViewWidth } from "@tuja/ui/primitives/view-width.stylex";
 import { ColumnLink } from "../navigation/column-link.tsx";
 import { useNewTransactionHref } from "./use-new-transaction-href.ts";
 
@@ -42,6 +42,6 @@ export function FinanceAddButton() {
 
 const styles = stylex.create({
   barOnly: {
-    display: { default: "block", [viewWidth.fromMd]: "none" },
+    display: { default: "block", [tabViewWidth.fromRail]: "none" },
   },
 });

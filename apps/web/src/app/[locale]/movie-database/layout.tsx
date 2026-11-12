@@ -1,14 +1,13 @@
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import type { PageProps, SupportedLocale } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
-import { space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { BASE_URL } from "#src/constants.ts";
 import { AIChatProvider } from "#src/movie-database/chat/ai-chat-provider.tsx";
 import { InlineChatProvider } from "#src/movie-database/chat/inline-chat-context.tsx";
+import { MovieDatabaseStack } from "#src/movie-database/movie-database-stack.tsx";
 import { Providers } from "#src/movie-database/tmdb/providers.tsx";
-import { SiteHeaderFooterLayout } from "#src/site-shell/site-header-footer-layout.tsx";
+import { SiteToolbar } from "#src/site-shell/site-navigation-stack.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
@@ -67,24 +66,18 @@ export default async function Layout({
 }) {
   const { locale } = await params;
   const validatedLocale: SupportedLocale = validateLocale(locale);
-  // `as="div"`, because each page provides its own `<main>`.
   return (
-    <SiteHeaderFooterLayout locale={validatedLocale} as="div" wideHeader>
-      <Providers>
-        <AIChatProvider locale={validatedLocale}>
-          <InlineChatProvider>
-            <div css={styles.container}>{children}</div>
-          </InlineChatProvider>
-        </AIChatProvider>
-      </Providers>
-    </SiteHeaderFooterLayout>
+    <Providers>
+      <AIChatProvider locale={validatedLocale}>
+        <InlineChatProvider>
+          <MovieDatabaseStack
+            locale={validatedLocale}
+            toolbar={<SiteToolbar locale={validatedLocale} />}
+          >
+            {children}
+          </MovieDatabaseStack>
+        </InlineChatProvider>
+      </AIChatProvider>
+    </Providers>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    paddingTop: {
-      default: `calc(${space._10} + env(safe-area-inset-top))`,
-    },
-  },
-});

@@ -1,34 +1,25 @@
-import { isShown, SELECTOR } from "./is-view-stacked.ts";
-
-type SidebarForm = "full" | "collapsed" | null;
+import { SELECTOR } from "./is-view-stacked.ts";
 
 /**
- * The content column and the sidebar as the screen showed them last. A
+ * The content column as the screen showed it last. A
  * `ResizeObserver` keeps them, and each motion keeps the layout it plays to.
  */
 interface ShownColumns {
   /** Where the inline-start edge of the content is at its place, from the view's. */
   readonly x: number;
   readonly width: number;
-  readonly sidebar: SidebarForm;
 }
 
 /** The columns from `box`, the box of the content column `slide` px from its place, in the view at `origin`. */
-function columnsOf(
-  box: DOMRect,
-  origin: DOMRect,
-  slide: number,
-  sidebar: SidebarForm,
-): ShownColumns {
-  return { x: box.left - origin.left - slide, width: box.width, sidebar };
+function columnsOf(box: DOMRect, origin: DOMRect, slide: number): ShownColumns {
+  return { x: box.left - origin.left - slide, width: box.width };
 }
 
 /** @internal */
 export interface ShownColumnsWatch {
   readonly shown: ShownColumns | null;
   watch(content: HTMLElement | null): void;
-  keep(box: DOMRect, origin: DOMRect, sidebar: SidebarForm): ShownColumns;
-  sidebarShown(): SidebarForm;
+  keep(box: DOMRect, origin: DOMRect): ShownColumns;
   disconnect(): void;
 }
 
@@ -57,18 +48,11 @@ export function createShownColumns(
       watch(view.querySelector<HTMLElement>(SELECTOR.content));
       return;
     }
-    const last = shown;
-    const columns = columnsOf(
+    shown = columnsOf(
       content.getBoundingClientRect(),
       view.getBoundingClientRect(),
       slideNow(),
-      last?.sidebar ?? null,
     );
-    // The observer runs at each frame while the view changes size. The
-    // sidebar shows at the inline start of the content, so another form of
-    // the sidebar moves the content. Only then read the sidebar again.
-    const isSameSidebar = last !== null && Math.abs(columns.x - last.x) < 0.5;
-    shown = isSameSidebar ? columns : { ...columns, sidebar: sidebarShown() };
   }
 
   function watch(content: HTMLElement | null) {
@@ -79,25 +63,16 @@ export function createShownColumns(
     if (content !== null) observer?.observe(content);
   }
 
-  function sidebarShown() {
-    const full = view.querySelector(SELECTOR.fullSidebar);
-    const collapsed = view.querySelector(SELECTOR.collapsedSidebar);
-    if (full !== null && isShown(full)) return "full";
-    if (collapsed !== null && isShown(collapsed)) return "collapsed";
-    return null;
-  }
-
   return {
     get shown() {
       return shown;
     },
     watch,
-    keep(box, origin, sidebar) {
-      const columns = columnsOf(box, origin, 0, sidebar);
+    keep(box, origin) {
+      const columns = columnsOf(box, origin, 0);
       shown = columns;
       return columns;
     },
-    sidebarShown,
     disconnect() {
       observer?.disconnect();
     },

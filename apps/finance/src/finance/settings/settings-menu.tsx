@@ -16,11 +16,12 @@ import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { NavGroup } from "@tuja/ui/components/nav-group";
-import { NavLink } from "@tuja/ui/components/nav-link";
-import { NavList } from "@tuja/ui/components/nav-list";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
 import { StatusDot } from "@tuja/ui/components/status-dot";
+import { Text } from "@tuja/ui/components/text";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import {
   SETTINGS_GROUPS,
   type SettingsGroup,
@@ -62,12 +63,11 @@ export function useSettingsSectionLabels(): Record<SettingsSection, string> {
 }
 
 /**
- * The Settings sections in their groups, with the open one marked where the
- * menu shows beside it. The sidebar of the view marks none where it is a page
- * of its own. A dot on Members says the signed-in user has no confirmed
+ * The Settings sections in their groups, each a row that opens its section
+ * over the menu. A dot on Members says the signed-in user has no confirmed
  * Recovery email; it is stronger for the owner, whom nobody else can let back in.
  */
-export function SettingsMenu({ current }: { current: SettingsSection | null }) {
+export function SettingsMenu() {
   const locale = useLocale();
   const isOwner = useHouseholdAccess() === "owner";
   const recoveryEmail = useRecoveryEmail();
@@ -91,25 +91,34 @@ export function SettingsMenu({ current }: { current: SettingsSection | null }) {
     ) : null;
 
   return (
-    <NavList linkComponent={SplitViewLink}>
+    <nav aria-label={t({ en: "Settings", zh: "设置" })} css={stack.item}>
       {SETTINGS_GROUPS.map((group) => (
-        <NavGroup key={group.id} label={groupLabels[group.id]}>
-          {group.sections.map((section) => {
-            const SectionIcon = ICONS[section];
-            return (
-              <NavLink
-                key={section}
-                href={getLocalePath(`/settings/${section}`, locale)}
-                current={section === (current ?? "household")}
-                icon={<SectionIcon weight="bold" />}
-              >
-                {labels[section]}
-                {section === "members" ? membersDot : null}
-              </NavLink>
-            );
-          })}
-        </NavGroup>
+        <section
+          key={group.id}
+          aria-label={groupLabels[group.id]}
+          css={stack.tight}
+        >
+          <Text look="overline" tone="muted">
+            {groupLabels[group.id]}
+          </Text>
+          <List>
+            {group.sections.map((section) => {
+              const SectionIcon = ICONS[section];
+              return (
+                <ListRow
+                  key={section}
+                  href={getLocalePath(`/settings/${section}`, locale)}
+                  linkComponent={SplitViewLink}
+                  leading={<SectionIcon weight="bold" aria-hidden />}
+                  trailing={section === "members" ? membersDot : null}
+                >
+                  {labels[section]}
+                </ListRow>
+              );
+            })}
+          </List>
+        </section>
       ))}
-    </NavList>
+    </nav>
   );
 }

@@ -7,17 +7,15 @@ import { Card } from "@tuja/ui/components/card";
 import { Heading } from "@tuja/ui/components/heading";
 import {
   StackedOnly,
-  UnlessFullSidebar,
   UnlessStacked,
   useSplitViewShared,
 } from "@tuja/ui/components/navigation-split-view";
-import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { rhythm } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { controlHeight, rhythm } from "@tuja/ui/tokens.stylex";
 import { useEffect } from "react";
 import { ChartRangeChips } from "../charts/chart-range-chips.tsx";
 import { useReplica } from "../replica/use-replica.ts";
 import { selectQueueCounts } from "../transactions/select-queue-counts.ts";
-import { AccountGroupList } from "./account-group-list.tsx";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
 import { HouseholdCards } from "./household-cards.tsx";
 import { householdLayout } from "./household-layout.stylex.ts";
@@ -49,16 +47,13 @@ const STACKED_TREND_HEIGHT = 200;
 /**
  * The Household in the content column of Net worth: the trend of its net
  * worth with the range to show, what needs a look, and the accounts that
- * moved most this week. Where the sidebar does not show in full, today's
- * figures and the actions come first. The trend fills the height of the
- * column that the rest leaves. Where the column is wide, the two cards make
- * a column beside the trend, and "What moved this week" lists as many
- * accounts as fit beside it. Elsewhere the cards go under the trend, each
- * as tall as its content, and "Needs a look" takes the narrower part. Where
- * the column fills a stack, as on a phone, the page takes the title "Net
- * worth" with the actions beside it, then today's figures, the trend at full
- * width with the range under it, what needs a look when something does,
- * and the accounts by Group, because no sidebar shows them.
+ * moved most this week. The trend fills the height of the column that the
+ * rest leaves. Where the column is wide, the two cards make a column beside
+ * the trend, and "What moved this week" lists as many accounts as fit beside
+ * it. Elsewhere the cards go under the trend, each as tall as its content, and
+ * "Needs a look" takes the narrower part. Where the column fills a stack, as
+ * on a phone, the Household is a page over the list of accounts: today's net
+ * worth, the trend at full width with the range under it, then the cards.
  */
 export function HouseholdView({
   sheet,
@@ -80,16 +75,10 @@ export function HouseholdView({
   );
 
   if (!hasAccounts(sheet)) {
-    return (
-      <UnlessFullSidebar>
-        <NoAccounts onCreateAccount={onCreateAccount} />
-      </UnlessFullSidebar>
-    );
+    return <NoAccounts onCreateAccount={onCreateAccount} />;
   }
 
   const differences = bankDifferenceLines(sheet);
-  const nothingNeedsALook =
-    differences.length === 0 && queue.review === 0 && queue.expected === 0;
   const cards = (
     <HouseholdCards
       differences={differences}
@@ -100,64 +89,52 @@ export function HouseholdView({
     />
   );
 
-  const actions = (
-    <NetWorthActions
-      updateHref={url.modeHref("update")}
-      onCreateAccount={onCreateAccount}
-      flush
-    />
-  );
-
   return (
     <div css={[stack.group, styles.view]}>
       <StackedOnly>
-        <div css={stack.tight}>
-          <header css={[cluster.item, styles.header]}>
-            <Heading level={1} look="h3">
-              {t({ en: "Net worth", zh: "净资产" })}
-            </Heading>
-            {actions}
-          </header>
-          <div css={stack.item}>
-            <PickedHeadline
-              sheet={sheet}
-              today={today}
-              currency={currency}
-              form="page"
-            />
-            <section
-              css={stack.item}
-              aria-label={t({ en: "Trend", zh: "趋势" })}
-            >
-              <NetWorthTrend
-                range={range}
-                height={STACKED_TREND_HEIGHT}
-                onPick={setPick}
-                bleeds
-              />
-              <ChartRangeChips value={range} onChange={setRange} />
-            </section>
-          </div>
-        </div>
+        <section css={stack.item} aria-label={t({ en: "Trend", zh: "趋势" })}>
+          <Heading level={1} look="h3">
+            {t({ en: "Household", zh: "家庭" })}
+          </Heading>
+          <PickedHeadline
+            sheet={sheet}
+            today={today}
+            currency={currency}
+            form="page"
+          />
+          <NetWorthTrend
+            range={range}
+            height={STACKED_TREND_HEIGHT}
+            onPick={setPick}
+            bleeds
+          />
+          <ChartRangeChips value={range} onChange={setRange} />
+        </section>
       </StackedOnly>
-      <UnlessStacked>
-        <UnlessFullSidebar>
-          <div css={stack.item}>
-            <PickedHeadline sheet={sheet} today={today} currency={currency} />
-            {actions}
-          </div>
-        </UnlessFullSidebar>
-      </UnlessStacked>
       <div css={householdLayout.body}>
         <UnlessStacked>
           <section
             css={[stack.item, styles.trendSection]}
             aria-label={t({ en: "Trend", zh: "趋势" })}
           >
-            <div css={styles.titleRow}>
-              <Heading level={2} look="h3">
+            <div css={[styles.titleRow, styles.firstLine]}>
+              <Heading level={1} look="h3">
                 {t({ en: "Household", zh: "家庭" })}
               </Heading>
+              <div css={styles.actions}>
+                <NetWorthActions
+                  updateHref={url.modeHref("update")}
+                  onCreateAccount={onCreateAccount}
+                />
+              </div>
+            </div>
+            <div css={styles.titleRow}>
+              <PickedHeadline
+                sheet={sheet}
+                today={today}
+                currency={currency}
+                form="page"
+              />
               <div css={styles.ranges}>
                 <ChartRangeChips value={range} onChange={setRange} />
               </div>
@@ -174,32 +151,28 @@ export function HouseholdView({
             </Card>
           </section>
         </UnlessStacked>
-        {nothingNeedsALook ? <UnlessStacked>{cards}</UnlessStacked> : cards}
-        <StackedOnly>
-          <AccountGroupList
-            sheet={sheet}
-            baseCurrency={currency}
-            reorderHref={url.modeHref("reorder")}
-            accountHref={(accountId) => url.hrefOf({ account: accountId })}
-            selectedAccountId={url.account}
-          />
-        </StackedOnly>
+        {cards}
       </div>
     </div>
   );
 }
 
 const styles = stylex.create({
-  header: {
-    justifyContent: "space-between",
-    rowGap: rhythm.tight,
-  },
   titleRow: {
     display: "flex",
     flexWrap: "wrap",
-    alignItems: "center",
+    alignItems: "flex-end",
     justifyContent: "space-between",
-    gap: rhythm.tight,
+    columnGap: rhythm.group,
+    rowGap: rhythm.tight,
+  },
+  firstLine: {
+    alignItems: "center",
+  },
+  // The actions overhang the line of the title, so that the title is on the
+  // first line of the column, as the title of each other screen is.
+  actions: {
+    marginBlock: `calc((1lh - ${controlHeight.sm}) / 2)`,
   },
   // Beside the title where the column is wide enough, and a row of its own
   // under it where it is not.

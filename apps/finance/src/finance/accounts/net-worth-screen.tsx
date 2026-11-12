@@ -6,7 +6,9 @@ import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
+import { NavigationStack } from "@tuja/ui/components/navigation-stack";
 import { Text } from "@tuja/ui/components/text";
+import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import dynamic from "next/dynamic";
@@ -21,11 +23,10 @@ import { FinanceAddButton } from "../shell/finance-add-button.tsx";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import { AccountDetail } from "./account-detail.tsx";
 import { AccountEditorSheet } from "./account-editor-sheet.tsx";
-import { AccountStrip } from "./account-strip.tsx";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
 import { HouseholdView } from "./household-view.tsx";
 import { NetWorthPickProvider } from "./net-worth-pick-provider.tsx";
-import { NetWorthSidebar } from "./net-worth-sidebar.tsx";
+import { hasAccounts, NetWorthSidebar } from "./net-worth-sidebar.tsx";
 import { NetWorthSkeleton } from "./net-worth-skeleton.tsx";
 import { selectBalanceSheet } from "./select-balance-sheet.ts";
 import { UpdateValuesForm } from "./update-values-form.tsx";
@@ -58,22 +59,18 @@ export function NetWorthScreen() {
   let body: ReactNode;
   if (url.mode === "update") {
     body = (
-      <NavigationSplitView
-        content={{
-          label: t({ en: "Update balances", zh: "更新余额" }),
-          node: <UpdateValuesForm />,
-        }}
-      />
+      <NavigationStack label={t({ en: "Update balances", zh: "更新余额" })}>
+        <UpdateValuesForm />
+      </NavigationStack>
     );
   } else if (isReorder) {
     body = (
-      <NavigationSplitView
-        content={{
-          label: t({ en: "Reorder accounts", zh: "调整账户顺序" }),
-          accessory: <FinanceAddButton />,
-          node: <ReorderScreen url={url} />,
-        }}
-      />
+      <NavigationStack
+        label={t({ en: "Reorder accounts", zh: "调整账户顺序" })}
+        accessory={<FinanceAddButton />}
+      >
+        <ReorderScreen url={url} />
+      </NavigationStack>
     );
   } else {
     body = (
@@ -113,7 +110,7 @@ function NetWorthColumns({
     setCreating(true);
   };
   const householdLabel = t({ en: "Household", zh: "家庭" });
-  const householdHref = url.hrefOf({ account: null });
+  const listHref = url.hrefOf({ account: null });
   const netWorthLabel = t({ en: "Net worth", zh: "净资产" });
 
   return (
@@ -122,28 +119,32 @@ function NetWorthColumns({
         linkComponent={ColumnLink}
         linkStatus={null}
         replace={replace}
-        sidebar={{
-          stacked: "hidden",
-          label: netWorthLabel,
-          collapsed: <AccountStrip sheet={sheet} url={url} />,
-          node: (
-            <NetWorthSidebar
-              sheet={sheet}
-              today={today}
-              currency={currency}
-              url={url}
-              onCreateAccount={createAccount}
-            />
-          ),
-        }}
+        css={url.account !== null && pageColumn.regular}
+        sidebar={
+          hasAccounts(sheet)
+            ? {
+                href: listHref,
+                label: netWorthLabel,
+                node: (
+                  <NetWorthSidebar
+                    sheet={sheet}
+                    today={today}
+                    currency={currency}
+                    url={url}
+                    onCreateAccount={createAccount}
+                  />
+                ),
+              }
+            : null
+        }
         content={{
           label: account ? accountName(account) : householdLabel,
           key: url.account ?? "household",
           back:
-            url.account === null
+            url.account === null && !url.household
               ? null
               : {
-                  href: householdHref,
+                  href: listHref,
                   label: groupName
                     ? `${netWorthLabel} · ${groupName}`
                     : netWorthLabel,
@@ -163,7 +164,7 @@ function NetWorthColumns({
                 <AccountDetail
                   accountId={url.account}
                   onDeleted={() => {
-                    replace(householdHref);
+                    replace(listHref);
                   }}
                 />
               )}

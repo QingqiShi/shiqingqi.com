@@ -1,6 +1,7 @@
 import { setLocale } from "@tuja/i18n/server-locale";
 import { validateLocale } from "@tuja/i18n/validate-locale";
-import { headers } from "next/headers";
+import { SIDEBAR_COLLAPSED_COOKIE } from "@tuja/ui/components/sidebar-collapsed-cookie";
+import { cookies, headers } from "next/headers";
 import { connection } from "next/server";
 import { safeFinanceNextPath } from "#src/finance/auth/finance-sign-in-path.ts";
 import { requireFinancePageSession } from "#src/finance/auth/require-finance-page-session.ts";
@@ -48,6 +49,9 @@ export default async function Layout({
     >
       <FinanceShell
         locale={locale}
+        defaultCollapsed={
+          (await cookies()).get(SIDEBAR_COLLAPSED_COOKIE)?.value === "1"
+        }
         memberName={member?.name ?? ""}
         householdName={household?.name ?? ""}
       >

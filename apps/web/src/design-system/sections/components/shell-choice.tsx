@@ -3,7 +3,7 @@ import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
 import { getDesignSystemRouteLabels } from "#src/design-system/route-copy/get-design-system-route-labels.ts";
 
-/** Which of the three page shells a page takes. Each shell's page opens with it. */
+/** Which of the four page shells a page takes. Each shell's page opens with it. */
 export function ShellChoice() {
   const labels = getDesignSystemRouteLabels();
 
@@ -27,25 +27,36 @@ export function ShellChoice() {
             }),
             value: labels["/design-system/components/tab-view"],
             note: t({
-              en: "A sidebar or a rail on wide screens, and a floating tab bar on small ones.",
-              zh: "宽屏上是侧边栏或侧轨，小屏上是悬浮标签栏。",
+              en: "A sidebar on a wide screen, a rail of icons on a narrow one, a tab bar on a phone.",
+              zh: "宽屏上是侧边栏，窄屏上是图标侧轨，手机上是标签栏。",
             }),
           },
           {
             term: t({
-              en: "A screen or page with a sidebar",
-              zh: "带侧栏的画面或页面",
+              en: "A screen with a list beside its content, or a detail",
+              zh: "内容旁有列表或详情的画面",
             }),
             value: labels["/design-system/components/navigation-split-view"],
             note: t({
-              en: "For a screen of one pane in a Tab view, leave out the sidebar.",
-              zh: "标签视图中只有一栏的画面，不传入侧栏即可。",
+              en: "In a Tab view, the list joins the destinations in the one sidebar.",
+              zh: "在标签视图里，列表与目标页排在同一个侧边栏中。",
             }),
           },
           {
             term: t({
-              en: "A reading page with no sidebar",
-              zh: "没有侧栏的阅读页",
+              en: "A screen of one page",
+              zh: "只有一页的画面",
+            }),
+            value: labels["/design-system/components/navigation-stack"],
+            note: t({
+              en: "In a Tab view or alone, with the way back at its top.",
+              zh: "在标签视图里或单独使用，返回的路在顶部。",
+            }),
+          },
+          {
+            term: t({
+              en: "A reading page that stands alone",
+              zh: "独立的阅读页",
             }),
             value: labels["/design-system/components/header-footer-layout"],
             note: t({

@@ -9,9 +9,6 @@ import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Heading } from "@tuja/ui/components/heading";
-import { NavGroup } from "@tuja/ui/components/nav-group";
-import { NavLink } from "@tuja/ui/components/nav-link";
-import { NavList } from "@tuja/ui/components/nav-list";
 import { TabView, TabViewBrand } from "@tuja/ui/components/tab-view";
 import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
 import { Text } from "@tuja/ui/components/text";
@@ -126,24 +123,6 @@ const HEADER_SAMPLES: LabSample[] = [
   },
 ];
 
-const SECONDARY_SAMPLES: LabSample[] = [
-  NONE_SAMPLE,
-  {
-    id: "shelves",
-    label: { en: "Shelves", zh: "书单" },
-    value: labSource(
-      <nav aria-label="Shelves">
-        <NavList>
-          <NavGroup label="Shelves">
-            <NavLink href="#">Want to read</NavLink>
-            <NavLink href="#">Finished</NavLink>
-          </NavGroup>
-        </NavList>
-      </nav>,
-    ),
-  },
-];
-
 const FOOTER_SAMPLES: LabSample[] = [
   NONE_SAMPLE,
   {
@@ -183,6 +162,7 @@ function FollowedTabView(
 
 const BASE = {
   label: "Reading app",
+  sidebarToggleLabel: "Sidebar",
   linkStatus: null,
   as: "div",
   children: SCREEN,
@@ -209,10 +189,8 @@ export const TabViewLab = defineLab({
       props: {
         ...BASE,
         items: ITEMS_WITH_COUNT,
-        rail: "labels",
         header: "brand",
         footer: "member",
-        secondary: "shelves",
       },
     },
     {
@@ -228,10 +206,8 @@ export const TabViewLab = defineLab({
   ],
   controls: [
     "label",
-    "rail",
     { prop: "header", samples: HEADER_SAMPLES },
     { prop: "footer", samples: FOOTER_SAMPLES },
-    { prop: "secondary", samples: SECONDARY_SAMPLES },
     "effect",
   ],
 });

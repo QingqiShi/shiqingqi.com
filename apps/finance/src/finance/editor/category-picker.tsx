@@ -43,7 +43,7 @@ function CategoryChip({
     <Button
       look="outline"
       ref={chipRef}
-      size="xs"
+      size="sm"
       isActive={isActive}
       icon={emoji === "" ? undefined : <span>{emoji}</span>}
       onClick={onPick}
@@ -109,7 +109,7 @@ export function CategoryPicker({
         ))}
         <Button
           look="outline"
-          size="xs"
+          size="sm"
           aria-expanded={showAll}
           trailing={
             <CaretDownIcon

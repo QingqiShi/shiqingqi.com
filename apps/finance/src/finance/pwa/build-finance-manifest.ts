@@ -1,7 +1,7 @@
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import type { MetadataRoute } from "next";
-import { FINANCE_LIGHT_CANVAS } from "../theme/finance-theme.ts";
+import { CANVAS_COLORS } from "#src/theme/canvas-colors.ts";
 import icon192 from "./finance-icon-192.png";
 import icon512 from "./finance-icon-512.png";
 
@@ -30,8 +30,8 @@ export function buildFinanceManifest(
     // A narrower scope opens the other language outside the app.
     scope: "/",
     display: "standalone",
-    background_color: FINANCE_LIGHT_CANVAS,
-    theme_color: FINANCE_LIGHT_CANVAS,
+    background_color: CANVAS_COLORS.light,
+    theme_color: CANVAS_COLORS.light,
     icons: [
       { src: icon192.src, sizes: "192x192", type: "image/png" },
       { src: icon512.src, sizes: "512x512", type: "image/png" },

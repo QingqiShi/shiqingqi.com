@@ -24,17 +24,17 @@ export function toast(page: Page, text: string | RegExp): Locator {
 }
 
 /**
- * Signs out: from the signed-in Member at the bottom of the rail at `md` and
- * wider, and from the Settings menu page below `md`, where the page must be.
+ * Signs out: from the signed-in Member at the bottom of the rail from 34rem,
+ * and from the Settings menu page below 34rem, where the page must be.
  */
 export async function clickSignOut(page: Page) {
-  if ((page.viewportSize()?.width ?? 0) >= 768) {
+  if ((page.viewportSize()?.width ?? 0) >= 544) {
     await page.getByRole("button", { name: /^Signed in as / }).click();
   }
   await page.getByRole("button", { name: "Sign out" }).click();
 }
 
-/** The sync status in the rail. Below `md` it is on the Settings menu page. */
+/** The sync status in the rail. Below 34rem it is on the Settings menu page. */
 export function syncStatus(page: Page, text: string | RegExp): Locator {
   return page.getByRole("status").filter({ hasText: text }).first();
 }
@@ -82,7 +82,7 @@ export async function quickAddLine(page: Page, line: string) {
   await quickAdd.press("Enter");
 }
 
-/** The `+ Add` action: in the rail at `md` and wider, floating below. */
+/** The `+ Add` action: in the rail from 34rem, floating below. */
 export async function openNewExpense(page: Page) {
   await page.getByRole("link", { name: "Add", exact: true }).click();
   const editor = page.getByRole("form", { name: "New expense" });

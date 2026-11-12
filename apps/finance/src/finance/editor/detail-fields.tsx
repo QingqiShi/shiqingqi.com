@@ -67,7 +67,7 @@ export function DetailFields({ form }: { form: TransactionForm }) {
               <Button
                 look="outline"
                 key={member.id}
-                size="xs"
+                size="sm"
                 isActive={draft.memberId === member.id}
                 onClick={() => {
                   update({ memberId: member.id }, ["member"]);

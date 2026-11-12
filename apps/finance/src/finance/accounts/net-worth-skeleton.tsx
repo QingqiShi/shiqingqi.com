@@ -7,12 +7,12 @@ import { color } from "@tuja/ui/color.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
+import { listRowTokens } from "@tuja/ui/components/list.stylex";
 import {
   NavigationSplitView,
-  StackedOnly,
-  UnlessFullSidebar,
   UnlessStacked,
 } from "@tuja/ui/components/navigation-split-view";
+import { sidebarEdge } from "@tuja/ui/components/navigation-split-view.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -21,7 +21,6 @@ import { FinanceAddButton } from "../shell/finance-add-button.tsx";
 import type { NetWorthHeadlineForm } from "./net-worth-headline.tsx";
 
 const GROUP_ROWS = [3, 4];
-const STRIP_ITEMS = 6;
 
 /** `/` before it can show: the same columns, title, figures, trend and Groups of accounts, as blocks. */
 export function NetWorthSkeleton() {
@@ -30,22 +29,10 @@ export function NetWorthSkeleton() {
       <NavigationSplitView
         linkStatus={null}
         sidebar={{
-          stacked: "hidden",
+          href: "",
           label: t({ en: "Net worth", zh: "净资产" }),
-          collapsed: (
-            <div css={[stack.tight, styles.strip]}>
-              {Array.from({ length: STRIP_ITEMS }, (_, index) => (
-                <Skeleton
-                  key={index}
-                  width="2.25rem"
-                  height="2.25rem"
-                  shape="control"
-                />
-              ))}
-            </div>
-          ),
           node: (
-            <div css={stack.item}>
+            <div css={[stack.item, sidebarEdge.text]}>
               <FiguresSkeleton form="label" />
               <ActionsSkeleton />
               <GroupsSkeleton form="sidebar" />
@@ -57,49 +44,21 @@ export function NetWorthSkeleton() {
           accessory: <FinanceAddButton />,
           node: (
             <div css={stack.group}>
-              <StackedOnly>
-                <div css={stack.tight}>
-                  <div css={[cluster.item, styles.header]}>
-                    <Heading level={1} look="h3">
-                      {t({ en: "Net worth", zh: "净资产" })}
-                    </Heading>
-                    <ActionsSkeleton flush />
-                  </div>
-                  <div css={stack.item}>
-                    <FiguresSkeleton form="page" />
-                    <div css={stack.item}>
-                      <Skeleton width="100%" height="12.5rem" />
-                      <Skeleton width="100%" height={controlHeight.sm} />
-                    </div>
-                  </div>
+              <div css={stack.item}>
+                <div css={[cluster.item, styles.header]}>
+                  <Heading level={2} look="h3">
+                    {t({ en: "Household", zh: "家庭" })}
+                  </Heading>
+                  <Skeleton width="20rem" height={controlHeight.sm} />
                 </div>
-              </StackedOnly>
-              <UnlessStacked>
-                <UnlessFullSidebar>
-                  <div css={stack.item}>
-                    <FiguresSkeleton form="label" />
-                    <ActionsSkeleton />
-                  </div>
-                </UnlessFullSidebar>
-                <div css={stack.item}>
-                  <div css={[cluster.item, styles.header]}>
-                    <Heading level={2} look="h3">
-                      {t({ en: "Household", zh: "家庭" })}
-                    </Heading>
-                    <Skeleton width="20rem" height={controlHeight.sm} />
-                  </div>
-                  <Skeleton width="100%" shape="control" css={styles.chart} />
-                </div>
-              </UnlessStacked>
+                <Skeleton width="100%" shape="control" css={styles.chart} />
+              </div>
               <div css={styles.cards}>
                 <UnlessStacked>
                   <Skeleton width="100%" height="10rem" shape="control" />
                 </UnlessStacked>
                 <Skeleton width="100%" height="10rem" shape="control" />
               </div>
-              <StackedOnly>
-                <GroupsSkeleton form="card" />
-              </StackedOnly>
             </div>
           ),
         }}
@@ -123,9 +82,9 @@ function FiguresSkeleton({ form }: { form: NetWorthHeadlineForm }) {
   );
 }
 
-function ActionsSkeleton({ flush = false }: { flush?: boolean }) {
+function ActionsSkeleton() {
   return (
-    <div css={[cluster.tight, !flush && styles.inset]}>
+    <div css={cluster.tight}>
       <Skeleton width="9rem" height={controlHeight.sm} />
       <Skeleton width="5.5rem" height={controlHeight.sm} />
     </div>
@@ -184,9 +143,6 @@ const styles = stylex.create({
     margin: 0,
     color: color.mutedForeground,
   },
-  inset: {
-    paddingInline: space._2,
-  },
   chart: {
     blockSize: { default: "15rem", [breakpoints.md]: "18.75rem" },
   },
@@ -200,11 +156,11 @@ const styles = stylex.create({
     flexDirection: "column",
     gap: rhythm.inline,
   },
+  // The box of the headline's plate in the sidebar.
   figures: {
-    padding: space._2,
-  },
-  strip: {
-    alignItems: "center",
+    marginInline: `calc(-1 * ${listRowTokens.plateInset})`,
+    paddingBlock: space._2,
+    paddingInline: listRowTokens.plateInset,
   },
   groupHeader: {
     justifyContent: "space-between",

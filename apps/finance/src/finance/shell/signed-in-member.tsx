@@ -12,7 +12,7 @@ interface SignedInMemberProps {
 
 /**
  * Who is signed in, to which Household, the sync status, and sign out. The
- * rail shows it at `md` and wider, and the Settings menu below `md`.
+ * rail shows it from 34rem, and the Settings menu below 34rem.
  */
 export function SignedInMember({
   memberName,

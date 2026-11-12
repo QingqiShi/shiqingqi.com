@@ -1,6 +1,6 @@
 "use client";
 
-import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
+import { NavigationStack } from "@tuja/ui/components/navigation-stack";
 import type { ReactNode } from "react";
 import { FinanceAddButton } from "./finance-add-button.tsx";
 
@@ -15,12 +15,8 @@ export function FinanceScreenFrame({
   children,
 }: FinanceScreenFrameProps) {
   return (
-    <NavigationSplitView
-      content={{
-        label,
-        accessory: <FinanceAddButton />,
-        node: children,
-      }}
-    />
+    <NavigationStack label={label} accessory={<FinanceAddButton />}>
+      {children}
+    </NavigationStack>
   );
 }

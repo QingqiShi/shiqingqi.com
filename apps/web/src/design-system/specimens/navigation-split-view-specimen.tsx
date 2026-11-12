@@ -12,7 +12,7 @@ const ROWS = 4;
  * A miniature page rather than the component: the real
  * `NavigationSplitView` is as tall as the screen and reads the URL. The
  * diagram shows its defining move — the detail open beside the content,
- * with the sidebar folded to the collapsed sidebar.
+ * with the sidebar on its rail of icons.
  */
 export function NavigationSplitViewSpecimen() {
   return (

@@ -9,8 +9,8 @@ import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { NavLink } from "@tuja/ui/components/nav-link";
-import { NavList } from "@tuja/ui/components/nav-list";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
 import { StatusDot } from "@tuja/ui/components/status-dot";
 import {
@@ -36,15 +36,11 @@ export function useSettingsSectionLabels(): Record<SettingsSection, string> {
   };
 }
 
-/**
- * The Settings sections, with the open one marked where the menu shows beside
- * it. The sidebar of the view marks none where it is a page of its own.
- */
+/** The Settings sections, each a row that opens its section over the menu. */
 export function SettingsMenu({
-  current,
   mailboxNeedsYou,
 }: {
-  current: SettingsSection | null;
+  /** A mailbox must be connected again: the Mailboxes row says so. */
   mailboxNeedsYou: boolean;
 }) {
   const locale = useLocale();
@@ -55,23 +51,27 @@ export function SettingsMenu({
   });
 
   return (
-    <NavList linkComponent={SplitViewLink}>
-      {SETTINGS_SECTIONS.map((section) => {
-        const SectionIcon = ICONS[section];
-        return (
-          <NavLink
-            key={section}
-            href={getLocalePath(`/settings/${section}`, locale)}
-            current={section === (current ?? "report")}
-            icon={<SectionIcon weight="bold" />}
-          >
-            {labels[section]}
-            {section === "mailboxes" && mailboxNeedsYou ? (
-              <StatusDot intent="warning" label={reconnectNote} />
-            ) : null}
-          </NavLink>
-        );
-      })}
-    </NavList>
+    <nav aria-label={t({ en: "Settings", zh: "设置" })}>
+      <List>
+        {SETTINGS_SECTIONS.map((section) => {
+          const SectionIcon = ICONS[section];
+          return (
+            <ListRow
+              key={section}
+              href={getLocalePath(`/settings/${section}`, locale)}
+              linkComponent={SplitViewLink}
+              leading={<SectionIcon weight="bold" aria-hidden />}
+              trailing={
+                section === "mailboxes" && mailboxNeedsYou ? (
+                  <StatusDot intent="warning" label={reconnectNote} />
+                ) : null
+              }
+            >
+              {labels[section]}
+            </ListRow>
+          );
+        })}
+      </List>
+    </nav>
   );
 }

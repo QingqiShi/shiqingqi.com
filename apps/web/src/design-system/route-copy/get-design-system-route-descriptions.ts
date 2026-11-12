@@ -252,12 +252,16 @@ export function getDesignSystemRouteDescriptions(): Record<
       zh: "带悬浮页头控件与可选页脚的阅读密度页面骨架。",
     }),
     "/design-system/components/tab-view": t({
-      en: "An app shell: a sidebar or a rail of destinations on wide screens, a floating tab bar on small ones.",
-      zh: "应用骨架：宽屏上是目标页的侧边栏或侧轨，小屏上是一枚悬浮标签栏。",
+      en: "An app shell: the destinations in a sidebar on a wide screen, a rail of icons on a narrow one, and a floating tab bar on a phone.",
+      zh: "应用骨架：宽屏上目标页在侧边栏里，窄屏上是图标侧轨，手机上是一枚悬浮标签栏。",
     }),
     "/design-system/components/navigation-split-view": t({
-      en: "A sidebar, the content and the detail of what is picked, side by side, with the detail in a sheet on a phone.",
-      zh: "侧栏、内容与所选项的详情并排显示；在手机上，详情在面板中打开。",
+      en: "A list in the sidebar, the content and the detail of what is picked, side by side; where they have no room, the list is the first page and the detail opens in a sheet.",
+      zh: "侧边栏里的列表、内容与所选项的详情并排显示；放不下时，列表是第一页，详情在面板中打开。",
+    }),
+    "/design-system/components/navigation-stack": t({
+      en: "A screen of one page, with the way back at its top; the next screen slides in over it.",
+      zh: "只有一页的画面，返回的路在顶部；下一个画面从它上方滑入。",
     }),
     "/design-system/primitives": t({
       en: "Composable StyleX primitives for flex, layout, motion, reset and accessibility, for an element no component fits.",

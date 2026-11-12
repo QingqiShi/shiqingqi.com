@@ -8,10 +8,8 @@ import { isRendered } from "../../focus/is-rendered.ts";
 export const SELECTOR = {
   content: ':scope > * > [data-split-view-column="content"]',
   detail: ':scope > * > [data-split-view-column="detail"]',
-  fullSidebar: ':scope > * > [data-split-view-sidebar="full"]',
   stackRoot:
     ":scope > * > [data-split-view-sidebar] > [data-split-view-pages] > [data-split-view-stack]",
-  collapsedSidebar: ':scope > * > [data-split-view-sidebar="collapsed"]',
   page: (role: "under" | "current" | "leaving") =>
     `:scope > [data-split-view-pages] > [data-split-view-page="${role}"]`,
 } as const;

@@ -15,6 +15,8 @@ export interface LeavingCopy {
   nodes: DocumentFragment;
   /** The scroll of the page's column. */
   top: number;
+  /** The scroll of the page, where it scrolled the content of another view. */
+  pageTop?: number;
 }
 
 /**

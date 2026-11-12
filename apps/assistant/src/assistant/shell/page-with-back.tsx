@@ -2,9 +2,9 @@
 
 import { Link } from "@tuja/next-links/link";
 import {
-  NavigationSplitView,
+  NavigationStack,
   type SplitViewBackLink,
-} from "@tuja/ui/components/navigation-split-view";
+} from "@tuja/ui/components/navigation-stack";
 import type { StyleProp } from "@tuja/ui/types";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
@@ -28,13 +28,16 @@ export function PageWithBack({
 }) {
   const router = useRouter();
   return (
-    <NavigationSplitView
+    <NavigationStack
+      label={label}
+      back={back}
       linkComponent={Link}
       css={css}
       replace={(href) => {
         router.replace(href);
       }}
-      content={{ label, back, node: children }}
-    />
+    >
+      {children}
+    </NavigationStack>
   );
 }

@@ -24,7 +24,7 @@ import type {
 } from "./types.ts";
 
 /** The time, in seconds, between two Shared elements that set off. */
-const STAGGER = { fold: 0.016, other: 0.0096 } as const;
+const STAGGER = 0.0096;
 
 /**
  * `before` with its boxes from the top-left corner of the view at `origin`.
@@ -90,7 +90,6 @@ export interface SharedFlights {
   plan(
     snapshot: SplitViewSnapshot | null,
     origin: DOMRect,
-    change: "fold" | "unfold" | null,
   ): {
     start: () => void;
     moved: ReadonlyMap<SplitViewMarkElement, Rect>;
@@ -195,11 +194,7 @@ export function createSharedFlights(
     }
   }
 
-  function plan(
-    snapshot: SplitViewSnapshot | null,
-    origin: DOMRect,
-    change: "fold" | "unfold" | null,
-  ) {
+  function plan(snapshot: SplitViewSnapshot | null, origin: DOMRect) {
     const before = fromOrigin(snapshot ?? NOTHING_SHOWN, origin);
     const after = new Map<string, ShownMark>();
     for (const { name, element, options } of shownMarks()) {
@@ -246,7 +241,6 @@ export function createSharedFlights(
         .filter(isHolder)
         .map((pair) => createHolder(engine, pair.to, waitingIn(pair)));
 
-      const stagger = change === "fold" ? STAGGER.fold : STAGGER.other;
       const next = new Map<string, Flight<ShownMark>>();
       pairs.forEach((pair, index) => {
         const { name, from, to } = pair;
@@ -269,7 +263,7 @@ export function createSharedFlights(
           fly({
             origin: from,
             destination: reverses ? { ...to, rect: running.origin.rect } : to,
-            delay: reverses ? 0 : index * stagger,
+            delay: reverses ? 0 : index * STAGGER,
             role,
             under: underOf(from, to),
             start,

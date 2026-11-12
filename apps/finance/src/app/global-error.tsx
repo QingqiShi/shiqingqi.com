@@ -4,7 +4,7 @@ import { captureException } from "@tuja/analytics/capture-exception";
 import { gray } from "@tuja/ui/palette/gray.stylex";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
-import { FINANCE_LIGHT_CANVAS } from "#src/finance/theme/finance-theme.ts";
+import { CANVAS_COLORS } from "#src/theme/canvas-colors.ts";
 
 const copy = {
   en: {
@@ -55,7 +55,7 @@ export default function GlobalError({
           textAlign: "center",
           fontFamily:
             "Haffer, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-          backgroundColor: `light-dark(${FINANCE_LIGHT_CANVAS}, ${gray._0})`,
+          backgroundColor: `light-dark(${CANVAS_COLORS.light}, ${CANVAS_COLORS.dark})`,
           color: `light-dark(${gray._13}, ${gray._92})`,
         }}
       >

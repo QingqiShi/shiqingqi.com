@@ -4,7 +4,6 @@ import { FunnelSimpleIcon } from "@phosphor-icons/react/dist/ssr/FunnelSimple";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Select } from "@tuja/ui/components/select";
@@ -369,18 +368,22 @@ export function TransactionFilterBar({
   );
 }
 
+// The column is wide enough to hold the search and the filters on one line.
+// It is the width at which a `ListRow` sets its lines in columns.
+const WIDE = "@container (width >= 48rem)";
+
 const styles = stylex.create({
   bar: {
     minInlineSize: 0,
   },
   narrowOnly: {
-    display: { default: "contents", [breakpoints.md]: "none" },
+    display: { default: "contents", [WIDE]: "none" },
   },
   more: {
     display: "contents",
   },
   collapsed: {
-    display: { default: "none", [breakpoints.md]: "contents" },
+    display: { default: "none", [WIDE]: "contents" },
   },
   select: {
     inlineSize: "auto",

@@ -32,7 +32,7 @@ import { Card } from "@tuja/ui/components/card";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
 import { MetaLine } from "@tuja/ui/components/meta-line";
-import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
+import { NavigationStack } from "@tuja/ui/components/navigation-stack";
 import { PageHeader } from "@tuja/ui/components/page-header";
 import { Select } from "@tuja/ui/components/select";
 import { Stat, StatGroup } from "@tuja/ui/components/stat";
@@ -476,10 +476,10 @@ function Transactions() {
       </StatGroup>
       <Card>
         <Filters />
-        <div css={show.fromMd}>
+        <div css={show.wide}>
           <TransactionTable />
         </div>
-        <div css={show.belowMd}>
+        <div css={show.narrow}>
           <TransactionList />
         </div>
         <div css={[flex.between, cluster.tight]}>
@@ -534,6 +534,7 @@ export function ListScreen() {
       label={t({ en: "Finance", zh: "财务" })}
       items={destinations}
       linkComponent={Link}
+      sidebarToggleLabel={t({ en: "Sidebar", zh: "侧边栏" })}
       header={
         <TabViewBrand
           name={t({ en: "Finance", zh: "财务" })}
@@ -542,13 +543,9 @@ export function ListScreen() {
         />
       }
     >
-      <NavigationSplitView
-        linkComponent={Link}
-        content={{
-          label: t({ en: "Transactions", zh: "交易" }),
-          node: <Transactions />,
-        }}
-      />
+      <NavigationStack label={t({ en: "Transactions", zh: "交易" })}>
+        <Transactions />
+      </NavigationStack>
     </TabView>
   );
 }

@@ -68,8 +68,6 @@ export interface ShownMark extends SharedForm {
 export interface SplitViewMotionEvents {
   /** Every motion up to `motion`, the one that played last, has stopped, so the view can let go of what left. */
   onSettled: (motion: number) => void;
-  /** The sidebar starts or stops folding: its links shed dust into the links of the other form. */
-  onFold: (fold: "fold" | "unfold" | null) => void;
   /** The motion has drawn a frame, so the Shared elements show at other places. */
   onFrame: () => void;
 }

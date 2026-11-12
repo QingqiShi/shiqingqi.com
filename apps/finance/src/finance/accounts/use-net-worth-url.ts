@@ -11,6 +11,8 @@ interface NetWorthPick {
   account: string | null;
   /** The Transaction in the detail column, from the account's Ledger. */
   tx?: string | null;
+  /** Whether the Household opens as a page over the list of accounts. */
+  household?: boolean;
 }
 
 /** The Net worth screen's state in the URL, and the links that change it. */
@@ -24,11 +26,12 @@ export type NetWorthUrl = ReturnType<typeof useNetWorthUrl>;
  */
 export function useNetWorthUrl() {
   const locale = useLocale();
-  const { account, tx, mode } = readNetWorth(useSearchParams());
+  const { account, tx, household, mode } = readNetWorth(useSearchParams());
 
   return {
     account,
     tx,
+    household,
     mode,
     /** The URL of the screen with this account and Transaction picked. */
     hrefOf(pick: NetWorthPick) {

@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { NavigationStack } from "@tuja/ui/components/navigation-stack";
 import { Text } from "@tuja/ui/components/text";
-import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
@@ -19,28 +19,23 @@ export function FinanceFrame({
   children: ReactNode;
 }) {
   return (
-    <main css={[pageColumn.base, styles.main]}>
+    <NavigationStack label={brand}>
       <div css={[stack.section, styles.column]}>
         <Text as="span" look="label" tone="muted">
           {brand}
         </Text>
         {children}
       </div>
-    </main>
+    </NavigationStack>
   );
 }
 
 const styles = stylex.create({
-  main: {
-    minBlockSize: "100dvh",
-    paddingBlockStart: {
-      default: `calc(${space._9} + env(safe-area-inset-top))`,
-      [breakpoints.md]: space._11,
-    },
-    paddingBlockEnd: `calc(${space._8} + env(safe-area-inset-bottom))`,
-  },
+  // Under the top of the screen, as a page with no way back has nothing there.
   column: {
+    inlineSize: "100%",
     maxInlineSize: space._15,
     marginInline: "auto",
+    paddingBlockStart: { default: space._7, [breakpoints.md]: space._10 },
   },
 });

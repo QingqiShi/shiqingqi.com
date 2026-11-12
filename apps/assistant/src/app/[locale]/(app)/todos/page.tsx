@@ -2,7 +2,7 @@ import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import { safeNextPath } from "@tuja/server-auth/sign-in-path";
-import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
+import { NavigationStack } from "@tuja/ui/components/navigation-stack";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
@@ -72,36 +72,27 @@ export default async function Page({
   const pageTitle = t({ en: "To-dos", zh: "待办" });
 
   return (
-    <NavigationSplitView
-      content={{
-        label: pageTitle,
-        node: (
-          <div css={stack.group}>
-            <TodosHeader title={pageTitle}>
-              <TodoSearchBox
-                query={query}
-                found={todos.length}
-                hasMore={hasMore}
-              />
-            </TodosHeader>
-            <TodoStoreProvider
-              key={query}
-              todos={todos.map((todo) => toTodoItemData(todo))}
-              today={localClock(new Date(), settings.timeZone).date}
-              timeZone={settings.timeZone}
-              openCount={openCount}
-              hasCalendar={hasCalendar}
-              renderedAt={renderedAt}
-            >
-              {query === "" ? (
-                <TodoBoard sharedText={sharedTodoText({ title, text, url })} />
-              ) : (
-                <TodoSearchResults />
-              )}
-            </TodoStoreProvider>
-          </div>
-        ),
-      }}
-    />
+    <NavigationStack label={pageTitle}>
+      <div css={stack.group}>
+        <TodosHeader title={pageTitle}>
+          <TodoSearchBox query={query} found={todos.length} hasMore={hasMore} />
+        </TodosHeader>
+        <TodoStoreProvider
+          key={query}
+          todos={todos.map((todo) => toTodoItemData(todo))}
+          today={localClock(new Date(), settings.timeZone).date}
+          timeZone={settings.timeZone}
+          openCount={openCount}
+          hasCalendar={hasCalendar}
+          renderedAt={renderedAt}
+        >
+          {query === "" ? (
+            <TodoBoard sharedText={sharedTodoText({ title, text, url })} />
+          ) : (
+            <TodoSearchResults />
+          )}
+        </TodoStoreProvider>
+      </div>
+    </NavigationStack>
   );
 }

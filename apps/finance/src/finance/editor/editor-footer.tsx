@@ -5,8 +5,6 @@ import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { useEffectSticky } from "@tuja/ui/hooks/use-effect-sticky";
-import { fill } from "@tuja/ui/primitives/layout.stylex";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { layer, space } from "@tuja/ui/tokens.stylex";
 import { FloatingActions } from "../shell/floating-actions.tsx";
 import type { TransactionForm } from "./use-transaction-form.ts";
@@ -40,10 +38,10 @@ export function EditorFooter({ form }: { form: TransactionForm }) {
     <Button onClick={remove}>{t({ en: "Skip", zh: "跳过" })}</Button>
   ) : null;
 
-  return column === null ? (
+  return (
     <FloatingActions
       ref={footerStickyRef}
-      css={[styles.footer, footerStickyCss]}
+      css={[styles.footer, column !== null && styles.inColumn, footerStickyCss]}
     >
       <EffectCarrier value={footerSticky}>
         {secondaryAction}
@@ -56,26 +54,6 @@ export function EditorFooter({ form }: { form: TransactionForm }) {
         </Button>
       </EffectCarrier>
     </FloatingActions>
-  ) : (
-    <div css={[stack.tight, styles.inlineFooter]}>
-      <Button type="submit" look="primary" size="lg" css={fill.inline}>
-        {saveLabel}
-      </Button>
-      {isNew ? (
-        <Button
-          css={fill.inline}
-          onClick={() => {
-            save(true);
-          }}
-        >
-          {t({ en: "Save and add another", zh: "保存并再记一笔" })}
-        </Button>
-      ) : isExpected ? (
-        <Button css={fill.inline} onClick={remove}>
-          {t({ en: "Skip", zh: "跳过" })}
-        </Button>
-      ) : null}
-    </div>
   );
 }
 
@@ -85,8 +63,8 @@ const styles = stylex.create({
     insetBlockEnd: `calc(${space._3} - ${PANE_END_GAP})`,
     zIndex: layer.raised,
   },
-  // In a column or its sheet, Save ends the form and covers no field.
-  inlineFooter: {
-    paddingBlockStart: space._1,
+  // A column has no end padding for the actions to move into.
+  inColumn: {
+    insetBlockEnd: space._3,
   },
 });

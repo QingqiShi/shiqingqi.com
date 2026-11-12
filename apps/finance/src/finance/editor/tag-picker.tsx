@@ -59,7 +59,7 @@ export function TagPicker({
             <Button
               look="outline"
               key={tagId}
-              size="xs"
+              size="sm"
               aria-label={`${removeLabel} ${byId.get(tagId)?.name ?? ""}`}
               trailing={<XIcon weight="bold" aria-hidden />}
               onClick={() => {

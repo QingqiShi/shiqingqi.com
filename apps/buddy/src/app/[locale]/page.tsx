@@ -9,6 +9,7 @@ import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Divider } from "@tuja/ui/components/divider";
 import { Heading } from "@tuja/ui/components/heading";
+import { NavigationStack } from "@tuja/ui/components/navigation-stack";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { pageColumn, pageGutter } from "@tuja/ui/primitives/page-column.stylex";
@@ -74,8 +75,8 @@ export default async function HomePage({ params }: PageProps) {
   ];
 
   return (
-    <>
-      <header css={[pageColumn.base, styles.header]}>
+    <NavigationStack label={wordmark} flush>
+      <div css={[pageColumn.base, styles.header]}>
         <Link href={homeHref} {...stylex.props(headerLink, styles.wordmark)}>
           {wordmark}
         </Link>
@@ -84,8 +85,8 @@ export default async function HomePage({ params }: PageProps) {
             {signInLabel}
           </Link>
         )}
-      </header>
-      <main css={[pageColumn.base, styles.main]}>
+      </div>
+      <div css={[pageColumn.base, styles.main]}>
         <div css={stack.section}>
           <div css={styles.hero}>
             <div css={styles.phone}>
@@ -186,7 +187,7 @@ export default async function HomePage({ params }: PageProps) {
             }
           />
         </div>
-      </main>
+      </div>
       <footer css={pageColumn.base}>
         <Divider />
         <div css={petPageColumn.content}>
@@ -197,7 +198,7 @@ export default async function HomePage({ params }: PageProps) {
           </Text>
         </div>
       </footer>
-    </>
+    </NavigationStack>
   );
 }
 

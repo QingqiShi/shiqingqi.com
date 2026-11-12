@@ -20,7 +20,7 @@ import { Columns } from "@tuja/ui/components/columns";
 import { FormFooter } from "@tuja/ui/components/form-footer";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
-import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
+import { NavigationStack } from "@tuja/ui/components/navigation-stack";
 import { PageHeader } from "@tuja/ui/components/page-header";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Select } from "@tuja/ui/components/select";
@@ -396,6 +396,7 @@ export function FormScreen() {
       label={t({ en: "Finance", zh: "财务" })}
       items={destinations}
       linkComponent={Link}
+      sidebarToggleLabel={t({ en: "Sidebar", zh: "侧边栏" })}
       header={
         <TabViewBrand
           name={t({ en: "Finance", zh: "财务" })}
@@ -405,17 +406,15 @@ export function FormScreen() {
       }
       css={pageColumn.settings}
     >
-      <NavigationSplitView
-        linkComponent={Link}
-        content={{
-          label: t({ en: "New transaction", zh: "新交易" }),
-          node: <NewTransaction backHref={transactionsHref} />,
-          back: {
-            href: transactionsHref,
-            label: t({ en: "Transactions", zh: "交易" }),
-          },
+      <NavigationStack
+        label={t({ en: "New transaction", zh: "新交易" })}
+        back={{
+          href: transactionsHref,
+          label: t({ en: "Transactions", zh: "交易" }),
         }}
-      />
+      >
+        <NewTransaction backHref={transactionsHref} />
+      </NavigationStack>
     </TabView>
   );
 }

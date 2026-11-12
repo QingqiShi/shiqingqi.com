@@ -7,10 +7,17 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
+import { NavGroup } from "@tuja/ui/components/nav-group";
+import { NavLink } from "@tuja/ui/components/nav-link";
+import { NavList } from "@tuja/ui/components/nav-list";
 import {
   SplitViewLink,
+  StackedOnly,
+  UnlessStacked,
   useSplitViewColumn,
 } from "@tuja/ui/components/navigation-split-view";
+import { sidebarEdge } from "@tuja/ui/components/navigation-split-view.stylex";
+import { StatusDot } from "@tuja/ui/components/status-dot";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
@@ -49,71 +56,129 @@ export function ReportList({
   const locale = useLocale();
   const dateLocale = useDateLocale();
   const isPage = useSplitViewColumn()?.presentation === "page";
-  const currentRef = useRef<HTMLElement>(null);
+  const navRef = useRef<HTMLElement>(null);
   const title = t({ en: "All reports", zh: "全部晨报" });
   const noMail = t({ en: "No new mail", zh: "没有新邮件" });
   const notWritten = t({ en: "Not written", zh: "没能写成" });
   const newestDate = reports.at(0)?.localDate;
 
   useEffect(() => {
-    if (!isPage) currentRef.current?.scrollIntoView({ block: "nearest" });
+    if (isPage) return;
+    navRef.current
+      ?.querySelector('[aria-current="page"]')
+      ?.scrollIntoView({ block: "nearest" });
   }, [currentDate, isPage]);
 
   return (
-    <nav aria-label={title} css={stack.item}>
-      <Heading level={headingLevel} look={isPage ? "h1" : "h2"}>
-        {title}
-      </Heading>
+    <nav ref={navRef} aria-label={title} css={stack.item}>
+      <StackedOnly>
+        <Heading level={headingLevel} look="h1">
+          {title}
+        </Heading>
+      </StackedOnly>
       {reports.length === 0 ? (
-        <Text as="p" look="bodySmall" tone="muted">
+        <Text as="p" look="bodySmall" tone="muted" css={sidebarEdge.text}>
           {t({
             en: "Reports are listed once the first one is written.",
             zh: "第一份晨报写好后就会列出。",
           })}
         </Text>
       ) : (
-        groupByMonth(reports).map(({ month, reports: inMonth }) => (
-          <section
-            key={month}
-            aria-label={formatMonth(month, dateLocale)}
-            css={[stack.tight, styles.month]}
-          >
-            <Text look="overline" tone="muted">
-              {formatMonth(month, dateLocale)}
-            </Text>
-            <List>
-              {inMonth.map((report) => {
-                const isCurrent = report.localDate === currentDate;
-                return (
-                  <ListRow
-                    key={report.localDate}
-                    ref={isCurrent ? currentRef : undefined}
-                    href={
-                      report.localDate === newestDate
-                        ? homeViewHref("report", locale)
-                        : getLocalePath(`/reports/${report.localDate}`, locale)
-                    }
-                    linkComponent={SplitViewLink}
-                    aria-current={isCurrent ? "page" : undefined}
-                    wrap
-                    detail={
-                      <span
-                        css={[typeModifier.lines(2), typeModifier.verbatim]}
-                      >
-                        {report.headline ??
-                          (report.status === "no-mail" ? noMail : notWritten)}
+        <>
+          <UnlessStacked>
+            <NavList linkComponent={SplitViewLink}>
+              {groupByMonth(reports).map(({ month, reports: inMonth }) => (
+                <NavGroup key={month} label={formatMonth(month, dateLocale)}>
+                  {inMonth.map((report) => (
+                    <NavLink
+                      key={report.localDate}
+                      href={
+                        report.localDate === newestDate
+                          ? homeViewHref("report", locale)
+                          : getLocalePath(
+                              `/reports/${report.localDate}`,
+                              locale,
+                            )
+                      }
+                      current={report.localDate === currentDate}
+                      trailing={
+                        report.headline !== null ? null : (
+                          <StatusDot
+                            intent={
+                              report.status === "no-mail"
+                                ? "neutral"
+                                : "warning"
+                            }
+                            label={
+                              report.status === "no-mail" ? noMail : notWritten
+                            }
+                          />
+                        )
+                      }
+                    >
+                      <span css={typeModifier.numeric}>
+                        {formatListDay(report.localDate, dateLocale)}
                       </span>
-                    }
-                  >
-                    <span css={typeModifier.numeric}>
-                      {formatListDay(report.localDate, dateLocale)}
-                    </span>
-                  </ListRow>
-                );
-              })}
-            </List>
-          </section>
-        ))
+                    </NavLink>
+                  ))}
+                </NavGroup>
+              ))}
+            </NavList>
+          </UnlessStacked>
+          <StackedOnly>
+            <div css={stack.item}>
+              {groupByMonth(reports).map(({ month, reports: inMonth }) => (
+                <section
+                  key={month}
+                  aria-label={formatMonth(month, dateLocale)}
+                  css={[stack.tight, styles.month]}
+                >
+                  <Text look="overline" tone="muted">
+                    {formatMonth(month, dateLocale)}
+                  </Text>
+                  <List>
+                    {inMonth.map((report) => {
+                      const isCurrent = report.localDate === currentDate;
+                      return (
+                        <ListRow
+                          key={report.localDate}
+                          href={
+                            report.localDate === newestDate
+                              ? homeViewHref("report", locale)
+                              : getLocalePath(
+                                  `/reports/${report.localDate}`,
+                                  locale,
+                                )
+                          }
+                          linkComponent={SplitViewLink}
+                          aria-current={isCurrent ? "page" : undefined}
+                          wrap
+                          detail={
+                            <span
+                              css={[
+                                typeModifier.lines(2),
+                                typeModifier.verbatim,
+                              ]}
+                            >
+                              {report.headline ??
+                                (report.status === "no-mail"
+                                  ? noMail
+                                  : notWritten)}
+                            </span>
+                          }
+                        >
+                          <span css={typeModifier.numeric}>
+                            {formatListDay(report.localDate, dateLocale)}
+                          </span>
+                        </ListRow>
+                      );
+                    })}
+                  </List>
+                </section>
+              ))}
+            </div>
+          </StackedOnly>
+        </>
       )}
     </nav>
   );

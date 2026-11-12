@@ -11,6 +11,7 @@ import type {
   NavigationSplitViewColumn,
   NavigationSplitViewDetail,
 } from "./types.ts";
+import { HANDOFF_PAGE_KEY } from "./use-stack-handoff.ts";
 import { DEEP_DEPTH, STACK_ROOT_DEPTH } from "./use-stack-opening.ts";
 
 function pageOf<
@@ -31,7 +32,7 @@ export function useColumnPages({
   detail,
   detailColumn,
   isRouted,
-  stacks,
+  hasSidebar,
   waiting,
   opensContent,
   tabOpening,
@@ -43,7 +44,7 @@ export function useColumnPages({
   detail: NavigationSplitViewDetail | null | undefined;
   detailColumn: NavigationSplitViewDetail | null;
   isRouted: boolean;
-  stacks: boolean;
+  hasSidebar: boolean;
   waiting: boolean;
   opensContent: boolean;
   tabOpening: string | null;
@@ -104,7 +105,7 @@ export function useColumnPages({
   nextPages = settlePages(nextPages, settled);
   if (nextPages !== pages) setPages(nextPages);
   const stackRootPart: SplitViewChange["stackRoot"] =
-    !stacks || contentChange === "swap" || wasDepth === depth
+    !hasSidebar || contentChange === "swap" || wasDepth === depth
       ? null
       : Math.min(wasDepth, depth) === STACK_ROOT_DEPTH
         ? "back"
@@ -154,5 +155,23 @@ export function useColumnPages({
     });
   }
 
-  return { motion, setSettled, pages, details, goneDetail };
+  // The page that another view left goes as this view comes.
+  const enter = (change: "push" | "pop", label: string) => {
+    setPages((shown) => ({
+      under: null,
+      current: shown.current,
+      leaving: {
+        key: HANDOFF_PAGE_KEY,
+        column: { label, node: null },
+        deep: change === "pop",
+        motion: nextMotion,
+        leftAs: "copy",
+      },
+    }));
+    setMotion({
+      id: nextMotion,
+      change: { content: change, stackRoot: null, detail: null },
+    });
+  };
+  return { motion, setSettled, pages, details, goneDetail, enter };
 }

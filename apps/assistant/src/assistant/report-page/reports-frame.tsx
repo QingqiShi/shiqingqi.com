@@ -41,10 +41,10 @@ export function HomeReportMark({ date }: { date: string }) {
 }
 
 /**
- * The home page and the morning reports: the list of days beside the page where
- * both fit. Where they do not, `/` shows no list, `/reports` is the list, and a
- * report opens over it. The plan is about the day, not the reports, so it
- * shows no list.
+ * The home page and the morning reports: the list of days in the sidebar, beside
+ * the page, where both fit. Where they do not, `/reports` is the list, and the
+ * report of `/` and each other report open over it, with the way back to it.
+ * The plan is about the day, not the reports, so it shows no list.
  */
 export function ReportsFrame({ reports, children }: ReportsFrameProps) {
   const segments = useSelectedLayoutSegments();
@@ -110,7 +110,6 @@ export function ReportsColumns({
         isPlan
           ? undefined
           : {
-              stacked: isHome ? "hidden" : "page",
               href: listHref,
               label: listLabel,
               node: list,
@@ -123,7 +122,10 @@ export function ReportsColumns({
           : openDate === null
             ? t({ en: "Morning report", zh: "晨报" })
             : formatDay(openDate, dateLocale),
-        back: openDate === null ? null : { href: listHref, label: listLabel },
+        back:
+          isPlan || (openDate === null && !isHome)
+            ? null
+            : { href: listHref, label: listLabel },
         node: children,
       }}
     />

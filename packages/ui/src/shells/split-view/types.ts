@@ -64,87 +64,70 @@ export interface NavigationSplitViewColumn {
    * its content, so the last row scrolls clear of it.
    */
   accessory?: ReactNode;
+  /**
+   * Controls at the top end of the column, on the line of the way back, such
+   * as the theme and language controls of a site.
+   */
+  toolbar?: ReactNode;
+  /**
+   * Whether the node fills the column from edge to edge, with no gutter and
+   * no page column, such as for a scene that bleeds to the edges.
+   */
+  flush?: boolean;
 }
 
 /**
- * The sidebar of a `NavigationSplitView`.
+ * The list of a `NavigationSplitView`: what the visitor picks from, such as
+ * the accounts of a household or the pages of a site.
  *
  * @internal
  */
-export type NavigationSplitViewSidebar = NavigationSplitViewColumn &
-  (
-    | {
-        /**
-         * Where the sidebar goes while it does not fit beside the content.
-         * `"page"`: it is the root page of the stack, at `href`. A `content`
-         * with `back` pushes over it, and a `content` without `back` does not
-         * show. The view stacks while the full sidebar does not fit. A stack
-         * needs a router, so it needs `linkStatus`. `"hidden"`: it does not show,
-         * or it shows as `collapsed`. It can change with the URL: a screen that
-         * opens without its sidebar says `"hidden"` there and `"page"` at the
-         * other URLs, and the sidebar keeps its state and its scroll. `"drawer"`:
-         * it opens as a drawer from a menu button at the top-end corner of the
-         * view, and the content fills the view under the button. Such a view is a
-         * document: at every width the page scrolls the content, which lies on the
-         * canvas, and beside it the sidebar sticks as an island.
-         *
-         * @zh 侧栏放不到内容栏旁边时的去向。`"page"`：它是堆叠的根页面，位于 `href`；带 `back` 的 `content` 推入其上，不带 `back` 的 `content` 不显示；完整侧栏放不下时视图堆叠。堆叠需要路由器，因此需要 `linkStatus`。`"hidden"`：不显示，或以 `collapsed` 形态显示。它可以随 URL 变化：打开时没有侧栏的画面在该 URL 传 `"hidden"`，其他 URL 传 `"page"`，侧栏保留其状态与滚动位置。`"drawer"`：它从视图顶部末端角落的菜单按钮以抽屉形式打开，内容栏在按钮下方占满视图。这样的视图是一篇文档：在任何宽度下都由页面滚动内容，内容直接位于画布上，侧栏则作为岛屿固定在它旁边。
-         */
-        stacked: "page";
-        /**
-         * The URL where the sidebar is the page that shows. A link to it opens
-         * the sidebar at once, as the view has it already.
-         *
-         * @zh 侧栏作为当前页面显示时的 URL。指向它的链接会立即打开侧栏，因为视图已经拥有它。
-         */
-        href: string;
-      }
-    | {
-        stacked: "hidden";
-        href?: string;
-        /**
-         * The narrow form of the sidebar, such as a strip of logos. It shows
-         * while the detail shows beside the content, and where the full sidebar
-         * does not fit but the view is wider than a phone. It takes the label
-         * and the key of the sidebar.
-         *
-         * @zh 侧栏的窄形态，例如一列标志。详情栏显示在内容栏旁边时显示它；在完整侧栏放不下、但视图比手机宽时也显示它。它沿用侧栏的标签与 key。
-         */
-        collapsed?: ReactNode;
-      }
-    | {
-        stacked: "drawer";
-        href?: undefined;
-        /**
-         * Names the menu button and the open drawer for assistive technology.
-         *
-         * @zh 菜单按钮与打开的抽屉的无障碍名称。
-         */
-        menuLabel: string;
-        /**
-         * Names the close button of the drawer for assistive technology. The
-         * package ships no i18n, so the consumer supplies the localised string.
-         *
-         * @zh 抽屉关闭按钮的无障碍名称。本包不内置 i18n，请由调用方提供本地化字符串。
-         */
-        closeLabel: string;
-        /**
-         * What stays at the top of the sidebar while its node scrolls, beside
-         * the content and in the drawer, such as the title of the app. It starts
-         * on the text edge of a `NavList`.
-         *
-         * @zh 侧栏 node 滚动时固定在侧栏顶部的内容，在内容栏旁边与抽屉中都显示，例如应用标题。它从 `NavList` 的文字边缘开始。
-         */
-        header?: ReactNode;
-        /**
-         * What stays at the bottom of the sidebar while its node scrolls, beside
-         * the content and in the drawer, such as the theme and language controls.
-         *
-         * @zh 侧栏 node 滚动时固定在侧栏底部的内容，在内容栏旁边与抽屉中都显示，例如主题与语言控件。
-         */
-        footer?: ReactNode;
-      }
-  );
+export interface NavigationSplitViewSidebar extends NavigationSplitViewColumn {
+  /**
+   * The URL where the list is the page that shows, where it does not fit
+   * beside the content. A link to it opens the list at once, as the view has
+   * it already. A `content` with `back` shows over the list there, and a
+   * `content` without `back` does not show, so give the content a `back` to
+   * this URL at each URL that opens on the content.
+   *
+   * @zh 列表放不到内容栏旁边时，它作为当前页面显示的 URL。指向它的链接会立即打开列表，因为视图已经拥有它。在那里，带 `back` 的 `content` 显示在列表之上，不带 `back` 的 `content` 不显示；因此在每个应当直接落在内容上的 URL，请给内容一个指向此 URL 的 `back`。
+   */
+  href: string;
+  /**
+   * What shows at the top of the sidebar, above its node, such as the
+   * title of the site. In a `TabView`, the sidebar of that view has its
+   * own `header`, and this one does not show.
+   *
+   * @zh 显示在侧栏顶部、node 上方的内容，例如站点标题。在 `TabView` 里，侧边栏用的是该视图自己的 `header`，这一个不显示。
+   */
+  header?: ReactNode;
+  /**
+   * What shows at the bottom of the sidebar, under its node, such as the
+   * theme and language controls. In a `TabView`, the `footer` of that
+   * view shows there instead.
+   *
+   * @zh 显示在侧栏底部、node 下方的内容，例如主题与语言控件。在 `TabView` 里，那里显示的是该视图的 `footer`。
+   */
+  footer?: ReactNode;
+  /**
+   * Names the button that collapses the sidebar and expands it again,
+   * already localised. Without it, a view outside a `TabView` has no such
+   * button. In a `TabView`, the button of that view does this.
+   *
+   * @zh 收起、再展开侧栏的按钮的无障碍名称，需已本地化。不传时，`TabView` 之外的视图没有这个按钮。在 `TabView` 里，由该视图的按钮负责。
+   */
+  toggleLabel?: string;
+  /**
+   * Whether the server paints the sidebar collapsed, outside a
+   * `TabView`. The view keeps the visitor's choice in the
+   * `SIDEBAR_COLLAPSED_COOKIE` cookie and follows it once the page
+   * hydrates. Where the server can read the cookie, pass its value here.
+   *
+   * @default false
+   * @zh 在 `TabView` 之外，服务端是否把侧栏画成收起。视图把访客的选择记在 `SIDEBAR_COLLAPSED_COOKIE` cookie 里，并在页面水合后跟随它。服务端能读到这个 cookie 时，把它的值传到这里。
+   */
+  defaultCollapsed?: boolean;
+}
 
 /**
  * The detail of a `NavigationSplitView`.
@@ -176,7 +159,7 @@ export interface NavigationSplitViewDetail extends Omit<
  * @internal
  */
 export interface SplitViewColumnState {
-  /** Which column this is. The collapsed sidebar is the sidebar. */
+  /** Which column this is. */
   column: "sidebar" | "content" | "detail";
   /**
    * `"sheet"` where the detail shows in a sheet over the content, as on a
@@ -187,8 +170,7 @@ export interface SplitViewColumnState {
   presentation: "column" | "sheet" | "page";
   /**
    * The box that scrolls the column, `null` until it mounts and in a sheet,
-   * and `undefined` where the page scrolls the column, as on a phone inside
-   * a `TabView` and at every width in a view with a drawer. Give it to a
+   * and `undefined` where the page scrolls the column, as on a phone. Give it to a
    * virtual list as its scroll parent, or the window where it is `undefined`.
    */
   scroller: HTMLElement | null | undefined;
@@ -212,17 +194,6 @@ export interface SplitViewColumnState {
   close: (() => void) | null;
 }
 
-/**
- * A sidebar that is not a page of a stack, the only kind that a view takes where
- * its `linkStatus` is `null`.
- *
- * @internal
- */
-export type NavigationSplitViewSidebarWithoutPage = Exclude<
-  NavigationSplitViewSidebar,
-  { stacked: "page" }
->;
-
 interface NavigationSplitViewBaseProps {
   /**
    * The middle column, such as one account and its ledger. It takes the
@@ -234,10 +205,10 @@ interface NavigationSplitViewBaseProps {
   /**
    * Renders each back link and each `SplitViewLink`. Pass a framework link to
    * keep client-side navigation, and forward every prop it is handed onto the
-   * rendered anchor.
+   * rendered anchor. Without it, the link of the nearest `LinkProvider`
+   * renders them.
    *
-   * @default <a>
-   * @zh 渲染各栏的返回链接与每个 `SplitViewLink`。传入框架自带的链接组件即可保留客户端导航，请把收到的每一个 prop 都转发到渲染出的锚点上。
+   * @zh 渲染各栏的返回链接与每个 `SplitViewLink`。传入框架自带的链接组件即可保留客户端导航，请把收到的每一个 prop 都转发到渲染出的锚点上。不传时使用最近的 `LinkProvider` 提供的链接组件。
    */
   linkComponent?: ComponentType<SplitViewLinkProps>;
   /**
@@ -263,11 +234,11 @@ export type NavigationSplitViewProps = NavigationSplitViewBaseProps &
   (
     | {
         /**
-         * The first column, such as a list of accounts. It shows full where it
-         * fits beside the content and no detail shows beside them. `stacked`
-         * says where it goes elsewhere. Without a sidebar, the view has one pane.
+         * The list, such as the accounts. It is the sidebar where it fits
+         * beside the content, and the first page of a stack where it does not.
+         * A screen with no list and no detail is a `NavigationStack`.
          *
-         * @zh 第一栏，例如账户列表。在它能放在内容栏旁边、且旁边没有详情栏时，完整显示。`stacked` 决定其他情况下的去向。没有侧栏时视图只有一栏。
+         * @zh 列表，例如各个账户。放得下时它是内容旁的侧边栏，放不下时它是堆叠的第一页。既没有列表也没有详情的画面请用 `NavigationStack`。
          */
         sidebar?: NavigationSplitViewSidebar | null;
         detail?: null;
@@ -275,10 +246,9 @@ export type NavigationSplitViewProps = NavigationSplitViewBaseProps &
          * A component that the view renders inside each `SplitViewLink`, so that
          * a router hook can read whether the navigation to it is pending. Pass
          * `null` where you hold the content yourself, and then pass no
-         * `skeleton` and no `"page"` sidebar. A view of one pane needs it only
-         * for a `SplitViewLink` in its content.
+         * `skeleton`.
          *
-         * @zh 视图渲染在每个 `SplitViewLink` 内部的组件，让路由器的 Hook 能读取该链接的导航是否处于 pending 状态。内容由你自己持有时传入 `null`，此时不要传入 `skeleton` 和 `"page"` 侧栏。只有一栏的视图只有内容中有 `SplitViewLink` 时才需要它。
+         * @zh 视图渲染在每个 `SplitViewLink` 内部的组件，让路由器的 Hook 能读取该链接的导航是否处于 pending 状态。内容由你自己持有时传入 `null`，此时不要传入 `skeleton`。
          */
         linkStatus: ComponentType<TabLinkStatusProps>;
         /**
@@ -290,7 +260,7 @@ export type NavigationSplitViewProps = NavigationSplitViewBaseProps &
         skeleton: ReactElement;
       }
     | {
-        sidebar?: NavigationSplitViewSidebarWithoutPage | null;
+        sidebar?: NavigationSplitViewSidebar | null;
         /**
          * The last column, such as the editor of a picked transaction. Pass it
          * only while something is picked. It shows beside the content where both
@@ -301,12 +271,6 @@ export type NavigationSplitViewProps = NavigationSplitViewBaseProps &
          */
         detail?: NavigationSplitViewDetail | null;
         linkStatus: null;
-        skeleton?: undefined;
-      }
-    | {
-        sidebar?: null;
-        detail?: null;
-        linkStatus?: undefined;
         skeleton?: undefined;
       }
   );
