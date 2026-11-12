@@ -18,10 +18,11 @@ import { truncate } from "../primitives/layout.stylex.ts";
 import { quietSurface } from "../primitives/quiet-surface.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
-import { controlSize, font, rhythm, space } from "../tokens.stylex.ts";
+import { font, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { listRowBelow } from "./list-row-below.stylex.ts";
-import { listRowSizes, listRowTokens, listSurface } from "./list.stylex.ts";
+import { listRowColumns } from "./list-row-columns.stylex.ts";
+import { listRowMedia, listRowTokens, listSurface } from "./list.stylex.ts";
 
 /**
  * The contract of the link Slot: `href`, `children`, `className`, `style`,
@@ -69,6 +70,16 @@ interface ListRowBaseProps {
    * @zh 说明行下方的更多行，例如一行 Badge 或一条备注。每个子元素自成一行。它们不会移动前置项，前置项始终与名称和说明行对齐。
    */
   extra?: ReactNode;
+  /**
+   * In a size container of 48rem or wider, puts the detail line and the extra
+   * lines in columns of their own beside the name, so that a long list reads
+   * across like a table and each row takes one line. In a narrower container
+   * the row stacks its lines as it does without this. Give it to every row of
+   * a list, so that the columns line up.
+   *
+   * @zh 在宽度不小于 48rem 的尺寸容器中，把说明行与更多行各放进名称旁的一列，使长列表像表格一样横向阅读，每行只占一行高。容器更窄时，各行照常上下堆叠。请给列表中的每一行都设置，使各列对齐。
+   */
+  columns?: boolean;
   /**
    * Shown before the name, such as an Avatar, an icon or an emoji.
    *
@@ -220,6 +231,7 @@ export function ListRow({
   wrap = false,
   detail,
   extra,
+  columns = false,
   leading,
   leadingSize,
   leadingShape,
@@ -243,13 +255,16 @@ export function ListRow({
   const hasDetail = isShown(detail) || isShown(extra);
   const hasValueDetail = isShown(valueDetail);
   const mediaSize = leadingSize ?? (leadingShape ? "md" : undefined);
+  const cols = columns ? listRowColumns : null;
+  const colSide = hasDetail && cols?.side;
+  const onHead = wrap && styles.onHead;
   const valueText = isShown(value) ? (
     <span
       css={[
         typeRole.body,
         typeModifier.numeric,
         styles.value,
-        hasDetail && styles.valueCell,
+        hasDetail && (cols?.value ?? styles.valueCell),
       ]}
     >
       {value}
@@ -261,7 +276,7 @@ export function ListRow({
         typeRole.caption,
         typeModifier.numeric,
         styles.valueDetail,
-        hasDetail && styles.valueDetailCell,
+        hasDetail && (cols?.valueDetail ?? styles.valueDetailCell),
       ]}
     >
       {valueDetail}
@@ -276,13 +291,14 @@ export function ListRow({
             wrap && styles.onHead,
             styles.leading,
             mediaSize && styles.leadingMedia,
+            colSide,
           ]}
         >
           {mediaSize ? (
             <span
               css={[
                 styles.media,
-                mediaStyles[mediaSize],
+                listRowMedia[mediaSize],
                 leadingShape === "circle" && corner.radius_round,
                 leadingShape === "square" && corner.radius_2,
                 leadingShape && styles.plate,
@@ -301,6 +317,7 @@ export function ListRow({
           wrap ? styles.wrap : truncate.base,
           styles.title,
           hasDetail ? styles.titleCell : styles.acrossHead,
+          hasDetail && cols?.title,
         ]}
       >
         {children}
@@ -315,6 +332,7 @@ export function ListRow({
                 wrap ? styles.wrap : truncate.base,
                 styles.detail,
                 !hasValueDetail && styles.detailUnderValue,
+                hasValueDetail ? cols?.detail : cols?.detailUnderValue,
               ]}
             >
               {detail}
@@ -328,6 +346,11 @@ export function ListRow({
                 styles.extra,
                 !isShown(detail) && styles.extraAsDetail,
                 !isShown(detail) && hasValueDetail && styles.extraBesideValue,
+                isShown(detail)
+                  ? cols?.extra
+                  : hasValueDetail
+                    ? cols?.extraBesideValue
+                    : cols?.extraAsDetail,
               ]}
             >
               {extra}
@@ -335,20 +358,22 @@ export function ListRow({
           ) : null}
         </>
       ) : valueText || valueDetailText ? (
-        <span css={[styles.values, styles.acrossHead, wrap && styles.onHead]}>
+        <span css={[styles.values, styles.acrossHead, onHead, cols?.values]}>
           {valueText}
           {valueDetailText}
         </span>
       ) : null}
       {isShown(trailing) ? (
-        <span css={[styles.side, wrap && styles.onHead, styles.trailing]}>
+        <span
+          css={[styles.side, onHead, styles.trailing, cols?.trailing, colSide]}
+        >
           {trailing}
         </span>
       ) : null}
       {caret && !actions && !isStatic ? (
         <span
           aria-hidden
-          css={[styles.side, wrap && styles.onHead, styles.caret]}
+          css={[styles.side, onHead, styles.caret, cols?.caret, colSide]}
         >
           <CaretRightIcon weight="bold" />
         </span>
@@ -361,12 +386,17 @@ export function ListRow({
     listSurface.row,
     styles.row,
     mediaSize && listSurface.withMedia,
+    cols?.row,
+    mediaSize && cols?.media,
     hasBelow && listRowBelow.row,
+    hasBelow && cols?.belowRow,
     css,
   ];
 
   return (
-    <li css={[listSurface.item, hasBelow && listRowBelow.item]}>
+    <li
+      css={[listSurface.item, hasBelow && [listRowBelow.item, cols?.belowItem]]}
+    >
       {target.href !== undefined ? (
         <LinkSlot
           href={target.href}
@@ -394,7 +424,12 @@ export function ListRow({
         </div>
       )}
       {actions ? (
-        <span css={[styles.actions, hasBelow && listRowBelow.actions]}>
+        <span
+          css={[
+            styles.actions,
+            hasBelow && [listRowBelow.actions, cols?.belowActions],
+          ]}
+        >
           {actions}
         </span>
       ) : null}
@@ -558,23 +593,5 @@ const styles = stylex.create({
     maxBlockSize: `calc(${space._1} * 2 + ${headLines})`,
     paddingInlineStart: rhythm.tight,
     paddingInlineEnd: space._2,
-  },
-});
-
-const mediaStyles = stylex.create({
-  sm: {
-    inlineSize: listRowSizes.media_sm,
-    blockSize: listRowSizes.media_sm,
-    fontSize: controlSize._4,
-  },
-  md: {
-    inlineSize: listRowSizes.media_md,
-    blockSize: listRowSizes.media_md,
-    fontSize: controlSize._5,
-  },
-  lg: {
-    inlineSize: listRowSizes.media_lg,
-    blockSize: listRowSizes.media_lg,
-    fontSize: controlSize._6,
   },
 });
