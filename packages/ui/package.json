@@ -176,6 +176,7 @@
     "./components/progress": "./src/feedback/progress.tsx",
     "./components/progress.stylex": "./src/feedback/progress.stylex.ts",
     "./components/progressive-blur": "./src/surfaces/progressive-blur.tsx",
+    "./components/prompt-field": "./src/forms/prompt-field.tsx",
     "./components/radio-group": "./src/forms/radio-group.tsx",
     "./components/scroll-mask": "./src/surfaces/scroll-mask.tsx",
     "./components/scroll-mask.stylex": "./src/surfaces/scroll-mask.stylex.ts",

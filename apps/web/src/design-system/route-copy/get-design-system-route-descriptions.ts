@@ -171,6 +171,10 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "A multi-line input with optional auto-grow.",
       zh: "支持自动增高的多行输入框。",
     }),
+    "/design-system/components/prompt-field": t({
+      en: "A field for a prompt with its send button inside.",
+      zh: "内含发送按钮的提问输入框。",
+    }),
     "/design-system/components/checkbox": t({
       en: "A checkbox with label, indeterminate, and error states.",
       zh: "带标签、未定态与错误态的复选框。",
