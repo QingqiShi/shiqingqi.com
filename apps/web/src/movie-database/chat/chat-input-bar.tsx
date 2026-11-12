@@ -7,7 +7,7 @@ import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
-import { controlSize, space } from "@tuja/ui/tokens.stylex";
+import { controlSize } from "@tuja/ui/tokens.stylex";
 import type { AttachedMedia } from "./chat-actions-context";
 import { ChatTextarea, useChatTextarea } from "./chat-textarea.tsx";
 
@@ -47,7 +47,7 @@ export function ChatInputBar({
       // current state obvious.
       submitDisabled={isLoading}
       multiline
-      beforeTextarea={
+      header={
         attachedMedia && (
           <div css={styles.attachmentRow}>
             <Badge intent="neutral" css={styles.attachmentTag}>
@@ -116,11 +116,9 @@ function ChatInputBarActions({
 
 const styles = stylex.create({
   attachmentRow: {
-    width: "100%",
     display: "flex",
     alignItems: "center",
     gap: controlSize._1,
-    paddingBottom: space._1,
   },
   attachmentTag: {
     minInlineSize: 0,

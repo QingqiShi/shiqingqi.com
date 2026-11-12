@@ -86,6 +86,10 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       en: "Textarea",
       zh: "多行文本框",
     }),
+    "/design-system/components/prompt-field": t({
+      en: "Prompt field",
+      zh: "提问框",
+    }),
     "/design-system/components/select": t({ en: "Select", zh: "下拉选择" }),
     "/design-system/components/checkbox": t({ en: "Checkbox", zh: "复选框" }),
     "/design-system/components/switch": t({ en: "Switch", zh: "开关" }),

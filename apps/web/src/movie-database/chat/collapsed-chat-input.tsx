@@ -3,9 +3,6 @@
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color } from "@tuja/ui/color.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { controlSize } from "@tuja/ui/tokens.stylex";
 import {
   DATA_HERO_COLLAPSED_BUTTON,
   useHeroVisibility,
@@ -41,11 +38,7 @@ export function CollapsedChatInput({
         onSubmit={send}
         submitDisabled={isLoading}
         compact
-        beforeTextarea={
-          <span css={[flex.inlineCenter, styles.icon]}>
-            <SparkleIcon weight="fill" role="presentation" />
-          </span>
-        }
+        leading={<SparkleIcon weight="fill" />}
       />
     </div>
   );
@@ -71,9 +64,5 @@ const styles = stylex.create({
   hidden: {
     opacity: 0,
     pointerEvents: "none",
-  },
-  icon: {
-    fontSize: controlSize._4,
-    color: color.primaryText,
   },
 });

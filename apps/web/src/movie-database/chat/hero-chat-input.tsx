@@ -4,10 +4,9 @@ import { ClockCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ClockC
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { controlSize, rhythm } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { ViewTransition } from "react";
 import { useHeroVisibility } from "#src/movie-database/browse/hero-visibility-context.ts";
 import { PreferenceManager } from "#src/movie-database/taste/preference-panel.tsx";
@@ -70,11 +69,7 @@ export function HeroChatInput({
                 // prompt grows the box instead of scrolling out of view, and
                 // Shift+Enter still breaks a line.
                 multiline
-                beforeTextarea={
-                  <span css={[flex.inlineCenter, styles.icon]}>
-                    <SparkleIcon weight="fill" role="presentation" />
-                  </span>
-                }
+                leading={<SparkleIcon weight="fill" />}
               />
             </div>
           </ViewTransition>
@@ -123,10 +118,6 @@ const styles = stylex.create({
   },
   inputShell: {
     display: "block",
-  },
-  icon: {
-    fontSize: controlSize._5,
-    color: color.primaryText,
   },
   meta: {
     alignItems: "center",

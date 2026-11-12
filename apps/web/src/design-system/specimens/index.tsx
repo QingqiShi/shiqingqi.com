@@ -27,6 +27,7 @@ import { PagerSpecimen } from "./pager-specimen.tsx";
 import { PopoverSpecimen } from "./popover-specimen.tsx";
 import { ProgressSpecimen } from "./progress-specimen.tsx";
 import { ProgressiveBlurSpecimen } from "./progressive-blur-specimen.tsx";
+import { PromptFieldSpecimen } from "./prompt-field-specimen.tsx";
 import { RadioGroupSpecimen } from "./radio-group-specimen.tsx";
 import { ScrollMaskSpecimen } from "./scroll-mask-specimen.tsx";
 import { SectionSpecimen } from "./section-specimen.tsx";
@@ -108,6 +109,9 @@ const COMPONENT_SPECIMENS: Partial<
   "/design-system/components/switch": { element: <SwitchSpecimen /> },
   "/design-system/components/text-field": { element: <TextFieldSpecimen /> },
   "/design-system/components/textarea": { element: <TextareaSpecimen /> },
+  "/design-system/components/prompt-field": {
+    element: <PromptFieldSpecimen />,
+  },
   "/design-system/components/checkbox": { element: <CheckboxSpecimen /> },
   "/design-system/components/segmented-control": {
     element: <SegmentedControlSpecimen />,

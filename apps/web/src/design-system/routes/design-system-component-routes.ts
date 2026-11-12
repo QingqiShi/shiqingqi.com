@@ -128,6 +128,12 @@ export const DESIGN_SYSTEM_COMPONENT_ROUTES = [
   {
     section: "components",
     category: "forms",
+    path: "/design-system/components/prompt-field",
+    keywords: ["prompt", "chat", "composer", "ask", "send", "input", "form"],
+  },
+  {
+    section: "components",
+    category: "forms",
     path: "/design-system/components/select",
     lab: true,
     keywords: ["dropdown", "picker", "combobox", "options", "form"],
