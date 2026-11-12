@@ -26,7 +26,7 @@ interface OverScreen {
 export type NetWorthMode = "update" | "reorder";
 
 /** `/`: `?account=` in the content column, `&tx=` for a Transaction of its Ledger in the detail column, `?household` for the Household opened from the list on a narrow screen, or `?mode=`. */
-export interface NetWorthDestination extends OverScreen {
+interface NetWorthDestination extends OverScreen {
   screen: "netWorth";
   /** The account in the content column, or null for the Household. */
   account?: string | null;

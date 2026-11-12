@@ -16,7 +16,7 @@ export function cssAngleToRadians(degrees: number) {
  *
  * @internal
  */
-export function angleBetween(from: number, to: number) {
+function angleBetween(from: number, to: number) {
   const turn = 2 * Math.PI;
   const difference = (((to - from) % turn) + turn) % turn;
   return difference > Math.PI ? difference - turn : difference;

@@ -14,7 +14,7 @@ import { ExternalLinkIndicator } from "./external-link-indicator.tsx";
  * (which carry the whole look), `ref`, and the anchor attributes and event
  * handlers that arrive in the rest.
  */
-export interface AnchorLinkProps extends ComponentProps<"a"> {
+interface AnchorLinkProps extends ComponentProps<"a"> {
   href: string;
 }
 

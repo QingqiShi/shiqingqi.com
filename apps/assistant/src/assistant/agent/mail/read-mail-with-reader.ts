@@ -29,7 +29,7 @@ const MAIL_KINDS = [
   "other",
 ] as const;
 
-export const EVENT_KINDS = [
+const EVENT_KINDS = [
   "flight",
   "train",
   "travel",
@@ -41,10 +41,10 @@ export const EVENT_KINDS = [
   "other",
 ] as const;
 
-export const EVENT_CHANGES = ["new", "changed", "cancelled"] as const;
+const EVENT_CHANGES = ["new", "changed", "cancelled"] as const;
 
 /** An event that a mail sets up, moves or cancels, as the reader read it. */
-export interface MailEventFacts {
+interface MailEventFacts {
   kind: (typeof EVENT_KINDS)[number];
   change: (typeof EVENT_CHANGES)[number];
   title: string;

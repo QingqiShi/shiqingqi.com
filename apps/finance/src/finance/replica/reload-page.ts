@@ -34,7 +34,7 @@ async function activateUpdate(container: ServiceWorkers) {
  * worker to activate. A new worker deletes the stored Finance pages of the
  * old build, so the reload that follows cannot fall back to old code.
  */
-export async function updateServiceWorker(
+async function updateServiceWorker(
   container: ServiceWorkers | undefined,
   waitMs = UPDATE_WAIT_MS,
 ) {

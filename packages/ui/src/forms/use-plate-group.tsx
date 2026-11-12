@@ -310,7 +310,7 @@ type Plate = ReturnType<typeof createPlate>;
  *
  * @internal
  */
-export interface PlateCard {
+interface PlateCard {
   readonly ref: RefCallback<HTMLElement>;
   readonly arrived: boolean;
   /** Whether the card renders its window onto the plate. */

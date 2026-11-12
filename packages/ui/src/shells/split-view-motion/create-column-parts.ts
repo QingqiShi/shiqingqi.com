@@ -30,7 +30,7 @@ function gapBefore(column: HTMLElement) {
 }
 
 /** @internal */
-export interface ColumnParts {
+interface ColumnParts {
   readonly push: Push | null;
   slideNow(): number;
   stopAwaitingPop(): void;

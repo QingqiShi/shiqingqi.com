@@ -10,7 +10,7 @@ import { eventKey, occurrenceOf } from "./event-handles.ts";
 import type { RunCalendars } from "./run-calendars.ts";
 
 /** An event of the day, with what names it across reads of the calendar. */
-export interface DayEvent extends AgendaEvent {
+interface DayEvent extends AgendaEvent {
   key: string;
 }
 

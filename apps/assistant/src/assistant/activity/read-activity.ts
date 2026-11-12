@@ -18,12 +18,12 @@ import type { UserScope } from "#src/assistant/db/types.ts";
 import { localClock } from "#src/assistant/report/due-report-date.ts";
 
 /** How many runs one page of the activity reads: about four days of runs every 30 minutes. */
-export const ACTIVITY_PAGE_RUNS = 200;
+const ACTIVITY_PAGE_RUNS = 200;
 
 /** A run still `running` after this has outlived its function (at most 800 s): it was cut off. */
 const INTERRUPTED_AFTER_MS = 15 * 60_000;
 
-export type ActivityRunStatus =
+type ActivityRunStatus =
   "done" | "stopped" | "failed" | "running" | "interrupted";
 
 export interface ActivityMail {
@@ -125,7 +125,7 @@ export interface ActivityRun {
 }
 
 /** Runs of one task that changed nothing, folded into one line. */
-export interface QuietRuns {
+interface QuietRuns {
   type: "quiet";
   task: Extract<AgentTask, "organise" | "report-preview">;
   count: number;
@@ -328,7 +328,7 @@ export function itemsOfRun(actions: readonly ActionRow[]): ActivityItem[] {
  * a run that failed, was cut off or still runs, and a run with changes
  * show on their own.
  */
-export function buildActivity(
+function buildActivity(
   runs: readonly RunRow[],
   actions: readonly ActionRow[],
   { now, timeZone }: { now: Date; timeZone: string },

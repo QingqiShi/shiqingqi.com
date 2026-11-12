@@ -54,7 +54,7 @@ const FALLOFF_RINGS = 5;
  *
  * @internal
  */
-export const MAX_MASS = 4;
+const MAX_MASS = 4;
 
 /**
  * One corner's share of the bend along the u axis: the double integral of
@@ -170,7 +170,7 @@ export function lensFromBox(
  *
  * @internal
  */
-export function lensBend(lens: Lens, x: number, y: number) {
+function lensBend(lens: Lens, x: number, y: number) {
   const dx = x - lens.x;
   const dy = y - lens.y;
   const squared = dx * dx + dy * dy;
@@ -194,7 +194,7 @@ export function lensBend(lens: Lens, x: number, y: number) {
  *
  * @internal
  */
-export function sourceOf(lenses: readonly Lens[], x: number, y: number) {
+function sourceOf(lenses: readonly Lens[], x: number, y: number) {
   let sourceX = x;
   let sourceY = y;
   for (const lens of lenses) {

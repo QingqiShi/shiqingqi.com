@@ -61,7 +61,7 @@ interface Press {
  *
  * @internal
  */
-export interface SegmentDrop {
+interface SegmentDrop {
   /** The segment under the indicator's centre. */
   readonly index: number;
   /** That segment's element. */

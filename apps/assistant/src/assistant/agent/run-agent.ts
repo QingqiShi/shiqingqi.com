@@ -39,7 +39,7 @@ export interface AgentRunContext {
 }
 
 /** One kind of job for the agent. */
-export interface AgentTaskSpec {
+interface AgentTaskSpec {
   task: AgentTask;
   instructions: string;
   prompt: string;

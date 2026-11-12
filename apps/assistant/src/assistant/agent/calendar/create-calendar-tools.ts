@@ -20,7 +20,7 @@ import type { RunCalendars } from "./run-calendars.ts";
 import type { CalendarToolStats, SourceMail } from "./types.ts";
 
 /** The limits of one run. A call over a limit is refused. */
-export const CALENDAR_TOOL_LIMITS = {
+const CALENDAR_TOOL_LIMITS = {
   creates: 20,
   updates: 20,
   deletes: 10,
@@ -30,9 +30,9 @@ export const CALENDAR_TOOL_LIMITS = {
   futureDays: 730,
 };
 
-export type CalendarToolLimits = typeof CALENDAR_TOOL_LIMITS;
+type CalendarToolLimits = typeof CALENDAR_TOOL_LIMITS;
 
-export interface CalendarToolsInput {
+interface CalendarToolsInput {
   limits?: CalendarToolLimits;
   calendars: RunCalendars;
   handles: EventHandles;

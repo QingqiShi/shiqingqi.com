@@ -20,7 +20,7 @@ export interface RefreshExchangeRatesDependencies {
   now: () => Date;
 }
 
-export interface RefreshExchangeRatesTotals {
+interface RefreshExchangeRatesTotals {
   pairs: number;
   added: number;
   failed: number;

@@ -7,7 +7,7 @@ import type { EffectBuffer, EffectData, EffectInput } from "./types.ts";
  *
  * @internal
  */
-export interface EffectStorage<Item extends d.AnyWgslData> extends EffectBuffer<
+interface EffectStorage<Item extends d.AnyWgslData> extends EffectBuffer<
   d.WgslArray<Item>,
   "storage"
 > {

@@ -138,7 +138,7 @@ function readMessages(
   return { messages, rest: buffer.subarray(offset), started: isStarted };
 }
 
-export interface PgliteServer {
+interface PgliteServer {
   close: () => Promise<void>;
 }
 

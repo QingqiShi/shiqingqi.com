@@ -19,7 +19,7 @@ const INHERITED_ATTRIBUTE_KINDS: Readonly<
 };
 
 /** The configuration with every word picked for the locale in front of the visitor. */
-export interface LabModel {
+interface LabModel {
   variants: LabVariantChoice[];
   controls: LabControlModel[];
 }

@@ -20,7 +20,7 @@ const connectRequestSchema = z.object({
   machineId: z.string().optional(),
 });
 
-export type ConnectRequest = z.infer<typeof connectRequestSchema>;
+type ConnectRequest = z.infer<typeof connectRequestSchema>;
 
 const requestKey = (requestId: string) => `buddy:connect:${requestId}`;
 const codeKey = (code: string) => `buddy:connect-code:${code}`;

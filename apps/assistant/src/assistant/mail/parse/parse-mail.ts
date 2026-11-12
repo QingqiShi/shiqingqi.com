@@ -46,7 +46,7 @@ function storableOrNull(value: string | null | undefined): string | null {
 }
 
 /** An id that stands for a Message-ID the app cannot store as it is. No search on the server finds it. */
-export function hashedMessageId(messageId: string): string {
+function hashedMessageId(messageId: string): string {
   const digest = createHash("sha256").update(messageId).digest("hex");
   return `<${digest}${SYNTHETIC_DOMAIN}`;
 }

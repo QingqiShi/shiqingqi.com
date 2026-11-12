@@ -16,7 +16,7 @@ export interface Spring {
  * The one spring of the system. Its stiffness and its damping ratio are the
  * same for every motion; only the mass of what moves changes.
  */
-export interface SystemSpring {
+interface SystemSpring {
   readonly stiffness: number;
   readonly dampingRatio: number;
 }
@@ -41,7 +41,7 @@ export interface Tween {
 }
 
 /** The spring of every motion in the system. `easing.spring` samples it at mass 1. */
-export const systemSpring: SystemSpring = {
+const systemSpring: SystemSpring = {
   stiffness: 483.6,
   dampingRatio: 0.7,
 };

@@ -3,7 +3,7 @@ import { entries, transactions, valuations } from "../schema.ts";
 import { householdRows, stamped } from "./household-rows.ts";
 import type { RepositoryScope, WriteScope } from "./types.ts";
 
-export type ValuationSource = "manual" | "import" | "bank";
+type ValuationSource = "manual" | "import" | "bank";
 
 /** The posted Entries of an account after `afterDay`, up to `day`. The caller adds the Household. */
 function postedEntriesOf(

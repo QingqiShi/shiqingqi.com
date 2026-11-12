@@ -6,7 +6,7 @@ import { cornerRadius, outlineLength, outlineParam } from "./outline-param.ts";
  *
  * @internal
  */
-export const LAP_SECONDS = 1.3;
+const LAP_SECONDS = 1.3;
 
 /** How much of the outline a lap's tail covers at most. */
 const LAP_TAIL_SHARE = 0.35;
@@ -62,7 +62,7 @@ export interface RingLightState {
  *
  * @internal
  */
-export function cometCourse(progress: number) {
+function cometCourse(progress: number) {
   return 1 - (1 - clamp(progress, 0, 1)) ** COURSE_EASE;
 }
 
@@ -72,7 +72,7 @@ export function cometCourse(progress: number) {
  *
  * @internal
  */
-export function cometStrength(progress: number) {
+function cometStrength(progress: number) {
   if (progress <= 0 || progress >= 1) {
     return 0;
   }

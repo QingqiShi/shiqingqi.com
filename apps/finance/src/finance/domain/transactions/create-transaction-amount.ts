@@ -1,12 +1,12 @@
 import type { FxIndex } from "../balance/create-fx-index.ts";
 import { toEpochDay } from "../dates/to-epoch-day.ts";
 
-export interface AmountTransaction {
+interface AmountTransaction {
   readonly kind: string;
   readonly date: string;
 }
 
-export interface AmountEntry {
+interface AmountEntry {
   readonly accountId: string;
   readonly amountMinor: number;
   readonly position: number;
@@ -17,7 +17,7 @@ export interface AmountAccount {
   readonly currency: string;
 }
 
-export type AccountOf = (accountId: string) => AmountAccount | undefined;
+type AccountOf = (accountId: string) => AmountAccount | undefined;
 
 /** The Entry the amount of an expense or income starts from: the one with the lowest position. */
 export function mainEntryOf<Entry extends AmountEntry>(

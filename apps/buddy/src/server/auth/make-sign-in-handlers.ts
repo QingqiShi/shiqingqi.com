@@ -18,7 +18,6 @@ import {
   takeChallenge,
   type AuthRouteKit,
 } from "./make-auth-route-kit.ts";
-import { resolveSession } from "./resolve-session.ts";
 import { authenticationResponseSchema } from "./verify-registration.ts";
 
 const authenticationVerifyBody = z.object({
@@ -110,25 +109,5 @@ export function makeSignInHandlers({ handle }: AuthRouteKit) {
       context.setCookies.push(buddySessionCookie.clear(context.secure));
       return json(context, { ok: true });
     }),
-
-    session: handle(
-      async (request, context) => {
-        const token = readRequestCookie(request, buddySessionCookie.name);
-        const resolved = token
-          ? await resolveSession(context.db, token, {
-              now: context.now,
-              allowRefresh: true,
-            })
-          : null;
-        if (!token || !resolved) throw new HttpError(401, "unauthorized");
-        if (resolved.refreshed) {
-          context.setCookies.push(
-            buddySessionCookie.serialize(token, context.secure),
-          );
-        }
-        return json(context, { userId: resolved.session.userId });
-      },
-      { method: "GET" },
-    ),
   };
 }

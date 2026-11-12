@@ -10,7 +10,7 @@ import { useState } from "react";
 import type { UserLocale } from "../db/schema.ts";
 import { assistantFetch } from "../http/assistant-fetch.ts";
 
-export interface SettingsValues {
+interface SettingsValues {
   timeZone: string;
   digestHour: number;
   locale: UserLocale;

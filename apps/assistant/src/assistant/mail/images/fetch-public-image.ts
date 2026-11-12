@@ -7,7 +7,7 @@ import { isPublicAddress } from "./is-public-address.ts";
 const MAX_REDIRECTS = 5;
 const TIMEOUT_MS = 10_000;
 /** Below the 4.5 MB limit of a Vercel Function response. */
-export const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
 
 /** Raster images only: an SVG can hold scripts and links. */
@@ -41,7 +41,7 @@ export interface FetchImageOptions {
   isAllowedAddress?: (address: string) => boolean;
 }
 
-export type FetchImageResult =
+type FetchImageResult =
   | { ok: true; contentType: string; body: Buffer<ArrayBuffer> }
   | {
       ok: false;

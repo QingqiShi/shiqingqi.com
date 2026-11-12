@@ -16,7 +16,7 @@ const accountCredentialSchema = z.discriminatedUnion("type", [
 
 export type AccountCredential = z.infer<typeof accountCredentialSchema>;
 
-export interface CredentialOwner {
+interface CredentialOwner {
   userId: string;
   accountId: string;
 }

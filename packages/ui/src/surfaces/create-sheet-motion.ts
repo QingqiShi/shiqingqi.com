@@ -40,7 +40,7 @@ const INTO_ORIGIN_PRECISION = 1e-3;
  *
  * @internal
  */
-export interface SheetMotionParts {
+interface SheetMotionParts {
   /** The card: the sheet's surface, which takes the pointer. */
   readonly card: HTMLElement;
   /** The box that holds the card and what rides with it. */
@@ -54,7 +54,7 @@ export interface SheetMotionParts {
 }
 
 /** @internal */
-export interface SheetMotionEvents {
+interface SheetMotionEvents {
   /** The element the card lifts out of and goes back into below `md`, or `null` for the slide. */
   readonly liftFrom: () => HTMLElement | null;
   /** The parts of the card's content that fade in late as it lifts. */

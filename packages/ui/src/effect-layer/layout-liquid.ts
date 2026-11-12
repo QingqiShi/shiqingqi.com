@@ -106,7 +106,7 @@ export interface LiquidState {
  *
  * @internal
  */
-export const HAND_SECONDS = Number.parseFloat(handBack.duration) / 1000;
+const HAND_SECONDS = Number.parseFloat(handBack.duration) / 1000;
 /** The fill that rises through a track is as good as risen this near its goal. */
 const RISE_SEEN = 0.03;
 

@@ -43,7 +43,7 @@ export interface OrganiseDeps extends MailboxDeps {
   reader: AssistantModel;
 }
 
-export interface OrganiseUserResult extends MailToolStats, CalendarToolStats {
+interface OrganiseUserResult extends MailToolStats, CalendarToolStats {
   /** False when the user has not turned organising on: no mailbox was opened. */
   enabled: boolean;
   accounts: number;

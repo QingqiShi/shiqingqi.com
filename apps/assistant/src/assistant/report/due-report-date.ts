@@ -1,7 +1,7 @@
 import { addDays } from "./local-day-bounds.ts";
 
 /** The wall clock in a time zone: the date as `YYYY-MM-DD`, the hour 0–23, and the weekday, 0 for Sunday. */
-export interface LocalClock {
+interface LocalClock {
   date: string;
   hour: number;
   weekday: number;

@@ -16,7 +16,7 @@ function columnsOf(box: DOMRect, origin: DOMRect, slide: number): ShownColumns {
 }
 
 /** @internal */
-export interface ShownColumnsWatch {
+interface ShownColumnsWatch {
   readonly shown: ShownColumns | null;
   watch(content: HTMLElement | null): void;
   keep(box: DOMRect, origin: DOMRect): ShownColumns;

@@ -13,7 +13,7 @@ import type { StyleProp } from "../types.ts";
 import { BreadcrumbAnchor } from "./breadcrumb-anchor.tsx";
 
 /** One crumb in the trail. */
-export interface BreadcrumbItem {
+interface BreadcrumbItem {
   /** Visible crumb text. */
   label: string;
   /**

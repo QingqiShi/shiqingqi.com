@@ -125,12 +125,7 @@ export function finiteParticles({ x, y, vx, vy }: LiquidParticles) {
  *
  * @internal
  */
-export function scaleAfter(
-  scale: number,
-  span: number,
-  count: number,
-  step: number,
-) {
+function scaleAfter(scale: number, span: number, count: number, step: number) {
   const goal = scaleFor(span, count);
   return goal + (scale - goal) * Math.exp(-SCALE_RATE * step);
 }

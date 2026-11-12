@@ -17,7 +17,7 @@ import { sliderVars } from "./slider.stylex.ts";
  *
  * @internal
  */
-export interface HandleLine {
+interface HandleLine {
   readonly center: number;
   readonly length: number;
   readonly radius: number;
@@ -33,7 +33,7 @@ export interface HandleLine {
  *
  * @internal
  */
-export function handlePiece(
+function handlePiece(
   split: number,
   { center, length, radius, gap, margin }: HandleLine,
 ): readonly [number, number] {
@@ -78,7 +78,7 @@ export interface SliderGeometry {
  *
  * @internal
  */
-export interface SliderParts {
+interface SliderParts {
   readonly groove: HTMLElement;
   readonly inner: HTMLElement;
   readonly topPiece: HTMLElement;

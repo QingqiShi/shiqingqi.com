@@ -24,7 +24,7 @@ interface ReloadDependencies {
   now: () => number;
 }
 
-export interface ReloadOutcome {
+interface ReloadOutcome {
   reloaded: boolean;
   /** When to try again; absent when only the next trigger can help. */
   retryInMs?: number;

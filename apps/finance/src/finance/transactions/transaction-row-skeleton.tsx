@@ -5,7 +5,7 @@ import { font, rhythm } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 
 /** One line of text in a skeleton, as a block of its size. */
-export interface SkeletonLine {
+interface SkeletonLine {
   width: string;
   height: string;
 }

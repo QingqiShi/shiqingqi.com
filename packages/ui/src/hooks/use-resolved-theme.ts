@@ -1,7 +1,7 @@
 import { useMediaQuery } from "./use-media-query.ts";
 import { useTheme } from "./use-theme.ts";
 
-export type ResolvedTheme = "light" | "dark";
+type ResolvedTheme = "light" | "dark";
 
 /**
  * Resolves the active theme to a concrete "light" | "dark", expanding the

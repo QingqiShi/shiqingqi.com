@@ -25,7 +25,7 @@ export function boxOf(element: Element): Rect {
  *
  * @internal
  */
-export function coversOf(
+function coversOf(
   origin: Element,
   box: Rect,
   own: readonly Element[],
@@ -89,7 +89,7 @@ export type SheetClips = readonly [HTMLElement, HTMLElement, HTMLElement];
  *
  * @internal
  */
-export interface SheetLiftParts {
+interface SheetLiftParts {
   readonly card: HTMLElement;
   readonly mover: HTMLElement;
   /** The three boxes between the mover and the card, outermost first, that clip the card while it lifts. */
@@ -109,7 +109,7 @@ export interface SheetLiftParts {
  *
  * @internal
  */
-export interface SheetLiftValues {
+interface SheetLiftValues {
   readonly progress: MotionValue;
   readonly drop: MotionValue;
   readonly shown: MotionValue;

@@ -41,7 +41,7 @@ export interface Binding {
  *
  * @internal
  */
-export const MOVING_ATTRIBUTE = "data-moving";
+const MOVING_ATTRIBUTE = "data-moving";
 
 const movers = new WeakMap<Element, number>();
 

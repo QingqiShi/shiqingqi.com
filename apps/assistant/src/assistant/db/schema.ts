@@ -119,10 +119,10 @@ export const userSettings = pgTable(
   ],
 );
 
-export const MAIL_PROVIDERS = ["icloud", "gmail", "outlook"] as const;
+const MAIL_PROVIDERS = ["icloud", "gmail", "outlook"] as const;
 export type MailProvider = (typeof MAIL_PROVIDERS)[number];
 
-export const MAIL_ACCOUNT_STATUSES = ["ok", "error", "reconnect"] as const;
+const MAIL_ACCOUNT_STATUSES = ["ok", "error", "reconnect"] as const;
 export type MailAccountStatus = (typeof MAIL_ACCOUNT_STATUSES)[number];
 
 /** A connected mailbox. `credential` is sealed with `ASSISTANT_CREDENTIAL_KEY` (see `account-credential.ts`). */
@@ -182,7 +182,7 @@ export const morningReports = pgTable(
 const TODO_CREATORS = ["owner", "report"] as const;
 export type TodoCreator = (typeof TODO_CREATORS)[number];
 
-export const TODO_EDITABLE_FIELDS = [
+const TODO_EDITABLE_FIELDS = [
   "title",
   "detail",
   "dueDate",
@@ -359,13 +359,13 @@ export const pushSubscriptions = pgTable(
   (t) => [unique("push_subscriptions_endpoint_key").on(t.userId, t.endpoint)],
 );
 
-export const REPORT_PREVIEW_STATUSES = ["running", "done", "failed"] as const;
+const REPORT_PREVIEW_STATUSES = ["running", "done", "failed"] as const;
 
 /**
  * Why a preview has no result. `no-report`: the agent submitted nothing.
  * `error`: the run stopped on an error.
  */
-export const REPORT_PREVIEW_ERRORS = [
+const REPORT_PREVIEW_ERRORS = [
   "no-model",
   "no-mailbox",
   "no-report",
@@ -390,16 +390,11 @@ export const morningReportPreviews = pgTable("morning_report_previews", {
   builtAt: timestamp("built_at", { withTimezone: true }),
 });
 
-export const AGENT_TASKS = ["organise", "report", "report-preview"] as const;
+const AGENT_TASKS = ["organise", "report", "report-preview"] as const;
 export type AgentTask = (typeof AGENT_TASKS)[number];
 
 /** `stopped`: the run reached its step or time limit before the model finished. */
-export const AGENT_RUN_STATUSES = [
-  "running",
-  "done",
-  "stopped",
-  "failed",
-] as const;
+const AGENT_RUN_STATUSES = ["running", "done", "stopped", "failed"] as const;
 export type AgentRunStatus = (typeof AGENT_RUN_STATUSES)[number];
 
 /** One run of an agent for a user: what the model did and said, step by step. */
@@ -440,7 +435,7 @@ export const TODO_ACTION_KINDS = [
 ] as const;
 export type TodoActionKind = (typeof TODO_ACTION_KINDS)[number];
 
-export const AGENT_ACTION_KINDS = [
+const AGENT_ACTION_KINDS = [
   "create_folder",
   "rename_folder",
   "delete_folder",

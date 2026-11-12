@@ -13,7 +13,7 @@ const DAY = 24 * 60 * 60 * 1000;
 const MINUTE = 60_000;
 const HOURS_14 = 14 * 60 * 60 * 1000;
 
-export const ICS_PRODUCT_ID = "-//qingqi.dev//Mail Assistant//EN";
+const ICS_PRODUCT_ID = "-//qingqi.dev//Mail Assistant//EN";
 
 /** The UIDs of the events that the assistant makes end in this. */
 export const ASSISTANT_UID_DOMAIN = "@assistant.qingqi.dev";
@@ -94,7 +94,7 @@ function transitionsIn(timeZone: string, start: number, end: number) {
  * `end`, with one observance for each change of offset that Intl knows. A
  * zone without changes gets one STANDARD observance.
  */
-export function buildVTimezone(timeZone: string, start: number, end: number) {
+function buildVTimezone(timeZone: string, start: number, end: number) {
   const fromYear = new Date(start).getUTCFullYear() - 1;
   const toYear = new Date(end).getUTCFullYear() + 1;
   const rangeStart = Date.UTC(fromYear, 0, 1);
@@ -178,7 +178,7 @@ export function vTimezoneLines(zones: readonly string[], timing: EventTiming) {
   return zones.flatMap((zone) => buildVTimezone(zone, span.start, span.end));
 }
 
-export interface NewEventIcs {
+interface NewEventIcs {
   uid: string;
   title: string;
   timing: EventTiming;

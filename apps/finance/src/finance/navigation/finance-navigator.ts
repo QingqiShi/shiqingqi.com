@@ -42,7 +42,7 @@ export function writeInBrowser(href: string, write: EntryWrite): boolean {
 }
 
 /** Goes to Finance destinations, and owns how each one goes into the history. */
-export interface FinanceNavigator {
+interface FinanceNavigator {
   /** Goes to `to` in a new history entry. */
   push: (to: FinanceDestination) => void;
   /** Opens `to` in a new history entry that `close` goes back from, so Back closes it too. */

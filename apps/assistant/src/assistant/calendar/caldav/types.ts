@@ -4,7 +4,7 @@ export interface CalendarAuth {
   pass: string;
 }
 
-export interface CalendarInfo {
+interface CalendarInfo {
   url: string;
   displayName: string;
   /** The account's default calendar for new events. */

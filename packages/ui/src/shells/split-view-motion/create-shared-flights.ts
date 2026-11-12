@@ -85,7 +85,7 @@ export function addSplitViewMark(
 }
 
 /** @internal */
-export interface SharedFlights {
+interface SharedFlights {
   capture(): SplitViewSnapshot;
   plan(
     snapshot: SplitViewSnapshot | null,

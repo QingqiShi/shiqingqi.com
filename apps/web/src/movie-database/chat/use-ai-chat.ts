@@ -16,7 +16,7 @@ import type { ChatMessageMetadata, ChatMood } from "./types.ts";
 
 export type { ChatMood, ChatMessageMetadata };
 
-export type ChatUIMessage = UIMessage<ChatMessageMetadata>;
+type ChatUIMessage = UIMessage<ChatMessageMetadata>;
 
 function findSessionIdFromMessages(
   messages: ChatUIMessage[],

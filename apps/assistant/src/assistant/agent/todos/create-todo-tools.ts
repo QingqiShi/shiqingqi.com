@@ -20,7 +20,7 @@ import type {
 } from "./types.ts";
 
 /** The limits of one run, against a run that a mail talks into mass changes. */
-export const TODO_TOOL_LIMITS = { adds: 20, changes: 30 };
+const TODO_TOOL_LIMITS = { adds: 20, changes: 30 };
 
 const MAX_TITLE_CHARS = 120;
 const MAX_TEXT_CHARS = 400;

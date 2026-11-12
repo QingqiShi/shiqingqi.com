@@ -1,4 +1,4 @@
-export interface NotePart {
+interface NotePart {
   text: string;
   /** Set when the part is a web address. */
   href?: string;

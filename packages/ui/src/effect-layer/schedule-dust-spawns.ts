@@ -26,7 +26,7 @@ export const DUST_MAX_SPAWNS_PER_FRAME = 64;
  *
  * @internal
  */
-export const DUST_MAX_BURST = 256;
+const DUST_MAX_BURST = 256;
 
 /**
  * The bit of a spawn list entry that marks a particle of a burst, above the
@@ -58,7 +58,7 @@ const STIR_MOVING = 3;
  *
  * @internal
  */
-export interface DustBox {
+interface DustBox {
   readonly x: number;
   readonly y: number;
   readonly width: number;
@@ -295,7 +295,7 @@ export function createLiveSlots() {
  *
  * @internal
  */
-export function burstSize({ burst, width, height }: DustEmitter) {
+function burstSize({ burst, width, height }: DustEmitter) {
   return Math.min(
     Math.round((burst * 2 * (width + height)) / 100),
     DUST_MAX_BURST,

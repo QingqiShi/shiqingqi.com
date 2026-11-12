@@ -4,7 +4,7 @@ import { tmdbScope } from "./tmdb-scope";
 import type { PersonDetailsParams, TmdbFunctions } from "./types";
 
 /** One Person's details, normalised out of TMDB's snake_case record. */
-export interface NormalizedPersonDetails {
+interface NormalizedPersonDetails {
   name: string;
   profilePath: string | null;
   biography: string | null;

@@ -64,7 +64,7 @@ function readBindingDefaults(
  * usually the pattern; a component that takes `props` whole is followed into
  * the statement that destructures it.
  */
-export function collectDestructuringDefaults(
+function collectDestructuringDefaults(
   fn: ts.FunctionDeclaration,
 ): Map<string, string> {
   const defaults = new Map<string, string>();

@@ -6,7 +6,7 @@ import type { MacSnapshot } from "./parse-snapshot.ts";
  * only when every machine that has the day reports it: a part sum would look
  * like a drop.
  */
-export function sumDays(machines: readonly (readonly PetDay[])[]): PetDay[] {
+function sumDays(machines: readonly (readonly PetDay[])[]): PetDay[] {
   const byDay = new Map<string, PetDay[]>();
   for (const days of machines) {
     for (const day of days) {

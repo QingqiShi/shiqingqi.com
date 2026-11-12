@@ -68,7 +68,7 @@ export interface MotionValue {
 }
 
 /** A motion that `MotionValue.to` started. */
-export interface Motion {
+interface Motion {
   /** True when the motion comes to rest at its target, and false when a later motion or `set` replaces it. */
   readonly finished: Promise<boolean>;
 }
@@ -78,7 +78,7 @@ export interface Motion {
  *
  * @internal
  */
-export interface Plan {
+interface Plan {
   readonly path: MotionPath;
   readonly start: number;
   /** Whether the motion started under reduced motion. */
@@ -86,7 +86,7 @@ export interface Plan {
 }
 
 /** @internal */
-export interface PlanWatcher {
+interface PlanWatcher {
   /** The value has a new plan. */
   plan(): void;
   /** The motion of the value came to rest at its target. */

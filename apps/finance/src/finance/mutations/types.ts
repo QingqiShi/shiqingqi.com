@@ -75,7 +75,7 @@ export type MutationArgs<Name extends MutationName> = Extract<
  * The reads of one stage. A stage may read through `draft` the rows that
  * the stages before it declared.
  */
-export type ReadStage<Name extends MutationName> = (
+type ReadStage<Name extends MutationName> = (
   args: MutationArgs<Name>,
   draft: MutationDraft,
 ) => readonly (Read | undefined)[];
@@ -84,7 +84,7 @@ export type ReadStage<Name extends MutationName> = (
  * One mutation: what it reads, what it does, and how to undo it. The server
  * loads the `reads` before `apply` runs, and `apply` reads nothing else.
  */
-export interface MutationSpec<Name extends MutationName> {
+interface MutationSpec<Name extends MutationName> {
   reads: readonly ReadStage<Name>[];
   apply(scope: MutationScope, args: MutationArgs<Name>): void;
   /**

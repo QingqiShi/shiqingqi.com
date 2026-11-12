@@ -17,7 +17,7 @@ import type {
   CalendarSession,
 } from "./types.ts";
 
-export const ICLOUD_CALDAV_URL = "https://caldav.icloud.com/";
+const ICLOUD_CALDAV_URL = "https://caldav.icloud.com/";
 const REQUEST_TIMEOUT_MS = 20_000;
 const ICS_TYPE = "text/calendar; charset=utf-8";
 

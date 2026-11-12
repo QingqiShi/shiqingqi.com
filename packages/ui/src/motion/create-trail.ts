@@ -8,7 +8,7 @@ import { shiftedPath } from "./spring-path.ts";
 import type { Spring } from "./spring-roles.ts";
 
 /** @internal */
-export interface Trail {
+interface Trail {
   readonly value: MotionValue;
   /** Stops the trail from following its leader. It keeps the motion that it has. */
   release(): void;

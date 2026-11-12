@@ -40,7 +40,7 @@ export const NAV_ICON = "data-nav-icon";
  *
  * @internal
  */
-export const NAV_PRESSED = "data-pressed";
+const NAV_PRESSED = "data-pressed";
 
 /**
  * The attribute of the marker of the current page, so that a test can find it.

@@ -22,7 +22,7 @@ const RECEDE = { scale: 0.065, drop: 10 } as const;
  *
  * @internal
  */
-export const RECEDE_SHAPE: Styles = {
+const RECEDE_SHAPE: Styles = {
   "transform-origin": "50% 0",
   "border-radius": border.radius_4,
   "corner-shape": "squircle",

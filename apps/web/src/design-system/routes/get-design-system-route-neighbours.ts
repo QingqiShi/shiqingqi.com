@@ -1,7 +1,7 @@
 import { getDesignSystemRouteSections } from "./get-design-system-route-sections.ts";
 import type { DesignSystemPath } from "./types.ts";
 
-export interface DesignSystemRouteNeighbours {
+interface DesignSystemRouteNeighbours {
   /** Absent on the first route. */
   previous?: DesignSystemPath;
   /** Absent on the last route. */

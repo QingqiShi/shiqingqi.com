@@ -23,7 +23,7 @@ export const TODO_UNDO_REFUSALS = [
   /** The to-do is closed now. */
   "todo-closed",
 ] as const;
-export type TodoUndoRefusal = (typeof TODO_UNDO_REFUSALS)[number];
+type TodoUndoRefusal = (typeof TODO_UNDO_REFUSALS)[number];
 
 type Scope = { tx: AssistantDb; userId: string; now: Date };
 type Result = { refusal: TodoUndoRefusal } | { kept: TodoPlainField[] };

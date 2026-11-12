@@ -61,7 +61,7 @@ export interface CarrierClock {
  *
  * @internal
  */
-export interface RegistryLookup {
+interface RegistryLookup {
   readonly carrierOf: (element: Element) => EffectCarrierRef;
   readonly sticky: (id: number) => RegisteredSticky | undefined;
   readonly region: (id: number) => RegisteredRegion | undefined;
@@ -84,7 +84,7 @@ const PAGE_ONLY: RegistryLookup = {
  *
  * @internal
  */
-export interface ContentFrame {
+interface ContentFrame {
   readonly left: number;
   readonly top: number;
   readonly width: number;

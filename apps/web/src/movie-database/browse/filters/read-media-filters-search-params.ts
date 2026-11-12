@@ -23,7 +23,7 @@ function validValue<T extends string>(
   return allowed.find((option) => option === value);
 }
 
-export interface MediaFiltersSearchParams {
+interface MediaFiltersSearchParams {
   genres: string[];
   matchMode?: MatchMode;
   sort?: Sort;

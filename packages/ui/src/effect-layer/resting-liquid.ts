@@ -92,7 +92,7 @@ export interface LiquidBead {
  *
  * @internal
  */
-export const PARTICLE_COUNT = 150;
+const PARTICLE_COUNT = 150;
 
 /**
  * The most particles a body has. Past this a longer pill spreads them
@@ -144,7 +144,7 @@ function pillArea(span: number) {
  *
  * @internal
  */
-export function particleCountFor(span: number) {
+function particleCountFor(span: number) {
   return Math.min(
     MAX_PARTICLE_COUNT,
     Math.max(

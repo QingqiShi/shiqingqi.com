@@ -5,7 +5,7 @@ import { getPersonCombinedCredits } from "#src/_generated/tmdb-server-functions.
 import { isRecord } from "#src/movie-database/is-record.ts";
 import { toolError } from "./tool-error";
 
-export const personCreditsInputSchema = z.object({
+const personCreditsInputSchema = z.object({
   person_id: z.number().describe("The TMDB person ID from search results."),
 });
 

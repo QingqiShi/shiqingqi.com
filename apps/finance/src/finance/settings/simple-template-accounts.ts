@@ -1,7 +1,7 @@
 import type { RuleTemplate } from "../rules/rule-template-schema.ts";
 
 /** The accounts of a template in the simple shape the Rule form can edit. */
-export interface TemplateAccounts {
+interface TemplateAccounts {
   /** The account an expense spends from, an income earns into, or a transfer moves money from. */
   accountId: string;
   /** The account a transfer moves money to; empty for an expense or income. */

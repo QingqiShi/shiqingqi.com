@@ -20,7 +20,7 @@ const STUCK_TOLERANCE = 0.5;
  *
  * @internal
  */
-export function stuckDistance(
+function stuckDistance(
   box: Element,
   scrollport: Edges,
   styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
@@ -59,7 +59,7 @@ const NO_PADDING: Edges = { left: 0, top: 0, right: 0, bottom: 0 };
  *
  * @internal
  */
-export function stuckRootMargins(
+function stuckRootMargins(
   insets: Insets,
   size: { readonly width: number; readonly height: number },
   padding: Edges = NO_PADDING,

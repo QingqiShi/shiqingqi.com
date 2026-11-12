@@ -5,7 +5,7 @@ import type { ReplicaRow } from "../replica/types.ts";
 import type { SyncTableName } from "./row-schemas.ts";
 
 /** The server ran a mutation on a row or a set that the mutation did not declare it reads. */
-export class NotLoadedError extends Error {
+class NotLoadedError extends Error {
   constructor(what: string) {
     super(`The mutation reads ${what}, which was not loaded`);
     this.name = "NotLoadedError";

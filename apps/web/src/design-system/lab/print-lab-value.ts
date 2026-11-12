@@ -20,7 +20,7 @@ export interface LabValueNeeds {
   definitions: LabDefinition[];
 }
 
-export interface PrintedLabValue extends LabValueNeeds {
+interface PrintedLabValue extends LabValueNeeds {
   lines: LabValueLine[];
 }
 
@@ -79,7 +79,7 @@ export function labSource<T>(value: T, source?: LabSourceCode): T {
 }
 
 /** The source `withSource` or `labSource` gave a value. */
-export function sourceOf(value: unknown): LabSourceCode | undefined {
+function sourceOf(value: unknown): LabSourceCode | undefined {
   return (typeof value === "object" || typeof value === "function") && value
     ? sources.get(value)
     : undefined;

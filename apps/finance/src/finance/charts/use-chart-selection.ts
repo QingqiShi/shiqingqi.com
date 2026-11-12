@@ -46,7 +46,7 @@ const DRAG_THRESHOLD = 4;
  * none); with Shift they move the range's moving end and keep its anchor, so
  * a first Shift press anchors the range at the current point. Escape clears.
  */
-export function selectionAfterKey(
+function selectionAfterKey(
   selection: ChartSelection | null,
   key: string,
   shiftKey: boolean,
@@ -73,7 +73,7 @@ export function selectionAfterKey(
  * The selection the fingers on a chart make, in the order they touched: one
  * finger reads a point, two read the range between them.
  */
-export function selectionFromTouches(
+function selectionFromTouches(
   indices: readonly number[],
 ): ChartSelection | null {
   if (indices.length === 0) return null;

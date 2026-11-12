@@ -11,7 +11,7 @@ const MACHINE_PATTERN = /^[a-z0-9-]{3,32}$/;
 // The DER header of an Ed25519 SubjectPublicKeyInfo, before the 32 key bytes.
 const SPKI_ED25519_PREFIX = Buffer.from("302a300506032b6570032100", "hex");
 
-export const UPLOAD_HEADERS = {
+const UPLOAD_HEADERS = {
   machine: "Buddy-Machine",
   signature: "Buddy-Signature",
 } as const;
@@ -24,7 +24,7 @@ export const READ_HEADERS = { ...UPLOAD_HEADERS, at: "Buddy-At" } as const;
  * body. The body's `at` makes each upload different, so the server refuses a
  * replay by its `at`.
  */
-export function uploadMessage(fields: {
+function uploadMessage(fields: {
   user: string;
   machine: string;
   body: Uint8Array;

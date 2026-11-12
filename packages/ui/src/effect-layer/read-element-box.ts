@@ -6,7 +6,7 @@ import { clamp, parseCssColor, type EffectColor } from "./parse-css-color.ts";
  *
  * @internal
  */
-export type CornerRadii = readonly [number, number, number, number];
+type CornerRadii = readonly [number, number, number, number];
 
 /**
  * What the effect layer reads from one element. Lengths are CSS px and
@@ -159,7 +159,7 @@ function readGrayscaleAmount(argument: string) {
  *
  * @internal
  */
-export function readGrayscale(filter: string) {
+function readGrayscale(filter: string) {
   if (filter === "none") {
     return 0;
   }
@@ -176,7 +176,7 @@ export function readGrayscale(filter: string) {
  *
  * @internal
  */
-export function effectiveGrayscale(
+function effectiveGrayscale(
   element: Element,
   styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
 ) {

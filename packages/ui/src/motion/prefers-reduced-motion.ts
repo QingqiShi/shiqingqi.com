@@ -4,7 +4,7 @@ import { motionConstants } from "../primitives/motion.stylex.ts";
  * The bare media condition behind `motionConstants.REDUCED_MOTION`, for
  * `matchMedia`, which takes no `@media ` prefix.
  */
-export const REDUCED_MOTION_QUERY = motionConstants.REDUCED_MOTION.replace(
+const REDUCED_MOTION_QUERY = motionConstants.REDUCED_MOTION.replace(
   "@media ",
   "",
 );

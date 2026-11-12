@@ -1,4 +1,4 @@
-export type TodoShortcut =
+type TodoShortcut =
   | "new"
   | "next"
   | "previous"

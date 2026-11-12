@@ -12,7 +12,7 @@ const SOURCE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"];
  * Resolve an import specifier to an absolute file path.
  * Returns null if the import can't be resolved (external package, etc.).
  */
-export function resolveImport(
+function resolveImport(
   specifier: string,
   fromFile: string,
   srcDir: string,

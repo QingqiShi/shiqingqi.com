@@ -138,7 +138,7 @@ function refreshSearchText(draft: TablesDraft, written: Written, now: string) {
 }
 
 /** The Replica after a local mutation. */
-export interface LocalResult {
+interface LocalResult {
   tables: ReplicaTables;
   changed: ChangedKeys;
   /** Accounts whose balances change, with the first day that changes. */

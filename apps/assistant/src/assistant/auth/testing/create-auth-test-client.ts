@@ -39,21 +39,20 @@ export function createAuthTestClient(handlers: AuthHandlers) {
   async function call<T>(
     handler: keyof AuthHandlers,
     {
-      method = "POST",
       body,
       origin = TEST_ORIGIN,
-    }: { method?: "GET" | "POST"; body?: unknown; origin?: string | null } = {},
+    }: { body?: unknown; origin?: string | null } = {},
   ): Promise<TestResponse<T>> {
     const headers = new Headers({
       "Content-Type": "application/json",
       "User-Agent": "vitest",
       Cookie: cookieHeader(),
     });
-    if (origin !== null && method === "POST") headers.set("Origin", origin);
+    if (origin !== null) headers.set("Origin", origin);
     const request = new Request(`${TEST_ORIGIN}/api/auth/${handler}`, {
-      method,
+      method: "POST",
       headers,
-      body: method === "POST" ? JSON.stringify(body ?? {}) : undefined,
+      body: JSON.stringify(body ?? {}),
     });
     const response = await handlers[handler](request);
     const setCookies = storeCookies(response);
@@ -74,9 +73,5 @@ export function createAuthTestClient(handlers: AuthHandlers) {
     return call<T>(handler, { body, origin });
   }
 
-  function get<T = Record<string, unknown>>(handler: keyof AuthHandlers) {
-    return call<T>(handler, { method: "GET" });
-  }
-
-  return { jar, post, get };
+  return { jar, post };
 }

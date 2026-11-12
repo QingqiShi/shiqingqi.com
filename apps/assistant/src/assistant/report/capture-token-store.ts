@@ -13,7 +13,7 @@ export const captureLimits = {
 };
 
 /** What a token can be used for at this moment. */
-export type CaptureTokenUse =
+type CaptureTokenUse =
   | { kind: "refused" }
   | { kind: "limited"; retryAfterSeconds: number }
   | { kind: "allowed"; userId: string };

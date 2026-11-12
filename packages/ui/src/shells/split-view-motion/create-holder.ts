@@ -11,7 +11,7 @@ const LATE_FROM = 0.7;
 const PART_WAIT = 0.25;
 
 /** @internal */
-export interface WaitingPart {
+interface WaitingPart {
   readonly name: string;
   readonly from: ShownMark;
 }

@@ -20,7 +20,7 @@ import type {
   WriteContext,
 } from "./types.ts";
 
-export interface PushResult extends PushResponse {
+interface PushResult extends PushResponse {
   /** The effects of the mutations this push applied; a re-pushed one has none. */
   effects: ReadonlySet<PushEffect>;
 }

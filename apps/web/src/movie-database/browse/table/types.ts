@@ -11,7 +11,7 @@ export type MediaSortDirection = "asc" | "desc";
  * documented pattern — the header renderer reads it, and the data source turns
  * it into a sort dimension.
  */
-export interface MediaColumnExtras {
+interface MediaColumnExtras {
   readonly sort?: MediaSortDirection;
   /** Opt a column out of the sortable header affordance. */
   readonly unsortable?: boolean;

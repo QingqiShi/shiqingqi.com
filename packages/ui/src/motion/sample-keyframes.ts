@@ -26,7 +26,7 @@ const NUMBER =
  *
  * @internal
  */
-export type LengthOf = (name: string) => number | null;
+type LengthOf = (name: string) => number | null;
 
 const noLength: LengthOf = () => null;
 

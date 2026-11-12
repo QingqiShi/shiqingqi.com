@@ -4,7 +4,7 @@ import { wireFields } from "../sync/wire-fields.ts";
 const { currency, day } = wireFields;
 
 /** `household`: copied from a Household's own rates; `ecb`: published by the European Central Bank. */
-export const exchangeRateSourceSchema = z.enum(["household", "ecb"]);
+const exchangeRateSourceSchema = z.enum(["household", "ecb"]);
 
 export type ExchangeRateSource = z.infer<typeof exchangeRateSourceSchema>;
 

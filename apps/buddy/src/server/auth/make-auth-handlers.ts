@@ -13,7 +13,6 @@ export interface AuthHandlers {
   signInOptions: Handler;
   signInVerify: Handler;
   signOut: Handler;
-  session: Handler;
   requestSignUp: Handler;
   signUpCode: Handler;
   signUpOptions: Handler;

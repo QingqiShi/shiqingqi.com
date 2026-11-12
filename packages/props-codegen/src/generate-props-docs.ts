@@ -6,7 +6,7 @@ import { collectPropsDocs, createPropsProgram } from "./collect-props-docs.ts";
 import { renderPropsIndex } from "./render-props-index.ts";
 import type { PropsDoc } from "./types.ts";
 
-export interface GeneratePropsDocsOptions {
+interface GeneratePropsDocsOptions {
   /** Repo root, used to make each document's `source` path relative. */
   repoRoot: string;
   /** The `@tuja/ui` package directory. */
@@ -15,7 +15,7 @@ export interface GeneratePropsDocsOptions {
   outputDir: string;
 }
 
-export interface GeneratedPropsDocs {
+interface GeneratedPropsDocs {
   docs: Map<string, PropsDoc>;
   written: string[];
   removed: string[];

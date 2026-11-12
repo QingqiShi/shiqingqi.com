@@ -19,7 +19,7 @@ type Side = "top" | "right" | "bottom" | "left";
  *
  * @internal
  */
-export interface FlushViolation {
+interface FlushViolation {
   readonly side: Side;
   /** How far the masked box stops short of the container's edge, in px. */
   readonly inset: number;

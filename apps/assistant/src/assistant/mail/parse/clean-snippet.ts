@@ -1,5 +1,5 @@
 /** The longest text kept of one mail. */
-export const SNIPPET_MAX_CHARS = 16_000;
+const SNIPPET_MAX_CHARS = 16_000;
 
 // Zero-width and other invisible characters that marketing mail pads its preview text with.
 const INVISIBLE = /[\u034f\u00ad\u200b-\u200f\u2028\u2029\u2060-\u2064\ufeff]/g;

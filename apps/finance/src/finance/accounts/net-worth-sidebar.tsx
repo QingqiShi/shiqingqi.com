@@ -139,7 +139,7 @@ export function NetWorthActions({
 }
 
 /** Each account whose Bank balance differs from ours, which opens the account. */
-export function BankDifferences({
+function BankDifferences({
   sheet,
   url,
 }: {

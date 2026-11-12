@@ -41,7 +41,7 @@ const BODY_BYTES = 64 * 1024;
 
 type MailToolLimits = typeof MAIL_TOOL_LIMITS;
 
-export interface MailToolsInput {
+interface MailToolsInput {
   limits?: MailToolLimits;
   mailboxes: RunMailboxes;
   handles: MailHandles;
