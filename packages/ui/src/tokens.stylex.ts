@@ -271,7 +271,7 @@ export const border = stylex.defineVars({
 //   the page: a menu popped from a control, a sticky filter bar, a card that
 //   rises on hover. It stays under the chrome, so it scrolls away beneath it.
 // - `header` is that chrome — a fixed header, a sticky nav rail, a mobile bar.
-// - `overlay` covers the chrome too: a modal, drawer, or sheet owns the viewport
+// - `overlay` covers the chrome too: a modal or a sheet owns the viewport
 //   while it is open, so its close affordance can never end up behind a header
 //   or a rail. Reach for it only when the surface really does own the viewport;
 //   a popover anchored to a control belongs on `raised`.

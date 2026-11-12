@@ -26,26 +26,11 @@ export function UnlessStacked({ children }: { children: ReactNode }) {
   return <div css={styles.unlessStacked}>{children}</div>;
 }
 
-/**
- * Shows its children only where the view does not show the full sidebar:
- * where the collapsed sidebar shows, or no sidebar. Use it for what the
- * full sidebar shows otherwise, such as the title of the screen. CSS
- * decides. Outside a `NavigationSplitView`, it shows them.
- *
- * @internal
- */
-export function UnlessFullSidebar({ children }: { children: ReactNode }) {
-  return <div css={styles.unlessFullSidebar}>{children}</div>;
-}
-
 const styles = stylex.create({
   stackedOnly: {
     display: splitViewDisplay.stacked,
   },
   unlessStacked: {
     display: splitViewDisplay.unstacked,
-  },
-  unlessFullSidebar: {
-    display: splitViewDisplay.noFullSidebar,
   },
 });

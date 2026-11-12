@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { navListTokens } from "../../actions/nav-list.stylex.ts";
 import { color } from "../../color.stylex.ts";
 import { listRowTokens } from "../../data-display/list.stylex.ts";
 import {
@@ -14,6 +15,7 @@ import {
 import { stateFillTokens } from "../../primitives/selected.stylex.ts";
 import { islandTokens } from "../../surfaces/island.stylex.ts";
 import {
+  border,
   controlHeight,
   layer,
   rhythm,
@@ -22,7 +24,7 @@ import {
 } from "../../tokens.stylex.ts";
 import { splitViewQueries } from "../navigation-split-view-layout.stylex.ts";
 import { splitViewTokens } from "../navigation-split-view.stylex.ts";
-import { tabViewTokens } from "../tab-view.stylex.ts";
+import { sidebarEdge, tabViewTokens } from "../tab-view.stylex.ts";
 
 const CONTENT_GUTTER_START = `max(${space._4}, env(safe-area-inset-left))`;
 const CONTENT_GUTTER_END = `max(${space._4}, env(safe-area-inset-right))`;
@@ -30,8 +32,10 @@ const PAGE_COLUMN_MARGIN = `calc((100% - ${pageColumnTokens.inlineSize}) / 2 + $
 /** The view keeps the islands clear of the status bar, except where the content fills it. */
 const CONTENT_PADDING_BLOCK_START = `calc(${space._4} + max(0px, env(safe-area-inset-top) - ${islandTokens.insetBlockStart}))`;
 const CONTENT_PADDING_BLOCK_END = `calc(${space._6} + ${splitViewTokens.columnInsetBlockEnd})`;
-/** Above the tab bar below `md`, and above the safe area from `md` up. */
+/** Above the tab bar below 34rem, and above the safe area from 34rem up. */
 const ACCESSORY_INSET_BLOCK_END = `max(calc(${space._3} + ${tabViewTokens.barClearance}), calc(${space._5} + env(safe-area-inset-bottom)))`;
+
+const SIDEBAR_INLINE_SIZE = `calc(${splitViewTokens.sidebarInlineSize} + env(safe-area-inset-left))`;
 
 /** @internal */
 export const columnStyles = stylex.create({
@@ -122,12 +126,47 @@ export const columnStyles = stylex.create({
     display: "flex",
     marginBlockEnd: rhythm.tight,
   },
+  // The way back at the start and the toolbar at the end, on one line. The
+  // line stays over content that covers the screen, such as a canvas.
+  topLine: {
+    position: "relative",
+    zIndex: layer.raised,
+    display: "flex",
+    alignItems: "center",
+    gap: rhythm.tight,
+  },
+  // Over content that fills the column from edge to edge, the line floats
+  // at the top with the gutters of a page.
+  topFloats: {
+    position: "absolute",
+    insetBlockStart: CONTENT_PADDING_BLOCK_START,
+    insetInlineStart: CONTENT_GUTTER_START,
+    insetInlineEnd: CONTENT_GUTTER_END,
+    pointerEvents: "none",
+  },
+  toolbar: {
+    display: "flex",
+    alignItems: "center",
+    gap: rhythm.tight,
+    marginInlineStart: "auto",
+    marginBlockEnd: rhythm.tight,
+    pointerEvents: "auto",
+  },
   backLink: {
     display: "inline-flex",
     alignItems: "center",
     gap: rhythm.inline,
     color: color.mutedForeground,
     textDecoration: "none",
+    pointerEvents: "auto",
+  },
+  backLinkFloats: {
+    minBlockSize: controlHeight.md,
+    paddingInlineStart: space._2,
+    paddingInlineEnd: space._3,
+    color: color.foreground,
+    backgroundColor: islandTokens.fill,
+    boxShadow: shadow._2,
   },
   detailHeader: {
     display: "flex",
@@ -211,30 +250,6 @@ export const columnPageScrollStyles = stylex.create({
   },
 });
 
-// A view with a drawer is a document: the page scrolls its content at every
-// width, as at the narrow width above.
-/** @internal */
-export const columnPageScrollAlwaysStyles = stylex.create({
-  page: {
-    position: "relative",
-  },
-  pageAside: {
-    position: "absolute",
-    insetBlockEnd: "auto",
-  },
-  scroller: {
-    overflowY: "visible",
-  },
-  // At least one screen less the gaps of the frame, so that a short page does not
-  // scroll.
-  content: {
-    minBlockSize: {
-      default: `calc(100dvh - ${islandTokens.insetBlockStart} - ${islandTokens.insetBlockEnd})`,
-      "@media print": "auto",
-    },
-  },
-});
-
 /** @internal */
 export const contentStyles = stylex.create({
   base: {
@@ -242,12 +257,6 @@ export const contentStyles = stylex.create({
     flexGrow: 1,
     flexBasis: 0,
     inlineSize: "100%",
-  },
-  // The content of a document lies on the canvas, and only the sidebar is an
-  // island.
-  onCanvas: {
-    backgroundColor: "transparent",
-    borderRadius: 0,
   },
   gutters: {
     paddingInlineStart: {
@@ -268,6 +277,13 @@ export const contentStyles = stylex.create({
       default: `max(${CONTENT_GUTTER_END}, ${PAGE_COLUMN_MARGIN})`,
       [splitViewQueries.contentAlone]: pageGutter.inlineEnd,
     },
+  },
+  // The node fills the column from edge to edge, and it keeps only the room of
+  // the tab bar or the safe area under it.
+  flush: {
+    paddingBlockStart: 0,
+    paddingBlockEnd: splitViewTokens.columnInsetBlockEnd,
+    paddingInline: 0,
   },
   // A swipe from the inline-start edge goes back, so the browser takes only
   // the scroll and the zoom of a touch.
@@ -296,6 +312,10 @@ export const stackStyles = stylex.create({
       default: null,
       [splitViewQueries.contentBesideSidebar]: "none",
     },
+    [listRowTokens.plateInset]: {
+      default: null,
+      [splitViewQueries.contentBesideSidebar]: navListTokens.rowInset,
+    },
     containerName: {
       default: "split-view-page",
       [splitViewQueries.contentBesideSidebar]: "none",
@@ -303,6 +323,19 @@ export const stackStyles = stylex.create({
     containerType: {
       default: "inline-size",
       [splitViewQueries.contentBesideSidebar]: "normal",
+    }, // Beside the content, the sidebar is no island: it reaches the edges of
+    // the view, as the rail of a `TabView` does.
+    marginBlockStart: {
+      default: 0,
+      [splitViewQueries.contentBesideSidebar]: `calc(-1 * ${islandTokens.insetBlockStart})`,
+    },
+    marginBlockEnd: {
+      default: 0,
+      [splitViewQueries.contentBesideSidebar]: `calc(-1 * ${islandTokens.insetBlockEnd})`,
+    },
+    marginInlineStart: {
+      default: 0,
+      [splitViewQueries.contentBesideSidebar]: `calc(-1 * ${islandTokens.insetInlineStart})`,
     },
   },
   sidebarRoot: {
@@ -312,8 +345,7 @@ export const stackStyles = stylex.create({
     insetInlineStart: "auto",
     inlineSize: {
       default: "100%",
-      [splitViewQueries.contentBesideSidebar]:
-        splitViewTokens.sidebarInlineSize,
+      [splitViewQueries.contentBesideSidebar]: SIDEBAR_INLINE_SIZE,
     },
     visibility: "visible",
   },
@@ -325,21 +357,102 @@ export const stackStyles = stylex.create({
     },
     inlineSize: {
       default: "auto",
-      [splitViewQueries.contentBesideSidebar]:
-        splitViewTokens.sidebarInlineSize,
+      [splitViewQueries.contentBesideSidebar]: SIDEBAR_INLINE_SIZE,
     },
   },
-  sidebarContent: {
+  // What the sidebar draws above its list, such as the destinations of a
+  // `TabView`. It stays while the list scrolls under it, and its paddings are
+  // those of the rail of a `TabView`, so that the destinations keep their
+  // place from one screen to the next.
+  sidebarHeader: {
+    display: {
+      default: "none",
+      [splitViewQueries.contentBesideSidebar]: "flex",
+    },
+    flexDirection: "column",
+    flexShrink: 0,
+    paddingBlockStart: sidebarEdge.paddingBlockStart,
+    paddingInlineStart: `calc(${space._2} + env(safe-area-inset-left))`,
+    paddingInlineEnd: space._2,
+  },
+  // A hairline between the destinations and the list, on the box edge of the
+  // rows.
+  sidebarHeaderRule: {
+    "::after": {
+      content: "''",
+      display: {
+        default: "none",
+        [splitViewQueries.contentBesideSidebar]: "block",
+      },
+      blockSize: border.size_1,
+      backgroundColor: color.border,
+    },
+  },
+  // The sidebar's own `header` shows above the list where the list is a page
+  // too, with the paddings of a page. After `sidebarHeader`.
+  sidebarHeaderOnPage: {
+    display: "flex",
+    paddingBlockStart: {
+      default: CONTENT_PADDING_BLOCK_START,
+      [splitViewQueries.contentBesideSidebar]: sidebarEdge.paddingBlockStart,
+    },
     paddingInlineStart: {
       default: CONTENT_GUTTER_START,
       [splitViewQueries.contentAlone]: pageGutter.inlineStart,
-      [splitViewQueries.contentBesideSidebar]: space._3,
+      [splitViewQueries.contentBesideSidebar]: `calc(${space._2} + env(safe-area-inset-left))`,
     },
     paddingInlineEnd: {
       default: CONTENT_GUTTER_END,
       [splitViewQueries.contentAlone]: pageGutter.inlineEnd,
-      [splitViewQueries.contentBesideSidebar]: space._3,
+      [splitViewQueries.contentBesideSidebar]: space._2,
     },
+  },
+  // After `sidebarContent`.
+  sidebarContentUnderHeader: {
+    paddingBlockStart: {
+      default: 0,
+      [splitViewQueries.contentBesideSidebar]: space._2,
+    },
+  },
+  // Beside the content, the list starts under the header, and fades out
+  // above the `footer`.
+  sidebarScroller: {
+    maskImage: {
+      default: null,
+      [splitViewQueries.contentBesideSidebar]: `linear-gradient(to bottom, transparent, #000 ${space._2}, #000 calc(100% - ${space._5}), transparent)`,
+    },
+  },
+  sidebarContent: {
+    paddingBlockStart: {
+      default: CONTENT_PADDING_BLOCK_START,
+      [splitViewQueries.contentBesideSidebar]: space._2,
+    },
+    paddingBlockEnd: {
+      default: CONTENT_PADDING_BLOCK_END,
+      [splitViewQueries.contentBesideSidebar]: space._5,
+    },
+    paddingInlineStart: {
+      default: CONTENT_GUTTER_START,
+      [splitViewQueries.contentAlone]: pageGutter.inlineStart,
+      [splitViewQueries.contentBesideSidebar]: `calc(${space._2} + env(safe-area-inset-left))`,
+    },
+    paddingInlineEnd: {
+      default: CONTENT_GUTTER_END,
+      [splitViewQueries.contentAlone]: pageGutter.inlineEnd,
+      [splitViewQueries.contentBesideSidebar]: space._2,
+    },
+  },
+  // The `footer` of the sidebar stays under the list, which scrolls.
+  sidebarFooter: {
+    display: {
+      default: "none",
+      [splitViewQueries.contentBesideSidebar]: "flex",
+    },
+    flexDirection: "column",
+    flexShrink: 0,
+    paddingBlockEnd: sidebarEdge.paddingBlockEnd,
+    paddingInlineStart: `calc(${space._2} + env(safe-area-inset-left))`,
+    paddingInlineEnd: space._2,
   },
   contentColumn: {
     backgroundColor: {

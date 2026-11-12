@@ -7,7 +7,7 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Card } from "@tuja/ui/components/card";
 import { Divider } from "@tuja/ui/components/divider";
 import { FlowBlock } from "@tuja/ui/components/flow-block";
-import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
+import { NavigationStack } from "@tuja/ui/components/navigation-stack";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { useFlowChange } from "@tuja/ui/hooks/use-flow-change";
@@ -140,17 +140,16 @@ export function MonthScreen() {
   const bootstrapped = useReplica((snapshot) => snapshot.bootstrapped);
   return (
     <>
-      <NavigationSplitView
-        content={{
-          label: t({ en: "Month", zh: "月度" }),
-          accessory: <FinanceAddButton />,
-          back: {
-            href: financeHref({ screen: "analytics" }, locale),
-            label: t({ en: "Analytics", zh: "分析" }),
-          },
-          node: bootstrapped ? <MonthContent /> : <MonthSkeleton />,
+      <NavigationStack
+        label={t({ en: "Month", zh: "月度" })}
+        back={{
+          href: financeHref({ screen: "analytics" }, locale),
+          label: t({ en: "Analytics", zh: "分析" }),
         }}
-      />
+        accessory={<FinanceAddButton />}
+      >
+        {bootstrapped ? <MonthContent /> : <MonthSkeleton />}
+      </NavigationStack>
       <NewTransactionSheet />
     </>
   );

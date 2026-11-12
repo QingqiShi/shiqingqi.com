@@ -4,6 +4,7 @@ import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { NavigationStack } from "@tuja/ui/components/navigation-stack";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useEffect, useState } from "react";
@@ -132,7 +133,7 @@ export function OwnerPetPage({
           );
 
   return (
-    <main>
+    <NavigationStack label={copy.petName} flush>
       <Scene {...scene}>
         <CornerLink side="start" href={getLocalePath("/", locale)} isWordmark>
           {t({ en: "Buddy", zh: "搭子" })}
@@ -215,6 +216,6 @@ export function OwnerPetPage({
           }
         />
       ) : null}
-    </main>
+    </NavigationStack>
   );
 }

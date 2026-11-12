@@ -11,6 +11,7 @@ import { px } from "@tuja/ui/motion/px";
 import { springOf, springRoles } from "@tuja/ui/motion/spring-roles";
 import { useMotionEngine } from "@tuja/ui/motion/use-motion-engine";
 import { useLayoutEffect, useRef, type ReactNode } from "react";
+import { screenScrollerOf } from "#src/movie-database/screen-scroller-of.ts";
 import {
   DATA_HERO_COLLAPSED_BUTTON,
   DATA_HERO_REFINE_BUTTON,
@@ -37,11 +38,12 @@ function findVisibleElement(selector: string) {
   return null;
 }
 
-/** `rect` in the coordinates of the document, so a scroll does not move it. */
-function inDocument(rect: DOMRect): Rect {
+/** `rect` of `el` in the coordinates of the content that scrolls, so a scroll does not move it. */
+function inDocument(el: Element, rect: DOMRect): Rect {
+  const scroller = screenScrollerOf(el);
   return {
-    x: rect.left + window.scrollX,
-    y: rect.top + window.scrollY,
+    x: rect.left + scroller.scrollLeft,
+    y: rect.top + scroller.scrollTop,
     width: rect.width,
     height: rect.height,
   };
@@ -81,7 +83,7 @@ export function HeroVisibilityProvider({ children }: { children: ReactNode }) {
     if (refineFound) {
       const prev = refinePrevRectRef.current;
       refinePrevRectRef.current = engine.measure(() =>
-        inDocument(refineFound.el.getBoundingClientRect()),
+        inDocument(refineFound.el, refineFound.el.getBoundingClientRect()),
       );
       if (prev && !isFirstRenderRef.current) {
         // The refine button can be another element than the one before, so

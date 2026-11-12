@@ -90,7 +90,6 @@ export function ReportsColumns({
         router.replace(href);
       }}
       sidebar={{
-        stacked: "page",
         href: listHref,
         label: listLabel,
         accessory: <FinanceAddButton />,

@@ -12,9 +12,9 @@ export interface SplitViewPage<Column> {
   readonly motion: number;
   /**
    * What the page showed when it left, where that was not its content: the
-   * skeleton of a wait, or nothing yet.
+   * skeleton of a wait, nothing yet, or the DOM that another view left.
    */
-  readonly leftAs?: "skeleton" | "blank";
+  readonly leftAs?: "skeleton" | "blank" | "copy";
 }
 
 /**

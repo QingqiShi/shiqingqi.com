@@ -166,6 +166,7 @@ export function EffectLayerCanvases({
                 <div
                   aria-hidden
                   inert
+                  data-effect-canvases=""
                   css={[absoluteFill.all, styles.document]}
                 >
                   <CarrierCanvases

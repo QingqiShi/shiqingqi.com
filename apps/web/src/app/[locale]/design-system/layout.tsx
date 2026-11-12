@@ -89,8 +89,7 @@ export default async function Layout({
         footer={<DesignSystemSidebarControls locale={validatedLocale} />}
         sidebarLabel={t({ en: "Design system", zh: "设计系统" })}
         contentLabel={t({ en: "Page", zh: "页面" })}
-        menuLabel={t({ en: "Design system menu", zh: "设计系统菜单" })}
-        closeLabel={t({ en: "Close menu", zh: "关闭菜单" })}
+        toggleLabel={t({ en: "Sidebar", zh: "侧边栏" })}
       >
         <PlaceholderLinkGuard>{children}</PlaceholderLinkGuard>
       </DesignSystemFrame>

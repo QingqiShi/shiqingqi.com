@@ -122,7 +122,7 @@ export function AmountFields({ form }: { form: TransactionForm }) {
           <div>
             <Button
               look="outline"
-              size="xs"
+              size="sm"
               isActive={draft.refund}
               icon={<ArrowUUpLeftIcon weight="bold" />}
               onClick={() => {

@@ -2,7 +2,6 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
-import { space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { BASE_URL } from "#src/constants.ts";
 
@@ -52,16 +51,14 @@ export default function Layout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  return <main css={styles.container}>{children}</main>;
+  return <div css={styles.container}>{children}</div>;
 }
 
 const styles = stylex.create({
+  // The calculator sits in the middle of the height that the screen leaves.
   container: {
-    padding: space._3,
-    paddingTop: `calc(${space._10} + env(safe-area-inset-top))`,
-    paddingBottom: `calc(${space._3} + env(safe-area-inset-bottom))`,
-    height: "100dvh",
-    display: "grid",
+    display: "flex",
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
   },

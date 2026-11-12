@@ -1,153 +1,108 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { SidebarDrawer } from "../sidebar-drawer.tsx";
+import type { TabViewSidebarNav } from "../use-tab-view-sidebar-nav.ts";
 import { stackStyles } from "./column.stylex.ts";
 import { Column, type ColumnPageScroll } from "./column.tsx";
 import { sidebarStyles } from "./sidebar.stylex.ts";
-import { SplitViewDustContext } from "./split-view-link.tsx";
 import type { NavigationSplitViewSidebar } from "./types.ts";
-import { SplitViewColumnContext } from "./use-split-view-column.ts";
 
-/** Where the full or the collapsed sidebar shows, each a column of its own. */
-function sidebarShownStyle(form: "full" | "collapsed", hasDetail: boolean) {
-  if (hasDetail) {
-    return form === "full"
-      ? sidebarStyles.hidden
-      : sidebarStyles.collapsedBesideDetail;
-  }
-  return form === "full"
-    ? sidebarStyles.fullBesideContent
-    : sidebarStyles.collapsedBesideContent;
-}
-
-/** @internal */
+/**
+ * The list of a view. Beside the content it is the sidebar: it lies on the
+ * canvas, and it draws `nav` around its node. Where it does not fit there, it
+ * is the first page of the stack, an island as the content is.
+ *
+ * @internal
+ */
 export function SidebarColumns({
   sidebar,
-  collapsedSidebar,
-  stacks,
+  nav,
   showsStackRoot,
-  sidebarFits,
-  fitsCollapsed,
   fitsFullSidebar,
   hasDetailColumn,
-  folding,
+  isInTabView,
   pageScrolls,
   pageScroll,
 }: {
   sidebar: NavigationSplitViewSidebar;
-  collapsedSidebar: ReactNode;
-  stacks: boolean;
+  /** What the sidebar draws around its node, and whether it is collapsed. */
+  nav: TabViewSidebarNav | null;
   showsStackRoot: boolean;
-  sidebarFits: boolean | null;
-  fitsCollapsed: boolean | null;
   fitsFullSidebar: boolean | null;
   hasDetailColumn: boolean;
-  folding: "fold" | "unfold" | null;
+  isInTabView: boolean;
   pageScrolls: boolean;
   pageScroll: ColumnPageScroll;
 }) {
-  const hasCollapsed = collapsedSidebar !== null;
-  const sidebarForms: readonly ("full" | "collapsed")[] = hasCollapsed
-    ? ["full", "collapsed"]
-    : ["full"];
-  const dustOf = (form: "full" | "collapsed") => {
-    if (folding === null) return null;
-    return (folding === "fold") === (form === "full") ? "shed" : "pull";
-  };
-  const isSidebarShown = (form: "full" | "collapsed") => {
-    if (stacks) return showsStackRoot || fitsFullSidebar !== false;
-    if (form === "full") return !hasDetailColumn && fitsFullSidebar !== false;
-    return (
-      hasDetailColumn || (fitsCollapsed !== false && fitsFullSidebar !== true)
-    );
-  };
-
-  return sidebarForms.map((form) => (
-    <SplitViewDustContext key={form} value={dustOf(form)}>
-      <Column
-        column="sidebar"
-        form={form}
-        pageScrolls={pageScrolls}
-        pageScroll={pageScroll}
-        isShown={isSidebarShown(form)}
-        label={sidebar.label}
-        presentation={stacks && sidebarFits !== true ? "page" : "column"}
-        pages={[
-          {
-            key: sidebar.key ?? "",
-            role: "current",
-            stack: stacks ? (showsStackRoot ? "root" : "under") : undefined,
-            column: {
-              ...sidebar,
-              node: form === "full" ? sidebar.node : collapsedSidebar,
-            },
-          },
-        ]}
-        close={null}
-        css={[
-          sidebarStyles.base,
-          form === "full" ? sidebarStyles.full : sidebarStyles.collapsed,
-          sidebarShownStyle(form, hasDetailColumn),
-          stacks && stackStyles.sidebar,
-          stacks &&
-            (showsStackRoot
-              ? stackStyles.sidebarRoot
-              : [sidebarStyles.fullBesideContent, stackStyles.sidebarUnder]),
-        ]}
-        contentCss={[
-          form === "full"
-            ? sidebarStyles.fullContent
-            : sidebarStyles.collapsedContent,
-          stacks && stackStyles.sidebarContent,
-        ]}
-      />
-    </SplitViewDustContext>
-  ));
-}
-
-/** @internal */
-export function DrawerColumn({
-  drawer,
-  fits,
-  isOpen,
-  onOpenChange,
-  isContained,
-  scroller,
-  scrollerRef,
-}: {
-  drawer: Extract<NavigationSplitViewSidebar, { stacked: "drawer" }>;
-  fits: boolean | null;
-  isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
-  isContained: boolean;
-  scroller: HTMLElement | null;
-  scrollerRef: (scroller: HTMLElement | null) => void;
-}) {
+  const isCollapsed = nav !== null && nav.isCollapsed;
+  // In a `TabView`, the list stays beside a detail where all of them fit, and
+  // the rail of that view holds the destinations where they do not.
+  const staysBesideDetail = hasDetailColumn && isInTabView;
+  const carriesNav =
+    nav !== null && !isCollapsed && (!hasDetailColumn || isInTabView);
+  // Outside a `TabView`, the `header` is the sidebar's own, and it shows above
+  // the list also where the list is a page.
+  const ownsHeader = carriesNav && !isInTabView && nav.top != null;
   return (
-    <SplitViewColumnContext
-      value={{
-        column: "sidebar",
-        presentation: "column",
-        scroller,
-        isShown: fits !== false || isOpen,
-        close: null,
-      }}
-    >
-      <SidebarDrawer
-        label={drawer.label}
-        menuLabel={drawer.menuLabel}
-        closeLabel={drawer.closeLabel}
-        header={drawer.header}
-        footer={drawer.footer}
-        fits={fits}
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        isContained={isContained}
-        scrollerRef={scrollerRef}
-      >
-        {drawer.node}
-      </SidebarDrawer>
-    </SplitViewColumnContext>
+    <Column
+      column="sidebar"
+      carriesNav={
+        carriesNav ? (hasDetailColumn ? "wide" : "always") : undefined
+      }
+      header={
+        carriesNav ? (
+          <div
+            css={[
+              stackStyles.sidebarHeader,
+              nav.top != null && stackStyles.sidebarHeaderRule,
+              ownsHeader && stackStyles.sidebarHeaderOnPage,
+            ]}
+          >
+            {nav.top}
+          </div>
+        ) : undefined
+      }
+      footer={
+        carriesNav && nav.bottom !== null ? (
+          <div css={stackStyles.sidebarFooter}>{nav.bottom}</div>
+        ) : undefined
+      }
+      pageScrolls={pageScrolls}
+      pageScroll={pageScroll}
+      isShown={showsStackRoot || fitsFullSidebar !== false}
+      label={sidebar.label}
+      presentation={fitsFullSidebar !== true ? "page" : "column"}
+      pages={[
+        {
+          key: sidebar.key ?? "",
+          role: "current",
+          stack: showsStackRoot ? "root" : "under",
+          column: sidebar,
+        },
+      ]}
+      close={null}
+      css={[
+        sidebarStyles.base,
+        sidebarStyles.full,
+        hasDetailColumn && !staysBesideDetail
+          ? sidebarStyles.hidden
+          : sidebarStyles.fullBesideContent,
+        sidebarStyles.onCanvas,
+        stackStyles.sidebar,
+        showsStackRoot
+          ? stackStyles.sidebarRoot
+          : [sidebarStyles.fullBesideContent, stackStyles.sidebarUnder],
+      ]}
+      scrollerCss={stackStyles.sidebarScroller}
+      contentCss={[
+        sidebarStyles.fullContent,
+        stackStyles.sidebarContent,
+        ownsHeader && stackStyles.sidebarContentUnderHeader,
+      ]}
+      awayCss={[
+        staysBesideDetail && sidebarStyles.awayBesideDetail,
+        hasDetailColumn && !isInTabView && sidebarStyles.awayBesideDetailAlways,
+        isCollapsed && sidebarStyles.awayWhileCollapsed,
+      ]}
+    />
   );
 }

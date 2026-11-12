@@ -121,7 +121,7 @@ export function AccountDetail({ accountId, onDeleted }: AccountDetailProps) {
     account.kind === "credit" ? account.creditLimitMinor : null;
   return (
     <article css={[stack.item, styles.container]}>
-      <header css={styles.header}>
+      <header css={stack.item}>
         <div css={[stack.text, styles.names]}>
           <Heading level={2} look="h3">
             <span css={typeModifier.verbatim}>{accountName(account)}</span>
@@ -129,9 +129,11 @@ export function AccountDetail({ accountId, onDeleted }: AccountDetailProps) {
           <div css={cluster.tight}>
             <Text as="span" look="bodySmall" tone="muted">
               {[
-                detail,
-                account.isSystem ? "" : kindLabels[account.kind],
-                group?.name ?? "",
+                ...new Set([
+                  detail,
+                  account.isSystem ? "" : kindLabels[account.kind],
+                  group?.name ?? "",
+                ]),
               ]
                 .filter((part) => part !== "")
                 .join(" · ")}
@@ -149,8 +151,8 @@ export function AccountDetail({ accountId, onDeleted }: AccountDetailProps) {
           </div>
           {bankLink ? <BankLinkStatus link={bankLink} /> : null}
         </div>
-        <div css={[stack.tight, styles.side]}>
-          <span css={[typeRole.h2, typeModifier.numeric, styles.balance]}>
+        <div css={styles.figureRow}>
+          <span css={[typeRole.h1, typeModifier.numeric, styles.balance]}>
             {money(balance)}
           </span>
           {account.isSystem ? null : (
@@ -250,27 +252,19 @@ export function AccountDetail({ accountId, onDeleted }: AccountDetailProps) {
   );
 }
 
-/** Where the column has room for the balance and its actions beside the name. */
-const WIDE = "@container (min-width: 34rem)";
-
 const styles = stylex.create({
   container: {
     containerType: "inline-size",
   },
-  header: {
-    display: "grid",
-    gridTemplateColumns: {
-      default: "minmax(0, 1fr)",
-      [WIDE]: "minmax(0, 1fr) auto",
-    },
-    alignItems: "start",
-    gap: rhythm.item,
+  figureRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: rhythm.tight,
   },
   names: {
     minInlineSize: 0,
-  },
-  side: {
-    alignItems: { default: "flex-start", [WIDE]: "flex-end" },
   },
   balance: {
     fontWeight: font.weight_7,

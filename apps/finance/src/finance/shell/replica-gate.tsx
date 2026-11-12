@@ -7,7 +7,7 @@ import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
-import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
+import { NavigationStack } from "@tuja/ui/components/navigation-stack";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlSize, space } from "@tuja/ui/tokens.stylex";
@@ -94,38 +94,31 @@ export function ReplicaGate({ children }: { children: ReactNode }) {
   }
 
   return (
-    <NavigationSplitView
-      content={{
-        label: heading,
-        node: (
-          <div css={[stack.item, styles.notice]}>
-            <span
-              css={[
-                styles.icon,
-                offline || serverBehind
-                  ? styles.iconMuted
-                  : styles.iconDestructive,
-              ]}
-            >
-              {offline ? (
-                <CloudSlashIcon weight="bold" role="presentation" />
-              ) : (
-                <WarningCircleIcon weight="bold" role="presentation" />
-              )}
-            </span>
-            <div css={stack.text}>
-              <Heading level={1} look="h3">
-                {heading}
-              </Heading>
-              <Text as="p" tone="muted">
-                {message}
-              </Text>
-            </div>
-            {action ? <div>{action}</div> : null}
-          </div>
-        ),
-      }}
-    />
+    <NavigationStack label={heading}>
+      <div css={[stack.item, styles.notice]}>
+        <span
+          css={[
+            styles.icon,
+            offline || serverBehind ? styles.iconMuted : styles.iconDestructive,
+          ]}
+        >
+          {offline ? (
+            <CloudSlashIcon weight="bold" role="presentation" />
+          ) : (
+            <WarningCircleIcon weight="bold" role="presentation" />
+          )}
+        </span>
+        <div css={stack.text}>
+          <Heading level={1} look="h3">
+            {heading}
+          </Heading>
+          <Text as="p" tone="muted">
+            {message}
+          </Text>
+        </div>
+        {action ? <div>{action}</div> : null}
+      </div>
+    </NavigationStack>
   );
 }
 

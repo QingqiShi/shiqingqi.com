@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { color } from "../../color.stylex.ts";
 import { islandTokens } from "../../surfaces/island.stylex.ts";
-import { controlHeight, layer, rhythm, space } from "../../tokens.stylex.ts";
-import { headerControlsTokens } from "../header-controls.stylex.ts";
+import { layer, rhythm } from "../../tokens.stylex.ts";
 import {
   splitViewDisplay,
   splitViewQueries,
@@ -18,7 +18,7 @@ export const viewFrameStyles = stylex.create({
     containerType: "inline-size",
   },
   // The view fills the screen and the page does not scroll, except on a screen
-  // narrower than 30rem. Inside a `TabView` below `md`, the view goes under the
+  // narrower than 30rem. Inside a `TabView` below 34rem, the view goes under the
   // floating tab bar, and each column keeps its content above the bar. The
   // displays start again from their defaults in a view in a column of another.
   view: {
@@ -28,7 +28,11 @@ export const viewFrameStyles = stylex.create({
     maxBlockSize: "100%",
     [splitViewDisplay.stacked]: "none",
     [splitViewDisplay.unstacked]: "contents",
-    [splitViewDisplay.noFullSidebar]: "contents",
+  },
+  // Outside a `TabView`, a view with a list paints the sidebar fill itself, and
+  // its content floats on that as an island.
+  canvas: {
+    backgroundColor: color.sidebar,
   },
   // The copies of the Shared elements fly over the columns.
   flights: {
@@ -68,6 +72,15 @@ export const viewFrameStyles = stylex.create({
     blockSize: "100%",
     overflow: "clip",
   },
+  // A screen with nothing beside it and no `TabView` around it has no canvas
+  // to float on, so it fills the screen at each width.
+  columnsAlone: {
+    [islandTokens.radius]: "0px",
+    [islandTokens.insetBlockStart]: "0px",
+    [islandTokens.insetBlockEnd]: "0px",
+    [islandTokens.insetInlineStart]: "0px",
+    [islandTokens.insetInlineEnd]: "0px",
+  },
   columnsWithoutBar: {
     [tabViewTokens.barClearance]: "0px",
   },
@@ -79,46 +92,17 @@ export const viewFrameStyles = stylex.create({
       [splitViewQueries.besideOthers]: `max(${rhythm.tight}, env(safe-area-inset-left))`,
     },
   },
-  // The room of the menu button of a drawer, which floats over the page.
-  columnsWithMenu: {
-    [headerControlsTokens.clearance]: {
-      default: null,
-      [splitViewQueries.noSidebarBeside]: `calc(${controlHeight.md} + 2 * ${space._3} + env(safe-area-inset-top))`,
-    },
-    [headerControlsTokens.inlineEndClearance]: {
-      default: null,
-      [splitViewQueries.noSidebarBeside]: `calc(${controlHeight.md} + ${rhythm.tight})`,
-    },
-  },
-  fullSidebarBesideContent: {
-    [splitViewDisplay.noFullSidebar]: {
-      default: null,
-      [splitViewQueries.contentBesideSidebar]: "none",
-    },
-  },
   // A custom property set in a container query goes into a cascade layer, and one
   // set without a condition does not. Thus these set a display of
   // `splitViewDisplay` only in a container query, and the default comes from `view`.
-  stackedBelowCollapsed: {
-    [splitViewDisplay.stacked]: {
-      default: null,
-      [splitViewQueries.contentAlone]: "contents",
-    },
-    [splitViewDisplay.unstacked]: {
-      default: null,
-      [splitViewQueries.contentAlone]: "none",
-    },
-  },
   stackedBelowSidebar: {
     [splitViewDisplay.stacked]: {
       default: null,
-      [splitViewQueries.contentAlone]: "contents",
-      [splitViewQueries.contentBesideCollapsed]: "contents",
+      [splitViewQueries.noSidebarBeside]: "contents",
     },
     [splitViewDisplay.unstacked]: {
       default: null,
-      [splitViewQueries.contentAlone]: "none",
-      [splitViewQueries.contentBesideCollapsed]: "none",
+      [splitViewQueries.noSidebarBeside]: "none",
     },
   },
 });
@@ -153,19 +137,5 @@ export const viewFramePageScrollStyles = stylex.create({
       [splitViewQueries.pageScrolls]: "auto",
       "@media print": "auto",
     },
-  },
-});
-
-// A view with a drawer is a document: the page scrolls its content at every
-// width, and its sidebar sticks beside it.
-/** @internal */
-export const viewFramePageScrollAlwaysStyles = stylex.create({
-  view: {
-    blockSize: "auto",
-    maxBlockSize: "none",
-    overflowAnchor: "none",
-  },
-  columns: {
-    blockSize: "auto",
   },
 });

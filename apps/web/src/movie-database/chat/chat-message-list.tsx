@@ -9,6 +9,7 @@ import { space } from "@tuja/ui/tokens.stylex";
 import type { ChatStatus, UIMessage } from "ai";
 import { type ReactNode, useEffect, useEffectEvent, useRef } from "react";
 import type { ToolOutputMaps } from "#src/movie-database/chat/tool-output/accumulate-tool-outputs.ts";
+import { screenScrollerOf } from "#src/movie-database/screen-scroller-of.ts";
 import { usePreferencePersistence } from "#src/movie-database/taste/use-preference-persistence.ts";
 import { ChatMessage } from "./chat-message";
 import {
@@ -69,16 +70,19 @@ export function ChatMessageList({
   // Reads the latest isAtBottom without needing it in effect dep arrays —
   // changing scroll position should not restart the ResizeObserver or
   // re-trigger the message-length scroll effect.
+  const scrollToBottom = () => {
+    const scroller = screenScrollerOf(messagesListRef.current);
+    scroller.scrollTo({ top: scroller.scrollHeight });
+  };
   const scrollToBottomIfNeeded = useEffectEvent(() => {
-    if (isAtBottom) {
-      window.scrollTo({ top: document.documentElement.scrollHeight });
-    }
+    if (isAtBottom) scrollToBottom();
   });
+  const scrollToBottomNow = useEffectEvent(scrollToBottom);
 
   useEffect(() => {
     if (messages.length === 0) return;
     if (lastMessageRole === "user") {
-      window.scrollTo({ top: document.documentElement.scrollHeight });
+      scrollToBottomNow();
     } else {
       scrollToBottomIfNeeded();
     }

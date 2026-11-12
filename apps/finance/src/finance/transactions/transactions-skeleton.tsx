@@ -5,7 +5,7 @@ import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { listSurface } from "@tuja/ui/components/list.stylex";
-import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
+import { NavigationStack } from "@tuja/ui/components/navigation-stack";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
@@ -37,14 +37,13 @@ const ROW_TRAILING = [{ width: "4rem", height: "1.25rem" }];
 export function TransactionsSkeleton() {
   return (
     <div aria-busy>
-      <NavigationSplitView
+      <NavigationStack
+        label={t({ en: "Transactions", zh: "交易" })}
+        accessory={<FinanceAddButton />}
         css={pageColumn.list}
-        content={{
-          label: t({ en: "Transactions", zh: "交易" }),
-          accessory: <FinanceAddButton />,
-          node: <ListSkeleton />,
-        }}
-      />
+      >
+        <ListSkeleton />
+      </NavigationStack>
     </div>
   );
 }

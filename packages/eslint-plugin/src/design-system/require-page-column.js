@@ -31,9 +31,9 @@ const requirePageColumn = {
     },
     messages: {
       maxInlineSize:
-        "`layout.maxInlineSize` builds a page column by hand. Compose `pageColumn.base` from `@tuja/ui/primitives/page-column.stylex`: the box spans its parent and sets its content in the page column, with the page gutter and the safe area. `HeaderFooterLayout` with `pageColumn` and a `NavigationSplitView` already do this.",
+        "`layout.maxInlineSize` builds a page column by hand. Compose `pageColumn.base` from `@tuja/ui/primitives/page-column.stylex`: the box spans its parent and sets its content in the page column, with the page gutter and the safe area. `HeaderFooterLayout` with `pageColumn`, a `NavigationSplitView` and a `NavigationStack` already do this.",
       columnWidth:
-        "Setting `pageColumnTokens.inlineSize` makes a width of the page column that no other screen shares. Compose a named width from `@tuja/ui/primitives/page-column.stylex`: `pageColumn.regular` for the default width, `pageColumn.list` for a screen of rows, `pageColumn.settings` for a settings section, `pageColumn.report` for a report, or `pageColumn.wide` for a gallery of cards. Pass it in the `css` of a `NavigationSplitView`, or of a `TabView` for its screens of one pane.",
+        "Setting `pageColumnTokens.inlineSize` makes a width of the page column that no other screen shares. Compose a named width from `@tuja/ui/primitives/page-column.stylex`: `pageColumn.regular` for the default width, `pageColumn.list` for a screen of rows, `pageColumn.settings` for a settings section, `pageColumn.report` for a report, or `pageColumn.wide` for a gallery of cards. Pass it in the `css` of a `NavigationSplitView` or a `NavigationStack`, or of a `TabView` for all of its screens.",
       safeArea:
         "`env(safe-area-inset-{{side}})` builds a page gutter by hand. Compose `pageColumn.base` or `pageColumn.scroller` from `@tuja/ui/primitives/page-column.stylex` to set content in the page column, add `pageColumn.wide` for a gallery of cards that keeps only the page gutter, or take `pageGutter.inlineStart` or `pageGutter.inlineEnd` for one gutter.",
     },

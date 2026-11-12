@@ -25,7 +25,7 @@ import { FormFooter } from "@tuja/ui/components/form-footer";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
 import { MetaLine } from "@tuja/ui/components/meta-line";
-import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
+import { NavigationStack } from "@tuja/ui/components/navigation-stack";
 import { PageHeader } from "@tuja/ui/components/page-header";
 import { RadioGroup } from "@tuja/ui/components/radio-group";
 import { Select } from "@tuja/ui/components/select";
@@ -420,6 +420,7 @@ export function SettingsScreen() {
       label={t({ en: "Mail assistant", zh: "邮件助理" })}
       items={destinations}
       linkComponent={Link}
+      sidebarToggleLabel={t({ en: "Sidebar", zh: "侧边栏" })}
       header={
         <TabViewBrand
           name={t({ en: "Assistant", zh: "助理" })}
@@ -429,13 +430,9 @@ export function SettingsScreen() {
       }
       css={pageColumn.settings}
     >
-      <NavigationSplitView
-        linkComponent={Link}
-        content={{
-          label: t({ en: "Settings", zh: "设置" }),
-          node: <Settings />,
-        }}
-      />
+      <NavigationStack label={t({ en: "Settings", zh: "设置" })}>
+        <Settings />
+      </NavigationStack>
     </TabView>
   );
 }

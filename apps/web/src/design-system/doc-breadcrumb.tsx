@@ -1,4 +1,3 @@
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { getLocale } from "@tuja/i18n/server-locale";
@@ -6,7 +5,6 @@ import {
   Breadcrumb,
   type BreadcrumbLinkProps,
 } from "@tuja/ui/components/breadcrumb";
-import { headerControlsTokens } from "@tuja/ui/components/header-controls.stylex";
 import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
 import { getDesignSystemGroupLabels } from "#src/design-system/route-copy/get-design-system-group-labels.ts";
 import { getDesignSystemRouteLabel } from "#src/design-system/route-copy/get-design-system-route-label.ts";
@@ -41,7 +39,6 @@ export function DocBreadcrumb({ path }: DocBreadcrumbProps) {
     <Breadcrumb
       label={t({ en: "Breadcrumb", zh: "面包屑导航" })}
       linkComponent={RouterLink}
-      css={styles.breadcrumb}
       items={[
         {
           label: t({ en: "Design system", zh: "设计系统" }),
@@ -53,9 +50,3 @@ export function DocBreadcrumb({ path }: DocBreadcrumbProps) {
     />
   );
 }
-
-const styles = stylex.create({
-  breadcrumb: {
-    paddingInlineEnd: headerControlsTokens.inlineEndClearance,
-  },
-});

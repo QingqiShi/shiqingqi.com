@@ -96,11 +96,9 @@ export function useViewMotion({
   const recapture = useEffectEvent(() => {
     pendingRef.current?.refresh();
   });
-  const [folding, setFolding] = useState<"fold" | "unfold" | null>(null);
   useLayoutEffect(() => {
     if (view === null || layer === null) return;
     const created = createSplitViewMotion(engine, view, layer, marks, {
-      onFold: setFolding,
       onSettled: (id) => {
         setSettled((current) => Math.max(current, id));
       },
@@ -187,7 +185,6 @@ export function useViewMotion({
     pageScrollRef,
     leavingCopyRef,
     capture,
-    folding,
     pageScrolls,
   };
 }

@@ -33,8 +33,8 @@ export interface SplitViewMotion {
   /**
    * Plays the change from `snapshot` to the composition in the DOM now, as
    * motion number `motion`. Without a snapshot, the columns and the pages
-   * move, but no Shared element flies. The sidebar folds and the content
-   * column slides from where the screen showed them last. Where a detail
+   * move, but no Shared element flies. The content column slides from
+   * where the screen showed it last. Where a detail
    * column comes or goes, the content column takes its last width again for
    * a moment, and the boxes of the content page move from their boxes there
    * to their new places in the content: see `pickBoxes`.
@@ -65,10 +65,8 @@ export function createSplitViewMotion(
   events: SplitViewMotionEvents,
 ): SplitViewMotion {
   let stopTicking: (() => void) | null = null;
-  let folding: "fold" | "unfold" | null = null;
-  let foldTimer: ReturnType<typeof setTimeout> | undefined;
   let played = 0;
-  const columns = createColumnParts(engine, view, setFolding);
+  const columns = createColumnParts(engine, view);
   const flights = createSharedFlights(
     engine,
     view,
@@ -77,14 +75,6 @@ export function createSplitViewMotion(
     () => columns.push,
   );
   const columnWatch = createShownColumns(view, () => columns.slideNow());
-
-  function setFolding(next: "fold" | "unfold" | null) {
-    clearTimeout(foldTimer);
-    if (folding !== next) {
-      folding = next;
-      events.onFold(next);
-    }
-  }
 
   function frame() {
     flights.tick();
@@ -95,12 +85,6 @@ export function createSplitViewMotion(
     stopTicking?.();
     stopTicking = null;
     events.onSettled(played);
-    if (folding !== null) {
-      // The dust needs a moment after the fold to reach the other form.
-      foldTimer = setTimeout(() => {
-        setFolding(null);
-      }, 900);
-    }
   }
 
   function start() {
@@ -116,7 +100,6 @@ export function createSplitViewMotion(
     // This stops the moves of `playLayout` too. It would also stop the fade
     // of `keep`, and reduced motion plays no `playLayout`.
     if (keep === null) engine.destroy();
-    setFolding(null);
   }
 
   return {
@@ -154,26 +137,18 @@ export function createSplitViewMotion(
       const starts = engine.measure(() => {
         const origin = view.getBoundingClientRect();
         const presentation = isViewStacked(view) ? "stacked" : "columns";
-        const sidebar = columnWatch.sidebarShown();
-        const foldChange =
-          last?.sidebar === "full" && sidebar === "collapsed"
-            ? "fold"
-            : last?.sidebar === "collapsed" && sidebar === "full"
-              ? "unfold"
-              : null;
         const contentBox = content?.getBoundingClientRect() ?? null;
         let shift = 0;
         if (contentBox !== null) {
           // The next change can come before the observer runs.
-          const shown = columnWatch.keep(contentBox, origin, sidebar);
+          const shown = columnWatch.keep(contentBox, origin);
           if (last !== null) shift = last.x + slide - shown.x;
         }
-        const marksPlan = flights.plan(snapshot, origin, foldChange);
+        const marksPlan = flights.plan(snapshot, origin);
         return [
           columns.planContent(change, presentation),
           columns.planDetail(change.detail),
           columns.planOffset(content, contentBox, shift),
-          columns.planFold(foldChange),
           marksPlan.start,
           planMoves(
             engine,
@@ -204,7 +179,6 @@ export function createSplitViewMotion(
     },
 
     destroy() {
-      clearTimeout(foldTimer);
       columns.clearAwaitingPop();
       columnWatch.disconnect();
       stopAll();

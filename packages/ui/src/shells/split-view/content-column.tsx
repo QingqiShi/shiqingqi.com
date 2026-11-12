@@ -39,6 +39,9 @@ function LeavingBody({
             "[data-split-view-page]",
           )?.firstElementChild;
           if (scroller != null) scroller.scrollTop = copy.top;
+          if (copy.pageTop !== undefined && copy.pageTop > 0) {
+            host.style.marginBlockStart = `${String(-copy.pageTop)}px`;
+          }
         }
       }}
       css={[
@@ -59,7 +62,8 @@ export function ContentColumn({
   pageScroll,
   isShown,
   close,
-  stacks,
+  expand,
+  hasSidebar,
   showsStackRoot,
   depth,
   isRouted,
@@ -79,7 +83,9 @@ export function ContentColumn({
   pageScroll: ColumnPageScroll;
   isShown: boolean;
   close: (() => void) | null;
-  stacks: boolean;
+  /** The button that expands a collapsed sidebar, at the top of each page. */
+  expand: ReactNode;
+  hasSidebar: boolean;
   showsStackRoot: boolean;
   depth: number;
   isRouted: boolean;
@@ -103,26 +109,31 @@ export function ContentColumn({
       close={close}
       css={[
         contentStyles.base,
-        sidebar?.stacked === "drawer" && contentStyles.onCanvas,
-        stacks && stackStyles.contentColumn,
+        hasSidebar && stackStyles.contentColumn,
         showsStackRoot && [
           sidebarStyles.fullBesideContent,
           stackStyles.contentAtRoot,
         ],
       ]}
-      pageCss={stacks && stackStyles.contentPage}
+      pageCss={hasSidebar && stackStyles.contentPage}
       scrollerCss={
-        stacks
+        hasSidebar
           ? content.back != null && stackStyles.swipes
           : content.back != null && contentStyles.swipes
       }
-      contentCss={contentStyles.inPageColumn}
+      contentCss={
+        content.flush === true
+          ? contentStyles.flush
+          : contentStyles.inPageColumn
+      }
       top={(page) => {
+        // The DOM that another view left has its own top.
+        if (page.leftAs === "copy") return null;
         // The back link of a destination that still opens leads to
         // this URL, and this navigation ends the one that is pending.
         const back =
           page.column.back ??
-          (stacks &&
+          (hasSidebar &&
           sidebar != null &&
           depth === DEEP_DEPTH &&
           page.role === "current"
@@ -131,40 +142,63 @@ export function ContentColumn({
                 label: sidebar.label,
               }
             : null);
-        if (back === null) return null;
-        const link = <BackLink back={back} onTakeOff={onTakeOff} />;
-        return stacks ? <StackedOnly>{link}</StackedOnly> : link;
+        const isFlush = page.column.flush === true;
+        const link =
+          back === null ? null : (
+            <BackLink back={back} floats={isFlush} onTakeOff={onTakeOff} />
+          );
+        const toolbar = page.column.toolbar ?? null;
+        const shownLink =
+          hasSidebar && link !== null ? (
+            <StackedOnly>{link}</StackedOnly>
+          ) : (
+            link
+          );
+        return (
+          <>
+            {expand === null || page.role !== "current" ? null : (
+              <div css={columnStyles.back}>{expand}</div>
+            )}
+            {toolbar === null && !isFlush ? (
+              shownLink
+            ) : toolbar === null && shownLink === null ? null : (
+              <div
+                css={[columnStyles.topLine, isFlush && columnStyles.topFloats]}
+              >
+                {shownLink}
+                {toolbar === null ? null : (
+                  <div css={columnStyles.toolbar}>{toolbar}</div>
+                )}
+              </div>
+            )}
+          </>
+        );
       }}
-      body={
-        !isRouted
-          ? undefined
-          : (page) =>
-              page.role === "leaving" ? (
-                <LeavingBody
-                  page={page}
-                  skeleton={skeleton}
-                  copyRef={copyRef}
-                />
-              ) : (
-                <>
-                  {waiting ? skeleton : null}
-                  <div
-                    data-split-view-node=""
-                    onAnimationEnd={onAnimationEnd}
-                    css={[
-                      columnStyles.node,
-                      revealing && columnStyles.reveal,
-                      stacks &&
-                        opensContent &&
-                        depth === DEEP_DEPTH &&
-                        stackStyles.nodeHiddenWhileStacked,
-                      waiting && columnStyles.nodeHidden,
-                    ]}
-                  >
-                    {page.column.node}
-                  </div>
-                </>
-              )
+      body={(page) =>
+        page.role === "leaving" && (isRouted || page.leftAs === "copy") ? (
+          <LeavingBody page={page} skeleton={skeleton} copyRef={copyRef} />
+        ) : !isRouted ? (
+          page.column.node
+        ) : (
+          <>
+            {waiting ? skeleton : null}
+            <div
+              data-split-view-node=""
+              onAnimationEnd={onAnimationEnd}
+              css={[
+                columnStyles.node,
+                revealing && columnStyles.reveal,
+                hasSidebar &&
+                  opensContent &&
+                  depth === DEEP_DEPTH &&
+                  stackStyles.nodeHiddenWhileStacked,
+                waiting && columnStyles.nodeHidden,
+              ]}
+            >
+              {page.column.node}
+            </div>
+          </>
+        )
       }
     />
   );

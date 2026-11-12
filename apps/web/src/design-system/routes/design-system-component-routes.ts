@@ -383,8 +383,9 @@ export const DESIGN_SYSTEM_COMPONENT_ROUTES = [
     keywords: ["separator", "rule", "hr", "line"],
   },
   // The Shells. A Tab view holds an app's few top-level destinations, a
-  // Navigation split view each screen in it and any page with a sidebar, and a
-  // Header & footer layout a reading page with no sidebar.
+  // Navigation split view a screen with a list beside its content, a
+  // Navigation stack a screen of one page, and a Header & footer layout a
+  // reading page that stands alone.
   {
     section: "components",
     category: "shells",
@@ -423,9 +424,22 @@ export const DESIGN_SYSTEM_COMPONENT_ROUTES = [
       "columns",
       "split view",
       "sidebar",
-      "drawer",
-      "stack",
       "NavigationSplitView",
+      "SwiftUI",
+    ],
+  },
+  {
+    section: "components",
+    category: "shells",
+    path: "/design-system/components/navigation-stack",
+    keywords: [
+      "stack",
+      "push",
+      "back",
+      "screen",
+      "single pane",
+      "page",
+      "NavigationStack",
       "SwiftUI",
     ],
   },

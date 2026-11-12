@@ -12,12 +12,10 @@ import {
   useSplitViewShared,
 } from "@tuja/ui/components/navigation-split-view";
 import { Text } from "@tuja/ui/components/text";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { controlSize, space } from "@tuja/ui/tokens.stylex";
+import { controlSize } from "@tuja/ui/tokens.stylex";
 import { useDemoHref } from "./use-demo-href.ts";
 import type { DemoProject, DemoTask } from "./use-demo-projects.ts";
 
@@ -115,39 +113,6 @@ export function TaskDetail({
   );
 }
 
-export function StripLink({
-  href,
-  label,
-  icon,
-  shared,
-  current,
-}: {
-  href: string;
-  label: string;
-  icon: Icon;
-  shared: string;
-  current: boolean;
-}) {
-  return (
-    <li css={styles.stripItem}>
-      <SplitViewLink
-        href={href}
-        aria-label={label}
-        title={label}
-        aria-current={current ? "page" : undefined}
-        {...stylex.props(
-          corner.radius_3,
-          quietSurface.interactive,
-          a11y.touchTarget,
-          styles.stripLink,
-        )}
-      >
-        <ProjectMark icon={icon} shared={shared} />
-      </SplitViewLink>
-    </li>
-  );
-}
-
 export function ProjectMark({
   icon: ProjectIcon,
   shared = null,
@@ -172,16 +137,6 @@ export function Count({ children }: { children: number }) {
 }
 
 const styles = stylex.create({
-  stripItem: {
-    display: "flex",
-    justifyContent: "center",
-  },
-  stripLink: {
-    display: "inline-flex",
-    padding: space._1,
-    color: color.foreground,
-    textDecoration: "none",
-  },
   mark: {
     display: "inline-flex",
     alignItems: "center",

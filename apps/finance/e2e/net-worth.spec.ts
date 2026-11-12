@@ -18,7 +18,7 @@ test.describe("Net worth at 1440 px", () => {
     session: _session,
   }) => {
     await openNetWorth(page);
-    await page.getByRole("link", { name: /^Alex Current .*Northbank/ }).click();
+    await page.getByRole("link", { name: /^Alex Current £/ }).click();
     await expect(page).toHaveURL(/[?&]account=/);
     const account = page.getByRole("region", { name: "Alex Current" });
     await expect(
@@ -38,7 +38,7 @@ test.describe("Net worth at 1440 px", () => {
     await expect(page).toHaveURL(/[?&]account=/);
     await expect(transaction).toHaveCount(0);
 
-    await page.getByRole("link", { name: /Net worth today/ }).click();
+    await page.getByRole("link", { name: /^Household / }).click();
     await expect(page).not.toHaveURL(/[?&]account=/);
     await expect(
       page

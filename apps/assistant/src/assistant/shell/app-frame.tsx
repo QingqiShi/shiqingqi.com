@@ -35,16 +35,19 @@ function TabLink(props: TabViewLinkProps) {
 }
 
 /**
- * The frame of every signed-in page. At `md` and wider, the rail holds the
- * mark and the four destinations. Below `md`, the tab bar holds the
+ * The frame of every signed-in page. From 34rem, the rail or the sidebar holds the
+ * mark and the four destinations. Below 34rem, the tab bar holds the
  * destinations.
  */
 export function AppFrame({
   mailboxNeedsYou,
+  defaultCollapsed,
   children,
 }: {
   /** A mailbox must be connected again: the Settings destination says so. */
   mailboxNeedsYou: boolean;
+  /** The visitor collapsed the sidebar, from the cookie that the `TabView` keeps. */
+  defaultCollapsed: boolean;
   children: ReactNode;
 }) {
   const locale = useLocale();
@@ -94,11 +97,12 @@ export function AppFrame({
         <RecordShownPath />
       </Suspense>
       <TabView
-        rail="icons"
+        sidebarToggleLabel={t({ en: "Sidebar", zh: "侧边栏" })}
         label={appName}
         linkComponent={TabLink}
         linkStatus={LinkStatus}
         fallbackSkeleton={<ScreenSkeleton />}
+        defaultCollapsed={defaultCollapsed}
         css={pageColumn.list}
         header={
           <TabViewLink

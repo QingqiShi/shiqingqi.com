@@ -34,7 +34,7 @@ function ledgerView(
   return {
     linkStatus: null,
     sidebar: {
-      stacked: "hidden",
+      href: "/",
       label: "Accounts",
       node: (
         <>
@@ -79,7 +79,7 @@ afterEach(() => {
 });
 
 describe("NavigationSplitView keys", () => {
-  it("takes the deepest column off on Esc and on ←, once for each column", () => {
+  it("takes the detail off on Esc, once, and leaves the content beside its list on ←", () => {
     const replace = vi.fn();
     const { rerender } = render(
       <NavigationSplitView {...ledgerView({ replace })} />,
@@ -93,7 +93,7 @@ describe("NavigationSplitView keys", () => {
       <NavigationSplitView {...ledgerView({ replace, detail: null })} />,
     );
     fireEvent.keyDown(document.body, { key: "ArrowLeft" });
-    expect(replace).toHaveBeenLastCalledWith("/");
+    expect(replace).toHaveBeenCalledOnce();
   });
 
   it("leaves Esc and ← to fields, arrow-key controls and open dialogs", () => {
@@ -167,7 +167,7 @@ describe("NavigationSplitView under the router", () => {
   it("never shows the content of the new URL in a page that leaves, as the router gives one element for all URLs", () => {
     const hiddenSidebar = {
       sidebar: {
-        stacked: "hidden" as const,
+        href: "/",
         label: "List",
         node: <p>List</p>,
       },

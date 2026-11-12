@@ -1,10 +1,8 @@
 "use client";
 
 import { SquaresFourIcon } from "@phosphor-icons/react/dist/ssr/SquaresFour";
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Link } from "@tuja/next-links/link";
-import { headerControlsTokens } from "@tuja/ui/components/header-controls.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
@@ -24,7 +22,6 @@ import {
   Count,
   Overview,
   ProjectMark,
-  StripLink,
   TaskDetail,
   Tasks,
 } from "./navigation-split-view-panes-specimens.tsx";
@@ -32,8 +29,9 @@ import { PARAM, useDemoHref } from "./use-demo-href.ts";
 import { useDemoProjects } from "./use-demo-projects.ts";
 
 const FRAME_BLOCK_SIZE = "26rem";
-const DRAWER_FRAME_BLOCK_SIZE = "20rem";
-const DRAWER_PARAM = "demo-drawer-project";
+const LANDING_FRAME_BLOCK_SIZE = "20rem";
+const LANDING_PARAM = "demo-landing-project";
+const LIST = "list";
 
 /** A link that keeps the page where it is, so a pick does not scroll the doc page. */
 function DemoLink(props: ComponentProps<"a"> & { href: string }) {
@@ -75,8 +73,8 @@ function ProjectsFrame({ children }: { children: ReactNode }) {
   );
 }
 
-/** A frame as narrow as a phone, where the drawer shows, or as wide as the page. */
-function DrawerFrame({ children }: { children: ReactNode }) {
+/** A frame as narrow as a phone, where the page shows alone, or as wide as the page. */
+function LandingFrame({ children }: { children: ReactNode }) {
   return (
     <DeviceFrame
       label={t({ en: "Width of the frame", zh: "框的宽度" })}
@@ -85,13 +83,13 @@ function DrawerFrame({ children }: { children: ReactNode }) {
           value: "phone",
           label: t({ en: "Phone", zh: "手机" }),
           inlineSize: "24.375rem",
-          blockSize: DRAWER_FRAME_BLOCK_SIZE,
+          blockSize: LANDING_FRAME_BLOCK_SIZE,
         },
         {
           value: "wide",
           label: t({ en: "Wide", zh: "宽" }),
           inlineSize: "100%",
-          blockSize: DRAWER_FRAME_BLOCK_SIZE,
+          blockSize: LANDING_FRAME_BLOCK_SIZE,
         },
       ]}
     >
@@ -100,35 +98,37 @@ function DrawerFrame({ children }: { children: ReactNode }) {
   );
 }
 
-/** The frame of `NavigationSplitViewDrawerDemo`, empty, while the page reads its URL. */
-export function NavigationSplitViewDrawerDemoPlaceholder() {
-  return <DeviceFramePlaceholder blockSize={DRAWER_FRAME_BLOCK_SIZE} />;
+/** The frame of `NavigationSplitViewLandingDemo`, empty, while the page reads its URL. */
+export function NavigationSplitViewLandingDemoPlaceholder() {
+  return <DeviceFramePlaceholder blockSize={LANDING_FRAME_BLOCK_SIZE} />;
 }
 
 /**
- * The same projects with `stacked: "drawer"`, as a page of a documentation site:
- * beside the content in the wide frame, and behind a menu button in the phone
- * frame, with the title and the summary pinned in both.
+ * The same projects as a documentation site, with no app navigation around
+ * the view: the visitor lands on a page, which has a back link to the list.
+ * In the wide frame the list is the sidebar, with a title, a summary and a
+ * button that collapses it.
  */
-export function NavigationSplitViewDrawerDemo() {
+export function NavigationSplitViewLandingDemo() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
   const projects = useDemoProjects();
-  const project =
-    projects.find((item) => item.id === searchParams.get(DRAWER_PARAM)) ??
-    projects[0];
+  const picked = searchParams.get(LANDING_PARAM);
+  const isList = picked === LIST;
+  const project = projects.find((item) => item.id === picked) ?? projects[0];
   const hrefOf = (id: string) => {
     const params = new URLSearchParams(searchParams);
-    params.set(DRAWER_PARAM, id);
+    params.set(LANDING_PARAM, id);
     return `${pathname}?${params.toString()}`;
   };
   const replace = (href: string) => {
     router.replace(href, { scroll: false });
   };
+  const projectsLabel = t({ en: "Projects", zh: "项目" });
   const projectPage = (
     <div css={stack.group}>
-      <Heading level={3} look="h3" css={styles.firstRow}>
+      <Heading level={3} look="h3">
         {project.name}
       </Heading>
       {project.tasks.map((item) => (
@@ -140,10 +140,10 @@ export function NavigationSplitViewDrawerDemo() {
   );
   return (
     <Specimen
-      stage={DrawerFrame}
+      stage={LandingFrame}
       caption={t({
-        en: "at Phone, open the menu and pick a project",
-        zh: "选择“手机”，打开菜单，再选一个项目",
+        en: "at Phone, go back to the list and pick a project",
+        zh: "选择“手机”，返回列表，再选一个项目",
       })}
     >
       <NavigationSplitView
@@ -151,13 +151,12 @@ export function NavigationSplitViewDrawerDemo() {
         linkStatus={null}
         replace={replace}
         sidebar={{
-          stacked: "drawer",
-          label: t({ en: "Projects", zh: "项目" }),
-          menuLabel: t({ en: "Projects menu", zh: "项目菜单" }),
-          closeLabel: t({ en: "Close menu", zh: "关闭菜单" }),
+          href: hrefOf(LIST),
+          label: projectsLabel,
+          toggleLabel: t({ en: "Sidebar", zh: "侧边栏" }),
           header: (
             <Text as="span" look="label">
-              {t({ en: "Projects", zh: "项目" })}
+              {projectsLabel}
             </Text>
           ),
           footer: (
@@ -166,7 +165,7 @@ export function NavigationSplitViewDrawerDemo() {
             </Text>
           ),
           node: (
-            <nav aria-label={t({ en: "Projects", zh: "项目" })}>
+            <nav aria-label={projectsLabel}>
               <NavList linkComponent={SplitViewLink}>
                 {projects.map((item) => (
                   <NavLink
@@ -184,6 +183,7 @@ export function NavigationSplitViewDrawerDemo() {
         content={{
           label: project.name,
           key: project.id,
+          back: isList ? null : { href: hrefOf(LIST), label: projectsLabel },
           node: projectPage,
         }}
       />
@@ -216,27 +216,6 @@ export function NavigationSplitViewDemo() {
   const replace = (href: string) => {
     router.replace(href, { scroll: false });
   };
-  const projectTiles = (
-    <ul role="list" css={[stack.tight, styles.strip]}>
-      <StripLink
-        href={hrefOf(null)}
-        label={overviewLabel}
-        icon={SquaresFourIcon}
-        shared="overview"
-        current={project === null}
-      />
-      {projects.map((item) => (
-        <StripLink
-          key={item.id}
-          href={hrefOf(item.id)}
-          label={item.name}
-          icon={item.icon}
-          shared={`project:${item.id}`}
-          current={item === project}
-        />
-      ))}
-    </ul>
-  );
   const projectRows = (
     <div css={stack.item}>
       <Text look="overline" tone="muted">
@@ -291,10 +270,9 @@ export function NavigationSplitViewDemo() {
         linkStatus={null}
         replace={replace}
         sidebar={{
-          stacked: "hidden",
+          href: hrefOf(null),
           label: t({ en: "Projects", zh: "项目" }),
           node: projectRows,
-          collapsed: projectTiles,
         }}
         content={{
           label: project?.name ?? overviewLabel,
@@ -320,15 +298,3 @@ export function NavigationSplitViewDemo() {
     </Specimen>
   );
 }
-
-const styles = stylex.create({
-  // The menu button floats over the corner of the first row.
-  firstRow: {
-    paddingInlineEnd: headerControlsTokens.inlineEndClearance,
-  },
-  strip: {
-    margin: 0,
-    padding: 0,
-    listStyle: "none",
-  },
-});

@@ -25,13 +25,18 @@ interface OverScreen {
 
 export type NetWorthMode = "update" | "reorder";
 
-/** `/`: `?account=` in the content column, `&tx=` for a Transaction of its Ledger in the detail column, or `?mode=`. */
+/** `/`: `?account=` in the content column, `&tx=` for a Transaction of its Ledger in the detail column, `?household` for the Household opened from the list on a narrow screen, or `?mode=`. */
 export interface NetWorthDestination extends OverScreen {
   screen: "netWorth";
   /** The account in the content column, or null for the Household. */
   account?: string | null;
   /** A Transaction of the account's Ledger. It needs `account`. */
   tx?: string | null;
+  /**
+   * Whether the Household is open as a page over the list of accounts. A wide
+   * screen shows the Household beside the list with or without it.
+   */
+  household?: boolean;
   mode?: NetWorthMode | null;
 }
 
@@ -94,6 +99,7 @@ export function readNetWorth(params: ReadableParams) {
   return {
     account,
     tx: account === null ? null : params.get("tx"),
+    household: account === null && params.get("household") !== null,
     mode: NET_WORTH_MODES.find((candidate) => candidate === mode) ?? null,
   };
 }
@@ -116,6 +122,8 @@ function screenParams(
       if (to.account != null) {
         params.set("account", to.account);
         if (to.tx != null) params.set("tx", to.tx);
+      } else if (to.household === true) {
+        params.set("household", "");
       }
       if (to.mode != null) params.set("mode", to.mode);
       return params;

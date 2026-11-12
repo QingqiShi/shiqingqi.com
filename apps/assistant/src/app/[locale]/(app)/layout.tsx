@@ -1,7 +1,8 @@
 import { setLocale } from "@tuja/i18n/server-locale";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import { safeNextPath } from "@tuja/server-auth/sign-in-path";
-import { headers } from "next/headers";
+import { SIDEBAR_COLLAPSED_COOKIE } from "@tuja/ui/components/sidebar-collapsed-cookie";
+import { cookies, headers } from "next/headers";
 import { connection } from "next/server";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
@@ -33,7 +34,12 @@ export default async function Layout({
   const mailboxes = await readMailboxHealth(scope);
   return (
     <DateLocaleProvider regionalEnglish={await getRegionalEnglish()}>
-      <AppFrame mailboxNeedsYou={mailboxes.reconnect.length > 0}>
+      <AppFrame
+        mailboxNeedsYou={mailboxes.reconnect.length > 0}
+        defaultCollapsed={
+          (await cookies()).get(SIDEBAR_COLLAPSED_COOKIE)?.value === "1"
+        }
+      >
         {children}
       </AppFrame>
     </DateLocaleProvider>

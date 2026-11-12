@@ -1,5 +1,4 @@
 import * as stylex from "@stylexjs/stylex";
-import { headerControlsTokens } from "@tuja/ui/components/header-controls.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
@@ -35,7 +34,7 @@ export function DocHeader({ path, description }: DocHeaderProps) {
     <header css={[stack.item, styles.header]}>
       <DocBreadcrumb path={path} />
       <div data-prose css={stack.tight}>
-        <div css={[cluster.item, justify.between, styles.titleRow]}>
+        <div css={[cluster.item, justify.between]}>
           <Heading level={1} css={typeRole.subDisplay}>
             {getDesignSystemRouteLabel(path)}
           </Heading>
@@ -51,10 +50,5 @@ const styles = stylex.create({
   header: {
     maxInlineSize: readingColumn.inlineSize,
     marginInline: "auto",
-  },
-  // A drawer's menu button floats over this row once the breadcrumb scrolls
-  // away. Without this padding, the button covers the view switch.
-  titleRow: {
-    paddingInlineEnd: headerControlsTokens.inlineEndClearance,
   },
 });

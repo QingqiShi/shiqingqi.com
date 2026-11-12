@@ -8,6 +8,7 @@ describe("TabView", () => {
   it("renders plain links without a linkStatus", () => {
     render(
       <TabView
+        sidebarToggleLabel="Sidebar"
         label="Main"
         items={[
           { href: "/home", label: "Home", icon: HouseIcon, current: true },

@@ -16,7 +16,7 @@ never belongs to an element. A component never adds a `<canvas>` element.
 - `useEffectContainer` + `<EffectContainer>` clip effects to a box and keep them apart.
 - `useEffectCover` hides the effects under a surface that shows over the page.
   Use `useEffectCover({ modal: true })` for a surface that locks the page, such
-  as a sheet, a modal dialog or an open drawer. While it shows, the layer
+  as a sheet or a modal dialog. While it shows, the layer
   frees the `<canvas>` elements of the page and of each Scroll region under it.
 
 ## Declare the carrier
@@ -52,7 +52,7 @@ does not choose the `<canvas>` element.
   `carrier: "viewport"`. Do not declare a carrier for this, and do not put
   a clear box over the element.
 - `Portal` already puts its children on the viewport. `HeaderControls`,
-  the drawer of `NavigationSplitView`, `StickyControls`, a vertical `ScrollMask`, a
+  `StickyControls`, a vertical `ScrollMask`, a
   `Table` with `stickyHeader`, `TableHead` and the sheet of `MenuButton`
   declare their own carriers.
 - The layer puts the two `<canvas>` elements of a Scroll region at the end of

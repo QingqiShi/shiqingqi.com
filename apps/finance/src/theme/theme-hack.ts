@@ -1,5 +1,5 @@
 import { gray } from "@tuja/ui/palette/gray.stylex";
-import { FINANCE_LIGHT_CANVAS } from "#src/finance/theme/finance-theme.ts";
+import { CANVAS_COLORS } from "./canvas-colors.ts";
 import { getDocumentClassName } from "./global-styles.ts";
 
 interface ThemeColor {
@@ -13,12 +13,12 @@ interface ThemeColor {
  * The mobile browser-chrome tint, as `<meta name="theme-color">` tags in
  * order: the first that matches wins. It is the colour at the top edge of the
  * page: `color.card` where an island fills the screen, and
- * `color.background` of `financeTheme` elsewhere. `gray` is a `defineConsts`
+ * `color.sidebar` where the shell shows it around the islands. `gray` is a `defineConsts`
  * palette, so these bake in as literal hex in `themeHack`.
  */
 export const themeColors: ThemeColor[] = [
-  { media: "(width < 768px)", dark: gray._5, light: gray._100 },
-  { dark: gray._0, light: FINANCE_LIGHT_CANVAS },
+  { media: "(width < 34rem)", dark: gray._5, light: gray._100 },
+  CANVAS_COLORS,
 ];
 
 /** Marks the tags of `themeHack`, so that `ThemeApplier` removes them once it renders its own. */

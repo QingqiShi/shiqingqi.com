@@ -1,12 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { root } from "@tuja/ui/primitives/root.stylex";
-import { financeTheme } from "#src/finance/theme/finance-theme.ts";
 
 // Every color token is a `light-dark()` pair, so `color-scheme` alone decides
 // the theme: the default follows the OS, and a stored theme pins the scheme.
-// `financeTheme` changes the accent and the canvas.
 export const globalStyles = stylex.create({
   forceLight: {
     colorScheme: "light",
@@ -17,12 +14,13 @@ export const globalStyles = stylex.create({
   body: {
     position: "relative",
   },
-  // On a phone, an island fills the screen. Safari shows the page background
-  // at the status bar and in the overscroll, so it is the island fill.
+  // Safari shows the page background at the status bar and in the overscroll.
+  // Below 34rem, an island fills the screen, so it is the island fill. From
+  // 34rem, the shell shows its sidebar fill around the islands.
   html: {
     backgroundColor: {
       default: color.card,
-      [breakpoints.md]: color.background,
+      "@media (min-width: 34rem)": color.sidebar,
     },
   },
 });
@@ -32,8 +30,5 @@ export function getDocumentClassName(theme?: string | null) {
     theme === "dark"
       ? globalStyles.forceDark
       : theme === "light" && globalStyles.forceLight;
-  return (
-    stylex.props(root.html, forced, financeTheme, globalStyles.html)
-      .className ?? ""
-  );
+  return stylex.props(root.html, forced, globalStyles.html).className ?? "";
 }

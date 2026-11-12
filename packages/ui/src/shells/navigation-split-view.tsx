@@ -1,18 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import * as stylex from "@stylexjs/stylex";
+import { useRef, useState } from "react";
+import { useLinkSlot } from "../actions/link-provider.tsx";
 import { NavViewContext } from "../actions/nav-list-context.tsx";
-import { PlainAnchor } from "../actions/tab-bar.tsx";
 import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import { pageColumn } from "../primitives/page-column.stylex.ts";
 import { islandSurface } from "../surfaces/island.stylex.ts";
 import { useIsInSheetBoundary } from "../surfaces/sheet.tsx";
+import { rhythm } from "../tokens.stylex.ts";
 import { LeavingCopyTaker } from "./leaving-copy-taker.tsx";
+import { splitViewQueries } from "./navigation-split-view-layout.stylex.ts";
+import { SidebarToggle, useSidebarCollapsed } from "./sidebar-toggle.tsx";
 import type { ColumnPage, ColumnPageScroll } from "./split-view/column.tsx";
 import { ContentColumn } from "./split-view/content-column.tsx";
 import { DetailColumn } from "./split-view/detail-column.tsx";
 import { DetailSheet } from "./split-view/detail-sheet.tsx";
-import { DrawerColumn, SidebarColumns } from "./split-view/sidebar-columns.tsx";
+import { SidebarColumns } from "./split-view/sidebar-columns.tsx";
 import {
   SplitViewContext,
   type SplitViewState,
@@ -26,28 +30,27 @@ import { useColumnKeys, useStackFocus } from "./split-view/use-column-keys.ts";
 import { useColumnPages } from "./split-view/use-column-pages.ts";
 import { useEdgeSwipe } from "./split-view/use-edge-swipe.ts";
 import { SplitViewMarksContext } from "./split-view/use-split-view-shared.ts";
+import { useStackHandoff } from "./split-view/use-stack-handoff.ts";
 import { useStackOpening } from "./split-view/use-stack-opening.ts";
 import { useViewMotion } from "./split-view/use-view-motion.ts";
 import { useViewWidthsReached } from "./split-view/use-view-widths-reached.ts";
 import {
-  viewFramePageScrollAlwaysStyles,
   viewFramePageScrollStyles,
   viewFrameStyles,
 } from "./split-view/view-frame.stylex.ts";
 import type { SplitViewMarks } from "./split-view-motion/types.ts";
 import { useIsInTabView } from "./tab-view.tsx";
+import {
+  useTabViewSidebarNav,
+  type TabViewSidebarNav,
+} from "./use-tab-view-sidebar-nav.ts";
 
 export { SplitViewLink } from "./split-view/split-view-link.tsx";
-export {
-  StackedOnly,
-  UnlessFullSidebar,
-  UnlessStacked,
-} from "./split-view/stacked-only.tsx";
+export { StackedOnly, UnlessStacked } from "./split-view/stacked-only.tsx";
 export type {
   NavigationSplitViewColumn,
   NavigationSplitViewDetail,
   NavigationSplitViewSidebar,
-  NavigationSplitViewSidebarWithoutPage,
   SplitViewBackLink,
   SplitViewColumnState,
   SplitViewLinkProps,
@@ -59,34 +62,47 @@ export {
 } from "./split-view/use-split-view-shared.ts";
 
 /**
- * Up to three columns side by side, each in its own scroll box, as tall as
- * the screen: a sidebar, the content, and the detail of what is picked. The
+ * A list, the content that a row of it opens, and the detail of what is
+ * picked there, each in its own scroll box, as tall as the screen. The
  * consumer decides what is picked, normally from the URL, and passes the
  * columns that show it.
  *
- * The view fits the columns to the width it gets, not to the screen. While
- * a detail shows beside the content, the sidebar folds to the collapsed
- * sidebar. Without one, the sidebar shows full where it fits, collapsed
- * where it does not, and not at all on a phone, where the content fills the
- * view. Where the detail does not fit beside the content, it shows in a
- * sheet over it. A change of the composition keeps each column and its
- * scroll. Where the view fills a screen narrower than 30rem, as on a phone, the
- * page scrolls the content instead of its scroll box, so that it goes under the
+ * The view fits the columns to the width it gets, not to the screen. From
+ * 48rem, the list is the sidebar beside the content. Below that, the list
+ * is the first page of a stack and fills the view: `sidebar.href` is its
+ * URL, a row pushes the content in over it, and the `back` of the content
+ * goes back to it. A URL whose content has a `back` thus opens on the
+ * content, and one whose content has none opens on the list. The `back` of
+ * the content shows only where the view is stacked.
+ *
+ * The screen has one sidebar. In a `TabView`, the sidebar of the view shows
+ * the destinations of the `TabView` above the list, and the `TabView` shows
+ * no sidebar of its own. Below 48rem the `TabView` keeps its destinations in
+ * its rail of icons or its tab bar. Outside a `TabView`, the view paints the
+ * sidebar fill itself, the sidebar takes a `header` and a `footer`, and with
+ * a `toggleLabel` it has a button that collapses it. A collapsed sidebar
+ * leaves the content alone, with the button at its top.
+ *
+ * Where the detail fits beside the content, it is a column, and else a sheet
+ * over the content. In a `TabView` narrower than 72rem, the sidebar gives
+ * way while the detail column shows, and the `TabView` shows its rail of
+ * icons. Outside a `TabView`, the sidebar always gives way to the detail
+ * column. A change of the composition keeps each column and its scroll.
+ *
+ * Where the view fills a screen narrower than 30rem, as on a phone, the page
+ * scrolls the content instead of its scroll box, so that it goes under the
  * status bar of the browser, and each page of the content keeps its own
  * scroll. The view fills the screen unless it is in a `SheetBoundary`, and it
  * then always scrolls its columns. Outside a `TabView` and a `SheetBoundary`,
  * the content column is the `<main>` landmark, and a key that scrolls, while
  * nothing has focus, scrolls the content, as it would the page.
  *
- * Without a `sidebar`, the view is one pane, the layout of a screen with nothing
- * beside it: `<NavigationSplitView content={{ label, node, accessory }} />`.
- * Without a `detail` too, it needs no `linkStatus`.
+ * For a screen with no list, use `NavigationStack`.
  *
- * The content of every view sits in the page column, centred in the content
- * column, and a named width such as `pageColumn.settings` in `css` sets its
- * width. Without one, a view with a sidebar spans its column, and a view of one
- * pane takes the width of the page column around it. The detail and the sidebar
- * always span their columns.
+ * The content sits in the page column, centred in the content column, and a
+ * named width such as `pageColumn.settings` in `css` sets its width. Without
+ * one, it spans its column. The detail and the sidebar always span their
+ * columns.
  *
  * History: a column link (`SplitViewLink`) that opens a column deeper than
  * those that show pushes an entry. One that changes what a column already
@@ -95,23 +111,8 @@ export {
  * dismissed sheet — goes back one entry where that entry is the column
  * under it, and else replaces the entry with the `back` URL, such as after
  * a reload. Thus no take-off leaves an entry that Back must step through.
- *
- * With `sidebar.stacked` set to `"page"`, the sidebar is the root page of a
- * stack, which needs a `linkStatus`, wherever it does not fit beside the content, and the `back` of the
- * content shows only there. Beside the sidebar, a change of the content is a
- * cross-fade, and the only way back is the history rule above. A view with
- * `linkStatus` can also have a URL that opens with no sidebar, and a page of
- * the stack is then deeper than that URL: from it, the sidebar or the content
- * pushes in, and each goes back out to it.
- *
- * With `sidebar.stacked` set to `"drawer"`, the sidebar opens as a drawer from a
- * menu button at the top-end corner wherever it does not fit beside the content:
- * focus stays in it, the page does not scroll, and Esc, the backdrop or a link in
- * it closes it. The view publishes the room of the button as
- * `headerControlsTokens`, for a first row to keep clear of it. Such a view is a
- * document: outside a `SheetBoundary`, the page scrolls the content at every
- * width, not only on a phone. The content lies on the canvas, and the sidebar is
- * the only island, which sticks beside it while its nav scrolls on its own.
+ * Beside the sidebar, a change of the content is a cross-fade, and Esc and ←
+ * leave the content where it is.
  *
  * With a `linkStatus`, a `NavLink` or a `ListRow` marks its link at once, a
  * stacked view opens the destination at once, and if the screen takes more than
@@ -123,8 +124,6 @@ export {
  * copy of its DOM, with no ids and out of reach of focus. With `null`, the view
  * keeps the real pages. A detail needs `null`, as its column keeps the real page
  * that leaves, and a page that the router owns would show the new URL as it goes.
- * A stack needs a router, so where `linkStatus` is `null` the sidebar cannot be
- * `stacked: "page"`, which is what `NavigationSplitViewSidebarWithoutPage` says.
  *
  * Keys, unless focus is in a field, a sheet or a dialog: Esc and ← take the
  * deepest column off. J and K move focus to the next and the previous
@@ -133,8 +132,8 @@ export {
  *
  * Motion follows the URL, after the first paint. A deeper column page
  * springs in over the page it leaves, which drifts back and dims, and a
- * shallower one springs back out. A detail slides in beside the content
- * while the sidebar folds, and the Shared elements (`useSplitViewShared`)
+ * shallower one springs back out. A detail slides in beside the content,
+ * and the Shared elements (`useSplitViewShared`)
  * fly between their forms. What the content shows moves to its new place
  * in the narrower or wider column: a box that keeps its size moves as one,
  * the boxes in a box that changes its size move by the same rule, and text
@@ -146,45 +145,60 @@ export {
  * is a short cross-fade. The Shared elements fly only for a navigation that
  * the view starts, such as from a column link or a back link, and for Back
  * and Forward of the browser. Another navigation, such as a `router.push`
- * after a form, moves the columns, the sidebar, the pages and the boxes of
- * the content only.
+ * after a form, moves the columns, the pages and the boxes of the content
+ * only.
  */
 export function NavigationSplitView({
   sidebar,
   content,
   detail,
-  linkComponent = PlainAnchor,
-  linkStatus = null,
+  linkComponent: ownLinkComponent,
+  linkStatus,
   skeleton,
   replace = replaceLocation,
   css,
 }: NavigationSplitViewProps) {
+  const linkComponent = useLinkSlot(ownLinkComponent);
   const [view, setView] = useState<HTMLElement | null>(null);
   const [layer, setLayer] = useState<HTMLElement | null>(null);
   const [marks] = useState<SplitViewMarks>(() => new Map());
   const widthsReached = useViewWidthsReached(view);
-  const fitsCollapsed = widthsReached === null ? null : widthsReached >= 1;
   const fitsFullSidebar = widthsReached === null ? null : widthsReached >= 2;
   const detailBeside = widthsReached === null ? null : widthsReached >= 3;
   const isRouted = linkStatus !== null;
   const hasSidebar = sidebar != null;
-  const drawer = sidebar?.stacked === "drawer" ? sidebar : null;
-  const collapsedSidebar =
-    sidebar?.stacked === "hidden" ? (sidebar.collapsed ?? null) : null;
-  const hasCollapsed = collapsedSidebar !== null;
-  const stacks = isRouted && hasSidebar && drawer === null && !hasCollapsed;
-  const sidebarFits =
-    stacks || drawer !== null ? fitsFullSidebar : fitsCollapsed;
   const isInTabView = useIsInTabView();
+  const tabViewNav = useTabViewSidebarNav();
+  const isOwnCollapsed = useSidebarCollapsed(sidebar?.defaultCollapsed);
+  const ownToggle =
+    tabViewNav === null && sidebar?.toggleLabel !== undefined ? (
+      <SidebarToggle
+        label={sidebar.toggleLabel}
+        css={ownSidebarStyles.toggle}
+      />
+    ) : null;
+  const ownNav: TabViewSidebarNav | null =
+    tabViewNav !== null || sidebar == null
+      ? null
+      : {
+          isCollapsed: ownToggle !== null && isOwnCollapsed,
+          top:
+            sidebar.header == null && ownToggle === null ? null : (
+              <div css={ownSidebarStyles.top}>
+                <div css={ownSidebarStyles.header}>{sidebar.header}</div>
+                {ownToggle}
+              </div>
+            ),
+          bottom:
+            sidebar.footer == null ? null : (
+              <div css={ownSidebarStyles.bottom}>{sidebar.footer}</div>
+            ),
+        };
+  const sidebarNav = tabViewNav ?? ownNav;
   const isContained = useIsInSheetBoundary();
   const fillsScreen = !isInTabView && !isContained;
-  const pageScroll: ColumnPageScroll = isContained
-    ? "never"
-    : drawer === null
-      ? "narrow"
-      : "always";
-  const scrollsWithPage = pageScroll === "always";
-  const isPageSidebar = sidebarFits === false;
+  const pageScroll: ColumnPageScroll = isContained ? "never" : "narrow";
+  const isPageSidebar = fitsFullSidebar === false;
   const asSheet = detail != null && detailBeside === false;
   const detailColumn = asSheet ? null : (detail ?? null);
   const hasDetailColumn = detailColumn !== null;
@@ -205,40 +219,35 @@ export function NavigationSplitView({
     showsStackRoot,
     wasDepth,
     depthChange,
-  } = useStackOpening({ stacks, sidebar, content, linkStatus, replace });
-  const { motion, setSettled, pages, details, goneDetail } = useColumnPages({
-    content,
-    detail,
-    detailColumn,
-    isRouted,
-    stacks,
-    waiting,
-    opensContent,
-    tabOpening,
-    wasDepth,
-    depth,
-    depthChange,
-  });
-  const {
-    motionRef,
-    pageScrollRef,
-    leavingCopyRef,
-    capture,
-    folding,
-    pageScrolls,
-  } = useViewMotion({
-    view,
-    layer,
-    marks,
-    motion,
-    setSettled,
-    showsStackRoot,
-    contentKey: content.key,
-    isRouted,
-    opensContent,
-    opensStackRoot,
-    tabOpening,
-  });
+  } = useStackOpening({ sidebar, content, linkStatus, replace });
+  const { motion, setSettled, pages, details, goneDetail, enter } =
+    useColumnPages({
+      content,
+      detail,
+      detailColumn,
+      isRouted,
+      hasSidebar,
+      waiting,
+      opensContent,
+      tabOpening,
+      wasDepth,
+      depth,
+      depthChange,
+    });
+  const { motionRef, pageScrollRef, leavingCopyRef, capture, pageScrolls } =
+    useViewMotion({
+      view,
+      layer,
+      marks,
+      motion,
+      setSettled,
+      showsStackRoot,
+      contentKey: content.key,
+      isRouted,
+      opensContent,
+      opensStackRoot,
+      tabOpening,
+    });
   const { takeOff, follow, pressedRef } = useColumnHistory({
     content,
     detail,
@@ -255,18 +264,26 @@ export function NavigationSplitView({
     hasDetailColumn ? "detail" : showsStackRoot ? "sidebar" : "content",
     (hasDetailColumn ? detailColumn.key : content.key) ?? null,
   );
-  const [drawerScroller, setDrawerScroller] = useState<HTMLElement | null>(
-    null,
-  );
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   useColumnKeys(
     view,
     // Beside the content, the sidebar that a `back` leads to already shows.
-    isPageSidebar || !stacks || detail != null ? deepestBack : null,
+    isPageSidebar || !hasSidebar || detail != null ? deepestBack : null,
     takeOff,
     isContained,
   );
-  useEdgeSwipe(view, motionRef, pageScrollRef, content.back ?? null, takeOff);
+  const swipedAtRef = useRef(Number.NEGATIVE_INFINITY);
+  useEdgeSwipe(view, motionRef, pageScrollRef, content.back ?? null, (href) => {
+    swipedAtRef.current = performance.now();
+    takeOff(href);
+  });
+  useStackHandoff({
+    view,
+    isStackScreen: !hasSidebar && detail == null,
+    content,
+    copyRef: leavingCopyRef,
+    swipedAtRef,
+    enter,
+  });
 
   const viewState: SplitViewState = {
     linkComponent,
@@ -312,7 +329,7 @@ export function NavigationSplitView({
   const shown = (
     <SplitViewContext value={viewState}>
       <NavViewContext
-        value={{ pendingHref: opening, isPage: isPageSidebar && stacks }}
+        value={{ pendingHref: opening, isPage: isPageSidebar && hasSidebar }}
       >
         <SplitViewMarksContext value={marks}>
           <div
@@ -321,9 +338,9 @@ export function NavigationSplitView({
             css={[
               viewFrameStyles.view,
               !isContained && viewFramePageScrollStyles.view,
-              scrollsWithPage && viewFramePageScrollAlwaysStyles.view,
               movingMarker,
               hasSidebar && pageColumn.wide,
+              ownNav !== null && viewFrameStyles.canvas,
               css,
             ]}
           >
@@ -340,40 +357,25 @@ export function NavigationSplitView({
                 islandSurface.frame,
                 viewFrameStyles.columns,
                 !isContained && viewFramePageScrollStyles.columns,
-                scrollsWithPage && viewFramePageScrollAlwaysStyles.columns,
                 !isInTabView && viewFrameStyles.columnsWithoutBar,
                 fillsScreen && viewFrameStyles.columnsOnScreen,
-                drawer !== null && viewFrameStyles.columnsWithMenu,
-                !hasDetailColumn &&
-                  (hasCollapsed
-                    ? viewFrameStyles.stackedBelowCollapsed
-                    : hasSidebar && viewFrameStyles.stackedBelowSidebar),
+                fillsScreen &&
+                  !hasSidebar &&
+                  detail == null &&
+                  viewFrameStyles.columnsAlone,
                 hasSidebar &&
                   !hasDetailColumn &&
-                  viewFrameStyles.fullSidebarBesideContent,
+                  viewFrameStyles.stackedBelowSidebar,
               ]}
             >
-              {drawer !== null ? (
-                <DrawerColumn
-                  drawer={drawer}
-                  fits={sidebarFits}
-                  isOpen={isDrawerOpen}
-                  onOpenChange={setIsDrawerOpen}
-                  isContained={isContained}
-                  scroller={drawerScroller}
-                  scrollerRef={setDrawerScroller}
-                />
-              ) : hasSidebar ? (
+              {hasSidebar ? (
                 <SidebarColumns
                   sidebar={sidebar}
-                  collapsedSidebar={collapsedSidebar}
-                  stacks={stacks}
+                  nav={sidebarNav}
                   showsStackRoot={showsStackRoot}
-                  sidebarFits={sidebarFits}
-                  fitsCollapsed={fitsCollapsed}
                   fitsFullSidebar={fitsFullSidebar}
                   hasDetailColumn={hasDetailColumn}
-                  folding={folding}
+                  isInTabView={isInTabView}
                   pageScrolls={pageScrolls}
                   pageScroll={pageScroll}
                 />
@@ -387,7 +389,8 @@ export function NavigationSplitView({
                 pageScroll={pageScroll}
                 isShown={!isAtStackRoot || fitsFullSidebar !== false}
                 close={closeOf(content.back)}
-                stacks={stacks}
+                expand={ownNav?.isCollapsed === true ? ownToggle : null}
+                hasSidebar={hasSidebar}
                 showsStackRoot={showsStackRoot}
                 depth={depth}
                 isRouted={isRouted}
@@ -432,6 +435,32 @@ export function NavigationSplitView({
   );
   return fillsScreen ? <div css={viewFrameStyles.screen}>{shown}</div> : shown;
 }
+
+const ownSidebarStyles = stylex.create({
+  // The `header` and, at its end, the button that collapses the sidebar.
+  top: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: rhythm.tight,
+    minInlineSize: 0,
+    marginBlockEnd: rhythm.item,
+  },
+  header: {
+    minInlineSize: 0,
+  },
+  // The button shows only where the sidebar shows beside the content.
+  toggle: {
+    display: {
+      default: "none",
+      [splitViewQueries.contentBesideSidebar]: "inline-flex",
+    },
+  },
+  bottom: {
+    marginBlockStart: "auto",
+    paddingBlockStart: rhythm.item,
+  },
+});
 
 function replaceLocation(href: string) {
   window.location.replace(href);

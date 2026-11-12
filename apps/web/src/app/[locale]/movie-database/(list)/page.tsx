@@ -105,7 +105,7 @@ export default async function Page(
       })}
     >
       <HeroVisibilityProvider>
-        <main>
+        <div>
           <InlineChatSwitch
             chatBackground={<DotGridBackground />}
             browseContent={
@@ -228,7 +228,7 @@ export default async function Page(
               />
             }
           />
-        </main>
+        </div>
       </HeroVisibilityProvider>
     </RetryableErrorBoundary>
   );

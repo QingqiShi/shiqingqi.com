@@ -10,10 +10,7 @@ import { Card } from "@tuja/ui/components/card";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
-import {
-  SplitViewLink,
-  UnlessStacked,
-} from "@tuja/ui/components/navigation-split-view";
+import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -36,7 +33,7 @@ import { useMoverRows } from "./use-mover-rows.ts";
 import type { NetWorthUrl } from "./use-net-worth-url.ts";
 
 /**
- * "Needs a look" and, unless stacked, "What moved this week", with as many
+ * "Needs a look" and "What moved this week", with as many
  * movers as `useMoverRows` finds room for. It is a component of its own, so
  * that a new measure does not render the trend again.
  */
@@ -67,15 +64,13 @@ export function HouseholdCards({
       ]}
     >
       <NeedsALook differences={differences} queue={queue} url={url} />
-      <UnlessStacked>
-        <WhatMoved
-          movers={movers.slice(0, shown)}
-          currency={currency}
-          url={url}
-          rowHeight={rowHeight}
-          cardRef={setCard}
-        />
-      </UnlessStacked>
+      <WhatMoved
+        movers={movers.slice(0, shown)}
+        currency={currency}
+        url={url}
+        rowHeight={rowHeight}
+        cardRef={setCard}
+      />
     </div>
   );
 }
@@ -261,7 +256,7 @@ function NeedsALook({
           ) : null,
         )}
         {reviewCount === 0 && expectedCount === 0 ? null : (
-          <List>
+          <List form="plain">
             {reviewCount === 0 ? null : (
               <ListRow
                 href={financeHref(

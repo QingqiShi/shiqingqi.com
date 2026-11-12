@@ -5,11 +5,21 @@ import { color } from "@tuja/ui/color.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { border, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { getScrollBehavior } from "@tuja/ui/utils/get-scroll-behavior";
-import { ViewTransition, useEffect, useState, type ReactNode } from "react";
+import {
+  ViewTransition,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { MediaDetailOverlay } from "#src/movie-database/details/media-detail-overlay.tsx";
 import { MediaDetailProvider } from "#src/movie-database/details/media-detail-provider.tsx";
 import { PersonDetailOverlay } from "#src/movie-database/details/person-detail-overlay.tsx";
 import { gutterBleed } from "#src/movie-database/gutter-bleed.stylex.ts";
+import {
+  screenScrollerOf,
+  scrollEventTargetOf,
+} from "#src/movie-database/screen-scroller-of.ts";
 import { PreferenceManager } from "#src/movie-database/taste/preference-panel.tsx";
 import { inlineChatInputMorph } from "#src/view-transition-classes.stylex.ts";
 import { useAIChatContext } from "./ai-chat-provider.tsx";
@@ -62,22 +72,27 @@ export function InlineChatView({
   );
   const [isAtBottom, setIsAtBottom] = useState(true);
 
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
+    const scroller = screenScrollerOf(containerRef.current);
+    const target = scrollEventTargetOf(scroller);
     const handleScroll = () => {
-      const { scrollHeight } = document.documentElement;
       const atBottom =
-        scrollHeight - window.scrollY - window.innerHeight < SCROLL_THRESHOLD;
+        scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight <
+        SCROLL_THRESHOLD;
       setIsAtBottom(atBottom);
     };
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    target.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      target.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
   const scrollToBottom = () => {
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
+    const scroller = screenScrollerOf(containerRef.current);
+    scroller.scrollTo({
+      top: scroller.scrollHeight,
       behavior: getScrollBehavior(),
     });
     setIsAtBottom(true);
@@ -100,7 +115,7 @@ export function InlineChatView({
           setAttachedMedia,
         }}
       >
-        <div css={[pageColumn.base, styles.container]}>
+        <div ref={containerRef} css={[pageColumn.base, styles.container]}>
           {previousSessionId && messages.length === 0 && (
             <SessionRestoreBanner
               onContinue={continueSession}

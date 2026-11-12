@@ -54,7 +54,13 @@ interface Todo {
   done?: boolean;
 }
 
-function PastReports() {
+function PastReports({
+  todayHref,
+  listHref,
+}: {
+  todayHref: string;
+  listHref: string;
+}) {
   const reports = [
     {
       date: "2026-11-10",
@@ -79,7 +85,7 @@ function PastReports() {
           {reports.map((report) => (
             <NavLink
               key={report.date}
-              href={`#${report.date}`}
+              href={report.current ? todayHref : `#${report.date}`}
               current={report.current}
               trailing={
                 report.current ? (
@@ -92,7 +98,7 @@ function PastReports() {
               {report.day}
             </NavLink>
           ))}
-          <NavLink href="#reports" icon={<ListBulletsIcon weight="bold" />}>
+          <NavLink href={listHref} icon={<ListBulletsIcon weight="bold" />}>
             {t({ en: "All reports", zh: "全部报告" })}
           </NavLink>
         </NavGroup>
@@ -385,7 +391,7 @@ function GoodToKnowCard() {
   );
 }
 
-function Report() {
+function Report({ listHref }: { listHref: string }) {
   return (
     <div css={stack.group}>
       <PageHeader
@@ -400,7 +406,7 @@ function Report() {
         actions={
           <>
             <Button
-              href="#reports"
+              href={listHref}
               look="ghost"
               size="sm"
               icon={<ListBulletsIcon weight="bold" />}
@@ -471,11 +477,22 @@ function Report() {
   );
 }
 
-export function DashboardScreen() {
+/**
+ * The report of today beside the list of reports. The list has a URL of its
+ * own, `/reports`: where it has no room beside the report, the screen opens
+ * on the report, and Back leads to the list.
+ */
+export function DashboardScreen({
+  showsList = false,
+}: {
+  showsList?: boolean;
+}) {
   const locale = useLocale();
+  const path = getLocalePath("/design-system/patterns/dashboard", locale);
+  const listHref = `${path}/reports`;
   const destinations = [
     {
-      href: getLocalePath("/design-system/patterns/dashboard", locale),
+      href: path,
       label: t({ en: "Today", zh: "今天" }),
       icon: SunIcon,
       current: true,
@@ -497,11 +514,13 @@ export function DashboardScreen() {
       icon: GearSixIcon,
     },
   ];
+  const reportsLabel = t({ en: "Reports", zh: "报告" });
   return (
     <TabView
       label={t({ en: "Mail assistant", zh: "邮件助理" })}
       items={destinations}
       linkComponent={Link}
+      sidebarToggleLabel={t({ en: "Sidebar", zh: "侧边栏" })}
       header={
         <TabViewBrand
           name={t({ en: "Assistant", zh: "助理" })}
@@ -509,12 +528,21 @@ export function DashboardScreen() {
           detail={t({ en: "2 mailboxes", zh: "2 个邮箱" })}
         />
       }
-      secondary={<PastReports />}
       css={pageColumn.report}
     >
       <NavigationSplitView
         linkComponent={Link}
-        content={{ label: t({ en: "Today", zh: "今天" }), node: <Report /> }}
+        linkStatus={null}
+        sidebar={{
+          href: listHref,
+          label: reportsLabel,
+          node: <PastReports todayHref={path} listHref={listHref} />,
+        }}
+        content={{
+          label: t({ en: "Today", zh: "今天" }),
+          back: showsList ? null : { href: listHref, label: reportsLabel },
+          node: <Report listHref={listHref} />,
+        }}
       />
     </TabView>
   );

@@ -22,6 +22,12 @@ export const listRowSizes = stylex.defineVars({
  */
 export const listRowTokens = stylex.defineVars({
   caretDisplay: "inline-flex",
+  /**
+   * How far the plate of a row in a plain list reaches into the gutter. The
+   * sidebar of a `NavigationSplitView` sets it to the inset of a `NavLink`
+   * row, so that each fill in the sidebar starts on the same edge.
+   */
+  plateInset: space._2,
   divider: border.size_1,
   itemPaddingBlock: "0px",
   rowPaddingInline: space._3,
@@ -72,10 +78,12 @@ export const listSurface = stylex.create({
     [listRowTokens.detailSize]: font.uiBodySmall,
     [listRowTokens.detailLineHeight]: font.lineHeightBody,
   },
+  // After `plainList.list`.
   plain: {
     [listRowTokens.divider]: "0px",
     [listRowTokens.itemPaddingBlock]: space._00,
-    [listRowTokens.rowPaddingInline]: space._2,
+    [listRowTokens.rowPaddingInline]: listRowTokens.plateInset,
+    marginInline: `calc(-1 * ${listRowTokens.plateInset})`,
     [listRowTokens.rowRadius]: border.radius_3,
   },
   compact: {

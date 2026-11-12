@@ -8,7 +8,6 @@ import {
   type Offset,
 } from "./create-detail.ts";
 import { createFade } from "./create-fade.ts";
-import { createFold, type Fold } from "./create-fold.ts";
 import { createPush, type Push } from "./create-push.ts";
 import { SELECTOR } from "./is-view-stacked.ts";
 import { CROSS_FADE, keepMoving } from "./show.ts";
@@ -49,7 +48,6 @@ export interface ColumnParts {
     box: DOMRect | null,
     dx: number,
   ): () => void;
-  planFold(change: "fold" | "unfold" | null): () => void;
   beginSwipe(): boolean;
   drag(progress: number): void;
   release(pop: boolean, velocity: number): boolean;
@@ -59,12 +57,10 @@ export interface ColumnParts {
 export function createColumnParts(
   engine: MotionEngine,
   view: HTMLElement,
-  setFolding: (fold: "fold" | "unfold" | null) => void,
 ): ColumnParts {
   let push: Push | null = null;
   let detail: Detail | null = null;
   let offset: Offset | null = null;
-  let fold: Fold | null = null;
   let fades: Part[] = [];
   /** A swipe let go to go back holds the screen out until the view pops it. */
   let awaitingPop: ReturnType<typeof setTimeout> | undefined;
@@ -103,10 +99,6 @@ export function createColumnParts(
       offset.drop();
       offset = null;
     }
-    if (fold !== null && !fold.isMoving()) {
-      fold.drop();
-      fold = null;
-    }
     fades = fades.filter(keepMoving);
   }
 
@@ -114,14 +106,12 @@ export function createColumnParts(
     if (push !== keep) push?.drop();
     detail?.drop();
     offset?.drop();
-    fold?.drop();
     for (const part of fades) {
       part.drop();
     }
     push = keep;
     detail = null;
     offset = null;
-    fold = null;
     fades = [];
   }
 
@@ -295,20 +285,6 @@ export function createColumnParts(
     };
   }
 
-  function planFold(change: "fold" | "unfold" | null) {
-    if (change === null) return noStart;
-    const full = view.querySelector<HTMLElement>(SELECTOR.fullSidebar);
-    const collapsed = view.querySelector<HTMLElement>(
-      SELECTOR.collapsedSidebar,
-    );
-    if (full === null || collapsed === null) return noStart;
-    return () => {
-      fold ??= createFold(engine, full, collapsed, change === "fold" ? 0 : 1);
-      fold.go(change === "fold" ? 1 : 0, change === "unfold" ? 0.04 : 0);
-      setFolding(change);
-    };
-  }
-
   return {
     get push() {
       return push;
@@ -325,7 +301,6 @@ export function createColumnParts(
     planContent,
     planDetail,
     planOffset,
-    planFold,
 
     beginSwipe() {
       const content = view.querySelector<HTMLElement>(SELECTOR.content);

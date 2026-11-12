@@ -7,19 +7,19 @@ import { ApiGrid, type ApiEntry } from "./api-grid.tsx";
 export function ShowSection() {
   const api: ApiEntry[] = [
     {
-      token: "show.fromMd",
-      meta: "display · TabView ≥ 768px",
+      token: "show.wide",
+      meta: "display · view ≥ 44rem",
       description: t({
-        en: "Shows the element where the Tab view shows its rail or sidebar.",
-        zh: "在标签视图显示侧轨或侧边栏时显示该元素。",
+        en: "Shows the element where its view is wide enough for the wide form.",
+        zh: "在所在的视图足够宽、放得下宽形式时显示该元素。",
       }),
     },
     {
-      token: "show.belowMd",
-      meta: "display · TabView < 768px",
+      token: "show.narrow",
+      meta: "display · view < 44rem",
       description: t({
-        en: "Shows the element where the Tab view shows its tab bar.",
-        zh: "在标签视图显示标签栏时显示该元素。",
+        en: "Shows the element where its view is narrow, such as on a phone or beside a sidebar on a small screen.",
+        zh: "在所在的视图较窄时显示该元素，例如手机上，或小屏幕的侧边栏旁。",
       }),
     },
   ];
@@ -28,18 +28,18 @@ export function ShowSection() {
     <Showcase label={t({ en: "Show", zh: "显示" })}>
       <ShowcaseHelper>
         {t({
-          en: "Two forms of one content, such as a Table on a wide screen and a List on a phone, each in its own wrapper. They measure the Tab view around them, not the screen, so the content changes form where the view does. Outside a Tab view, fromMd always shows and belowMd never does.",
-          zh: "同一内容的两种形式，例如宽屏上的表格与手机上的列表，各放在自己的包裹元素中。它们测量外层的标签视图而非屏幕，因此内容与视图在同一宽度改变形式。在标签视图之外，fromMd 始终显示，belowMd 始终不显示。",
+          en: "Two forms of one content, such as a Table in a wide view and a List in a narrow one, each in its own wrapper. They measure the Navigation split view or Navigation stack around them, not the screen, so the content changes form by the room that it has. Outside a Navigation split view or a Navigation stack, wide always shows and narrow never does.",
+          zh: "同一内容的两种形式，例如宽视图里的表格与窄视图里的列表，各放在自己的包裹元素中。它们测量外层的导航分栏视图或导航栈而非屏幕，因此内容按自己实际拥有的宽度改变形式。在导航分栏视图或导航栈之外，wide 始终显示，narrow 始终不显示。",
         })}
       </ShowcaseHelper>
       <ApiGrid entries={api} />
       <UsageSnippet
         code={`import { show } from "@tuja/ui/primitives/show.stylex";
 
-<div css={show.fromMd}>
+<div css={show.wide}>
   <Table caption="Spending">…</Table>
 </div>
-<div css={show.belowMd}>
+<div css={show.narrow}>
   <List aria-label="Spending">…</List>
 </div>`}
       />

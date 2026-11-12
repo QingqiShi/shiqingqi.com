@@ -19,16 +19,17 @@ function TabLink(props: TabViewLinkProps) {
 }
 
 interface FinanceTabViewProps {
-  /** The top of the rail, at `md` and wider. */
+  /** The top of the rail, from 34rem. */
   header?: ReactNode;
-  /** The bottom of the rail, at `md` and wider. */
+  /** The bottom of the rail, from 34rem. */
   footer?: ReactNode;
+  defaultCollapsed?: boolean;
   children: ReactNode;
 }
 
 /**
- * The five Finance destinations: in the rail at `md` and wider, and in the
- * tab bar that floats above the bottom of the screen below `md`. A dot on
+ * The five Finance destinations: in the rail from 34rem, and in the
+ * tab bar that floats above the bottom of the screen below 34rem. A dot on
  * Transactions says that changes wait to sync. A dot on Settings, where the
  * full sync status is, says that sync has a problem, and the link's name says
  * which.
@@ -36,6 +37,7 @@ interface FinanceTabViewProps {
 export function FinanceTabView({
   header,
   footer,
+  defaultCollapsed,
   children,
 }: FinanceTabViewProps) {
   const locale = useLocale();
@@ -46,13 +48,14 @@ export function FinanceTabView({
 
   return (
     <TabView
-      rail="icons"
+      sidebarToggleLabel={t({ en: "Sidebar", zh: "侧边栏" })}
       label={t({ en: "Finance", zh: "家庭账本" })}
       linkComponent={TabLink}
       linkStatus={LinkStatus}
       fallbackSkeleton={<FinanceScreenSkeleton path={current} />}
       header={header}
       footer={footer}
+      defaultCollapsed={defaultCollapsed}
       items={destinations.map((destination) => {
         const isSettings = destination.path === "/settings";
         const dot =

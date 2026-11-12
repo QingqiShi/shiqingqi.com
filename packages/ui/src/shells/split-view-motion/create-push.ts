@@ -95,6 +95,8 @@ export function createPush(
     visibility: p <= 0.001 ? "hidden" : "visible",
     "content-visibility": "visible",
     "background-color": fill,
+    // A page that leaves comes after the new one in the DOM.
+    "z-index": "1",
     opacity: gone > 0 ? (1 - unit(gone)).toFixed(3) : "",
   });
   const showFront = (front: HTMLElement) => [

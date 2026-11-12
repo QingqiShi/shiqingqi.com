@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { useRef, type ComponentType, type ReactNode } from "react";
+import { useRef, type ComponentType } from "react";
 import { navListStyles } from "../actions/nav-list-context.tsx";
 import { tabLink } from "../actions/tab-bar.stylex.ts";
 import {
@@ -66,30 +66,22 @@ export function Rail({ label, css, ...track }: RailProps) {
   );
 }
 
-interface RailSidebarProps extends Omit<RailProps, "effect"> {
-  secondary: ReactNode;
-}
+type RailSidebarProps = Omit<RailProps, "effect">;
 
 /**
  * The destinations in the labelled sidebar, each a row of an icon and a
- * label, with `secondary` under them. Both are in one Scroll region for a
- * sidebar too short to hold them.
+ * label, in a Scroll region for a sidebar too short to hold them all.
  *
  * @internal
  */
-export function RailSidebar({
-  label,
-  secondary,
-  css,
-  ...track
-}: RailSidebarProps) {
+export function RailSidebar({ label, css, ...track }: RailSidebarProps) {
   const region = useScrollRegion();
   const { scroller, content } = region;
   const scrollerRef = useRef<HTMLDivElement>(null);
   const { showStartMask, showEndMask } = useScrollMask(scrollerRef, "vertical");
   return (
     <div ref={mergeRefs(scroller, scrollerRef)} css={[styles.scroller, css]}>
-      <div ref={content} css={[stack.group, styles.scrolled]}>
+      <div ref={content} css={styles.scrolled}>
         <EffectCarrier value={region}>
           <nav aria-label={label}>
             {/* The liquid rests in a pill as wide as a row is tall, so it
@@ -101,10 +93,26 @@ export function RailSidebar({
               scrolls={showStartMask || showEndMask}
             />
           </nav>
-          {secondary == null ? null : <div>{secondary}</div>}
         </EffectCarrier>
       </div>
     </div>
+  );
+}
+
+/**
+ * The destinations as rows of an icon and a label, in the scroller of what
+ * holds them, such as the list of a screen that shows in the sidebar.
+ *
+ * @internal
+ */
+export function RailRows({
+  label,
+  ...track
+}: Omit<RailProps, "effect" | "css">) {
+  return (
+    <nav aria-label={label}>
+      <RailTrack {...track} effect="none" form="labels" scrolls={false} />
+    </nav>
   );
 }
 
@@ -304,8 +312,8 @@ const styles = stylex.create({
     overflowWrap: "normal",
     hyphens: "auto",
   },
-  // A labelled row takes the styles of a `NavLink` row, so that a `NavList`
-  // in `secondary` matches it. The current row is filled, and its icon is
+  // A labelled row takes the styles of a `NavLink` row, so that the `NavList`
+  // of a screen under it in the sidebar matches it. The current row is filled, and its icon is
   // filled in `fg`.
   rowIconShown: {
     color: color.foreground,

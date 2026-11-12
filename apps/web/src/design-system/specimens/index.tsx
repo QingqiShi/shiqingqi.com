@@ -21,6 +21,7 @@ import { ListSpecimen } from "./list-specimen.tsx";
 import { MenuButtonSpecimen } from "./menu-button-specimen.tsx";
 import { NavListSpecimen } from "./nav-list-specimen.tsx";
 import { NavigationSplitViewSpecimen } from "./navigation-split-view-specimen.tsx";
+import { NavigationStackSpecimen } from "./navigation-stack-specimen.tsx";
 import { OptionCardSpecimen } from "./option-card-specimen.tsx";
 import { PageHeaderSpecimen } from "./page-header-specimen.tsx";
 import { PagerSpecimen } from "./pager-specimen.tsx";
@@ -153,6 +154,10 @@ const COMPONENT_SPECIMENS: Partial<
   },
   "/design-system/components/navigation-split-view": {
     element: <NavigationSplitViewSpecimen />,
+    fillsPlate: true,
+  },
+  "/design-system/components/navigation-stack": {
+    element: <NavigationStackSpecimen />,
     fillsPlate: true,
   },
 };

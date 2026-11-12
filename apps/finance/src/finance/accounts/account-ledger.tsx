@@ -148,7 +148,7 @@ export function AccountLedger({ account, today }: AccountLedgerProps) {
                       value={money(item.valuation.amountMinor)}
                       valueDetail={
                         <Button
-                          size="xs"
+                          size="sm"
                           look="ghost"
                           icon={<TrashIcon weight="bold" />}
                           aria-label={`${removeLabel} ${displayDay(item.day, locale, "dayYear")}`}

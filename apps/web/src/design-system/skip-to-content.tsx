@@ -47,7 +47,7 @@ const styles = stylex.create({
       ":focus": `calc(${space._2} + env(safe-area-inset-top))`,
     },
     insetInlineStart: pageGutter.inlineStart,
-    // Above the menu button (`layer.header`) and the drawer (`layer.overlay`),
+    // Above the menu button (`layer.header`) and a sheet (`layer.overlay`),
     // because a revealed skip link must never be under the chrome.
     zIndex: layer.toaster,
     // Lifts the link off what it covers. The outline alone reads as in-flow

@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
@@ -11,15 +10,19 @@ import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
+import { NavGroup } from "@tuja/ui/components/nav-group";
+import { NavLink } from "@tuja/ui/components/nav-link";
+import { NavList } from "@tuja/ui/components/nav-list";
 import {
   SplitViewLink,
+  StackedOnly,
   useSplitViewColumn,
 } from "@tuja/ui/components/navigation-split-view";
+import { sidebarEdge } from "@tuja/ui/components/navigation-split-view.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
-import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useHouseholdToday } from "../accounts/use-household-today.ts";
@@ -52,11 +55,14 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
   const { regenerate, pending } = useRegenerateReport();
   const { readOnly } = useFinanceRuntime();
   const isPage = useSplitViewColumn()?.presentation === "page";
-  const currentRef = useRef<HTMLElement>(null);
+  const navRef = useRef<HTMLElement>(null);
   const lastWeekLabel = t({ en: "Last week", zh: "上周" });
 
   useEffect(() => {
-    if (!isPage) currentRef.current?.scrollIntoView({ block: "nearest" });
+    if (isPage) return;
+    navRef.current
+      ?.querySelector('[aria-current="page"]')
+      ?.scrollIntoView({ block: "nearest" });
   }, [currentId, isPage]);
 
   async function generateLastWeek() {
@@ -81,10 +87,16 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
   );
 
   return (
-    <nav aria-label={t({ en: "Reports", zh: "周报" })} css={stack.item}>
-      <Heading level={headingLevel} look="h3">
-        {t({ en: "Reports", zh: "周报" })}
-      </Heading>
+    <nav
+      ref={navRef}
+      aria-label={t({ en: "Reports", zh: "周报" })}
+      css={stack.item}
+    >
+      <StackedOnly>
+        <Heading level={headingLevel} look="h3">
+          {t({ en: "Reports", zh: "周报" })}
+        </Heading>
+      </StackedOnly>
       {list.data === undefined &&
       list.status === "pending" &&
       list.fetchStatus !== "paused" ? (
@@ -125,7 +137,7 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
           </div>
         </Callout>
       ) : reports.length === 0 ? (
-        <div css={stack.item}>
+        <div css={[stack.item, sidebarEdge.text]}>
           <div css={stack.text}>
             <Text as="p" look="body">
               {t({ en: "No reports yet.", zh: "还没有周报。" })}
@@ -141,56 +153,40 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
         </div>
       ) : (
         <>
-          {hasLastWeek ? null : <div>{generateButton}</div>}
-          {groupReportsByYear(reports).map(({ year, reports: inYear }) => (
-            <section
-              key={year}
-              aria-label={year}
-              css={[stack.tight, styles.year]}
-            >
-              <Text look="overline" tone="muted">
-                {year}
-              </Text>
-              <List>
-                {inYear.map((report) => {
-                  const isCurrent = report.id === currentId;
-                  return (
-                    <ListRow
-                      key={report.id}
-                      ref={isCurrent ? currentRef : undefined}
-                      href={getLocalePath(`/reports/${report.id}`, locale)}
-                      linkComponent={SplitViewLink}
-                      aria-current={isCurrent ? "page" : undefined}
-                      trailing={
-                        report.periodEnd === lastWeekEnd ? (
-                          <Badge intent="neutral" size="sm">
-                            {lastWeekLabel}
-                          </Badge>
-                        ) : null
-                      }
-                    >
-                      <span css={typeModifier.numeric}>
-                        {formatReportWeek(
-                          report.periodStart,
-                          report.periodEnd,
-                          locale,
-                          { withYear: false },
-                        )}
-                      </span>
-                    </ListRow>
-                  );
-                })}
-              </List>
-            </section>
-          ))}
+          {hasLastWeek ? null : (
+            <div css={sidebarEdge.text}>{generateButton}</div>
+          )}
+          <NavList linkComponent={SplitViewLink}>
+            {groupReportsByYear(reports).map(({ year, reports: inYear }) => (
+              <NavGroup key={year} label={year}>
+                {inYear.map((report) => (
+                  <NavLink
+                    key={report.id}
+                    href={getLocalePath(`/reports/${report.id}`, locale)}
+                    current={report.id === currentId}
+                    trailing={
+                      report.periodEnd === lastWeekEnd ? (
+                        <Badge intent="neutral" size="sm">
+                          {lastWeekLabel}
+                        </Badge>
+                      ) : null
+                    }
+                  >
+                    <span css={typeModifier.numeric}>
+                      {formatReportWeek(
+                        report.periodStart,
+                        report.periodEnd,
+                        locale,
+                        { withYear: false },
+                      )}
+                    </span>
+                  </NavLink>
+                ))}
+              </NavGroup>
+            ))}
+          </NavList>
         </>
       )}
     </nav>
   );
 }
-
-const styles = stylex.create({
-  year: {
-    paddingBlockStart: rhythm.tight,
-  },
-});

@@ -162,6 +162,8 @@
     "./components/nav-link": "./src/actions/nav-link.tsx",
     "./components/nav-list": "./src/actions/nav-list.tsx",
     "./components/navigation-split-view": "./src/shells/navigation-split-view.tsx",
+    "./components/navigation-stack": "./src/shells/navigation-stack.tsx",
+    "./components/sidebar-collapsed-cookie": "./src/shells/sidebar-collapsed-cookie.ts",
     "./components/navigation-split-view.stylex": "./src/shells/navigation-split-view.stylex.ts",
     "./components/option-card": "./src/forms/option-card.tsx",
     "./components/option-card-group": "./src/forms/option-card-group.tsx",
