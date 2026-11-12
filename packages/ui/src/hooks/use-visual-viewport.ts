@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 
 /** The part of the document that the visitor sees, in whole px. */
-export interface VisibleArea {
+interface VisibleArea {
   /** The top of the visible area, down from the top of the document. */
   readonly top: number;
   readonly height: number;

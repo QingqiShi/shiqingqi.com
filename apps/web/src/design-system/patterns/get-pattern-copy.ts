@@ -2,7 +2,7 @@ import "server-only";
 import { t } from "@tuja/i18n";
 import type { PatternPath } from "./pattern-paths.ts";
 
-export interface PatternCopy {
+interface PatternCopy {
   name: string;
   /** When to start from this pattern, in one sentence. */
   description: string;

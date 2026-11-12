@@ -5,7 +5,7 @@ import { readCachedPublicPetState } from "#src/server/read-public-pet-state.ts";
 import { combineSnapshots } from "#src/server/snapshot/combine-snapshots.ts";
 import { nextSnapshot } from "#src/server/snapshot/next-snapshot.ts";
 
-export type DemoPetState = {
+type DemoPetState = {
   state: PublicPetState;
   /** A real account's pet, which the page then keeps fresh as a visitor's page does. */
   isLive: boolean;

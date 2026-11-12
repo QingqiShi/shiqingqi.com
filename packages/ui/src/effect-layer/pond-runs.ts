@@ -29,7 +29,7 @@ export interface PondView {
  *
  * @internal
  */
-export type ShowPond = () => PondView | null;
+type ShowPond = () => PondView | null;
 
 const runs = new Map<Element, ShowPond>();
 let wake = () => {};

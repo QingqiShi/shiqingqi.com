@@ -15,7 +15,7 @@ import type { StyleProp } from "../types.ts";
  *
  * @internal
  */
-export type ScrollButtonEdge =
+type ScrollButtonEdge =
   "block-start" | "block-end" | "inline-start" | "inline-end";
 
 interface ScrollButtonProps {

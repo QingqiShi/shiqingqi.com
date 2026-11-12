@@ -6,7 +6,7 @@ import { accountNameOf } from "./account-name-of.ts";
 import { machineStore } from "./machine-store.ts";
 import type { MachineRegistry } from "./make-machine-registry.ts";
 
-export interface MachineHandlerDeps {
+interface MachineHandlerDeps {
   getDb: () => BuddyDb | null;
   registry: Pick<MachineRegistry, "remove">;
   now: () => Date;

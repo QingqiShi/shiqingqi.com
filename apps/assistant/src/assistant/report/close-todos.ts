@@ -16,7 +16,7 @@ import {
 export type CloseFailure = "calendar-unreachable" | "calendar-disconnected";
 
 /** Thrown in a transaction, so that the transaction rolls back. */
-export class CloseFailed extends Error {
+class CloseFailed extends Error {
   readonly failure: CloseFailure;
 
   constructor(failure: CloseFailure) {

@@ -20,7 +20,7 @@ type MultiSearchResult = NonNullable<
   known_for_department?: string;
 };
 
-export const tmdbSearchInputSchema = z.object({
+const tmdbSearchInputSchema = z.object({
   query: z
     .string()
     .describe(

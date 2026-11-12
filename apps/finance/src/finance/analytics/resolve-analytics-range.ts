@@ -7,7 +7,7 @@ import {
 } from "../domain/dates/start-of-month.ts";
 import type { Grouping } from "./types.ts";
 
-export const ANALYTICS_RANGES = [
+const ANALYTICS_RANGES = [
   "thisMonth",
   "lastMonth",
   "3M",

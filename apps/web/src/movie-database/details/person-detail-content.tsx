@@ -164,7 +164,7 @@ function ProfileImage({
 
 const LINE_CLAMP = 6;
 
-export function ExpandableBiography({ text }: { text: string }) {
+function ExpandableBiography({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false);
   const [isClamped, setIsClamped] = useState(false);
   const paragraphRef = useRef<HTMLElement>(null);

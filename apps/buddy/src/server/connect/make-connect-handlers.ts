@@ -17,7 +17,7 @@ import {
   REQUEST_ID_PATTERN,
 } from "./connect-request-store.ts";
 
-export interface ConnectHandlerDeps {
+interface ConnectHandlerDeps {
   kv: BuddyKv;
   getDb: () => BuddyDb | null;
   registry: Pick<MachineRegistry, "connect">;

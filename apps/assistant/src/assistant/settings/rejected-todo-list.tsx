@@ -16,7 +16,7 @@ import { useRef, useState } from "react";
 import { assistantFetch } from "../http/assistant-fetch.ts";
 import { refreshAfterSave } from "../shell/refresh-after-save.ts";
 
-export interface RejectedTodoEntry {
+interface RejectedTodoEntry {
   id: string;
   title: string;
   note: string | null;

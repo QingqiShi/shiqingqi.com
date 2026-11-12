@@ -1,7 +1,7 @@
 export const OAUTH_PROVIDERS = ["gmail", "outlook"] as const;
 export type OAuthProvider = (typeof OAUTH_PROVIDERS)[number];
 
-export interface OAuthProviderConfig {
+interface OAuthProviderConfig {
   /** The path segment of the connect routes, `/api/connect/<slug>/…`. */
   slug: "google" | "microsoft";
   authorizeUrl: string;

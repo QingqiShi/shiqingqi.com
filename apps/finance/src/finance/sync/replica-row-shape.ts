@@ -13,7 +13,7 @@ export const ROW_SHAPE_HEADER = "X-Finance-Row-Shape";
  * when `REPLICA_ROW_SHAPE` moves, because it is the shape of the code before
  * the header.
  */
-export const HEADERLESS_ROW_SHAPE = 7;
+const HEADERLESS_ROW_SHAPE = 7;
 
 export const ROW_SHAPE_MISMATCH_STATUS = 426;
 

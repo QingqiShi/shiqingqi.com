@@ -14,7 +14,7 @@ const MAX_IMAGE_REFERENCES = 300;
 const CSS_URL = /url\(\s*(?:"([^"]*)"\s*|'([^']*)'\s*|([^()\s"']+)\s*)?\)/gi;
 const ATTRIBUTE_NAME = /^[^\s"'<>/=]+$/;
 
-export interface RewrittenImages {
+interface RewrittenImages {
   html: string;
   /** Web images that now load through the app's image route. */
   proxied: number;

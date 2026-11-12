@@ -4,7 +4,7 @@
  * the Share menu. `other` installs only through `beforeinstallprompt`, if the
  * browser fires it.
  */
-export type InstallPlatform = "installed" | "ios" | "other";
+type InstallPlatform = "installed" | "ios" | "other";
 
 interface InstallEnvironment {
   userAgent: string;

@@ -26,7 +26,7 @@ import {
   type OAuthProvider,
 } from "./oauth-providers.ts";
 
-export interface ConnectHandlerDeps extends MailHandlerDeps {
+interface ConnectHandlerDeps extends MailHandlerDeps {
   authSecret: () => string | undefined;
   oauthClient: (provider: OAuthProvider) => OAuthClient | null;
   fetch: Fetch;

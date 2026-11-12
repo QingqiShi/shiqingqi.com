@@ -60,7 +60,7 @@ const SUBSTEP_MOVE = 0.08;
  *
  * @internal
  */
-export const MAX_SUBSTEPS = 96;
+const MAX_SUBSTEPS = 96;
 
 /** @internal */
 export const STIFFNESS = 150;

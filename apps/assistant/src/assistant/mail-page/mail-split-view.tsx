@@ -13,7 +13,7 @@ import { useCameFrom } from "../shell/use-came-from.ts";
 const REPORT_PATH = /^\/reports\/(\d{4}-\d{2}-\d{2})$/;
 
 /** The words of the mail page's frame: its name, Home's, and the name of each page that can open it, by its path. */
-export interface MailFrameLabels {
+interface MailFrameLabels {
   mail: string;
   home: string;
   /** Home's Report view, at `/?view=report`. */

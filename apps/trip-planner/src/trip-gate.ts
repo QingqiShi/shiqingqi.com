@@ -6,7 +6,7 @@
 // every trip has its own cookie, and the cookie value is salted with a per-trip
 // realm, so two trips that happen to share a password still can't swap unlocks.
 
-export interface TripGate {
+interface TripGate {
   /** Cookie that records an unlock for this trip — distinct per trip. */
   cookie: string;
   /** Per-trip salt folded into the cookie token so hashes can't be reused

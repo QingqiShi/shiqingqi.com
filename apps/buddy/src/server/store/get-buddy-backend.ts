@@ -4,7 +4,7 @@ import { MemoryBuddyKv } from "./memory-buddy-kv.ts";
 import { RedisBuddyKv } from "./redis-buddy-kv.ts";
 import type { BuddyKv } from "./types.ts";
 
-export interface BuddyBackend {
+interface BuddyBackend {
   kv: BuddyKv;
   inMemory: boolean;
 }

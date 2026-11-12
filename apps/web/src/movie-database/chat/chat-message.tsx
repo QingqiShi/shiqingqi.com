@@ -195,7 +195,7 @@ function isCompactionPart(part: TextUIPart): boolean {
   return part.providerMetadata?.anthropic.type === "compaction";
 }
 
-export function deriveMessageData(
+function deriveMessageData(
   parts: UIMessage["parts"],
   role?: UIMessage["role"],
 ) {

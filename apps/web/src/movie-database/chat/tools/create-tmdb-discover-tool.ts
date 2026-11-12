@@ -9,7 +9,7 @@ import type { QueryParams } from "#src/movie-database/tmdb/tmdb-get.ts";
 import { toCompactMediaResults } from "./to-compact-media-results";
 import { toolError } from "./tool-error";
 
-export const tmdbDiscoverInputSchema = z.object({
+const tmdbDiscoverInputSchema = z.object({
   media_type: z.enum(["movie", "tv"]).describe('Either "movie" or "tv".'),
   genre_ids: z
     .array(z.number().int())

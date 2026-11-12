@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { EffectScopeContext } from "./effect-scope-context.ts";
 import type { EffectContainerRef } from "./use-effect-container.ts";
 
-export interface EffectContainerProps {
+interface EffectContainerProps {
   /**
    * The ref from `useEffectContainer`, attached to the container element.
    * The effect hooks inside take the scope it holds.

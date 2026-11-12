@@ -32,7 +32,7 @@ const COPY: Record<
   },
 };
 
-export function reportMessage(report: BuiltReport): PushMessage {
+function reportMessage(report: BuiltReport): PushMessage {
   const copy = COPY[report.locale];
   return {
     title: report.headline ?? copy.notWritten,

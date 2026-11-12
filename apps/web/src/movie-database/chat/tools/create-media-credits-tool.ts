@@ -7,7 +7,7 @@ import {
 } from "#src/_generated/tmdb-server-functions.ts";
 import { toolError } from "./tool-error";
 
-export const mediaCreditsInputSchema = z.object({
+const mediaCreditsInputSchema = z.object({
   media_id: z.number().describe("The TMDB ID of the movie or TV show."),
   media_type: z.enum(["movie", "tv"]).describe('Either "movie" or "tv".'),
 });

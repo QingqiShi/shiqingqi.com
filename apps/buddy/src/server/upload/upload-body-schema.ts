@@ -13,7 +13,7 @@ const MAX_DAYS = 4000;
 const MAX_SAMPLES = 2000;
 const MAX_TIME_MS = 1e14;
 
-export const dayStringSchema = z
+const dayStringSchema = z
   .string()
   .regex(/^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/);
 const timeSchema = z.int().min(0).max(MAX_TIME_MS);
@@ -33,7 +33,7 @@ const petLimitSchema = z.strictObject({
   resetsAt: timeSchema.nullable(),
 });
 
-export const petQuotaSchema = z.strictObject({
+const petQuotaSchema = z.strictObject({
   at: timeSchema.nullable(),
   five: petLimitSchema.nullable(),
   week: petLimitSchema.nullable(),
@@ -48,7 +48,7 @@ export const petQuotaSchema = z.strictObject({
     .max(MAX_SAMPLES),
 }) satisfies z.ZodType<PetQuota>;
 
-export const petGithubSchema = z.strictObject({
+const petGithubSchema = z.strictObject({
   fetchedAt: timeSchema,
   total: countSchema,
   start: dayStringSchema,
@@ -58,7 +58,7 @@ export const petGithubSchema = z.strictObject({
     .max(MAX_DAYS),
 }) satisfies z.ZodType<PetGithub>;
 
-export const petMergesSchema = z.strictObject({
+const petMergesSchema = z.strictObject({
   from: dayStringSchema,
   days: z
     .array(
@@ -72,22 +72,22 @@ export const petMergesSchema = z.strictObject({
     .max(MAX_DAYS),
 }) satisfies z.ZodType<PetMerges>;
 
-export const petPartySchema = z.strictObject({
+const petPartySchema = z.strictObject({
   number: countSchema,
   until: timeSchema,
 }) satisfies z.ZodType<PetParty>;
 
-export const levelUpSchema = z.strictObject({
+const levelUpSchema = z.strictObject({
   level: z.int().min(0).max(1000),
   until: timeSchema,
 });
 
-export const petGrowthSchema = z.strictObject({
+const petGrowthSchema = z.strictObject({
   highest: z.int().min(0).max(1000).nullable(),
   levelUp: levelUpSchema.nullable(),
 }) satisfies z.ZodType<PetGrowth>;
 
-export const petCountersSchema = z.strictObject({
+const petCountersSchema = z.strictObject({
   fed: countSchema,
   patted: countSchema,
 }) satisfies z.ZodType<PetCounters>;

@@ -17,7 +17,7 @@ const careBody = z
   .strictObject({ fed: pressesSchema, patted: pressesSchema })
   .refine((body) => body.fed + body.patted > 0);
 
-export interface CareDeps {
+interface CareDeps {
   kv: BuddyKv;
   /** Null when the app has no database: then only a public page counts. */
   getDb: () => BuddyDb | null;

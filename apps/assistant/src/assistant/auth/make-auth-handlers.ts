@@ -20,9 +20,8 @@ import { assistantSessionCookie } from "./assistant-session-cookie.ts";
 import { createSession } from "./create-session.ts";
 import { deleteSession } from "./delete-session.ts";
 import { passkeyRpId } from "./passkey-rp-id.ts";
-import { resolveSession } from "./resolve-session.ts";
 
-export interface AuthHandlerDeps {
+interface AuthHandlerDeps {
   /** Null when the app has no database. */
   getDb: () => AssistantDb | null;
   now: () => Date;
@@ -36,7 +35,6 @@ export interface AuthHandlers {
   signInOptions: Handler;
   signInVerify: Handler;
   signOut: Handler;
-  session: Handler;
 }
 
 interface Context {
@@ -125,12 +123,11 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
 
   function handle(
     run: (request: Request, context: Context) => Promise<Response>,
-    { method }: { method: "GET" | "POST" } = { method: "POST" },
   ): Handler {
     return async (request) => {
       let context: Context | null = null;
       try {
-        if (method === "POST" && !isSameOrigin(request)) {
+        if (!isSameOrigin(request)) {
           throw new HttpError(403, "forbidden_origin");
         }
         context = prepareContext(request);
@@ -262,25 +259,5 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
       context.setCookies.push(assistantSessionCookie.clear(context.secure));
       return json(context, { ok: true });
     }),
-
-    session: handle(
-      async (request, context) => {
-        const token = readRequestCookie(request, assistantSessionCookie.name);
-        const resolved = token
-          ? await resolveSession(context.db, token, {
-              now: context.now,
-              allowRefresh: true,
-            })
-          : null;
-        if (!token || !resolved) throw new HttpError(401, "unauthorized");
-        if (resolved.refreshed) {
-          context.setCookies.push(
-            assistantSessionCookie.serialize(token, context.secure),
-          );
-        }
-        return json(context, { userId: resolved.session.userId });
-      },
-      { method: "GET" },
-    ),
   };
 }

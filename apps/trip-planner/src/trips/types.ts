@@ -89,7 +89,7 @@ export interface TimelineItem {
   text: string;
 }
 
-export interface Weather {
+interface Weather {
   /** Hand-authored temperature range, the fallback when no live forecast exists. */
   temp: string;
   /** Hand-authored condition + advice, the fallback when no live forecast exists. */
@@ -100,7 +100,7 @@ export interface Weather {
 }
 
 /** A geographic point, used to fetch live weather for a day. */
-export interface Coords {
+interface Coords {
   lat: number;
   lon: number;
 }
@@ -156,7 +156,7 @@ export type RoadSignGlyph =
   | "speedCamera";
 
 /** One road sign in a crib sheet: the drawn glyph plus what it means. */
-export interface RoadSign {
+interface RoadSign {
   glyph: RoadSignGlyph;
   name: string;
   meaning: string;

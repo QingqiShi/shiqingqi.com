@@ -7,8 +7,7 @@ import type {
 } from "../sync/row-schemas.ts";
 import { splitEntries } from "./split-entries.ts";
 
-export type PrefillField =
-  "category" | "account" | "member" | "tags" | "paysDown";
+type PrefillField = "category" | "account" | "member" | "tags" | "paysDown";
 
 interface PayeePrefill {
   categoryId: string | null;

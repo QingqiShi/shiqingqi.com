@@ -5,7 +5,7 @@ import { createContext } from "react";
  *
  * @internal
  */
-export interface TableDisclosureTriggerProps {
+interface TableDisclosureTriggerProps {
   type: "button";
   "aria-expanded": boolean;
   "aria-controls": string;

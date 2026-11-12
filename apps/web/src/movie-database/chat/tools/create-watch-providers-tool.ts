@@ -8,7 +8,7 @@ import { isRecord } from "#src/movie-database/is-record.ts";
 import type { ResponseType } from "#src/movie-database/tmdb/tmdb-get.ts";
 import { toolError } from "./tool-error";
 
-export const watchProvidersInputSchema = z.object({
+const watchProvidersInputSchema = z.object({
   id: z.number().describe("The TMDB ID of the movie or TV show."),
   media_type: z.enum(["movie", "tv"]).describe('Either "movie" or "tv".'),
   region: z

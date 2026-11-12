@@ -20,7 +20,7 @@ export const QUAD_STRIP = { topology: "triangle-strip" } as const;
  *
  * @internal
  */
-export function instanceRange(
+function instanceRange(
   instances: Instances,
   firstElement: number,
   elementCount: number,

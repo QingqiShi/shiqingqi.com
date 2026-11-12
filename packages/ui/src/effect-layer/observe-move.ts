@@ -26,7 +26,7 @@ const RATIO_BAND = 0.001;
  *
  * @internal
  */
-export function moveRootMargin(rect: Edges, root: Edges) {
+function moveRootMargin(rect: Edges, root: Edges) {
   const insets = [
     rect.top - root.top,
     root.right - rect.right,
@@ -42,7 +42,7 @@ export function moveRootMargin(rect: Edges, root: Edges) {
  *
  * @internal
  */
-export function moveThresholds(ratio: number) {
+function moveThresholds(ratio: number) {
   const low = Math.max(0, ratio - RATIO_BAND);
   const high = Math.min(1, ratio + RATIO_BAND);
   return low === high ? [low] : [low, high];
@@ -54,7 +54,7 @@ export function moveThresholds(ratio: number) {
  *
  * @internal
  */
-export function edgesMatch(a: Edges, b: Edges) {
+function edgesMatch(a: Edges, b: Edges) {
   return (
     Math.abs(a.left - b.left) <= MOVE_TOLERANCE &&
     Math.abs(a.top - b.top) <= MOVE_TOLERANCE &&
@@ -69,7 +69,7 @@ export function edgesMatch(a: Edges, b: Edges) {
  *
  * @internal
  */
-export interface MoveWatchArea {
+interface MoveWatchArea {
   readonly rect: Edges;
   /**
    * The box to watch against: `null` for the viewport, for an element fixed

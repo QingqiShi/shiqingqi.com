@@ -5,7 +5,7 @@ import {
 import { organiseUserMail, type OrganiseDeps } from "./organise-user-mail.ts";
 
 /** The agent starts no new step after this; the function may run 300 s. */
-export const ORGANISE_BUDGET_MS = 240_000;
+const ORGANISE_BUDGET_MS = 240_000;
 
 interface OrganiseTotals {
   users: number;

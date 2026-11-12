@@ -12,7 +12,7 @@ export type TypeTokenKind =
   | "punct"
   | "space";
 
-export type TypeToken = readonly [TypeTokenKind, string];
+type TypeToken = readonly [TypeTokenKind, string];
 
 const KEYWORDS = new Set([
   "any",

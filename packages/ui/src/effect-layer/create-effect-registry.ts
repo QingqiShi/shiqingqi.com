@@ -19,7 +19,7 @@ import type { EffectSettings, MeasuredElement } from "./types.ts";
  *
  * @internal
  */
-export interface EffectPlacement {
+interface EffectPlacement {
   readonly scope: number;
   readonly holds: number | null;
   readonly covers?: boolean;
@@ -37,7 +37,7 @@ export interface EffectPlacement {
  *
  * @internal
  */
-export interface RegisteredElement extends EffectPlacement {
+interface RegisteredElement extends EffectPlacement {
   /** Stays the same while the element stays registered. */
   readonly id: number;
   /** One bit per role, as `EFFECT_ROLES` orders them. */
@@ -117,7 +117,7 @@ export interface RegisteredRegion {
  *
  * @internal
  */
-export interface RegionWatch {
+interface RegionWatch {
   destroy: () => void;
 }
 

@@ -7,7 +7,7 @@ import { tmdbScope } from "./tmdb-scope";
 import type { MediaDetailsParams, TmdbFunctions } from "./types";
 
 /** One Media's details, with Movie and TV show reconciled into one shape. */
-export interface NormalizedMediaDetails {
+interface NormalizedMediaDetails {
   title: string;
   posterPath: string | null;
   backdropPath: string | null;

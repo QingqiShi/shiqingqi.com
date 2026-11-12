@@ -1,5 +1,5 @@
 /** Time left in the current idle period, as `requestIdleCallback` gives it. */
-export interface IdleDeadlineLike {
+interface IdleDeadlineLike {
   timeRemaining(): number;
 }
 

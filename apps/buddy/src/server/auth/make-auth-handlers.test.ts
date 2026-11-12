@@ -14,11 +14,13 @@ import {
   makeOutboxEmailSender,
   readOutbox,
 } from "../email/make-outbox-email-sender.ts";
+import { buddySessionCookie } from "./buddy-session-cookie.ts";
 import { isAllowedBuddyOrigin } from "./is-allowed-buddy-origin.ts";
 import {
   makeAuthHandlers,
   type AuthHandlerDeps,
 } from "./make-auth-handlers.ts";
+import { resolveSession } from "./resolve-session.ts";
 import {
   createAuthTestClient,
   TEST_ORIGIN,
@@ -51,6 +53,17 @@ function newBrowser(overrides: Partial<AuthHandlerDeps> = {}) {
       ...overrides,
     }),
   );
+}
+
+/** The user that the session cookie of the browser signs in, as a page reads it. */
+async function signedInUser(browser: Client) {
+  const token = browser.jar.get(buddySessionCookie.name);
+  if (!token) return null;
+  const resolved = await resolveSession(db, token, {
+    now,
+    allowRefresh: false,
+  });
+  return resolved?.session.userId ?? null;
 }
 
 async function lastEmail() {
@@ -147,7 +160,7 @@ describe("sign-up", () => {
     );
 
     expect(result.status).toBe(200);
-    expect((await browser.get("session")).status).toBe(200);
+    expect(await signedInUser(browser)).not.toBeNull();
     const [account] = await db
       .select({
         name: accounts.name,
@@ -302,7 +315,7 @@ describe("recovery", () => {
       await browser.post("recoveryVerify", { token, response }),
     ).toMatchObject({ status: 200 });
 
-    expect((await oldBrowser.get("session")).status).toBe(401);
+    expect(await signedInUser(oldBrowser)).toBeNull();
     expect(await signIn(newBrowser(), lostDevice)).toMatchObject({
       status: 401,
       body: { error: "passkey_unknown" },
@@ -322,12 +335,12 @@ describe("sign-in", () => {
     await signUp(newBrowser(), device);
 
     const browser = newBrowser();
-    expect((await browser.get("session")).status).toBe(401);
+    expect(await signedInUser(browser)).toBeNull();
     expect((await signIn(browser, device)).status).toBe(200);
-    expect((await browser.get("session")).status).toBe(200);
+    expect(await signedInUser(browser)).not.toBeNull();
 
     expect((await browser.post("signOut")).status).toBe(200);
-    expect((await browser.get("session")).status).toBe(401);
+    expect(await signedInUser(browser)).toBeNull();
   });
 
   it("refuses a request from another origin", async () => {

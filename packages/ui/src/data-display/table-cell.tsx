@@ -3,8 +3,6 @@ import { typeModifier } from "../primitives/type.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { alignStyles, styles } from "./table-cell.stylex.ts";
 
-export type TableCellAlign = "start" | "center" | "end";
-
 export interface TableCellAlignment {
   /**
    * Text alignment. `numeric` end-aligns the cell on its own, and an explicit
@@ -14,7 +12,7 @@ export interface TableCellAlignment {
    *
    * @zh 文本对齐方式。`numeric` 本身会让单元格靠末端对齐，而显式传入的 `align` 优先于它。
    */
-  align?: TableCellAlign;
+  align?: "start" | "center" | "end";
   /**
    * Renders figures at a fixed width and end-aligns the cell, so a column of
    * numbers lines up digit for digit. Set it on the column's header too, or

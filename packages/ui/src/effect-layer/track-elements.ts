@@ -43,10 +43,7 @@ const ANIMATION_START_EVENTS = ["transitionrun", "animationstart"] as const;
  *
  * @internal
  */
-export function changedScope(
-  target: EventTarget | null,
-  related: EventTarget | null,
-) {
+function changedScope(target: EventTarget | null, related: EventTarget | null) {
   if (!(target instanceof Element)) {
     return null;
   }

@@ -5,7 +5,7 @@ import {
   type IconSource,
 } from "./icon-candidate.ts";
 
-export interface HomepageLinks {
+interface HomepageLinks {
   icons: IconCandidate[];
   manifests: URL[];
 }

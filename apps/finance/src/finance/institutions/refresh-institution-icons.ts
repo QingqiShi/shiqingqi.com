@@ -46,7 +46,7 @@ export interface RefreshInstitutionIconsDependencies {
   callTimeoutMs?: number;
 }
 
-export interface RefreshInstitutionIconsResult {
+interface RefreshInstitutionIconsResult {
   guessed: number;
   fetched: number;
   failed: number;

@@ -1,11 +1,11 @@
 import { isRecord } from "#src/movie-database/is-record.ts";
 
-export const TOOL_ERROR_MARKER = "__toolError";
+const TOOL_ERROR_MARKER = "__toolError";
 
-export type ToolErrorReason =
+type ToolErrorReason =
   "tmdb_unavailable" | "summary_generation_failed" | "no_match";
 
-export interface ToolErrorResult {
+interface ToolErrorResult {
   [TOOL_ERROR_MARKER]: true;
   reason: ToolErrorReason;
   message: string;

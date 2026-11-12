@@ -60,7 +60,7 @@ function importTokens(
 const IMPORT_WIDTH = 80;
 
 /** One import declaration, broken a binding to a line when it is too long. */
-export function importLines(
+function importLines(
   bindings: readonly LabImport[],
   from: string,
 ): CodeToken[][] {

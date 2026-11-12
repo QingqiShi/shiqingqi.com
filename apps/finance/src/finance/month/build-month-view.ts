@@ -30,7 +30,7 @@ export interface MonthCategory {
   value: number;
 }
 
-export interface MonthPayee {
+interface MonthPayee {
   payeeId: string;
   value: number;
   count: number;

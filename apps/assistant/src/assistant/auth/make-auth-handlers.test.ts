@@ -9,8 +9,10 @@ import { uuidToBytes } from "@tuja/server-auth/uuid-to-bytes";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { passkeys, sessions, users } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
+import { assistantSessionCookie } from "./assistant-session-cookie.ts";
 import { isAllowedAssistantOrigin } from "./is-allowed-assistant-origin.ts";
 import { makeAuthHandlers } from "./make-auth-handlers.ts";
+import { resolveSession } from "./resolve-session.ts";
 import {
   createAuthTestClient,
   TEST_ORIGIN,
@@ -31,6 +33,17 @@ function newBrowser() {
       isAllowedOrigin: isAllowedAssistantOrigin,
     }),
   );
+}
+
+/** The user that the session cookie of the browser signs in, as a page reads it. */
+async function signedInUser(browser: Client) {
+  const token = browser.jar.get(assistantSessionCookie.name);
+  if (!token) return null;
+  const resolved = await resolveSession(db, token, {
+    now,
+    allowRefresh: false,
+  });
+  return resolved?.session.userId ?? null;
 }
 
 /** A user with one passkey on `authenticator`, as production has the owner. */
@@ -88,15 +101,12 @@ describe("sign-in", () => {
     const userId = await insertUserWithPasskey(device);
 
     const browser = newBrowser();
-    expect((await browser.get("session")).status).toBe(401);
+    expect(await signedInUser(browser)).toBeNull();
     expect((await signIn(browser, device)).status).toBe(200);
-    expect(await browser.get("session")).toMatchObject({
-      status: 200,
-      body: { userId },
-    });
+    expect(await signedInUser(browser)).toBe(userId);
 
     expect((await browser.post("signOut")).status).toBe(200);
-    expect((await browser.get("session")).status).toBe(401);
+    expect(await signedInUser(browser)).toBeNull();
     expect(await db.$count(sessions)).toBe(0);
   });
 

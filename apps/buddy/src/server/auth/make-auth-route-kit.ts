@@ -14,7 +14,7 @@ import { createSession } from "./create-session.ts";
 import { passkeyRpId } from "./passkey-rp-id.ts";
 
 /** A group of auth routes that share one rate limit. */
-export type AuthRateLimitBucket =
+type AuthRateLimitBucket =
   | "auth"
   | "recovery-email-ip"
   | "recovery-email-address"
@@ -200,15 +200,11 @@ export function makeAuthRouteKit(deps: AuthHandlerDeps) {
 
   function handle(
     run: (request: Request, context: Context) => Promise<Response>,
-    { method }: { method: "GET" | "POST" } = { method: "POST" },
   ): Handler {
     return async (request) => {
       let context: Context | null = null;
       try {
-        context =
-          method === "POST"
-            ? await guardPost(request)
-            : prepareContext(request);
+        context = await guardPost(request);
         return await run(request, context);
       } catch (error) {
         if (error instanceof HttpError) {

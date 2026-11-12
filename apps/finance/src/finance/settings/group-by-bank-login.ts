@@ -1,6 +1,6 @@
 import type { ProviderAccountView } from "../bank/types.ts";
 
-export interface BankLoginGroup {
+interface BankLoginGroup {
   bankLoginId: string;
   /** The institution, told apart from another login at the same institution. */
   title: string;

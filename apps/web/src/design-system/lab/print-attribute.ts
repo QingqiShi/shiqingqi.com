@@ -135,7 +135,7 @@ export function bracedSetterCall(
   };
 }
 
-export interface PrintedAttribute extends LabValueNeeds {
+interface PrintedAttribute extends LabValueNeeds {
   prop: string;
   /** Empty for a flag. */
   lines: LabValueLine[];

@@ -1,7 +1,7 @@
 import type { RuleTemplate } from "../rules/rule-template-schema.ts";
 import type { AccountRow } from "../sync/row-schemas.ts";
 
-export interface RuleTemplateMoneyInput {
+interface RuleTemplateMoneyInput {
   kind: RuleTemplate["kind"];
   /** The size of each occurrence in the account's minor units, above 0. */
   amountMinor: number;

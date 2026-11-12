@@ -20,7 +20,7 @@ interface LabelIds {
   accountIds: readonly string[];
 }
 
-export interface LabelledTransaction {
+interface LabelledTransaction {
   id: string;
   labelledBy: "member" | "ai";
   labels: LabelIds;

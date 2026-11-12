@@ -4,7 +4,7 @@ import { useSyncExternalStore } from "react";
 const KEYBOARD_MIN_HEIGHT = 120;
 
 /** The part of the page that an on-screen keyboard leaves visible. */
-export interface KeyboardArea {
+interface KeyboardArea {
   /** The top of the visible area, down from the top of the document. */
   readonly top: number;
   readonly height: number;

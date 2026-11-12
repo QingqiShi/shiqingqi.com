@@ -39,7 +39,7 @@ export interface SliderLiquidView {
  *
  * @internal
  */
-export type ShowSliderLiquid = () => SliderLiquidView;
+type ShowSliderLiquid = () => SliderLiquidView;
 
 const runs = new Map<Element, ShowSliderLiquid>();
 let wake = () => {};

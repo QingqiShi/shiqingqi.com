@@ -44,7 +44,7 @@ export interface PopoverTriggerProps {
 }
 
 /** Spread onto the popup element. Must be positioned `fixed`. */
-export interface PopoverContentProps {
+interface PopoverContentProps {
   id: string;
   ref: RefObject<HTMLDivElement | null>;
   role: "dialog";

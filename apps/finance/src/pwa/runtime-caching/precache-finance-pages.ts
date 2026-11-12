@@ -4,9 +4,9 @@ import { isFinanceShellResponse } from "./finance-runtime-caching.ts";
 import { isPrecacheableFinancePath } from "./is-precacheable-finance-path.ts";
 
 /** A stored page younger than this is not fetched again. */
-export const PRECACHE_MAX_AGE_MS = 12 * 60 * 60 * 1_000;
+const PRECACHE_MAX_AGE_MS = 12 * 60 * 60 * 1_000;
 
-export interface PrecacheFinancePagesOptions {
+interface PrecacheFinancePagesOptions {
   origin: string;
   cacheStorage: {
     open: (name: string) => Promise<Pick<Cache, "match" | "put">>;

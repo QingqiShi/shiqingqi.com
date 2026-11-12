@@ -12,7 +12,7 @@ import type { MediaListItem } from "#src/movie-database/types.ts";
  * expensive kind of cheap. Building them once above the grid keeps cell
  * renders to a context read.
  */
-export interface MediaTableContextValue {
+interface MediaTableContextValue {
   readonly rating: Intl.NumberFormat;
   readonly compact: Intl.NumberFormat;
   readonly date: Intl.DateTimeFormat;

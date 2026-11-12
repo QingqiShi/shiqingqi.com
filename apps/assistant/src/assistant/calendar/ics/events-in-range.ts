@@ -11,7 +11,7 @@ const DAY = 24 * 60 * 60 * 1000;
 /** Enough for a daily event that started decades ago. */
 const MAX_STEPS = 50_000;
 
-export interface InstantRange {
+interface InstantRange {
   start: number;
   end: number;
 }

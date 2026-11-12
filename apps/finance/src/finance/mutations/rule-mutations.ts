@@ -33,7 +33,7 @@ type UpsertRuleArgs = MutationArgs<"upsertRule">;
 type RuleFields = Omit<UpsertRuleArgs, "id" | "deleted" | "paused">;
 
 /** What an upsert changes on a Rule that exists. */
-export interface RuleChange {
+interface RuleChange {
   /** The stored template; null when it does not parse. */
   before: RuleTemplate | null;
   merged: RuleRow;

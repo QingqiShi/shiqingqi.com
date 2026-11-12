@@ -71,7 +71,7 @@ export type RippleCause = "hover" | "press" | "focus";
  *
  * @internal
  */
-export interface RippleAim {
+interface RippleAim {
   readonly aimX: number;
   readonly aimY: number;
 }
@@ -83,7 +83,7 @@ const EVEN: RippleAim = { aimX: 0, aimY: 0 };
  *
  * @internal
  */
-export interface RipplePulse extends RippleAim {
+interface RipplePulse extends RippleAim {
   /** Seconds on the effect layer's clock. */
   readonly start: number;
   /** From 0 to 1. */
@@ -97,7 +97,7 @@ export interface RipplePulse extends RippleAim {
  *
  * @internal
  */
-export interface RippleRing extends RippleAim {
+interface RippleRing extends RippleAim {
   /** How far the crest is from the element's edge, in CSS px. */
   readonly front: number;
   /** How strong the crest is, from 0 to 1, before the aim. */
@@ -137,7 +137,7 @@ const isIn = ({ firstElement, elementCount }: ElementRange, index: number) =>
  *
  * @internal
  */
-export function rippleReach(width: number, height: number) {
+function rippleReach(width: number, height: number) {
   return clamp(20 + 0.35 * Math.min(width, height), 32, 96);
 }
 
@@ -147,7 +147,7 @@ export function rippleReach(width: number, height: number) {
  *
  * @internal
  */
-export function pulseDuration(reach: number) {
+function pulseDuration(reach: number) {
   return 0.9 + reach / 200;
 }
 
@@ -157,7 +157,7 @@ export function pulseDuration(reach: number) {
  *
  * @internal
  */
-export function frontRadius(progress: number, reach: number) {
+function frontRadius(progress: number, reach: number) {
   return reach * (1 - (1 - clamp(progress, 0, 1)) ** 3);
 }
 
@@ -167,7 +167,7 @@ export function frontRadius(progress: number, reach: number) {
  *
  * @internal
  */
-export function pulseEnvelope(progress: number) {
+function pulseEnvelope(progress: number) {
   if (progress <= 0 || progress >= 1) {
     return 0;
   }
@@ -182,7 +182,7 @@ export function pulseEnvelope(progress: number) {
  *
  * @internal
  */
-export function pulseRing(
+function pulseRing(
   pulse: RipplePulse,
   time: number,
   reach: number,
@@ -206,7 +206,7 @@ export function pulseRing(
  *
  * @internal
  */
-export function heldRing(strength: number, reach: number): RippleRing {
+function heldRing(strength: number, reach: number): RippleRing {
   return {
     front: reach * HELD_RADIUS,
     amount: strength,
@@ -221,7 +221,7 @@ export function heldRing(strength: number, reach: number): RippleRing {
  *
  * @internal
  */
-export function boxGap(a: Box, b: Box) {
+function boxGap(a: Box, b: Box) {
   const dx = Math.max(a.x - (b.x + b.width), b.x - (a.x + a.width), 0);
   const dy = Math.max(a.y - (b.y + b.height), b.y - (a.y + a.height), 0);
   return Math.hypot(dx, dy);
@@ -234,12 +234,7 @@ export function boxGap(a: Box, b: Box) {
  *
  * @internal
  */
-export function aimAt(
-  box: Box,
-  x: number,
-  y: number,
-  amount: number,
-): RippleAim {
+function aimAt(box: Box, x: number, y: number, amount: number): RippleAim {
   const localX = (x - box.x - box.width / 2) / Math.max(box.width / 2, 1);
   const localY = (y - box.y - box.height / 2) / Math.max(box.height / 2, 1);
   const length = Math.hypot(localX, localY);
@@ -256,7 +251,7 @@ export function aimAt(
  *
  * @internal
  */
-export function hoverStrength(pointerSpeed: number) {
+function hoverStrength(pointerSpeed: number) {
   const share = clamp(pointerSpeed / FAST_POINTER, 0, 1);
   return (
     HOVER_STRENGTH.slow + (HOVER_STRENGTH.fast - HOVER_STRENGTH.slow) * share
@@ -271,7 +266,7 @@ export function hoverStrength(pointerSpeed: number) {
  *
  * @internal
  */
-export function findNeighbours(
+function findNeighbours(
   records: readonly EffectElementRecord[],
   peers: ElementRange,
   index: number,
@@ -298,7 +293,7 @@ export function findNeighbours(
  *
  * @internal
  */
-export function isInView(box: Box, reach: number, viewport: Box) {
+function isInView(box: Box, reach: number, viewport: Box) {
   return (
     box.x - reach < viewport.x + viewport.width &&
     box.x + box.width + reach > viewport.x &&
@@ -312,7 +307,7 @@ export function isInView(box: Box, reach: number, viewport: Box) {
  *
  * @internal
  */
-export interface RippleStepInput {
+interface RippleStepInput {
   /** Seconds on the effect layer's clock. */
   readonly time: number;
   readonly elements: readonly EffectElementRecord[];
@@ -337,7 +332,7 @@ export interface RippleStepInput {
  *
  * @internal
  */
-export interface RippleStep {
+interface RippleStep {
   /**
    * In the order of `EffectFrame.elements`, so the instances of each target
    * are one range.

@@ -17,7 +17,7 @@ import type { shownAmount } from "./shown-amount.ts";
  * the base currency of a foreign account. Null when the shown amount is what
  * counts.
  */
-export type CountedLine =
+type CountedLine =
   | { type: "share"; amountMinor: number }
   | { type: "incomeAfterRepayment"; amountMinor: number }
   | { type: "notCounted" }

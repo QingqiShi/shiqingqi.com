@@ -26,7 +26,7 @@ import { readReportSettings } from "./read-report-settings.ts";
 export const CALENDAR_TIMEOUT_MS = 20_000;
 
 /** A time that the owner sets aside. */
-export interface SlotTime {
+interface SlotTime {
   start: Date;
   end: Date;
 }

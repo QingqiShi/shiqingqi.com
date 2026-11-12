@@ -218,7 +218,7 @@ export function readFlow(
 }
 
 /** @internal */
-export interface FlowStretchPlan {
+interface FlowStretchPlan {
   readonly element: Element;
   readonly surface: FlowSurface;
   readonly openHeight: number;

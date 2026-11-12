@@ -33,7 +33,7 @@ export interface LabSnippet {
 }
 
 /** The state binding of a Lab, with its props named. */
-export interface LabSnippetState {
+interface LabSnippetState {
   prop: string;
   handler: string;
   type?: { code: string; imports: readonly LabImport[] };

@@ -34,7 +34,7 @@ export const FLOW_SPRING = springOf(springRoles.move);
  *
  * @internal
  */
-export const TRAIL_SPRING = springOf(springRoles.trail);
+const TRAIL_SPRING = springOf(springRoles.trail);
 
 /**
  * Only the block axis clips, because a child can have a negative inline margin

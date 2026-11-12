@@ -72,7 +72,7 @@ export type UndoOutcome =
       code?: SyncErrorCode;
     };
 
-export type UndoTarget = { actionIds: readonly string[] } | { runId: string };
+type UndoTarget = { actionIds: readonly string[] } | { runId: string };
 
 type ActionRow = typeof agentActions.$inferSelect;
 

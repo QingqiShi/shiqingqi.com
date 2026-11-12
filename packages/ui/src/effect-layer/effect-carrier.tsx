@@ -13,7 +13,7 @@ import {
 import type { EffectSticky } from "./use-effect-sticky.ts";
 import type { ScrollRegionRef } from "./use-scroll-region.ts";
 
-export interface EffectCarrierProps {
+interface EffectCarrierProps {
   /**
    * What the content moves with. `"viewport"` for content that is fixed to
    * the viewport, `"viewport-bottom"` for content that is fixed to the

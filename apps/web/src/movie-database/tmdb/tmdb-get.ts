@@ -22,7 +22,7 @@ function getApiToken(): string {
  * `Record<string, string>` keeps the values typed as `string` where
  * `tmdbGet` iterates them with `Object.entries`.
  */
-export type PathParams<T extends string> =
+type PathParams<T extends string> =
   T extends `${string}{${infer Param}}${infer Rest}`
     ? { [K in Param]: string } & PathParams<Rest>
     : Record<string, string>;

@@ -48,7 +48,7 @@ export function readPageBackdrop(
  *
  * @internal
  */
-export interface CarrierRange extends ElementRange {
+interface CarrierRange extends ElementRange {
   /**
    * An element with a role is in the range, or is on a sticky carrier and
    * can move into it, so the carrier's `<canvas>` elements are needed.

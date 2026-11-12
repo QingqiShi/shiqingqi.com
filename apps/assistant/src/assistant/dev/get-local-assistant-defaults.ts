@@ -1,4 +1,4 @@
-export function localAssistantDatabaseUrl(port: number): string {
+function localAssistantDatabaseUrl(port: number): string {
   return `postgres://postgres:postgres@127.0.0.1:${String(port)}/postgres`;
 }
 

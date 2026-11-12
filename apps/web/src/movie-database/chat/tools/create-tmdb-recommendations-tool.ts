@@ -8,7 +8,7 @@ import {
 import { toCompactMediaResults } from "./to-compact-media-results";
 import { toolError } from "./tool-error";
 
-export const tmdbRecommendationsInputSchema = z.object({
+const tmdbRecommendationsInputSchema = z.object({
   id: z.number().describe("The TMDB ID of the movie or TV show."),
   media_type: z.enum(["movie", "tv"]).describe('Either "movie" or "tv".'),
 });

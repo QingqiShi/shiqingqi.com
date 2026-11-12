@@ -17,7 +17,7 @@ import {
 const SECOND = 1000;
 
 /** How an event repeats: its rule and dates, and the wall-clock start they count from. */
-export interface IcsRepeat {
+interface IcsRepeat {
   /** The RRULE value; null when only RDATEs repeat it. */
   rule: string | null;
   /** RDATE starts, epoch milliseconds. */

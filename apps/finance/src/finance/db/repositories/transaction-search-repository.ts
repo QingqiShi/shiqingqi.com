@@ -25,7 +25,7 @@ import {
 } from "../schema.ts";
 import type { RepositoryScope } from "./types.ts";
 
-export const SEARCH_LIMIT = { default: 20, max: 50 };
+const SEARCH_LIMIT = { default: 20, max: 50 };
 
 export interface TransactionSearch {
   /** Every word must appear in the bank text, the Payee name or the note. */

@@ -16,7 +16,7 @@ const isAuto = (inset: string) => inset === "auto" || inset === "";
  *
  * @internal
  */
-export function holdsFixedDescendants(style: CSSStyleDeclaration) {
+function holdsFixedDescendants(style: CSSStyleDeclaration) {
   return (
     [
       style.transform,
@@ -43,7 +43,7 @@ export function holdsFixedDescendants(style: CSSStyleDeclaration) {
  *
  * @internal
  */
-export function viewportFixedBox(
+function viewportFixedBox(
   element: Element,
   styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
 ) {
@@ -73,7 +73,7 @@ export function viewportFixedBox(
  *
  * @internal
  */
-export function isAtViewportBottom(
+function isAtViewportBottom(
   box: Element,
   styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
 ) {
@@ -116,7 +116,7 @@ function scrollsByHand(overflow: string) {
  *
  * @internal
  */
-export function stickyBoxesOn(
+function stickyBoxesOn(
   element: Element,
   scroller: Element | null,
   styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
@@ -194,7 +194,7 @@ function hasStickyInset(
  *
  * @internal
  */
-export interface CarrierCheckContext {
+interface CarrierCheckContext {
   readonly styleOf: (element: Element) => CSSStyleDeclaration;
   readonly stickyBox: (id: number) => Element | null;
   readonly regionScroller: (id: number) => Element | null;
@@ -216,7 +216,7 @@ const describe = (element: Element) => {
  *
  * @internal
  */
-export function carrierMismatch(
+function carrierMismatch(
   element: Element,
   carrier: EffectCarrierRef,
   context: CarrierCheckContext,

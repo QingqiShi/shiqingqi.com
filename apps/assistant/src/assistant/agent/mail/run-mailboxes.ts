@@ -21,7 +21,7 @@ import type {
 import { ToolRefusal } from "../agent-tool.ts";
 
 /** A mailbox as the model knows it: by a short key such as `a1`. */
-export interface RunAccount {
+interface RunAccount {
   key: string;
   id: string;
   provider: MailProvider;

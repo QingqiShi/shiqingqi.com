@@ -5,7 +5,7 @@ import type {
 } from "../exchange-rates/exchange-rate-row-schema.ts";
 
 /** The newest rate of one currency against the base currency. */
-export type LatestFxRate =
+type LatestFxRate =
   | {
       currency: string;
       /** Units of the base currency one unit of `currency` is worth. */

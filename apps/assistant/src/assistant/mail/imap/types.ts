@@ -17,7 +17,7 @@ export interface MailboxFolder {
   selectable: boolean;
 }
 
-export interface OpenedFolder {
+interface OpenedFolder {
   uidValidity: number;
   uidNext: number;
 }

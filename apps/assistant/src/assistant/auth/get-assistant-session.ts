@@ -18,7 +18,7 @@ interface GetAssistantSessionDeps {
   reissueCookie: (token: string, secure: boolean) => Promise<void>;
 }
 
-export function makeGetAssistantSession(deps: GetAssistantSessionDeps) {
+function makeGetAssistantSession(deps: GetAssistantSessionDeps) {
   return async function getAssistantSession(
     request: Request,
   ): Promise<AssistantSession | null> {

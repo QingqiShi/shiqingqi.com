@@ -83,7 +83,7 @@ export interface LiquidControl {
  *
  * @internal
  */
-export type Edge = readonly [number, number, number, number];
+type Edge = readonly [number, number, number, number];
 
 /**
  * The edge of a Switch's thumb at rest. The thumb's shadow changes on hover,

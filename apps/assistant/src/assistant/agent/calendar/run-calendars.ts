@@ -37,9 +37,9 @@ export type CalendarPolicy = (
 ) => Pick<RunCalendar, "canWrite" | "refusal">;
 
 /** The owner lets the agent change every calendar; a setting per calendar can take its place. */
-export const writeEveryCalendar: CalendarPolicy = () => ({ canWrite: true });
+const writeEveryCalendar: CalendarPolicy = () => ({ canWrite: true });
 
-export interface UnavailableCalendarAccount {
+interface UnavailableCalendarAccount {
   address: string;
   error: string;
 }

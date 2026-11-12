@@ -43,7 +43,7 @@ export function rubberBand(offset: number) {
  *
  * @internal
  */
-export function dismissDistance(height: number) {
+function dismissDistance(height: number) {
   return Math.min(
     DISMISS_DISTANCE_MAX,
     Math.max(DISMISS_DISTANCE_MIN, height * DISMISS_SHARE),

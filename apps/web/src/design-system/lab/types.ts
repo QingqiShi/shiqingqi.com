@@ -75,7 +75,7 @@ export interface LabVariant<P> {
  * The props of a Variant. A prop with samples takes the id of one, whatever
  * the type of the value that the sample holds.
  */
-export type LabVariantProps<P> = { [K in keyof P]?: P[K] | string };
+type LabVariantProps<P> = { [K in keyof P]?: P[K] | string };
 
 /**
  * Every key of every branch of a union. `T extends T` makes the conditional
@@ -89,7 +89,7 @@ type KeysOfUnion<T> = T extends T ? keyof T : never;
  * props documentation; the object form adds what the documentation cannot
  * carry.
  */
-export type LabControlSpec<P> =
+type LabControlSpec<P> =
   | KeysOfUnion<P>
   | {
       prop: KeysOfUnion<P>;
@@ -111,7 +111,7 @@ export type LabControlSpec<P> =
     };
 
 /** The values a `number` control offers. */
-export interface LabNumberRange {
+interface LabNumberRange {
   min: number;
   max: number;
   step?: number;
@@ -123,7 +123,7 @@ export interface LabNumberRange {
  * the Specimen stays operable and the panel follows. The snippet prints the
  * `useState` line and the pair a reader would write.
  */
-export interface LabStateBinding<P> {
+interface LabStateBinding<P> {
   /** The prop that takes the state — `value`. */
   prop: KeysOfUnion<P>;
   /** The handler the component calls with the next value — `onChange`. */
@@ -160,7 +160,7 @@ export interface LabSetter<T = never> {
  * imports the JSON directly, so the client loads the document of its own
  * component only.
  */
-export interface LabPropsDoc {
+interface LabPropsDoc {
   /** The export subpath of the component — `"button"`. */
   name: string;
   /** The element name the snippet prints — `"Button"`. */

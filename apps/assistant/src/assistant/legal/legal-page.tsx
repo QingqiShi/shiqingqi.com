@@ -9,7 +9,7 @@ import { AssistantFrame } from "../shell/assistant-frame.tsx";
 
 export const CONTACT_ADDRESS = "hi@qingqi.dev";
 
-export const LAST_UPDATED = "2026-11-05";
+const LAST_UPDATED = "2026-11-05";
 
 /** A public page of plain prose: the privacy policy or the terms. */
 export function LegalPage({

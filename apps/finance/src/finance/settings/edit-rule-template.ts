@@ -2,7 +2,7 @@ import type { RuleTemplate } from "../rules/rule-template-schema.ts";
 import type { AccountRow } from "../sync/row-schemas.ts";
 import { ruleTemplateMoney } from "./rule-template-money.ts";
 
-export interface RuleTemplateEdit {
+interface RuleTemplateEdit {
   /** The size of each occurrence in the base currency's minor units, above 0. */
   amountMinor: number;
   accountId: string;

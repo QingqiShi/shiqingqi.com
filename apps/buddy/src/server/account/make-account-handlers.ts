@@ -8,7 +8,7 @@ import type { BuddyDb } from "../db/types.ts";
 import { machineStore } from "../machines/machine-store.ts";
 import type { MachineRegistry } from "../machines/make-machine-registry.ts";
 
-export interface AccountHandlerDeps {
+interface AccountHandlerDeps {
   getDb: () => BuddyDb | null;
   registry: Pick<MachineRegistry, "setVisibility">;
   /** The owner's view of their pet, also when the page is private. */

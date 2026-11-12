@@ -66,7 +66,7 @@ export function PreferenceManager() {
   );
 }
 
-export function PreferenceTrigger({
+function PreferenceTrigger({
   count,
   onOpen,
 }: {

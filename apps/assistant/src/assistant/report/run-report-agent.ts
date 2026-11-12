@@ -62,7 +62,7 @@ const SUBMIT = "submit_report";
 const MARK_READ_BATCH = 100;
 const LIST_PAGE = MAIL_TOOL_LIMITS.listPage;
 
-export interface SubmittedReport {
+interface SubmittedReport {
   headline: string;
   needsAction: ReportItem[];
   worthKnowing: ReportItem[];

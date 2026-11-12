@@ -1,5 +1,5 @@
 /** The parts of `navigator` that sharing a file needs. */
-export interface FileShareTarget {
+interface FileShareTarget {
   canShare?: (data: ShareData) => boolean;
   share?: (data: ShareData) => Promise<void>;
 }

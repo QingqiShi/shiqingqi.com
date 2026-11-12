@@ -128,7 +128,7 @@ export const upsertPayeeArgsSchema = upsertArgs(payeeFieldsSchema);
 export const upsertTagArgsSchema = upsertArgs(tagFieldsSchema);
 export const upsertRuleArgsSchema = upsertArgs(ruleFieldsSchema);
 
-export const putValuationArgsSchema = z.object({
+const putValuationArgsSchema = z.object({
   id,
   accountId: id,
   on: day,
@@ -136,7 +136,7 @@ export const putValuationArgsSchema = z.object({
   note: note.optional(),
 });
 
-export const mergePayeeArgsSchema = z
+const mergePayeeArgsSchema = z
   .object({ fromId: id, intoId: id })
   .refine((args) => args.fromId !== args.intoId, "cannot merge into itself");
 

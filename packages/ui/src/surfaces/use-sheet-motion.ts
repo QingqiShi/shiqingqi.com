@@ -7,7 +7,7 @@ import { createSheetMotion, type SheetMotion } from "./create-sheet-motion.ts";
  *
  * @internal
  */
-export interface SheetParts {
+interface SheetParts {
   /** The card: the sheet's surface, which takes the pointer. */
   readonly cardRef: RefObject<HTMLElement | null>;
   /** The box that holds the card and what rides with it. */
@@ -29,7 +29,7 @@ export interface SheetParts {
  *
  * @internal
  */
-export interface SheetLiftOptions {
+interface SheetLiftOptions {
   /** The element the card lifts out of and goes back into, or `null` for the slide. */
   readonly from: () => HTMLElement | null;
   /** The parts of the card's content that fade in late as it lifts. */

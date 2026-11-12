@@ -57,7 +57,7 @@ export interface FrameLoop {
  *
  * @internal
  */
-export interface SyncedAnimation {
+interface SyncedAnimation {
   startTime: CSSNumberish | null;
   readonly ready: Promise<unknown>;
 }

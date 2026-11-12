@@ -40,7 +40,7 @@ export interface ResourceLimits {
   onOverflow: "truncate" | "reject";
 }
 
-export interface PublicResource {
+interface PublicResource {
   /** The URL after redirects. */
   url: URL;
   body: Uint8Array;

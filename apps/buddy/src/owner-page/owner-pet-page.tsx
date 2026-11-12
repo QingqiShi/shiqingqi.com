@@ -34,7 +34,7 @@ import { usePetScene } from "./use-pet-scene.ts";
 import { VisitorLinks } from "./visitor-links.tsx";
 
 /** Who looks at the page: its owner, or anyone else, maybe signed in to an account of their own. */
-export type PetPageViewer =
+type PetPageViewer =
   | { kind: "owner"; isPublic: boolean; connectedMacs: number }
   | { kind: "visitor"; ownName: string | null };
 

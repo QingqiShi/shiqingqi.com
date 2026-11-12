@@ -56,7 +56,7 @@ export type { TabLinkStatusProps } from "./use-opening-screen.tsx";
 /** The props that `TabView` hands its `linkComponent`. */
 export type TabViewLinkProps = TabBarLinkProps;
 
-export interface TabViewItem extends TabBarItem {
+interface TabViewItem extends TabBarItem {
   /**
    * What the content area shows after a moment while this destination's
    * screen loads, in the shape of that screen.
@@ -67,7 +67,7 @@ export interface TabViewItem extends TabBarItem {
 }
 
 /** A destination of a `TabView` with no router to wait for, which has no skeleton. */
-export interface PlainTabViewItem extends TabBarItem {
+interface PlainTabViewItem extends TabBarItem {
   skeleton?: undefined;
 }
 

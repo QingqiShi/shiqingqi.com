@@ -7,7 +7,7 @@ const APP_DIR = path.resolve(import.meta.dirname, "../../..");
 type Env = Partial<Record<string, string>>;
 
 /** The environment that `next dev` sees: the shell's variables, then the values in the env files. */
-export function readNextDevEnv(appDir = APP_DIR): Env {
+function readNextDevEnv(appDir = APP_DIR): Env {
   const shellEnv = { ...process.env };
   const { parsedEnv } = loadEnvConfig(
     appDir,

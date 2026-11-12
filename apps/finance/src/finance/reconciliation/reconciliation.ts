@@ -54,7 +54,7 @@ export interface OpenBankRow {
  * The Transaction that stands for a bank row: an Expected one to confirm, a
  * recorded one to link, or one whose In transit Entry the row settles.
  */
-export type BankRowPair =
+type BankRowPair =
   | { action: "confirm"; transactionId: string; transactionDate: string }
   | { action: "link"; transactionId: string }
   | { action: "settle"; transactionId: string; entryId: string };
@@ -69,7 +69,7 @@ export type BankRowPair =
  * pairs with an Expected Transaction, and so does one the Rule took that way
  * before.
  */
-export type OccurrenceHolder =
+type OccurrenceHolder =
   | { kind: "rule"; transactionId: string }
   | { kind: "bank"; transactionId: string; ruleId: string | null };
 

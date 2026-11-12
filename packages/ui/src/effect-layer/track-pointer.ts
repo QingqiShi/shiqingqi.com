@@ -11,11 +11,7 @@ const IDLE_GRACE = 32;
  *
  * @internal
  */
-export function smoothVelocity(
-  current: number,
-  sample: number,
-  elapsed: number,
-) {
+function smoothVelocity(current: number, sample: number, elapsed: number) {
   return (
     current +
     (sample - current) * (1 - Math.exp(-elapsed / VELOCITY_TIME_CONSTANT))
@@ -28,7 +24,7 @@ export function smoothVelocity(
  *
  * @internal
  */
-export function decayVelocity(velocity: number, idle: number) {
+function decayVelocity(velocity: number, idle: number) {
   return (
     velocity *
     Math.exp(-Math.max(0, idle - IDLE_GRACE) / VELOCITY_TIME_CONSTANT)

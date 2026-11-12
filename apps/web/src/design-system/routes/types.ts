@@ -66,7 +66,7 @@ export type DesignSystemSectionPath<S extends DesignSystemSectionId> = Extract<
   { section: S }
 >["path"];
 
-export interface DesignSystemRouteGroup {
+interface DesignSystemRouteGroup {
   /** Absent when the section lists its routes directly under its own heading. */
   category?: DesignSystemCategoryId;
   paths: DesignSystemPath[];

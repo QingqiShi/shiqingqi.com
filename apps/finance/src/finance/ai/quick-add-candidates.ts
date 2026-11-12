@@ -4,7 +4,7 @@ import { parseMoney } from "../domain/money/parse-money.ts";
 import { NAME_BREAK, payeeNameCandidates } from "./payee-name-candidates.ts";
 
 /** A number in the text that can be the amount. */
-export interface AmountCandidate {
+interface AmountCandidate {
   /** The number as the text writes it: "¥35.00", "+2000". */
   written: string;
   /** Positive. */
@@ -12,7 +12,7 @@ export interface AmountCandidate {
 }
 
 /** A day the text can mean. */
-export interface DateCandidate {
+interface DateCandidate {
   date: string;
   /** What in the text names the day: "昨天", "10月31日"; null for today, which needs no words. */
   written: string | null;
