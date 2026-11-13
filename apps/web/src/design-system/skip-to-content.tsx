@@ -47,6 +47,9 @@ const styles = stylex.create({
       ":focus": `calc(${space._2} + ${safeArea.blockStart})`,
     },
     insetInlineStart: pageGutter.inlineStart,
+    // A fixed box prints on each page, and its place above the first page is
+    // the end of the page before on each later one.
+    visibility: { default: "visible", "@media print": "hidden" },
     // Above the menu button (`layer.header`) and a sheet (`layer.overlay`),
     // because a revealed skip link must never be under the chrome.
     zIndex: layer.toaster,
