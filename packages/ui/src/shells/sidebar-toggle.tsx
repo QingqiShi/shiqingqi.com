@@ -2,11 +2,12 @@
 
 import { SidebarSimpleIcon } from "@phosphor-icons/react/dist/ssr/SidebarSimple";
 import * as stylex from "@stylexjs/stylex";
-import { useSyncExternalStore } from "react";
+import { use, useSyncExternalStore } from "react";
 import { buttonTokens } from "../actions/button.stylex.ts";
 import { Button } from "../actions/button.tsx";
 import { pointer } from "../breakpoints.stylex.ts";
 import { color } from "../color.stylex.ts";
+import { StuckContext } from "../surfaces/sticky-control-group.tsx";
 import type { StyleProp } from "../types.ts";
 import { SIDEBAR_COLLAPSED_COOKIE } from "./sidebar-collapsed-cookie.ts";
 
@@ -44,16 +45,19 @@ interface SidebarToggleProps {
 /**
  * The button that collapses the sidebar and expands it again. It keeps the
  * choice in `SIDEBAR_COLLAPSED_COOKIE`, and each view on the page follows it.
+ * While it holds over content that scrolls under it, it has a surface of its
+ * own.
  *
  * @internal
  */
 export function SidebarToggle({ label, css }: SidebarToggleProps) {
   const isCollapsed = useSidebarCollapsed();
+  const floats = use(StuckContext);
   return (
     <Button
       size="sm"
-      look="ghost"
-      css={[styles.toggle, css]}
+      look={floats ? undefined : "ghost"}
+      css={[styles.toggle, !floats && styles.quiet, css]}
       icon={<SidebarSimpleIcon weight="bold" />}
       aria-label={label}
       aria-expanded={!isCollapsed}
@@ -65,10 +69,12 @@ export function SidebarToggle({ label, css }: SidebarToggleProps) {
   );
 }
 
-// Muted at rest, also on touch, so that it does not compete with the title.
 const styles = stylex.create({
   toggle: {
     flexShrink: 0,
+  },
+  // Muted at rest, also on touch, so that it does not compete with the title.
+  quiet: {
     [buttonTokens.color]: {
       default: color.mutedForeground,
       ":hover": { default: null, [pointer.canHover]: color.foreground },

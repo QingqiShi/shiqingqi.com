@@ -1,6 +1,9 @@
 "use client";
 
 import type { AnimationEventHandler, ReactNode, RefObject } from "react";
+import { EffectCarrier } from "../../effect-layer/effect-carrier.tsx";
+import { useEffectSticky } from "../../effect-layer/use-effect-sticky.ts";
+import { StuckContext } from "../../surfaces/sticky-control-group.tsx";
 import type { LeavingCopy } from "../leaving-copy-taker.tsx";
 import { BackLink } from "./back-link.tsx";
 import { columnStyles, contentStyles, stackStyles } from "./column.stylex.ts";
@@ -49,6 +52,22 @@ function LeavingBody({
         page.leftAs === "blank" && stackStyles.nodeHiddenWhileStacked,
       ]}
     />
+  );
+}
+
+/**
+ * The button that expands a collapsed sidebar. It stays at the top of the
+ * column while the page scrolls under it, on a surface of its own.
+ */
+function ExpandBar({ children }: { children: ReactNode }) {
+  const sticky = useEffectSticky();
+  const { ref, isStuck, css } = sticky;
+  return (
+    <StuckContext value={isStuck}>
+      <div ref={ref} css={[columnStyles.expand, css]}>
+        <EffectCarrier value={sticky}>{children}</EffectCarrier>
+      </div>
+    </StuckContext>
   );
 }
 
@@ -157,7 +176,7 @@ export function ContentColumn({
         return (
           <>
             {expand === null || page.role !== "current" ? null : (
-              <div css={columnStyles.back}>{expand}</div>
+              <ExpandBar>{expand}</ExpandBar>
             )}
             {toolbar === null && !isFlush ? (
               shownLink

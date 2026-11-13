@@ -126,6 +126,17 @@ export const columnStyles = stylex.create({
     display: "flex",
     marginBlockEnd: rhythm.tight,
   },
+  // The box is only as wide as its button, so that the page under the rest of
+  // the line still takes the pointer. It holds a little above its place at
+  // rest, so that it is stuck only after the content starts to scroll.
+  expand: {
+    position: "sticky",
+    insetBlockStart: `calc(${CONTENT_PADDING_BLOCK_START} - ${space._2})`,
+    zIndex: layer.raised,
+    alignSelf: "flex-start",
+    display: "flex",
+    marginBlockEnd: rhythm.tight,
+  },
   // The way back at the start and the toolbar at the end, on one line. The
   // line stays over content that covers the screen, such as a canvas.
   topLine: {
