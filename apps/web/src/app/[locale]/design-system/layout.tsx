@@ -11,6 +11,7 @@ import { PlaceholderLinkGuard } from "#src/design-system/placeholder-link-guard.
 import { getDesignSystemGroupLabels } from "#src/design-system/route-copy/get-design-system-group-labels.ts";
 import { getDesignSystemRouteLabels } from "#src/design-system/route-copy/get-design-system-route-labels.ts";
 import { SkipToContent } from "#src/design-system/skip-to-content.tsx";
+import { ViewportProbe } from "#src/design-system/viewport-probe.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
@@ -78,6 +79,7 @@ export default async function Layout({
   return (
     <>
       <SkipToContent />
+      <ViewportProbe />
       <DesignSystemFrame
         sidebar={
           <DesignSystemNav
