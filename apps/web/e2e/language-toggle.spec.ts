@@ -30,6 +30,25 @@ test.describe("Language Toggle", () => {
   });
 });
 
+test.describe("Language Toggle on a phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  // The design system has no header, and on a phone no sidebar: the list of
+  // pages is the only place for its controls. They were once hidden there, so
+  // a phone had no way to change the language.
+  test("switches language from the design-system list of pages", async ({
+    page,
+  }) => {
+    await page.goto("/zh/design-system/contents");
+
+    await page.getByRole("button", { name: "选择语言" }).click();
+    await page.getByRole("menuitem", { name: "Switch to English" }).click();
+
+    await expect(page).toHaveURL(/\/\/[^/]+\/design-system\/contents$/);
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  });
+});
+
 test.describe("Language Toggle and client-router fetches", () => {
   test("keeps English after switching from a zh design-system page", async ({
     browser,
