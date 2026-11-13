@@ -1,11 +1,17 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { color } from "../color.stylex.ts";
-import { controlSize, layer, rhythm, space } from "../tokens.stylex.ts";
+import {
+  controlSize,
+  layer,
+  rhythm,
+  safeArea,
+  space,
+} from "../tokens.stylex.ts";
 
 const EDGE_GAP = space._2;
 const BOTTOM_GAP = `max(${EDGE_GAP}, env(safe-area-inset-bottom))`;
-const TOP_GAP = `calc(${space._7} + env(safe-area-inset-top))`;
+const TOP_GAP = `calc(${space._7} + ${safeArea.blockStart})`;
 const CLOSE_INSET = space._2;
 const CONTENT_INSET = space._3;
 // The close button is an md Button, so it is as tall as the md step.

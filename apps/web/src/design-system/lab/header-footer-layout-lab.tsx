@@ -9,7 +9,7 @@ import { Button } from "@tuja/ui/components/button";
 import { HeaderFooterLayout } from "@tuja/ui/components/header-footer-layout";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
-import { measure, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { measure, rhythm, safeArea, space } from "@tuja/ui/tokens.stylex";
 import headerFooterLayoutDoc from "#src/_generated/props/header-footer-layout.json";
 import { defineLab, NONE_SAMPLE } from "./define-lab.tsx";
 import { labSource } from "./print-lab-value.ts";
@@ -23,7 +23,7 @@ const article = stylex.create({
     maxInlineSize: measure.prose,
     // The content flows up under the header controls, so a text page keeps
     // clear of them itself.
-    paddingBlockStart: `calc(${space._10} + env(safe-area-inset-top))`,
+    paddingBlockStart: `calc(${space._10} + ${safeArea.blockStart})`,
     paddingBlockEnd: space._6,
   },
 });

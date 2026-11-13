@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { tabBarTokens } from "../actions/tab-bar.stylex.ts";
-import { space } from "../tokens.stylex.ts";
+import { safeArea, space } from "../tokens.stylex.ts";
 
 const BAR_INSET_BLOCK_END = `max(${space._3}, calc(env(safe-area-inset-bottom) + ${space._1}))`;
 
@@ -48,7 +48,7 @@ export const tabViewForm = stylex.defineVars({
   slotJustify: "center",
 });
 
-const EDGE_BLOCK_START = `calc(${space._3} + env(safe-area-inset-top))`;
+const EDGE_BLOCK_START = `calc(${space._3} + ${safeArea.blockStart})`;
 const EDGE_BLOCK_END = `calc(${space._3} + env(safe-area-inset-bottom))`;
 
 /**

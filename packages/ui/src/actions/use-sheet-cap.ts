@@ -1,5 +1,5 @@
 import { useLayoutEffect, type RefObject } from "react";
-import { space } from "../tokens.stylex.ts";
+import { safeArea, space } from "../tokens.stylex.ts";
 
 /**
  * Caps a Sheet to the room left on the side it opens into — under the bar it
@@ -31,7 +31,7 @@ export function useSheetCap({
     const measure = () => {
       const { top, bottom } = frame.getBoundingClientRect();
       popup.style.maxBlockSize = opensUpward
-        ? `calc(${String(bottom)}px - ${space._3} - env(safe-area-inset-top))`
+        ? `calc(${String(bottom)}px - ${space._3} - ${safeArea.blockStart})`
         : `calc(100dvh - ${String(top)}px - ${space._3} - env(safe-area-inset-bottom))`;
     };
 

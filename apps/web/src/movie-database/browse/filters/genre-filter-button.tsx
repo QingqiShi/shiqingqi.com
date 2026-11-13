@@ -5,7 +5,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { controlSize, space } from "@tuja/ui/tokens.stylex";
+import { controlSize, safeArea, space } from "@tuja/ui/tokens.stylex";
 import { GenreFilter } from "./genre-filter";
 import { useMediaFilters } from "./use-media-filters";
 
@@ -36,7 +36,7 @@ export function GenreFilterButton() {
 const styles = stylex.create({
   desktopMenuContent: {
     padding: controlSize._3,
-    maxHeight: `calc(100dvh - ${space._10} - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 1em - ${controlSize._2} - ${controlSize._1} - ${space._3})`,
+    maxHeight: `calc(100dvh - ${space._10} - ${safeArea.blockStart} - env(safe-area-inset-bottom) - 1em - ${controlSize._2} - ${controlSize._1} - ${space._3})`,
     overflow: "auto",
   },
 });

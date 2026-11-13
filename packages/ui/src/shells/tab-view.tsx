@@ -29,7 +29,7 @@ import {
 } from "../primitives/motion.stylex.ts";
 import { pageGutter } from "../primitives/page-column.stylex.ts";
 import { tabViewWidth } from "../primitives/view-width.stylex.ts";
-import { layer, rhythm } from "../tokens.stylex.ts";
+import { layer, rhythm, safeArea } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { headerControlsTokens } from "./header-controls.stylex.ts";
 import { splitViewQueries } from "./navigation-split-view-layout.stylex.ts";
@@ -448,7 +448,7 @@ const styles = stylex.create({
     // the status bar.
     [headerControlsTokens.clearance]: {
       default: null,
-      [tabViewWidth.bar]: "env(safe-area-inset-top)",
+      [tabViewWidth.bar]: safeArea.blockStart,
       [tabViewWidth.fromRail]: "0px",
     },
     [tabViewTokens.barClearance]: {

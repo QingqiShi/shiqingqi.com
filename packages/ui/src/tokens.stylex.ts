@@ -13,6 +13,20 @@ export const layout = stylex.defineConsts({
 });
 
 /**
+ * The room that a box at the top of the viewport keeps clear of the display,
+ * in place of `env(safe-area-inset-top)`.
+ */
+export const safeArea = stylex.defineConsts({
+  // Safari on an iPad gives a top inset of about 32px after it collapses its
+  // bar, but the viewport then starts below that bar, so the inset covers
+  // nothing. The large and the small viewport heights differ only in a
+  // browser with a bar that collapses, and such a bar keeps the page clear of
+  // the top of the display. Thus the inset counts only where they are equal.
+  blockStart:
+    "max(0px, calc(env(safe-area-inset-top) - (100lvh - 100svh) * 9999))",
+});
+
+/**
  * The Measure: the width cap for a block of prose, in `em` so the cap tracks
  * its text's size. `Text` already takes `prose` when it renders a paragraph.
  */

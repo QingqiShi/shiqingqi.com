@@ -14,6 +14,7 @@ import {
   controlSize,
   font,
   rhythm,
+  safeArea,
   space,
 } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
@@ -79,7 +80,7 @@ const styles = stylex.create({
     // `a11y.touchTarget` and `buttonReset.base` set the position under a
     // coarse pointer, which ranks above a plain value, so the branch repeats it.
     position: { default: "absolute", [pointer.coarse]: "absolute" },
-    insetBlockStart: `calc(env(safe-area-inset-top) + ${space._2})`,
+    insetBlockStart: `calc(${safeArea.blockStart} + ${space._2})`,
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",

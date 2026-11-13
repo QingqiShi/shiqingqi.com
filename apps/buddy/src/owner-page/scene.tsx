@@ -4,7 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { safeArea, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode, Ref } from "react";
 import { sceneHeight, sceneTokens } from "./scene.stylex.ts";
@@ -84,7 +84,7 @@ const styles = stylex.create({
     insetBlockStart: 0,
     insetInlineStart: 0,
     inlineSize: 0,
-    blockSize: "env(safe-area-inset-top)",
+    blockSize: safeArea.blockStart,
     visibility: "hidden",
     pointerEvents: "none",
   },

@@ -11,7 +11,7 @@ import { splitViewTokens } from "@tuja/ui/components/navigation-split-view.style
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { safeArea, space } from "@tuja/ui/tokens.stylex";
 import { usePathname, useRouter } from "next/navigation";
 import type { ComponentProps, ReactNode } from "react";
 import { DESIGN_SYSTEM_CONTENT_ID } from "#src/design-system/design-system-content-id.ts";
@@ -104,7 +104,7 @@ const styles = stylex.create({
     // Below `md`, keep the gap at the top of the page, so that the breadcrumb
     // stays beside the menu button.
     scrollMarginBlockStart: {
-      default: `calc(${space._4} + env(safe-area-inset-top))`,
+      default: `calc(${space._4} + ${safeArea.blockStart})`,
       [breakpoints.md]: 0,
     },
   },
