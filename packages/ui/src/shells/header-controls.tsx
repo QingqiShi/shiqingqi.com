@@ -5,7 +5,7 @@ import { use, type ReactNode } from "react";
 import { EffectContainedContext } from "../effect-layer/effect-carrier-context.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { ControlGroupBlur } from "../surfaces/control-group-blur.tsx";
-import { layer, space } from "../tokens.stylex.ts";
+import { layer, safeArea, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { usePageScrolled } from "./use-page-scrolled.ts";
 
@@ -50,7 +50,7 @@ const styles = stylex.create({
   // the controls, so this strip never blocks page scrolling beneath it.
   floating: {
     position: "fixed",
-    insetBlockStart: "env(safe-area-inset-top)",
+    insetBlockStart: safeArea.blockStart,
     blockSize: space._10,
     zIndex: layer.header,
   },

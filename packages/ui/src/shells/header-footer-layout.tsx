@@ -7,7 +7,7 @@ import {
 } from "../primitives/page-column.stylex.ts";
 import { BlurPlane, BlurPlaneProvider } from "../surfaces/blur-plane.tsx";
 import { FlowBlock } from "../surfaces/flow-block.tsx";
-import { layer, space } from "../tokens.stylex.ts";
+import { layer, safeArea, space } from "../tokens.stylex.ts";
 import { headerControlsTokens } from "./header-controls.stylex.ts";
 import { HeaderControls } from "./header-controls.tsx";
 
@@ -162,7 +162,7 @@ const styles = stylex.create({
   root: {
     // Published so sticky page chrome (e.g. a filter bar) can sit below the
     // header without restating its size.
-    [headerControlsTokens.clearance]: `calc(${space._10} + env(safe-area-inset-top))`,
+    [headerControlsTokens.clearance]: `calc(${space._10} + ${safeArea.blockStart})`,
     // Do not isolate this box. The header controls must stack with the effect
     // layer, which is outside the shell, so that effects stay under them.
     position: "relative",

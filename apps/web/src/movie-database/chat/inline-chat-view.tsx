@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
-import { border, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { border, layer, rhythm, safeArea, space } from "@tuja/ui/tokens.stylex";
 import { getScrollBehavior } from "@tuja/ui/utils/get-scroll-behavior";
 import {
   ViewTransition,
@@ -179,7 +179,7 @@ const styles = stylex.create({
   container: {
     display: "flex",
     flexDirection: "column",
-    minHeight: `calc(100dvh - ${space._10} - env(safe-area-inset-top))`,
+    minHeight: `calc(100dvh - ${space._10} - ${safeArea.blockStart})`,
   },
   inputMeta: {
     display: "flex",

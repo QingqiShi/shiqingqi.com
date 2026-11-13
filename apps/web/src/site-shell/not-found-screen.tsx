@@ -22,6 +22,7 @@ import {
   font,
   measure,
   rhythm,
+  safeArea,
   space,
 } from "@tuja/ui/tokens.stylex";
 import { BUDDY_ORIGIN } from "#src/buddy-origin.mjs";
@@ -145,7 +146,7 @@ const styles = stylex.create({
     // Shell's floating header controls, which content otherwise flows past —
     // same `space._10 + safe-area` expression their own strip uses.
     minBlockSize: "100dvh",
-    paddingBlockStart: `calc(${space._10} + env(safe-area-inset-top) + ${space._5})`,
+    paddingBlockStart: `calc(${space._10} + ${safeArea.blockStart} + ${space._5})`,
     paddingBlockEnd: space._9,
   },
   lede: {

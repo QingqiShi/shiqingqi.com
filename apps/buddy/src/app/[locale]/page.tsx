@@ -20,6 +20,7 @@ import {
   controlHeight,
   font,
   rhythm,
+  safeArea,
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
@@ -287,7 +288,7 @@ const styles = stylex.create({
   // not fade.
   banner: {
     blockSize: {
-      default: `calc(env(safe-area-inset-top) + 17rem)`,
+      default: `calc(${safeArea.blockStart} + 17rem)`,
       [breakpoints.md]: sceneHeight.wide,
       [breakpoints.lg]: "100%",
     },

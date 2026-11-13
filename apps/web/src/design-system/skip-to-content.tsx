@@ -3,7 +3,7 @@ import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
-import { layer, shadow, space } from "@tuja/ui/tokens.stylex";
+import { layer, safeArea, shadow, space } from "@tuja/ui/tokens.stylex";
 import { DESIGN_SYSTEM_CONTENT_ID } from "#src/design-system/design-system-content-id.ts";
 
 /**
@@ -44,7 +44,7 @@ const styles = stylex.create({
     insetBlockEnd: { default: `calc(100% + ${space._8})`, ":focus": "auto" },
     insetBlockStart: {
       default: "auto",
-      ":focus": `calc(${space._2} + env(safe-area-inset-top))`,
+      ":focus": `calc(${space._2} + ${safeArea.blockStart})`,
     },
     insetInlineStart: pageGutter.inlineStart,
     // Above the menu button (`layer.header`) and a sheet (`layer.overlay`),

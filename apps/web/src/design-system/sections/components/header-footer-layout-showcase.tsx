@@ -7,7 +7,7 @@ import { HeaderFooterLayout } from "@tuja/ui/components/header-footer-layout";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { measure, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { measure, rhythm, safeArea, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { blurStage } from "#src/design-system/blur-stage.stylex.ts";
 import {
@@ -177,6 +177,6 @@ const styles = stylex.create({
     maxInlineSize: measure.prose,
     // Text-first content clears the header controls itself; heroes bleed under
     // them.
-    paddingBlockStart: `calc(${space._10} + env(safe-area-inset-top))`,
+    paddingBlockStart: `calc(${space._10} + ${safeArea.blockStart})`,
   },
 });

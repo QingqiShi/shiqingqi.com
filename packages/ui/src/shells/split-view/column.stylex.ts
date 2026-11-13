@@ -19,6 +19,7 @@ import {
   controlHeight,
   layer,
   rhythm,
+  safeArea,
   shadow,
   space,
 } from "../../tokens.stylex.ts";
@@ -29,13 +30,12 @@ import { sidebarEdge, tabViewTokens } from "../tab-view.stylex.ts";
 const CONTENT_GUTTER_START = `max(${space._4}, env(safe-area-inset-left))`;
 const CONTENT_GUTTER_END = `max(${space._4}, env(safe-area-inset-right))`;
 const PAGE_COLUMN_MARGIN = `calc((100% - ${pageColumnTokens.inlineSize}) / 2 + ${space._4})`;
-const CONTENT_PADDING_BLOCK_START = `calc(${space._4} + env(safe-area-inset-top))`;
+const CONTENT_PADDING_BLOCK_START = `calc(${space._4} + ${safeArea.blockStart})`;
 const CONTENT_PADDING_BLOCK_END = `calc(${space._6} + ${splitViewTokens.columnInsetBlockEnd})`;
 /** Above the tab bar below 34rem, and above the safe area from 34rem up. */
 const ACCESSORY_INSET_BLOCK_END = `max(calc(${space._3} + ${tabViewTokens.barClearance}), calc(${space._5} + env(safe-area-inset-bottom)))`;
 
 const SIDEBAR_INLINE_SIZE = `calc(${splitViewTokens.sidebarInlineSize} + env(safe-area-inset-left))`;
-
 const CORNER_RADIUS = border.radius_3;
 
 // A column beside the sidebar fill has round corners on that side. The page
@@ -490,7 +490,7 @@ export const stackStyles = stylex.create({
     display: "flex",
     paddingBlockStart: {
       default: CONTENT_PADDING_BLOCK_START,
-      [splitViewQueries.contentBesideSidebar]: `calc(${space._2} + env(safe-area-inset-top))`,
+      [splitViewQueries.contentBesideSidebar]: `calc(${space._2} + ${safeArea.blockStart})`,
     },
   },
   // Of the list, and of its `header` and `footer` on a page. After those.
