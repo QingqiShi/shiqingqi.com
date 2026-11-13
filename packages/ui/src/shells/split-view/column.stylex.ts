@@ -15,7 +15,6 @@ import {
 import { stateFillTokens } from "../../primitives/selected.stylex.ts";
 import { islandTokens } from "../../surfaces/island.stylex.ts";
 import {
-  border,
   controlHeight,
   layer,
   rhythm,
@@ -84,6 +83,15 @@ export const columnStyles = stylex.create({
     clipPath: "inset(-100% 0 -100% -100%)",
     opacity: 0,
     pointerEvents: "none",
+  },
+  // The root and the scroller of a column with chrome over its content.
+  maskRoot: {
+    flexGrow: 1,
+    gridTemplateRows: "minmax(0, 1fr)",
+    minBlockSize: 0,
+  },
+  maskScroller: {
+    overscrollBehavior: "contain",
   },
   scroller: {
     flexGrow: 1,
@@ -248,6 +256,14 @@ export const columnPageScrollStyles = stylex.create({
       "@media print": "auto",
     },
   },
+  // Chrome sticks only to a scroller of the column, not to the page.
+  chrome: {
+    position: {
+      default: "sticky",
+      [splitViewQueries.pageScrolls]: "static",
+      "@media print": "static",
+    },
+  },
 });
 
 /** @internal */
@@ -375,26 +391,13 @@ export const stackStyles = stylex.create({
     paddingInlineStart: `calc(${space._2} + env(safe-area-inset-left))`,
     paddingInlineEnd: space._2,
   },
-  // A hairline between the destinations and the list, on the box edge of the
-  // rows.
-  sidebarHeaderRule: {
-    "::after": {
-      content: "''",
-      display: {
-        default: "none",
-        [splitViewQueries.contentBesideSidebar]: "block",
-      },
-      blockSize: border.size_1,
-      backgroundColor: color.border,
-    },
-  },
   // The sidebar's own `header` shows above the list where the list is a page
   // too, with the paddings of a page. After `sidebarHeader`.
   sidebarHeaderOnPage: {
     display: "flex",
     paddingBlockStart: {
       default: CONTENT_PADDING_BLOCK_START,
-      [splitViewQueries.contentBesideSidebar]: sidebarEdge.paddingBlockStart,
+      [splitViewQueries.contentBesideSidebar]: `calc(${space._2} + env(safe-area-inset-top))`,
     },
     paddingInlineStart: {
       default: CONTENT_GUTTER_START,
@@ -414,14 +417,6 @@ export const stackStyles = stylex.create({
       [splitViewQueries.contentBesideSidebar]: space._2,
     },
   },
-  // Beside the content, the list starts under the header, and fades out
-  // above the `footer`.
-  sidebarScroller: {
-    maskImage: {
-      default: null,
-      [splitViewQueries.contentBesideSidebar]: `linear-gradient(to bottom, transparent, #000 ${space._2}, #000 calc(100% - ${space._5}), transparent)`,
-    },
-  },
   sidebarContent: {
     paddingBlockStart: {
       default: CONTENT_PADDING_BLOCK_START,
@@ -429,7 +424,7 @@ export const stackStyles = stylex.create({
     },
     paddingBlockEnd: {
       default: CONTENT_PADDING_BLOCK_END,
-      [splitViewQueries.contentBesideSidebar]: space._5,
+      [splitViewQueries.contentBesideSidebar]: space._2,
     },
     paddingInlineStart: {
       default: CONTENT_GUTTER_START,
@@ -442,7 +437,8 @@ export const stackStyles = stylex.create({
       [splitViewQueries.contentBesideSidebar]: space._2,
     },
   },
-  // The `footer` of the sidebar stays under the list, which scrolls.
+  // The `footer` of the sidebar stays over the end of the list, which scrolls
+  // under it.
   sidebarFooter: {
     display: {
       default: "none",
@@ -453,6 +449,13 @@ export const stackStyles = stylex.create({
     paddingBlockEnd: sidebarEdge.paddingBlockEnd,
     paddingInlineStart: `calc(${space._2} + env(safe-area-inset-left))`,
     paddingInlineEnd: space._2,
+  },
+  // Outside a `TabView`, no rail gives the footer its line, so the footer is
+  // as far from the bottom as from the side. Over a home indicator, its bottom
+  // is on the line of the bottom of the islands, which clears a rounded display
+  // corner. After `sidebarFooter`.
+  sidebarFooterOwn: {
+    paddingBlockEnd: `max(${space._2}, env(safe-area-inset-bottom))`,
   },
   contentColumn: {
     backgroundColor: {

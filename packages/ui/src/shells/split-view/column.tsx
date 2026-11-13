@@ -8,6 +8,8 @@ import { useScrollRegion } from "../../effect-layer/use-scroll-region.ts";
 import { mergeRefs } from "../../merge-refs.ts";
 import { a11y } from "../../primitives/a11y.stylex.ts";
 import { islandSurface } from "../../surfaces/island.stylex.ts";
+import { ScrollMask } from "../../surfaces/scroll-mask.tsx";
+import { space } from "../../tokens.stylex.ts";
 import type { StyleProp } from "../../types.ts";
 import { STACK_ROOT_KEY } from "../create-page-scroll.ts";
 import { columnPageScrollStyles, columnStyles } from "./column.stylex.ts";
@@ -60,10 +62,13 @@ interface ColumnProps {
   /** Whether the column leaves the view, and shows only while it moves out. */
   isLeaving?: boolean;
   header?: ReactNode;
+  /**
+   * What stays at the top and at the bottom of the scroller of each page, over
+   * the content, which blurs on its way out under them.
+   */
+  chrome?: { start: ReactNode; end: ReactNode };
   /** What a page shows above its node, such as its back link. */
   top?: (page: ColumnPage) => ReactNode;
-  /** What stays at the bottom of the column, under its pages. */
-  footer?: ReactNode;
   /**
    * Whether the column draws the destinations of the `TabView` around its node:
    * at each width where it shows beside the content, or only where a detail
@@ -93,8 +98,8 @@ export function Column({
   close,
   isLeaving = false,
   header,
+  chrome,
   top,
-  footer,
   carriesNav,
   awayCss,
   body,
@@ -134,12 +139,12 @@ export function Column({
             pageCss={pageCss}
             scrollerCss={scrollerCss}
             contentCss={contentCss}
+            chrome={chrome}
             top={top}
             body={body}
           />
         ))}
       </div>
-      {footer}
       {column === "sidebar" ? null : (
         <span data-split-view-edge="" aria-hidden css={columnStyles.edge} />
       )}
@@ -158,6 +163,7 @@ function ColumnPageView({
   pageCss,
   scrollerCss,
   contentCss,
+  chrome,
   top,
   body,
 }: {
@@ -171,6 +177,7 @@ function ColumnPageView({
   pageCss?: StyleProp;
   scrollerCss?: StyleProp;
   contentCss: StyleProp;
+  chrome?: { start: ReactNode; end: ReactNode };
   top?: (page: ColumnPage) => ReactNode;
   body?: (page: ColumnPage) => ReactNode;
 }) {
@@ -199,15 +206,40 @@ function ColumnPageView({
       <SplitViewColumnContext
         value={{ column, presentation, scroller, isShown, close }}
       >
-        <RegionScroller
-          scrollerRef={setBox}
-          scrollerCss={[scrollStyles?.scroller, scrollerCss]}
-          contentCss={[scrollStyles?.content, contentCss]}
-        >
-          {top?.(page)}
-          {body === undefined ? page.column.node : body(page)}
-          {accessory == null ? null : <Accessory>{accessory}</Accessory>}
-        </RegionScroller>
+        {chrome === undefined ? (
+          <RegionScroller
+            scrollerRef={setBox}
+            scrollerCss={[scrollStyles?.scroller, scrollerCss]}
+            contentCss={[scrollStyles?.content, contentCss]}
+          >
+            {top?.(page)}
+            {body === undefined ? page.column.node : body(page)}
+            {accessory == null ? null : <Accessory>{accessory}</Accessory>}
+          </RegionScroller>
+        ) : (
+          <ScrollMask
+            ref={setBox}
+            css={columnStyles.maskRoot}
+            contentCss={[
+              columnStyles.maskScroller,
+              a11y.focusRingInset,
+              scrollStyles?.scroller,
+              scrollerCss,
+            ]}
+            startChrome={chrome.start}
+            startDepth={space._8}
+            startChromeCss={scrollStyles?.chrome}
+            endChrome={chrome.end}
+            endChromeCss={scrollStyles?.chrome}
+          >
+            <div
+              css={[columnStyles.content, scrollStyles?.content, contentCss]}
+            >
+              {top?.(page)}
+              {body === undefined ? page.column.node : body(page)}
+            </div>
+          </ScrollMask>
+        )}
       </SplitViewColumnContext>
       <span data-split-view-dim="" aria-hidden css={columnStyles.dim} />
       <span data-split-view-edge="" aria-hidden css={columnStyles.edge} />

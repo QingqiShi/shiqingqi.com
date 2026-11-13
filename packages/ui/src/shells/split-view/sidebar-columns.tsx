@@ -48,23 +48,32 @@ export function SidebarColumns({
       carriesNav={
         carriesNav ? (hasDetailColumn ? "wide" : "always") : undefined
       }
-      header={
-        carriesNav ? (
-          <div
-            css={[
-              stackStyles.sidebarHeader,
-              nav.top != null && stackStyles.sidebarHeaderRule,
-              ownsHeader && stackStyles.sidebarHeaderOnPage,
-            ]}
-          >
-            {nav.top}
-          </div>
-        ) : undefined
-      }
-      footer={
-        carriesNav && nav.bottom !== null ? (
-          <div css={stackStyles.sidebarFooter}>{nav.bottom}</div>
-        ) : undefined
+      chrome={
+        carriesNav
+          ? {
+              start: (
+                <div
+                  css={[
+                    stackStyles.sidebarHeader,
+                    ownsHeader && stackStyles.sidebarHeaderOnPage,
+                  ]}
+                >
+                  {nav.top}
+                </div>
+              ),
+              end:
+                nav.bottom === null ? null : (
+                  <div
+                    css={[
+                      stackStyles.sidebarFooter,
+                      !isInTabView && stackStyles.sidebarFooterOwn,
+                    ]}
+                  >
+                    {nav.bottom}
+                  </div>
+                ),
+            }
+          : undefined
       }
       pageScrolls={pageScrolls}
       pageScroll={pageScroll}
@@ -92,7 +101,6 @@ export function SidebarColumns({
           ? stackStyles.sidebarRoot
           : [sidebarStyles.fullBesideContent, stackStyles.sidebarUnder],
       ]}
-      scrollerCss={stackStyles.sidebarScroller}
       contentCss={[
         sidebarStyles.fullContent,
         stackStyles.sidebarContent,
