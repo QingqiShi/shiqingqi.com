@@ -150,9 +150,9 @@ describe("MenuButton keyboard navigation", () => {
 });
 
 describe("MenuButton in Safari", () => {
-  // Safari does not focus a link or a button on a press: it clears focus, so
-  // the focused item blurs to nothing before the click. jsdom focuses the
-  // pressed item as Chrome does, so the test makes that blur by hand.
+  // Safari does not focus a link or a button on a press: it moves focus to
+  // the nearest focusable ancestor, or clears it, before the click. jsdom
+  // focuses the pressed item as Chrome does, so the tests move focus by hand.
   it("stays open when a press on an item clears focus, so the item gets the click", async () => {
     const user = userEvent.setup();
     render(<TestMenu />);
@@ -164,6 +164,25 @@ describe("MenuButton in Safari", () => {
     fireEvent.pointerDown(pressedItem);
     act(() => {
       focusedItem.blur();
+    });
+
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("stays open when a press on an item moves focus to a focusable ancestor", async () => {
+    const user = userEvent.setup();
+    render(
+      <section tabIndex={-1} aria-label="Sidebar">
+        <TestMenu />
+      </section>,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Open menu" });
+    await user.click(trigger);
+
+    fireEvent.pointerDown(getMenuItems()[1]);
+    act(() => {
+      screen.getByRole("region", { name: "Sidebar" }).focus();
     });
 
     expect(trigger).toHaveAttribute("aria-expanded", "true");
