@@ -215,9 +215,10 @@ export function MenuButton({
     }
   }, [isMenuShown]);
 
-  // Safari does not focus a link or a button on a press: it clears focus, so
-  // the focused item blurs to nothing. If the menu closes on that blur, it is
-  // inert before the click, and the pressed item never gets the click.
+  // Safari does not focus a link or a button on a press: it moves focus to
+  // the nearest focusable ancestor, or clears it. If the menu closes on that
+  // blur, it is inert before the click, and the pressed item never gets the
+  // click. A key ends the press, so that a Tab out of the menu closes it.
   const pressBeganInMenuRef = useRef(false);
   useEffect(() => {
     if (!isMenuShown) return;
@@ -227,9 +228,14 @@ export function MenuButton({
         event.target instanceof Node &&
         menuRef.current?.contains(event.target) === true;
     };
+    const endPress = () => {
+      pressBeganInMenuRef.current = false;
+    };
     document.addEventListener("pointerdown", trackPress, true);
+    document.addEventListener("keydown", endPress, true);
     return () => {
       document.removeEventListener("pointerdown", trackPress, true);
+      document.removeEventListener("keydown", endPress, true);
     };
   }, [isMenuShown]);
 
@@ -273,13 +279,11 @@ export function MenuButton({
         onMenuKeyDown(e);
       }}
       onBlur={(e) => {
-        const focusClearedByPressInMenu =
-          e.relatedTarget === null && pressBeganInMenuRef.current;
         if (
           isMenuShown &&
           !containerRef.current?.contains(e.relatedTarget) &&
           !outsideClickedRef.current &&
-          !focusClearedByPressInMenu
+          !pressBeganInMenuRef.current
         ) {
           setIsMenuShown(false);
         }
