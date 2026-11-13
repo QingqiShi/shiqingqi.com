@@ -110,20 +110,27 @@ describe("mailFrameDocument", () => {
       nestedTags: (size: number) =>
         "<div>".repeat(size / 5) + "</span>".repeat(size / 7),
     };
+    // A loaded CI runner pauses the test in the middle of a run, and a long
+    // run gets more pauses than a short one. Thus the clock is the CPU time
+    // of the test's process, which does not count a pause.
+    const cpuTime = () => {
+      const { user, system } = process.cpuUsage();
+      return user + system;
+    };
     const fastestRun = (html: string) =>
       Math.min(
         ...Array.from({ length: 3 }, () => {
-          const started = performance.now();
+          const started = cpuTime();
           mailFrameDocument(html, [], imageLinks);
-          return performance.now() - started;
+          return cpuTime() - started;
         }),
       );
 
-    // Wall-clock budgets fail on slow CI runners, so compare 1 MB with 128 KB:
+    // A time budget fails on a slow CI runner, so compare 1 MB with 128 KB:
     // linear time gives a ratio near 8, quadratic time near 64.
     const small = 128 * 1024;
     for (const [shape, craft] of Object.entries(crafted)) {
-      const smallTime = Math.max(fastestRun(craft(small)), 1);
+      const smallTime = fastestRun(craft(small));
       const largeTime = fastestRun(craft(small * 8));
       expect(largeTime / smallTime, shape).toBeLessThan(24);
     }
