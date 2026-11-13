@@ -153,6 +153,9 @@ overrides:
   js-yaml: ^4.2.0
   postcss: ^8.5.10
 
+patchedDependencies:
+  react-remove-scroll@2.7.2: ba1b6a6c35583879c71a0c385b13ad9738dce851d595dbb3458f9fdeaf5950f2
+
 importers:
 
   .:
@@ -952,7 +955,7 @@ importers:
         version: 10.1.0(@types/react@19.3.0)(react@19.3.1)
       react-remove-scroll:
         specifier: 'catalog:'
-        version: 2.7.2(@types/react@19.3.0)(react@19.3.1)
+        version: 2.7.2(patch_hash=ba1b6a6c35583879c71a0c385b13ad9738dce851d595dbb3458f9fdeaf5950f2)(@types/react@19.3.0)(react@19.3.1)
       react-virtuoso:
         specifier: ^4.18.20
         version: 4.18.20(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -1449,7 +1452,7 @@ importers:
         version: 2.1.10(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react-remove-scroll:
         specifier: 'catalog:'
-        version: 2.7.2(@types/react@19.3.0)(react@19.3.1)
+        version: 2.7.2(patch_hash=ba1b6a6c35583879c71a0c385b13ad9738dce851d595dbb3458f9fdeaf5950f2)(@types/react@19.3.0)(react@19.3.1)
       typegpu:
         specifier: 'catalog:'
         version: 0.12.9
@@ -15099,7 +15102,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  react-remove-scroll@2.7.2(@types/react@19.3.0)(react@19.3.1):
+  react-remove-scroll@2.7.2(patch_hash=ba1b6a6c35583879c71a0c385b13ad9738dce851d595dbb3458f9fdeaf5950f2)(@types/react@19.3.0)(react@19.3.1):
     dependencies:
       react: 19.3.1
       react-remove-scroll-bar: 2.3.8(@types/react@19.3.0)(react@19.3.1)
