@@ -92,13 +92,13 @@ interface NavigationStackProps {
 }
 
 /**
- * A screen of one pane: its content in the page column, on an island that
- * scrolls, with the way back at its top. Use it for each screen that has
+ * A screen of one pane: its content in the page column, with the way back at
+ * its top. Use it for each screen that has
  * nothing beside it, in a `TabView` or by itself. A screen with a list beside
  * its content, or a detail, is a `NavigationSplitView`.
  *
- * On a screen narrower than 30rem, the page scrolls the content, so that it
- * goes under the status bar of the browser. Outside a `TabView`, the screen is
+ * The page scrolls the content, so that the browser can shrink its bars as
+ * the page scrolls. Outside a `TabView`, the screen is
  * the `<main>` landmark.
  */
 export function NavigationStack({

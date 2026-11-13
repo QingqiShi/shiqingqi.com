@@ -1,7 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { color } from "../../color.stylex.ts";
-import { islandTokens } from "../../surfaces/island.stylex.ts";
-import { layer, rhythm } from "../../tokens.stylex.ts";
+import { layer } from "../../tokens.stylex.ts";
 import {
   splitViewDisplay,
   splitViewQueries,
@@ -11,26 +10,27 @@ import { tabViewTokens } from "../tab-view.stylex.ts";
 
 /** @internal */
 export const viewFrameStyles = stylex.create({
-  // The box of the view that fills the screen, for `splitViewQueries.pageScrolls`,
-  // as a `TabView` is the box of a view in it.
-  screen: {
-    containerName: "split-view-screen",
-    containerType: "inline-size",
-  },
-  // The view fills the screen and the page does not scroll, except on a screen
-  // narrower than 30rem. Inside a `TabView` below 34rem, the view goes under the
-  // floating tab bar, and each column keeps its content above the bar. The
-  // displays start again from their defaults in a view in a column of another.
+  // The view is as tall as its content, and the page scrolls it. Inside a
+  // `TabView` below 34rem, the view goes under the floating tab bar, and each
+  // column keeps its content above the bar. The displays start again from
+  // their defaults in a view in a column of another.
   view: {
     position: "relative",
     containerType: "inline-size",
-    blockSize: "100dvh",
-    maxBlockSize: "100%",
+    // `createPageScroll` sets the scroll and moves the pages with `top`. WebKit
+    // anchors the scroll through both, and adds the move to the scroll.
+    overflowAnchor: "none",
     [splitViewDisplay.stacked]: "none",
     [splitViewDisplay.unstacked]: "contents",
   },
-  // Outside a `TabView`, a view with a list paints the sidebar fill itself, and
-  // its content floats on that as an island.
+  // A view in a box that does not fill the screen is as tall as that box, and
+  // each column scrolls in it.
+  viewContained: {
+    blockSize: "100dvh",
+    maxBlockSize: "100%",
+    overflowAnchor: "auto",
+  },
+  // Outside a `TabView`, a view with a list paints the sidebar fill itself.
   canvas: {
     backgroundColor: color.sidebar,
   },
@@ -42,55 +42,19 @@ export const viewFrameStyles = stylex.create({
     overflow: "clip",
     pointerEvents: "none",
   },
-  // Each column is an island on the canvas. Where the content fills the
-  // view, as on a phone, the islands have no gaps and no corners.
+  // The columns lie side by side and reach the edges of the view.
   columns: {
-    [islandTokens.radius]: {
-      default: null,
-      [splitViewQueries.contentAlone]: "0px",
-    },
-    [islandTokens.insetBlockStart]: {
-      default: null,
-      [splitViewQueries.contentAlone]: "0px",
-    },
-    [islandTokens.insetBlockEnd]: {
-      default: null,
-      [splitViewQueries.contentAlone]: "0px",
-    },
-    [islandTokens.insetInlineStart]: {
-      default: null,
-      [splitViewQueries.contentAlone]: "0px",
-    },
-    [islandTokens.insetInlineEnd]: {
-      default: null,
-      [splitViewQueries.contentAlone]: "0px",
-    },
-    // The part of the bar or of the safe area that the gap under the
-    // islands does not already clear.
-    [splitViewTokens.columnInsetBlockEnd]: `max(0px, max(${tabViewTokens.barClearance}, env(safe-area-inset-bottom)) - ${islandTokens.insetBlockEnd})`,
+    // The bar or the safe area under the columns.
+    [splitViewTokens.columnInsetBlockEnd]: `max(${tabViewTokens.barClearance}, env(safe-area-inset-bottom))`,
     position: "relative",
-    blockSize: "100%",
+    display: "flex",
     overflow: "clip",
   },
-  // A screen with nothing beside it and no `TabView` around it has no canvas
-  // to float on, so it fills the screen at each width.
-  columnsAlone: {
-    [islandTokens.radius]: "0px",
-    [islandTokens.insetBlockStart]: "0px",
-    [islandTokens.insetBlockEnd]: "0px",
-    [islandTokens.insetInlineStart]: "0px",
-    [islandTokens.insetInlineEnd]: "0px",
+  columnsContained: {
+    blockSize: "100%",
   },
   columnsWithoutBar: {
     [tabViewTokens.barClearance]: "0px",
-  },
-  // No rail of a `TabView` takes the safe area at the inline start.
-  columnsOnScreen: {
-    [islandTokens.insetInlineStart]: {
-      default: null,
-      [splitViewQueries.contentAlone]: "0px",
-      [splitViewQueries.besideOthers]: `max(${rhythm.tight}, env(safe-area-inset-left))`,
-    },
   },
   // A custom property set in a container query goes into a cascade layer, and one
   // set without a condition does not. Thus these set a display of
@@ -103,39 +67,6 @@ export const viewFrameStyles = stylex.create({
     [splitViewDisplay.unstacked]: {
       default: null,
       [splitViewQueries.noSidebarBeside]: "none",
-    },
-  },
-});
-
-// Where the view fills a screen narrower than 30rem, the page scrolls the
-// content, and it does so also on paper, which has no scroller to show the rest.
-// A view in a box that does not fill the screen always scrolls its columns, as
-// the page does not scroll them, though a view around it can scroll with the page.
-/** @internal */
-export const viewFramePageScrollStyles = stylex.create({
-  view: {
-    blockSize: {
-      default: "100dvh",
-      [splitViewQueries.pageScrolls]: "auto",
-      "@media print": "auto",
-    },
-    maxBlockSize: {
-      default: "100%",
-      [splitViewQueries.pageScrolls]: "none",
-      "@media print": "none",
-    },
-    // `createPageScroll` sets the scroll and moves the pages with `top`. WebKit
-    // anchors the scroll through both, and adds the move to the scroll.
-    overflowAnchor: {
-      default: null,
-      [splitViewQueries.pageScrolls]: "none",
-    },
-  },
-  columns: {
-    blockSize: {
-      default: "100%",
-      [splitViewQueries.pageScrolls]: "auto",
-      "@media print": "auto",
     },
   },
 });

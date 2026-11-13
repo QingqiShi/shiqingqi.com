@@ -6,7 +6,6 @@ import { useLinkSlot } from "../actions/link-provider.tsx";
 import { NavViewContext } from "../actions/nav-list-context.tsx";
 import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import { pageColumn } from "../primitives/page-column.stylex.ts";
-import { islandSurface } from "../surfaces/island.stylex.ts";
 import { useIsInSheetBoundary } from "../surfaces/sheet.tsx";
 import { rhythm } from "../tokens.stylex.ts";
 import { LeavingCopyTaker } from "./leaving-copy-taker.tsx";
@@ -34,10 +33,7 @@ import { useStackHandoff } from "./split-view/use-stack-handoff.ts";
 import { useStackOpening } from "./split-view/use-stack-opening.ts";
 import { useViewMotion } from "./split-view/use-view-motion.ts";
 import { useViewWidthsReached } from "./split-view/use-view-widths-reached.ts";
-import {
-  viewFramePageScrollStyles,
-  viewFrameStyles,
-} from "./split-view/view-frame.stylex.ts";
+import { viewFrameStyles } from "./split-view/view-frame.stylex.ts";
 import type { SplitViewMarks } from "./split-view-motion/types.ts";
 import { useIsInTabView } from "./tab-view.tsx";
 import {
@@ -63,8 +59,8 @@ export {
 
 /**
  * A list, the content that a row of it opens, and the detail of what is
- * picked there, each in its own scroll box, as tall as the screen. The
- * consumer decides what is picked, normally from the URL, and passes the
+ * picked there, side by side from edge to edge of the screen. The content has
+ * round corners beside the sidebar fill. The consumer decides what is picked, normally from the URL, and passes the
  * columns that show it.
  *
  * The view fits the columns to the width it gets, not to the screen. From
@@ -90,11 +86,12 @@ export {
  * icons. Outside a `TabView`, the sidebar always gives way to the detail
  * column. A change of the composition keeps each column and its scroll.
  *
- * Where the view fills a screen narrower than 30rem, as on a phone, the page
- * scrolls the content instead of its scroll box, so that it goes under the
- * status bar of the browser, and each page of the content keeps its own
- * scroll. The view fills the screen unless it is in a `SheetBoundary`, and it
- * then always scrolls its columns. Outside a `TabView` and a `SheetBoundary`,
+ * The page scrolls the content, so that the browser can shrink its bars as
+ * the page scrolls, and each page of the content keeps its own scroll. The
+ * sidebar and the detail beside the content stay on the screen, as tall as
+ * the screen, and each scrolls in its own box. The view fills the screen unless
+ * it is in a `SheetBoundary`, and there each column scrolls in its own box.
+ * Outside a `TabView` and a `SheetBoundary`,
  * the content column is the `<main>` landmark, and a key that scrolls, while
  * nothing has focus, scrolls the content, as it would the page.
  *
@@ -198,7 +195,8 @@ export function NavigationSplitView({
   const sidebarNav = tabViewNav ?? ownNav;
   const isContained = useIsInSheetBoundary();
   const fillsScreen = !isInTabView && !isContained;
-  const pageScroll: ColumnPageScroll = isContained ? "never" : "narrow";
+  const pageScroll: ColumnPageScroll = isContained ? "never" : "always";
+  const sidebarPageScroll: ColumnPageScroll = isContained ? "never" : "stacked";
   const isPageSidebar = fitsFullSidebar === false;
   const asSheet = detail != null && detailBeside === false;
   const detailColumn = asSheet ? null : (detail ?? null);
@@ -327,7 +325,7 @@ export function NavigationSplitView({
       ? null
       : leavingPage.key;
 
-  const shown = (
+  return (
     <SplitViewContext value={viewState}>
       <NavViewContext
         value={{ pendingHref: opening, isPage: isPageSidebar && hasSidebar }}
@@ -338,7 +336,7 @@ export function NavigationSplitView({
             data-split-view=""
             css={[
               viewFrameStyles.view,
-              !isContained && viewFramePageScrollStyles.view,
+              isContained && viewFrameStyles.viewContained,
               movingMarker,
               hasSidebar && pageColumn.wide,
               ownNav !== null && viewFrameStyles.canvas,
@@ -355,15 +353,9 @@ export function NavigationSplitView({
             ) : null}
             <div
               css={[
-                islandSurface.frame,
                 viewFrameStyles.columns,
-                !isContained && viewFramePageScrollStyles.columns,
+                isContained && viewFrameStyles.columnsContained,
                 !isInTabView && viewFrameStyles.columnsWithoutBar,
-                fillsScreen && viewFrameStyles.columnsOnScreen,
-                fillsScreen &&
-                  !hasSidebar &&
-                  detail == null &&
-                  viewFrameStyles.columnsAlone,
                 hasSidebar &&
                   !hasDetailColumn &&
                   viewFrameStyles.stackedBelowSidebar,
@@ -377,8 +369,9 @@ export function NavigationSplitView({
                   fitsFullSidebar={fitsFullSidebar}
                   hasDetailColumn={hasDetailColumn}
                   isInTabView={isInTabView}
-                  pageScrolls={pageScrolls}
-                  pageScroll={pageScroll}
+                  pageScrolls={pageScrolls && isPageSidebar}
+                  pageScroll={sidebarPageScroll}
+                  sticks={!isContained}
                 />
               ) : null}
               <ContentColumn
@@ -392,6 +385,13 @@ export function NavigationSplitView({
                 close={closeOf(content.back)}
                 expand={ownNav?.isCollapsed === true ? ownToggle : null}
                 hasSidebar={hasSidebar}
+                besideFill={
+                  isInTabView
+                    ? "rail"
+                    : ownNav !== null && !ownNav.isCollapsed && !hasDetailColumn
+                      ? "sidebar"
+                      : null
+                }
                 showsStackRoot={showsStackRoot}
                 depth={depth}
                 isRouted={isRouted}
@@ -407,8 +407,7 @@ export function NavigationSplitView({
                 <DetailColumn
                   detail={shownDetail}
                   pages={detailPages}
-                  pageScrolls={pageScrolls}
-                  pageScroll={pageScroll}
+                  sticks={!isContained}
                   isLeaving={detailColumn === null}
                   close={
                     detailColumn === null ? null : closeOf(shownDetail.back)
@@ -434,7 +433,6 @@ export function NavigationSplitView({
       </NavViewContext>
     </SplitViewContext>
   );
-  return fillsScreen ? <div css={viewFrameStyles.screen}>{shown}</div> : shown;
 }
 
 const ownSidebarStyles = stylex.create({

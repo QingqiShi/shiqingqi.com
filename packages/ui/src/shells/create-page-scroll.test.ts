@@ -337,4 +337,36 @@ describe("createPageScroll across views", () => {
     fallback.destroy();
     expect(scrollAfterReload(entry)).toBe(500);
   });
+
+  it.each([
+    {
+      where: "is the page of the stack that shows",
+      position: "",
+      top: "500px",
+    },
+    {
+      where: "sticks beside the content",
+      position: "sticky",
+      top: "",
+    },
+  ])(
+    "moves the content page aside only where the sidebar $where",
+    ({ position, top }) => {
+      const view = phoneView();
+      view.firstElementChild?.insertAdjacentHTML(
+        "afterbegin",
+        `<section data-split-view-column="sidebar" style="position: ${position}"><div data-split-view-pages>
+          <div data-split-view-page="current" data-split-view-stack="root"></div>
+        </div></section>`,
+      );
+      const shell = mountShell(view);
+      scrollPage(500);
+      shell.align();
+
+      const content = view.querySelector<HTMLElement>(
+        '[data-split-view-column="content"] [data-split-view-page]',
+      );
+      expect(content?.style.top).toBe(top);
+    },
+  );
 });

@@ -1,15 +1,15 @@
 "use client";
 
 import type { TabViewSidebarNav } from "../use-tab-view-sidebar-nav.ts";
-import { stackStyles } from "./column.stylex.ts";
+import { cornerStyles, stackStyles } from "./column.stylex.ts";
 import { Column, type ColumnPageScroll } from "./column.tsx";
 import { sidebarStyles } from "./sidebar.stylex.ts";
 import type { NavigationSplitViewSidebar } from "./types.ts";
 
 /**
- * The list of a view. Beside the content it is the sidebar: it lies on the
- * canvas, and it draws `nav` around its node. Where it does not fit there, it
- * is the first page of the stack, an island as the content is.
+ * The list of a view. Beside the content it is the sidebar: it has the sidebar
+ * fill, and it draws `nav` around its node. Where it does not fit there, it
+ * is the first page of the stack, with the fill of the content.
  *
  * @internal
  */
@@ -22,6 +22,7 @@ export function SidebarColumns({
   isInTabView,
   pageScrolls,
   pageScroll,
+  sticks,
 }: {
   sidebar: NavigationSplitViewSidebar;
   /** What the sidebar draws around its node, and whether it is collapsed. */
@@ -32,6 +33,8 @@ export function SidebarColumns({
   isInTabView: boolean;
   pageScrolls: boolean;
   pageScroll: ColumnPageScroll;
+  /** Whether the page scrolls the content, and the sidebar beside it stays on the screen. */
+  sticks: boolean;
 }) {
   const isCollapsed = nav !== null && nav.isCollapsed;
   // In a `TabView`, the list stays beside a detail where all of them fit, and
@@ -77,6 +80,7 @@ export function SidebarColumns({
       }
       pageScrolls={pageScrolls}
       pageScroll={pageScroll}
+      sticks={sticks}
       isShown={showsStackRoot || fitsFullSidebar !== false}
       label={sidebar.label}
       presentation={fitsFullSidebar !== true ? "page" : "column"}
@@ -100,7 +104,12 @@ export function SidebarColumns({
         showsStackRoot
           ? stackStyles.sidebarRoot
           : [sidebarStyles.fullBesideContent, stackStyles.sidebarUnder],
+        sticks &&
+          (showsStackRoot
+            ? sidebarStyles.sticksAtRoot
+            : sidebarStyles.sticksUnder),
       ]}
+      cornersCss={isInTabView ? cornerStyles.pageBesideRail : undefined}
       contentCss={[
         sidebarStyles.fullContent,
         stackStyles.sidebarContent,

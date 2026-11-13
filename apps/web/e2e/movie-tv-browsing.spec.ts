@@ -57,7 +57,7 @@ test.describe("Movie and TV Show Browsing", () => {
     // trigger load-more.
     await page.waitForLoadState("networkidle");
 
-    // The screen scrolls in its column at this width, and the page on a phone.
+    // The page scrolls the screen, unless a box in it scrolls.
     // With `sweep`, the box first scrolls from its top to its bottom in steps
     // of a viewport: a one-shot jump to the bottom pins the window at the
     // rendered bottom without registering as the incremental scroll that

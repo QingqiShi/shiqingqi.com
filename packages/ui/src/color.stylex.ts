@@ -14,11 +14,11 @@ import { red, red_rgb } from "./_generated/palette/hues/red.stylex.ts";
 //   `backgroundColor: color.card`, `color: color.cardForeground`.
 //
 // • A surface holds content. Choose it by what the element is: `background`
-//   is the page, `card` is a container on the page (also an island of an app
-//   shell), `popover` is what floats above the page. In light the three have
+//   is the page (also the content of an app shell), `card` is a container on
+//   the page, `popover` is what floats above the page. In light the three have
 //   the same fill, and an edge or a shadow sets them apart. `sidebar` is the
-//   sidebar beside a page. No edge sets it apart, so in light it is a step
-//   darker than the page.
+//   sidebar beside a page. No edge sets it apart, so it is a small step
+//   from the page: darker in light, and lighter in dark, but less than a card.
 //
 // • A neutral fill on a surface is opaque, and the three have the same
 //   value: `muted` is a quiet region, `accent` is the fill of an item under
@@ -136,7 +136,7 @@ const dark: { [key in keyof typeof light]: string } = {
   cardForeground: gray._97,
   popover: gray._7,
   popoverForeground: gray._97,
-  sidebar: gray._5,
+  sidebar: gray._2,
   sidebarForeground: gray._97,
 
   muted: gray._11,

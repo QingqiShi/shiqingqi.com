@@ -4,16 +4,16 @@ import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "../../actions/button.tsx";
+import { color } from "../../color.stylex.ts";
 import { truncate } from "../../primitives/layout.stylex.ts";
 import { typeRole } from "../../primitives/type.stylex.ts";
-import { islandTokens } from "../../surfaces/island.stylex.ts";
-import { rhythm } from "../../tokens.stylex.ts";
+import { border, rhythm } from "../../tokens.stylex.ts";
 import {
   splitViewQueries,
   splitViewWidths,
 } from "../navigation-split-view-layout.stylex.ts";
 import { columnStyles, contentStyles } from "./column.stylex.ts";
-import { Column, type ColumnPage, type ColumnPageScroll } from "./column.tsx";
+import { Column, type ColumnPage } from "./column.tsx";
 import type { NavigationSplitViewDetail, SplitViewBackLink } from "./types.ts";
 
 function DetailHeader({
@@ -50,16 +50,15 @@ function DetailHeader({
 export function DetailColumn({
   detail,
   pages,
-  pageScrolls,
-  pageScroll,
+  sticks,
   isLeaving,
   close,
   onTakeOff,
 }: {
   detail: NavigationSplitViewDetail;
   pages: readonly ColumnPage[];
-  pageScrolls: boolean;
-  pageScroll: ColumnPageScroll;
+  /** Whether the page scrolls the content, and the detail stays on the screen. */
+  sticks: boolean;
   isLeaving: boolean;
   close: (() => void) | null;
   onTakeOff: (href: string) => void;
@@ -67,8 +66,9 @@ export function DetailColumn({
   return (
     <Column
       column="detail"
-      pageScrolls={pageScrolls}
-      pageScroll={pageScroll}
+      pageScrolls={false}
+      pageScroll="never"
+      sticks={sticks}
       isShown
       label={detail.label}
       isLeaving={isLeaving}
@@ -84,7 +84,11 @@ export function DetailColumn({
           }}
         />
       }
-      css={[detailStyles.base, isLeaving && detailStyles.leaving]}
+      css={[
+        detailStyles.base,
+        sticks && detailStyles.sticks,
+        isLeaving && detailStyles.leaving,
+      ]}
       contentCss={[contentStyles.gutters, detailStyles.content]}
     />
   );
@@ -100,20 +104,26 @@ const detailStyles = stylex.create({
     flexGrow: 0,
     flexShrink: 0,
     flexBasis: splitViewWidths.detail,
+    borderInlineStartWidth: border.size_1,
+    borderInlineStartStyle: "solid",
+    borderInlineStartColor: color.border,
+  },
+  // Where the page scrolls the content, the detail stays on the screen, as
+  // tall as the screen, and scrolls its own content.
+  sticks: {
+    position: "sticky",
+    insetBlockStart: 0,
+    alignSelf: "flex-start",
+    blockSize: "100dvh",
   },
   // The header above the scroller keeps clear of the safe area.
   content: {
     paddingBlockStart: rhythm.tight,
   },
-  // The detail that goes leaves the flow at once, so the content takes its
-  // width, and it shows only while it moves out.
+  // The detail that goes takes no width at once, so the content takes its
+  // width, and it shows over the end of the content only while it moves out.
   leaving: {
-    position: "absolute",
-    insetBlockStart: islandTokens.insetBlockStart,
-    insetBlockEnd: islandTokens.insetBlockEnd,
-    insetInlineStart: "auto",
-    insetInlineEnd: islandTokens.insetInlineEnd,
-    inlineSize: splitViewWidths.detail,
+    marginInlineStart: `calc(-1 * ${splitViewWidths.detail})`,
     visibility: "hidden",
     // Over the content, which takes a fill while it moves.
     zIndex: 2,

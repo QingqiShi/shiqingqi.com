@@ -15,13 +15,10 @@ export const globalStyles = stylex.create({
     position: "relative",
   },
   // Safari shows the page background at the status bar and in the overscroll.
-  // Below 34rem, an island fills the screen, so it is the island fill. From
-  // 34rem, the shell shows its sidebar fill around the islands.
+  // The content of the shell is at the top centre of each screen, so it is the
+  // fill of the content.
   html: {
-    backgroundColor: {
-      default: color.card,
-      "@media (min-width: 34rem)": color.sidebar,
-    },
+    backgroundColor: color.background,
   },
 });
 

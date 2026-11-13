@@ -11,8 +11,8 @@ export default function NavigationSplitViewLayout({
     <LabArticle
       path="/design-system/components/navigation-split-view"
       description={t({
-        en: "Up to three columns, each with its own scroll: a sidebar, the content, and the detail of what is picked.",
-        zh: "最多三栏，每栏各自滚动：侧栏、内容，以及所选项的详情。",
+        en: "Up to three columns: a sidebar, the content that the page scrolls, and the detail of what is picked.",
+        zh: "最多三栏：侧栏、随页面滚动的内容，以及所选项的详情。",
       })}
     >
       {children}

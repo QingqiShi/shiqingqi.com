@@ -5,7 +5,8 @@ const HOLD_MS = 1000;
 
 const PAGES =
   ':scope > * > [data-split-view-column="content"] > [data-split-view-pages] > [data-split-view-page]';
-const CURRENT_SCROLLER = `${PAGES}[data-split-view-page="current"] > :first-child`;
+const CURRENT_PAGE = `${PAGES}[data-split-view-page="current"]`;
+const CURRENT_SCROLLER = `${CURRENT_PAGE} > :first-child`;
 const STACK_ROOT =
   ':scope > * > [data-split-view-column="sidebar"] > [data-split-view-pages] > [data-split-view-stack]';
 const STACK_ROOT_SHOWN = `${STACK_ROOT}[data-split-view-stack="root"]`;
@@ -102,13 +103,23 @@ function writeEntryScroll(entry: string, top: number) {
  */
 export const STACK_ROOT_KEY = "split-view-stack-root";
 
+/**
+ * Whether the page scrolls the sidebar, as the root page of the stack. Beside
+ * the content, the sidebar sticks to the screen, and it is no page.
+ */
+function isStackPage(root: HTMLElement) {
+  const column = root.closest("[data-split-view-column]");
+  return column === null || getComputedStyle(column).position !== "sticky";
+}
+
 /** How many views keep the scroll of their pages on their own now. */
 let scrollOwners = 0;
 
 /**
  * The scroll of each content page of a `NavigationSplitView` where the page
- * scrolls the content, as on a phone, as a column keeps the scroll of each
- * page elsewhere. The page in the flow shows at the scroll of the page.
+ * scrolls the content, as a column keeps the scroll of each page in a view
+ * that does not fill the screen. Beside the content, the sidebar is no page,
+ * and the scroll of the page is that of the content page that shows. The page in the flow shows at the scroll of the page.
  * Each page beside it, under it or leaving, is moved to show its own
  * scroll, so that it shows as it was while a motion moves it.
  *
@@ -168,7 +179,9 @@ export function createPageScroll(
   const scrolls = new Map<string, number>();
   /** Where a page that left before its restoration ended still has to go. */
   const unreached = new Map<string, number>();
-  let shown = key;
+  /** The page that the view names. Beside the content, the sidebar stands for the content page that shows. */
+  let named = key;
+  let shown = pageKey(named);
   let heldUntil = 0;
   let arrivingUntil = window.scrollY > 0 ? performance.now() + HOLD_MS : 0;
   let pageScrolls = false;
@@ -188,6 +201,16 @@ export function createPageScroll(
   let isNavigating = isOpening;
   let leavingEntry = isOpening && ownsScroll ? ownHistoryEntryKey() : null;
   let leavingUntil = 0;
+
+  function pageKey(key: string) {
+    if (key !== STACK_ROOT_KEY) return key;
+    const root = view.querySelector<HTMLElement>(STACK_ROOT);
+    if (root === null || isStackPage(root)) return key;
+    return (
+      view.querySelector<HTMLElement>(CURRENT_PAGE)?.dataset.splitViewPageKey ??
+      key
+    );
+  }
 
   function isLeaving(entry: string | null) {
     return (
@@ -285,16 +308,19 @@ export function createPageScroll(
   const pages = () =>
     view.querySelectorAll<HTMLElement>(`${PAGES}, ${STACK_ROOT}`);
 
-  function isAside({ dataset }: HTMLElement, isStackRootShown: boolean) {
+  function isAside(page: HTMLElement, isStackRootShown: boolean) {
+    const { dataset } = page;
     return dataset.splitViewStack === undefined
       ? dataset.splitViewPage !== "current" || isStackRootShown
-      : dataset.splitViewStack === "under";
+      : dataset.splitViewStack === "under" && isStackPage(page);
   }
 
   function align() {
     const scrollY = pageScrolls ? window.scrollY : 0;
-    const isStackRootShown =
-      pageScrolls && view.querySelector(STACK_ROOT_SHOWN) !== null;
+    const shownRoot = pageScrolls
+      ? view.querySelector<HTMLElement>(STACK_ROOT_SHOWN)
+      : null;
+    const isStackRootShown = shownRoot !== null && isStackPage(shownRoot);
     for (const page of pages()) {
       if (!pageScrolls || !isAside(page, isStackRootShown)) {
         page.style.removeProperty("top");
@@ -326,6 +352,8 @@ export function createPageScroll(
           if (next !== width) {
             width = next;
             measure();
+            shown = pageKey(named);
+            align();
           }
           if (restoration === null || restoration.isStopped) return;
           restoreTo(restoration.target);
@@ -471,22 +499,24 @@ export function createPageScroll(
       if (stays) restoreEntryScroll();
     },
     follow(next: string, change: "push" | "pop" | "swap" | null) {
-      const isOtherPage = next !== shown;
+      named = next;
+      const page = pageKey(next);
+      const isOtherPage = page !== shown;
       const isStep = ownsScroll && isHistoryStep;
       isHistoryStep = false;
       if (isOtherPage) stepScroll = null;
       else countStepScroll();
-      shown = next;
+      shown = page;
       heldUntil = 0;
       if (isOtherPage || isStep) restoration = null;
       if (change !== null && isOtherPage) {
         const top =
           (isStep ? currentEntryScroll() : null) ??
           (isStep || change === "pop"
-            ? (unreached.get(next) ?? scrolls.get(next) ?? 0)
+            ? (unreached.get(page) ?? scrolls.get(page) ?? 0)
             : 0);
-        unreached.delete(next);
-        scrolls.set(next, top);
+        unreached.delete(page);
+        scrolls.set(page, top);
         if (pageScrolls || ownsScroll) restoreTo(top);
       }
       watchGrowingContent();
