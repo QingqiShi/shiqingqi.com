@@ -18,9 +18,8 @@ export const splitViewWidths = stylex.defineConsts({
  * stack. 48rem is also the width where a `TabView` gives its
  * destinations to the sidebar and takes no width of its own, so the two
  * never disagree. `detailBeside` is where the detail fits beside at least
- * 20rem of content and the rail of a `TabView`. Each width also holds the
- * gaps around the islands, 0.5rem each. The view measures the same width in
- * script, `DETAIL_BESIDE_MIN_REM` in `split-view/use-view-widths-reached.ts`,
+ * 20rem of content and the rail of a `TabView`. The view measures the same
+ * width in script, `DETAIL_BESIDE_MIN_REM` in `split-view/use-view-widths-reached.ts`,
  * and shows the detail in a sheet below it.
  *
  * @internal
@@ -36,13 +35,6 @@ export const splitViewQueries = stylex.defineConsts({
   noSidebarBeside: "@container (width < 48rem)",
   /** The detail fits beside the content. */
   detailBeside: "@container (width >= 50.75rem)",
-  /**
-   * The view fills a screen narrower than 30rem, as on a phone. There the page
-   * scrolls the content, so that it goes under the status bar of the browser. It
-   * queries the box around the view, a `TabView` or else a box of the view's own,
-   * so the view itself can take it.
-   */
-  pageScrolls: "@container split-view-screen (width < 30rem)",
 });
 
 /**

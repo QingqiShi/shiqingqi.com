@@ -7,8 +7,8 @@ import {
 
 /**
  * The narrowest view, in rem, where the detail shows beside the content:
- * 4.75rem that a sidebar can keep, 20rem of content, the detail and the gaps
- * around the islands. It is the same width as `splitViewQueries.detailBeside`.
+ * 4.75rem that a sidebar can keep, 20rem of content, the detail and 2rem of
+ * room. It is the same width as `splitViewQueries.detailBeside`.
  */
 const DETAIL_BESIDE_MIN_REM = 50.75;
 

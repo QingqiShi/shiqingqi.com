@@ -6,7 +6,12 @@ import { useEffectSticky } from "../../effect-layer/use-effect-sticky.ts";
 import { StuckContext } from "../../surfaces/sticky-control-group.tsx";
 import type { LeavingCopy } from "../leaving-copy-taker.tsx";
 import { BackLink } from "./back-link.tsx";
-import { columnStyles, contentStyles, stackStyles } from "./column.stylex.ts";
+import {
+  columnStyles,
+  contentStyles,
+  cornerStyles,
+  stackStyles,
+} from "./column.stylex.ts";
 import { Column, type ColumnPage, type ColumnPageScroll } from "./column.tsx";
 import { sidebarStyles } from "./sidebar.stylex.ts";
 import { StackedOnly } from "./stacked-only.tsx";
@@ -83,6 +88,7 @@ export function ContentColumn({
   close,
   expand,
   hasSidebar,
+  besideFill,
   showsStackRoot,
   depth,
   isRouted,
@@ -105,6 +111,8 @@ export function ContentColumn({
   /** The button that expands a collapsed sidebar, at the top of each page. */
   expand: ReactNode;
   hasSidebar: boolean;
+  /** What has the sidebar fill beside the content: the rail or the sidebar of a `TabView`, the sidebar of the view, or nothing. */
+  besideFill: "rail" | "sidebar" | null;
   showsStackRoot: boolean;
   depth: number;
   isRouted: boolean;
@@ -134,6 +142,13 @@ export function ContentColumn({
           stackStyles.contentAtRoot,
         ],
       ]}
+      cornersCss={
+        besideFill === "rail"
+          ? cornerStyles.besideRail
+          : besideFill === "sidebar"
+            ? cornerStyles.besideSidebar
+            : undefined
+      }
       pageCss={hasSidebar && stackStyles.contentPage}
       scrollerCss={
         hasSidebar

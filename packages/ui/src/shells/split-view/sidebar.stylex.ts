@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
+import { color } from "../../color.stylex.ts";
 import { tabViewWidth } from "../../primitives/view-width.stylex.ts";
-import { islandTokens } from "../../surfaces/island.stylex.ts";
 import { space } from "../../tokens.stylex.ts";
 import { splitViewQueries } from "../navigation-split-view-layout.stylex.ts";
 import { splitViewTokens } from "../navigation-split-view.stylex.ts";
@@ -19,7 +19,7 @@ export const sidebarStyles = stylex.create({
   // has the sidebar fill, in a `TabView` under the destinations of that view.
   onCanvas: {
     backgroundColor: {
-      default: islandTokens.fill,
+      default: color.background,
       [splitViewQueries.contentBesideSidebar]: "transparent",
     },
   },
@@ -48,9 +48,9 @@ export const sidebarStyles = stylex.create({
   },
   hidden: {
     position: "absolute",
-    insetBlockStart: islandTokens.insetBlockStart,
-    insetBlockEnd: islandTokens.insetBlockEnd,
-    insetInlineStart: islandTokens.insetInlineStart,
+    insetBlockStart: 0,
+    insetBlockEnd: 0,
+    insetInlineStart: 0,
     visibility: "hidden",
   },
   fullBesideContent: {
@@ -59,20 +59,54 @@ export const sidebarStyles = stylex.create({
       [splitViewQueries.contentBesideSidebar]: "relative",
     },
     insetBlockStart: {
-      default: islandTokens.insetBlockStart,
+      default: 0,
       [splitViewQueries.contentBesideSidebar]: "auto",
     },
     insetBlockEnd: {
-      default: islandTokens.insetBlockEnd,
+      default: 0,
       [splitViewQueries.contentBesideSidebar]: "auto",
     },
     insetInlineStart: {
-      default: islandTokens.insetInlineStart,
+      default: 0,
       [splitViewQueries.contentBesideSidebar]: "auto",
     },
     visibility: {
       default: "hidden",
       [splitViewQueries.contentBesideSidebar]: "visible",
+    },
+  },
+  // Where the page scrolls the content, the sidebar beside it stays on the
+  // screen, as tall as the screen, and scrolls its own list. After the styles
+  // that put the sidebar at the root of the stack.
+  sticksAtRoot: {
+    position: {
+      default: "relative",
+      [splitViewQueries.contentBesideSidebar]: "sticky",
+    },
+    insetBlockStart: 0,
+    alignSelf: {
+      default: "auto",
+      [splitViewQueries.contentBesideSidebar]: "flex-start",
+    },
+    blockSize: {
+      default: "auto",
+      [splitViewQueries.contentBesideSidebar]: "100dvh",
+    },
+  },
+  // After the styles that put the sidebar under the content.
+  sticksUnder: {
+    position: {
+      default: "absolute",
+      [splitViewQueries.contentBesideSidebar]: "sticky",
+    },
+    insetBlockStart: 0,
+    alignSelf: {
+      default: "auto",
+      [splitViewQueries.contentBesideSidebar]: "flex-start",
+    },
+    blockSize: {
+      default: "auto",
+      [splitViewQueries.contentBesideSidebar]: "100dvh",
     },
   },
 });

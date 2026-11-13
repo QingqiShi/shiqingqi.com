@@ -65,9 +65,19 @@ export function DemoNotice() {
 
 const styles = stylex.create({
   anchor: {
-    position: { default: "fixed", [tabViewWidth.fromRail]: "absolute" },
+    position: { default: "fixed", [tabViewWidth.fromRail]: "sticky" },
     zIndex: layer.header,
+    // The notice takes no height at the end of the content, and the button
+    // stands on its bottom edge.
+    display: "flex",
+    alignItems: "flex-end",
+    blockSize: 0,
     insetInlineStart: pageGutter.inlineStart,
+    // A sticky box takes no offset from its inline inset.
+    paddingInlineStart: {
+      default: 0,
+      [tabViewWidth.fromRail]: pageGutter.inlineStart,
+    },
     insetBlockEnd: `calc(${floatingActionTokens.insetBlockEnd} + (${floatingActionTokens.blockSize} - ${controlHeight.sm}) / 2)`,
   },
   popover: {

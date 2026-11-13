@@ -1,4 +1,3 @@
-import { gray } from "@tuja/ui/palette/gray.stylex";
 import { CANVAS_COLORS } from "./canvas-colors.ts";
 import { getDocumentClassName } from "./global-styles.ts";
 
@@ -12,14 +11,9 @@ interface ThemeColor {
 /**
  * The mobile browser-chrome tint, as `<meta name="theme-color">` tags in
  * order: the first that matches wins. It is the colour at the top edge of the
- * page: `color.card` where an island fills the screen, and
- * `color.sidebar` where the shell shows it around the islands. `gray` is a `defineConsts`
- * palette, so these bake in as literal hex in `themeHack`.
+ * page, which is the fill of the content of the shell.
  */
-export const themeColors: ThemeColor[] = [
-  { media: "(width < 34rem)", dark: gray._5, light: gray._100 },
-  CANVAS_COLORS,
-];
+export const themeColors: ThemeColor[] = [CANVAS_COLORS];
 
 /** Marks the tags of `themeHack`, so that `ThemeApplier` removes them once it renders its own. */
 export const prePaintThemeColorAttribute = "data-pre-paint-theme-color";

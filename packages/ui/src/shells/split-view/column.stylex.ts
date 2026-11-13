@@ -13,8 +13,9 @@ import {
   pageGutter,
 } from "../../primitives/page-column.stylex.ts";
 import { stateFillTokens } from "../../primitives/selected.stylex.ts";
-import { islandTokens } from "../../surfaces/island.stylex.ts";
+import { tabViewWidth } from "../../primitives/view-width.stylex.ts";
 import {
+  border,
   controlHeight,
   layer,
   rhythm,
@@ -28,20 +29,93 @@ import { sidebarEdge, tabViewTokens } from "../tab-view.stylex.ts";
 const CONTENT_GUTTER_START = `max(${space._4}, env(safe-area-inset-left))`;
 const CONTENT_GUTTER_END = `max(${space._4}, env(safe-area-inset-right))`;
 const PAGE_COLUMN_MARGIN = `calc((100% - ${pageColumnTokens.inlineSize}) / 2 + ${space._4})`;
-/** The view keeps the islands clear of the status bar, except where the content fills it. */
-const CONTENT_PADDING_BLOCK_START = `calc(${space._4} + max(0px, env(safe-area-inset-top) - ${islandTokens.insetBlockStart}))`;
+const CONTENT_PADDING_BLOCK_START = `calc(${space._4} + env(safe-area-inset-top))`;
 const CONTENT_PADDING_BLOCK_END = `calc(${space._6} + ${splitViewTokens.columnInsetBlockEnd})`;
 /** Above the tab bar below 34rem, and above the safe area from 34rem up. */
 const ACCESSORY_INSET_BLOCK_END = `max(calc(${space._3} + ${tabViewTokens.barClearance}), calc(${space._5} + env(safe-area-inset-bottom)))`;
 
 const SIDEBAR_INLINE_SIZE = `calc(${splitViewTokens.sidebarInlineSize} + env(safe-area-inset-left))`;
 
+const CORNER_RADIUS = border.radius_3;
+
+// A column beside the sidebar fill has round corners on that side. The page
+// scrolls the column, so a corner of the column itself would scroll away.
+// Thus a small box sticks to each of the two corners of the screen that the
+// column covers, and paints the sidebar fill outside the curve.
+/** @internal */
+export const cornerStyles = stylex.create({
+  // The box that sticks has no height, so it takes no room in the column, and
+  // it is narrow, so it stays clear of the point at the top centre that iOS
+  // Safari samples for the status bar colour.
+  anchor: {
+    position: "sticky",
+    zIndex: layer.raised,
+    flexShrink: 0,
+    alignSelf: "flex-start",
+    inlineSize: CORNER_RADIUS,
+    blockSize: 0,
+    pointerEvents: "none",
+  },
+  blockStart: {
+    insetBlockStart: 0,
+  },
+  blockEnd: {
+    insetBlockEnd: 0,
+  },
+  // The spread shadow of the round box fills the square around the curve.
+  curve: {
+    position: "absolute",
+    insetInlineStart: 0,
+    inlineSize: CORNER_RADIUS,
+    blockSize: CORNER_RADIUS,
+    overflow: "clip",
+    "::before": {
+      content: "''",
+      position: "absolute",
+      inset: 0,
+      boxShadow: `0 0 0 ${CORNER_RADIUS} ${color.sidebar}`,
+    },
+  },
+  curveBlockStart: {
+    insetBlockStart: 0,
+    "::before": {
+      borderStartStartRadius: CORNER_RADIUS,
+      cornerShape: "squircle",
+    },
+  },
+  curveBlockEnd: {
+    insetBlockEnd: 0,
+    "::before": {
+      borderEndStartRadius: CORNER_RADIUS,
+      cornerShape: "squircle",
+    },
+  },
+  // In a `TabView`, the rail or the sidebar is beside the content from 34rem.
+  besideRail: {
+    display: { default: "none", [tabViewWidth.fromRail]: "block" },
+  },
+  // The list is a page beside the rail only where the rail of icons shows.
+  pageBesideRail: {
+    display: { default: "none", [tabViewWidth.rail]: "block" },
+  },
+  // Outside a `TabView`, only the sidebar of the view is beside the content.
+  besideSidebar: {
+    display: {
+      default: "none",
+      [splitViewQueries.contentBesideSidebar]: "block",
+    },
+  },
+});
+
 /** @internal */
 export const columnStyles = stylex.create({
+  // The column clips what it holds, so its scroller goes inside it.
   column: {
     display: "flex",
     flexDirection: "column",
     minInlineSize: 0,
+    backgroundColor: color.background,
+    overflow: "clip",
   },
   // The pages of a column lie on top of each other, and a motion moves
   // them inside the column.
@@ -184,7 +258,7 @@ export const columnStyles = stylex.create({
     paddingInlineStart: space._2,
     paddingInlineEnd: space._3,
     color: color.foreground,
-    backgroundColor: islandTokens.fill,
+    backgroundColor: color.card,
     boxShadow: shadow._2,
   },
   detailHeader: {
@@ -233,46 +307,67 @@ export const columnStyles = stylex.create({
   },
 });
 
-// Where the view fills a screen narrower than 30rem, the page scrolls the
-// content, and it does so also on paper, which has no scroller to show the rest.
-// A view in a box that does not fill the screen always scrolls its columns, as
-// the page does not scroll them, though a view around it can scroll with the page.
+// Where the view fills the screen, the page scrolls the content, so that the
+// browser can shrink its bars as the page scrolls. A view in a box that does
+// not fill the screen always scrolls its columns, as the page does not scroll
+// them.
 /** @internal */
-export const columnPageScrollStyles = stylex.create({
+export const pageScrollStyles = stylex.create({
   // The page that shows is in the flow.
   page: {
-    position: {
-      default: "absolute",
-      [splitViewQueries.pageScrolls]: "relative",
-      "@media print": "relative",
-    },
+    position: "relative",
   },
   // A page beside it is as tall as its content, and `createPageScroll` moves it
   // to show its scroll.
   pageAside: {
     position: "absolute",
-    insetBlockEnd: { default: null, [splitViewQueries.pageScrolls]: "auto" },
+    insetBlockEnd: "auto",
+  },
+  scroller: {
+    overflowY: "visible",
+  },
+  content: {
+    minBlockSize: { default: "100dvh", "@media print": "auto" },
+  },
+  // Chrome sticks only to a scroller of the column, not to the page.
+  chrome: {
+    position: "static",
+  },
+});
+
+// The sidebar scrolls with the page only where it is a page of the stack.
+// Beside the content, it stays on the screen and scrolls its own list.
+/** @internal */
+export const stackedPageScrollStyles = stylex.create({
+  page: {
+    position: {
+      default: "absolute",
+      [splitViewQueries.noSidebarBeside]: "relative",
+    },
+  },
+  pageAside: {
+    position: "absolute",
+    insetBlockEnd: {
+      default: null,
+      [splitViewQueries.noSidebarBeside]: "auto",
+    },
   },
   scroller: {
     overflowY: {
       default: "auto",
-      [splitViewQueries.pageScrolls]: "visible",
-      "@media print": "visible",
+      [splitViewQueries.noSidebarBeside]: "visible",
     },
   },
   content: {
     minBlockSize: {
       default: "100%",
-      [splitViewQueries.pageScrolls]: "100dvh",
-      "@media print": "auto",
+      [splitViewQueries.noSidebarBeside]: "100dvh",
     },
   },
-  // Chrome sticks only to a scroller of the column, not to the page.
   chrome: {
     position: {
       default: "sticky",
-      [splitViewQueries.pageScrolls]: "static",
-      "@media print": "static",
+      [splitViewQueries.noSidebarBeside]: "static",
     },
   },
 });
@@ -350,19 +445,6 @@ export const stackStyles = stylex.create({
     containerType: {
       default: "inline-size",
       [splitViewQueries.contentBesideSidebar]: "normal",
-    }, // Beside the content, the sidebar is no island: it reaches the edges of
-    // the view, as the rail of a `TabView` does.
-    marginBlockStart: {
-      default: 0,
-      [splitViewQueries.contentBesideSidebar]: `calc(-1 * ${islandTokens.insetBlockStart})`,
-    },
-    marginBlockEnd: {
-      default: 0,
-      [splitViewQueries.contentBesideSidebar]: `calc(-1 * ${islandTokens.insetBlockEnd})`,
-    },
-    marginInlineStart: {
-      default: 0,
-      [splitViewQueries.contentBesideSidebar]: `calc(-1 * ${islandTokens.insetInlineStart})`,
     },
   },
   sidebarRoot: {
@@ -379,7 +461,7 @@ export const stackStyles = stylex.create({
   // After `sidebarStyles.fullBesideContent`.
   sidebarUnder: {
     insetInlineEnd: {
-      default: islandTokens.insetInlineEnd,
+      default: 0,
       [splitViewQueries.contentBesideSidebar]: "auto",
     },
     inlineSize: {
@@ -462,28 +544,28 @@ export const stackStyles = stylex.create({
     paddingInlineEnd: space._2,
   },
   // Outside a `TabView`, no rail gives the footer its line, so the footer is
-  // as far from the bottom as from the side. Over a home indicator, its bottom
-  // is on the line of the bottom of the islands, which clears a rounded display
-  // corner. After `sidebarFooter`.
+  // as far from the bottom as from the side. Over a home indicator, it keeps
+  // clear of the safe area, which clears a rounded display corner. After
+  // `sidebarFooter`.
   sidebarFooterOwn: {
     paddingBlockEnd: `max(${space._2}, env(safe-area-inset-bottom))`,
   },
   contentColumn: {
     backgroundColor: {
       default: "transparent",
-      [splitViewQueries.contentBesideSidebar]: islandTokens.fill,
+      [splitViewQueries.contentBesideSidebar]: color.background,
     },
   },
   contentPage: {
     backgroundColor: {
-      default: islandTokens.fill,
+      default: color.background,
       [splitViewQueries.contentBesideSidebar]: null,
     },
   },
   // After `sidebarStyles.fullBesideContent`.
   contentAtRoot: {
     insetInlineEnd: {
-      default: islandTokens.insetInlineEnd,
+      default: 0,
       [splitViewQueries.contentBesideSidebar]: "auto",
     },
     inlineSize: {

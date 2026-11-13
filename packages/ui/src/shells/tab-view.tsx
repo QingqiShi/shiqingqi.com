@@ -282,8 +282,9 @@ export function TabViewIconsOnly({ children }: { children: ReactNode }) {
  * From 48rem, the sidebar holds them, each a row of an icon and a label, with
  * the `header` at its top and the `footer` at its bottom.
  *
- * The view paints the sidebar fill behind all of it, and the content floats on
- * that as islands. A screen with a list, the `sidebar` of a
+ * The view paints the sidebar fill behind the rail, and the content reaches the
+ * other edges of the screen, with round corners beside the rail. The page
+ * scrolls the content, and the rail stays on the screen. A screen with a list, the `sidebar` of a
  * `NavigationSplitView`, shows the list in the same sidebar, under the
  * destinations: from 48rem that view draws the destinations above its list,
  * and the view's own sidebar gives way. Below 48rem, the list is the first
@@ -435,7 +436,7 @@ function pathOfHref(href: string) {
 
 const styles = stylex.create({
   container: {
-    containerName: "tab-view split-view-screen",
+    containerName: "tab-view",
     containerType: "inline-size",
     blockSize: "100%",
   },
@@ -541,8 +542,7 @@ const styles = stylex.create({
   },
   // The screen rises with a transform. WebKit anchors the scroll of the page
   // through it, and the scroll that a view restores then follows the rise.
-  // The rail has the first column, also where it does not show. From the rail
-  // up, the page does not scroll, so an app can float a part in the content.
+  // The rail has the first column, also where it does not show.
   content: {
     position: "relative",
     gridColumnStart: { default: "auto", [tabViewWidth.fromRail]: 2 },

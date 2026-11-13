@@ -7,12 +7,16 @@ import { useEffectSticky } from "../../effect-layer/use-effect-sticky.ts";
 import { useScrollRegion } from "../../effect-layer/use-scroll-region.ts";
 import { mergeRefs } from "../../merge-refs.ts";
 import { a11y } from "../../primitives/a11y.stylex.ts";
-import { islandSurface } from "../../surfaces/island.stylex.ts";
 import { ScrollMask } from "../../surfaces/scroll-mask.tsx";
 import { space } from "../../tokens.stylex.ts";
 import type { StyleProp } from "../../types.ts";
 import { STACK_ROOT_KEY } from "../create-page-scroll.ts";
-import { columnPageScrollStyles, columnStyles } from "./column.stylex.ts";
+import {
+  columnStyles,
+  cornerStyles,
+  pageScrollStyles,
+  stackedPageScrollStyles,
+} from "./column.stylex.ts";
 import type {
   NavigationSplitViewColumn,
   NavigationSplitViewDetail,
@@ -35,7 +39,7 @@ export interface ColumnPage {
 }
 
 /** @internal */
-export type ColumnPageScroll = "never" | "narrow";
+export type ColumnPageScroll = "never" | "stacked" | "always";
 
 interface ColumnProps {
   column: SplitViewColumnState["column"];
@@ -44,10 +48,16 @@ interface ColumnProps {
   /** Whether the page scrolls the column instead of its scroller. */
   pageScrolls: boolean;
   /**
-   * Where the view can leave the scroll of the column to the page: nowhere, as
-   * in a box that does not fill the screen, or on a screen narrower than 30rem.
+   * Where the view leaves the scroll of the column to the page: nowhere, as in
+   * a box that does not fill the screen, only where the column is a page of
+   * the stack, or at each width.
    */
   pageScroll: ColumnPageScroll;
+  /**
+   * Whether the column stays on the screen while the page scrolls the content
+   * beside it.
+   */
+  sticks?: boolean;
   /** Whether the view shows the column now, for `useSplitViewColumn`. */
   isShown: boolean;
   /** How the column shows, for `useSplitViewColumn`. */
@@ -75,6 +85,11 @@ interface ColumnProps {
    * fits beside them too.
    */
   carriesNav?: "always" | "wide";
+  /**
+   * Where the column has round corners at its inline start, because the
+   * sidebar fill is beside it there. Without it, the column has none.
+   */
+  cornersCss?: StyleProp;
   /** Where the column does not show at all, after every other style. */
   awayCss?: StyleProp;
   /** What a page shows, where that is not its node. */
@@ -91,6 +106,7 @@ export function Column({
   as: Landmark = "section",
   pageScrolls,
   pageScroll,
+  sticks = false,
   isShown,
   presentation = "column",
   label,
@@ -101,6 +117,7 @@ export function Column({
   chrome,
   top,
   carriesNav,
+  cornersCss,
   awayCss,
   body,
   css,
@@ -108,22 +125,18 @@ export function Column({
   scrollerCss,
   contentCss,
 }: ColumnProps) {
-  return (
-    <Landmark
-      aria-label={label}
-      tabIndex={-1}
-      inert={isLeaving}
-      data-split-view-column={column}
-      data-split-view-sidebar={column === "sidebar" ? "" : undefined}
-      data-split-view-nav={carriesNav}
-      {...stylex.props(
-        islandSurface.base,
-        columnStyles.column,
-        a11y.focusRingInset,
-        css,
-        awayCss,
+  const sticky = useEffectSticky();
+  const { ref, css: stickyCss } = sticky;
+  const parts = (
+    <>
+      {cornersCss == null ? null : (
+        <span
+          aria-hidden
+          css={[cornerStyles.anchor, cornerStyles.blockStart, cornersCss]}
+        >
+          <span css={[cornerStyles.curve, cornerStyles.curveBlockStart]} />
+        </span>
       )}
-    >
       {header}
       <div data-split-view-pages="" css={columnStyles.pages}>
         {pages.map((page) => (
@@ -145,9 +158,37 @@ export function Column({
           />
         ))}
       </div>
+      {cornersCss == null ? null : (
+        <span
+          aria-hidden
+          css={[cornerStyles.anchor, cornerStyles.blockEnd, cornersCss]}
+        >
+          <span css={[cornerStyles.curve, cornerStyles.curveBlockEnd]} />
+        </span>
+      )}
       {column === "sidebar" ? null : (
         <span data-split-view-edge="" aria-hidden css={columnStyles.edge} />
       )}
+    </>
+  );
+  return (
+    <Landmark
+      ref={sticks ? ref : undefined}
+      aria-label={label}
+      tabIndex={-1}
+      inert={isLeaving}
+      data-split-view-column={column}
+      data-split-view-sidebar={column === "sidebar" ? "" : undefined}
+      data-split-view-nav={carriesNav}
+      {...stylex.props(
+        columnStyles.column,
+        a11y.focusRingInset,
+        css,
+        sticks && stickyCss,
+        awayCss,
+      )}
+    >
+      {sticks ? <EffectCarrier value={sticky}>{parts}</EffectCarrier> : parts}
     </Landmark>
   );
 }
@@ -184,7 +225,12 @@ function ColumnPageView({
   const [box, setBox] = useState<HTMLElement | null>(null);
   const scroller = pageScrolls ? undefined : box;
   const isCurrent = page.role === "current";
-  const scrollStyles = pageScroll === "never" ? null : columnPageScrollStyles;
+  const scrollStyles =
+    pageScroll === "never"
+      ? null
+      : pageScroll === "always"
+        ? pageScrollStyles
+        : stackedPageScrollStyles;
   const accessory = "accessory" in page.column ? page.column.accessory : null;
   return (
     <div

@@ -8,8 +8,9 @@ import { border, shadow } from "../tokens.stylex.ts";
  * StyleX so an element `Card` can't be — a `<Link>`, a plain `<a>`, an `<li>`
  * — can still carry the same surface.
  *
- * The surface has a hairline edge and a small shadow. The fill is the same
- * as the fill of an island, so the edge and the shadow set a card apart.
+ * The surface has a hairline edge and a small shadow. In light, the fill
+ * is the same as the fill of the page, so the edge and the shadow set a card
+ * apart.
  *
  * Its focus ring is inlined inset, not `a11y.focusRingInset`: an outward ring
  * would crop against the card's clipped overflow, and a primitive can't
