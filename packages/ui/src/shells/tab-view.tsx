@@ -34,6 +34,7 @@ import type { StyleProp } from "../types.ts";
 import { headerControlsTokens } from "./header-controls.stylex.ts";
 import { splitViewQueries } from "./navigation-split-view-layout.stylex.ts";
 import { splitViewTokens } from "./navigation-split-view.stylex.ts";
+import { RailFooter } from "./rail-footer.tsx";
 import { Rail, RailRows, RailSidebar } from "./rail.tsx";
 import { SidebarToggle, useSidebarCollapsed } from "./sidebar-toggle.tsx";
 import { formStyles } from "./tab-view-form.stylex.ts";
@@ -395,7 +396,7 @@ export function TabView({
                     css={styles.labelsOnly}
                   />
                   {footer == null ? null : (
-                    <div css={[styles.slot, styles.footer]}>{footer}</div>
+                    <RailFooter css={styles.slot}>{footer}</RailFooter>
                   )}
                 </EffectCarrier>
               </div>
@@ -516,9 +517,6 @@ const styles = stylex.create({
   },
   labelsOnly: {
     display: tabViewForm.labels,
-  },
-  footer: {
-    marginBlockStart: "auto",
   },
   // The destinations above the list of a screen, and the `footer` under it,
   // only where that list shows in the sidebar.

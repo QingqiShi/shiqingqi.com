@@ -54,6 +54,43 @@ test.describe("switching tabs", () => {
   });
 });
 
+test.describe("the rail", () => {
+  test.use({ viewport: DESKTOP });
+
+  // Safari on an iPad collapses its bar while the page scrolls, and it changes
+  // `dvh` only after that motion ends. Until then, the rail is shorter than
+  // the screen, and a member at its bottom edge goes up with it, then jumps
+  // back down.
+  test("the member stays at the bottom of the screen while the rail is shorter than the screen", async ({
+    page,
+    session: _session,
+  }) => {
+    await page.goto("/settings");
+    const member = page.getByRole("button", { name: /^Signed in as/ });
+    await expect(member).toBeVisible();
+    const bottomOfMember = async () => {
+      const box = await member.boundingBox();
+      return box === null ? null : box.y + box.height;
+    };
+    const atRest = await bottomOfMember();
+
+    const railHeight = await page
+      .getByRole("navigation", { name: "Finance" })
+      .evaluate((nav) => {
+        let rail: HTMLElement | null = nav.parentElement;
+        while (rail !== null && getComputedStyle(rail).position !== "sticky") {
+          rail = rail.parentElement;
+        }
+        if (rail === null) return null;
+        rail.style.blockSize = "calc(100dvh - 80px)";
+        return rail.getBoundingClientRect().height;
+      });
+
+    expect(railHeight).toBe(DESKTOP.height - 80);
+    expect(await bottomOfMember()).toBe(atRest);
+  });
+});
+
 test.describe("offline", () => {
   test.use({ viewport: DESKTOP });
 
