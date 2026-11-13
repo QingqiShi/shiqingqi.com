@@ -45,6 +45,9 @@ export function SidebarColumns({
   // Outside a `TabView`, the `header` is the sidebar's own, and it shows above
   // the list also where the list is a page.
   const ownsHeader = carriesNav && !isInTabView && nav.top != null;
+  // The `footer` is the sidebar's own too, and it shows under the list also
+  // where the list is a page: a phone has no other place for its controls.
+  const ownsFooter = carriesNav && !isInTabView && nav.bottom !== null;
   return (
     <Column
       column="sidebar"
@@ -59,6 +62,7 @@ export function SidebarColumns({
                   css={[
                     stackStyles.sidebarHeader,
                     ownsHeader && stackStyles.sidebarHeaderOnPage,
+                    ownsHeader && stackStyles.sidebarGutters,
                   ]}
                 >
                   {nav.top}
@@ -70,6 +74,8 @@ export function SidebarColumns({
                     css={[
                       stackStyles.sidebarFooter,
                       !isInTabView && stackStyles.sidebarFooterOwn,
+                      ownsFooter && stackStyles.sidebarFooterOnPage,
+                      ownsFooter && stackStyles.sidebarGutters,
                     ]}
                   >
                     {nav.bottom}
@@ -113,7 +119,9 @@ export function SidebarColumns({
       contentCss={[
         sidebarStyles.fullContent,
         stackStyles.sidebarContent,
+        stackStyles.sidebarGutters,
         ownsHeader && stackStyles.sidebarContentUnderHeader,
+        ownsFooter && stackStyles.sidebarContentAboveFooter,
       ]}
       awayCss={[
         staysBesideDetail && sidebarStyles.awayBesideDetail,

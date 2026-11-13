@@ -485,13 +485,16 @@ export const stackStyles = stylex.create({
     paddingInlineEnd: space._2,
   },
   // The sidebar's own `header` shows above the list where the list is a page
-  // too, with the paddings of a page. After `sidebarHeader`.
+  // too, and its `footer` under it (`sidebarFooterOnPage`). After their bases.
   sidebarHeaderOnPage: {
     display: "flex",
     paddingBlockStart: {
       default: CONTENT_PADDING_BLOCK_START,
       [splitViewQueries.contentBesideSidebar]: `calc(${space._2} + env(safe-area-inset-top))`,
     },
+  },
+  // Of the list, and of its `header` and `footer` on a page. After those.
+  sidebarGutters: {
     paddingInlineStart: {
       default: CONTENT_GUTTER_START,
       [splitViewQueries.contentAlone]: pageGutter.inlineStart,
@@ -503,7 +506,7 @@ export const stackStyles = stylex.create({
       [splitViewQueries.contentBesideSidebar]: space._2,
     },
   },
-  // After `sidebarContent`.
+  // This and `sidebarContentAboveFooter` go after `sidebarContent`.
   sidebarContentUnderHeader: {
     paddingBlockStart: {
       default: 0,
@@ -517,16 +520,6 @@ export const stackStyles = stylex.create({
     },
     paddingBlockEnd: {
       default: CONTENT_PADDING_BLOCK_END,
-      [splitViewQueries.contentBesideSidebar]: space._2,
-    },
-    paddingInlineStart: {
-      default: CONTENT_GUTTER_START,
-      [splitViewQueries.contentAlone]: pageGutter.inlineStart,
-      [splitViewQueries.contentBesideSidebar]: `calc(${space._2} + env(safe-area-inset-left))`,
-    },
-    paddingInlineEnd: {
-      default: CONTENT_GUTTER_END,
-      [splitViewQueries.contentAlone]: pageGutter.inlineEnd,
       [splitViewQueries.contentBesideSidebar]: space._2,
     },
   },
@@ -549,6 +542,19 @@ export const stackStyles = stylex.create({
   // `sidebarFooter`.
   sidebarFooterOwn: {
     paddingBlockEnd: `max(${space._2}, env(safe-area-inset-bottom))`,
+  },
+  sidebarFooterOnPage: {
+    display: "flex",
+    paddingBlockEnd: {
+      default: CONTENT_PADDING_BLOCK_END,
+      [splitViewQueries.contentBesideSidebar]: `max(${space._2}, env(safe-area-inset-bottom))`,
+    },
+  },
+  sidebarContentAboveFooter: {
+    paddingBlockEnd: {
+      default: 0,
+      [splitViewQueries.contentBesideSidebar]: space._2,
+    },
   },
   contentColumn: {
     backgroundColor: {
