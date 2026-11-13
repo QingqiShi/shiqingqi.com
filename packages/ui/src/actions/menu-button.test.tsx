@@ -188,6 +188,27 @@ describe("MenuButton in Safari", () => {
     expect(trigger).toHaveAttribute("aria-expanded", "true");
   });
 
+  it("does not cancel the small move of a tap on an item, so iOS sends the click, and still cancels a drag", async () => {
+    const user = userEvent.setup();
+    render(<TestMenu />);
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+    const item = getMenuItems()[1];
+
+    const touch = (type: string, clientX: number, clientY: number) => {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      const point = { clientX, clientY };
+      Object.assign(event, { touches: [point], changedTouches: [point] });
+      act(() => {
+        item.dispatchEvent(event);
+      });
+      return event;
+    };
+
+    touch("touchstart", 100, 100);
+    expect(touch("touchmove", 100.4, 100).defaultPrevented).toBe(false);
+    expect(touch("touchmove", 100, 140).defaultPrevented).toBe(true);
+  });
+
   it("closes when focus leaves and the press was not in the menu", async () => {
     const user = userEvent.setup();
     render(<TestMenu />);

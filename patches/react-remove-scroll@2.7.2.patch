@@ -1,0 +1,57 @@
+diff --git a/dist/es2015/SideEffect.js b/dist/es2015/SideEffect.js
+index 68552f3da275fc1d7c0c596ddaa37eec52cedc72..3e66fdc686817d7be05efb721966c36bd73ab0d1 100644
+--- a/dist/es2015/SideEffect.js
++++ b/dist/es2015/SideEffect.js
+@@ -89,6 +89,14 @@ export function RemoveScrollSideCar(props) {
+             // not the last active
+             return;
+         }
++        // A touch that stays this near to its start is a tap. If its touchmove is
++        // cancelled, iOS 27 does not send the click of the tap.
++        if (event.type === 'touchmove' && event.touches.length === 1) {
++            var tapTouch = getTouchXY(event);
++            if (Math.abs(touchStartRef.current[0] - tapTouch[0]) < 4 && Math.abs(touchStartRef.current[1] - tapTouch[1]) < 4) {
++                return;
++            }
++        }
+         var delta = 'deltaY' in event ? getDeltaXY(event) : getTouchXY(event);
+         var sourceEvent = shouldPreventQueue.current.filter(function (e) { return e.name === event.type && (e.target === event.target || event.target === e.shadowParent) && deltaCompare(e.delta, delta); })[0];
+         // self event, and should be canceled
+diff --git a/dist/es2019/SideEffect.js b/dist/es2019/SideEffect.js
+index c0a72030fac42b58916982460517f5e0f57a26c6..33829f242e2e4499e92ef5ea479fd748d7edee28 100644
+--- a/dist/es2019/SideEffect.js
++++ b/dist/es2019/SideEffect.js
+@@ -87,6 +87,14 @@ export function RemoveScrollSideCar(props) {
+             // not the last active
+             return;
+         }
++        // A touch that stays this near to its start is a tap. If its touchmove is
++        // cancelled, iOS 27 does not send the click of the tap.
++        if (event.type === 'touchmove' && event.touches.length === 1) {
++            var tapTouch = getTouchXY(event);
++            if (Math.abs(touchStartRef.current[0] - tapTouch[0]) < 4 && Math.abs(touchStartRef.current[1] - tapTouch[1]) < 4) {
++                return;
++            }
++        }
+         const delta = 'deltaY' in event ? getDeltaXY(event) : getTouchXY(event);
+         const sourceEvent = shouldPreventQueue.current.filter((e) => e.name === event.type && (e.target === event.target || event.target === e.shadowParent) && deltaCompare(e.delta, delta))[0];
+         // self event, and should be canceled
+diff --git a/dist/es5/SideEffect.js b/dist/es5/SideEffect.js
+index a6d45ed0182b8507b75e18665ca4bf768cf40cd3..39273a5aa1a9d6c0313a43306720bbd5b698867f 100644
+--- a/dist/es5/SideEffect.js
++++ b/dist/es5/SideEffect.js
+@@ -94,6 +94,14 @@ function RemoveScrollSideCar(props) {
+             // not the last active
+             return;
+         }
++        // A touch that stays this near to its start is a tap. If its touchmove is
++        // cancelled, iOS 27 does not send the click of the tap.
++        if (event.type === 'touchmove' && event.touches.length === 1) {
++            var tapTouch = getTouchXY(event);
++            if (Math.abs(touchStartRef.current[0] - tapTouch[0]) < 4 && Math.abs(touchStartRef.current[1] - tapTouch[1]) < 4) {
++                return;
++            }
++        }
+         var delta = 'deltaY' in event ? (0, exports.getDeltaXY)(event) : (0, exports.getTouchXY)(event);
+         var sourceEvent = shouldPreventQueue.current.filter(function (e) { return e.name === event.type && (e.target === event.target || event.target === e.shadowParent) && deltaCompare(e.delta, delta); })[0];
+         // self event, and should be canceled
