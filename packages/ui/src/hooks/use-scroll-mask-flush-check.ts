@@ -170,6 +170,9 @@ export function useScrollMaskFlushCheck(
       if (warned.has(masked)) return;
       const rect = masked.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) return;
+      // A hidden box shows no fade, such as a sidebar that keeps its box under
+      // the content of a narrow view.
+      if (getComputedStyle(masked).visibility === "hidden") return;
       const container = visualContainerOf(masked);
       if (container === null) return;
       const violations = flushViolations(rect, container.box, [orientation]);
