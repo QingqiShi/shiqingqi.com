@@ -1,0 +1,58 @@
+name: iOS Safari repro (temporary)
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ios-repro.yml"
+      - "scripts/ios-repro/**"
+permissions:
+  contents: read
+jobs:
+  repro:
+    runs-on: xcode-27
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6.1.1
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: "pnpm"
+      - name: Boot an iPad
+        run: |
+          xcrun simctl list devices available | grep -i "ipad pro 11\|^--" | head -30
+          udid=$(xcrun simctl list devices available -j | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8")).devices;const v=k=>(k.match(/iOS-(\d+)-(\d+)/)||[0,0,0]).slice(1).reduce((a,n)=>a*100+Number(n),0);const all=Object.entries(d).flatMap(([k,list])=>list.filter(x=>x.name.startsWith("iPad Pro 11")).map(x=>[v(k),x.udid])).sort((a,b)=>a[0]-b[0]);console.log(all.pop()[1])')
+          echo "UDID=$udid" >> "$GITHUB_ENV"
+          xcrun simctl boot "$udid"
+      - name: Install idb
+        run: |
+          brew tap facebook/fb
+          brew trust facebook/fb || true
+          brew install idb-companion
+          pipx install fb-idb || python3 -m pip install --user --break-system-packages fb-idb
+          xcrun simctl bootstatus "$UDID" -b
+          open -a Simulator || true
+          idb list-targets | grep Booted || true
+          idb ui tap --udid "$UDID" 400 600 && echo "idb tap works"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build web app
+        working-directory: apps/web
+        run: pnpm build
+        env:
+          TMDB_API_TOKEN: ${{ secrets.TMDB_API_TOKEN }}
+      - name: Start the app
+        working-directory: apps/web
+        run: |
+          (pnpm start > ../../server.log 2>&1 &)
+          for _ in $(seq 30); do curl -sf -o /dev/null http://localhost:3000/design-system/contents && break; sleep 2; done
+          curl -s -o /dev/null -w "app: %{http_code}\n" http://localhost:3000/design-system/contents
+      - name: Run with real touches
+        run: node scripts/ios-repro/run.mjs
+      - name: Logs
+        if: ${{ always() }}
+        run: tail -30 server.log || true
+      - uses: actions/upload-artifact@v7
+        if: ${{ always() }}
+        with:
+          name: ios-repro
+          path: ios-repro-*.png
