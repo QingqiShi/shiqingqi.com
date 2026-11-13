@@ -81,7 +81,8 @@ export {
  * its rail of icons or its tab bar. Outside a `TabView`, the view paints the
  * sidebar fill itself, the sidebar takes a `header` and a `footer`, and with
  * a `toggleLabel` it has a button that collapses it. A collapsed sidebar
- * leaves the content alone, with the button at its top.
+ * leaves the content alone, with the button at its top, where it stays while
+ * the content scrolls.
  *
  * Where the detail fits beside the content, it is a column, and else a sheet
  * over the content. In a `TabView` narrower than 72rem, the sidebar gives
