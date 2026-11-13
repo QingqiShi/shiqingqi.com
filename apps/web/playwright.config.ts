@@ -21,8 +21,12 @@ const port = execFileSync("node", ["../../scripts/get-worktree-port.mjs"], {
 }).trim();
 const baseURL = process.env.BASE_URL ?? `http://localhost:${port}`;
 
-/* Specs that run in WebKit, the engine of Safari on iPhone. */
+/* Specs that run in WebKit, the engine of Safari. */
 const webkitSpecs = /\.webkit\.spec\.ts$/;
+/* Only WebKit on macOS has the rules of Safari that these specs are for, such
+ * as which element a press focuses. WebKit on Linux follows Chromium there,
+ * so a spec would pass with the fault. CI runs them in its macOS job. */
+const runsWebkit = process.platform === "darwin";
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -72,11 +76,15 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
       testIgnore: webkitSpecs,
     },
-    {
-      name: "webkit",
-      use: { ...devices["Desktop Safari"] },
-      testMatch: webkitSpecs,
-    },
+    ...(runsWebkit
+      ? [
+          {
+            name: "webkit",
+            use: { ...devices["Desktop Safari"] },
+            testMatch: webkitSpecs,
+          },
+        ]
+      : []),
     /* Test against mobile viewports. */
     // {
     //   name: 'Mobile Chrome',

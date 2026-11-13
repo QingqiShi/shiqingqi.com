@@ -191,6 +191,48 @@ jobs:
           path: apps/web/blob-report
           retention-days: 1
 
+  # The `*.webkit.spec.ts` files, in WebKit on macOS. The shards above run on
+  # Linux, where WebKit follows Chromium in the rules that these specs are for,
+  # such as which element a press focuses: there a spec passes with the fault.
+  # The build output from Linux is JavaScript, so this job serves it as it is.
+  webkit-macos:
+    needs: [changes, build]
+    if: ${{ needs.changes.outputs.web != 'false' }}
+    permissions:
+      contents: read
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6.1.1
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: "pnpm"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install WebKit
+        working-directory: apps/web
+        run: pnpm exec playwright install webkit
+      - name: Download prebuilt web app
+        uses: actions/download-artifact@v8
+        with:
+          name: web-build
+      - name: Unpack prebuilt web app
+        run: tar -xf web-build.tar
+      - name: Run Playwright tests in WebKit
+        working-directory: apps/web
+        run: pnpm exec playwright test --project=webkit
+        env:
+          TMDB_API_TOKEN: ${{ secrets.TMDB_API_TOKEN }}
+      - name: Upload traces
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: webkit-macos-test-results
+          path: apps/web/test-results
+          retention-days: 7
+
   # Branch protection requires each shard check by its name. A matrix job that
   # its `if` skips gives one check without the matrix values, so this job gives
   # the shard checks when the change does not reach the app. Keep its matrix
