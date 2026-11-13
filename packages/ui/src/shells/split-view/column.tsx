@@ -77,6 +77,8 @@ interface ColumnProps {
    * the content, which blurs on its way out under them.
    */
   chrome?: { start: ReactNode; end: ReactNode };
+  /** Where the chrome at the end is, where that is not the end of the scroller. */
+  endChromeCss?: StyleProp;
   /** What a page shows above its node, such as its back link. */
   top?: (page: ColumnPage) => ReactNode;
   /**
@@ -115,6 +117,7 @@ export function Column({
   isLeaving = false,
   header,
   chrome,
+  endChromeCss,
   top,
   carriesNav,
   cornersCss,
@@ -153,6 +156,7 @@ export function Column({
             scrollerCss={scrollerCss}
             contentCss={contentCss}
             chrome={chrome}
+            endChromeCss={endChromeCss}
             top={top}
             body={body}
           />
@@ -205,6 +209,7 @@ function ColumnPageView({
   scrollerCss,
   contentCss,
   chrome,
+  endChromeCss,
   top,
   body,
 }: {
@@ -219,6 +224,7 @@ function ColumnPageView({
   scrollerCss?: StyleProp;
   contentCss: StyleProp;
   chrome?: { start: ReactNode; end: ReactNode };
+  endChromeCss?: StyleProp;
   top?: (page: ColumnPage) => ReactNode;
   body?: (page: ColumnPage) => ReactNode;
 }) {
@@ -276,7 +282,7 @@ function ColumnPageView({
             startDepth={space._8}
             startChromeCss={scrollStyles?.chrome}
             endChrome={chrome.end}
-            endChromeCss={scrollStyles?.chrome}
+            endChromeCss={[scrollStyles?.chrome, endChromeCss]}
           >
             <div
               css={[columnStyles.content, scrollStyles?.content, contentCss]}

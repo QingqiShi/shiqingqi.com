@@ -1,9 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
 import { color } from "../../color.stylex.ts";
 import { tabViewWidth } from "../../primitives/view-width.stylex.ts";
+import { scrollMaskTokens } from "../../surfaces/scroll-mask.stylex.ts";
 import { space } from "../../tokens.stylex.ts";
 import { splitViewQueries } from "../navigation-split-view-layout.stylex.ts";
 import { splitViewTokens } from "../navigation-split-view.stylex.ts";
+
+const SIDEBAR_INLINE_SIZE = `calc(${splitViewTokens.sidebarInlineSize} + env(safe-area-inset-left))`;
 
 // A hidden column leaves the flow but keeps its box, its width and its
 // scroll, so that it shows again as it was.
@@ -107,6 +110,34 @@ export const sidebarStyles = stylex.create({
     blockSize: {
       default: "auto",
       [splitViewQueries.contentBesideSidebar]: "100dvh",
+    },
+  },
+  // The slot of the footer of a sidebar that stays on the screen. Beside the
+  // content, the slot is fixed to the bottom of the viewport, and does not
+  // stick to the bottom of the sidebar. Safari on an iPad collapses the bar
+  // at its top while the page scrolls, and it changes `dvh` only after that
+  // motion ends, so the bottom of the sidebar jumps then. The bottom of the
+  // viewport does not move. The slot has no inline inset, so it stays at the
+  // inline start of the sidebar. A fixed box prints on each page, so the slot
+  // sticks in print.
+  footerSlot: {
+    position: {
+      default: "fixed",
+      [splitViewQueries.noSidebarBeside]: "static",
+      "@media print": "sticky",
+    },
+    inlineSize: {
+      default: SIDEBAR_INLINE_SIZE,
+      [splitViewQueries.noSidebarBeside]: "auto",
+    },
+  },
+  // The fixed slot holds no room in the scroller, so the scroller pads its
+  // end by the size of the slot, and the last row scrolls clear of the footer.
+  scrollerAboveFooter: {
+    paddingBlockEnd: {
+      default: scrollMaskTokens.endChrome,
+      [splitViewQueries.noSidebarBeside]: 0,
+      "@media print": 0,
     },
   },
 });

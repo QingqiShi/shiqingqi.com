@@ -1,5 +1,11 @@
 "use client";
 
+import { use, type ReactNode } from "react";
+import {
+  EffectCarrierContext,
+  EffectContainedContext,
+} from "../../effect-layer/effect-carrier-context.ts";
+import { VIEWPORT_BOTTOM_CARRIER } from "../../effect-layer/resolve-carrier.ts";
 import type { TabViewSidebarNav } from "../use-tab-view-sidebar-nav.ts";
 import { cornerStyles, stackStyles } from "./column.stylex.ts";
 import { Column, type ColumnPageScroll } from "./column.tsx";
@@ -48,6 +54,9 @@ export function SidebarColumns({
   // The `footer` is the sidebar's own too, and it shows under the list also
   // where the list is a page: a phone has no other place for its controls.
   const ownsFooter = carriesNav && !isInTabView && nav.bottom !== null;
+  // A sidebar that stays on the screen beside the content fixes its footer to
+  // the bottom of the viewport (`sidebarStyles.footerSlot`).
+  const fixesFooter = sticks && carriesNav && nav.bottom !== null;
   return (
     <Column
       column="sidebar"
@@ -78,12 +87,18 @@ export function SidebarColumns({
                       ownsFooter && stackStyles.sidebarGutters,
                     ]}
                   >
-                    {nav.bottom}
+                    <FooterCarrier
+                      isFixed={fixesFooter && fitsFullSidebar === true}
+                    >
+                      {nav.bottom}
+                    </FooterCarrier>
                   </div>
                 ),
             }
           : undefined
       }
+      endChromeCss={fixesFooter && sidebarStyles.footerSlot}
+      scrollerCss={fixesFooter && sidebarStyles.scrollerAboveFooter}
       pageScrolls={pageScrolls}
       pageScroll={pageScroll}
       sticks={sticks}
@@ -129,5 +144,28 @@ export function SidebarColumns({
         isCollapsed && sidebarStyles.awayWhileCollapsed,
       ]}
     />
+  );
+}
+
+/**
+ * The Effect carrier of the footer: the bottom edge of the viewport while the
+ * footer is fixed there, or else the carrier around it. The footer stays
+ * mounted when that changes.
+ */
+function FooterCarrier({
+  isFixed,
+  children,
+}: {
+  isFixed: boolean;
+  children: ReactNode;
+}) {
+  const around = use(EffectCarrierContext);
+  const isContained = use(EffectContainedContext);
+  return (
+    <EffectCarrierContext
+      value={isFixed && !isContained ? VIEWPORT_BOTTOM_CARRIER : around}
+    >
+      {children}
+    </EffectCarrierContext>
   );
 }

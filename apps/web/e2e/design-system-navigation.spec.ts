@@ -47,6 +47,32 @@ test("the wheel scrolls the page beside the sidebar, which stays in place", asyn
   expect((await sidebar.boundingBox())?.y).toBe(sidebarTop);
 });
 
+// Safari on an iPad collapses its bar while the page scrolls, and it changes
+// `dvh` only after that motion ends. Until then, the sidebar is shorter than
+// the screen. The footer once went up with the bottom of the sidebar, and
+// jumped back down.
+test("the footer of the sidebar stays at the bottom of the screen while the sidebar is shorter than the screen", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(PATH);
+  const sidebar = page.getByRole("region", { name: "Design system" });
+  const home = sidebar.getByRole("link", { name: "Home" });
+  const bottomOf = async (locator: typeof home) => {
+    const box = await locator.boundingBox();
+    return box === null ? null : box.y + box.height;
+  };
+  const homeBottom = await bottomOf(home);
+  expect(await bottomOf(sidebar)).toBe(900);
+
+  await sidebar.evaluate((element) => {
+    element.style.blockSize = "calc(100dvh - 80px)";
+  });
+
+  expect(await bottomOf(sidebar)).toBe(820);
+  expect(await bottomOf(home)).toBe(homeBottom);
+});
+
 test.describe("on a phone", () => {
   test.use({
     viewport: { width: 390, height: 844 },
