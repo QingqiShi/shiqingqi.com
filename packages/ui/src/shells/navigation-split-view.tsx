@@ -458,7 +458,7 @@ const ownSidebarStyles = stylex.create({
   },
   bottom: {
     marginBlockStart: "auto",
-    paddingBlockStart: rhythm.item,
+    paddingBlockStart: rhythm.tight,
   },
 });
 

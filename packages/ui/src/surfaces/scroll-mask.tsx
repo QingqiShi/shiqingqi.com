@@ -65,6 +65,15 @@ interface ScrollMaskProps extends Omit<
    */
   depth?: string;
   /**
+   * How far the mask reaches past the start chrome, or from the start edge,
+   * where that differs from `depth`: a header that floats over the content
+   * can take a longer ramp than the end edge.
+   *
+   * @default The value of `depth`
+   * @zh 起始边的虚化延伸距离，仅在与 depth 不同时传入：浮在内容之上的页眉可以比结束边用更长的渐变。
+   */
+  startDepth?: string;
+  /**
    * Chrome pinned over the region's start edge — a header row the content
    * scrolls beneath. The slot sits inside the scroller, stuck to the
    * scrollport's start, while that edge's band stays beside the scroller and
@@ -75,6 +84,13 @@ interface ScrollMaskProps extends Omit<
    * @zh 固定在起始边上的界面元素——内容从其下方滚过的页眉行。该插槽位于滚动元素内部、吸附在滚动口的起始边；这条边的虚化带仍在滚动元素之侧，并扩展到该元素实测的盒子加一个深度：内容在整个元素的盒子上虚化淡出，而元素绘制在虚化带之上，保持清晰且可交互。
    */
   startChrome?: ReactNode;
+  /**
+   * StyleX styles merged over the `startChrome` slot's own, which pin it sticky
+   * against the start edge. The mirror of `endChromeCss`.
+   *
+   * @zh 与 startChrome 插槽自身样式合并的 StyleX 样式。插槽默认粘附在起始边上。与 endChromeCss 互为镜像。
+   */
+  startChromeCss?: StyleProp;
   /**
    * Blurs the start edge while the region can scroll back to it. Turn it off
    * where content stays pinned at that edge inside the scroller, such as a
@@ -176,7 +192,9 @@ export function ScrollMask({
   orientation = "vertical",
   radius = 8,
   depth = space._5,
+  startDepth = depth,
   startChrome,
+  startChromeCss,
   startMask = true,
   endChrome,
   endChromeCss,
@@ -249,10 +267,13 @@ export function ScrollMask({
     );
   };
 
-  const bandSize = (chromeSize: number | null) =>
-    chromeSize === null ? depth : `calc(${String(chromeSize)}px + ${depth})`;
-  const startSize = bandSize(hasStartChrome ? chromeSizes.start : null);
-  const endSize = bandSize(hasEndChrome ? chromeSizes.end : null);
+  const bandSize = (chromeSize: number | null, reach: string) =>
+    chromeSize === null ? reach : `calc(${String(chromeSize)}px + ${reach})`;
+  const startSize = bandSize(
+    hasStartChrome ? chromeSizes.start : null,
+    startDepth,
+  );
+  const endSize = bandSize(hasEndChrome ? chromeSizes.end : null, depth);
   // A band reaches as far as the scroller does, so the clip margin moves both
   // together.
   const bandClip =
@@ -313,11 +334,12 @@ export function ScrollMask({
             <ChromeSlot
               ref={startChromeRef}
               isRegion={isRegion}
-              css={
+              css={[
                 isHorizontal
                   ? styles.chromeInlineStart
-                  : styles.chromeBlockStart
-              }
+                  : styles.chromeBlockStart,
+                startChromeCss,
+              ]}
             >
               {startChrome}
             </ChromeSlot>
