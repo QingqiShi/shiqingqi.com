@@ -264,7 +264,7 @@ importers:
         version: 7.0.162(zod@4.6.7)
       drizzle-orm:
         specifier: ^0.45.4
-        version: 0.45.4(@electric-sql/pglite@0.5.14)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
+        version: 0.45.4(@electric-sql/pglite@0.5.15)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
       htmlparser2:
         specifier: ^12.0.0
         version: 12.0.0
@@ -315,8 +315,8 @@ importers:
         specifier: 'catalog:'
         version: 8.0.7(@babel/core@8.1.0)
       '@electric-sql/pglite':
-        specifier: 0.5.14
-        version: 0.5.14
+        specifier: 0.5.15
+        version: 0.5.15
       '@next/env':
         specifier: 'catalog:'
         version: 16.4.3
@@ -448,7 +448,7 @@ importers:
         version: 3.10.3
       drizzle-orm:
         specifier: ^0.45.4
-        version: 0.45.4(@electric-sql/pglite@0.5.14)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
+        version: 0.45.4(@electric-sql/pglite@0.5.15)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
       next:
         specifier: 'catalog:'
         version: 16.4.3(@babel/core@8.1.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -478,8 +478,8 @@ importers:
         specifier: 'catalog:'
         version: 8.0.7(@babel/core@8.1.0)
       '@electric-sql/pglite':
-        specifier: 0.5.14
-        version: 0.5.14
+        specifier: 0.5.15
+        version: 0.5.15
       '@next/env':
         specifier: 'catalog:'
         version: 16.4.3
@@ -653,7 +653,7 @@ importers:
         version: 3.1.0
       drizzle-orm:
         specifier: ^0.45.4
-        version: 0.45.4(@electric-sql/pglite@0.5.14)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
+        version: 0.45.4(@electric-sql/pglite@0.5.15)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
       next:
         specifier: 'catalog:'
         version: 16.4.3(@babel/core@8.1.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -698,8 +698,8 @@ importers:
         specifier: 'catalog:'
         version: 8.0.7(@babel/core@8.1.0)
       '@electric-sql/pglite':
-        specifier: 0.5.14
-        version: 0.5.14
+        specifier: 0.5.15
+        version: 0.5.15
       '@next/env':
         specifier: 'catalog:'
         version: 16.4.3
@@ -2622,8 +2622,8 @@ packages:
   '@dual-bundle/import-meta-resolve@4.2.1':
     resolution: {integrity: sha512-id+7YRUgoUX6CgV0DtuhirQWodeeA7Lf4i2x71JS/vtA5pRb/hIGWlw+G6MeXvsM+MXrz0VAydTGElX1rAfgPg==}
 
-  '@electric-sql/pglite@0.5.14':
-    resolution: {integrity: sha512-aAQe7iArcFB2w1xtx91l3l9trxhMzD6aZf+WnosSHNhwgp70EJz80Igw/bHnW14fUEFYWPBoQ1sGom8Xc0Jttg==}
+  '@electric-sql/pglite@0.5.15':
+    resolution: {integrity: sha512-ERZWgaRTxueGV4cvL1tfpAOzFCWTXoUtbCBqnf2FhHDVs/so9eAKaanvrwWF9Dntx7BYsmFQujVQ0/B4S8Mmiw==}
 
   '@emnapi/core@1.10.0':
     resolution: {integrity: sha512-yq6OkJ4p82CAfPl0u9mQebQHKPJkY7WrIuk205cTYnYe+k2Z8YBh11FrbRG/H6ihirqcacOgl2BIO8oyMQLeXw==}
@@ -9770,7 +9770,7 @@ snapshots:
 
   '@dual-bundle/import-meta-resolve@4.2.1': {}
 
-  '@electric-sql/pglite@0.5.14': {}
+  '@electric-sql/pglite@0.5.15': {}
 
   '@emnapi/core@1.10.0':
     dependencies:
@@ -12462,9 +12462,9 @@ snapshots:
       esbuild: 0.25.12
       tsx: 4.23.15
 
-  drizzle-orm@0.45.4(@electric-sql/pglite@0.5.14)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1):
+  drizzle-orm@0.45.4(@electric-sql/pglite@0.5.15)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1):
     optionalDependencies:
-      '@electric-sql/pglite': 0.5.14
+      '@electric-sql/pglite': 0.5.15
       '@opentelemetry/api': 1.9.1
       '@types/pg': 8.23.1
       '@upstash/redis': 1.40.0
