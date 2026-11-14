@@ -152,6 +152,9 @@ export const dynamicStyles = stylex.create({
   endChromeSize: (end: number) => ({
     [scrollMaskTokens.endChrome]: `${String(end)}px`,
   }),
+  scrollbarSize: (size: number) => ({
+    [scrollMaskTokens.scrollbar]: `${String(size)}px`,
+  }),
   scrollPaddingInline: (start: number, end: number) => ({
     scrollPaddingInlineStart: `${String(start)}px`,
     scrollPaddingInlineEnd: `${String(end)}px`,

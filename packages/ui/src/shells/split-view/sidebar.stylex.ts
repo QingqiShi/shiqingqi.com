@@ -118,8 +118,9 @@ export const sidebarStyles = stylex.create({
   // at its top while the page scrolls, and it changes `dvh` only after that
   // motion ends, so the bottom of the sidebar jumps then. The bottom of the
   // viewport does not move. The slot has no inline inset, so it stays at the
-  // inline start of the sidebar. A fixed box prints on each page, so the slot
-  // sticks in print.
+  // inline start of the sidebar. It is as wide as the list, which a scrollbar
+  // that takes room makes narrower than the sidebar. A fixed box prints on
+  // each page, so the slot sticks in print.
   footerSlot: {
     position: {
       default: "fixed",
@@ -127,7 +128,7 @@ export const sidebarStyles = stylex.create({
       "@media print": "sticky",
     },
     inlineSize: {
-      default: SIDEBAR_INLINE_SIZE,
+      default: `calc(${SIDEBAR_INLINE_SIZE} - ${scrollMaskTokens.scrollbar})`,
       [splitViewQueries.noSidebarBeside]: "auto",
     },
   },
