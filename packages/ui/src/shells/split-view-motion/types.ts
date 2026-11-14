@@ -37,6 +37,13 @@ export interface SplitViewChange {
    * `"front"`: it goes in or out over the content. `null`: it has no part.
    */
   readonly stackRoot: "front" | "back" | null;
+  /**
+   * Whether the page that a swap shows is one column deeper or shallower than
+   * the page that leaves. The router brings such a page after the depth has
+   * changed, so the change is a swap. Beside the sidebar, the page moves as in
+   * a push or a pop.
+   */
+  readonly swapDepth: "push" | "pop" | null;
   /** The detail came, went, or showed other content. */
   readonly detail: "in" | "out" | "swap" | null;
 }

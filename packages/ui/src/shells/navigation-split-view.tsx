@@ -113,8 +113,7 @@ export {
  * dismissed sheet — goes back one entry where that entry is the column
  * under it, and else replaces the entry with the `back` URL, such as after
  * a reload. Thus no take-off leaves an entry that Back must step through.
- * Beside the sidebar, a change of the content is a cross-fade, and Esc and ←
- * leave the content where it is.
+ * Beside the sidebar, Esc and ← leave the content where it is.
  *
  * With a `linkStatus`, a `NavLink` or a `ListRow` marks its link at once, a
  * stacked view opens the destination at once, and if the screen takes more than
@@ -134,7 +133,9 @@ export {
  *
  * Motion follows the URL, after the first paint. A deeper column page
  * springs in over the page it leaves, which drifts back and dims, and a
- * shallower one springs back out. A detail slides in beside the content,
+ * shallower one springs back out, also in the content column beside the
+ * sidebar. Another page of the same depth cross-fades. A detail slides in
+ * beside the content,
  * and the Shared elements (`useSplitViewShared`)
  * fly between their forms. What the content shows moves to its new place
  * in the narrower or wider column: a box that keeps its size moves as one,

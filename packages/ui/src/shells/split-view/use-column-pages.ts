@@ -55,7 +55,10 @@ export function useColumnPages({
   // Each column keeps the pages that a motion still shows, and a change of
   // the URL is a motion of the next number.
   const [motion, setMotion] = useState<{ id: number; change: SplitViewChange }>(
-    { id: 0, change: { content: null, stackRoot: null, detail: null } },
+    {
+      id: 0,
+      change: { content: null, swapDepth: null, stackRoot: null, detail: null },
+    },
   );
   const [settled, setSettled] = useState(0);
   const nextMotion = motion.id + 1;
@@ -71,6 +74,7 @@ export function useColumnPages({
 
   let nextPages = pages;
   let contentChange: SplitViewChange["content"] = null;
+  let swapDepth: SplitViewChange["swapDepth"] = null;
   if (pages.current.key !== (content.key ?? "")) {
     const next = pageOf(content, nextMotion);
     if (isRouted) {
@@ -81,6 +85,14 @@ export function useColumnPages({
           : undefined;
       nextPages = replacePage(pages, next, leftAs);
       contentChange = depthChange ?? "swap";
+      // A skeleton that shows has taken the place of the page that leaves.
+      if (
+        depthChange === null &&
+        leftAs !== "skeleton" &&
+        pages.current.deep !== next.deep
+      ) {
+        swapDepth = next.deep ? "push" : "pop";
+      }
     } else {
       const followed = followPage(pages, next);
       nextPages = followed.pages;
@@ -98,6 +110,7 @@ export function useColumnPages({
     if (tabOpening !== null) {
       nextPages = { ...nextPages, leaving: null };
       contentChange = "swap";
+      swapDepth = null;
     } else if (waiting && contentChange === "push") {
       contentChange = "swap";
     }
@@ -149,6 +162,7 @@ export function useColumnPages({
       id: nextMotion,
       change: {
         content: contentChange,
+        swapDepth,
         stackRoot: stackRootPart,
         detail: detailChange,
       },
@@ -170,7 +184,12 @@ export function useColumnPages({
     }));
     setMotion({
       id: nextMotion,
-      change: { content: change, stackRoot: null, detail: null },
+      change: {
+        content: change,
+        swapDepth: null,
+        stackRoot: null,
+        detail: null,
+      },
     });
   };
   return { motion, setSettled, pages, details, goneDetail, enter };

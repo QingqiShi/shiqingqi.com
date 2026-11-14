@@ -29,6 +29,9 @@ const DIM = {
   columns: { light: 0.07, dark: 0.21 },
   stacked: { light: 0.1, dark: 0.5 },
 } as const;
+/** The progress at which the new screen is out, and the progress above which it shows again. */
+const OUT_BELOW = 0.001;
+const IN_ABOVE = 0.01;
 /** The opacity of `color.overlay`, which the dim layer paints. */
 const SCRIM_OPACITY = 0.7;
 
@@ -88,11 +91,20 @@ export function createPush(
     ? 0
     : DIM[presentation][isDark(fill) ? "dark" : "light"];
   const parallax = isReduced ? 0 : PARALLAX[presentation];
-  const frontPose = (p: number, gone: number): Styles => ({
+  // The spring swings back a little after the new screen is out, which would
+  // show a strip of it at the edge. Thus the screen stays hidden until it
+  // comes in again by more than that swing.
+  let isOut = initial <= OUT_BELOW;
+  const frontPose = (p: number, gone: number): Styles => {
+    isOut = p <= (isOut ? IN_ABOVE : OUT_BELOW);
+    return poseOfFront(p, gone);
+  };
+  const poseOfFront = (p: number, gone: number): Styles => ({
     // The column around a page of a stack has no fill, so a spring past its
-    // end would show the canvas beside the page.
+    // end would show the canvas beside the page. Beside the sidebar, it would
+    // move the start of the page out of the column.
     transform: `translateX(${px(width * (isInStack ? Math.max(0, 1 - p) : 1 - p))})`,
-    visibility: p <= 0.001 ? "hidden" : "visible",
+    visibility: isOut ? "hidden" : "visible",
     "content-visibility": "visible",
     "background-color": fill,
     // A page that leaves comes after the new one in the DOM.
