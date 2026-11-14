@@ -36,7 +36,7 @@
     "finance:reports:backfill": "tsx src/finance/reports/backfill-cli.ts"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^4.0.96",
+    "@ai-sdk/anthropic": "^4.0.102",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -58,7 +58,7 @@
     "@upstash/ratelimit": "^2.2.0",
     "@upstash/redis": "^1.40.0",
     "@vercel/functions": "^3.10.3",
-    "ai": "^7.0.162",
+    "ai": "^7.0.169",
     "d3-array": "^3.2.4",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",

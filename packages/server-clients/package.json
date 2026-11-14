@@ -12,7 +12,7 @@
     "lint": "eslint --max-warnings 0 ."
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^4.0.96",
+    "@ai-sdk/anthropic": "^4.0.102",
     "@upstash/redis": "^1.40.0"
   },
   "devDependencies": {
