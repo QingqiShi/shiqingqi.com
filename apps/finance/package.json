@@ -82,7 +82,7 @@
     "@babel/preset-typescript": "catalog:",
     "@electric-sql/pglite": "0.5.14",
     "@next/env": "catalog:",
-    "@playwright/test": "^1.64.1",
+    "@playwright/test": "^1.65.0",
     "@serwist/cli": "catalog:",
     "@stylexjs/postcss-plugin": "^0.19.1",
     "@testing-library/jest-dom": "catalog:",
