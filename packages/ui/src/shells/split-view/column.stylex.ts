@@ -32,6 +32,8 @@ const CONTENT_GUTTER_END = `max(${space._4}, env(safe-area-inset-right))`;
 const PAGE_COLUMN_MARGIN = `calc((100% - ${pageColumnTokens.inlineSize}) / 2 + ${space._4})`;
 const CONTENT_PADDING_BLOCK_START = `calc(${space._4} + ${safeArea.blockStart})`;
 const CONTENT_PADDING_BLOCK_END = `calc(${space._6} + ${splitViewTokens.columnInsetBlockEnd})`;
+// The inline end of the button of a collapsed sidebar, and a gap after it.
+const TOGGLE_CLEARANCE = `calc(${space._2} + env(safe-area-inset-left) + ${controlHeight.sm} + ${rhythm.tight})`;
 /** Above the tab bar below 34rem, and above the safe area from 34rem up. */
 const ACCESSORY_INSET_BLOCK_END = `max(calc(${space._3} + ${tabViewTokens.barClearance}), calc(${space._5} + env(safe-area-inset-bottom)))`;
 
@@ -205,17 +207,6 @@ export const columnStyles = stylex.create({
     animationTimingFunction: easing.easeOut,
   },
   back: {
-    display: "flex",
-    marginBlockEnd: rhythm.tight,
-  },
-  // The box is only as wide as its button, so that the page under the rest of
-  // the line still takes the pointer. It holds a little above its place at
-  // rest, so that it is stuck only after the content starts to scroll.
-  expand: {
-    position: "sticky",
-    insetBlockStart: `calc(${CONTENT_PADDING_BLOCK_START} - ${space._2})`,
-    zIndex: layer.raised,
-    alignSelf: "flex-start",
     display: "flex",
     marginBlockEnd: rhythm.tight,
   },
@@ -398,6 +389,14 @@ export const contentStyles = stylex.create({
     paddingInlineEnd: {
       default: `max(${CONTENT_GUTTER_END}, ${PAGE_COLUMN_MARGIN})`,
       [splitViewQueries.contentAlone]: pageGutter.inlineEnd,
+    },
+  },
+  // The button of a collapsed sidebar is over the top of the column. Where the
+  // page column starts under it, the content starts below it.
+  underToggle: {
+    paddingBlockStart: {
+      default: CONTENT_PADDING_BLOCK_START,
+      [splitViewQueries.contentBesideSidebar]: `clamp(${CONTENT_PADDING_BLOCK_START}, calc((${TOGGLE_CLEARANCE} - max(${CONTENT_GUTTER_START}, ${PAGE_COLUMN_MARGIN})) * 999), calc(${space._2} + ${controlHeight.sm} + ${rhythm.tight} + ${safeArea.blockStart}))`,
     },
   },
   // The node fills the column from edge to edge, and it keeps only the room of

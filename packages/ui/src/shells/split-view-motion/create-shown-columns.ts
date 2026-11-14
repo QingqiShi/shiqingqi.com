@@ -8,18 +8,40 @@ interface ShownColumns {
   /** Where the inline-start edge of the content is at its place, from the view's. */
   readonly x: number;
   readonly width: number;
+  /**
+   * The padding at the block start of what the content page shows. It changes
+   * with more than the width: a collapsed sidebar leaves its button over the
+   * content, and the content can start below it.
+   */
+  readonly top: string | null;
 }
 
-/** The columns from `box`, the box of the content column `slide` px from its place, in the view at `origin`. */
-function columnsOf(box: DOMRect, origin: DOMRect, slide: number): ShownColumns {
-  return { x: box.left - origin.left - slide, width: box.width };
+function topOf(content: HTMLElement) {
+  const padded = content
+    .querySelector(SELECTOR.page("current"))
+    ?.querySelector(SELECTOR.padded);
+  return padded == null ? null : getComputedStyle(padded).paddingBlockStart;
+}
+
+/** The columns from `box`, the box of the content column `content` `slide` px from its place, in the view at `origin`. */
+function columnsOf(
+  content: HTMLElement,
+  box: DOMRect,
+  origin: DOMRect,
+  slide: number,
+): ShownColumns {
+  return {
+    x: box.left - origin.left - slide,
+    width: box.width,
+    top: topOf(content),
+  };
 }
 
 /** @internal */
 interface ShownColumnsWatch {
   readonly shown: ShownColumns | null;
   watch(content: HTMLElement | null): void;
-  keep(box: DOMRect, origin: DOMRect): ShownColumns;
+  keep(content: HTMLElement, box: DOMRect, origin: DOMRect): ShownColumns;
   disconnect(): void;
 }
 
@@ -49,6 +71,7 @@ export function createShownColumns(
       return;
     }
     shown = columnsOf(
+      content,
       content.getBoundingClientRect(),
       view.getBoundingClientRect(),
       slideNow(),
@@ -68,8 +91,8 @@ export function createShownColumns(
       return shown;
     },
     watch,
-    keep(box, origin) {
-      const columns = columnsOf(box, origin, 0);
+    keep(content, box, origin) {
+      const columns = columnsOf(content, box, origin, 0);
       shown = columns;
       return columns;
     },

@@ -43,6 +43,12 @@ export type ColumnPageScroll = "never" | "stacked" | "always";
 
 interface ColumnProps {
   column: SplitViewColumnState["column"];
+  /**
+   * Whether the visitor collapsed the column, where the view has its own
+   * button for that. It tells the motion that the column goes out and comes
+   * back.
+   */
+  collapses?: "collapsed" | "shown";
   /** The landmark of the column. */
   as?: "main" | "section";
   /** Whether the page scrolls the column instead of its scroller. */
@@ -105,6 +111,7 @@ interface ColumnProps {
 /** @internal */
 export function Column({
   column,
+  collapses,
   as: Landmark = "section",
   pageScrolls,
   pageScroll,
@@ -183,6 +190,7 @@ export function Column({
       inert={isLeaving}
       data-split-view-column={column}
       data-split-view-sidebar={column === "sidebar" ? "" : undefined}
+      data-split-view-collapses={collapses}
       data-split-view-nav={carriesNav}
       {...stylex.props(
         columnStyles.column,
@@ -285,6 +293,7 @@ function ColumnPageView({
             endChromeCss={[scrollStyles?.chrome, endChromeCss]}
           >
             <div
+              data-split-view-padded=""
               css={[columnStyles.content, scrollStyles?.content, contentCss]}
             >
               {top?.(page)}
@@ -317,7 +326,11 @@ function RegionScroller({
       ref={mergeRefs<HTMLDivElement>(scroller, scrollerRef)}
       css={[columnStyles.scroller, a11y.focusRingInset, scrollerCss]}
     >
-      <div ref={content} css={[columnStyles.content, contentCss]}>
+      <div
+        ref={content}
+        data-split-view-padded=""
+        css={[columnStyles.content, contentCss]}
+      >
         <EffectCarrier value={region}>{children}</EffectCarrier>
       </div>
     </div>

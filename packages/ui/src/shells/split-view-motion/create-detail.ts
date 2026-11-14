@@ -69,6 +69,21 @@ export function createDetail(
  */
 export interface Offset extends Part {
   readonly x: MotionValue;
+  /** How far, in px, what the content page shows is under its place now. */
+  liftNow(): number;
+}
+
+/**
+ * What the content page shows, where it starts higher or lower than before,
+ * such as below the button of a sidebar that the visitor collapsed. It
+ * springs to its place with the column. `dy` is how far, in px, it is under
+ * its place as the motion starts.
+ *
+ * @internal
+ */
+export interface Lift {
+  readonly element: HTMLElement;
+  readonly dy: number;
 }
 
 /** A detail column that moves at the inline end of the content. */
@@ -87,6 +102,32 @@ interface Beside {
   readonly room: number;
 }
 
+/**
+ * The sidebar that the visitor collapses, at the inline start of the content.
+ * It goes out at the inline start of the view and comes back from there, with
+ * its inline end on the inline start of the content.
+ *
+ * @internal
+ */
+export interface Riding {
+  readonly column: HTMLElement;
+  /** How far, in px, the column shows from its box while the content is at its place. */
+  readonly base: number;
+  /** How far, in px, the column goes to leave the view. */
+  readonly travel: number;
+  /**
+   * The button that collapses the sidebar. It stays in the view: it goes less
+   * far than the sidebar that holds it, from the end of the `header` to the
+   * start of the view. `open` and `away` are those two places, in px from its
+   * box.
+   */
+  readonly toggle: {
+    readonly element: HTMLElement;
+    readonly open: number;
+    readonly away: number;
+  } | null;
+}
+
 /** A clip inset that keeps what the content paints outside its box. */
 const UNCLIPPED = "-100vmax";
 
@@ -98,6 +139,8 @@ export function createOffset(
   velocity: number,
   fill: string,
   beside: Beside | null,
+  riding: Riding | null,
+  lift: Lift | null,
 ): Offset {
   const x = springValue(engine, dx, springRoles.fold);
   x.to(0, { velocity });
@@ -108,7 +151,18 @@ export function createOffset(
   });
   const binding =
     beside === null
-      ? show(content, x, pose)
+      ? show(
+          content,
+          x,
+          riding === null
+            ? pose
+            : // The column is narrower than the room it shows in while the
+              // sidebar comes back, so its fill reaches the end of that room.
+              (at) => ({
+                ...pose(at),
+                "box-shadow": at >= 0 ? "none" : `${px(-at)} 0 0 0 ${fill}`,
+              }),
+        )
       : show(content, [x, beside.detail.progress], (at, progress) => {
           const gap = Math.min(
             beside.edge + beside.detail.offsetAt(progress) - at,
@@ -121,12 +175,55 @@ export function createOffset(
             "clip-path": `inset(${UNCLIPPED} ${px(-gap)} ${UNCLIPPED} ${UNCLIPPED})`,
           };
         });
+  const rides = riding === null ? [] : ride(x, riding);
+  const liftAt = (at: number) => (lift === null ? 0 : (lift.dy * at) / dx);
+  if (lift !== null) {
+    rides.push(
+      show(lift.element, x, (at) => ({
+        translate: `0px ${px(liftAt(at))}`,
+      })),
+    );
+  }
   return {
     x,
+    liftNow: () => liftAt(x.get()),
     isMoving: () => x.isMoving || beside?.detail.isMoving() === true,
     drop() {
       binding.unbind();
+      unbindAll(rides);
       x.stop();
     },
   };
+}
+
+/**
+ * Shows the sidebar and its button where the content at `x` puts them. The
+ * button leaves the box of the sidebar on its way, so the sidebar does not
+ * clip while it moves, and it shows over the content.
+ */
+function ride(x: MotionValue, { column, base, travel, toggle }: Riding) {
+  const bindings = [
+    show(
+      column,
+      x,
+      (at) => ({
+        transform: `translateX(${px(at + base)})`,
+        visibility: at + base <= 1 - travel ? "hidden" : "visible",
+      }),
+      { "z-index": "2", overflow: "visible" },
+    ),
+  ];
+  if (toggle !== null) {
+    const { element, open, away } = toggle;
+    bindings.push(
+      show(element, x, (at) => {
+        const moved = at + base;
+        const shown = travel <= 0 ? 1 : 1 + moved / travel;
+        return {
+          translate: `${px(away + (open - away) * shown - moved)} 0px`,
+        };
+      }),
+    );
+  }
+  return bindings;
 }

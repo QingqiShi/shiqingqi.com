@@ -1,9 +1,14 @@
 "use client";
 
-import type { AnimationEventHandler, ReactNode, RefObject } from "react";
-import { EffectCarrier } from "../../effect-layer/effect-carrier.tsx";
-import { useEffectSticky } from "../../effect-layer/use-effect-sticky.ts";
-import { StuckContext } from "../../surfaces/sticky-control-group.tsx";
+import * as stylex from "@stylexjs/stylex";
+import {
+  use,
+  useEffect,
+  useState,
+  type AnimationEventHandler,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import type { LeavingCopy } from "../leaving-copy-taker.tsx";
 import { BackLink } from "./back-link.tsx";
 import {
@@ -19,6 +24,7 @@ import type {
   NavigationSplitViewColumn,
   NavigationSplitViewSidebar,
 } from "./types.ts";
+import { SplitViewColumnContext } from "./use-split-view-column.ts";
 import { DEEP_DEPTH } from "./use-stack-opening.ts";
 
 /**
@@ -61,20 +67,46 @@ function LeavingBody({
 }
 
 /**
- * The button that expands a collapsed sidebar. It stays at the top of the
- * column while the page scrolls under it, on a surface of its own.
+ * Tells whether the content has scrolled from its top, where the button of a
+ * collapsed sidebar is over it.
  */
-function ExpandBar({ children }: { children: ReactNode }) {
-  const sticky = useEffectSticky();
-  const { ref, isStuck, css } = sticky;
-  return (
-    <StuckContext value={isStuck}>
-      <div ref={ref} css={[columnStyles.expand, css]}>
-        <EffectCarrier value={sticky}>{children}</EffectCarrier>
-      </div>
-    </StuckContext>
-  );
+function UnderToggleWatch({
+  onChange,
+}: {
+  onChange: (isUnder: boolean) => void;
+}) {
+  const scroller = use(SplitViewColumnContext)?.scroller ?? null;
+  const [box, setBox] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    if (box === null) return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        onChange(!entry.isIntersecting);
+      },
+      { root: scroller },
+    );
+    observer.observe(box);
+    return () => {
+      observer.disconnect();
+      onChange(false);
+    };
+  }, [box, scroller, onChange]);
+  return <div ref={setBox} aria-hidden css={watchStyles.box} />;
 }
+
+// At the top of the content, so that it leaves the scrollport as soon as the
+// content scrolls.
+const watchStyles = stylex.create({
+  box: {
+    position: "absolute",
+    insetBlockStart: 0,
+    insetInlineStart: 0,
+    inlineSize: "1px",
+    blockSize: "1px",
+    pointerEvents: "none",
+    visibility: "hidden",
+  },
+});
 
 /** @internal */
 export function ContentColumn({
@@ -86,7 +118,7 @@ export function ContentColumn({
   pageScroll,
   isShown,
   close,
-  expand,
+  onUnderToggle,
   hasSidebar,
   besideFill,
   showsStackRoot,
@@ -108,8 +140,11 @@ export function ContentColumn({
   pageScroll: ColumnPageScroll;
   isShown: boolean;
   close: (() => void) | null;
-  /** The button that expands a collapsed sidebar, at the top of each page. */
-  expand: ReactNode;
+  /**
+   * While the button of a collapsed sidebar is over the top of the content:
+   * takes whether the content has scrolled under it.
+   */
+  onUnderToggle: ((isUnder: boolean) => void) | null;
   hasSidebar: boolean;
   /** What has the sidebar fill beside the content: the rail or the sidebar of a `TabView`, the sidebar of the view, or nothing. */
   besideFill: "rail" | "sidebar" | null;
@@ -158,7 +193,10 @@ export function ContentColumn({
       contentCss={
         content.flush === true
           ? contentStyles.flush
-          : contentStyles.inPageColumn
+          : [
+              contentStyles.inPageColumn,
+              onUnderToggle !== null && contentStyles.underToggle,
+            ]
       }
       top={(page) => {
         // The DOM that another view left has its own top.
@@ -190,8 +228,8 @@ export function ContentColumn({
           );
         return (
           <>
-            {expand === null || page.role !== "current" ? null : (
-              <ExpandBar>{expand}</ExpandBar>
+            {onUnderToggle === null || page.role !== "current" ? null : (
+              <UnderToggleWatch onChange={onUnderToggle} />
             )}
             {toolbar === null && !isFlush ? (
               shownLink

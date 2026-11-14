@@ -46,6 +46,8 @@ export interface SplitViewChange {
   readonly swapDepth: "push" | "pop" | null;
   /** The detail came, went, or showed other content. */
   readonly detail: "in" | "out" | "swap" | null;
+  /** The visitor expanded the sidebar of the view, or collapsed it. */
+  readonly sidebar: "in" | "out" | null;
 }
 
 /**
