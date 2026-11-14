@@ -10,4 +10,10 @@ export const scrollMaskTokens = stylex.defineVars({
    * without the slot.
    */
   endChrome: "0px",
+  /**
+   * The measured size of the scrollbar that takes room beside the content of
+   * a scroller with chrome, for chrome out of flow that must be as wide as
+   * that content. It is `0px` where the scrollbar lies over the content.
+   */
+  scrollbar: "0px",
 });

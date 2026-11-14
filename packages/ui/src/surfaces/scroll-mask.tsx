@@ -115,9 +115,12 @@ interface ScrollMaskProps extends Omit<
    * footer fixed to the viewport. A slot taken out of flow no longer holds
    * its room in the scroller, so pad the scroller's end in `contentCss` with
    * `scrollMaskTokens.endChrome`, the slot's measured size. The band and
-   * the scroll padding follow that size wherever the slot sits.
+   * the scroll padding follow that size wherever the slot sits. A scrollbar
+   * that takes room narrows the content but not such a slot, so take
+   * `scrollMaskTokens.scrollbar` off the size of the slot across the scroll
+   * axis.
    *
-   * @zh 与 endChrome 插槽自身样式合并的 StyleX 样式。插槽默认粘附在结束边上；这组样式用于放在别处的界面元素，例如固定在视口上的页脚。脱离文档流的插槽不再在滚动元素中占位，因此请在 contentCss 中用 `scrollMaskTokens.endChrome`（插槽的实测尺寸）为滚动元素的结束端补上内边距。无论插槽在哪里，虚化带与滚动内边距都随这个尺寸变化。
+   * @zh 与 endChrome 插槽自身样式合并的 StyleX 样式。插槽默认粘附在结束边上；这组样式用于放在别处的界面元素，例如固定在视口上的页脚。脱离文档流的插槽不再在滚动元素中占位，因此请在 contentCss 中用 `scrollMaskTokens.endChrome`（插槽的实测尺寸）为滚动元素的结束端补上内边距。无论插槽在哪里，虚化带与滚动内边距都随这个尺寸变化。占位的滚动条会让内容变窄，却不会让这样的插槽变窄，因此请从插槽在非滚动轴上的尺寸中减去 `scrollMaskTokens.scrollbar`。
    */
   endChromeCss?: StyleProp;
   /**
@@ -227,6 +230,7 @@ export function ScrollMask({
   // chrome counts as 0 — no flash, since bands start hidden and the padding
   // paints nothing.
   const [chromeSizes, setChromeSizes] = useState({ start: 0, end: 0 });
+  const [scrollbarSize, setScrollbarSize] = useState(0);
   useEffect(() => {
     if (!hasChrome) return;
     if (typeof ResizeObserver === "undefined") return;
@@ -237,8 +241,17 @@ export function ScrollMask({
         start: sizeOf(startChromeRef.current),
         end: sizeOf(endChromeRef.current),
       });
+      const scroller = scrollRef.current;
+      if (scroller !== null) {
+        setScrollbarSize(
+          isHorizontal
+            ? scroller.offsetHeight - scroller.clientHeight
+            : scroller.offsetWidth - scroller.clientWidth,
+        );
+      }
     };
     const observer = new ResizeObserver(measure);
+    if (scrollRef.current) observer.observe(scrollRef.current);
     if (startChromeRef.current) observer.observe(startChromeRef.current);
     if (endChromeRef.current) observer.observe(endChromeRef.current);
     return () => {
@@ -321,6 +334,7 @@ export function ScrollMask({
                   chromeSizes.end,
                 )),
           hasEndChrome && dynamicStyles.endChromeSize(chromeSizes.end),
+          hasChrome && dynamicStyles.scrollbarSize(scrollbarSize),
           // After `contentCss`, because the clip margin is what decides the
           // scroller's box on the axis that does not scroll.
           clipMargin !== undefined &&
