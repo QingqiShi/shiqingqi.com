@@ -97,6 +97,7 @@ export function SidebarColumns({
             }
           : undefined
       }
+      top={carriesNav && nav.list != null ? () => nav.list : undefined}
       endChromeCss={fixesFooter && sidebarStyles.footerSlot}
       scrollerCss={fixesFooter && sidebarStyles.scrollerAboveFooter}
       pageScrolls={pageScrolls}

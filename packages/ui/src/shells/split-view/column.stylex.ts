@@ -469,10 +469,10 @@ export const stackStyles = stylex.create({
       [splitViewQueries.contentBesideSidebar]: SIDEBAR_INLINE_SIZE,
     },
   },
-  // What the sidebar draws above its list, such as the destinations of a
-  // `TabView`. It stays while the list scrolls under it, and its paddings are
-  // those of the rail of a `TabView`, so that the destinations keep their
-  // place from one screen to the next.
+  // What stays above the list of the sidebar while the list scrolls under it,
+  // such as the `header` of a `TabView`. Its paddings are those of the rail
+  // of a `TabView`, so that the `header` and the destinations under it keep
+  // their place from one screen to the next.
   sidebarHeader: {
     display: {
       default: "none",
