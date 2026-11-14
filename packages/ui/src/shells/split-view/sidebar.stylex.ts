@@ -2,7 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { color } from "../../color.stylex.ts";
 import { tabViewWidth } from "../../primitives/view-width.stylex.ts";
 import { scrollMaskTokens } from "../../surfaces/scroll-mask.stylex.ts";
-import { space } from "../../tokens.stylex.ts";
+import { layer, space } from "../../tokens.stylex.ts";
 import { splitViewQueries } from "../navigation-split-view-layout.stylex.ts";
 import { splitViewTokens } from "../navigation-split-view.stylex.ts";
 
@@ -38,8 +38,36 @@ export const sidebarStyles = stylex.create({
   awayBesideDetailAlways: {
     display: "none",
   },
-  // The visitor collapsed the sidebar: the list goes where it shows beside the
-  // content, and stays the first page where the view is narrower.
+  // The visitor collapsed the sidebar of a view with its own button: where the
+  // sidebar shows beside the content, it keeps its box, but it takes no room
+  // and is hidden. The button in it makes itself visible, over the content,
+  // at the place where it is in the sidebar. Where the view is narrower, the
+  // list stays the first page. Before the plane of a sticky box, which applies
+  // only while the sidebar is not stuck.
+  buttonOnly: {
+    zIndex: {
+      default: "auto",
+      [splitViewQueries.contentBesideSidebar]: layer.raised,
+    },
+    marginInlineEnd: {
+      default: 0,
+      [splitViewQueries.contentBesideSidebar]: `calc(-1 * ${SIDEBAR_INLINE_SIZE})`,
+    },
+  },
+  // After the styles that put the sidebar at the root of the stack.
+  buttonOnlyAtRoot: {
+    visibility: {
+      default: "visible",
+      [splitViewQueries.contentBesideSidebar]: "hidden",
+    },
+  },
+  // After the styles that put the sidebar under the content.
+  buttonOnlyUnder: {
+    visibility: "hidden",
+  },
+  // In a `TabView`, the visitor collapsed the sidebar: the list goes where it
+  // shows beside the content, and stays the first page where the view is
+  // narrower.
   awayWhileCollapsed: {
     display: {
       default: "flex",

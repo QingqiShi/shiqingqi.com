@@ -39,6 +39,7 @@ export function useColumnPages({
   wasDepth,
   depth,
   depthChange,
+  sidebarPress,
 }: {
   content: NavigationSplitViewColumn;
   detail: NavigationSplitViewDetail | null | undefined;
@@ -51,13 +52,25 @@ export function useColumnPages({
   wasDepth: number;
   depth: number;
   depthChange: "push" | "pop" | null;
+  /**
+   * The last press of the button that collapses the sidebar of the view, and
+   * where the sidebar goes. The first paint and the hydration can also change
+   * whether the sidebar shows, and they are no motion.
+   */
+  sidebarPress: { id: number; to: "in" | "out" } | null;
 }) {
   // Each column keeps the pages that a motion still shows, and a change of
   // the URL is a motion of the next number.
   const [motion, setMotion] = useState<{ id: number; change: SplitViewChange }>(
     {
       id: 0,
-      change: { content: null, swapDepth: null, stackRoot: null, detail: null },
+      change: {
+        content: null,
+        swapDepth: null,
+        stackRoot: null,
+        detail: null,
+        sidebar: null,
+      },
     },
   );
   const [settled, setSettled] = useState(0);
@@ -157,7 +170,19 @@ export function useColumnPages({
   if (nextDetails !== details) setDetails(nextDetails);
   if (nextGone !== goneDetail) setGoneDetail(nextGone);
 
-  if (contentChange !== null || detailChange !== null) {
+  const [playedPress, setPlayedPress] = useState(0);
+  const pressId = sidebarPress?.id ?? 0;
+  const sidebarChange: SplitViewChange["sidebar"] =
+    sidebarPress !== null && pressId !== playedPress ? sidebarPress.to : null;
+  if (pressId !== playedPress) setPlayedPress(pressId);
+  const [sidebarMotion, setSidebarMotion] = useState(0);
+  if (sidebarChange !== null) setSidebarMotion(nextMotion);
+
+  if (
+    contentChange !== null ||
+    detailChange !== null ||
+    sidebarChange !== null
+  ) {
     setMotion({
       id: nextMotion,
       change: {
@@ -165,6 +190,7 @@ export function useColumnPages({
         swapDepth,
         stackRoot: stackRootPart,
         detail: detailChange,
+        sidebar: sidebarChange,
       },
     });
   }
@@ -189,8 +215,17 @@ export function useColumnPages({
         swapDepth: null,
         stackRoot: null,
         detail: null,
+        sidebar: null,
       },
     });
   };
-  return { motion, setSettled, pages, details, goneDetail, enter };
+  return {
+    motion,
+    setSettled,
+    pages,
+    details,
+    goneDetail,
+    enter,
+    isSidebarMoving: sidebarMotion > settled,
+  };
 }

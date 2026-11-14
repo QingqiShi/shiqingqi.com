@@ -8,6 +8,13 @@ import { isRendered } from "../../focus/is-rendered.ts";
 export const SELECTOR = {
   content: ':scope > * > [data-split-view-column="content"]',
   detail: ':scope > * > [data-split-view-column="detail"]',
+  sidebar: ":scope > * > [data-split-view-sidebar]",
+  /** In a page: the box that pads what the page shows. */
+  padded: "[data-split-view-padded]",
+  /** In the sidebar: the button that collapses it, where the view has its own. */
+  toggle: ":scope > [data-split-view-toggle]",
+  /** In the sidebar: the room of that button at the end of the `header`. */
+  toggleRoom: "[data-split-view-toggle-room]",
   stackRoot:
     ":scope > * > [data-split-view-sidebar] > [data-split-view-pages] > [data-split-view-stack]",
   page: (role: "under" | "current" | "leaving") =>

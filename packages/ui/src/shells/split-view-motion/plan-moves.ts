@@ -21,7 +21,7 @@ const noStart = () => {};
  * one `playLayout`, so that a box inside another that moves takes only its
  * own move. The content column shows `shift` px from its place as the
  * motion starts and springs back on its own, so a box in it moves `shift`
- * px less.
+ * px less. What the page shows is also `lift` px under its place then.
  *
  * @internal
  */
@@ -33,10 +33,11 @@ export function planMoves(
   moved: ReadonlyMap<SplitViewMarkElement, Rect>,
   flying: readonly Element[],
   shift: number,
+  lift: number,
 ) {
   const page =
     content?.querySelector<HTMLElement>(SELECTOR.page("current")) ?? null;
-  const offset = { dx: shift, dy: 0 };
+  const offset = { dx: shift, dy: lift };
   const from = new Map<HTMLElement | SVGElement, Rect>(
     boxes === null || page === null
       ? []
@@ -61,8 +62,9 @@ export function planMoves(
 /**
  * The boxes of the content page as the screen showed them, from `x`,
  * where the inline-start edge of `content` showed, from the view's, and
- * `width`, the width it had. The content column takes that width for the
- * read and lets go of it in the same task. The page shows the DOM of now,
+ * `width`, the width it had, and `top`, the padding at the block start of
+ * what the page showed. The content column takes that width and that padding
+ * for the read and lets go of them in the same task. The page shows the DOM of now,
  * which can differ from what showed, such as a row that is now selected.
  *
  * @internal
@@ -73,9 +75,16 @@ export function boxesAt(
   content: HTMLElement,
   x: number,
   width: number,
+  top: string | null,
 ): LayoutSnapshot | null {
   const page = content.querySelector(SELECTOR.page("current"));
   if (page === null || width <= 0) return null;
+  const padded =
+    top === null ? null : page.querySelector<HTMLElement>(SELECTOR.padded);
+  const paddedStyle = padded?.style.cssText;
+  if (padded != null && top !== null) {
+    writeStyles(padded, { "padding-block-start": top });
+  }
   const style = content.style.cssText;
   const given = `${String(width)}px`;
   writeStyles(content, {
@@ -113,5 +122,6 @@ export function boxesAt(
     };
   } finally {
     content.style.cssText = style;
+    if (padded != null) padded.style.cssText = paddedStyle ?? "";
   }
 }

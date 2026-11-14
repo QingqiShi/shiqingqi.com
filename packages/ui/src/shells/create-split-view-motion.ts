@@ -35,9 +35,12 @@ export interface SplitViewMotion {
    * motion number `motion`. Without a snapshot, the columns and the pages
    * move, but no Shared element flies. The content column slides from
    * where the screen showed it last. Where a detail
-   * column comes or goes, the content column takes its last width again for
-   * a moment, and the boxes of the content page move from their boxes there
-   * to their new places in the content: see `pickBoxes`.
+   * column comes or goes, or the visitor collapses or expands the sidebar,
+   * the content column takes its last width again for a moment, and the
+   * boxes of the content page move from their boxes there to their new
+   * places in the content: see `pickBoxes`. The sidebar that the visitor
+   * collapses goes out with the inline start of the content column and comes
+   * back with it, and its button stays in the view.
    */
   play(
     snapshot: SplitViewSnapshot | null,
@@ -54,6 +57,11 @@ export interface SplitViewMotion {
   /** Lets go of a swipe: the screen goes out where `pop`, and back in else, at `velocity` of progress a second. */
   release(pop: boolean, velocity: number): void;
   destroy(): void;
+}
+
+/** A computed length, in px. */
+function lengthOf(length: string | null) {
+  return length === null ? 0 : Number.parseFloat(length) || 0;
 }
 
 /** @internal */
@@ -127,28 +135,45 @@ export function createSplitViewMotion(
       columnWatch.watch(content);
       const last = columnWatch.shown;
       const slide = columns.slideNow();
+      const lifted = columns.liftNow();
       const resizes =
         change.content === null &&
-        (change.detail === "in" || change.detail === "out");
+        (change.detail === "in" ||
+          change.detail === "out" ||
+          change.sidebar !== null);
       const boxes =
         content === null || last === null || !resizes
           ? null
-          : boxesAt(engine, view, content, last.x + slide, last.width);
+          : boxesAt(
+              engine,
+              view,
+              content,
+              last.x + slide,
+              last.width,
+              last.top,
+            );
       const starts = engine.measure(() => {
         const origin = view.getBoundingClientRect();
         const presentation = isViewStacked(view) ? "stacked" : "columns";
         const contentBox = content?.getBoundingClientRect() ?? null;
         let shift = 0;
-        if (contentBox !== null) {
+        let lift = 0;
+        if (content !== null && contentBox !== null) {
           // The next change can come before the observer runs.
-          const shown = columnWatch.keep(contentBox, origin);
-          if (last !== null) shift = last.x + slide - shown.x;
+          const shown = columnWatch.keep(content, contentBox, origin);
+          if (last !== null) {
+            shift = last.x + slide - shown.x;
+            // Another page can start at another height, and that is no move.
+            if (resizes) {
+              lift = lengthOf(last.top) + lifted - lengthOf(shown.top);
+            }
+          }
         }
         const marksPlan = flights.plan(snapshot, origin);
         return [
           columns.planContent(change, presentation),
           columns.planDetail(change.detail),
-          columns.planOffset(content, contentBox, shift),
+          columns.planOffset(content, contentBox, shift, lift),
           marksPlan.start,
           planMoves(
             engine,
@@ -158,6 +183,7 @@ export function createSplitViewMotion(
             marksPlan.moved,
             marksPlan.flying,
             shift,
+            lift,
           ),
         ];
       });

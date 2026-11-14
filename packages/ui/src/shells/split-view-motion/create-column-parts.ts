@@ -6,6 +6,7 @@ import {
   createOffset,
   type Detail,
   type Offset,
+  type Riding,
 } from "./create-detail.ts";
 import { createFade } from "./create-fade.ts";
 import { createPush, type Push } from "./create-push.ts";
@@ -29,10 +30,44 @@ function gapBefore(column: HTMLElement) {
   return Number.parseFloat(getComputedStyle(columns).columnGap) || 0;
 }
 
+/**
+ * The sidebar that the visitor collapses, where it shows beside `box`, the
+ * box of the content, or else null. It reads the layout.
+ */
+function ridingOf(view: HTMLElement, box: DOMRect): Riding | null {
+  const column = view.querySelector<HTMLElement>(SELECTOR.sidebar);
+  if (column?.dataset.splitViewCollapses === undefined) return null;
+  const sidebar = column.getBoundingClientRect();
+  if (sidebar.width <= 0) return null;
+  const isCollapsed = column.dataset.splitViewCollapses === "collapsed";
+  const button = column.querySelector<HTMLElement>(SELECTOR.toggle);
+  const room = column.querySelector<HTMLElement>(SELECTOR.toggleRoom);
+  const line = room?.parentElement?.getBoundingClientRect();
+  const at = button?.getBoundingClientRect();
+  return {
+    column,
+    base: isCollapsed ? box.left - sidebar.right : 0,
+    travel: sidebar.width,
+    toggle:
+      button == null ||
+      room == null ||
+      line === undefined ||
+      at === undefined ||
+      at.width <= 0
+        ? null
+        : {
+            element: button,
+            open: room.getBoundingClientRect().left - at.left,
+            away: line.left - at.left,
+          },
+  };
+}
+
 /** @internal */
 interface ColumnParts {
   readonly push: Push | null;
   slideNow(): number;
+  liftNow(): number;
   stopAwaitingPop(): void;
   clearAwaitingPop(): void;
   dropResting(): void;
@@ -47,6 +82,7 @@ interface ColumnParts {
     content: HTMLElement | null,
     box: DOMRect | null,
     dx: number,
+    dy: number,
   ): () => void;
   beginSwipe(): boolean;
   drag(progress: number): void;
@@ -67,6 +103,10 @@ export function createColumnParts(
 
   function slideNow() {
     return offset?.x.get() ?? 0;
+  }
+
+  function liftNow() {
+    return offset?.liftNow() ?? 0;
   }
 
   function stopAwaitingPop() {
@@ -141,6 +181,12 @@ export function createColumnParts(
       stackRoot?.dataset.splitViewStack !== "root"
     ) {
       fadeOut(pageOf("leaving"));
+    }
+    // A sidebar that the visitor collapses goes at once: its button is in
+    // it, and it shows at its new place, so it must not fade out.
+    const sidebar = view.querySelector<HTMLElement>(SELECTOR.sidebar);
+    if (change.sidebar === "in" && sidebar !== null) {
+      fades.push(createFade(engine, sidebar, "in"));
     }
     if (change.detail === "in" && column !== null) {
       fades.push(createFade(engine, column, "in"));
@@ -272,6 +318,7 @@ export function createColumnParts(
     content: HTMLElement | null,
     box: DOMRect | null,
     dx: number,
+    dy: number,
   ) {
     if (content === null || box === null) return noStart;
     const velocity = offset?.x.getVelocity() ?? 0;
@@ -284,13 +331,29 @@ export function createColumnParts(
         : column.getBoundingClientRect().left - box.right - gapBefore(column);
     const room = column === null ? 0 : innerEndOf(column) - box.right;
     const fill = opaqueFillOf(content);
+    const riding = ridingOf(view, box);
+    const padded =
+      Math.abs(dy) < 0.5
+        ? null
+        : (content
+            .querySelector(SELECTOR.page("current"))
+            ?.querySelector<HTMLElement>(SELECTOR.padded) ?? null);
     return () => {
       const beside =
         column !== null && detail?.column === column && detail.isMoving()
           ? { detail, edge, room }
           : null;
       if (beside === null && Math.abs(dx) < 0.5) return;
-      offset = createOffset(engine, content, dx, velocity, fill, beside);
+      offset = createOffset(
+        engine,
+        content,
+        dx,
+        velocity,
+        fill,
+        beside,
+        beside === null ? riding : null,
+        padded === null ? null : { element: padded, dy },
+      );
     };
   }
 
@@ -299,6 +362,7 @@ export function createColumnParts(
       return push;
     },
     slideNow,
+    liftNow,
     stopAwaitingPop,
     clearAwaitingPop() {
       clearTimeout(awaitingPop);

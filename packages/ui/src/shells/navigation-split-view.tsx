@@ -7,7 +7,14 @@ import { NavViewContext } from "../actions/nav-list-context.tsx";
 import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import { pageColumn } from "../primitives/page-column.stylex.ts";
 import { useIsInSheetBoundary } from "../surfaces/sheet.tsx";
-import { rhythm } from "../tokens.stylex.ts";
+import { StuckContext } from "../surfaces/sticky-control-group.tsx";
+import {
+  controlHeight,
+  layer,
+  rhythm,
+  safeArea,
+  space,
+} from "../tokens.stylex.ts";
 import { LeavingCopyTaker } from "./leaving-copy-taker.tsx";
 import { splitViewQueries } from "./navigation-split-view-layout.stylex.ts";
 import {
@@ -80,9 +87,12 @@ export {
  * no sidebar of its own. Below 48rem the `TabView` keeps its destinations in
  * its rail of icons or its tab bar. Outside a `TabView`, the view paints the
  * sidebar fill itself, the sidebar takes a `header` and a `footer`, and with
- * a `toggleLabel` it has a button that collapses it. A collapsed sidebar
- * leaves the content alone, with the button at its top, where it stays while
- * the content scrolls.
+ * a `toggleLabel` it has a button that collapses it, at the end of its top,
+ * after the `header`. The sidebar goes out at the inline start of the view,
+ * the content takes its room, and the button goes along the same line to the
+ * start of the view. It keeps focus, and it stays there while the content
+ * scrolls under it. Where the page column starts under the button, the content
+ * starts below it. The sidebar comes back the same way.
  *
  * Where the detail fits beside the content, it is a column, and else a sheet
  * over the content. In a `TabView` narrower than 72rem, the sidebar gives
@@ -177,28 +187,25 @@ export function NavigationSplitView({
     ownToggleLabel !== undefined,
     sidebar?.defaultCollapsed,
   );
-  const ownToggle =
-    ownToggleLabel === undefined ? null : (
-      <SidebarToggle label={ownToggleLabel} css={ownSidebarStyles.toggle} />
-    );
-  const ownNav: TabViewSidebarNav | null =
-    tabViewNav !== null || sidebar == null
-      ? null
+  const [isContentUnderToggle, setIsContentUnderToggle] = useState(false);
+  const isAloneToggle = ownToggleLabel !== undefined && isOwnCollapsed;
+  const [sidebarPress, setSidebarPress] = useState<{
+    id: number;
+    to: "in" | "out";
+  } | null>(null);
+  const collapseScope =
+    ownToggleLabel === undefined || scope === null
+      ? scope
       : {
-          isCollapsed: ownToggle !== null && isOwnCollapsed,
-          top:
-            sidebar.header == null && ownToggle === null ? null : (
-              <div css={ownSidebarStyles.top}>
-                <div css={ownSidebarStyles.header}>{sidebar.header}</div>
-                {ownToggle}
-              </div>
-            ),
-          bottom:
-            sidebar.footer == null ? null : (
-              <div css={ownSidebarStyles.bottom}>{sidebar.footer}</div>
-            ),
+          ...scope,
+          write(isCollapsed: boolean) {
+            setSidebarPress((last) => ({
+              id: (last?.id ?? 0) + 1,
+              to: isCollapsed ? "out" : "in",
+            }));
+            scope.write(isCollapsed);
+          },
         };
-  const sidebarNav = tabViewNav ?? ownNav;
   const isContained = useIsInSheetBoundary();
   const fillsScreen = !isInTabView && !isContained;
   const pageScroll: ColumnPageScroll = isContained ? "never" : "always";
@@ -225,20 +232,70 @@ export function NavigationSplitView({
     wasDepth,
     depthChange,
   } = useStackOpening({ sidebar, content, linkStatus, replace });
-  const { motion, setSettled, pages, details, goneDetail, enter } =
-    useColumnPages({
-      content,
-      detail,
-      detailColumn,
-      isRouted,
-      hasSidebar,
-      waiting,
-      opensContent,
-      tabOpening,
-      wasDepth,
-      depth,
-      depthChange,
-    });
+  const {
+    motion,
+    setSettled,
+    pages,
+    details,
+    goneDetail,
+    enter,
+    isSidebarMoving,
+  } = useColumnPages({
+    content,
+    detail,
+    detailColumn,
+    isRouted,
+    hasSidebar,
+    waiting,
+    opensContent,
+    tabOpening,
+    wasDepth,
+    depth,
+    depthChange,
+    sidebarPress,
+  });
+  const ownToggle =
+    ownToggleLabel === undefined ? null : (
+      <span
+        data-split-view-toggle=""
+        css={[ownSidebarStyles.toggle, isAloneToggle && ownSidebarStyles.alone]}
+      >
+        <StuckContext
+          value={
+            isAloneToggle &&
+            // The content moves under the button while the sidebar goes.
+            ((isContentUnderToggle && !isSidebarMoving) ||
+              content.flush === true)
+          }
+        >
+          <SidebarToggle label={ownToggleLabel} />
+        </StuckContext>
+      </span>
+    );
+  const ownNav: TabViewSidebarNav | null =
+    tabViewNav !== null || sidebar == null
+      ? null
+      : {
+          isCollapsed: isAloneToggle,
+          top:
+            sidebar.header == null && ownToggle === null ? null : (
+              <div css={ownSidebarStyles.top}>
+                <div css={ownSidebarStyles.header}>{sidebar.header}</div>
+                {ownToggle === null ? null : (
+                  <span
+                    aria-hidden
+                    data-split-view-toggle-room=""
+                    css={ownSidebarStyles.toggleRoom}
+                  />
+                )}
+              </div>
+            ),
+          bottom:
+            sidebar.footer == null ? null : (
+              <div css={ownSidebarStyles.bottom}>{sidebar.footer}</div>
+            ),
+        };
+  const sidebarNav = tabViewNav ?? ownNav;
   const { motionRef, pageScrollRef, leavingCopyRef, capture, pageScrolls } =
     useViewMotion({
       view,
@@ -332,7 +389,7 @@ export function NavigationSplitView({
       : leavingPage.key;
 
   return (
-    <SidebarCollapseContext value={scope}>
+    <SidebarCollapseContext value={collapseScope}>
       <SplitViewContext value={viewState}>
         <NavViewContext
           value={{ pendingHref: opening, isPage: isPageSidebar && hasSidebar }}
@@ -372,6 +429,7 @@ export function NavigationSplitView({
                   <SidebarColumns
                     sidebar={sidebar}
                     nav={sidebarNav}
+                    toggle={ownToggle}
                     showsStackRoot={showsStackRoot}
                     fitsFullSidebar={fitsFullSidebar}
                     hasDetailColumn={hasDetailColumn}
@@ -390,7 +448,11 @@ export function NavigationSplitView({
                   pageScroll={pageScroll}
                   isShown={!isAtStackRoot || fitsFullSidebar !== false}
                   close={closeOf(content.back)}
-                  expand={ownNav?.isCollapsed === true ? ownToggle : null}
+                  onUnderToggle={
+                    isAloneToggle && !hasDetailColumn && content.flush !== true
+                      ? setIsContentUnderToggle
+                      : null
+                  }
                   hasSidebar={hasSidebar}
                   besideFill={
                     isInTabView
@@ -446,7 +508,8 @@ export function NavigationSplitView({
 }
 
 const ownSidebarStyles = stylex.create({
-  // The `header` and, at its end, the button that collapses the sidebar.
+  // The `header` and, at its end, the room of the button that collapses the
+  // sidebar.
   top: {
     display: "flex",
     alignItems: "center",
@@ -458,12 +521,37 @@ const ownSidebarStyles = stylex.create({
   header: {
     minInlineSize: 0,
   },
-  // The button shows only where the sidebar shows beside the content.
+  toggleRoom: {
+    display: {
+      default: "none",
+      [splitViewQueries.contentBesideSidebar]: "block",
+    },
+    flexShrink: 0,
+    inlineSize: controlHeight.sm,
+    blockSize: controlHeight.sm,
+    marginInlineStart: "auto",
+  },
+  // The button shows only where the sidebar shows beside the content. It is
+  // not in the line of the `header`, which is in the box that scrolls the
+  // list, and that box clips. The button leaves the sidebar on its way to the
+  // start of the view, so it is in the sidebar itself, over its room at the
+  // end of the line. The insets are the paddings of the top of the sidebar.
   toggle: {
+    position: "absolute",
+    insetBlockStart: `calc(${space._2} + ${safeArea.blockStart})`,
+    insetInlineEnd: space._2,
+    zIndex: layer.raised,
     display: {
       default: "none",
       [splitViewQueries.contentBesideSidebar]: "inline-flex",
     },
+  },
+  // In a collapsed sidebar, which is hidden, only the button shows, at the
+  // start of the line.
+  alone: {
+    insetInlineStart: `calc(${space._2} + env(safe-area-inset-left))`,
+    insetInlineEnd: "auto",
+    visibility: "visible",
   },
   bottom: {
     marginBlockStart: "auto",
