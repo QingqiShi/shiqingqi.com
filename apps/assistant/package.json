@@ -42,7 +42,7 @@
     "@tuja/server-auth": "workspace:*",
     "@tuja/server-clients": "workspace:*",
     "@tuja/ui": "workspace:*",
-    "@vercel/functions": "^3.10.3",
+    "@vercel/functions": "^3.10.6",
     "ai": "^7.0.162",
     "drizzle-orm": "^0.45.4",
     "htmlparser2": "^12.0.0",
