@@ -29,7 +29,7 @@ import {
 } from "../primitives/motion.stylex.ts";
 import { pageGutter } from "../primitives/page-column.stylex.ts";
 import { tabViewWidth } from "../primitives/view-width.stylex.ts";
-import { layer, rhythm, safeArea } from "../tokens.stylex.ts";
+import { layer, rhythm, safeArea, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { headerControlsTokens } from "./header-controls.stylex.ts";
 import { splitViewQueries } from "./navigation-split-view-layout.stylex.ts";
@@ -292,7 +292,8 @@ export function TabViewIconsOnly({ children }: { children: ReactNode }) {
  * scrolls the content, and the rail stays on the screen. A screen with a list, the `sidebar` of a
  * `NavigationSplitView`, shows the list in the same sidebar, under the
  * destinations: from 48rem that view draws the destinations above its list,
- * and the view's own sidebar gives way. Below 48rem, the list is the first
+ * and the view's own sidebar gives way. The destinations scroll with the list,
+ * under the `header`. Below 48rem, the list is the first
  * page of that screen, beside the rail or over the tab bar.
  *
  * The content goes under the bar: `tabViewTokens.barClearance` is the strip the
@@ -354,9 +355,9 @@ export function TabView({
   );
   const sidebarNav: TabViewSidebarNav = {
     isCollapsed,
-    top: (
-      <div css={styles.listNav}>
-        {top}
+    top: <div css={[styles.listNav, styles.listTop]}>{top}</div>,
+    list: (
+      <div css={[styles.listNav, styles.listRows]}>
         <RailRows
           items={shownItems}
           label={label}
@@ -524,8 +525,8 @@ const styles = stylex.create({
   labelsOnly: {
     display: tabViewForm.labels,
   },
-  // The destinations above the list of a screen, and the `footer` under it,
-  // only where that list shows in the sidebar.
+  // The `header` and the destinations above the list of a screen, and the
+  // `footer` under it, only where that list shows in the sidebar.
   listNav: {
     display: {
       default: "none",
@@ -533,6 +534,14 @@ const styles = stylex.create({
     },
     flexDirection: "column",
     gap: rhythm.item,
+  },
+  // The list of a sidebar starts `space._2` under the `header`. The padding
+  // makes that `rhythm.item`, which is the gap in the rail, so that the
+  // destinations keep their place from one screen to the next.
+  listTop: {
+    paddingBlockEnd: `calc(${rhythm.item} - ${space._2})`,
+  },
+  listRows: {
     marginBlockEnd: rhythm.item,
   },
   listFooter: {
