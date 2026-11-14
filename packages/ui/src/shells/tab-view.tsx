@@ -36,7 +36,11 @@ import { splitViewQueries } from "./navigation-split-view-layout.stylex.ts";
 import { splitViewTokens } from "./navigation-split-view.stylex.ts";
 import { RailFooter } from "./rail-footer.tsx";
 import { Rail, RailRows, RailSidebar } from "./rail.tsx";
-import { SidebarToggle, useSidebarCollapsed } from "./sidebar-toggle.tsx";
+import {
+  SidebarCollapseContext,
+  SidebarToggle,
+  useSidebarCollapse,
+} from "./sidebar-toggle.tsx";
 import { formStyles } from "./tab-view-form.stylex.ts";
 import { sidebarEdge, tabViewForm, tabViewTokens } from "./tab-view.stylex.ts";
 import {
@@ -338,7 +342,7 @@ export function TabView({
   const sticky = useEffectSticky();
   const { ref, css: stickyCss } = sticky;
   const Content = as;
-  const isCollapsed = useSidebarCollapsed(defaultCollapsed);
+  const { isCollapsed, scope } = useSidebarCollapse(true, defaultCollapsed);
   const toggle = (
     <SidebarToggle label={sidebarToggleLabel} css={styles.toggle} />
   );
@@ -368,66 +372,68 @@ export function TabView({
       ),
   };
   return (
-    <TabViewLinksContext value={{ linkComponent, linkStatus, setOpening }}>
-      <TabViewOpeningContext value={opening}>
-        <TabViewSkeletonContext value={screenSkeleton}>
-          <div data-tab-view="" css={[styles.container, css]}>
-            <div
-              css={[
-                styles.root,
-                formStyles.form,
-                isCollapsed && formStyles.collapsed,
-              ]}
-            >
-              <div ref={ref} css={[styles.rail, stickyCss]}>
-                <EffectCarrier value={sticky}>
-                  {top}
-                  <Rail
+    <SidebarCollapseContext value={scope}>
+      <TabViewLinksContext value={{ linkComponent, linkStatus, setOpening }}>
+        <TabViewOpeningContext value={opening}>
+          <TabViewSkeletonContext value={screenSkeleton}>
+            <div data-tab-view="" css={[styles.container, css]}>
+              <div
+                css={[
+                  styles.root,
+                  formStyles.form,
+                  isCollapsed && formStyles.collapsed,
+                ]}
+              >
+                <div ref={ref} css={[styles.rail, stickyCss]}>
+                  <EffectCarrier value={sticky}>
+                    {top}
+                    <Rail
+                      items={shownItems}
+                      label={label}
+                      effect={effect}
+                      linkComponent={TabViewLink}
+                      css={styles.iconsOnly}
+                    />
+                    <RailSidebar
+                      items={shownItems}
+                      label={label}
+                      linkComponent={TabViewLink}
+                      css={styles.labelsOnly}
+                    />
+                    {footer == null ? null : (
+                      <RailFooter css={styles.slot}>{footer}</RailFooter>
+                    )}
+                  </EffectCarrier>
+                </div>
+                <Content
+                  ref={setContent}
+                  {...stylex.props(styles.content, revealing && styles.reveal)}
+                  onAnimationEnd={onAnimationEnd}
+                >
+                  {/* The router scrolls a new page to its top if that top is
+                    out of view. So the hidden screen comes before the skeleton. */}
+                  <div css={waiting ? styles.screenHidden : styles.screen}>
+                    <TabViewSidebarNavContext value={sidebarNav}>
+                      {children}
+                    </TabViewSidebarNavContext>
+                  </div>
+                  {waiting ? screenSkeleton : null}
+                </Content>
+                <EffectCarrier value="viewport-bottom">
+                  <TabBar
                     items={shownItems}
                     label={label}
                     effect={effect}
                     linkComponent={TabViewLink}
-                    css={styles.iconsOnly}
+                    css={styles.bar}
                   />
-                  <RailSidebar
-                    items={shownItems}
-                    label={label}
-                    linkComponent={TabViewLink}
-                    css={styles.labelsOnly}
-                  />
-                  {footer == null ? null : (
-                    <RailFooter css={styles.slot}>{footer}</RailFooter>
-                  )}
                 </EffectCarrier>
               </div>
-              <Content
-                ref={setContent}
-                {...stylex.props(styles.content, revealing && styles.reveal)}
-                onAnimationEnd={onAnimationEnd}
-              >
-                {/* The router scrolls a new page to its top if that top is
-                    out of view. So the hidden screen comes before the skeleton. */}
-                <div css={waiting ? styles.screenHidden : styles.screen}>
-                  <TabViewSidebarNavContext value={sidebarNav}>
-                    {children}
-                  </TabViewSidebarNavContext>
-                </div>
-                {waiting ? screenSkeleton : null}
-              </Content>
-              <EffectCarrier value="viewport-bottom">
-                <TabBar
-                  items={shownItems}
-                  label={label}
-                  effect={effect}
-                  linkComponent={TabViewLink}
-                  css={styles.bar}
-                />
-              </EffectCarrier>
             </div>
-          </div>
-        </TabViewSkeletonContext>
-      </TabViewOpeningContext>
-    </TabViewLinksContext>
+          </TabViewSkeletonContext>
+        </TabViewOpeningContext>
+      </TabViewLinksContext>
+    </SidebarCollapseContext>
   );
 }
 

@@ -10,7 +10,11 @@ import { useIsInSheetBoundary } from "../surfaces/sheet.tsx";
 import { rhythm } from "../tokens.stylex.ts";
 import { LeavingCopyTaker } from "./leaving-copy-taker.tsx";
 import { splitViewQueries } from "./navigation-split-view-layout.stylex.ts";
-import { SidebarToggle, useSidebarCollapsed } from "./sidebar-toggle.tsx";
+import {
+  SidebarCollapseContext,
+  SidebarToggle,
+  useSidebarCollapse,
+} from "./sidebar-toggle.tsx";
 import type { ColumnPage, ColumnPageScroll } from "./split-view/column.tsx";
 import { ContentColumn } from "./split-view/content-column.tsx";
 import { DetailColumn } from "./split-view/detail-column.tsx";
@@ -167,14 +171,15 @@ export function NavigationSplitView({
   const hasSidebar = sidebar != null;
   const isInTabView = useIsInTabView();
   const tabViewNav = useTabViewSidebarNav();
-  const isOwnCollapsed = useSidebarCollapsed(sidebar?.defaultCollapsed);
+  const ownToggleLabel = tabViewNav === null ? sidebar?.toggleLabel : undefined;
+  const { isCollapsed: isOwnCollapsed, scope } = useSidebarCollapse(
+    ownToggleLabel !== undefined,
+    sidebar?.defaultCollapsed,
+  );
   const ownToggle =
-    tabViewNav === null && sidebar?.toggleLabel !== undefined ? (
-      <SidebarToggle
-        label={sidebar.toggleLabel}
-        css={ownSidebarStyles.toggle}
-      />
-    ) : null;
+    ownToggleLabel === undefined ? null : (
+      <SidebarToggle label={ownToggleLabel} css={ownSidebarStyles.toggle} />
+    );
   const ownNav: TabViewSidebarNav | null =
     tabViewNav !== null || sidebar == null
       ? null
@@ -326,112 +331,116 @@ export function NavigationSplitView({
       : leavingPage.key;
 
   return (
-    <SplitViewContext value={viewState}>
-      <NavViewContext
-        value={{ pendingHref: opening, isPage: isPageSidebar && hasSidebar }}
-      >
-        <SplitViewMarksContext value={marks}>
-          <div
-            ref={setView}
-            data-split-view=""
-            css={[
-              viewFrameStyles.view,
-              isContained && viewFrameStyles.viewContained,
-              movingMarker,
-              hasSidebar && pageColumn.wide,
-              ownNav !== null && viewFrameStyles.canvas,
-              css,
-            ]}
-          >
-            {isRouted ? (
-              <LeavingCopyTaker
-                view={view}
-                pageKey={content.key ?? ""}
-                copyKey={leavingCopyKey}
-                copyRef={leavingCopyRef}
-              />
-            ) : null}
+    <SidebarCollapseContext value={scope}>
+      <SplitViewContext value={viewState}>
+        <NavViewContext
+          value={{ pendingHref: opening, isPage: isPageSidebar && hasSidebar }}
+        >
+          <SplitViewMarksContext value={marks}>
             <div
+              ref={setView}
+              data-split-view=""
               css={[
-                viewFrameStyles.columns,
-                isContained && viewFrameStyles.columnsContained,
-                !isInTabView && viewFrameStyles.columnsWithoutBar,
-                hasSidebar &&
-                  !hasDetailColumn &&
-                  viewFrameStyles.stackedBelowSidebar,
+                viewFrameStyles.view,
+                isContained && viewFrameStyles.viewContained,
+                movingMarker,
+                hasSidebar && pageColumn.wide,
+                ownNav !== null && viewFrameStyles.canvas,
+                css,
               ]}
             >
-              {hasSidebar ? (
-                <SidebarColumns
-                  sidebar={sidebar}
-                  nav={sidebarNav}
-                  showsStackRoot={showsStackRoot}
-                  fitsFullSidebar={fitsFullSidebar}
-                  hasDetailColumn={hasDetailColumn}
-                  isInTabView={isInTabView}
-                  pageScrolls={pageScrolls && isPageSidebar}
-                  pageScroll={sidebarPageScroll}
-                  sticks={!isContained}
+              {isRouted ? (
+                <LeavingCopyTaker
+                  view={view}
+                  pageKey={content.key ?? ""}
+                  copyKey={leavingCopyKey}
+                  copyRef={leavingCopyRef}
                 />
               ) : null}
-              <ContentColumn
-                content={content}
-                sidebar={sidebar}
-                as={fillsScreen ? "main" : "section"}
-                pages={contentPages}
-                pageScrolls={pageScrolls}
-                pageScroll={pageScroll}
-                isShown={!isAtStackRoot || fitsFullSidebar !== false}
-                close={closeOf(content.back)}
-                expand={ownNav?.isCollapsed === true ? ownToggle : null}
-                hasSidebar={hasSidebar}
-                besideFill={
-                  isInTabView
-                    ? "rail"
-                    : ownNav !== null && !ownNav.isCollapsed && !hasDetailColumn
-                      ? "sidebar"
-                      : null
-                }
-                showsStackRoot={showsStackRoot}
-                depth={depth}
-                isRouted={isRouted}
-                skeleton={skeleton}
-                waiting={waiting}
-                revealing={revealing}
-                opensContent={opensContent}
-                onAnimationEnd={onAnimationEnd}
-                copyRef={leavingCopyRef}
-                onTakeOff={takeOff}
-              />
-              {shownDetail === null ? null : (
-                <DetailColumn
-                  detail={shownDetail}
-                  pages={detailPages}
-                  sticks={!isContained}
-                  isLeaving={detailColumn === null}
-                  close={
-                    detailColumn === null ? null : closeOf(shownDetail.back)
+              <div
+                css={[
+                  viewFrameStyles.columns,
+                  isContained && viewFrameStyles.columnsContained,
+                  !isInTabView && viewFrameStyles.columnsWithoutBar,
+                  hasSidebar &&
+                    !hasDetailColumn &&
+                    viewFrameStyles.stackedBelowSidebar,
+                ]}
+              >
+                {hasSidebar ? (
+                  <SidebarColumns
+                    sidebar={sidebar}
+                    nav={sidebarNav}
+                    showsStackRoot={showsStackRoot}
+                    fitsFullSidebar={fitsFullSidebar}
+                    hasDetailColumn={hasDetailColumn}
+                    isInTabView={isInTabView}
+                    pageScrolls={pageScrolls && isPageSidebar}
+                    pageScroll={sidebarPageScroll}
+                    sticks={!isContained}
+                  />
+                ) : null}
+                <ContentColumn
+                  content={content}
+                  sidebar={sidebar}
+                  as={fillsScreen ? "main" : "section"}
+                  pages={contentPages}
+                  pageScrolls={pageScrolls}
+                  pageScroll={pageScroll}
+                  isShown={!isAtStackRoot || fitsFullSidebar !== false}
+                  close={closeOf(content.back)}
+                  expand={ownNav?.isCollapsed === true ? ownToggle : null}
+                  hasSidebar={hasSidebar}
+                  besideFill={
+                    isInTabView
+                      ? "rail"
+                      : ownNav !== null &&
+                          !ownNav.isCollapsed &&
+                          !hasDetailColumn
+                        ? "sidebar"
+                        : null
                   }
+                  showsStackRoot={showsStackRoot}
+                  depth={depth}
+                  isRouted={isRouted}
+                  skeleton={skeleton}
+                  waiting={waiting}
+                  revealing={revealing}
+                  opensContent={opensContent}
+                  onAnimationEnd={onAnimationEnd}
+                  copyRef={leavingCopyRef}
                   onTakeOff={takeOff}
                 />
-              )}
+                {shownDetail === null ? null : (
+                  <DetailColumn
+                    detail={shownDetail}
+                    pages={detailPages}
+                    sticks={!isContained}
+                    isLeaving={detailColumn === null}
+                    close={
+                      detailColumn === null ? null : closeOf(shownDetail.back)
+                    }
+                    onTakeOff={takeOff}
+                  />
+                )}
+              </div>
+              <div
+                ref={setLayer}
+                aria-hidden
+                inert
+                css={viewFrameStyles.flights}
+              />
             </div>
-            <div
-              ref={setLayer}
-              aria-hidden
-              inert
-              css={viewFrameStyles.flights}
+            <DetailSheet
+              detail={asSheet ? detail : null}
+              view={view}
+              pressedRef={pressedRef}
+              onTakeOff={takeOff}
             />
-          </div>
-          <DetailSheet
-            detail={asSheet ? detail : null}
-            view={view}
-            pressedRef={pressedRef}
-            onTakeOff={takeOff}
-          />
-        </SplitViewMarksContext>
-      </NavViewContext>
-    </SplitViewContext>
+          </SplitViewMarksContext>
+        </NavViewContext>
+      </SplitViewContext>
+    </SidebarCollapseContext>
   );
 }
 
