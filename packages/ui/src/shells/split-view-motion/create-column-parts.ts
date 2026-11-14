@@ -156,10 +156,10 @@ export function createColumnParts(
   const noStart = () => {};
 
   function planContent(
-    { content: kind, stackRoot: rootPart }: SplitViewChange,
+    { content: change, swapDepth, stackRoot: rootPart }: SplitViewChange,
     presentation: "columns" | "stacked",
   ) {
-    if (kind === null) return noStart;
+    if (change === null) return noStart;
     const content = view.querySelector<HTMLElement>(SELECTOR.content);
     if (content === null) return noStart;
     const under = content.querySelector<HTMLElement>(SELECTOR.page("under"));
@@ -172,7 +172,11 @@ export function createColumnParts(
     if (current === null) return noStart;
     const stackRoot = view.querySelector<HTMLElement>(SELECTOR.stackRoot);
     const isBesideRoot = stackRoot !== null && presentation === "columns";
-    if (kind === "swap" || isBesideRoot) {
+    const kind =
+      change === "swap" && isBesideRoot && swapDepth !== null
+        ? swapDepth
+        : change;
+    if (kind === "swap") {
       if (leaving === null) return noStart;
       // The screen on top goes out over the sidebar, and it stays in front.
       if (stackRoot?.dataset.splitViewStack === "root" && !isBesideRoot) {
@@ -183,19 +187,24 @@ export function createColumnParts(
         fades.push(createFade(engine, leaving, "out"));
       };
     }
+    // Beside the content, the sidebar has no part: the pages of the content
+    // move over each other in their column.
+    const part = isBesideRoot ? null : rootPart;
     let back: HTMLElement | null;
     let front: HTMLElement | null;
-    if (rootPart === "front") {
+    if (part === "front") {
       front = stackRoot;
       back = kind === "push" ? (leaving ?? current) : current;
-    } else if (rootPart === "back") {
+    } else if (part === "back") {
       back = stackRoot;
       front = kind === "push" ? current : (leaving ?? current);
     } else {
       back = kind === "push" ? (under ?? leaving) : current;
       front = kind === "push" ? current : leaving;
     }
-    if (front === null) return noStart;
+    // A change of the depth that keeps the page, such as from the URL of the
+    // list, moves nothing beside the sidebar.
+    if (front === null || (isBesideRoot && back === null)) return noStart;
     const target = kind === "push" ? 1 : 0;
     const running = push;
     if (
@@ -211,7 +220,7 @@ export function createColumnParts(
     running?.drop();
     push = null;
     const rect = rectIn(content, view.getBoundingClientRect());
-    const fill = opaqueFillOf(stackRoot ?? content);
+    const fill = opaqueFillOf(isBesideRoot ? content : (stackRoot ?? content));
     return () => {
       push = createPush(
         engine,
