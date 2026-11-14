@@ -7,7 +7,8 @@ import { NavViewContext } from "../actions/nav-list-context.tsx";
 import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import { pageColumn } from "../primitives/page-column.stylex.ts";
 import { useIsInSheetBoundary } from "../surfaces/sheet.tsx";
-import { rhythm } from "../tokens.stylex.ts";
+import { StuckContext } from "../surfaces/sticky-control-group.tsx";
+import { controlHeight, rhythm } from "../tokens.stylex.ts";
 import { LeavingCopyTaker } from "./leaving-copy-taker.tsx";
 import { splitViewQueries } from "./navigation-split-view-layout.stylex.ts";
 import {
@@ -80,9 +81,11 @@ export {
  * no sidebar of its own. Below 48rem the `TabView` keeps its destinations in
  * its rail of icons or its tab bar. Outside a `TabView`, the view paints the
  * sidebar fill itself, the sidebar takes a `header` and a `footer`, and with
- * a `toggleLabel` it has a button that collapses it. A collapsed sidebar
- * leaves the content alone, with the button at its top, where it stays while
- * the content scrolls.
+ * a `toggleLabel` it has a button that collapses it, at the start of its top,
+ * before the `header`. A collapsed sidebar leaves the content alone. The
+ * button stays at the same place on the screen and keeps focus, and it stays
+ * there while the content scrolls under it. Where the page column starts under
+ * the button, the content starts below it.
  *
  * Where the detail fits beside the content, it is a column, and else a sheet
  * over the content. In a `TabView` narrower than 72rem, the sidebar gives
@@ -177,20 +180,34 @@ export function NavigationSplitView({
     ownToggleLabel !== undefined,
     sidebar?.defaultCollapsed,
   );
+  const [isContentUnderToggle, setIsContentUnderToggle] = useState(false);
+  const isAloneToggle = ownToggleLabel !== undefined && isOwnCollapsed;
   const ownToggle =
     ownToggleLabel === undefined ? null : (
-      <SidebarToggle label={ownToggleLabel} css={ownSidebarStyles.toggle} />
+      <StuckContext
+        value={
+          isAloneToggle && (isContentUnderToggle || content.flush === true)
+        }
+      >
+        <SidebarToggle
+          label={ownToggleLabel}
+          css={[
+            ownSidebarStyles.toggle,
+            isAloneToggle && ownSidebarStyles.alone,
+          ]}
+        />
+      </StuckContext>
     );
   const ownNav: TabViewSidebarNav | null =
     tabViewNav !== null || sidebar == null
       ? null
       : {
-          isCollapsed: ownToggle !== null && isOwnCollapsed,
+          isCollapsed: isAloneToggle,
           top:
             sidebar.header == null && ownToggle === null ? null : (
               <div css={ownSidebarStyles.top}>
-                <div css={ownSidebarStyles.header}>{sidebar.header}</div>
                 {ownToggle}
+                <div css={ownSidebarStyles.header}>{sidebar.header}</div>
               </div>
             ),
           bottom:
@@ -390,7 +407,11 @@ export function NavigationSplitView({
                   pageScroll={pageScroll}
                   isShown={!isAtStackRoot || fitsFullSidebar !== false}
                   close={closeOf(content.back)}
-                  expand={ownNav?.isCollapsed === true ? ownToggle : null}
+                  onUnderToggle={
+                    isAloneToggle && !hasDetailColumn && content.flush !== true
+                      ? setIsContentUnderToggle
+                      : null
+                  }
                   hasSidebar={hasSidebar}
                   besideFill={
                     isInTabView
@@ -446,17 +467,24 @@ export function NavigationSplitView({
 }
 
 const ownSidebarStyles = stylex.create({
-  // The `header` and, at its end, the button that collapses the sidebar.
+  // The button that collapses the sidebar, and after it the `header`. The
+  // button is at the top of the line, whatever the height of the `header`, so
+  // that the content can keep clear of it while the sidebar is collapsed.
   top: {
     display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
+    alignItems: "flex-start",
     gap: rhythm.tight,
     minInlineSize: 0,
     marginBlockEnd: rhythm.item,
   },
+  // A `header` of one line is on the centre line of the button.
   header: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    flexGrow: 1,
     minInlineSize: 0,
+    minBlockSize: controlHeight.sm,
   },
   // The button shows only where the sidebar shows beside the content.
   toggle: {
@@ -464,6 +492,10 @@ const ownSidebarStyles = stylex.create({
       default: "none",
       [splitViewQueries.contentBesideSidebar]: "inline-flex",
     },
+  },
+  // In a collapsed sidebar, which is hidden, only the button shows.
+  alone: {
+    visibility: "visible",
   },
   bottom: {
     marginBlockStart: "auto",

@@ -43,11 +43,17 @@ export function SidebarColumns({
   sticks: boolean;
 }) {
   const isCollapsed = nav !== null && nav.isCollapsed;
+  // In a `TabView`, the rail of that view takes the place of a collapsed
+  // sidebar. Outside one, a collapsed sidebar keeps its place and its `header`,
+  // and shows only its button.
+  const isButtonOnly = isCollapsed && !isInTabView;
   // In a `TabView`, the list stays beside a detail where all of them fit, and
   // the rail of that view holds the destinations where they do not.
   const staysBesideDetail = hasDetailColumn && isInTabView;
   const carriesNav =
-    nav !== null && !isCollapsed && (!hasDetailColumn || isInTabView);
+    nav !== null &&
+    (!isCollapsed || isButtonOnly) &&
+    (!hasDetailColumn || isInTabView);
   // Outside a `TabView`, the `header` is the sidebar's own, and it shows above
   // the list also where the list is a page.
   const ownsHeader = carriesNav && !isInTabView && nav.top != null;
@@ -130,6 +136,12 @@ export function SidebarColumns({
           (showsStackRoot
             ? sidebarStyles.sticksAtRoot
             : sidebarStyles.sticksUnder),
+        isButtonOnly && [
+          sidebarStyles.buttonOnly,
+          showsStackRoot
+            ? sidebarStyles.buttonOnlyAtRoot
+            : sidebarStyles.buttonOnlyUnder,
+        ],
       ]}
       cornersCss={isInTabView ? cornerStyles.pageBesideRail : undefined}
       contentCss={[
@@ -142,7 +154,7 @@ export function SidebarColumns({
       awayCss={[
         staysBesideDetail && sidebarStyles.awayBesideDetail,
         hasDetailColumn && !isInTabView && sidebarStyles.awayBesideDetailAlways,
-        isCollapsed && sidebarStyles.awayWhileCollapsed,
+        isCollapsed && isInTabView && sidebarStyles.awayWhileCollapsed,
       ]}
     />
   );
