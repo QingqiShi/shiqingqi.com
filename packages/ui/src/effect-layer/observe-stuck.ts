@@ -2,6 +2,7 @@ import type { Edges } from "./observe-move.ts";
 import {
   readInset,
   readInsets,
+  scaleOf,
   scrollerPadding,
   stickyViewOf,
   type Insets,
@@ -34,15 +35,17 @@ function stuckDistance(
   if (rect.width <= 0 || rect.height <= 0) {
     return Infinity;
   }
-  const from = (inset: string, gap: number) => {
+  // A transform that scales the box scales each gap too, but not the offset.
+  const scale = scaleOf(box, rect);
+  const from = (inset: string, gap: number, factor: number) => {
     const offset = readInset(inset);
-    return offset === null ? Infinity : Math.abs(gap - offset);
+    return offset === null ? Infinity : Math.abs(gap / factor - offset);
   };
   return Math.min(
-    from(insets.top, rect.top - scrollport.top),
-    from(insets.bottom, scrollport.bottom - rect.bottom),
-    from(insets.left, rect.left - scrollport.left),
-    from(insets.right, scrollport.right - rect.right),
+    from(insets.top, rect.top - scrollport.top, scale.y),
+    from(insets.bottom, scrollport.bottom - rect.bottom, scale.y),
+    from(insets.left, rect.left - scrollport.left, scale.x),
+    from(insets.right, scrollport.right - rect.right, scale.x),
   );
 }
 

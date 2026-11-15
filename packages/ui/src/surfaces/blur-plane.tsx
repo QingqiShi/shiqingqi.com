@@ -3,10 +3,16 @@
 import * as stylex from "@stylexjs/stylex";
 import { use } from "react";
 import { layer } from "../tokens.stylex.ts";
+import type { StyleProp } from "../types.ts";
 import { BlurPlaneContext, BlurPlaneProvider } from "./blur-plane-provider.tsx";
 
 /** @internal */
 export { BlurPlaneContext, BlurPlaneProvider };
+
+interface BlurPlaneProps {
+  /** StyleX styles merged over the plane's own. */
+  css?: StyleProp;
+}
 
 /**
  * The page's Blur plane: the one plane every floating control's progressive
@@ -17,10 +23,10 @@ export { BlurPlaneContext, BlurPlaneProvider };
  *
  * @internal
  */
-export function BlurPlane() {
+export function BlurPlane({ css }: BlurPlaneProps) {
   const setNode = use(BlurPlaneContext)?.setNode;
 
-  return <div ref={setNode} aria-hidden="true" css={styles.plane} />;
+  return <div ref={setNode} aria-hidden="true" css={[styles.plane, css]} />;
 }
 
 const styles = stylex.create({

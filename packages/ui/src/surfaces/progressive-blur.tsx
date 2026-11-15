@@ -11,6 +11,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { color } from "../color.stylex.ts";
+import { observeMove, type MoveWatch } from "../effect-layer/observe-move.ts";
 import { useIsHydrated } from "../hooks/use-is-hydrated.ts";
 import {
   duration,
@@ -213,6 +214,48 @@ export function ProgressiveBlur({
       followElement();
     });
   }, [reach, isShown]);
+
+  // The box can move with no scroll and no resize: an ancestor that holds it
+  // while a transform plays, such as a sheet that opens, lets it go when the
+  // transform ends. So the box is watched where it stands while it shows.
+  useLayoutEffect(() => {
+    if (
+      reach === undefined ||
+      !isShown ||
+      boxSize === null ||
+      typeof IntersectionObserver === "undefined"
+    ) {
+      return;
+    }
+
+    let watch: MoveWatch | null = null;
+    const arm = () => {
+      const box = layersRef.current?.lastElementChild;
+      if (!box) return;
+      const root = document.documentElement;
+      const area = {
+        rect: box.getBoundingClientRect(),
+        rootElement: null,
+        root: {
+          left: 0,
+          top: 0,
+          right: root.clientWidth,
+          bottom: root.clientHeight,
+        },
+      };
+      if (watch?.covers(area) === true) return;
+      watch?.disconnect();
+      watch = observeMove(box, area, () => {
+        followElement();
+        arm();
+      });
+    };
+    arm();
+
+    return () => {
+      watch?.disconnect();
+    };
+  }, [reach, isShown, boxSize]);
 
   const layers = buildBlurLayers({
     geometry: hasReach ? reachGeometry(reach, boxSize) : geometry,

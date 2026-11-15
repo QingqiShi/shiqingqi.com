@@ -64,4 +64,38 @@ describe("watchStuck", () => {
     expect(watch.isStuck()).toBe(true);
     watch.disconnect();
   });
+
+  it("reads a box as stuck while a transform scales its scroller", () => {
+    stubObservers();
+    const scroller = document.createElement("div");
+    const box = document.createElement("div");
+    box.style.position = "sticky";
+    box.style.bottom = "10px";
+    scroller.append(box);
+    document.body.append(scroller);
+    const layoutSize = (
+      element: HTMLElement,
+      width: number,
+      height: number,
+    ) => {
+      for (const [name, value] of [
+        ["offsetWidth", width],
+        ["offsetHeight", height],
+        ["clientWidth", width],
+        ["clientHeight", height],
+      ] as const) {
+        Object.defineProperty(element, name, { value });
+      }
+    };
+    // A scale of one half, as while a sheet opens.
+    layoutSize(scroller, 300, 400);
+    layOut(scroller, { x: 0, y: 0, width: 150, height: 200 });
+    layoutSize(box, SIZE.width, SIZE.height);
+    layOut(box, { x: 0, y: 171, width: 150, height: 24 });
+
+    const watch = watchStuck(box, () => {}, scroller);
+
+    expect(watch.isStuck()).toBe(true);
+    watch.disconnect();
+  });
 });

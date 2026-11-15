@@ -16,6 +16,7 @@ import { mergeRefs } from "../merge-refs.ts";
 import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import { useFlowBlock } from "../motion/use-flow-block.tsx";
 import { corner } from "../primitives/corner.stylex.ts";
+import { BlurPlane, BlurPlaneProvider } from "./blur-plane.tsx";
 import { lockPageScroll } from "./lock-page-scroll.ts";
 import { SheetRecedeContext } from "./sheet-recede-context.ts";
 import { styles } from "./sheet.stylex.ts";
@@ -179,89 +180,94 @@ export function SheetFrame({
             movingMarker,
           ]}
         >
-          {/* A lift clips the card to a window with these boxes. */}
-          <div ref={outerClipRef} css={styles.clip}>
-            <div ref={middleClipRef} css={styles.clip}>
-              <div ref={innerClipRef} css={styles.clip}>
-                {/* forwardProps makes RemoveScroll clone its child and
+          <BlurPlaneProvider>
+            <BlurPlane css={styles.blurPlane} />
+            {/* A lift clips the card to a window with these boxes. */}
+            <div ref={outerClipRef} css={styles.clip}>
+              <div ref={middleClipRef} css={styles.clip}>
+                <div ref={innerClipRef} css={styles.clip}>
+                  {/* forwardProps makes RemoveScroll clone its child and
                     inject its own ref, which would clobber a ref placed
                     directly on the card. Passing the ref through RemoveScroll
                     keeps `cardRef` working for focus and the Tab trap. */}
-                <RemoveScroll
-                  ref={cardMergedRef}
-                  allowPinchZoom
-                  forwardProps
-                  removeScrollBar={false}
-                  enabled={isLocked}
-                >
-                  <div
-                    css={[
-                      corner.radius_4,
-                      styles.card,
-                      isContained
-                        ? styles.cardContained
-                        : styles.cardFit(visibleHeight),
-                    ]}
-                    role="dialog"
-                    aria-modal="true"
-                    aria-label={ariaLabel}
-                    aria-labelledby={
-                      title === undefined ? ariaLabelledBy : titleId
-                    }
-                    {...dragHandlers}
+                  <RemoveScroll
+                    ref={cardMergedRef}
+                    allowPinchZoom
+                    forwardProps
+                    removeScrollBar={false}
+                    enabled={isLocked}
                   >
-                    <EffectContainer value={container}>
-                      <div
-                        ref={grabberRef}
-                        css={styles.grabber}
-                        aria-hidden="true"
-                      >
-                        <span css={[corner.radius_round, styles.grabberBar]} />
-                      </div>
-                      {/* `Button` sets its own `position: relative` for its busy
+                    <div
+                      css={[
+                        corner.radius_4,
+                        styles.card,
+                        isContained
+                          ? styles.cardContained
+                          : styles.cardFit(visibleHeight),
+                      ]}
+                      role="dialog"
+                      aria-modal="true"
+                      aria-label={ariaLabel}
+                      aria-labelledby={
+                        title === undefined ? ariaLabelledBy : titleId
+                      }
+                      {...dragHandlers}
+                    >
+                      <EffectContainer value={container}>
+                        <div
+                          ref={grabberRef}
+                          css={styles.grabber}
+                          aria-hidden="true"
+                        >
+                          <span
+                            css={[corner.radius_round, styles.grabberBar]}
+                          />
+                        </div>
+                        {/* `Button` sets its own `position: relative` for its busy
                           spinner, which a caller's `position: absolute` can't
                           reliably outrank. Pin the corner from this wrapper
                           instead. */}
-                      <div ref={closeCornerRef} css={styles.closeCorner}>
-                        <Button
-                          look="ghost"
-                          icon={closeIcon ?? <XIcon weight="bold" />}
-                          aria-label={closeLabel}
-                          onClick={onDismiss}
-                        />
-                      </div>
-                      <div
-                        ref={mergeRefs(scrollerRef, scroller)}
-                        css={[
-                          styles.scroller,
-                          title !== undefined && styles.scrollerTitled,
-                        ]}
-                      >
-                        <div ref={content} css={styles.content}>
-                          <EffectCarrier value={region}>
-                            {title !== undefined ? (
-                              <Heading
-                                level={2}
-                                look="h3"
-                                id={titleId}
-                                css={styles.title}
-                              >
-                                {title}
-                              </Heading>
-                            ) : null}
-                            <SheetRecedeContext value={null}>
-                              {children}
-                            </SheetRecedeContext>
-                          </EffectCarrier>
+                        <div ref={closeCornerRef} css={styles.closeCorner}>
+                          <Button
+                            look="ghost"
+                            icon={closeIcon ?? <XIcon weight="bold" />}
+                            aria-label={closeLabel}
+                            onClick={onDismiss}
+                          />
                         </div>
-                      </div>
-                    </EffectContainer>
-                    {skin}
-                  </div>
-                </RemoveScroll>
+                        <div
+                          ref={mergeRefs(scrollerRef, scroller)}
+                          css={[
+                            styles.scroller,
+                            title !== undefined && styles.scrollerTitled,
+                          ]}
+                        >
+                          <div ref={content} css={styles.content}>
+                            <EffectCarrier value={region}>
+                              {title !== undefined ? (
+                                <Heading
+                                  level={2}
+                                  look="h3"
+                                  id={titleId}
+                                  css={styles.title}
+                                >
+                                  {title}
+                                </Heading>
+                              ) : null}
+                              <SheetRecedeContext value={null}>
+                                {children}
+                              </SheetRecedeContext>
+                            </EffectCarrier>
+                          </div>
+                        </div>
+                      </EffectContainer>
+                      {skin}
+                    </div>
+                  </RemoveScroll>
+                </div>
               </div>
             </div>
-          </div>
+          </BlurPlaneProvider>
         </div>
       </div>
     </>

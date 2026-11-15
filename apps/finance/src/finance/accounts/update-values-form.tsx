@@ -9,12 +9,13 @@ import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
 import { Select } from "@tuja/ui/components/select";
+import { StickyControls } from "@tuja/ui/components/sticky-controls";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, layer, rhythm } from "@tuja/ui/tokens.stylex";
+import { font, rhythm } from "@tuja/ui/tokens.stylex";
 import { usePathname, useRouter } from "next/navigation";
 import {
   useEffect,
@@ -368,7 +369,7 @@ export function UpdateValuesForm() {
           }}
         />
       ) : null}
-      <div css={[stack.item, styles.actions]}>
+      <StickyControls css={[stack.item, styles.actions]}>
         {reviewing ? (
           <Callout
             intent="warning"
@@ -407,7 +408,7 @@ export function UpdateValuesForm() {
                 : `${t({ en: "Save all", zh: "全部保存" })} (${new Intl.NumberFormat(locale).format(changed)})`}
           </Button>
         </FloatingActions>
-      </div>
+      </StickyControls>
     </form>
   );
 }
@@ -469,8 +470,7 @@ const styles = stylex.create({
     gridArea: "remove",
   },
   actions: {
-    position: "sticky",
+    insetBlockStart: "auto",
     insetBlockEnd: floatingActionTokens.insetBlockEnd,
-    zIndex: layer.raised,
   },
 });

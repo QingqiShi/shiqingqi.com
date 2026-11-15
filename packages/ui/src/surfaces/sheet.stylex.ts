@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { color } from "../color.stylex.ts";
 import {
+  border,
   controlSize,
   layer,
   rhythm,
@@ -147,6 +148,21 @@ export const styles = stylex.create({
       [breakpoints.md]: `calc(${visibleHeight} - 2 * ${space._8})`,
     },
   }),
+  // The card's own Blur plane, as large as the card. It holds the fixed box
+  // of each progressive blur in the content, and clips it to the card. It is
+  // not in the card, and its corners are round: Chromium drops the masks of
+  // the blur under a squircle clip. A round corner is inside the squircle
+  // corner of the card.
+  blurPlane: {
+    insetInlineEnd: 0,
+    insetBlockEnd: 0,
+    inlineSize: "auto",
+    blockSize: "auto",
+    contain: "layout",
+    overflow: "clip",
+    borderRadius: border.radius_4,
+    cornerShape: "round",
+  },
   grabber: {
     position: "absolute",
     insetBlockStart: 0,
