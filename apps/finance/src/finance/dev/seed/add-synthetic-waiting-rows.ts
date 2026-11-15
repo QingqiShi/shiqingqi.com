@@ -20,7 +20,8 @@ const REVIEW_ROWS = [
     pounds: -86,
     category: "household",
     payee: null,
-    reason: "No past transactions from this company. The category is a guess.",
+    reason:
+      "Unsure of the kind: expense 59%, transfer 41%; Unsure of the category: Home > Household 47%, Bills > Utilities 31%",
   },
   {
     account: "mastercard",
@@ -44,10 +45,18 @@ const REVIEW_ROWS = [
     pounds: -31.45,
     category: "grocery",
     payee: "Tesco",
-    reason:
-      "Tesco is usually groceries, but this card is mostly used for travel.",
+    reason: "Unsure of the category: Food > Groceries 55%, Food > Takeaway 33%",
   },
 ] as const;
+
+/** A transfer the labeller was unsure of: which account the money went to. */
+const REVIEW_TRANSFER = {
+  from: "alexCurrent",
+  to: "savings",
+  text: "ROUND UP TO SAVINGS",
+  pounds: 0.85,
+  reason: "Unsure of the other side: Rainy Day Savings 55%, Sam Current 38%",
+} as const;
 
 const EXPECTED_ROWS = [
   { account: "alexCurrent", payee: "Smile Dental", pounds: 85, inDays: 3 },
@@ -91,6 +100,27 @@ export function addSyntheticWaitingRows(
       entries: [{ account: row.account, amountMinor }],
     });
   }
+  add({
+    kind: "transfer",
+    date: randomDay(reviewFrom, today),
+    categoryId: null,
+    memberId: memberOf(accountSpec(REVIEW_TRANSFER.from).owner),
+    note: REVIEW_TRANSFER.text,
+    source: "bank",
+    needsReview: true,
+    labelledBy: "ai",
+    aiReason: REVIEW_TRANSFER.reason,
+    entries: [
+      {
+        account: REVIEW_TRANSFER.from,
+        amountMinor: -minorOf(REVIEW_TRANSFER.pounds),
+      },
+      {
+        account: REVIEW_TRANSFER.to,
+        amountMinor: minorOf(REVIEW_TRANSFER.pounds),
+      },
+    ],
+  });
   for (const row of EXPECTED_ROWS) {
     const payee = payeeByName.get(row.payee);
     if (!payee) throw new Error(`Unknown synthetic payee ${row.payee}`);

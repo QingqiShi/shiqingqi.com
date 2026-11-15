@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
@@ -9,6 +10,7 @@ import { Select } from "@tuja/ui/components/select";
 import { Text } from "@tuja/ui/components/text";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { createContext, type MouseEvent, use } from "react";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
@@ -19,12 +21,12 @@ import type {
 } from "../sync/row-schemas.ts";
 import { countedLine } from "./counted-line.ts";
 import { isInReview } from "./is-in-review.ts";
-import { reviewReason, type ReviewReason } from "./review-reason.ts";
+import { ReviewHint } from "./review-hint.tsx";
+import { reviewReason } from "./review-reason.ts";
 import type { TransactionLookups } from "./select-transaction-lookups.ts";
 import { shownAmount } from "./shown-amount.ts";
 import { hasMetaLine, TransactionMetaLine } from "./transaction-meta-line.tsx";
 import { useDescribeTransaction } from "./use-describe-transaction.ts";
-import { useReviewReasonText } from "./use-review-reason-text.ts";
 
 export interface TransactionRowActions {
   hrefFor: (id: string) => string;
@@ -51,15 +53,6 @@ interface TransactionListRowProps {
   reviewMode: boolean;
   categoriesOfKind: readonly CategoryRow[];
   actions: TransactionRowActions;
-}
-
-function ReviewReasonCaption({ reason }: { reason: ReviewReason }) {
-  const reasonText = useReviewReasonText();
-  return (
-    <Text as="span" look="caption" tone="muted">
-      {reasonText(reason)}
-    </Text>
-  );
 }
 
 const TransactionLinkContext = createContext<{
@@ -170,10 +163,79 @@ export function TransactionListRow({
   })();
   const isExpected = row.status === "expected";
   const inReview = isInReview(row, entries, lookups.accountById, today);
+  const reviewing = reviewMode && inReview;
   const showReviewBadge = inReview && !reviewMode;
-  const reason =
-    reviewMode && inReview ? reviewReason(row, entries, lookups) : null;
+  const reason = reviewing ? reviewReason(row, entries, lookups) : null;
   const metaLine = { meta, isExpected, showReviewBadge, isPending };
+
+  const expectedActions = isExpected ? (
+    <div css={cluster.tight}>
+      <Button
+        size="sm"
+        onClick={() => {
+          actions.onConfirm(row);
+        }}
+      >
+        {t({ en: "Confirm", zh: "确认" })}
+      </Button>
+      <Button
+        size="sm"
+        look="ghost"
+        onClick={() => {
+          actions.onSkip(row);
+        }}
+      >
+        {t({ en: "Skip", zh: "跳过" })}
+      </Button>
+    </div>
+  ) : null;
+
+  // Every row in Review gets an answer in place: a Category and "Looks
+  // right", "Looks right" alone for a transfer, or a way to the account
+  // that a transfer on In transit still needs.
+  const reviewActions = reviewing ? (
+    <div css={[cluster.tight, styles.reviewActions]}>
+      {isTransfer ? null : (
+        <Select
+          size="sm"
+          label={t({ en: "Category", zh: "分类" })}
+          labelHidden
+          value={row.categoryId ?? ""}
+          options={categoriesOfKind.map((option) => ({
+            value: option.id,
+            label: categoryName(option),
+          }))}
+          onChange={(event) => {
+            if (event.target.value !== "") {
+              actions.onRecategorise(row, event.target.value);
+            }
+          }}
+          css={styles.select}
+        />
+      )}
+      {reason?.type === "inTransit" ? (
+        <Button
+          size="sm"
+          icon={<ArrowRightIcon weight="bold" />}
+          onClick={() => {
+            actions.onOpen(row.id);
+          }}
+        >
+          {t({ en: "Choose account", zh: "选择账户" })}
+        </Button>
+      ) : (
+        <Button
+          size="sm"
+          icon={<CheckIcon weight="bold" />}
+          onClick={() => {
+            actions.onLooksRight(row);
+          }}
+        >
+          {t({ en: "Looks right", zh: "没问题" })}
+        </Button>
+      )}
+    </div>
+  ) : null;
 
   return (
     <div data-transaction-row={row.id} css={typeModifier.verbatim}>
@@ -183,19 +245,14 @@ export function TransactionListRow({
           linkComponent={TransactionLink}
           aria-current={isSelected ? "true" : undefined}
           caret={false}
-          columns
+          // A row in Review stacks its lines, so that the name and the amount
+          // lead and the reason and the answer share one line under them.
+          columns={!reviewMode}
           leading={icon}
           leadingShape="circle"
           detail={subtitle}
           extra={
-            reason === null && !hasMetaLine(metaLine) ? null : (
-              <>
-                {reason === null ? null : (
-                  <ReviewReasonCaption reason={reason} />
-                )}
-                <TransactionMetaLine {...metaLine} />
-              </>
-            )
+            hasMetaLine(metaLine) ? <TransactionMetaLine {...metaLine} /> : null
           }
           value={
             isExpected ? (
@@ -208,60 +265,15 @@ export function TransactionListRow({
           }
           valueDetail={countedText}
           below={
-            isExpected || (reviewMode && inReview && !isTransfer) ? (
-              <>
-                {isExpected ? (
-                  <div css={cluster.tight}>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        actions.onConfirm(row);
-                      }}
-                    >
-                      {t({ en: "Confirm", zh: "确认" })}
-                    </Button>
-                    <Button
-                      size="sm"
-                      look="ghost"
-                      onClick={() => {
-                        actions.onSkip(row);
-                      }}
-                    >
-                      {t({ en: "Skip", zh: "跳过" })}
-                    </Button>
-                  </div>
-                ) : null}
-                {reviewMode && inReview && !isTransfer ? (
-                  <div css={cluster.tight}>
-                    <Select
-                      size="sm"
-                      label={t({ en: "Category", zh: "分类" })}
-                      labelHidden
-                      value={row.categoryId ?? ""}
-                      options={categoriesOfKind.map((option) => ({
-                        value: option.id,
-                        label: categoryName(option),
-                      }))}
-                      onChange={(event) => {
-                        if (event.target.value !== "") {
-                          actions.onRecategorise(row, event.target.value);
-                        }
-                      }}
-                      css={styles.select}
-                    />
-                    <Button
-                      size="sm"
-                      icon={<CheckIcon weight="bold" />}
-                      onClick={() => {
-                        actions.onLooksRight(row);
-                      }}
-                    >
-                      {t({ en: "Looks right", zh: "没问题" })}
-                    </Button>
-                  </div>
-                ) : null}
-              </>
-            ) : null
+            reviewActions ? (
+              <div css={[cluster.item, styles.reviewBar]}>
+                {reason === null ? null : <ReviewHint reason={reason} />}
+                {expectedActions}
+                {reviewActions}
+              </div>
+            ) : (
+              expectedActions
+            )
           }
         >
           {title}
@@ -274,5 +286,17 @@ export function TransactionListRow({
 const styles = stylex.create({
   select: {
     maxInlineSize: "12rem",
+  },
+  // The reason on the start and the answer on the end, as wide as the row,
+  // so the buttons of every row line up under the amounts. Where both do not
+  // fit, the answer wraps under the reason.
+  reviewBar: {
+    justifySelf: "stretch",
+    justifyContent: "space-between",
+    rowGap: rhythm.tight,
+  },
+  reviewActions: {
+    flexWrap: "nowrap",
+    marginInlineStart: "auto",
   },
 });
