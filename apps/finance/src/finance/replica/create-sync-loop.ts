@@ -22,7 +22,7 @@ import type { SyncStatus } from "./types.ts";
 const SYNC_ENDPOINT = "/api/sync";
 const PUSH_BATCH = 500;
 const BACKOFF_START_MS = 1_000;
-const PULL_INTERVAL_MS = 60_000;
+export const PULL_INTERVAL_MS = 60_000;
 
 interface SyncLoopOptions {
   store: ReplicaStore;
@@ -374,6 +374,11 @@ export function createSyncLoop(options: SyncLoopOptions) {
       syncStatus.noteNewerTab(newerRowShape);
       stop();
       setStatus({});
+    },
+
+    /** Shows the last sync that the Replica on disk recorded, after a load or a reload. */
+    showStoredSync() {
+      setStatus({ lastSyncedAt: store.getMeta().lastSyncedAt });
     },
 
     /** Shows the status a leader tab sent, in a tab that does not sync. */
