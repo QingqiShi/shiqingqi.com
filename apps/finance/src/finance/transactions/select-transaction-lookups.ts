@@ -11,7 +11,7 @@ import type {
 export interface TransactionLookups {
   /** Every account, deleted ones too, so an old Transaction still names its account. */
   accountById: ReadonlyMap<string, AccountRow>;
-  /** A name that tells accounts apart: the name, then the institution or the owner when names repeat. */
+  /** A name that tells accounts apart: the name, with the institution or the owner when names repeat, and both only when neither is enough. */
   accountLabelById: ReadonlyMap<string, string>;
   categoryById: ReadonlyMap<string, CategoryRow>;
   /** The Category's emoji, else its parent's. */
@@ -47,18 +47,24 @@ function accountLabels(
     const owner = account.ownerMemberId
       ? members.get(account.ownerMemberId)?.name
       : undefined;
-    const institutionTells = sameName.every(
-      (other) =>
-        other.id === account.id ||
-        other.institution.trim() !== account.institution.trim(),
+    const institution = account.institution.trim();
+    const others = sameName.filter((other) => other.id !== account.id);
+    const institutionTells = others.every(
+      (other) => other.institution.trim() !== institution,
     );
+    const ownerTells = others.every(
+      (other) => other.ownerMemberId !== account.ownerMemberId,
+    );
+    const nameHoldsInstitution = account.name
+      .toLocaleLowerCase()
+      .includes(institution.toLocaleLowerCase());
     const parts = [account.name];
-    if (account.institution.trim() !== "" && institutionTells) {
-      parts.push(account.institution.trim());
+    if (institution !== "" && institutionTells) {
+      parts.push(institution);
     } else {
       if (owner) parts.unshift(owner);
-      if (account.institution.trim() !== "") {
-        parts.push(account.institution.trim());
+      if (institution !== "" && !ownerTells && !nameHoldsInstitution) {
+        parts.push(institution);
       }
     }
     labels.set(account.id, parts.join(" · "));

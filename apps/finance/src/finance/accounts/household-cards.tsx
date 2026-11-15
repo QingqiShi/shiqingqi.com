@@ -24,6 +24,7 @@ import { useReplica } from "../replica/use-replica.ts";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import type { AccountRow } from "../sync/row-schemas.ts";
 import type { selectQueueCounts } from "../transactions/select-queue-counts.ts";
+import { useTransactionLookups } from "../transactions/use-transaction-lookups.ts";
 import { BankBalanceSummary } from "./bank-balance-notice.tsx";
 import type { WeekMover } from "./build-week-movers.ts";
 import { householdLayout } from "./household-layout.stylex.ts";
@@ -94,6 +95,7 @@ function WhatMoved({
   cardRef: Ref<HTMLDivElement>;
 }) {
   const accountName = useAccountDisplayName();
+  const { accountLabelById } = useTransactionLookups();
   const largest = movers.reduce(
     (most, mover) => Math.max(most, Math.abs(mover.changeMinor)),
     0,
@@ -145,7 +147,8 @@ function WhatMoved({
                     verbatim
                     css={styles.moverName}
                   >
-                    {accountName(mover.account)}
+                    {accountLabelById.get(mover.account.id) ??
+                      accountName(mover.account)}
                   </Text>
                   <span aria-hidden css={[corner.radius_round, styles.track]}>
                     <span css={styles.axis} />

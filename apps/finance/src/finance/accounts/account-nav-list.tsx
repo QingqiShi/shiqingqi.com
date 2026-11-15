@@ -17,6 +17,7 @@ import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { useState } from "react";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
+import { useTransactionLookups } from "../transactions/use-transaction-lookups.ts";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
 import type { NetWorthUrl } from "./use-net-worth-url.ts";
 
@@ -41,6 +42,7 @@ export function AccountNavList({
 }: AccountNavListProps) {
   const locale = useLocale();
   const accountName = useAccountDisplayName();
+  const { accountLabelById } = useTransactionLookups();
   const [showHidden, setShowHidden] = useState(false);
   const hiddenCount = sheet.sections.reduce(
     (count, section) =>
@@ -91,7 +93,8 @@ export function AccountNavList({
                   )}
                 >
                   <span css={[typeModifier.verbatim, styles.name]}>
-                    {accountName(line.account)}
+                    {accountLabelById.get(line.account.id) ??
+                      accountName(line.account)}
                   </span>
                 </NavLink>
               ))}
