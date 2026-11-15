@@ -4,7 +4,8 @@ type TabMessage =
   | { type: "replica-changed" }
   | { type: "outbox-changed" }
   | { type: "status"; status: SyncStatus }
-  | { type: "sync-requested" };
+  | { type: "sync-requested" }
+  | { type: "status-requested" };
 
 type WireMessage = TabMessage | { type: "hello" };
 

@@ -11,6 +11,8 @@ import {
   vi,
 } from "vitest";
 import type { FinanceSession } from "../auth/types.ts";
+import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
+import { seedTestHousehold } from "../db/testing/seed-test-household.ts";
 import { makeSyncHandlers } from "../sync/make-sync-handlers.ts";
 import { REPLICA_ROW_SHAPE } from "../sync/replica-row-shape.ts";
 import { createFinanceRuntime } from "./create-finance-runtime.ts";
@@ -151,5 +153,77 @@ describe("tabs that run code of different row shapes", () => {
     expect(older.requests()).toBe(0);
     expect(older.status().leader).toBe(false);
     expect(newer.status().leader).toBe(true);
+  });
+});
+
+describe("a tab that opens beside the tab that syncs", () => {
+  let db: TestDb;
+
+  afterEach(async () => {
+    await db.close();
+  });
+
+  // The second tab showed "Not synced yet" until the first tab synced again,
+  // which a hidden first tab never did.
+  it("shows the last sync of the leader without waiting for the next one", async () => {
+    db = await createTestDb();
+    const home = await seedTestHousehold(db);
+    householdId = home.householdId;
+    const session: FinanceSession = {
+      sessionId: randomUUID(),
+      userId: randomUUID(),
+      householdId,
+      memberId: home.memberId,
+      role: "owner",
+      readOnly: false,
+    };
+    const handlers = makeSyncHandlers({
+      isConfigured: () => true,
+      getDb: () => db,
+      getSession: () => Promise.resolve(session),
+      now: () => new Date(),
+      rowShape: REPLICA_ROW_SHAPE,
+    });
+    const persistence = createMemoryPersistence();
+    const openSyncedTab = async () => {
+      const runtime = createFinanceRuntime({
+        householdId,
+        onUnauthorised: () => undefined,
+        persistence,
+        fetch: (input, init) => {
+          const url = new URL(
+            input instanceof Request ? input.url : input,
+            "https://qingqi.dev",
+          );
+          if (url.pathname !== "/api/sync") {
+            return Promise.resolve(new Response("", { status: 500 }));
+          }
+          const headers = new Headers(init?.headers);
+          headers.set("Origin", url.origin);
+          const request = new Request(url, { ...init, headers });
+          return request.method === "POST"
+            ? handlers.POST(request)
+            : handlers.GET(request);
+        },
+      });
+      runtimes.push(runtime);
+      await runtime.start();
+      return runtime;
+    };
+
+    const first = await openSyncedTab();
+    await vi.waitFor(() => {
+      expect(first.loop.getStatus().lastSyncedAt).not.toBeNull();
+    });
+    await first.store.flush();
+
+    const second = await openSyncedTab();
+
+    await vi.waitFor(() => {
+      expect(second.loop.getStatus()).toMatchObject({
+        leader: false,
+        lastSyncedAt: first.loop.getStatus().lastSyncedAt,
+      });
+    });
   });
 });

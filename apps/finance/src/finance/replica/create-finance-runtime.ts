@@ -2,12 +2,12 @@ import { REPLICA_ROW_SHAPE } from "../sync/replica-row-shape.ts";
 import { coordinateTabs } from "./coordinate-tabs.ts";
 import { createMemoryPersistence } from "./create-memory-persistence.ts";
 import { createReplicaStore } from "./create-replica-store.ts";
-import { createSyncLoop } from "./create-sync-loop.ts";
+import { createSyncLoop, PULL_INTERVAL_MS } from "./create-sync-loop.ts";
 import { guardUnsavedOutbox } from "./guard-unsaved-outbox.ts";
 import { openReplicaDb } from "./open-replica-db.ts";
 import { reloadForRowShape } from "./reload-for-row-shape.ts";
 import { reloadPage } from "./reload-page.ts";
-import type { ReplicaPersistence } from "./types.ts";
+import type { ReplicaPersistence, SyncStatus } from "./types.ts";
 
 interface FinanceRuntimeOptions {
   householdId: string;
@@ -51,6 +51,36 @@ function fallbackPersistence(primary: ReplicaPersistence | null) {
     },
   };
   return { persistence, inMemory: () => inMemory };
+}
+
+/**
+ * The sync triggers of a tab that does not lead: the tab showing, focus, and
+ * every 60 s while it is visible and the last sync is at least that old. The
+ * leader does not start a sync by itself while it is hidden, so without these
+ * a visible tab beside a hidden leader gets no new data.
+ */
+function followerTriggers(
+  requestSync: () => void,
+  getStatus: () => SyncStatus,
+) {
+  const onTrigger = () => {
+    if (document.visibilityState === "visible") requestSync();
+  };
+  const interval = setInterval(() => {
+    const { problem, lastSyncedAt } = getStatus();
+    if (problem === "outdated") return;
+    const age = lastSyncedAt
+      ? Date.now() - new Date(lastSyncedAt).getTime()
+      : Infinity;
+    if (age >= PULL_INTERVAL_MS) onTrigger();
+  }, PULL_INTERVAL_MS);
+  window.addEventListener("focus", onTrigger);
+  document.addEventListener("visibilitychange", onTrigger);
+  return () => {
+    clearInterval(interval);
+    window.removeEventListener("focus", onTrigger);
+    document.removeEventListener("visibilitychange", onTrigger);
+  };
 }
 
 /**
@@ -136,6 +166,7 @@ export function createFinanceRuntime(options: FinanceRuntimeOptions) {
       loading ??= store.load();
       await loading;
       if (current !== session) return;
+      loop.showStoredSync();
       const tabs = coordinateTabs({
         // A tab that keeps its Replica in memory cannot share it with another
         // tab: it reloads only from its own store, and no other tab can read
@@ -154,13 +185,17 @@ export function createFinanceRuntime(options: FinanceRuntimeOptions) {
         },
         onMessage: (message) => {
           if (message.type === "replica-changed" && !leader) {
-            void store.reload();
+            void store.reload().then(() => {
+              if (!leader) loop.showStoredSync();
+            });
           } else if (message.type === "outbox-changed" && leader) {
             void store.mergeOutboxFromDisk().then(() => loop.sync());
           } else if (message.type === "status" && !leader) {
             loop.followStatus(message.status);
           } else if (message.type === "sync-requested" && leader) {
             void loop.retryNow();
+          } else if (message.type === "status-requested" && leader) {
+            tabs.broadcast({ type: "status", status: loop.getStatus() });
           }
         },
       });
@@ -168,6 +203,12 @@ export function createFinanceRuntime(options: FinanceRuntimeOptions) {
         tabs.close();
       });
       cleanups.push(guardUnsavedOutbox(store, loop));
+      tabs.broadcast({ type: "status-requested" });
+      cleanups.push(
+        followerTriggers(() => {
+          if (!leader) tabs.broadcast({ type: "sync-requested" });
+        }, loop.getStatus),
+      );
       const onVisibilityChange = () => {
         if (document.visibilityState === "hidden") reloadIfSafe();
       };
