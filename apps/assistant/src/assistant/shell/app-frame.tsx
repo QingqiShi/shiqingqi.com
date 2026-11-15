@@ -13,6 +13,7 @@ import { Link, LinkStatus } from "@tuja/next-links/link";
 import { StatusDot } from "@tuja/ui/components/status-dot";
 import {
   TabView,
+  TabViewBrand,
   TabViewLink,
   type TabViewLinkProps,
 } from "@tuja/ui/components/tab-view";
@@ -35,8 +36,8 @@ function TabLink(props: TabViewLinkProps) {
 }
 
 /**
- * The frame of every signed-in page. From 34rem, the rail or the sidebar holds the
- * mark and the four destinations. Below 34rem, the tab bar holds the
+ * The frame of every signed-in page. From 34rem, the rail holds the mark and
+ * the sidebar the mark, name and tagline, each with the four destinations. Below 34rem, the tab bar holds the
  * destinations.
  */
 export function AppFrame({
@@ -108,9 +109,13 @@ export function AppFrame({
           <TabViewLink
             href={getLocalePath("/", locale)}
             aria-label={appName}
-            {...stylex.props(corner.radius_3, a11y.focusRing, styles.mark)}
+            {...stylex.props(corner.radius_3, a11y.focusRing, styles.brand)}
           >
-            <AssistantLogo css={styles.logo} />
+            <TabViewBrand
+              name={appName}
+              detail={t({ en: "Personal assistant", zh: "私人助理" })}
+              mark={<AssistantLogo css={styles.logo} />}
+            />
           </TabViewLink>
         }
         items={destinations.map((destination) => ({
@@ -134,8 +139,11 @@ export function AppFrame({
 }
 
 const styles = stylex.create({
-  mark: {
+  brand: {
     display: "inline-flex",
+    minInlineSize: 0,
+    color: "inherit",
+    textDecoration: "none",
   },
   logo: {
     inlineSize: controlSize._9,
