@@ -54,6 +54,10 @@ function ErrorText({ code }: { code: string }) {
       en: "The provider did not renew access. The next run tries again.",
       zh: "服务商没有续期授权，下次运行会再试。",
     }),
+    session_refused: t({
+      en: "The mail server turned the assistant away for now, though access is still valid. The next run tries again.",
+      zh: "授权仍然有效，但邮件服务器暂时拒绝了连接，下次运行会再试。",
+    }),
     not_configured: t({
       en: "This kind of mailbox is not set up on the server yet.",
       zh: "服务器还没有配置这类邮箱。",
