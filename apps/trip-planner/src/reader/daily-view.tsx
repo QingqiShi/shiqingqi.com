@@ -3,18 +3,15 @@
 import { Clock, MapPin } from "lucide-react";
 import { DayGlance } from "./day-glance";
 import { DayHeader } from "./day-header";
+import { dayHighlights } from "./day-highlights";
 import { DiningList } from "./dining-list";
 import { PlaceList } from "./place-list";
 import { presencesOnDay } from "./presences-on-day";
 import { Section } from "./section";
 import { StaySection } from "./stay-section";
 import { TipsSection } from "./tips-section";
-import { buildDayFeed } from "@/reader/day-feed/build-day-feed";
 import { DayFeed } from "@/reader/day-feed/day-feed";
-import { dayWideTips } from "@/reader/day-feed/day-wide-tips";
 import { momentDomId } from "@/reader/day-feed/moment-dom-id";
-import { untimedDining } from "@/reader/day-feed/untimed-dining";
-import { untimedPlaces } from "@/reader/day-feed/untimed-places";
 import { DayMap } from "@/reader/maps/day-map";
 import type { LiveWeather } from "@/reader/weather/types";
 import type { Day, Trip } from "@/trips/types";
@@ -22,24 +19,29 @@ import type { Day, Trip } from "@/trips/types";
 export function DailyView({
   trip,
   day,
+  dayIndex,
   isToday,
   liveWeather,
   onOpenDay,
 }: {
   trip: Trip;
   day: Day;
+  dayIndex: number;
   isToday: boolean;
   liveWeather?: LiveWeather;
   onOpenDay: (index: number) => void;
 }) {
-  const moments = buildDayFeed(day);
-  const jumpableTimes = new Set(moments.map((moment) => moment.time));
-  const extraDining = untimedDining(day);
-  const extraPlaces = untimedPlaces(day);
-  const generalTips = dayWideTips(day);
+  const highlights = dayHighlights(day);
+  const extraDining = day.dining;
+  const extraPlaces = day.places;
+  const generalTips = day.tips;
+  const sameAsDayId = day.stay.sameAs?.dayId;
+  const sameAsIndex = sameAsDayId
+    ? trip.days.findIndex((other) => other.id === sameAsDayId)
+    : -1;
 
-  const jumpToMoment = (time: string) => {
-    const target = document.getElementById(momentDomId(day.n, time));
+  const jumpToMoment = (momentId: string) => {
+    const target = document.getElementById(momentDomId(momentId));
     if (!target) return;
     target.scrollIntoView({ block: "start" });
   };
@@ -48,17 +50,14 @@ export function DailyView({
     <article className="space-y-6">
       <DayHeader
         day={day}
-        people={presencesOnDay(trip.partySchedule, day.n)}
+        dayNumber={dayIndex}
+        people={presencesOnDay(trip.people, day.id)}
         isToday={isToday}
         liveWeather={liveWeather}
       />
 
-      {day.anchors && day.anchors.length > 0 ? (
-        <DayGlance
-          anchors={day.anchors}
-          jumpableTimes={jumpableTimes}
-          onJump={jumpToMoment}
-        />
+      {highlights.length > 0 ? (
+        <DayGlance highlights={highlights} onJump={jumpToMoment} />
       ) : null}
 
       {generalTips.length > 0 ? (
@@ -68,7 +67,12 @@ export function DailyView({
       <DayMap day={day} />
 
       <Section icon={Clock} title="行程">
-        <DayFeed tripSlug={trip.slug} day={day} isToday={isToday} />
+        <DayFeed
+          tripSlug={trip.slug}
+          timeZone={trip.timeZone}
+          day={day}
+          isToday={isToday}
+        />
       </Section>
 
       {extraDining.length > 0 ? (
@@ -83,7 +87,11 @@ export function DailyView({
         </Section>
       ) : null}
 
-      <StaySection stay={day.stay} onOpenDay={onOpenDay} />
+      <StaySection
+        stay={day.stay}
+        sameAsIndex={sameAsIndex < 0 ? undefined : sameAsIndex}
+        onOpenDay={onOpenDay}
+      />
     </article>
   );
 }

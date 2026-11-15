@@ -1,73 +1,68 @@
-import { parseTimeToMinutes } from "./parse-time-to-minutes";
+import { momentMinutes, momentTimeLabel } from "./moment-time-label";
 import type {
   Checklist,
   Day,
   Flight,
   MapPlace,
+  Moment,
+  MomentItem,
   NavLeg,
   Restaurant,
   SignSheet,
-  TimelineItem,
   Tip,
 } from "@/trips/types";
 
-/** One time-slot of a day, gathering everything that happens around it. */
+type Item<T extends MomentItem["type"]> = Extract<MomentItem, { type: T }>;
+
+/** One time slot of a day, with what happens around it, grouped by kind. */
 export interface DayMoment {
+  id: string;
   time: string;
   minutes: number;
-  events: TimelineItem[];
-  nav: NavLeg[];
-  tips: Tip[];
-  dining: Restaurant[];
-  places: MapPlace[];
-  checklists: Checklist[];
-  signSheets: SignSheet[];
-  flights: Flight[];
+  text?: string;
+  flights: (Flight & { id: string })[];
+  checklists: (Checklist & { id: string })[];
+  signSheets: (SignSheet & { id: string })[];
+  nav: (NavLeg & { id: string })[];
+  dining: (Restaurant & { id: string })[];
+  places: (MapPlace & { id: string })[];
+  tips: (Tip & { id: string })[];
 }
 
-/**
- * Weave a day's parallel arrays into one chronological feed. Every timeline
- * step seeds a moment; nav legs, tips, dining, places and checklists that
- * carry a `time` slot into the matching moment (creating travel-only moments
- * where no timeline step shares the time). Moments are returned in time order.
- *
- * Items without a `time` are intentionally left out here — they are surfaced
- * separately (day-wide tips, fallback option lists) so nothing is dropped.
- */
+function ofType<T extends MomentItem["type"]>(moment: Moment, type: T) {
+  return moment.items.filter((item): item is Item<T> => item.type === type);
+}
+
+/** The moments of a day in time order. A moment that only marks a highlight
+ *  has nothing to show in the feed, so it is left out. */
 export function buildDayFeed(day: Day): DayMoment[] {
-  const moments = new Map<string, DayMoment>();
-  const at = (time: string) => {
-    const existing = moments.get(time);
-    if (existing) return existing;
-    const created: DayMoment = {
-      time,
-      minutes: parseTimeToMinutes(time),
-      events: [],
-      nav: [],
-      tips: [],
-      dining: [],
-      places: [],
-      checklists: [],
-      signSheets: [],
-      flights: [],
-    };
-    moments.set(time, created);
-    return created;
-  };
+  return day.moments
+    .filter((moment) => moment.text !== undefined || moment.items.length > 0)
+    .map((moment) => ({
+      id: moment.id,
+      time: momentTimeLabel(moment.time),
+      minutes: momentMinutes(moment.time),
+      text: moment.text,
+      flights: ofType(moment, "flight"),
+      checklists: ofType(moment, "checklist"),
+      signSheets: ofType(moment, "signSheet"),
+      nav: ofType(moment, "nav"),
+      dining: ofType(moment, "dining"),
+      places: ofType(moment, "place"),
+      tips: ofType(moment, "tip"),
+    }))
+    .sort((a, b) => a.minutes - b.minutes);
+}
 
-  // Timeline first so event-bearing moments keep priority on ties.
-  for (const event of day.timeline) at(event.time).events.push(event);
-  for (const flight of day.flights ?? [])
-    if (flight.time) at(flight.time).flights.push(flight);
-  for (const leg of day.nav ?? []) if (leg.time) at(leg.time).nav.push(leg);
-  for (const tip of day.tips ?? []) if (tip.time) at(tip.time).tips.push(tip);
-  for (const r of day.restaurants) if (r.time) at(r.time).dining.push(r);
-  for (const place of day.places)
-    if (place.time) at(place.time).places.push(place);
-  for (const list of day.checklists ?? [])
-    if (list.time) at(list.time).checklists.push(list);
-  for (const sheet of day.signSheets ?? [])
-    if (sheet.time) at(sheet.time).signSheets.push(sheet);
+/** Every nav leg of the day, in time order. */
+export function dayNavLegs(day: Day): NavLeg[] {
+  return buildDayFeed(day).flatMap((moment) => moment.nav);
+}
 
-  return [...moments.values()].sort((a, b) => a.minutes - b.minutes);
+/** Every restaurant of the day: those with a meal slot, then the rest. */
+export function dayRestaurants(day: Day): Restaurant[] {
+  return [
+    ...buildDayFeed(day).flatMap((moment) => moment.dining),
+    ...day.dining,
+  ];
 }

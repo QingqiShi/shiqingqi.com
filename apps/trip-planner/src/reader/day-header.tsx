@@ -10,6 +10,7 @@ import {
   Route,
   Sun,
 } from "lucide-react";
+import { dateLabel, weekdayLabel } from "./date-label";
 import { DayParty } from "./day-party";
 import type { LiveWeather } from "@/reader/weather/types";
 import { wmoGroup } from "@/reader/weather/wmo-group";
@@ -41,11 +42,13 @@ function WeatherIcon({ code }: { code: number }) {
 
 export function DayHeader({
   day,
+  dayNumber,
   people,
   isToday,
   liveWeather,
 }: {
   day: Day;
+  dayNumber: number;
   people: DayPresence[];
   isToday: boolean;
   liveWeather?: LiveWeather;
@@ -55,10 +58,10 @@ export function DayHeader({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">Day {day.n}</span>
+            <span className="font-medium text-foreground">Day {dayNumber}</span>
             <span>·</span>
-            <span>{day.dateLabel}</span>
-            <span>{day.weekday}</span>
+            <span>{dateLabel(day.date)}</span>
+            <span>{weekdayLabel(day.date)}</span>
             {isToday ? <Badge className="ml-1">今天</Badge> : null}
           </div>
 

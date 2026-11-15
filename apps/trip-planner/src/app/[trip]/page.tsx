@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { dateRangeLabel } from "@/reader/date-label";
 import { resolveDay } from "@/reader/resolve-day";
 import { TripView } from "@/reader/trip-view";
 import { getTripWeather } from "@/reader/weather/get-trip-weather";
@@ -20,7 +21,7 @@ export async function generateMetadata({
   if (!trip) return {};
   return {
     title: `${trip.title} · 行程`,
-    description: `${trip.dateRange}${trip.subtitle}：每日安排、景点、餐厅与住宿。`,
+    description: `${dateRangeLabel(trip.days)}${trip.subtitle}：每日安排、景点、餐厅与住宿。`,
   };
 }
 
@@ -30,9 +31,13 @@ export default async function TripPage({ params }: TripPageProps) {
   if (!trip) notFound();
 
   // force-dynamic page: request time IS the content, and render is its only per-request phase.
-  const { index, phase, daysUntil } = resolveDay(new Date(), trip.days);
+  const { index, phase, daysUntil } = resolveDay(
+    new Date(),
+    trip.days,
+    trip.timeZone,
+  );
   // Live forecast for the days within Open-Meteo's horizon; cached server-side.
-  const weatherByDay = await getTripWeather(trip.slug);
+  const weatherByDay = await getTripWeather(trip);
 
   return (
     <TripView

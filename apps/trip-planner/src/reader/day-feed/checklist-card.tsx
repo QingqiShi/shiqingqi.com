@@ -12,10 +12,6 @@ function storageKeyFor(tripSlug: string) {
   return `${tripSlug}-trip-checklist`;
 }
 
-function itemId(dayN: number, title: string, index: number) {
-  return `D${String(dayN)}·${title}·${String(index)}`;
-}
-
 function isBooleanRecord(value: unknown): value is Record<string, boolean> {
   if (typeof value !== "object" || value === null) return false;
   return Object.values(value).every(
@@ -107,11 +103,9 @@ function getServerSnapshot(): Record<string, boolean> {
 /** A single tick-through checklist card with on-device persistence. */
 export function ChecklistCard({
   tripSlug,
-  dayN,
   list,
 }: {
   tripSlug: string;
-  dayN: number;
   list: Checklist;
 }) {
   const store = getStore(storageKeyFor(tripSlug));
@@ -123,9 +117,7 @@ export function ChecklistCard({
   const [isOpen, setIsOpen] = useState(false);
 
   const total = list.items.length;
-  const doneCount = list.items.filter(
-    (_, i) => checked[itemId(dayN, list.title, i)],
-  ).length;
+  const doneCount = list.items.filter((item) => checked[item.id]).length;
   const allDone = total > 0 && doneCount === total;
 
   return (
@@ -163,8 +155,8 @@ export function ChecklistCard({
       {isOpen ? (
         <div className="border-t px-4 py-3">
           <ul className="space-y-0.5">
-            {list.items.map((item, i) => {
-              const id = itemId(dayN, list.title, i);
+            {list.items.map((item) => {
+              const id = item.id;
               const isChecked = checked[id] ?? false;
               return (
                 <li key={id}>
@@ -191,7 +183,7 @@ export function ChecklistCard({
                         isChecked && "text-muted-foreground line-through",
                       )}
                     >
-                      {item}
+                      {item.text}
                     </span>
                   </button>
                 </li>

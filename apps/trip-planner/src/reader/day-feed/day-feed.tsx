@@ -9,6 +9,7 @@ import { SignSheetCard } from "./sign-sheet-card";
 import { DiningList } from "@/reader/dining-list";
 import { NavLegRow } from "@/reader/maps/nav-leg-row";
 import { PlacePill } from "@/reader/place-pill";
+import { minutesInZone } from "@/reader/resolve-day";
 import { TipRow } from "@/reader/tip-row";
 import { cn } from "@/shadcn/utils";
 import type { Day } from "@/trips/types";
@@ -33,10 +34,12 @@ function currentMomentIndex(moments: DayMoment[], nowMinutes: number) {
  */
 export function DayFeed({
   tripSlug,
+  timeZone,
   day,
   isToday,
 }: {
   tripSlug: string;
+  timeZone: string;
   day: Day;
   isToday: boolean;
 }) {
@@ -49,14 +52,11 @@ export function DayFeed({
     if (!isToday || moments.length === 0) return;
     if (!window.matchMedia(MOBILE_QUERY).matches) return;
 
-    const now = new Date();
-    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    const nowMinutes = minutesInZone(new Date(), timeZone);
     const index = currentMomentIndex(moments, nowMinutes);
-    const target = document.getElementById(
-      momentDomId(day.n, moments[index].time),
-    );
+    const target = document.getElementById(momentDomId(moments[index].id));
     target?.scrollIntoView({ block: "start" });
-  }, [moments, isToday, day.n]);
+  }, [moments, isToday, timeZone]);
 
   return (
     <ol>
@@ -73,8 +73,8 @@ export function DayFeed({
 
         return (
           <li
-            key={moment.time}
-            id={momentDomId(day.n, moment.time)}
+            key={moment.id}
+            id={momentDomId(moment.id)}
             className="grid scroll-mt-32 grid-cols-[3.25rem_1fr] gap-x-3"
           >
             <div className="pt-0.5 text-right text-sm tabular-nums text-muted-foreground">
@@ -89,43 +89,39 @@ export function DayFeed({
             >
               <span className="absolute top-1.5 -left-[5px] size-2.5 rounded-full bg-foreground ring-4 ring-background" />
 
-              {moment.events.map((event) => (
-                <p
-                  key={event.text}
-                  className="text-[15px] leading-snug font-medium text-pretty"
-                >
-                  {event.text}
+              {moment.text === undefined ? null : (
+                <p className="text-[15px] leading-snug font-medium text-pretty">
+                  {moment.text}
                 </p>
-              ))}
+              )}
 
               {hasExtras ? (
                 <div
                   className={cn(
                     "space-y-3",
-                    moment.events.length > 0 && "mt-3",
+                    moment.text !== undefined && "mt-3",
                   )}
                 >
                   {moment.flights.map((flight) => (
-                    <FlightCard key={flight.number} flight={flight} />
+                    <FlightCard key={flight.id} flight={flight} />
                   ))}
 
                   {moment.checklists.map((list) => (
                     <ChecklistCard
-                      key={list.title}
+                      key={list.id}
                       tripSlug={tripSlug}
-                      dayN={day.n}
                       list={list}
                     />
                   ))}
 
                   {moment.signSheets.map((sheet) => (
-                    <SignSheetCard key={sheet.title} sheet={sheet} />
+                    <SignSheetCard key={sheet.id} sheet={sheet} />
                   ))}
 
                   {moment.nav.length > 0 ? (
                     <ul className="space-y-2">
                       {moment.nav.map((leg) => (
-                        <NavLegRow key={leg.label} leg={leg} />
+                        <NavLegRow key={leg.id} leg={leg} />
                       ))}
                     </ul>
                   ) : null}
@@ -137,7 +133,7 @@ export function DayFeed({
                   {moment.places.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {moment.places.map((place) => (
-                        <PlacePill key={place.name} place={place} />
+                        <PlacePill key={place.id} place={place} />
                       ))}
                     </div>
                   ) : null}
@@ -145,7 +141,7 @@ export function DayFeed({
                   {moment.tips.length > 0 ? (
                     <ul className="space-y-2.5">
                       {moment.tips.map((tip) => (
-                        <TipRow key={tip.text} tip={tip} />
+                        <TipRow key={tip.id} tip={tip} />
                       ))}
                     </ul>
                   ) : null}

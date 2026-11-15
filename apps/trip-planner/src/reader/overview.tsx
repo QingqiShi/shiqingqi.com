@@ -6,6 +6,8 @@ import {
   Users,
   Utensils,
 } from "lucide-react";
+import { dateLabel, dateRangeLabel, weekdayLabel } from "./date-label";
+import { dayRestaurants } from "./day-feed/build-day-feed";
 import { DayParty } from "./day-party";
 import { presencesOnDay } from "./presences-on-day";
 import { Badge } from "@/shadcn/badge";
@@ -13,16 +15,18 @@ import type { Day, DayPresence, Trip } from "@/trips/types";
 
 function OverviewRow({
   day,
+  dayNumber,
   people,
   isToday,
   onOpen,
 }: {
   day: Day;
+  dayNumber: number;
   people: DayPresence[];
   isToday: boolean;
   onOpen: () => void;
 }) {
-  const booked = day.restaurants.find((r) => r.status === "booked");
+  const booked = dayRestaurants(day).find((r) => r.status === "booked");
 
   return (
     <li>
@@ -36,13 +40,13 @@ function OverviewRow({
             <span className="text-[10px] tracking-wide text-muted-foreground">
               DAY
             </span>
-            <span className="mt-0.5 text-base font-semibold">{day.n}</span>
+            <span className="mt-0.5 text-base font-semibold">{dayNumber}</span>
           </div>
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span>
-                {day.dateLabel} {day.weekday}
+                {dateLabel(day.date)} {weekdayLabel(day.date)}
               </span>
               {isToday ? <Badge>今天</Badge> : null}
             </div>
@@ -101,7 +105,7 @@ export function Overview({
         <div className="mt-3 flex flex-wrap gap-2">
           <Badge variant="outline">
             <CalendarDays />
-            {trip.dateRange}
+            {dateRangeLabel(trip.days)}
           </Badge>
           <Badge variant="outline">
             <Users />
@@ -113,9 +117,10 @@ export function Overview({
       <ol className="space-y-3">
         {trip.days.map((day, i) => (
           <OverviewRow
-            key={day.n}
+            key={day.id}
             day={day}
-            people={presencesOnDay(trip.partySchedule, day.n)}
+            dayNumber={i}
+            people={presencesOnDay(trip.people, day.id)}
             isToday={i === todayIndex}
             onOpen={() => {
               onOpenDay(i);
