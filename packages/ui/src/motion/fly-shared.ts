@@ -4,11 +4,15 @@ import type { MotionEngine } from "./create-motion-engine.ts";
 import { createMotionValue, type MotionValue } from "./create-motion-value.ts";
 import { mix, smoothstep, unit } from "./mix.ts";
 import type { Rect } from "./play-layout.ts";
-import { px, writeStyles, type Styles } from "./px.ts";
+import { px, UNCLIPPED, writeStyles, type Styles } from "./px.ts";
 import type { Spring } from "./spring-roles.ts";
 
-/** Shared elements whose shapes differ more than this keep their content's shape. */
-const CONTAIN_ASPECT = 1.6;
+/**
+ * Shared elements whose shapes differ more than this keep their content's shape.
+ *
+ * @internal
+ */
+export const CONTAIN_ASPECT = 1.6;
 /** How far a Shared element that dips fades out at the middle of its flight. */
 const DIP = 0.85;
 /** How close to its target the progress of a flight is at rest. */
@@ -80,7 +84,8 @@ export function readSharedForm(element: SharedElement, rect: Rect): SharedForm {
   };
 }
 
-function mixRect(from: Rect, to: Rect, t: number): Rect {
+/** @internal */
+export function mixRect(from: Rect, to: Rect, t: number): Rect {
   return {
     x: mix(from.x, to.x, t),
     y: mix(from.y, to.y, t),
@@ -197,7 +202,8 @@ function drawingOf(part: SVGElement, drawn: Rect | null) {
   return svg;
 }
 
-function aspect({ width, height }: Rect) {
+/** @internal */
+export function aspect({ width, height }: Rect) {
   return width / Math.max(height, 1);
 }
 
@@ -315,7 +321,7 @@ export function flyShared<Form extends SharedForm>(
       const clip = (left: number, scale: number) =>
         edge === null
           ? ""
-          : `inset(-100vmax calc(100% - ${px(Math.max(0, (edge - left) / scale))}) -100vmax -100vmax)`;
+          : `inset(${UNCLIPPED} calc(100% - ${px(Math.max(0, (edge - left) / scale))}) ${UNCLIPPED} ${UNCLIPPED})`;
       if (isDrawing) {
         return {
           transform: `translate(${px(box.x - rest.x)}, ${px(box.y - rest.y)})`,

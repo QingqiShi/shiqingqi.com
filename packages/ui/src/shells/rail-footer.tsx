@@ -36,7 +36,7 @@ export function RailFooter({
   return (
     <>
       <div aria-hidden css={[styles.room, dynamicStyles.room(blockSize)]} />
-      <div ref={measure} css={[css, styles.footer]}>
+      <div ref={measure} data-tab-view-slot="footer" css={[css, styles.footer]}>
         <EffectCarrier value="viewport-bottom">{children}</EffectCarrier>
       </div>
     </>

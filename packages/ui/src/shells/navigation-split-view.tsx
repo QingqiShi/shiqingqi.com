@@ -252,7 +252,8 @@ export function NavigationSplitView({
     wasDepth,
     depth,
     depthChange,
-    sidebarPress,
+    sidebarPress:
+      tabViewNav === null ? sidebarPress : (tabViewNav.press ?? null),
   });
   const ownToggle =
     ownToggleLabel === undefined ? null : (
@@ -309,6 +310,8 @@ export function NavigationSplitView({
       opensContent,
       opensStackRoot,
       tabOpening,
+      viewShift: tabViewNav?.pressShift,
+      onSidebarSlide: tabViewNav?.follow,
     });
   const { takeOff, follow, pressedRef } = useColumnHistory({
     content,

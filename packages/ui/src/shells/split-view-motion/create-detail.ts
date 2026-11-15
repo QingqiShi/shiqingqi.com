@@ -1,6 +1,6 @@
 import type { MotionEngine } from "../../motion/create-motion-engine.ts";
 import type { MotionValue } from "../../motion/create-motion-value.ts";
-import { px, type Styles } from "../../motion/px.ts";
+import { px, UNCLIPPED, type Styles } from "../../motion/px.ts";
 import { springRoles } from "../../motion/spring-roles.ts";
 import {
   edgeOf,
@@ -128,8 +128,22 @@ export interface Riding {
   } | null;
 }
 
-/** A clip inset that keeps what the content paints outside its box. */
-const UNCLIPPED = "-100vmax";
+/** What keeps its place around the content while the content moves. */
+interface Around {
+  /**
+   * The box that clips the columns, where the view itself moved: the content
+   * starts before the inline start of that box, and shows there.
+   */
+  readonly frame: HTMLElement | null;
+  /**
+   * A detail column that stays at the inline end of the content. The content
+   * goes under it.
+   */
+  readonly detail: {
+    readonly column: HTMLElement;
+    readonly fill: string;
+  } | null;
+}
 
 /** @internal */
 export function createOffset(
@@ -141,6 +155,7 @@ export function createOffset(
   beside: Beside | null,
   riding: Riding | null,
   lift: Lift | null,
+  around: Around,
 ): Offset {
   const x = springValue(engine, dx, springRoles.fold);
   x.to(0, { velocity });
@@ -151,18 +166,12 @@ export function createOffset(
   });
   const binding =
     beside === null
-      ? show(
-          content,
-          x,
-          riding === null
-            ? pose
-            : // The column is narrower than the room it shows in while the
-              // sidebar comes back, so its fill reaches the end of that room.
-              (at) => ({
-                ...pose(at),
-                "box-shadow": at >= 0 ? "none" : `${px(-at)} 0 0 0 ${fill}`,
-              }),
-        )
+      ? // The column is narrower than the room it shows in while a sidebar
+        // comes back, so its fill reaches the end of that room.
+        show(content, x, (at) => ({
+          ...pose(at),
+          "box-shadow": at >= 0 ? "none" : `${px(-at)} 0 0 0 ${fill}`,
+        }))
       : show(content, [x, beside.detail.progress], (at, progress) => {
           const gap = Math.min(
             beside.edge + beside.detail.offsetAt(progress) - at,
@@ -176,6 +185,20 @@ export function createOffset(
           };
         });
   const rides = riding === null ? [] : ride(x, riding);
+  const { frame, detail } = around;
+  if (frame !== null) {
+    rides.push(
+      show(frame, x, (at) => ({ "overflow-x": at < 0 ? "visible" : "clip" })),
+    );
+  }
+  if (detail !== null) {
+    rides.push(
+      show(detail.column, x, () => ({
+        "z-index": "2",
+        "background-color": detail.fill,
+      })),
+    );
+  }
   const liftAt = (at: number) => (lift === null ? 0 : (lift.dy * at) / dx);
   if (lift !== null) {
     rides.push(

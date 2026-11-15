@@ -7,6 +7,7 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react";
+import type { MotionValue } from "../../motion/create-motion-value.ts";
 import {
   createPendingSnapshot,
   type PendingSnapshot,
@@ -68,6 +69,8 @@ export function useViewMotion({
   opensContent,
   opensStackRoot,
   tabOpening,
+  viewShift,
+  onSidebarSlide,
 }: {
   view: HTMLElement | null;
   layer: HTMLElement | null;
@@ -80,6 +83,13 @@ export function useViewMotion({
   opensContent: boolean;
   opensStackRoot: boolean;
   tabOpening: string | null;
+  /**
+   * How far, in px, the view showed from its place of now before the visitor
+   * collapsed or expanded the sidebar of the `TabView` around it.
+   */
+  viewShift?: () => number;
+  /** Takes the value that moves the content after such a change. */
+  onSidebarSlide?: (view: HTMLElement, slide: MotionValue | null) => void;
 }) {
   const engine = useMotionEngine();
   const motionRef = useRef<SplitViewMotion | null>(null);
@@ -121,6 +131,10 @@ export function useViewMotion({
   const opensOtherTab = tabOpening !== null;
   const isOpening = opensContent || opensStackRoot || opensOtherTab;
   const isOpeningNow = useEffectEvent(() => isOpening);
+  const shiftOfView = useEffectEvent(() => viewShift?.() ?? 0);
+  const tellSlide = useEffectEvent((slide: MotionValue | null) => {
+    if (view !== null) onSidebarSlide?.(view, slide);
+  });
   const [pageScrolls, setPageScrolls] = useState(false);
   useLayoutEffect(() => {
     if (view === null) return;
@@ -152,7 +166,13 @@ export function useViewMotion({
     if (created === null) return;
     const here = normalizeUrl(window.location.href);
     const snapshot = pendingRef.current?.claim(here, true) ?? null;
-    created.play(snapshot, motion.change, motion.id);
+    created.play(
+      snapshot,
+      motion.change,
+      motion.id,
+      motion.change.sidebar === null ? 0 : shiftOfView(),
+    );
+    if (motion.change.sidebar !== null) tellSlide(created.slide);
   }, [motion]);
 
   useLayoutEffect(() => {

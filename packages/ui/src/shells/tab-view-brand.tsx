@@ -58,7 +58,7 @@ export function TabViewBrand({
 }: TabViewBrandProps) {
   return (
     <span css={[row.tight, styles.root, css]}>
-      <span aria-hidden css={styles.mark}>
+      <span aria-hidden data-tab-view-part="mark" css={styles.mark}>
         {mark ?? (
           <Avatar name={name} initials={initials} shape="square" look="solid" />
         )}
