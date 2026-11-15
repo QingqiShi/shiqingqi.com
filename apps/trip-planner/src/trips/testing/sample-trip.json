@@ -1,0 +1,310 @@
+{
+  "schemaVersion": 1,
+  "id": "sampletrip01",
+  "slug": "sample-lisbon",
+  "title": "Lisbon long weekend",
+  "subtitle": "3 days · trams, tiles and a day trip to Sintra",
+  "party": "3 people",
+  "language": "en",
+  "timeZone": "Europe/Lisbon",
+  "people": [
+    {
+      "id": "ana",
+      "name": "Ana",
+      "initial": "A",
+      "via": "air",
+      "days": {
+        "day0sample": "arrive",
+        "day1sample": "present",
+        "day2sample": "depart"
+      }
+    },
+    {
+      "id": "ben",
+      "name": "Ben",
+      "initial": "B",
+      "via": "air",
+      "days": { "day0sample": "arrive", "day2sample": "depart" }
+    },
+    {
+      "id": "rita",
+      "name": "Rita",
+      "initial": "R",
+      "via": "ground",
+      "days": { "day1sample": "present", "day2sample": "home" }
+    }
+  ],
+  "days": [
+    {
+      "id": "day0sample",
+      "date": "2027-04-16",
+      "title": "Arrive in Lisbon",
+      "route": "Airport → Baixa",
+      "driving": "No car",
+      "weather": {
+        "temp": "13–21°C",
+        "summary": "Sunny spells",
+        "note": "Bring a light jacket"
+      },
+      "coords": { "lat": 38.7107, "lon": -9.1366 },
+      "moments": [
+        {
+          "id": "m0flight",
+          "time": "10:40",
+          "text": "Land at Humberto Delgado",
+          "highlight": { "label": "TP1351 lands", "kind": "flight" },
+          "items": [
+            {
+              "id": "i0flight",
+              "type": "flight",
+              "number": "TP1351",
+              "airline": "TAP Air Portugal",
+              "passenger": "Ana",
+              "statusLabel": "Delayed 20 min",
+              "from": {
+                "code": "LHR",
+                "city": "London",
+                "time": "07:50",
+                "scheduledTime": "07:30",
+                "terminal": "T2"
+              },
+              "to": {
+                "code": "LIS",
+                "city": "Lisbon",
+                "time": "10:40",
+                "terminal": "T1"
+              },
+              "track": "https://www.flightradar24.com/data/flights/tp1351"
+            },
+            {
+              "id": "i0arrival",
+              "type": "checklist",
+              "title": "On arrival",
+              "items": [
+                { "id": "c0esim", "text": "Turn on the eSIM" },
+                { "id": "c0viva", "text": "Buy a Viva Viagem card" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "m0metro",
+          "time": "11:30",
+          "text": "Metro to the hotel",
+          "items": [
+            {
+              "id": "i0metro",
+              "type": "nav",
+              "label": "Airport → Baixa-Chiado",
+              "from": "Lisbon Airport",
+              "to": "Baixa-Chiado metro station",
+              "mode": "transit",
+              "note": "Red line, change at Alameda"
+            }
+          ]
+        },
+        {
+          "id": "m0checkin",
+          "time": "14:00",
+          "highlight": {
+            "label": "Check in",
+            "kind": "checkin",
+            "query": "Baixa House Lisbon"
+          },
+          "items": []
+        },
+        {
+          "id": "m0afternoon",
+          "time": "afternoon",
+          "text": "Walk the Alfama",
+          "items": [
+            {
+              "id": "i0castle",
+              "type": "place",
+              "name": "São Jorge Castle",
+              "query": "Castelo de São Jorge",
+              "tier": "primary"
+            },
+            {
+              "id": "i0view",
+              "type": "place",
+              "name": "Miradouro de Santa Luzia",
+              "query": "Miradouro de Santa Luzia",
+              "tier": "backup",
+              "when": "If the queue is long"
+            },
+            {
+              "id": "i0shoes",
+              "type": "tip",
+              "kind": "warn",
+              "text": "The cobbles are slippery; wear grippy shoes."
+            }
+          ]
+        },
+        {
+          "id": "m0dinner",
+          "time": "20:00",
+          "text": "Dinner",
+          "highlight": {
+            "label": "Dinner at Belcanto",
+            "kind": "reservation",
+            "query": "Belcanto Lisbon",
+            "mode": "walking"
+          },
+          "items": [
+            {
+              "id": "i0belcanto",
+              "type": "dining",
+              "name": "Belcanto",
+              "query": "Belcanto Lisbon",
+              "area": "Chiado",
+              "tag": "Portuguese · tasting menu",
+              "description": "José Avillez's flagship.",
+              "price": "~€250 per person",
+              "website": "https://www.belcanto.pt",
+              "michelin": 2,
+              "status": "booked",
+              "booking": {
+                "date": "16 Apr",
+                "time": "20:00",
+                "party": "2",
+                "by": "Ana",
+                "contact": "Ref 1234"
+              }
+            },
+            {
+              "id": "i0taberna",
+              "type": "dining",
+              "name": "Taberna da Rua das Flores",
+              "query": "Taberna da Rua das Flores",
+              "tag": "Petiscos",
+              "description": "No bookings; queue early.",
+              "status": "pick"
+            }
+          ]
+        }
+      ],
+      "tips": [
+        {
+          "id": "t0cash",
+          "kind": "money",
+          "text": "Most places take cards; carry a few euros for trams."
+        }
+      ],
+      "dining": [
+        {
+          "id": "r0pasteis",
+          "name": "Manteigaria",
+          "query": "Manteigaria Chiado",
+          "tag": "Pastéis de nata",
+          "description": "Warm tarts all day."
+        }
+      ],
+      "places": [
+        {
+          "id": "p0lx",
+          "name": "LX Factory",
+          "query": "LX Factory Lisbon",
+          "note": "Sunday market"
+        }
+      ],
+      "stay": {
+        "summary": "Baixa House",
+        "lodging": [
+          {
+            "id": "l0baixa",
+            "name": "Baixa House",
+            "query": "Baixa House Lisbon",
+            "checkIn": "14:00",
+            "status": "booked",
+            "recommended": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "day1sample",
+      "date": "2027-04-17",
+      "title": "Day trip to Sintra",
+      "route": "Lisbon → Sintra → Cabo da Roca → Lisbon",
+      "driving": "About 2 hours",
+      "coords": { "lat": 38.7979, "lon": -9.3906 },
+      "moments": [
+        {
+          "id": "m1signs",
+          "time": "morning",
+          "text": "Pick up the car",
+          "highlight": {
+            "label": "Car pick-up",
+            "kind": "pickup",
+            "query": "Sixt Lisbon Baixa"
+          },
+          "items": [
+            {
+              "id": "i1signs",
+              "type": "signSheet",
+              "title": "Portuguese road signs",
+              "signs": [
+                {
+                  "glyph": "giveWay",
+                  "name": "Give way",
+                  "meaning": "Yield to traffic on the main road"
+                },
+                {
+                  "glyph": "speedLimit",
+                  "name": "Speed limit",
+                  "meaning": "Maximum speed in km/h"
+                }
+              ]
+            },
+            {
+              "id": "i1drive",
+              "type": "nav",
+              "label": "Lisbon → Sintra",
+              "from": "Sixt Lisbon Baixa",
+              "to": "Sintra",
+              "mode": "driving",
+              "waypoints": ["Cascais"]
+            }
+          ]
+        },
+        {
+          "id": "m1backup",
+          "time": "backup",
+          "text": "If it rains, take the train to Sintra instead",
+          "items": []
+        }
+      ],
+      "tips": [],
+      "dining": [],
+      "places": [],
+      "stay": {
+        "summary": "Baixa House, second night",
+        "lodging": [],
+        "sameAs": {
+          "dayId": "day0sample",
+          "label": "Same as Day 0 · Baixa House"
+        }
+      }
+    },
+    {
+      "id": "day2sample",
+      "date": "2027-04-18",
+      "title": "Fly home",
+      "route": "Baixa → Airport",
+      "moments": [
+        {
+          "id": "m2out",
+          "time": "09:00",
+          "text": "Check out and return the car",
+          "highlight": { "label": "Check out", "kind": "checkout" },
+          "items": []
+        }
+      ],
+      "tips": [],
+      "dining": [],
+      "places": [],
+      "stay": { "summary": "Home", "lodging": [], "note": "No hotel tonight" }
+    }
+  ]
+}

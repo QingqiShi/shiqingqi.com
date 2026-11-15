@@ -3,6 +3,7 @@
 import { CalendarClock } from "lucide-react";
 import { useState } from "react";
 import { DailyView } from "./daily-view";
+import { dateLabel } from "./date-label";
 import { Overview } from "./overview";
 import type { LiveWeather } from "@/reader/weather/types";
 import { cn } from "@/shadcn/utils";
@@ -64,7 +65,7 @@ function DaySelector({
           const isSelected = i === selected;
           return (
             <button
-              key={day.n}
+              key={day.id}
               type="button"
               onClick={() => {
                 onSelect(i);
@@ -76,7 +77,7 @@ function DaySelector({
                   : "bg-card hover:bg-accent",
               )}
             >
-              <span className="text-[11px] font-medium">D{day.n}</span>
+              <span className="text-[11px] font-medium">D{i}</span>
               <span
                 className={cn(
                   "text-[11px] tabular-nums",
@@ -136,7 +137,7 @@ export function TripView({
   currentDayIndex: number;
   phase: TripPhase;
   daysUntil: number;
-  weatherByDay: Record<number, LiveWeather>;
+  weatherByDay: Record<string, LiveWeather>;
 }) {
   const [view, setView] = useState<View>("daily");
   const [dayIndex, setDayIndex] = useState(currentDayIndex);
@@ -169,7 +170,7 @@ export function TripView({
       <PhaseBanner
         phase={phase}
         daysUntil={daysUntil}
-        startLabel={trip.days[0].dateLabel}
+        startLabel={dateLabel(trip.days[0].date)}
       />
 
       <main className="mx-auto max-w-3xl px-4 py-8">
@@ -177,8 +178,9 @@ export function TripView({
           <DailyView
             trip={trip}
             day={trip.days[dayIndex]}
+            dayIndex={dayIndex}
             isToday={dayIndex === todayIndex}
-            liveWeather={weatherByDay[trip.days[dayIndex].n]}
+            liveWeather={weatherByDay[trip.days[dayIndex].id]}
             onOpenDay={openDay}
           />
         ) : (

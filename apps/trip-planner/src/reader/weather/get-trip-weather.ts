@@ -12,8 +12,7 @@
 import { unstable_cache } from "next/cache";
 import type { LiveWeather } from "./types";
 import { wmoCondition } from "./wmo-condition";
-import { tripBySlug } from "@/trips";
-import type { Day } from "@/trips/types";
+import type { Trip } from "@/trips/types";
 
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 
@@ -24,17 +23,24 @@ const FORECAST_DAYS = 16;
 const REVALIDATE_SECONDS = 3 * 60 * 60;
 
 interface WeatherPoint {
-  n: number;
+  dayId: string;
   date: string;
   lat: number;
   lon: number;
 }
 
 /** Days carrying both coordinates and a weather slot — the ones we can fetch. */
-function weatherPoints(days: Day[]): WeatherPoint[] {
-  return days.flatMap((day) =>
+function weatherPoints(trip: Trip): WeatherPoint[] {
+  return trip.days.flatMap((day) =>
     day.coords && day.weather
-      ? [{ n: day.n, date: day.date, lat: day.coords.lat, lon: day.coords.lon }]
+      ? [
+          {
+            dayId: day.id,
+            date: day.date,
+            lat: day.coords.lat,
+            lon: day.coords.lon,
+          },
+        ]
       : [],
   );
 }
@@ -112,31 +118,31 @@ function readForecast(
   };
 }
 
-/** "6/9 更新" — the London-local date the forecast was last fetched. */
-function fetchedLabel(now: Date): string {
+/** "6/9 更新" — the trip-local date the forecast was last fetched. */
+function fetchedLabel(now: Date, timeZone: string): string {
   const date = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Europe/London",
+    timeZone,
     month: "numeric",
     day: "numeric",
   }).format(now);
   return `${date} 更新`;
 }
 
-async function fetchTripWeather(
-  slug: string,
-): Promise<Record<number, LiveWeather>> {
-  const points = weatherPoints(tripBySlug(slug)?.days ?? []);
+async function fetchWeather(
+  points: WeatherPoint[],
+  timeZone: string,
+): Promise<Record<string, LiveWeather>> {
   if (points.length === 0) return {};
 
   const params = new URLSearchParams({
     latitude: points.map((p) => String(p.lat)).join(","),
     longitude: points.map((p) => String(p.lon)).join(","),
     daily: "weather_code,temperature_2m_max,temperature_2m_min",
-    timezone: "Europe/London",
+    timezone: timeZone,
     forecast_days: String(FORECAST_DAYS),
   });
 
-  const result: Record<number, LiveWeather> = {};
+  const result: Record<string, LiveWeather> = {};
   try {
     const response = await fetch(`${FORECAST_URL}?${params.toString()}`);
     if (!response.ok) return result;
@@ -145,12 +151,12 @@ async function fetchTripWeather(
     const blocks = Array.isArray(body) ? body : [body];
     // Stamp every live day with the fetch time; `unstable_cache` freezes it
     // until the next revalidation, so it reads as "last refreshed at".
-    const updated = fetchedLabel(new Date());
+    const updated = fetchedLabel(new Date(), timeZone);
     points.forEach((point, i) => {
       const daily = asDailyBlock(blocks[i]);
       if (!daily) return;
       const live = readForecast(daily, point.date, updated);
-      if (live) result[point.n] = live;
+      if (live) result[point.dayId] = live;
     });
   } catch {
     return {};
@@ -159,13 +165,17 @@ async function fetchTripWeather(
 }
 
 /**
- * Live weather keyed by day number, cached so we hit Open-Meteo only a few
- * times a day rather than on every request. `unstable_cache` keeps its own
- * revalidation independent of the page's `force-dynamic` rendering, and folds
- * the trip-slug argument into the cache key so each trip caches separately.
+ * `unstable_cache` keeps its own revalidation independent of the page's
+ * `force-dynamic` rendering, and folds the points into the cache key, so a
+ * trip caches by its places and dates and an edit to them fetches again.
  */
-export const getTripWeather = unstable_cache(
-  fetchTripWeather,
-  ["trip-weather-v2"],
-  { revalidate: REVALIDATE_SECONDS },
-);
+const cachedWeather = unstable_cache(fetchWeather, ["trip-weather-v3"], {
+  revalidate: REVALIDATE_SECONDS,
+});
+
+/** Live weather keyed by day id, fetched from Open-Meteo a few times a day. */
+export function getTripWeather(
+  trip: Trip,
+): Promise<Record<string, LiveWeather>> {
+  return cachedWeather(weatherPoints(trip), trip.timeZone);
+}

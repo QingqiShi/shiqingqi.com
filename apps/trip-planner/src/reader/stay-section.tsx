@@ -86,20 +86,23 @@ function LodgingCard({ lodging }: { lodging: Lodging }) {
 
 export function StaySection({
   stay,
+  sameAsIndex,
   onOpenDay,
 }: {
   stay: Stay;
+  /** The index of the day whose bed this night repeats. */
+  sameAsIndex?: number;
   onOpenDay: (index: number) => void;
 }) {
-  const ref = stay.ref;
+  const ref = stay.sameAs;
 
   return (
     <Section icon={BedDouble} title="住宿">
-      {ref ? (
+      {ref && sameAsIndex !== undefined ? (
         <button
           type="button"
           onClick={() => {
-            onOpenDay(ref.dayN);
+            onOpenDay(sameAsIndex);
           }}
           className="flex w-full items-center justify-between gap-3 rounded-xl border border-dashed bg-muted/30 px-4 py-3 text-left text-sm transition-colors hover:bg-accent"
         >

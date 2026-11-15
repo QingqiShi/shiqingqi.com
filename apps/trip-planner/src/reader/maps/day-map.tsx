@@ -4,6 +4,7 @@ import { dayRouteMode } from "./day-route-mode";
 import { dayRoutePoints } from "./day-route-points";
 import { googleMapsEmbedDirectionsUrl } from "./google-maps-embed-directions-url";
 import { MapEmbed } from "./map-embed";
+import { dayNavLegs } from "@/reader/day-feed/build-day-feed";
 import { Section } from "@/reader/section";
 import type { Day } from "@/trips/types";
 
@@ -15,9 +16,10 @@ import type { Day } from "@/trips/types";
  * configured or the day has too few stops to draw a route.
  */
 export function DayMap({ day }: { day: Day }) {
-  if (!mapsEmbedEnabled || !day.nav || day.nav.length === 0) return null;
+  const legs = dayNavLegs(day);
+  if (!mapsEmbedEnabled || legs.length === 0) return null;
 
-  const points = dayRoutePoints(day.nav);
+  const points = dayRoutePoints(legs);
   const [origin] = points;
   const destination = points.at(-1);
   if (!origin || !destination) return null;
@@ -32,7 +34,7 @@ export function DayMap({ day }: { day: Day }) {
     origin,
     destination,
     waypoints,
-    mode: dayRouteMode(day.nav),
+    mode: dayRouteMode(legs),
   });
 
   return (

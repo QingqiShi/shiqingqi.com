@@ -1,18 +1,19 @@
 import { CalendarDays, ChevronRight, Lock, Users } from "lucide-react";
 import { connection } from "next/server";
 import { Link } from "@/link";
+import { dateRangeLabel } from "@/reader/date-label";
 import { resolveDay } from "@/reader/resolve-day";
 import { Badge } from "@/shadcn/badge";
 import { trips } from "@/trips";
 import type { Trip } from "@/trips/types";
 
 function phaseBadge(trip: Trip, now: Date) {
-  const { index, phase, daysUntil } = resolveDay(now, trip.days);
+  const { index, phase, daysUntil } = resolveDay(now, trip.days, trip.timeZone);
   switch (phase) {
     case "before":
       return <Badge>{`还有 ${String(daysUntil)} 天出发`}</Badge>;
     case "during":
-      return <Badge>{`进行中 · Day ${String(trip.days[index].n)}`}</Badge>;
+      return <Badge>{`进行中 · Day ${String(index)}`}</Badge>;
     case "after":
       return <Badge variant="secondary">已结束</Badge>;
   }
@@ -43,7 +44,7 @@ function TripCard({ trip, now }: { trip: Trip; now: Date }) {
         <div className="mt-3 flex flex-wrap gap-2">
           <Badge variant="outline">
             <CalendarDays />
-            {trip.dateRange}
+            {dateRangeLabel(trip.days)}
           </Badge>
           <Badge variant="outline">
             <Users />
