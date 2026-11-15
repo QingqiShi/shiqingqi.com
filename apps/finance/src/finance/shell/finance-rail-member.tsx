@@ -91,11 +91,9 @@ export function FinanceRailMember({
             householdName={householdName}
           />
         </Popover>
-        <span css={styles.sync}>
-          <TabViewLabelsOnly>
-            <SyncStatusIndicator compact />
-          </TabViewLabelsOnly>
-        </span>
+        <TabViewLabelsOnly css={styles.sync}>
+          <SyncStatusIndicator compact />
+        </TabViewLabelsOnly>
       </div>
     </div>
   );

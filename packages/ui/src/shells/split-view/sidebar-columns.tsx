@@ -6,8 +6,9 @@ import {
   EffectContainedContext,
 } from "../../effect-layer/effect-carrier-context.ts";
 import { VIEWPORT_BOTTOM_CARRIER } from "../../effect-layer/resolve-carrier.ts";
+import { pageColumn } from "../../primitives/page-column.stylex.ts";
 import type { TabViewSidebarNav } from "../use-tab-view-sidebar-nav.ts";
-import { cornerStyles, stackStyles } from "./column.stylex.ts";
+import { contentStyles, cornerStyles, stackStyles } from "./column.stylex.ts";
 import { Column, type ColumnPageScroll } from "./column.tsx";
 import { sidebarStyles } from "./sidebar.stylex.ts";
 import type { NavigationSplitViewSidebar } from "./types.ts";
@@ -23,6 +24,7 @@ export function SidebarColumns({
   sidebar,
   nav,
   toggle,
+  isStackedByRail,
   showsStackRoot,
   fitsFullSidebar,
   hasDetailColumn,
@@ -36,6 +38,11 @@ export function SidebarColumns({
   nav: TabViewSidebarNav | null;
   /** The view's own button that collapses the sidebar, or null. */
   toggle: ReactNode;
+  /**
+   * Whether the list is a page at each width, because the `TabView` around
+   * shows its rail of icons. Its rows then stay in the page column of a list.
+   */
+  isStackedByRail: boolean;
   showsStackRoot: boolean;
   fitsFullSidebar: boolean | null;
   hasDetailColumn: boolean;
@@ -157,11 +164,11 @@ export function SidebarColumns({
         stackStyles.sidebarGutters,
         ownsHeader && stackStyles.sidebarContentUnderHeader,
         ownsFooter && stackStyles.sidebarContentAboveFooter,
+        isStackedByRail && [pageColumn.list, contentStyles.inPageColumn],
       ]}
       awayCss={[
         staysBesideDetail && sidebarStyles.awayBesideDetail,
         hasDetailColumn && !isInTabView && sidebarStyles.awayBesideDetailAlways,
-        isCollapsed && isInTabView && sidebarStyles.awayWhileCollapsed,
       ]}
     />
   );

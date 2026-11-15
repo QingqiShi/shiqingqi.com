@@ -46,4 +46,32 @@ test.describe("Net worth at 1440 px", () => {
         .getByRole("region", { name: "Trend" }),
     ).toBeVisible();
   });
+
+  // The collapsed sidebar took the list of accounts away, with no other way to it.
+  test("with the sidebar collapsed, the household stays with a back link to the list of accounts, an account opens over the list, and its back link goes back", async ({
+    page,
+    session: _session,
+  }) => {
+    await openNetWorth(page);
+    await page.getByRole("button", { name: "Sidebar" }).click();
+    const household = page.getByRole("region", { name: "Household" });
+    await expect(
+      household.getByRole("region", { name: "Trend" }),
+    ).toBeVisible();
+    const list = page.getByRole("region", { name: "Net worth", exact: true });
+    await expect(list).toBeHidden();
+
+    await household.getByRole("link", { name: /^Net worth/ }).click();
+    await expect(list).toBeVisible();
+
+    await list.getByRole("link", { name: /Alex Current/ }).click();
+    await expect(page).toHaveURL(/[?&]account=/);
+    const account = page.getByRole("region", { name: "Alex Current" });
+    await expect(account).toBeVisible();
+    await expect(list).toBeHidden();
+
+    await account.getByRole("link", { name: /^Net worth/ }).click();
+    await expect(page).not.toHaveURL(/[?&]account=/);
+    await expect(list).toBeVisible();
+  });
 });

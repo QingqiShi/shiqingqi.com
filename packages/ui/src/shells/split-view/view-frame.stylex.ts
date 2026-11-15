@@ -23,6 +23,28 @@ export const viewFrameStyles = stylex.create({
     [splitViewDisplay.stacked]: "none",
     [splitViewDisplay.unstacked]: "contents",
   },
+  // The list is the first page of the stack at each width, as the queries of
+  // `splitViewQueries` read it. Each view sets it, so that a view in the
+  // content of another does not take the value of that one.
+  sidebarBeside: {
+    "--split-view-stacked": "0",
+  },
+  sidebarStacked: {
+    "--split-view-stacked": "1",
+  },
+  // Beside the collapsed rail of a `TabView`, the view is a stack, but the
+  // content column keeps the composition that it has beside the sidebar,
+  // from the width where the sidebar shows there.
+  contentBesideRail: {
+    [splitViewDisplay.stacked]: {
+      default: null,
+      "@container (width >= 48rem)": "none",
+    },
+    [splitViewDisplay.unstacked]: {
+      default: null,
+      "@container (width >= 48rem)": "contents",
+    },
+  },
   // A view in a box that does not fill the screen is as tall as that box, and
   // each column scrolls in it.
   viewContained: {

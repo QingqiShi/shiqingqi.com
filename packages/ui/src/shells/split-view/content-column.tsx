@@ -26,6 +26,7 @@ import type {
 } from "./types.ts";
 import { SplitViewColumnContext } from "./use-split-view-column.ts";
 import { DEEP_DEPTH } from "./use-stack-opening.ts";
+import { viewFrameStyles } from "./view-frame.stylex.ts";
 
 /**
  * What a page shows while it leaves, where the router cannot show its old
@@ -120,6 +121,7 @@ export function ContentColumn({
   close,
   onUnderToggle,
   hasSidebar,
+  isStackedByRail,
   besideFill,
   showsStackRoot,
   depth,
@@ -146,6 +148,12 @@ export function ContentColumn({
    */
   onUnderToggle: ((isUnder: boolean) => void) | null;
   hasSidebar: boolean;
+  /**
+   * Whether the view is a stack because the `TabView` around shows its rail
+   * of icons. The content then keeps the composition that it has beside the
+   * sidebar, and it shows its `back`.
+   */
+  isStackedByRail: boolean;
   /** What has the sidebar fill beside the content: the rail or the sidebar of a `TabView`, the sidebar of the view, or nothing. */
   besideFill: "rail" | "sidebar" | null;
   showsStackRoot: boolean;
@@ -172,6 +180,7 @@ export function ContentColumn({
       css={[
         contentStyles.base,
         hasSidebar && stackStyles.contentColumn,
+        isStackedByRail && viewFrameStyles.contentBesideRail,
         showsStackRoot && [
           sidebarStyles.fullBesideContent,
           stackStyles.contentAtRoot,
@@ -221,7 +230,7 @@ export function ContentColumn({
           );
         const toolbar = page.column.toolbar ?? null;
         const shownLink =
-          hasSidebar && link !== null ? (
+          hasSidebar && !isStackedByRail && link !== null ? (
             <StackedOnly>{link}</StackedOnly>
           ) : (
             link
