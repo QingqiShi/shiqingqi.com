@@ -10,6 +10,13 @@ export function px(value: number) {
 }
 
 /**
+ * A clip inset that keeps what a box paints outside itself.
+ *
+ * @internal
+ */
+export const UNCLIPPED = "-100vmax";
+
+/**
  * Writes `styles` inline on `element`. An empty value takes the property off.
  *
  * @internal

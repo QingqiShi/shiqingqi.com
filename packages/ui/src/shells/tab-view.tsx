@@ -11,29 +11,15 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
-import { tabBarTokens } from "../actions/tab-bar.stylex.ts";
 import {
   PlainAnchor,
   TabBar,
   type TabBarItem,
   type TabBarLinkProps,
 } from "../actions/tab-bar.tsx";
-import { color } from "../color.stylex.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
-import {
-  duration,
-  easing,
-  motionConstants,
-  motionKeyframes,
-} from "../primitives/motion.stylex.ts";
-import { pageGutter } from "../primitives/page-column.stylex.ts";
-import { tabViewWidth } from "../primitives/view-width.stylex.ts";
-import { layer, rhythm, safeArea, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
-import { headerControlsTokens } from "./header-controls.stylex.ts";
-import { splitViewQueries } from "./navigation-split-view-layout.stylex.ts";
-import { splitViewTokens } from "./navigation-split-view.stylex.ts";
 import { RailFooter } from "./rail-footer.tsx";
 import { Rail, RailRows, RailSidebar } from "./rail.tsx";
 import {
@@ -42,7 +28,7 @@ import {
   useSidebarCollapse,
 } from "./sidebar-toggle.tsx";
 import { formStyles } from "./tab-view-form.stylex.ts";
-import { sidebarEdge, tabViewForm, tabViewTokens } from "./tab-view.stylex.ts";
+import { tabViewStyles } from "./tab-view-layout.stylex.ts";
 import {
   StatusLink,
   useOpeningScreen,
@@ -50,6 +36,7 @@ import {
   type TabLinkStatusProps,
 } from "./use-opening-screen.tsx";
 import { useRise } from "./use-rise.ts";
+import { useSidebarFold } from "./use-sidebar-fold.ts";
 import {
   TabViewSidebarNavContext,
   type TabViewSidebarNav,
@@ -267,7 +254,7 @@ export function TabViewLink(props: TabViewLinkProps) {
  * where the rail shows labels, such as the app's name beside its mark.
  */
 export function TabViewLabelsOnly({ children }: { children: ReactNode }) {
-  return <span css={styles.labelsOnly}>{children}</span>;
+  return <span css={tabViewStyles.labelsOnly}>{children}</span>;
 }
 
 /**
@@ -275,7 +262,7 @@ export function TabViewLabelsOnly({ children }: { children: ReactNode }) {
  * where the rail shows icons, such as an action with no label.
  */
 export function TabViewIconsOnly({ children }: { children: ReactNode }) {
-  return <span css={styles.iconsOnly}>{children}</span>;
+  return <span css={tabViewStyles.iconsOnly}>{children}</span>;
 }
 
 /**
@@ -295,6 +282,13 @@ export function TabViewIconsOnly({ children }: { children: ReactNode }) {
  * and the view's own sidebar gives way. The destinations scroll with the list,
  * under the `header`. Below 48rem, the list is the first
  * page of that screen, beside the rail or over the tab bar.
+ *
+ * The button in the `header` collapses the sidebar to the rail of icons, and
+ * a press is one motion. The content slides over the sidebar. Each icon and
+ * label, the button, and each line of the `header` and the `footer` go to
+ * their places in the other form. A press during the motion turns it around
+ * from where it is. Under reduced motion, the form changes at once and the
+ * rail fades in.
  *
  * The content goes under the bar: `tabViewTokens.barClearance` is the strip the
  * bar takes, and each layout in the content keeps clear of it. With
@@ -344,20 +338,39 @@ export function TabView({
   const { ref, css: stickyCss } = sticky;
   const Content = as;
   const { isCollapsed, scope } = useSidebarCollapse(true, defaultCollapsed);
+  const [root, setRoot] = useState<HTMLElement | null>(null);
+  const [layer, setLayer] = useState<HTMLElement | null>(null);
+  const [under, setUnder] = useState<HTMLElement | null>(null);
+  const fold = useSidebarFold({ root, content, layer, under });
+  const collapseScope =
+    scope === null
+      ? null
+      : {
+          ...scope,
+          write(isNextCollapsed: boolean) {
+            fold.pressed(isNextCollapsed ? "out" : "in");
+            scope.write(isNextCollapsed);
+          },
+        };
   const toggle = (
-    <SidebarToggle label={sidebarToggleLabel} css={styles.toggle} />
+    <span data-tab-view-part="toggle" css={tabViewStyles.toggle}>
+      <SidebarToggle label={sidebarToggleLabel} />
+    </span>
   );
   const top = (
-    <div css={styles.top}>
+    <div data-tab-view-slot="top" css={tabViewStyles.top}>
       {header}
       {toggle}
     </div>
   );
   const sidebarNav: TabViewSidebarNav = {
     isCollapsed,
-    top: <div css={[styles.listNav, styles.listTop]}>{top}</div>,
+    press: fold.press,
+    pressShift: fold.pressShift,
+    follow: fold.follow,
+    top: <div css={[tabViewStyles.listNav, tabViewStyles.listTop]}>{top}</div>,
     list: (
-      <div css={[styles.listNav, styles.listRows]}>
+      <div css={[tabViewStyles.listNav, tabViewStyles.listRows]}>
         <RailRows
           items={shownItems}
           label={label}
@@ -367,25 +380,37 @@ export function TabView({
     ),
     bottom:
       footer == null ? null : (
-        <div css={[styles.listNav, styles.slot, styles.listFooter]}>
+        <div
+          data-tab-view-slot="footer"
+          css={[
+            tabViewStyles.listNav,
+            tabViewStyles.slot,
+            tabViewStyles.listFooter,
+          ]}
+        >
           {footer}
         </div>
       ),
   };
   return (
-    <SidebarCollapseContext value={scope}>
+    <SidebarCollapseContext value={collapseScope}>
       <TabViewLinksContext value={{ linkComponent, linkStatus, setOpening }}>
         <TabViewOpeningContext value={opening}>
           <TabViewSkeletonContext value={screenSkeleton}>
-            <div data-tab-view="" css={[styles.container, css]}>
+            <div data-tab-view="" css={[tabViewStyles.container, css]}>
               <div
+                ref={setRoot}
                 css={[
-                  styles.root,
+                  tabViewStyles.root,
                   formStyles.form,
                   isCollapsed && formStyles.collapsed,
                 ]}
               >
-                <div ref={ref} css={[styles.rail, stickyCss]}>
+                <div
+                  ref={ref}
+                  data-tab-view-rail=""
+                  css={[tabViewStyles.rail, stickyCss]}
+                >
                   <EffectCarrier value={sticky}>
                     {top}
                     <Rail
@@ -393,27 +418,42 @@ export function TabView({
                       label={label}
                       effect={effect}
                       linkComponent={TabViewLink}
-                      css={styles.iconsOnly}
+                      css={tabViewStyles.iconsOnly}
                     />
                     <RailSidebar
                       items={shownItems}
                       label={label}
                       linkComponent={TabViewLink}
-                      css={styles.labelsOnly}
+                      css={tabViewStyles.labelsOnly}
                     />
                     {footer == null ? null : (
-                      <RailFooter css={styles.slot}>{footer}</RailFooter>
+                      <RailFooter css={tabViewStyles.slot}>{footer}</RailFooter>
                     )}
                   </EffectCarrier>
                 </div>
+                <div
+                  ref={setUnder}
+                  aria-hidden
+                  inert
+                  css={tabViewStyles.underContent}
+                />
                 <Content
                   ref={setContent}
-                  {...stylex.props(styles.content, revealing && styles.reveal)}
+                  {...stylex.props(
+                    tabViewStyles.content,
+                    revealing && tabViewStyles.reveal,
+                  )}
                   onAnimationEnd={onAnimationEnd}
                 >
                   {/* The router scrolls a new page to its top if that top is
                     out of view. So the hidden screen comes before the skeleton. */}
-                  <div css={waiting ? styles.screenHidden : styles.screen}>
+                  <div
+                    css={
+                      waiting
+                        ? tabViewStyles.screenHidden
+                        : tabViewStyles.screen
+                    }
+                  >
                     <TabViewSidebarNavContext value={sidebarNav}>
                       {children}
                     </TabViewSidebarNavContext>
@@ -426,9 +466,16 @@ export function TabView({
                     label={label}
                     effect={effect}
                     linkComponent={TabViewLink}
-                    css={styles.bar}
+                    css={tabViewStyles.bar}
                   />
                 </EffectCarrier>
+                <div
+                  ref={setLayer}
+                  data-tab-view-flights=""
+                  aria-hidden
+                  inert
+                  css={tabViewStyles.flights}
+                />
               </div>
             </div>
           </TabViewSkeletonContext>
@@ -441,155 +488,3 @@ export function TabView({
 function pathOfHref(href: string) {
   return href.split(/[?#]/, 1)[0];
 }
-
-const styles = stylex.create({
-  container: {
-    containerName: "tab-view",
-    containerType: "inline-size",
-    blockSize: "100%",
-  },
-  // StyleX writes a plain custom property outside its cascade layers, but a
-  // custom property in a container query inside them. Thus a plain default
-  // wins over the container query, and each form must set its own value.
-  root: {
-    // No bar floats over the top of the page, so sticky chrome parks under
-    // the status bar.
-    [headerControlsTokens.clearance]: {
-      default: null,
-      [tabViewWidth.bar]: safeArea.blockStart,
-      [tabViewWidth.fromRail]: "0px",
-    },
-    [tabViewTokens.barClearance]: {
-      default: null,
-      [tabViewWidth.bar]: `calc(${tabBarTokens.blockSize} + ${tabViewTokens.barInsetBlockEnd})`,
-      [tabViewWidth.fromRail]: "0px",
-    },
-    [splitViewTokens.sidebarInlineSize]: tabViewTokens.sidebarInlineSize,
-    display: "grid",
-    gridTemplateColumns: {
-      default: "minmax(0, 1fr)",
-      [tabViewWidth.fromRail]: "auto minmax(0, 1fr)",
-    },
-    gridTemplateRows: "minmax(0, 1fr)",
-    blockSize: "100%",
-    backgroundColor: color.sidebar,
-    color: color.sidebarForeground,
-  },
-  // The rail is as tall as the screen, and as tall as its container where
-  // that is shorter.
-  rail: {
-    display: {
-      default: "none",
-      [tabViewWidth.fromRail]: tabViewForm.railDisplay,
-    },
-    flexDirection: "column",
-    gap: rhythm.item,
-    position: "sticky",
-    insetBlockStart: 0,
-    zIndex: layer.header,
-    boxSizing: "border-box",
-    inlineSize: `calc(${tabViewForm.inlineSize} + env(safe-area-inset-left))`,
-    blockSize: "100dvh",
-    maxBlockSize: "100%",
-    paddingBlockStart: sidebarEdge.paddingBlockStart,
-    paddingBlockEnd: sidebarEdge.paddingBlockEnd,
-    paddingInlineStart: `calc(${tabViewForm.paddingInline} + env(safe-area-inset-left))`,
-    paddingInlineEnd: tabViewForm.paddingInline,
-  },
-  // Each child of the `header` is a line. In the sidebar, the button that
-  // collapses it is at the end of the first line. In the rail of icons, the
-  // button is under the first line of the `header`.
-  top: {
-    display: "grid",
-    gridTemplateColumns: tabViewForm.topColumns,
-    alignItems: "center",
-    justifyItems: tabViewForm.slotJustify,
-    gap: rhythm.tight,
-    flexShrink: 0,
-    minInlineSize: 0,
-  },
-  toggle: {
-    display: tabViewForm.toggleDisplay,
-    gridColumnEnd: -1,
-    gridRowStart: tabViewForm.toggleRow,
-  },
-  slot: {
-    display: "flex",
-    flexShrink: 0,
-    justifyContent: tabViewForm.slotJustify,
-    minInlineSize: 0,
-  },
-  iconsOnly: {
-    display: tabViewForm.icons,
-  },
-  labelsOnly: {
-    display: tabViewForm.labels,
-  },
-  // The `header` and the destinations above the list of a screen, and the
-  // `footer` under it, only where that list shows in the sidebar.
-  listNav: {
-    display: {
-      default: "none",
-      [splitViewQueries.contentBesideSidebar]: "flex",
-    },
-    flexDirection: "column",
-    gap: rhythm.item,
-  },
-  // The list of a sidebar starts `space._2` under the `header`. The padding
-  // makes that `rhythm.item`, which is the gap in the rail, so that the
-  // destinations keep their place from one screen to the next.
-  listTop: {
-    paddingBlockEnd: `calc(${rhythm.item} - ${space._2})`,
-  },
-  listRows: {
-    marginBlockEnd: rhythm.item,
-  },
-  listFooter: {
-    display: {
-      default: "none",
-      [splitViewQueries.contentBesideSidebar]: "flex",
-    },
-    marginBlockStart: "auto",
-    marginBlockEnd: 0,
-    paddingBlockStart: rhythm.item,
-  },
-  // The screen rises with a transform. WebKit anchors the scroll of the page
-  // through it, and the scroll that a view restores then follows the rise.
-  // The rail has the first column, also where it does not show.
-  content: {
-    position: "relative",
-    gridColumnStart: { default: "auto", [tabViewWidth.fromRail]: 2 },
-    minInlineSize: 0,
-    overflowAnchor: "none",
-  },
-  screen: {
-    display: "contents",
-  },
-  // A screen can mount while it is hidden, and it must lay out, as a component
-  // can measure itself once as it mounts.
-  screenHidden: {
-    display: "block",
-    visibility: "hidden",
-    blockSize: 0,
-    overflow: "clip",
-  },
-  reveal: {
-    animationName: {
-      default: motionKeyframes.fadeIn,
-      [motionConstants.REDUCED_MOTION]: "none",
-    },
-    animationDuration: duration._300,
-    animationTimingFunction: easing.easeOut,
-  },
-  // The pill is nearly as wide as the screen, but it is at the bottom, so it
-  // never covers the top-centre point that iOS Safari samples for the status
-  // bar colour.
-  bar: {
-    display: { default: "block", [tabViewWidth.fromRail]: "none" },
-    position: "fixed",
-    insetInlineStart: pageGutter.inlineStart,
-    insetInlineEnd: pageGutter.inlineEnd,
-    insetBlockEnd: tabViewTokens.barInsetBlockEnd,
-    zIndex: layer.header,
-  },
-});

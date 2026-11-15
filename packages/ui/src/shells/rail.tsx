@@ -181,11 +181,18 @@ function RailTrack({
                   <LabelledRow item={item} isShown={isShown} track={track} />
                 ) : (
                   <>
-                    <span css={[styles.icon, track.contentCss]} aria-hidden>
+                    <span
+                      data-tab-view-part={`icon:${item.href}`}
+                      css={[styles.icon, track.contentCss]}
+                      aria-hidden
+                    >
                       <item.icon weight={isShown ? "fill" : "bold"} />
                       <IconMark item={item} />
                     </span>
-                    <span css={[styles.tileLabel, track.contentCss]}>
+                    <span
+                      data-tab-view-part={`label:${item.href}`}
+                      css={[styles.tileLabel, track.contentCss]}
+                    >
                       {item.label}
                     </span>
                     <CountForReader count={item.count} />
@@ -221,6 +228,7 @@ function LabelledRow({
   return (
     <>
       <span
+        data-tab-view-part={`icon:${item.href}`}
         css={[
           navListStyles.icon,
           isShown && styles.rowIconShown,
@@ -231,7 +239,9 @@ function LabelledRow({
         <item.icon weight={isShown ? "fill" : "bold"} />
       </span>
       <span css={[truncate.base, styles.rowLabel, track.contentCss]}>
-        {item.label}
+        <span data-tab-view-part={`label:${item.href}`} css={styles.rowText}>
+          {item.label}
+        </span>
       </span>
       {count === null && !item.badge ? null : (
         <span css={[navListStyles.trailing, track.contentCss]}>
@@ -321,6 +331,10 @@ const styles = stylex.create({
   rowLabel: {
     flexGrow: 1,
     minInlineSize: 0,
+  },
+  // The text alone, so that the motion of the sidebar reads where it shows.
+  rowText: {
+    whiteSpace: "nowrap",
   },
   rowBadge: {
     display: "inline-flex",

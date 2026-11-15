@@ -1,4 +1,5 @@
 import type { MotionEngine } from "../../motion/create-motion-engine.ts";
+import type { MotionValue } from "../../motion/create-motion-value.ts";
 import { opaqueFillOf } from "../../motion/fly-shared.ts";
 import { rectIn } from "../../motion/play-layout.ts";
 import {
@@ -66,6 +67,7 @@ function ridingOf(view: HTMLElement, box: DOMRect): Riding | null {
 /** @internal */
 interface ColumnParts {
   readonly push: Push | null;
+  readonly slide: MotionValue | null;
   slideNow(): number;
   liftNow(): number;
   stopAwaitingPop(): void;
@@ -83,6 +85,7 @@ interface ColumnParts {
     box: DOMRect | null,
     dx: number,
     dy: number,
+    isViewMoved: boolean,
   ): () => void;
   beginSwipe(): boolean;
   drag(progress: number): void;
@@ -319,6 +322,7 @@ export function createColumnParts(
     box: DOMRect | null,
     dx: number,
     dy: number,
+    isViewMoved: boolean,
   ) {
     if (content === null || box === null) return noStart;
     const velocity = offset?.x.getVelocity() ?? 0;
@@ -331,6 +335,7 @@ export function createColumnParts(
         : column.getBoundingClientRect().left - box.right - gapBefore(column);
     const room = column === null ? 0 : innerEndOf(column) - box.right;
     const fill = opaqueFillOf(content);
+    const columnFill = column === null ? null : opaqueFillOf(column);
     const riding = ridingOf(view, box);
     const padded =
       Math.abs(dy) < 0.5
@@ -353,6 +358,13 @@ export function createColumnParts(
         beside,
         beside === null ? riding : null,
         padded === null ? null : { element: padded, dy },
+        {
+          frame: isViewMoved ? content.parentElement : null,
+          detail:
+            column === null || columnFill === null || beside !== null
+              ? null
+              : { column, fill: columnFill },
+        },
       );
     };
   }
@@ -360,6 +372,9 @@ export function createColumnParts(
   return {
     get push() {
       return push;
+    },
+    get slide() {
+      return offset?.x ?? null;
     },
     slideNow,
     liftNow,

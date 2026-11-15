@@ -53,8 +53,8 @@ export function useColumnPages({
   depth: number;
   depthChange: "push" | "pop" | null;
   /**
-   * The last press of the button that collapses the sidebar of the view, and
-   * where the sidebar goes. The first paint and the hydration can also change
+   * The last press of the button that collapses the sidebar of the view, or
+   * of the `TabView` around it, and where the sidebar goes. The first paint and the hydration can also change
    * whether the sidebar shows, and they are no motion.
    */
   sidebarPress: { id: number; to: "in" | "out" } | null;
@@ -170,7 +170,8 @@ export function useColumnPages({
   if (nextDetails !== details) setDetails(nextDetails);
   if (nextGone !== goneDetail) setGoneDetail(nextGone);
 
-  const [playedPress, setPlayedPress] = useState(0);
+  // A view that mounts after a press has no part in that press.
+  const [playedPress, setPlayedPress] = useState(sidebarPress?.id ?? 0);
   const pressId = sidebarPress?.id ?? 0;
   const sidebarChange: SplitViewChange["sidebar"] =
     sidebarPress !== null && pressId !== playedPress ? sidebarPress.to : null;
