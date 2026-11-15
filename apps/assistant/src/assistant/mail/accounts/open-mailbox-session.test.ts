@@ -79,11 +79,12 @@ describe("a refused OAuth login", () => {
     });
   });
 
-  it("asks for a new connect after a second refusal, with the server's words", async () => {
+  it("keeps trying, without a new connect, when the server also refuses the new token", async () => {
     const server = createFakeMailServer({
       user: "me@outlook.com",
       accessToken: "access-3",
-      refusal: "The mail server refused the login: AUTHENTICATE failed.",
+      refusal:
+        "The mail server refused the login: User is authenticated but not connected.",
     });
     const endpoint = tokenEndpoint("access-2");
 
@@ -94,13 +95,15 @@ describe("a refused OAuth login", () => {
       mailDeps({ connector: server.connector, fetch: endpoint.fetch }),
     );
 
-    expect(result).toEqual({ ok: false, code: "login_refused" });
+    expect(result).toEqual({ ok: false, code: "session_refused" });
     expect(endpoint.refreshTokens).toEqual(["refresh-1"]);
     const account = await storedAccount(db, userId, accountId);
     expect(account).toMatchObject({
-      status: "reconnect",
-      lastErrorCode: "login_refused",
+      status: "error",
+      lastErrorCode: "session_refused",
     });
-    expect(account.lastErrorMessage).toContain("AUTHENTICATE failed.");
+    expect(account.lastErrorMessage).toContain(
+      "User is authenticated but not connected.",
+    );
   });
 });

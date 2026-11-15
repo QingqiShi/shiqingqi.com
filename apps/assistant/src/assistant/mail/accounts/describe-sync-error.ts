@@ -1,5 +1,8 @@
 import type { MailAccountStatus } from "#src/assistant/db/schema.ts";
-import { MailboxAuthError } from "#src/assistant/mail/imap/mailbox-auth-error.ts";
+import {
+  MailboxAuthError,
+  MailboxSessionRefusedError,
+} from "#src/assistant/mail/imap/mailbox-auth-error.ts";
 import { OAuthTokenError } from "#src/assistant/mail/oauth/oauth-token-error.ts";
 import {
   CredentialUnreadableError,
@@ -8,6 +11,7 @@ import {
 
 export const SYNC_ERROR_CODES = [
   "login_refused",
+  "session_refused",
   "token_revoked",
   "token_refresh_failed",
   "credential_unreadable",
@@ -40,6 +44,9 @@ export function describeSyncError(error: unknown): {
     .slice(0, MAX_MESSAGE_CHARS);
   if (error instanceof MailboxAuthError) {
     return { status: "reconnect", code: "login_refused", message };
+  }
+  if (error instanceof MailboxSessionRefusedError) {
+    return { status: "error", code: "session_refused", message };
   }
   if (error instanceof CredentialUnreadableError) {
     return { status: "reconnect", code: "credential_unreadable", message };

@@ -1,7 +1,10 @@
 import { mailAccounts } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
 import { MAIL_SERVERS } from "#src/assistant/mail/imap/mail-servers.ts";
-import { MailboxAuthError } from "#src/assistant/mail/imap/mailbox-auth-error.ts";
+import {
+  MailboxAuthError,
+  MailboxSessionRefusedError,
+} from "#src/assistant/mail/imap/mailbox-auth-error.ts";
 import type {
   MailboxConnector,
   MailboxSession,
@@ -37,8 +40,9 @@ export async function storedCredential(
 /**
  * Logs in to the mailbox of an account. When the server refuses an OAuth
  * access token that has not expired yet, as Outlook sometimes does, it gets
- * a new token and tries once more; only a second refusal throws
- * `MailboxAuthError`.
+ * a new token and tries once more. A second refusal throws
+ * `MailboxSessionRefusedError`: the provider accepted the refresh, so the
+ * login itself still works.
  */
 export async function openMailboxSession(
   db: AssistantDb,
@@ -66,5 +70,12 @@ export async function openMailboxSession(
     deps.auth,
     { forceRefresh: true },
   );
-  return deps.connector(server, refreshed);
+  try {
+    return await deps.connector(server, refreshed);
+  } catch (error) {
+    if (error instanceof MailboxAuthError) {
+      throw new MailboxSessionRefusedError(error.message);
+    }
+    throw error;
+  }
 }
