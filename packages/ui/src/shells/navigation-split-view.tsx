@@ -39,6 +39,7 @@ import { useColumnHistory } from "./split-view/use-column-history.ts";
 import { useColumnKeys, useStackFocus } from "./split-view/use-column-keys.ts";
 import { useColumnPages } from "./split-view/use-column-pages.ts";
 import { useEdgeSwipe } from "./split-view/use-edge-swipe.ts";
+import { useKeptRootContent } from "./split-view/use-kept-root-content.ts";
 import { SplitViewMarksContext } from "./split-view/use-split-view-shared.ts";
 import { useStackHandoff } from "./split-view/use-stack-handoff.ts";
 import { useStackOpening } from "./split-view/use-stack-opening.ts";
@@ -85,7 +86,12 @@ export {
  * The screen has one sidebar. In a `TabView`, the sidebar of the view shows
  * the destinations of the `TabView` above the list, and the `TabView` shows
  * no sidebar of its own. Below 48rem the `TabView` keeps its destinations in
- * its rail of icons or its tab bar. Outside a `TabView`, the view paints the
+ * its rail of icons or its tab bar. While the visitor has the sidebar of the
+ * `TabView` collapsed to that rail, the view is a stack at each width. The
+ * content keeps the composition that it has beside the sidebar, and it shows
+ * its `back`, also beside a detail. The content of the URL of the list stays
+ * on the screen with a `back` to the list, and the list is then a page, in
+ * the page column of a list, as it is at once below 48rem. Outside a `TabView`, the view paints the
  * sidebar fill itself, the sidebar takes a `header` and a `footer`, and with
  * a `toggleLabel` it has a button that collapses it, at the end of its top,
  * after the `header`. The sidebar goes out at the inline start of the view,
@@ -163,7 +169,7 @@ export {
  */
 export function NavigationSplitView({
   sidebar,
-  content,
+  content: givenContent,
   detail,
   linkComponent: ownLinkComponent,
   linkStatus,
@@ -176,12 +182,25 @@ export function NavigationSplitView({
   const [layer, setLayer] = useState<HTMLElement | null>(null);
   const [marks] = useState<SplitViewMarks>(() => new Map());
   const widthsReached = useViewWidthsReached(view);
-  const fitsFullSidebar = widthsReached === null ? null : widthsReached >= 2;
-  const detailBeside = widthsReached === null ? null : widthsReached >= 3;
   const isRouted = linkStatus !== null;
   const hasSidebar = sidebar != null;
   const isInTabView = useIsInTabView();
   const tabViewNav = useTabViewSidebarNav();
+  // The rail of icons of a `TabView` has no place for the list, so the list is
+  // the first page of the stack, as it is below 48rem.
+  const isStackedByRail = hasSidebar && tabViewNav?.isCollapsed === true;
+  const fitsFullSidebar = isStackedByRail
+    ? false
+    : widthsReached === null
+      ? null
+      : widthsReached >= 2;
+  const detailBeside = widthsReached === null ? null : widthsReached >= 3;
+  const { content, leave: leaveKeptContent } = useKeptRootContent({
+    sidebar,
+    content: givenContent,
+    isStackedByRail,
+    widthsReached,
+  });
   const ownToggleLabel = tabViewNav === null ? sidebar?.toggleLabel : undefined;
   const { isCollapsed: isOwnCollapsed, scope } = useSidebarCollapse(
     ownToggleLabel !== undefined,
@@ -313,7 +332,11 @@ export function NavigationSplitView({
       viewShift: tabViewNav?.pressShift,
       onSidebarSlide: tabViewNav?.follow,
     });
-  const { takeOff, follow, pressedRef } = useColumnHistory({
+  const {
+    takeOff: takeOffInHistory,
+    follow,
+    pressedRef,
+  } = useColumnHistory({
     content,
     detail,
     deepestKey: deepest.key,
@@ -323,6 +346,10 @@ export function NavigationSplitView({
     replace,
     replaceWaiting,
   });
+  const takeOff = (href: string) => {
+    if (leaveKeptContent(href)) capture(href);
+    else takeOffInHistory(href);
+  };
 
   useStackFocus(
     view,
@@ -401,8 +428,12 @@ export function NavigationSplitView({
             <div
               ref={setView}
               data-split-view=""
+              data-split-view-stacked={isStackedByRail ? "" : undefined}
               css={[
                 viewFrameStyles.view,
+                isStackedByRail
+                  ? viewFrameStyles.sidebarStacked
+                  : viewFrameStyles.sidebarBeside,
                 isContained && viewFrameStyles.viewContained,
                 movingMarker,
                 hasSidebar && pageColumn.wide,
@@ -424,7 +455,7 @@ export function NavigationSplitView({
                   isContained && viewFrameStyles.columnsContained,
                   !isInTabView && viewFrameStyles.columnsWithoutBar,
                   hasSidebar &&
-                    !hasDetailColumn &&
+                    (!hasDetailColumn || isStackedByRail) &&
                     viewFrameStyles.stackedBelowSidebar,
                 ]}
               >
@@ -433,6 +464,7 @@ export function NavigationSplitView({
                     sidebar={sidebar}
                     nav={sidebarNav}
                     toggle={ownToggle}
+                    isStackedByRail={isStackedByRail}
                     showsStackRoot={showsStackRoot}
                     fitsFullSidebar={fitsFullSidebar}
                     hasDetailColumn={hasDetailColumn}
@@ -457,6 +489,7 @@ export function NavigationSplitView({
                       : null
                   }
                   hasSidebar={hasSidebar}
+                  isStackedByRail={isStackedByRail}
                   besideFill={
                     isInTabView
                       ? "rail"

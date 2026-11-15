@@ -251,10 +251,17 @@ export function TabViewLink(props: TabViewLinkProps) {
 
 /**
  * Content of the `header` or the `footer` of a `TabView` that shows only
- * where the rail shows labels, such as the app's name beside its mark.
+ * where the rail shows labels, such as the app's name beside its mark. Its
+ * `css` applies to the box that goes, so that a margin goes with it.
  */
-export function TabViewLabelsOnly({ children }: { children: ReactNode }) {
-  return <span css={tabViewStyles.labelsOnly}>{children}</span>;
+export function TabViewLabelsOnly({
+  children,
+  css,
+}: {
+  children: ReactNode;
+  css?: StyleProp;
+}) {
+  return <span css={[css, tabViewStyles.labelsOnly]}>{children}</span>;
 }
 
 /**
@@ -288,7 +295,9 @@ export function TabViewIconsOnly({ children }: { children: ReactNode }) {
  * label, the button, and each line of the `header` and the `footer` go to
  * their places in the other form. A press during the motion turns it around
  * from where it is. Under reduced motion, the form changes at once and the
- * rail fades in.
+ * rail fades in. While the sidebar is collapsed, a screen with a list shows
+ * a back link at the top of its content. The link goes to the list as a
+ * page, as below 48rem, so each list stays in reach.
  *
  * The content goes under the bar: `tabViewTokens.barClearance` is the strip the
  * bar takes, and each layout in the content keeps clear of it. With

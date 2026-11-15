@@ -55,6 +55,7 @@ export function pxToRem(px: number) {
  * @internal
  */
 export function isViewStacked(view: HTMLElement) {
+  if (view.dataset.splitViewStacked !== undefined) return true;
   const stackedBelow =
     view.querySelector(SELECTOR.stackRoot) === null
       ? STACKED_BELOW_REM

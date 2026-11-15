@@ -17,7 +17,10 @@ export const splitViewWidths = stylex.defineConsts({
  * content keeps at least 25.25rem, and below that it is the first page of a
  * stack. 48rem is also the width where a `TabView` gives its
  * destinations to the sidebar and takes no width of its own, so the two
- * never disagree. `detailBeside` is where the detail fits beside at least
+ * never disagree. A view also stacks its list at each width while it sets
+ * `--split-view-stacked` to 1, as it does beside the collapsed rail of a
+ * `TabView`. Each of the two queries reads it, so that one of them holds.
+ * `detailBeside` is where the detail fits beside at least
  * 20rem of content and the rail of a `TabView`. The view measures the same
  * width in script, `DETAIL_BESIDE_MIN_REM` in `split-view/use-view-widths-reached.ts`,
  * and shows the detail in a sheet below it.
@@ -30,9 +33,11 @@ export const splitViewQueries = stylex.defineConsts({
   /** Not `contentAlone`, for a value that only this width sets. */
   besideOthers: "@container (width >= 30rem)",
   /** The sidebar and the content. */
-  contentBesideSidebar: "@container (width >= 48rem)",
+  contentBesideSidebar:
+    "@container (width >= 48rem) and (not style(--split-view-stacked: 1))",
   /** Not `contentBesideSidebar`, for a value that only this width sets. */
-  noSidebarBeside: "@container (width < 48rem)",
+  noSidebarBeside:
+    "@container (width < 48rem) or style(--split-view-stacked: 1)",
   /** The detail fits beside the content. */
   detailBeside: "@container (width >= 50.75rem)",
 });

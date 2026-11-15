@@ -620,6 +620,11 @@ export default defineConfig([
                 "LyteNyte Grid reads its theme from these names, so StyleX cannot hash them.",
             },
             {
+              pattern: "^--split-view-stacked$",
+              reason:
+                "A container style query gives the name of the property as text, and a hashed name has no text to give.",
+            },
+            {
               pattern: "^--removed-body-scroll-bar-size$",
               reason:
                 "react-remove-scroll sets this name on the body while it locks the page scroll.",

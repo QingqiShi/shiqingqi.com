@@ -65,15 +65,6 @@ export const sidebarStyles = stylex.create({
   buttonOnlyUnder: {
     visibility: "hidden",
   },
-  // In a `TabView`, the visitor collapsed the sidebar: the list goes where it
-  // shows beside the content, and stays the first page where the view is
-  // narrower.
-  awayWhileCollapsed: {
-    display: {
-      default: "flex",
-      [splitViewQueries.contentBesideSidebar]: "none",
-    },
-  },
   fullContent: {
     paddingInline: space._3,
   },
