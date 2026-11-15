@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { mailAccounts } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
 import type { MailboxSession } from "#src/assistant/mail/imap/types.ts";
@@ -11,7 +12,15 @@ import {
 } from "./open-mailbox-session.ts";
 import { ownAccount } from "./own-account.ts";
 
-/** Records a failed login or run on the account; `reconnect` stops the crons until the user connects again. */
+/** How long a server may refuse fresh tokens before the account asks for a new connect. */
+export const SESSION_REFUSED_LIMIT_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Records a failed login or run on the account; `reconnect` stops the crons
+ * until the user connects again. A `session_refused` account that has not
+ * opened for `SESSION_REFUSED_LIMIT_MS` becomes `login_refused`: the refusal
+ * is not a passing one, and the connect flow shows the server's answer at once.
+ */
 export async function recordAccountError(
   db: AssistantDb,
   userId: string,
@@ -20,6 +29,23 @@ export async function recordAccountError(
   now: Date,
 ): Promise<SyncErrorCode> {
   const described = describeSyncError(error);
+  if (described.code === "session_refused") {
+    const limit = new Date(now.getTime() - SESSION_REFUSED_LIMIT_MS);
+    const overLimit = sql`coalesce(${mailAccounts.lastSyncedAt}, ${mailAccounts.createdAt}) < ${limit.toISOString()}::timestamptz`;
+    const rows = await db
+      .update(mailAccounts)
+      .set({
+        status: sql`case when ${overLimit} then 'reconnect' else 'error' end`,
+        lastErrorCode: sql`case when ${overLimit} then 'login_refused' else 'session_refused' end`,
+        lastErrorMessage: described.message,
+        lastErrorAt: now,
+      })
+      .where(ownAccount(userId, accountId))
+      .returning({ code: mailAccounts.lastErrorCode });
+    return rows.at(0)?.code === "login_refused"
+      ? "login_refused"
+      : described.code;
+  }
   await db
     .update(mailAccounts)
     .set({
