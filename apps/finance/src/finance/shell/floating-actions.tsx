@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
-import { row } from "@tuja/ui/primitives/stack.stylex";
+import { StickyControlGroup } from "@tuja/ui/components/sticky-controls";
 import type { StyleProp } from "@tuja/ui/types";
-import type { ReactNode, Ref } from "react";
+import type { ReactNode } from "react";
 
 interface FloatingActionsProps {
   /**
@@ -9,21 +9,21 @@ interface FloatingActionsProps {
    * the inline end, where the Add button floats.
    */
   children: ReactNode;
-  /** Places the group, such as a sticky offset. */
+  /** Places the group in its row. */
   css?: StyleProp;
-  /** The group's box, such as the ref of `useEffectSticky`. */
-  ref?: Ref<HTMLDivElement>;
 }
 
 /**
  * Form actions that float over the content scrolling behind them at the
- * inline end, instead of a bar across the bottom of the screen.
+ * inline end, instead of a bar across the bottom of the screen. Put the group
+ * in a `StickyControls` row: while the row holds, the content behind the
+ * actions is blurred.
  */
-export function FloatingActions({ children, css, ref }: FloatingActionsProps) {
+export function FloatingActions({ children, css }: FloatingActionsProps) {
   return (
-    <div ref={ref} css={[row.tight, styles.group, css]}>
+    <StickyControlGroup css={[styles.group, css]}>
       {children}
-    </div>
+    </StickyControlGroup>
   );
 }
 

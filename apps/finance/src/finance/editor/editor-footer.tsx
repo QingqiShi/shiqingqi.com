@@ -3,9 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
-import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
-import { useEffectSticky } from "@tuja/ui/hooks/use-effect-sticky";
-import { layer, space } from "@tuja/ui/tokens.stylex";
+import { StickyControls } from "@tuja/ui/components/sticky-controls";
+import { space } from "@tuja/ui/tokens.stylex";
 import { FloatingActions } from "../shell/floating-actions.tsx";
 import type { TransactionForm } from "./use-transaction-form.ts";
 
@@ -18,8 +17,6 @@ const PANE_END_GAP = space._7;
 
 export function EditorFooter({ form }: { form: TransactionForm }) {
   const { column, isNew, isExpected, paidToday, save, remove } = form;
-  const footerSticky = useEffectSticky();
-  const { ref: footerStickyRef, css: footerStickyCss } = footerSticky;
   const saveLabel = paidToday
     ? t({ en: "Paid today", zh: "今天已付" })
     : isExpected
@@ -39,11 +36,8 @@ export function EditorFooter({ form }: { form: TransactionForm }) {
   ) : null;
 
   return (
-    <FloatingActions
-      ref={footerStickyRef}
-      css={[styles.footer, column !== null && styles.inColumn, footerStickyCss]}
-    >
-      <EffectCarrier value={footerSticky}>
+    <StickyControls css={[styles.footer, column !== null && styles.inColumn]}>
+      <FloatingActions>
         {secondaryAction}
         <Button
           type="submit"
@@ -52,16 +46,17 @@ export function EditorFooter({ form }: { form: TransactionForm }) {
         >
           {saveLabel}
         </Button>
-      </EffectCarrier>
-    </FloatingActions>
+      </FloatingActions>
+    </StickyControls>
   );
 }
 
 const styles = stylex.create({
   footer: {
-    position: "sticky",
+    insetBlockStart: "auto",
     insetBlockEnd: `calc(${space._3} - ${PANE_END_GAP})`,
-    zIndex: layer.raised,
+    inlineSize: "fit-content",
+    marginInlineStart: "auto",
   },
   // A column has no end padding for the actions to move into.
   inColumn: {

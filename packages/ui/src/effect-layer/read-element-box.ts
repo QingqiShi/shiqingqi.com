@@ -260,8 +260,28 @@ export function scrollerPadding(
 }
 
 /**
+ * How much a transform scales an element on each axis: the size of its box
+ * in the viewport over its layout size. It is 1 for an element with no
+ * layout size.
+ *
+ * @internal
+ */
+export function scaleOf(element: Element, rect: DOMRect) {
+  if (!(element instanceof HTMLElement)) {
+    return { x: 1, y: 1 };
+  }
+  const { offsetWidth, offsetHeight } = element;
+  return {
+    x: offsetWidth > 0 ? rect.width / offsetWidth : 1,
+    y: offsetHeight > 0 ? rect.height / offsetHeight : 1,
+  };
+}
+
+/**
  * The box that a sticky box in a scroller sticks to, in viewport
- * coordinates: the scroller's padding box less its padding.
+ * coordinates: the scroller's padding box less its padding. The layout
+ * lengths of the scroller take the scale of its box, so the result is
+ * correct while a transform scales the scroller, such as a sheet that opens.
  *
  * @internal
  */
@@ -270,14 +290,15 @@ export function stickyViewOf(
   styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
 ): Edges {
   const rect = scroller.getBoundingClientRect();
+  const scale = scaleOf(scroller, rect);
   const padding = scrollerPadding(scroller, styleOf);
-  const left = rect.left + scroller.clientLeft;
-  const top = rect.top + scroller.clientTop;
+  const left = rect.left + scroller.clientLeft * scale.x;
+  const top = rect.top + scroller.clientTop * scale.y;
   return {
-    left: left + padding.left,
-    top: top + padding.top,
-    right: left + scroller.clientWidth - padding.right,
-    bottom: top + scroller.clientHeight - padding.bottom,
+    left: left + padding.left * scale.x,
+    top: top + padding.top * scale.y,
+    right: left + (scroller.clientWidth - padding.right) * scale.x,
+    bottom: top + (scroller.clientHeight - padding.bottom) * scale.y,
   };
 }
 
