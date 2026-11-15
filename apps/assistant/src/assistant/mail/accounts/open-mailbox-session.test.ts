@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { mailAccounts } from "#src/assistant/db/schema.ts";
 import {
   createTestDb,
   type TestDb,
@@ -105,5 +106,33 @@ describe("a refused OAuth login", () => {
     expect(account.lastErrorMessage).toContain(
       "User is authenticated but not connected.",
     );
+  });
+
+  it("asks for a new connect once the server has refused fresh tokens for a day", async () => {
+    await db
+      .update(mailAccounts)
+      .set({ lastSyncedAt: new Date(Date.now() - 25 * 60 * 60 * 1000) });
+    const server = createFakeMailServer({
+      user: "me@outlook.com",
+      accessToken: "access-3",
+      refusal:
+        "The mail server refused the login: User is authenticated but not connected.",
+    });
+
+    const result = await checkAccount(
+      db,
+      userId,
+      accountId,
+      mailDeps({
+        connector: server.connector,
+        fetch: tokenEndpoint("access-2").fetch,
+      }),
+    );
+
+    expect(result).toEqual({ ok: false, code: "login_refused" });
+    expect(await storedAccount(db, userId, accountId)).toMatchObject({
+      status: "reconnect",
+      lastErrorCode: "login_refused",
+    });
   });
 });
