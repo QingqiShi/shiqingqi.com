@@ -170,7 +170,7 @@ export function TripView({
       <PhaseBanner
         phase={phase}
         daysUntil={daysUntil}
-        startLabel={dateLabel(trip.days[0].date)}
+        startLabel={dateLabel(trip.days[0].date, "zh")}
       />
 
       <main className="mx-auto max-w-3xl px-4 py-8">

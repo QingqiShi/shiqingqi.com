@@ -1,34 +1,74 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
+
 // Trip dates are calendar dates, so they format in UTC to stay on the same day
 // everywhere.
-const monthDay = new Intl.DateTimeFormat("zh-CN", {
+const DATE_LOCALES: Record<SupportedLocale, string> = {
+  en: "en-GB",
+  zh: "zh-CN",
+};
+
+const monthDay = {
+  en: new Intl.DateTimeFormat(DATE_LOCALES.en, {
+    timeZone: "UTC",
+    month: "long",
+    day: "numeric",
+  }),
+  zh: new Intl.DateTimeFormat(DATE_LOCALES.zh, {
+    timeZone: "UTC",
+    month: "long",
+    day: "numeric",
+  }),
+};
+
+const weekdayFormat = {
+  en: new Intl.DateTimeFormat(DATE_LOCALES.en, {
+    timeZone: "UTC",
+    weekday: "short",
+  }),
+  zh: new Intl.DateTimeFormat(DATE_LOCALES.zh, {
+    timeZone: "UTC",
+    weekday: "short",
+  }),
+};
+
+const englishRange = new Intl.DateTimeFormat(DATE_LOCALES.en, {
   timeZone: "UTC",
+  year: "numeric",
   month: "long",
   day: "numeric",
 });
-const weekdayFormat = new Intl.DateTimeFormat("zh-CN", {
-  timeZone: "UTC",
-  weekday: "short",
-});
+
+function utcDate(iso: string) {
+  return new Date(`${iso}T00:00:00Z`);
+}
 
 function parts(iso: string) {
   const [year, month, day] = iso.split("-").map(Number);
   return { year, month, day };
 }
 
-/** "6月18日" */
-export function dateLabel(iso: string): string {
-  return monthDay.format(new Date(`${iso}T00:00:00Z`));
+/** "18 June", "6月18日" */
+export function dateLabel(iso: string, locale: SupportedLocale): string {
+  return monthDay[locale].format(utcDate(iso));
 }
 
-/** "周四" */
-export function weekdayLabel(iso: string): string {
-  return weekdayFormat.format(new Date(`${iso}T00:00:00Z`));
+/** "Thu", "周四" */
+export function weekdayLabel(iso: string, locale: SupportedLocale): string {
+  return weekdayFormat[locale].format(utcDate(iso));
 }
 
-/** "2026 年 6 月 11 – 15 日", or across months "2026 年 6 月 28 日 – 7 月 2 日". */
-export function dateRangeLabel(days: { date: string }[]): string {
-  const a = parts(days[0].date);
-  const b = parts(days[days.length - 1].date);
+/** "11–15 June 2026", "2026 年 6 月 11 – 15 日" */
+export function dateRangeLabel(
+  days: { date: string }[],
+  locale: SupportedLocale,
+): string {
+  const first = days[0].date;
+  const last = days[days.length - 1].date;
+  if (locale === "en") {
+    return englishRange.formatRange(utcDate(first), utcDate(last));
+  }
+  const a = parts(first);
+  const b = parts(last);
   if (a.year !== b.year) {
     return `${String(a.year)} 年 ${String(a.month)} 月 ${String(a.day)} 日 – ${String(b.year)} 年 ${String(b.month)} 月 ${String(b.day)} 日`;
   }

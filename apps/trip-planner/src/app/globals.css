@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@tuja/ui/fonts.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -118,3 +119,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+/**
+ * The @stylex directive is used by the @stylexjs/postcss-plugin.
+ * It is automatically replaced with generated CSS during builds.
+ */
+@stylex;

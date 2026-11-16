@@ -1,3 +1,6 @@
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import type { SupportedLocale } from "@tuja/i18n/types";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import { CalendarDays, ChevronRight, Lock, Users } from "lucide-react";
 import { connection } from "next/server";
 import { Link } from "@/link";
@@ -19,11 +22,19 @@ function phaseBadge(trip: Trip, now: Date) {
   }
 }
 
-function TripCard({ trip, now }: { trip: Trip; now: Date }) {
+function TripCard({
+  trip,
+  now,
+  locale,
+}: {
+  trip: Trip;
+  now: Date;
+  locale: SupportedLocale;
+}) {
   return (
     <li>
       <Link
-        href={`/${trip.slug}`}
+        href={getLocalePath(`/${trip.slug}`, locale)}
         className="group block rounded-xl border bg-card p-5 transition-colors hover:border-foreground/30 hover:bg-accent/40"
       >
         <div className="flex items-center gap-3">
@@ -44,7 +55,7 @@ function TripCard({ trip, now }: { trip: Trip; now: Date }) {
         <div className="mt-3 flex flex-wrap gap-2">
           <Badge variant="outline">
             <CalendarDays />
-            {dateRangeLabel(trip.days)}
+            {dateRangeLabel(trip.days, "zh")}
           </Badge>
           <Badge variant="outline">
             <Users />
@@ -56,7 +67,12 @@ function TripCard({ trip, now }: { trip: Trip; now: Date }) {
   );
 }
 
-export default async function HomePage() {
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const locale = validateLocale((await params).locale);
   await connection();
   const now = new Date();
 
@@ -70,7 +86,7 @@ export default async function HomePage() {
       <main className="flex-1">
         <ol className="space-y-3">
           {trips.map((trip) => (
-            <TripCard key={trip.slug} trip={trip} now={now} />
+            <TripCard key={trip.slug} trip={trip} now={now} locale={locale} />
           ))}
         </ol>
       </main>

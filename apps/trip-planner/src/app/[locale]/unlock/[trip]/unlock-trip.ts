@@ -1,5 +1,7 @@
 "use server";
 
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { GATE_COOKIE_MAX_AGE, gateToken, tripGate } from "@/trip-gate";
@@ -38,5 +40,11 @@ export async function unlockTrip(
     maxAge: GATE_COOKIE_MAX_AGE,
   });
 
-  redirect(`/${slug}`);
+  const locale = formData.get("locale");
+  redirect(
+    getLocalePath(
+      `/${slug}`,
+      validateLocale(typeof locale === "string" ? locale : ""),
+    ),
+  );
 }

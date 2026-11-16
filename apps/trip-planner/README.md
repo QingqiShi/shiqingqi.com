@@ -3,11 +3,16 @@
 A standalone Next.js app for planning trips, deployed as its **own Vercel project**
 (separate from the main `web` site) out of this monorepo.
 
-- **Locale:** Chinese only (`zh`). No i18n pipeline — copy is written inline.
-- **UI:** [shadcn/ui](https://ui.shadcn.com) on **Tailwind CSS v4** (Radix primitives,
-  CSS-variable theming). This deliberately diverges from the main `web` site's
-  StyleX + `@tuja/ui` system — trip-planner is an isolated experiment and does not
-  share the design system.
+- **Locale:** English and Chinese routes under `src/app/[locale]`: English has
+  no prefix (`/gb`), Chinese is at `/zh` (`/zh/gb`). App text uses inline
+  `t({ en, zh })` (see the `i18n-patterns` skill). The current screens are
+  still written in Chinese in both locales; they move to `t()` as they are
+  rebuilt on `@tuja/ui`.
+- **UI:** moving from [shadcn/ui](https://ui.shadcn.com) on **Tailwind CSS v4**
+  to the repo's StyleX design system, `@tuja/ui`. Both build side by side
+  until the last screen moves; then shadcn, Tailwind and lucide go.
+- **Access:** each trip has its own password. The proxy gates a trip path with
+  or without a locale prefix, and the trip page checks the unlock cookie too.
 
 ## UI components
 
@@ -23,9 +28,7 @@ alias → `src/*`). The `cn()` helper is in `src/shadcn/utils.ts`.
 ## Develop
 
 ```bash
-pnpm dev          # runs every app; trip-planner uses web's port + 100
-# or just this app:
-pnpm --filter trip-planner dev
+pnpm --filter trip-planner dev   # port: node scripts/get-worktree-port.mjs 100
 ```
 
 ## Maps
@@ -54,6 +57,8 @@ This app is a second Vercel project pointing at the same Git repo:
 - **Framework preset:** Next.js (auto-detected)
 - **Install Command:** `pnpm install` (run at repo root; inherited)
 - **Build Command:** `pnpm build` (or leave default — Vercel runs `next build`)
+- **Font:** set `LICENSED_FONTS_READ_WRITE_TOKEN` so the build downloads the
+  licensed Haffer font; without it the app uses the fallback font.
 
 The **Ignored Build Step** is committed as `ignoreCommand` in `vercel.json`
 (`npx turbo-ignore trip-planner`), so Vercel only redeploys when this app or
