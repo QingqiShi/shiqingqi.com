@@ -303,7 +303,6 @@ export function UndoButton({
           disabled={busy}
           icon={<UndoGlyph />}
           hideLabelOnMobile={compact}
-          aria-label={compact ? label : undefined}
           aria-describedby={describedBy}
           onClick={() => {
             if (confirm) setAsking(true);

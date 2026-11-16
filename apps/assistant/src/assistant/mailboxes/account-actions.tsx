@@ -38,7 +38,6 @@ export function AccountActions({ accountId }: { accountId: string }) {
         look="ghost"
         icon={<ArrowClockwiseIcon weight="bold" />}
         hideLabelOnMobile
-        aria-label={checkLabel}
         loading={busy === "check"}
         disabled={busy !== null}
         onClick={() => {
@@ -52,7 +51,6 @@ export function AccountActions({ accountId }: { accountId: string }) {
         look={confirming ? "destructive" : "ghost"}
         icon={<TrashIcon weight="bold" />}
         hideLabelOnMobile
-        aria-label={removeLabel}
         loading={busy === "remove"}
         disabled={busy !== null}
         onClick={() => {

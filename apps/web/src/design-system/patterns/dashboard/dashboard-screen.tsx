@@ -143,7 +143,6 @@ function OpenMailButton() {
       size="sm"
       icon={<EnvelopeSimpleIcon weight="bold" />}
       hideLabelOnMobile
-      aria-label={label}
     >
       {label}
     </Button>

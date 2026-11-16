@@ -116,7 +116,6 @@ function TokenRow({
           look={confirming ? "destructive" : "ghost"}
           icon={<TrashIcon weight="bold" />}
           hideLabelOnMobile
-          aria-label={revokeLabel}
           onClick={() => {
             if (confirming) onRevoke();
             else setConfirming(true);
