@@ -9,7 +9,7 @@ export function evaluateRPN(tokens: Token[]): number {
 
   for (const token of tokens) {
     if (token.type === "number") {
-      stack.push(token.value);
+      stack.push(Number(token.raw));
     } else {
       const rhs = stack.pop();
       const lhs = stack.pop();

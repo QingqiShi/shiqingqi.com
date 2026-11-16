@@ -17,10 +17,8 @@ export const buttons = [
 
 // Operators
 export const binaryOperators = ["+", "−", "×", "÷"] as const;
-const unaryOperators = ["±", "%"] as const;
 
 export const binaryOperatorsSet: Set<string> = new Set(binaryOperators);
-export const unaryOperatorsSet: Set<string> = new Set(unaryOperators);
 
 // Number characters
 export const numbersSet = new Set([

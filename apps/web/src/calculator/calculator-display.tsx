@@ -4,6 +4,7 @@ import { t } from "@tuja/i18n";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { isErrorToken } from "./calculator-logic/is-error-token.ts";
 import type { Token } from "./types.ts";
 
 interface CalculatorDisplayProps {
@@ -11,8 +12,9 @@ interface CalculatorDisplayProps {
   currentToken: Token;
 }
 
-function formatTokenValue(token: Token, errorLabel: string): string {
-  return Number.isNaN(token.value) ? errorLabel : String(token.value);
+function formatToken(token: Token, errorLabel: string): string {
+  if (token.type === "binaryOperator") return token.value;
+  return isErrorToken(token) ? errorLabel : token.raw;
 }
 
 function updateFontSize(
@@ -57,7 +59,7 @@ export function CalculatorDisplay({
 }: CalculatorDisplayProps) {
   const errorLabel = t({ en: "Error", zh: "错误" });
   const displayText = [...tokens, currentToken]
-    .map((token) => formatTokenValue(token, errorLabel))
+    .map((token) => formatToken(token, errorLabel))
     .join(" ");
 
   const containerRef = useRef<HTMLDivElement>(null);

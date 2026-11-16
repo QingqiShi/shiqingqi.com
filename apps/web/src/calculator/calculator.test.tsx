@@ -53,6 +53,23 @@ describe("Calculator", () => {
     expect(getDisplay()).toHaveTextContent("15");
   });
 
+  it("shows a decimal number as typed until it is evaluated", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    await pressButtons(user, ["1", "Decimal point"]);
+    expect(getDisplay()).toHaveTextContent(/^1\.$/);
+
+    await pressButtons(user, ["5", "0"]);
+    expect(getDisplay()).toHaveTextContent(/^1\.50$/);
+
+    await pressButtons(user, ["Add", "Decimal point"]);
+    expect(getDisplay()).toHaveTextContent(/^1\.50 \+ 0\.$/);
+
+    await pressButtons(user, ["5", "Equals"]);
+    expect(getDisplay()).toHaveTextContent(/^2$/);
+  });
+
   it("negates a number and still lets the user continue typing after a trailing decimal", async () => {
     const user = userEvent.setup();
     render(<Calculator />);
