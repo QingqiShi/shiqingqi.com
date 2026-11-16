@@ -126,7 +126,7 @@ export function PasswordConnectForm({
         }}
       />
       <div>
-        <Button type="submit" look="primary" loading={busy} disabled={busy}>
+        <Button type="submit" look="primary" loading={busy}>
           {copy.submit}
         </Button>
       </div>

@@ -64,7 +64,6 @@ export function SignInPanel({ next }: SignInPanelProps) {
           size="lg"
           icon={<FingerprintIcon weight="bold" />}
           loading={busy}
-          disabled={busy}
           css={fill.inline}
           onClick={() => {
             setBusy(true);
@@ -131,7 +130,6 @@ function DemoEntry() {
         look="outline"
         icon={<EyeIcon weight="bold" />}
         loading={busy}
-        disabled={busy}
         css={fill.inline}
         onClick={() => {
           setBusy(true);

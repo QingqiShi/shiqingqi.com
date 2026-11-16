@@ -77,6 +77,18 @@ describe("Button loading state", () => {
     expect(onClick).not.toHaveBeenCalled();
   });
 
+  it("stays focusable while loading when the caller also passes disabled", () => {
+    render(
+      <Button loading disabled>
+        Save
+      </Button>,
+    );
+
+    const button = screen.getByRole("button");
+    expect(button).not.toBeDisabled();
+    expect(button).toHaveAttribute("aria-busy", "true");
+  });
+
   it("does not fire onClick while loading", async () => {
     const user = userEvent.setup();
     const onClick = vi.fn();

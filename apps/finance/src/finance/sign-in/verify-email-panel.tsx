@@ -87,7 +87,6 @@ export function VerifyEmailPanel({ token }: { token: string }) {
         look="primary"
         size="lg"
         loading={busy}
-        disabled={busy}
         css={fill.inline}
         onClick={() => {
           setBusy(true);
