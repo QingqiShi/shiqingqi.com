@@ -12,7 +12,7 @@
     "lint": "eslint --max-warnings 0 ."
   },
   "devDependencies": {
-    "@electric-sql/pglite": "0.5.14",
+    "@electric-sql/pglite": "0.5.16",
     "@tuja/tsconfig": "workspace:*",
     "@types/node": "catalog:",
     "vitest": "catalog:"
