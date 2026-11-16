@@ -4,9 +4,10 @@ import type { SupportedLocale } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
 import { connection } from "next/server";
-import { lookupSignUp } from "#src/finance/auth/start-sign-up.ts";
+import { financeAuthStore } from "#src/finance/auth/finance-auth-store.ts";
 import { getFinanceDb } from "#src/finance/db/get-finance-db.ts";
 import { isFinanceConfigured } from "#src/finance/db/is-finance-configured.ts";
+import { asFinanceApp } from "#src/finance/db/with-household.ts";
 import { FinanceNotConfigured } from "#src/finance/shell/finance-not-configured.tsx";
 import { AuthNotice } from "#src/finance/sign-in/auth-notice.tsx";
 import { FinanceAuthFrame } from "#src/finance/sign-in/finance-auth-frame.tsx";
@@ -28,7 +29,9 @@ export default async function Page({
   const locale = validateLocale(rawLocale);
   await connection();
   if (!isFinanceConfigured()) return <FinanceNotConfigured />;
-  const signUp = await lookupSignUp(getFinanceDb(), token, new Date());
+  const signUp = await asFinanceApp(getFinanceDb(), (tx) =>
+    financeAuthStore.lookupSignUp(tx, token, new Date()),
+  );
 
   return (
     <FinanceAuthFrame>

@@ -1,4 +1,7 @@
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { authBodies } from "@tuja/server-auth/auth-bodies";
+import { authJson } from "@tuja/server-auth/auth-json";
+import { readAuthBody } from "@tuja/server-auth/read-auth-body";
 import { eq } from "drizzle-orm";
 import { lookups } from "#src/finance/db/lookups.ts";
 import { householdRepository } from "#src/finance/db/repositories/household-repository.ts";
@@ -10,36 +13,16 @@ import {
   type FinanceAppDb,
 } from "#src/finance/db/with-household.ts";
 import { DEFAULT_HOUSEHOLD_TIME_ZONE } from "#src/finance/domain/dates/default-household-time-zone.ts";
-import { resolveClientIp } from "#src/http/resolve-client-ip.ts";
-import { buildCodeEmail } from "../email/build-code-email.ts";
 import { buildRecoveryEmailChangedEmail } from "../email/build-recovery-email-changed-email.ts";
 import { buildVerificationEmail } from "../email/build-verification-email.ts";
-import { createEmailRecoveryInvite } from "./create-email-recovery-invite.ts";
-import {
-  HttpError,
-  json,
-  localeSchema,
-  readBody,
-  tokenBody,
-  type AuthHandlerDeps,
-  type AuthRouteKit,
-} from "./make-auth-route-kit.ts";
+import type { AuthHandlerDeps, FinanceAuth } from "./make-finance-auth.ts";
 import { requireSession } from "./require-session.ts";
-import { startEmailCode } from "./start-email-code.ts";
 import {
   startEmailVerification,
   verifyRecoveryEmail,
 } from "./start-email-verification.ts";
-import {
-  codeBody,
-  hashedAddress,
-  issueEmailCode,
-  readEmail,
-  sendOrFail,
-  takeEmailCode,
-} from "./take-email-code.ts";
 
-const verifyEmailBody = tokenBody.extend({ locale: localeSchema });
+const verifyEmailBody = authBodies.token.extend({ locale: authBodies.locale });
 
 async function readRecoveryEmail(db: FinanceAppDb, userId: string) {
   const user = (
@@ -67,9 +50,16 @@ async function householdTimeZone(db: FinanceDb, userId: string) {
   return household?.timezone ?? DEFAULT_HOUSEHOLD_TIME_ZONE;
 }
 
-export function makeRecoveryHandlers(
-  { handle, limit, withLimits, requireEmailSender }: AuthRouteKit,
-  deps: AuthHandlerDeps,
+/** The routes that read, change and confirm the Recovery email of the user that is signed in. */
+export function makeRecoveryEmailHandlers(
+  {
+    handle,
+    withLimits,
+    requireEmailSender,
+    readEmail,
+    sendOrFail,
+  }: FinanceAuth,
+  deps: Pick<AuthHandlerDeps, "emailSender" | "afterResponse">,
 ) {
   return {
     recoveryEmail: handle(
@@ -77,7 +67,7 @@ export function makeRecoveryHandlers(
         const session = await requireSession(request, context, {
           write: false,
         });
-        return json(
+        return authJson(
           context,
           await asFinanceApp(context.db, (db) =>
             readRecoveryEmail(db, session.userId),
@@ -94,7 +84,7 @@ export function makeRecoveryHandlers(
         readRecoveryEmail(db, session.userId),
       );
       if (current.email === email && current.verified) {
-        return json(context, current);
+        return authJson(context, current);
       }
       const sender = requireEmailSender();
       await withLimits([["verify-email", session.userId]], async () => {
@@ -114,11 +104,11 @@ export function makeRecoveryHandlers(
           }),
         );
       });
-      return json(context, { email, verified: false });
+      return authJson(context, { email, verified: false });
     }),
 
     verifyEmail: handle(async (request, context) => {
-      const { token, locale } = await readBody(request, verifyEmailBody);
+      const { token, locale } = await readAuthBody(request, verifyEmailBody);
       const { db, now, origin } = context;
       const verified = await asFinanceApp(db, (tx) =>
         verifyRecoveryEmail(tx, token, now),
@@ -147,58 +137,7 @@ export function makeRecoveryHandlers(
           }
         });
       }
-      return json(context, { verified: verified !== null });
-    }),
-
-    requestRecovery: handle(async (request, context) => {
-      const { email, locale } = await readEmail(request);
-      const sender = requireEmailSender();
-      await limit("recovery-email-ip", resolveClientIp(request.headers));
-      await limit("recovery-email-address", hashedAddress(email));
-      const { db, now, origin } = context;
-      const { codeId, code } = await asFinanceApp(db, (tx) =>
-        startEmailCode(tx, { purpose: "recovery", email, now }),
-      );
-      issueEmailCode(context, { purpose: "recovery", codeId });
-      // The response must be the same when no user has this email. Thus the
-      // search and the email occur after the response.
-      deps.afterResponse(async () => {
-        try {
-          const token = await asFinanceApp(db, (tx) =>
-            createEmailRecoveryInvite(tx, {
-              email,
-              now,
-              replaceEmailed: true,
-            }),
-          );
-          if (token === null) return;
-          await sender.send(
-            buildCodeEmail({
-              to: email,
-              locale,
-              code,
-              url: `${origin}${getLocalePath(`/invite/${token}`, locale)}`,
-            }),
-          );
-        } catch (error) {
-          console.error("Finance recovery email failed:", error);
-        }
-      });
-      return json(context, { ok: true }, 202);
-    }),
-
-    recoveryCode: handle(async (request, context) => {
-      const { code } = await readBody(request, codeBody);
-      const email = await takeEmailCode(request, context, "recovery", code);
-      const token = await asFinanceApp(context.db, (db) =>
-        createEmailRecoveryInvite(db, {
-          email,
-          now: context.now,
-          replaceEmailed: false,
-        }),
-      );
-      if (token === null) throw new HttpError(410, "code_expired");
-      return json(context, { path: `/invite/${token}` });
+      return authJson(context, { verified: verified !== null });
     }),
   };
 }

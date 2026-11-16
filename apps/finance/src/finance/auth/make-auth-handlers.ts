@@ -1,43 +1,39 @@
-import {
-  makeAuthRouteKit,
-  type AuthHandlerDeps,
-  type Handler,
-} from "./make-auth-route-kit.ts";
+import type { AuthHandler } from "@tuja/server-auth/make-auth-route-kit";
+import { makeFinanceAuth, type AuthHandlerDeps } from "./make-finance-auth.ts";
 import { makeInviteHandlers } from "./make-invite-handlers.ts";
-import { makeRecoveryHandlers } from "./make-recovery-handlers.ts";
-import { makeSignInHandlers } from "./make-sign-in-handlers.ts";
-import { makeSignUpHandlers } from "./make-sign-up-handlers.ts";
+import { makeRecoveryEmailHandlers } from "./make-recovery-email-handlers.ts";
+import { makeSessionHandlers } from "./make-session-handlers.ts";
 
 export type { AuthHandlerDeps };
 
 export interface AuthHandlers {
-  signInOptions: Handler;
-  signInVerify: Handler;
-  requestSignUp: Handler;
-  signUpCode: Handler;
-  signUpOptions: Handler;
-  signUpVerify: Handler;
-  inviteOptions: Handler;
-  inviteVerify: Handler;
-  createInvite: Handler;
-  passkeyOptions: Handler;
-  passkeyVerify: Handler;
-  recoveryEmail: Handler;
-  setRecoveryEmail: Handler;
-  verifyEmail: Handler;
-  requestRecovery: Handler;
-  recoveryCode: Handler;
-  signOut: Handler;
-  session: Handler;
-  startDemo: Handler;
+  signInOptions: AuthHandler;
+  signInVerify: AuthHandler;
+  requestSignUp: AuthHandler;
+  signUpCode: AuthHandler;
+  signUpOptions: AuthHandler;
+  signUpVerify: AuthHandler;
+  inviteOptions: AuthHandler;
+  inviteVerify: AuthHandler;
+  createInvite: AuthHandler;
+  passkeyOptions: AuthHandler;
+  passkeyVerify: AuthHandler;
+  recoveryEmail: AuthHandler;
+  setRecoveryEmail: AuthHandler;
+  verifyEmail: AuthHandler;
+  requestRecovery: AuthHandler;
+  recoveryCode: AuthHandler;
+  signOut: AuthHandler;
+  session: AuthHandler;
+  startDemo: AuthHandler;
 }
 
 export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
-  const kit = makeAuthRouteKit(deps);
+  const auth = makeFinanceAuth(deps);
   return {
-    ...makeSignInHandlers(kit),
-    ...makeSignUpHandlers(kit),
-    ...makeInviteHandlers(kit, deps),
-    ...makeRecoveryHandlers(kit, deps),
+    ...auth.handlers,
+    ...makeSessionHandlers(auth),
+    ...makeInviteHandlers(auth, deps),
+    ...makeRecoveryEmailHandlers(auth, deps),
   };
 }

@@ -1,30 +1,15 @@
+import { HttpError } from "@tuja/server-auth/http-error";
+import type { AuthContext } from "@tuja/server-auth/make-auth-route-kit";
 import { readRequestCookie } from "@tuja/server-auth/read-request-cookie";
-import type { FinanceAppDb } from "#src/finance/db/with-household.ts";
-import { createSession } from "./create-session.ts";
+import type { FinanceDb } from "#src/finance/db/types.ts";
 import { financeSessionCookie } from "./finance-session-cookie.ts";
-import { HttpError, type Context } from "./make-auth-route-kit.ts";
 import { resolveSession } from "./resolve-session.ts";
 import type { FinanceSession } from "./types.ts";
-
-export function openSession(
-  db: FinanceAppDb,
-  request: Request,
-  userId: string,
-  now: Date,
-  maxAgeSeconds?: number,
-) {
-  return createSession(db, {
-    userId,
-    userAgent: request.headers.get("User-Agent") ?? "",
-    now,
-    maxAgeSeconds,
-  });
-}
 
 /** The session of the request. A `write` refuses the read-only demo. */
 export async function requireSession(
   request: Request,
-  context: Context,
+  context: AuthContext<FinanceDb>,
   { write }: { write: boolean },
 ): Promise<FinanceSession> {
   const token = readRequestCookie(request, financeSessionCookie.name);
@@ -44,14 +29,4 @@ export async function requireSession(
     throw new HttpError(403, "read_only");
   }
   return resolved.session;
-}
-
-export function startSession(
-  context: Context,
-  token: string,
-  maxAgeSeconds?: number,
-) {
-  context.setCookies.push(
-    financeSessionCookie.serialize(token, context.secure, maxAgeSeconds),
-  );
 }

@@ -6,7 +6,7 @@ import { and, asc, eq, isNull } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { bindNewUserToMember } from "../../auth/bind-new-user-to-member.ts";
-import { createSession } from "../../auth/create-session.ts";
+import { financeAuthStore } from "../../auth/finance-auth-store.ts";
 import { financeSessionCookie } from "../../auth/finance-session-cookie.ts";
 import { lookups } from "../../db/lookups.ts";
 import { households, members, schema } from "../../db/schema.ts";
@@ -92,10 +92,11 @@ async function main() {
           memberId: owner.memberId,
           displayName: owner.memberName,
         }));
-      return createSession(tx, {
+      return financeAuthStore.createSession(tx, {
         userId,
         userAgent: "finance:session",
         now: new Date(),
+        maxAgeSeconds: financeSessionCookie.maxAgeSeconds,
       });
     });
     const name = financeSessionCookie.name;
