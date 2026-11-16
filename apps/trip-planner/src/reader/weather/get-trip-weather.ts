@@ -22,6 +22,9 @@ const FORECAST_DAYS = 16;
 /** Refresh a few times a day — forecasts update roughly that often. */
 const REVALIDATE_SECONDS = 3 * 60 * 60;
 
+/** The trip page waits for the forecast, so a slow answer must not hold it. */
+const FETCH_TIMEOUT_MS = 3000;
+
 interface WeatherPoint {
   dayId: string;
   date: string;
@@ -131,40 +134,45 @@ async function fetchWeather(
     forecast_days: String(FORECAST_DAYS),
   });
 
-  const result: Record<string, LiveWeather> = {};
-  try {
-    const response = await fetch(`${FORECAST_URL}?${params.toString()}`);
-    if (!response.ok) return result;
-    const body: unknown = await response.json();
-    // One coordinate returns a single object; many return an aligned array.
-    const blocks = Array.isArray(body) ? body : [body];
-    // Stamp every live day with the fetch time; `unstable_cache` freezes it
-    // until the next revalidation, so it reads as "last refreshed at".
-    const updated = dateInZone(new Date(), timeZone);
-    points.forEach((point, i) => {
-      const daily = asDailyBlock(blocks[i]);
-      if (!daily) return;
-      const live = readForecast(daily, point.date, updated);
-      if (live) result[point.dayId] = live;
-    });
-  } catch {
-    return {};
+  const response = await fetch(`${FORECAST_URL}?${params.toString()}`, {
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  });
+  if (!response.ok) {
+    throw new Error(`Open-Meteo answered ${String(response.status)}`);
   }
+  const body: unknown = await response.json();
+  // One coordinate returns a single object; many return an aligned array.
+  const blocks = Array.isArray(body) ? body : [body];
+  // Stamp every live day with the fetch time; `unstable_cache` freezes it
+  // until the next revalidation, so it reads as "last refreshed at".
+  const updated = dateInZone(new Date(), timeZone);
+  const result: Record<string, LiveWeather> = {};
+  points.forEach((point, i) => {
+    const daily = asDailyBlock(blocks[i]);
+    if (!daily) return;
+    const live = readForecast(daily, point.date, updated);
+    if (live) result[point.dayId] = live;
+  });
   return result;
 }
 
 /**
  * `unstable_cache` keeps its own revalidation independent of the page's
  * `force-dynamic` rendering, and folds the points into the cache key, so a
- * trip caches by its places and dates and an edit to them fetches again.
+ * trip caches by its places and dates and an edit to them fetches again. A
+ * fetch that fails throws, so that the cache keeps only a real forecast.
  */
 const cachedWeather = unstable_cache(fetchWeather, ["trip-weather-v4"], {
   revalidate: REVALIDATE_SECONDS,
 });
 
 /** Live weather keyed by day id, fetched from Open-Meteo a few times a day. */
-export function getTripWeather(
+export async function getTripWeather(
   trip: Trip,
 ): Promise<Record<string, LiveWeather>> {
-  return cachedWeather(weatherPoints(trip), trip.timeZone);
+  try {
+    return await cachedWeather(weatherPoints(trip), trip.timeZone);
+  } catch {
+    return {};
+  }
 }
