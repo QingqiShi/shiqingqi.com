@@ -59,11 +59,3 @@ export function buildDayFeed(day: Day): DayMoment[] {
 export function dayNavLegs(day: Day): NavLeg[] {
   return buildDayFeed(day).flatMap((moment) => moment.nav);
 }
-
-/** Every restaurant of the day: those with a meal slot, then the rest. */
-export function dayRestaurants(day: Day): Restaurant[] {
-  return [
-    ...buildDayFeed(day).flatMap((moment) => moment.dining),
-    ...day.dining,
-  ];
-}

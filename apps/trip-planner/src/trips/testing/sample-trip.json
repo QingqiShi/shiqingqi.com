@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "id": "sampletrip01",
   "slug": "sample-lisbon",
-  "title": "Lisbon long weekend",
-  "subtitle": "3 days · trams, tiles and a day trip to Sintra",
+  "title": "Lisbon and Porto",
+  "subtitle": "5 days · trams, tiles, a day trip to Sintra and port by the Douro",
   "party": "3 people",
   "language": "en",
   "timeZone": "Europe/Lisbon",
@@ -16,7 +16,9 @@
       "days": {
         "day0sample": "arrive",
         "day1sample": "present",
-        "day2sample": "depart"
+        "day2sample": "present",
+        "day3sample": "present",
+        "day4sample": "depart"
       }
     },
     {
@@ -24,7 +26,12 @@
       "name": "Ben",
       "initial": "B",
       "via": "air",
-      "days": { "day0sample": "arrive", "day2sample": "depart" }
+      "days": {
+        "day0sample": "arrive",
+        "day2sample": "present",
+        "day3sample": "present",
+        "day4sample": "depart"
+      }
     },
     {
       "id": "rita",
@@ -41,6 +48,7 @@
       "title": "Arrive in Lisbon",
       "route": "Airport → Baixa",
       "driving": "No car",
+      "drivingMinutes": 0,
       "weather": {
         "temp": "13–21°C",
         "summary": "Sunny spells",
@@ -228,6 +236,7 @@
       "title": "Day trip to Sintra",
       "route": "Lisbon → Sintra → Cabo da Roca → Lisbon",
       "driving": "About 2 hours",
+      "drivingMinutes": 120,
       "coords": { "lat": 38.7979, "lon": -9.3906 },
       "moments": [
         {
@@ -290,13 +299,114 @@
     {
       "id": "day2sample",
       "date": "2027-04-18",
-      "title": "Fly home",
-      "route": "Baixa → Airport",
+      "title": "Train to Porto",
+      "route": "Lisbon → Porto",
+      "driving": "No car",
+      "drivingMinutes": 0,
+      "weather": { "temp": "12–19°C", "summary": "Showers" },
+      "coords": { "lat": 41.1496, "lon": -8.6109 },
       "moments": [
         {
           "id": "m2out",
           "time": "09:00",
           "text": "Check out and return the car",
+          "highlight": { "label": "Check out", "kind": "checkout" },
+          "items": []
+        },
+        {
+          "id": "m2train",
+          "time": "11:09",
+          "text": "Alfa Pendular from Santa Apolónia",
+          "highlight": {
+            "label": "Train to Porto",
+            "kind": "transit",
+            "query": "Lisboa Santa Apolónia",
+            "mode": "transit"
+          },
+          "items": []
+        },
+        {
+          "id": "m2checkin",
+          "time": "15:00",
+          "highlight": {
+            "label": "Check in",
+            "kind": "checkin",
+            "query": "Ribeira, Porto"
+          },
+          "items": []
+        },
+        {
+          "id": "m2evening",
+          "time": "evening",
+          "text": "A francesinha by the river",
+          "items": []
+        }
+      ],
+      "tips": [],
+      "dining": [],
+      "places": [],
+      "stay": {
+        "summary": "Casa do Douro",
+        "lodging": [
+          {
+            "id": "l2douro",
+            "name": "Casa do Douro",
+            "query": "Ribeira, Porto",
+            "checkIn": "15:00",
+            "status": "booked"
+          }
+        ]
+      }
+    },
+    {
+      "id": "day3sample",
+      "date": "2027-04-19",
+      "title": "Porto and the Douro",
+      "route": "Ribeira → Gaia → Foz",
+      "weather": { "temp": "13–20°C", "summary": "Sunny spells" },
+      "coords": { "lat": 41.1496, "lon": -8.6109 },
+      "moments": [
+        {
+          "id": "m3port",
+          "time": "10:30",
+          "text": "Cross the Dom Luís I bridge to Gaia",
+          "highlight": {
+            "label": "Port tasting at Graham's",
+            "kind": "reservation",
+            "query": "Graham's Port Lodge",
+            "mode": "walking"
+          },
+          "items": []
+        },
+        {
+          "id": "m3foz",
+          "time": "afternoon",
+          "text": "Tram 1 to Foz for the sunset",
+          "items": []
+        }
+      ],
+      "tips": [],
+      "dining": [],
+      "places": [],
+      "stay": {
+        "summary": "Casa do Douro, second night",
+        "lodging": [],
+        "sameAs": {
+          "dayId": "day2sample",
+          "label": "Same as Day 2 · Casa do Douro"
+        }
+      }
+    },
+    {
+      "id": "day4sample",
+      "date": "2027-04-20",
+      "title": "Fly home",
+      "route": "Ribeira → Airport",
+      "moments": [
+        {
+          "id": "m4out",
+          "time": "09:00",
+          "text": "Check out and take the metro to the airport",
           "highlight": { "label": "Check out", "kind": "checkout" },
           "items": []
         }

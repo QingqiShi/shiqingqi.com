@@ -18,6 +18,7 @@ import { StatGroup } from "@tuja/ui/components/stat-group";
 import type { ReactNode } from "react";
 import type { Day } from "#src/trips/types.ts";
 import { dateLabel } from "./date-label.ts";
+import { splitNote } from "./split-note.ts";
 import { TripText } from "./trip-text.tsx";
 import { useWeatherCondition } from "./use-weather-condition.ts";
 import type { LiveWeather } from "./weather/types.ts";
@@ -88,18 +89,17 @@ function TextStat({
   text: string;
   icon: ReactNode;
 }) {
-  const bracket = text.search(/[（(]/);
-  const split = bracket > 0;
+  const { main, note } = splitNote(text);
   return (
     <Stat
       label={label}
       icon={icon}
       value={
         <span css={styles.value}>
-          <TripText>{split ? text.slice(0, bracket).trim() : text}</TripText>
+          <TripText>{main}</TripText>
         </span>
       }
-      detail={split ? <TripText>{text.slice(bracket)}</TripText> : undefined}
+      detail={note ? <TripText>{note}</TripText> : undefined}
     />
   );
 }
@@ -141,7 +141,7 @@ const styles = stylex.create({
   },
 });
 
-const weatherIcon: Record<WmoGroup | "estimate", ReactNode> = {
+export const weatherIcon: Record<WmoGroup | "estimate", ReactNode> = {
   clear: <SunIcon weight="bold" />,
   partly: <CloudSunIcon weight="bold" />,
   cloud: <CloudIcon weight="bold" />,
