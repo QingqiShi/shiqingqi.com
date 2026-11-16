@@ -185,9 +185,21 @@ export async function finishSignUp(
     options.body.options,
     TEST_ORIGIN,
   );
-  return client.post<SignedInBody>("signUpVerify", {
+  const verified = await client.post<SignedInBody>("signUpVerify", {
     token,
     response,
+  });
+  if (verified.status !== 200) return verified;
+  const household = await setUp(client, details);
+  return {
+    ...household,
+    setCookies: [...verified.setCookies, ...household.setCookies],
+  };
+}
+
+/** Answers the first-run screen on `client`, which makes the Household. */
+export function setUp(client: Client, details: object = {}) {
+  return client.post<SignedInBody>("setUp", {
     memberName: "Qingqi",
     baseCurrency: "GBP",
     ...details,

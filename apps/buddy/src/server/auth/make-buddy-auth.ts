@@ -4,7 +4,6 @@ import {
 } from "@tuja/server-auth/make-auth";
 import type { AuthRateLimitResult } from "@tuja/server-auth/make-auth-route-kit";
 import { eq } from "drizzle-orm";
-import { z } from "zod";
 import { accounts } from "../db/schema.ts";
 import type { BuddyDb } from "../db/types.ts";
 import { buildCodeEmail } from "../email/build-code-email.ts";
@@ -71,7 +70,6 @@ export const buddyAuthConfig = {
       .where(eq(accounts.id, userId));
     return account[0]?.email ?? "Buddy";
   },
-  signUpFields: z.object({}),
   createUser: createAccount,
   signIn: async (tx: BuddyDb, userId: string) => {
     const account = await tx

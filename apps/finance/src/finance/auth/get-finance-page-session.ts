@@ -3,7 +3,7 @@ import "server-only";
 import { getFinanceDb } from "#src/finance/db/get-finance-db.ts";
 import { isFinanceConfigured } from "#src/finance/db/is-finance-configured.ts";
 import { financeSessionCookie } from "./finance-session-cookie.ts";
-import { resolveSession } from "./resolve-session.ts";
+import { resolveNewUser, resolveSession } from "./resolve-session.ts";
 import type { FinanceSession } from "./types.ts";
 
 /**
@@ -19,4 +19,14 @@ export async function getFinancePageSession(): Promise<FinanceSession | null> {
     allowRefresh: false,
   });
   return resolved?.session ?? null;
+}
+
+/** For server components: the signed-in user who is a Member of no Household, or null. */
+export async function getNewUserPageSession(): Promise<{
+  userId: string;
+} | null> {
+  if (!isFinanceConfigured()) return null;
+  const token = (await cookies()).get(financeSessionCookie.name)?.value;
+  if (!token) return null;
+  return resolveNewUser(getFinanceDb(), token, new Date());
 }

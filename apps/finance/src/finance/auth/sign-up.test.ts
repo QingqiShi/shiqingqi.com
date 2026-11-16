@@ -28,6 +28,7 @@ import {
   recover,
   recoveryTokenIn,
   requestSignUpToken,
+  setUp,
   setUpAuthHandlerTests,
   signUp,
   signUpTokenIn,
@@ -286,43 +287,47 @@ describe("sign-up", () => {
     expect(await db.select().from(households)).toHaveLength(1);
   });
 
-  it("refuses a challenge of another ceremony, a missing name, and an unknown or unsupported currency", async () => {
+  it("refuses a challenge of another ceremony, and the first-run screen refuses a missing name, an unknown or unsupported currency, and a second Household", async () => {
     const token = await requestSignUpToken();
     const client = createAuthTestClient(makeHandlers());
     await client.post("signInOptions");
     const crossed = await client.post("signUpVerify", {
       token,
       response: { id: "x" },
-      memberName: "Qingqi",
-      baseCurrency: "GBP",
     });
-    const noName = await finishSignUp(
-      createAuthTestClient(makeHandlers()),
-      createSoftwareAuthenticator(),
+    const client2 = createAuthTestClient(makeHandlers());
+    const verified = await client2.post("signUpVerify", {
       token,
-      { memberName: " " },
-    );
-    const badCurrency = await finishSignUp(
-      createAuthTestClient(makeHandlers()),
-      createSoftwareAuthenticator(),
-      token,
-      { baseCurrency: "ZZZ" },
-    );
-    const unsupportedCurrency = await finishSignUp(
-      createAuthTestClient(makeHandlers()),
-      createSoftwareAuthenticator(),
-      token,
-      { baseCurrency: "AED" },
-    );
+      response: await createSoftwareAuthenticator().register(
+        (
+          await client2.post<RegistrationOptionsBody>("signUpOptions", {
+            token,
+          })
+        ).body.options,
+        TEST_ORIGIN,
+      ),
+    });
+    const noName = await setUp(client2, { memberName: " " });
+    const badCurrency = await setUp(client2, { baseCurrency: "ZZZ" });
+    const unsupportedCurrency = await setUp(client2, { baseCurrency: "AED" });
 
     expect(crossed).toMatchObject({
       status: 400,
       body: { error: "challenge_invalid" },
     });
+    expect(verified.status).toBe(200);
     expect(noName.status).toBe(400);
     expect(badCurrency.status).toBe(400);
     expect(unsupportedCurrency.status).toBe(400);
     expect(await db.select().from(households)).toHaveLength(0);
+    // The new user has no Household yet: the Household's routes refuse.
+    expect((await client2.get("session")).status).toBe(401);
+    expect((await setUp(client2)).status).toBe(200);
+    expect(await setUp(client2)).toMatchObject({
+      status: 409,
+      body: { error: "already_set_up" },
+    });
+    expect(await db.select().from(households)).toHaveLength(1);
   });
 
   it("refuses an address that is not an email and a server with no email", async () => {

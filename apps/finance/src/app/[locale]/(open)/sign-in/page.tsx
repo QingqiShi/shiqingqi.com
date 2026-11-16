@@ -6,7 +6,11 @@ import { safeNextPath } from "@tuja/server-auth/sign-in-path";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
-import { getFinancePageSession } from "#src/finance/auth/get-finance-page-session.ts";
+import {
+  getFinancePageSession,
+  getNewUserPageSession,
+} from "#src/finance/auth/get-finance-page-session.ts";
+import { WELCOME_PATH } from "#src/finance/auth/require-finance-page-session.ts";
 import { isFinanceConfigured } from "#src/finance/db/is-finance-configured.ts";
 import { FinanceNotConfigured } from "#src/finance/shell/finance-not-configured.tsx";
 import { FinanceAuthFrame } from "#src/finance/sign-in/finance-auth-frame.tsx";
@@ -31,6 +35,9 @@ export default async function Page({
     typeof requested === "string" ? requested : undefined,
   );
   if (await getFinancePageSession()) redirect(getLocalePath(next, locale));
+  if (await getNewUserPageSession()) {
+    redirect(getLocalePath(WELCOME_PATH, locale));
+  }
 
   return (
     <FinanceAuthFrame>

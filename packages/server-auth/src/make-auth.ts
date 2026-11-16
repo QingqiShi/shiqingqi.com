@@ -45,7 +45,7 @@ const addPasskeyVerifyBody = z.object({
 const recoveryVerifyBody = authBodies.token.extend({
   response: passkeyResponseSchemas.registration,
 });
-const signUpVerifyBody = z.looseObject({
+const signUpVerifyBody = z.object({
   ...authBodies.token.shape,
   response: passkeyResponseSchemas.registration,
 });
@@ -66,7 +66,6 @@ export interface AuthConfig<
   Tx extends AuthTx,
   ExtraBucket extends string,
   Email extends { subject: string },
-  SignUpFields,
 > extends AuthRouteKitDeps<
   Db,
   AuthRateLimitBucket | ExtraBucket,
@@ -100,12 +99,10 @@ export interface AuthConfig<
   findRecoveryUser: (tx: Tx, email: string) => Promise<string | null>;
   /** The name that a passkey of the user shows on the user's device. */
   passkeyName: (tx: Tx, userId: string) => Promise<string>;
-  /** What the app reads from the last request of a sign-up, beside the link's token and the passkey. */
-  signUpFields: z.ZodType<SignUpFields>;
   /** Makes the user with id `userId` and all that the app gives a new user. Returns the body of the answer. */
   createUser: (
     tx: Tx,
-    input: { userId: string; email: string; now: Date; fields: SignUpFields },
+    input: { userId: string; email: string; now: Date },
   ) => Promise<Record<string, unknown>>;
   /**
    * Runs before a session opens for a user who has an account: at sign-in
@@ -125,8 +122,7 @@ export function makeAuth<
   Tx extends AuthTx,
   ExtraBucket extends string,
   Email extends { subject: string },
-  SignUpFields,
->(config: AuthConfig<Db, Tx, ExtraBucket, Email, SignUpFields>) {
+>(config: AuthConfig<Db, Tx, ExtraBucket, Email>) {
   type Context = AuthContext<Db>;
   const kit = makeAuthRouteKit(config);
   const { handle, limit, withLimits, requireEmailSender } = kit;
@@ -362,8 +358,6 @@ export function makeAuth<
 
     signUpVerify: handle(async (request, context) => {
       const body = await readAuthBody(request, signUpVerifyBody);
-      const fields = config.signUpFields.safeParse(body);
-      if (!fields.success) throw new HttpError(400, "invalid_body");
       const {
         challenge: expected,
         userId,
@@ -393,7 +387,6 @@ export function makeAuth<
           userId,
           email: signUp.email,
           now,
-          fields: fields.data,
         });
         await store.insertPasskey(tx, userId, credential, now);
         return {

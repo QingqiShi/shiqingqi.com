@@ -276,23 +276,4 @@ describe("recovery links from the owner", () => {
       body: { error: "owner_only" },
     });
   });
-
-  it("refuses the link once its user is the user of no member", async () => {
-    const { imported, owner } = await ownerAndPartner();
-    const recovery = await owner.post<{ token: string }>("createInvite", {
-      memberId: imported.memberIds[1],
-    });
-    await db
-      .update(members)
-      .set({ userId: null })
-      .where(eq(members.id, imported.memberIds[1]));
-
-    const result = await recover(
-      createAuthTestClient(makeHandlers()),
-      createSoftwareAuthenticator(),
-      recovery.body.token,
-    );
-
-    expect(result.status).toBe(410);
-  });
 });

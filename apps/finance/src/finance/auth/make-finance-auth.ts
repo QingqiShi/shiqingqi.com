@@ -1,8 +1,7 @@
 import { HttpError } from "@tuja/server-auth/http-error";
 import { makeAuth } from "@tuja/server-auth/make-auth";
-import { eq } from "drizzle-orm";
+import { and, eq, isNotNull } from "drizzle-orm";
 import { findPostgresError } from "#src/finance/db/find-postgres-error.ts";
-import { lookups } from "#src/finance/db/lookups.ts";
 import { users, VERIFIED_EMAIL_KEY } from "#src/finance/db/schema.ts";
 import type { FinanceDb } from "#src/finance/db/types.ts";
 import {
@@ -16,7 +15,6 @@ import type {
   LimitFinanceRequest,
   RefundFinanceRequest,
 } from "../http/types.ts";
-import { createSignUpUser, signUpFields } from "./create-sign-up-user.ts";
 import { financeAuthStore } from "./finance-auth-store.ts";
 import { financeChallengeCookie } from "./finance-challenge-cookie.ts";
 import { financeEmailCodeCookie } from "./finance-email-code-cookie.ts";
@@ -41,8 +39,8 @@ export interface AuthHandlerDeps {
 export type FinanceAuth = ReturnType<typeof makeFinanceAuth>;
 
 /**
- * What only Finance has in the shared sign-in: a new user gets a Household,
- * and a user signs in only while a Member of one.
+ * What only Finance has in the shared sign-in. A new user is a Member of no
+ * Household: the first-run screen makes one, or the user accepts an invite.
  */
 export const financeAuthConfig = {
   appName: "Finance",
@@ -65,7 +63,13 @@ export const financeAuthConfig = {
   buildCodeEmail,
   isEmailRegistered,
   findRecoveryUser: async (tx: FinanceAppDb, email: string) =>
-    (await lookups.recoveryMember(tx, email))?.userId ?? null,
+    (
+      await tx
+        .select({ id: users.id })
+        .from(users)
+        .where(and(eq(users.email, email), isNotNull(users.emailVerifiedAt)))
+        .limit(1)
+    ).at(0)?.id ?? null,
   passkeyName: async (tx: FinanceAppDb, userId: string) => {
     const user = (
       await tx
@@ -75,13 +79,17 @@ export const financeAuthConfig = {
     ).at(0);
     return user?.email ?? user?.displayName ?? "Finance";
   },
-  signUpFields,
-  createUser: createSignUpUser,
-  signIn: async (tx: FinanceAppDb, userId: string) => {
-    const memberships = await lookups.membershipsOfUser(tx, userId);
-    if (memberships.length === 0) throw new HttpError(403, "no_membership");
+  createUser: async (
+    tx: FinanceAppDb,
+    { userId, email, now }: { userId: string; email: string; now: Date },
+  ) => {
+    // The first-run screen puts the person's name in place of the address.
+    await tx
+      .insert(users)
+      .values({ id: userId, displayName: email, email, emailVerifiedAt: now });
     return { ok: true };
   },
+  signIn: () => Promise.resolve({ ok: true }),
 } as const;
 
 export function makeFinanceAuth(deps: AuthHandlerDeps) {
