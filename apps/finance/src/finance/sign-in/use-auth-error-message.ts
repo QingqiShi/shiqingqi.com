@@ -39,6 +39,10 @@ export function useAuthErrorMessage() {
       en: "This invite has expired or was used already.",
       zh: "此邀请已过期或已被使用。",
     }),
+    already_member: t({
+      en: "You belong to a household already. An account can be in one household.",
+      zh: "你已属于一个家庭。一个账号只能加入一个家庭。",
+    }),
     member_claimed: t({
       en: "Someone has joined as this member already. If it was you, sign in.",
       zh: "已有人以该成员身份加入。如果是你，请直接登录。",

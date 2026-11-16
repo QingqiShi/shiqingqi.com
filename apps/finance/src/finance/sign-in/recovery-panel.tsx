@@ -22,10 +22,13 @@ import { useAuthErrorMessage } from "./use-auth-error-message.ts";
 export function RecoveryPanel({
   token,
   userName,
+  next,
 }: {
   token: string;
   /** The name of the user that the link is for. */
   userName: string;
+  /** Where to go after the recovery, without a locale. */
+  next: string;
 }) {
   const locale = useLocale();
   const messageOf = useAuthErrorMessage();
@@ -42,7 +45,7 @@ export function RecoveryPanel({
         financePasskeyClient
           .recover(token)
           .then(() => {
-            window.location.assign(getLocalePath("/", locale));
+            window.location.assign(getLocalePath(next, locale));
           })
           .catch((caught: unknown) => {
             const apiError = toFinanceApiError(caught);

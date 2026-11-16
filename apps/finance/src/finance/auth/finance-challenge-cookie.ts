@@ -2,13 +2,6 @@ import { authChallenges } from "@tuja/server-auth/auth-challenges";
 import { makeSealedCookie } from "@tuja/server-auth/make-sealed-cookie";
 import { z } from "zod";
 
-export const inviteChallenge = z.object({
-  purpose: z.literal("invite"),
-  challenge: z.string(),
-  userId: z.uuid(),
-  inviteId: z.uuid(),
-});
-
 export const financeChallengeCookie = makeSealedCookie({
   name: "finance_challenge",
   maxAgeSeconds: 5 * 60,
@@ -17,6 +10,5 @@ export const financeChallengeCookie = makeSealedCookie({
     authChallenges.signUp,
     authChallenges.addPasskey,
     authChallenges.recovery,
-    inviteChallenge,
   ]),
 });

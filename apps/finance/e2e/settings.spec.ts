@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { bankLinks, categories, members } from "../src/finance/db/schema.ts";
 import {
+  acceptInviteWithEmail,
   addVirtualAuthenticator,
   expect,
   getFinanceApi,
@@ -59,12 +60,7 @@ test.describe("Settings", () => {
     const other = await browser.newContext({ viewport: DESKTOP });
     const otherPage = await other.newPage();
     await addVirtualAuthenticator(otherPage);
-    await otherPage.goto(inviteUrl);
-    await otherPage
-      .getByRole("textbox", { name: "Recovery email" })
-      .fill(uniqueEmail("jo"));
-    await otherPage.getByRole("button", { name: "Create a passkey" }).click();
-    await otherPage.waitForURL((next) => next.pathname === "/");
+    await acceptInviteWithEmail(otherPage, inviteUrl, uniqueEmail("jo"));
     const joSession = () =>
       getFinanceApi(otherPage, "/api/auth/session").then((response) =>
         response.status(),

@@ -171,11 +171,11 @@ export async function requestSignUpToken(email = "owner@example.com") {
   return signUpTokenIn(sent.at(-1)?.text);
 }
 
-export async function finishSignUp(
+/** Signs up on `client`: the new user is a Member of no Household. */
+export async function signUpOnly(
   client: Client,
   authenticator: Authenticator,
   token: string,
-  details: object = {},
 ) {
   const options = await client.post<RegistrationOptionsBody>("signUpOptions", {
     token,
@@ -185,10 +185,16 @@ export async function finishSignUp(
     options.body.options,
     TEST_ORIGIN,
   );
-  const verified = await client.post<SignedInBody>("signUpVerify", {
-    token,
-    response,
-  });
+  return client.post<SignedInBody>("signUpVerify", { token, response });
+}
+
+export async function finishSignUp(
+  client: Client,
+  authenticator: Authenticator,
+  token: string,
+  details: object = {},
+) {
+  const verified = await signUpOnly(client, authenticator, token);
   if (verified.status !== 200) return verified;
   const household = await setUp(client, details);
   return {
@@ -227,27 +233,20 @@ export async function signIn(client: Client, authenticator: Authenticator) {
   return client.post("signInVerify", { response });
 }
 
+/** Signs up on `client` as a new user with `email`, then accepts the invite. */
 export async function acceptInvite(
   client: Client,
   authenticator: Authenticator,
   token: string,
-  /** Null sends no email. */
-  email: string | null = "member@example.com",
+  email = "member@example.com",
 ) {
-  const options = await client.post<RegistrationOptionsBody>("inviteOptions", {
-    token,
-    email: email ?? undefined,
-  });
-  if (options.status !== 200) return options;
-  const response = await authenticator.register(
-    options.body.options,
-    TEST_ORIGIN,
+  const signedUp = await signUpOnly(
+    client,
+    authenticator,
+    await requestSignUpToken(email),
   );
-  return client.post<SignedInBody>("inviteVerify", {
-    token,
-    response,
-    email: email ?? undefined,
-  });
+  if (signedUp.status !== 200) return signedUp;
+  return client.post<SignedInBody>("acceptInvite", { token });
 }
 
 /** Saves a new passkey through a recovery link, as the page of the link does. */

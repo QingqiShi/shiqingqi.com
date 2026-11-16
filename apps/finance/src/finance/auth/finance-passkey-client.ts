@@ -69,8 +69,12 @@ export const financePasskeyClient = {
   },
 
   /** Emails a sign-up code and link to `email`, in `locale`. The answer is the same for every address. */
-  async requestSignUp(email: string, locale: SupportedLocale): Promise<void> {
-    await post("/sign-up", { email, locale });
+  async requestSignUp(
+    email: string,
+    locale: SupportedLocale,
+    next: string,
+  ): Promise<void> {
+    await post("/sign-up", { email, locale, next });
   },
 
   /** Checks the code from the sign-up email that this browser asked for, and returns the sign-up page's path, without a locale. When a user has the address already, it is the path of that user's Recovery link. */
@@ -96,16 +100,9 @@ export const financePasskeyClient = {
     });
   },
 
-  /** `email` is the new user's Recovery email. */
-  async acceptInvite(
-    token: string,
-    { email, locale }: { email: string; locale: SupportedLocale },
-  ): Promise<SignedIn> {
-    const { options } = await post<{
-      options: PublicKeyCredentialCreationOptionsJSON;
-    }>("/invite/options", { token, email });
-    const response = await register(options);
-    return post<SignedIn>("/invite/verify", { token, response, email, locale });
+  /** Makes the signed-in user the Member that the invite is for. */
+  async acceptInvite(token: string): Promise<SignedIn> {
+    return post<SignedIn>("/invite/accept", { token });
   },
 
   /** Adds a passkey for the signed-in user, e.g. on a new device. */
@@ -151,8 +148,12 @@ export const financePasskeyClient = {
   },
 
   /** Asks for a recovery email. The answer is the same whether or not a user has this address. */
-  async requestRecovery(email: string, locale: SupportedLocale): Promise<void> {
-    await post("/recovery", { email, locale });
+  async requestRecovery(
+    email: string,
+    locale: SupportedLocale,
+    next: string,
+  ): Promise<void> {
+    await post("/recovery", { email, locale, next });
   },
 
   /** Checks the code from the recovery email that this browser asked for, and returns the path of the Recovery link, without a locale. */

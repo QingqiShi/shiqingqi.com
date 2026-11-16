@@ -22,10 +22,12 @@ interface SignUpPanelProps {
   token: string;
   /** The confirmed address that becomes the new User's Recovery email. */
   email: string;
+  /** Where to go after the sign-up, without a locale. */
+  next: string;
 }
 
 /** Creates a User and saves a passkey on this device. The first-run screen comes next. */
-export function SignUpPanel({ token, email }: SignUpPanelProps) {
+export function SignUpPanel({ token, email, next }: SignUpPanelProps) {
   const locale = useLocale();
   const messageOf = useAuthErrorMessage();
   const [busy, setBusy] = useState(false);
@@ -61,7 +63,7 @@ export function SignUpPanel({ token, email }: SignUpPanelProps) {
           financePasskeyClient
             .signUp(token)
             .then(() => {
-              window.location.assign(getLocalePath("/", locale));
+              window.location.assign(getLocalePath(next, locale));
             })
             .catch((caught: unknown) => {
               const apiError = toFinanceApiError(caught);
