@@ -74,7 +74,6 @@ export function RecoveryPanel({
         size="lg"
         icon={<FingerprintIcon weight="bold" />}
         loading={busy}
-        disabled={busy}
         css={fill.inline}
       >
         {t({ en: "Save a new passkey", zh: "保存新的通行密钥" })}

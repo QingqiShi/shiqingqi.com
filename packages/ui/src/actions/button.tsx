@@ -189,11 +189,13 @@ export type ButtonFormProps = SharedProps &
     /**
      * Shows a spinner, sets `aria-busy`, and blocks activation. Uses `aria-disabled`,
      * not `disabled`, so the button keeps focus and the busy state is announced.
+     * This holds when `disabled` is also set: do not pass `disabled` for the
+     * busy state.
      *
      * The width holds either way: with an icon the spinner takes the icon's
      * place, without one it sits over the label, which keeps its space.
      *
-     * @zh 显示加载指示器，设置 `aria-busy`，并阻止再次触发。它用 `aria-disabled` 而非 `disabled`，因此按钮保留焦点，忙碌状态也能被读出。
+     * @zh 显示加载指示器，设置 `aria-busy`，并阻止再次触发。它用 `aria-disabled` 而非 `disabled`，因此按钮保留焦点，忙碌状态也能被读出。同时设置了 `disabled` 时也是如此：不要为忙碌状态再传 `disabled`。
      *
      * 两种情况下宽度都保持不变：有图标时加载指示器取代图标，没有图标时它覆盖在标签之上，而标签仍占据原有空间。
      */
@@ -253,8 +255,9 @@ function ButtonElement(props: ButtonFormProps) {
   const setButtonRef = mergeRefs(buttonRef, forwardedRef);
 
   const isLoading = loading === true;
-  // Only `disabled` reaches the DOM attribute; a busy button stays focusable,
-  // so the press animation treats both as inert.
+  // A busy button stays focusable: the DOM attribute is off while it loads,
+  // also when the caller passes `disabled`. The press animation treats both
+  // as inert.
   const isInert = disabled === true || isLoading;
 
   // `aria-disabled` alone stops nothing: pointer events are off while busy,
@@ -289,7 +292,7 @@ function ButtonElement(props: ButtonFormProps) {
       {...restProps}
       ref={setButtonRef}
       type={type}
-      disabled={disabled}
+      disabled={isLoading ? undefined : disabled}
       // Falls back to the caller's value, not `undefined`, since these are
       // set after `{...restProps}` and would otherwise strip a caller-set
       // `aria-busy`/`aria-disabled`.

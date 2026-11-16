@@ -91,13 +91,7 @@ export function EmailCodeForm({
             setEmail(event.target.value);
           }}
         />
-        <Button
-          type="submit"
-          look="outline"
-          loading={busy}
-          disabled={busy}
-          css={fill.inline}
-        >
+        <Button type="submit" look="outline" loading={busy} css={fill.inline}>
           {submitLabel}
         </Button>
       </form>
@@ -135,13 +129,7 @@ export function EmailCodeForm({
           setCode(event.target.value);
         }}
       />
-      <Button
-        type="submit"
-        look="primary"
-        loading={busy}
-        disabled={busy}
-        css={fill.inline}
-      >
+      <Button type="submit" look="primary" loading={busy} css={fill.inline}>
         {t({ en: "Continue", zh: "继续" })}
       </Button>
       <Button

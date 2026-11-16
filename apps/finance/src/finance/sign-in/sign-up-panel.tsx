@@ -112,7 +112,6 @@ export function SignUpPanel({ token, email }: SignUpPanelProps) {
         size="lg"
         icon={<FingerprintIcon weight="bold" />}
         loading={busy}
-        disabled={busy}
         css={fill.inline}
       >
         {t({ en: "Save a passkey", zh: "保存通行密钥" })}

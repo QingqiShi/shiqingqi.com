@@ -99,7 +99,6 @@ export function InvitePanel({
         size="lg"
         icon={<FingerprintIcon weight="bold" />}
         loading={busy}
-        disabled={busy}
         css={fill.inline}
       >
         {t({ en: "Create a passkey", zh: "创建通行密钥" })}

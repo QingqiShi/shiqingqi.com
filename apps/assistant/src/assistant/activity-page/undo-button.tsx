@@ -300,7 +300,6 @@ export function UndoButton({
           size="sm"
           look="ghost"
           loading={busy}
-          disabled={busy}
           icon={<UndoGlyph />}
           hideLabelOnMobile={compact}
           aria-describedby={describedBy}

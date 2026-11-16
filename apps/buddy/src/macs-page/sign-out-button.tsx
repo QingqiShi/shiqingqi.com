@@ -15,7 +15,6 @@ export function SignOutButton() {
       look="ghost"
       size="sm"
       loading={busy}
-      disabled={busy}
       onClick={() => {
         setBusy(true);
         passkeyClient
