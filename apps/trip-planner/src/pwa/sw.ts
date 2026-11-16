@@ -1,4 +1,5 @@
 import { defaultCache } from "@serwist/next/worker";
+import { withLocaleRobustPageCaching } from "@tuja/pwa-runtime-caching/with-locale-robust-page-caching";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
 import { Serwist } from "serwist";
 
@@ -20,11 +21,22 @@ const serwist = new Serwist({
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
-  runtimeCaching: defaultCache,
+  runtimeCaching: withLocaleRobustPageCaching(defaultCache),
+  // The build precaches the offline page of each locale at its prefixed URL.
+  // The first entry that matches the request and is in the precache wins.
   fallbacks: {
     entries: [
       {
-        url: "/~offline",
+        url: "/zh/~offline",
+        matcher({ request }) {
+          return (
+            request.destination === "document" &&
+            /^\/zh(?:\/|$)/.test(new URL(request.url).pathname)
+          );
+        },
+      },
+      {
+        url: "/en/~offline",
         matcher({ request }) {
           return request.destination === "document";
         },

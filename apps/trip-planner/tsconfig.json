@@ -12,6 +12,7 @@
     "**/*.tsx",
     "**/*.mts",
     ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
     "serwist.config.mjs"
   ],
   "exclude": ["node_modules", "public/*", ".next/**"]

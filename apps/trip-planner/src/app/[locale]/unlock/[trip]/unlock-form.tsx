@@ -1,17 +1,25 @@
 "use client";
 
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { useActionState } from "react";
 import { type UnlockState, unlockTrip } from "./unlock-trip";
 import { Button } from "@/shadcn/button";
 
 const initialState: UnlockState = {};
 
-export function UnlockForm({ slug }: { slug: string }) {
+export function UnlockForm({
+  slug,
+  locale,
+}: {
+  slug: string;
+  locale: SupportedLocale;
+}) {
   const [state, formAction, pending] = useActionState(unlockTrip, initialState);
 
   return (
     <form action={formAction} className="flex flex-col gap-3">
       <input type="hidden" name="slug" value={slug} />
+      <input type="hidden" name="locale" value={locale} />
       <input
         autoFocus
         type="password"

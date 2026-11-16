@@ -1,8 +1,10 @@
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import { Lock } from "lucide-react";
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { UnlockForm } from "./unlock-form";
+import { isTripUnlocked } from "@/is-trip-unlocked";
 import {
   Card,
   CardContent,
@@ -10,7 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shadcn/card";
-import { gateToken, tripGate } from "@/trip-gate";
 import { tripBySlug } from "@/trips";
 
 // The unlock prompt depends on the per-request cookie, so render per-request.
@@ -21,23 +22,19 @@ export const metadata: Metadata = {
 };
 
 interface UnlockPageProps {
-  params: Promise<{ trip: string }>;
+  params: Promise<{ locale: string; trip: string }>;
 }
 
 export default async function UnlockPage({ params }: UnlockPageProps) {
-  const { trip: slug } = await params;
+  const { locale: localeParam, trip: slug } = await params;
+  const locale = validateLocale(localeParam);
   const trip = tripBySlug(slug);
   if (!trip) notFound();
 
   // Already unlocked (e.g. a bookmarked /unlock link) — skip straight to the
   // trip rather than asking for a password the visitor has already entered.
-  const gate = tripGate(slug);
-  if (gate?.password) {
-    const token = await gateToken(gate.realm, gate.password);
-    const store = await cookies();
-    if (store.get(gate.cookie)?.value === token) {
-      redirect(`/${slug}`);
-    }
+  if (await isTripUnlocked(slug)) {
+    redirect(getLocalePath(`/${slug}`, locale));
   }
 
   return (
@@ -51,7 +48,7 @@ export default async function UnlockPage({ params }: UnlockPageProps) {
           <CardDescription>{trip.subtitle}</CardDescription>
         </CardHeader>
         <CardContent>
-          <UnlockForm slug={trip.slug} />
+          <UnlockForm slug={trip.slug} locale={locale} />
           <p className="text-muted-foreground mt-4 text-center text-xs">
             每个行程有各自的密码
           </p>

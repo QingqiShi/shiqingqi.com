@@ -46,7 +46,7 @@ function OverviewRow({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span>
-                {dateLabel(day.date)} {weekdayLabel(day.date)}
+                {dateLabel(day.date, "zh")} {weekdayLabel(day.date, "zh")}
               </span>
               {isToday ? <Badge>今天</Badge> : null}
             </div>
@@ -105,7 +105,7 @@ export function Overview({
         <div className="mt-3 flex flex-wrap gap-2">
           <Badge variant="outline">
             <CalendarDays />
-            {dateRangeLabel(trip.days)}
+            {dateRangeLabel(trip.days, "zh")}
           </Badge>
           <Badge variant="outline">
             <Users />
