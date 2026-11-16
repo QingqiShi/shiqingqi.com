@@ -22,6 +22,7 @@
     "./stylex-breakpoints": "./src/stylex-breakpoints/index.js",
     "./stylex-options": "./src/stylex-options/index.js",
     "./stylex-plugins": "./src/stylex-plugins/index.js",
+    "./inline-esm-env": "./src/inline-esm-env/index.js",
     "./i18n": "./src/i18n/index.js",
     "./i18n/extract-translations": "./src/i18n/extract-translations.js",
     "./i18n/generate-key": "./src/i18n/generate-key.js",

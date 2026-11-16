@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { reactCompilerVitePlugins } from "@tuja/babel-plugins/react-compiler";
 import react from "@vitejs/plugin-react";
+import { defaultClientConditions, defaultServerConditions } from "vite";
 import { defineConfig } from "vitest/config";
 import { babelPlugins } from "./babel-plugins.mjs";
 
@@ -31,7 +32,7 @@ export default defineConfig({
           ],
           "@babel/preset-typescript",
         ],
-        plugins: babelPlugins({ nodeEnv: "test" }),
+        plugins: babelPlugins({ test: true }),
       },
     }),
     react({
@@ -84,9 +85,15 @@ export default defineConfig({
     },
   },
   resolve: {
+    conditions: ["test", ...defaultClientConditions],
     alias: {
       "#src": path.resolve(__dirname, "./src"),
       "server-only": require.resolve("@tuja/test-support/server-only-stub"),
+    },
+  },
+  ssr: {
+    resolve: {
+      conditions: ["test", ...defaultServerConditions],
     },
   },
 });

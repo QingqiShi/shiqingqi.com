@@ -1,4 +1,5 @@
 import { activateLicense } from "@1771technologies/lytenyte-pro";
+import { DEV } from "esm-env";
 
 /**
  * Activates the LyteNyte Grid PRO licence.
@@ -28,7 +29,7 @@ const activated = licenseKey ? activateLicense(licenseKey) : false;
 // but rejects, so a missing, misnamed or expired variable is silent right up
 // until the watermark appears on the deployed site. Say so where it can be
 // seen: the browser console of the environment that is actually affected.
-if (!activated && process.env.NODE_ENV === "production") {
+if (!activated && !DEV) {
   console.warn(
     "LyteNyte Grid PRO: NEXT_PUBLIC_LYTENYTE_LICENSE_KEY is missing or invalid — the grid will render an evaluation watermark.",
   );

@@ -17,6 +17,7 @@
     "react": ">=19.3.0 <20"
   },
   "dependencies": {
+    "esm-env": "catalog:",
     "posthog-js": "^1.442.1"
   },
   "devDependencies": {

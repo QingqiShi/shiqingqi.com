@@ -1,3 +1,4 @@
+import { DEV } from "esm-env";
 import { beginFlowCheck } from "./begin-flow-check.ts";
 import type { FlowMover, FlowShare } from "./create-flow-mover.ts";
 import type { MotionValue } from "./create-motion-value.ts";
@@ -132,10 +133,7 @@ export function readFlow(
   isOpening: boolean,
 ) {
   const placed = placedBlocks();
-  const check =
-    process.env.NODE_ENV !== "production"
-      ? beginFlowCheck(root, scroller, blocks)
-      : null;
+  const check = DEV ? beginFlowCheck(root, scroller, blocks) : null;
 
   const read = (layout: "open" | "closed") => {
     for (const { block } of placed) block.place?.();

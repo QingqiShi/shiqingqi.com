@@ -10,6 +10,7 @@ import { PortalTargetProvider } from "@tuja/ui/components/portal-target-provider
 import { root } from "@tuja/ui/primitives/root.stylex";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { DEV } from "esm-env";
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
@@ -74,10 +75,7 @@ export default async function LocaleLayout({
           crossOrigin="anonymous"
         />
         <I18nProvider locale={locale}>
-          <SerwistProvider
-            swUrl="/sw.js"
-            disable={process.env.NODE_ENV === "development"}
-          >
+          <SerwistProvider swUrl="/sw.js" disable={DEV}>
             <script>{themeHack}</script>
             <ThemeApplier />
             <EffectLayerProvider>

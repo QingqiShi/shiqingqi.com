@@ -1,4 +1,5 @@
 const { createRequire } = require("node:module");
+const { DEV } = require("esm-env");
 const { stylexExtractionPlugins } = require("./babel-plugins.mjs");
 
 const nodeRequire = createRequire(__filename);
@@ -28,7 +29,7 @@ module.exports = {
         configFile: false,
         code: false,
         parserOpts: { plugins: ["typescript", "jsx"] },
-        plugins: stylexExtractionPlugins({ nodeEnv: process.env.NODE_ENV }),
+        plugins: stylexExtractionPlugins({ dev: DEV }),
       },
     },
     "postcss-flexbugs-fixes": {},

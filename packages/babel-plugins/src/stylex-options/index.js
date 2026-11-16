@@ -8,15 +8,17 @@
  * @param {object} options
  * @param {string} options.rootDir - The directory `unstable_moduleResolution`
  *   resolves a `.stylex.ts` import against. The monorepo root.
- * @param {string | undefined} options.nodeEnv - The build's `NODE_ENV`, which
- *   decides the plugin's `dev` and `test` modes.
+ * @param {boolean} [options.dev] - The plugin's `dev` mode. A development
+ *   build sets it.
+ * @param {boolean} [options.test] - The plugin's `test` mode. A test run sets
+ *   it.
  * @returns {Record<string, unknown>} The plugin's options object.
  */
-function stylexPluginOptions({ rootDir, nodeEnv }) {
+function stylexPluginOptions({ rootDir, dev = false, test = false }) {
   return {
     sxPropName: "css",
-    dev: nodeEnv === "development",
-    test: nodeEnv === "test",
+    dev,
+    test,
     runtimeInjection: false,
     genConditionalClasses: true,
     treeshakeCompensation: true,

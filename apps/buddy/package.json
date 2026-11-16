@@ -41,6 +41,7 @@
     "@upstash/redis": "^1.40.0",
     "@vercel/functions": "^3.11.0",
     "drizzle-orm": "^0.45.4",
+    "esm-env": "catalog:",
     "next": "catalog:",
     "pg": "^8.23.1",
     "react": "catalog:",

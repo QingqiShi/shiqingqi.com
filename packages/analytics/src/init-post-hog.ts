@@ -1,3 +1,4 @@
+import { DEV } from "esm-env";
 import { POSTHOG_HOST, POSTHOG_TOKEN } from "./constants";
 import { dropOpaqueCrossOriginErrors } from "./drop-opaque-cross-origin-errors";
 import { dropSkippedTransitionErrors } from "./drop-skipped-transition-errors";
@@ -37,7 +38,7 @@ export async function initPostHog() {
     capture_exceptions: true,
     before_send: [dropOpaqueCrossOriginErrors, dropSkippedTransitionErrors],
     capture_performance: { web_vitals: true },
-    debug: process.env.NODE_ENV === "development",
+    debug: DEV,
   });
   posthogClient.current = posthog;
 }

@@ -16,17 +16,17 @@ const { stylexPluginOptions } = require("../stylex-options");
  *   resolves a `.stylex.ts` import against. The monorepo root.
  * @param {string} options.breakpointsRootDir - The package that owns
  *   `src/breakpoints.stylex.ts`.
- * @param {string | undefined} options.nodeEnv - The build's `NODE_ENV`, which
- *   decides the StyleX plugin's `dev` and `test` modes.
+ * @param {boolean} [options.dev] - The StyleX plugin's `dev` mode.
+ * @param {boolean} [options.test] - The StyleX plugin's `test` mode.
  * @returns {[string, Record<string, unknown>][]} The two plugin items, in
  *   the order they must run.
  */
-function stylexPlugins({ rootDir, breakpointsRootDir, nodeEnv }) {
+function stylexPlugins({ rootDir, breakpointsRootDir, dev, test }) {
   return [
     [require.resolve("../stylex-breakpoints"), { rootDir: breakpointsRootDir }],
     [
       require.resolve("@stylexjs/babel-plugin"),
-      stylexPluginOptions({ rootDir, nodeEnv }),
+      stylexPluginOptions({ rootDir, dev, test }),
     ],
   ];
 }

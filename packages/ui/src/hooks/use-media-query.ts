@@ -1,3 +1,4 @@
+import { DEV } from "esm-env";
 import { useSyncExternalStore } from "react";
 
 export function useMediaQuery(query: string, defaultValue?: boolean) {
@@ -17,7 +18,7 @@ export function useMediaQuery(query: string, defaultValue?: boolean) {
       return defaultValue;
     }
 
-    if (process.env.NODE_ENV !== "production") {
+    if (DEV) {
       throw Error("useMediaQuery is a client-only hook");
     }
 

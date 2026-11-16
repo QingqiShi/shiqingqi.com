@@ -190,6 +190,12 @@ export default defineConfig([
             "Vitest aliases `server-only` to a stub, so a mock of it does nothing.",
         },
         {
+          selector:
+            'MemberExpression[object.property.name="env"][property.name="NODE_ENV"]',
+          message:
+            "Import `DEV` from `esm-env`. For a test run, use a `test` export condition, as `@tuja/i18n` does with `#is-test`.",
+        },
+        {
           selector: 'CallExpression[callee.property.name="prefetch"]',
           message:
             "Nothing prefetches a route: a screen loads when the visitor opens it.",

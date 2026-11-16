@@ -1,3 +1,4 @@
+import { DEV } from "esm-env";
 import type { ReplicaSnapshot } from "../replica/types.ts";
 import { selectTransactionAmounts } from "../store/select-transaction-amounts.ts";
 import { selectTransactionsByDateDesc } from "../store/select-transactions-by-date-desc.ts";
@@ -41,7 +42,7 @@ export function selectAnalyticsIndex(
     members: tables.members.values(),
     tags: tables.tags.values(),
   });
-  if (process.env.NODE_ENV !== "production") {
+  if (DEV) {
     performance.measure("finance:analytics-index", { start: started });
   }
   last = { inputs, index };
