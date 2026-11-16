@@ -4,7 +4,7 @@ import { connection } from "next/server";
 import type { ReactNode } from "react";
 import { tripSummary } from "#src/shell/trip-summary.ts";
 import { TripsFrame } from "#src/shell/trips-frame.tsx";
-import { trips } from "#src/trips/index.ts";
+import { getTrips } from "#src/trips/get-trips.ts";
 
 export default async function Layout({
   children,
@@ -18,6 +18,7 @@ export default async function Layout({
   // Which trip is on today depends on the wall clock.
   await connection();
   const now = new Date();
+  const trips = await getTrips();
   return (
     <TripsFrame trips={trips.map((trip) => tripSummary(trip, now, locale))}>
       {children}

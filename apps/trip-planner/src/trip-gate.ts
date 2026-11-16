@@ -15,7 +15,7 @@ interface TripGate {
   password: string | undefined;
 }
 
-// One gate per trip slug in src/trips. Passwords are read statically so
+// One gate per trip slug. Passwords are read statically so
 // Next can inline them into the edge bundle; a trip whose variable is unset
 // fails closed until it gets one. The "gb" realm and cookie keep their
 // pre-multi-trip names so unlocks from before the multi-trip split survive.
@@ -43,6 +43,11 @@ const gates: Record<string, TripGate | undefined> = {
 
 export function tripGate(slug: string): TripGate | undefined {
   return gates[slug];
+}
+
+/** The slugs that a visitor can unlock: those with a gate that has a password. */
+export function gatedSlugs(): string[] {
+  return Object.keys(gates).filter((slug) => gates[slug]?.password);
 }
 
 // ~90 days: unlock once, stay unlocked across browser sessions.

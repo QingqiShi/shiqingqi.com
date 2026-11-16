@@ -7,8 +7,14 @@ const port = execFileSync(
   ["../../scripts/get-worktree-port.mjs", "100"],
   { encoding: "utf8" },
 ).trim();
+const databasePort = execFileSync(
+  "node",
+  ["../../scripts/get-worktree-port.mjs", "3733"],
+  { encoding: "utf8" },
+).trim();
 const baseURL = process.env.BASE_URL ?? `http://localhost:${port}`;
-const start = `pnpm exec next start -p ${port}`;
+// The build with a database in memory, which starts with the sample trip.
+const start = `pnpm exec tsx src/db/dev/run-with-local-trips.ts --memory --db-port ${databasePort} -- next start -p ${port}`;
 
 export default defineConfig({
   testDir: "./e2e",

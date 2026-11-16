@@ -32,6 +32,7 @@ const restrictedPlugin = {
     "type-assertion": noRestrictedSyntax,
     "class-component": noRestrictedSyntax,
     "browser-typegpu": builtinRules.get("no-restricted-imports"),
+    "trip-tables": builtinRules.get("no-restricted-imports"),
   },
 };
 
@@ -701,6 +702,33 @@ export default defineConfig([
       "packages/ui/src/**/*.test.{ts,tsx}",
     ],
     rules: { "restricted/browser-typegpu": browserTypegpuRule("^\\./") },
+  },
+  // Until trips have members, the password gate is all that keeps a trip
+  // private. So only the reader that checks the gates, and the code that
+  // fills the database, reach the trip tables.
+  {
+    files: ["apps/trip-planner/src/**/*.{ts,tsx}"],
+    ignores: [
+      "apps/trip-planner/src/db/**",
+      "apps/trip-planner/src/trips/{get-trips,read-trips,import-trip}.ts",
+      "apps/trip-planner/src/**/*.test.{ts,tsx}",
+    ],
+    rules: {
+      "restricted/trip-tables": [
+        "error",
+        {
+          patterns: [
+            {
+              regex:
+                "^pg$|^drizzle-orm(/|$)|/db/|/(read-trips|import-trip)(\\.ts)?$",
+              allowTypeImports: true,
+              message:
+                "Read a trip with `getTrips` or `getTrip` from `#src/trips/get-trips.ts`, which gives only the trips that have a password gate.",
+            },
+          ],
+        },
+      ],
+    },
   },
   // Test files may call t() outside render scope for unit testing purposes.
   {

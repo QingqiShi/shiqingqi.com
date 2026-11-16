@@ -1,4 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "ignoreCommand": "sh ../../scripts/vercel-ignore-build.sh"
+  "buildCommand": "if [ \"$VERCEL_ENV\" = preview ] || [ \"$VERCEL_ENV\" = production ]; then pnpm trips:migrate; fi && turbo run build",
+  "ignoreCommand": "sh ../../scripts/vercel-ignore-build.sh",
+  "regions": ["lhr1"]
 }
