@@ -13,8 +13,7 @@ A standalone Next.js app for planning trips, deployed as its **own Vercel projec
 - **Data:** trips are documents in Postgres, one row in `trips` and one in
   `trip_revisions` for each save. Pages read them through
   `src/trips/get-trips.ts`, which reads only a trip that has a password gate.
-  The two real trips are still files in `src/trips/data` for now: each
-  deployment copies them into its database.
+  The real trips are only in the deployed database, not in the repository.
 - **Access:** each trip has its own password. The proxy gates a trip path with
   or without a locale prefix, and the trip page checks the unlock cookie too.
 
@@ -25,8 +24,8 @@ pnpm --filter trip-planner dev   # port: node scripts/get-worktree-port.mjs 100
 ```
 
 Unless `TRIPS_DATABASE_URL` is set, `pnpm dev` starts a database of its own
-in `.trips-db/`, with the made-up sample trip and the trip files. After a
-change to `src/db/schema.ts`, run `pnpm trips:generate` for the migration.
+in `.trips-db/`, with the made-up sample trip. After a change to
+`src/db/schema.ts`, run `pnpm trips:generate` for the migration.
 
 Set `SITE_PASSWORD_SAMPLE` to any value to open the made-up sample trip at
 `/sample-lisbon`. Use it for tests and screenshots, because the real trips
@@ -66,7 +65,7 @@ This app is a second Vercel project pointing at the same Git repo:
 - **Install Command:** `pnpm install` (run at repo root; inherited)
 - **Build Command:** `buildCommand` in `vercel.json`. On a preview or
   production deployment it first runs `pnpm trips:migrate`, which applies the
-  migrations and copies the trip files into the database.
+  migrations.
 - **Database:** a Neon project with the branches `main` (production) and
   `preview`. Set `TRIPS_DATABASE_URL` (pooled) and
   `TRIPS_DATABASE_URL_UNPOOLED` for each of the two environments. With the
