@@ -26,10 +26,10 @@ const copy = {
  */
 export default function GlobalError({
   error,
-  unstable_retry,
+  retry,
 }: {
   error: Error & { digest?: string };
-  unstable_retry: () => void;
+  retry: () => void;
 }) {
   const locale = useParams().locale === "zh" ? "zh" : "en";
   const strings = copy[locale];
@@ -70,7 +70,7 @@ export default function GlobalError({
         </p>
         <button
           type="button"
-          onClick={unstable_retry}
+          onClick={retry}
           style={{
             marginTop: "1rem",
             padding: "0.5rem 1.5rem",
