@@ -1,12 +1,11 @@
 import { WifiSlashIcon } from "@phosphor-icons/react/dist/ssr/WifiSlash";
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import { Button } from "@tuja/ui/components/button";
 import { EmptyState } from "@tuja/ui/components/empty-state";
-import { space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
+import { StandalonePage } from "#src/shell/standalone-page.tsx";
 
 interface OfflinePageProps {
   params: Promise<{ locale: string }>;
@@ -25,7 +24,7 @@ export async function generateMetadata({
 export default async function OfflinePage({ params }: OfflinePageProps) {
   const locale = validateLocale((await params).locale);
   return (
-    <main css={styles.page}>
+    <StandalonePage>
       <EmptyState
         level={2}
         icon={<WifiSlashIcon weight="bold" />}
@@ -40,15 +39,6 @@ export default async function OfflinePage({ params }: OfflinePageProps) {
           </Button>
         }
       />
-    </main>
+    </StandalonePage>
   );
 }
-
-const styles = stylex.create({
-  page: {
-    display: "grid",
-    placeItems: "center",
-    minBlockSize: "100dvh",
-    padding: space._5,
-  },
-});
