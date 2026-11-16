@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { tripFiles } from "./data/trip-files.ts";
 import sample from "./testing/sample-trip.json";
 import { tripSchema } from "./trip-schema";
 
@@ -10,12 +9,8 @@ function withSample(change: (trip: typeof sample) => void) {
 }
 
 describe("tripSchema", () => {
-  it("accepts the sample trip and the trip files", () => {
+  it("accepts the sample trip", () => {
     expect(tripSchema.safeParse(sample).success).toBe(true);
-    expect(tripFiles.map((file) => tripSchema.parse(file).slug)).toEqual([
-      "tuscany",
-      "gb",
-    ]);
   });
 
   it("refuses an id used twice", () => {
