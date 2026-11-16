@@ -44,3 +44,26 @@ export function resolveSession(
     }),
   );
 }
+
+/**
+ * The user of a token when the user is a Member of no Household, or null.
+ * Such a user has only the first-run screen and an invite to accept.
+ */
+export function resolveNewUser(
+  db: FinanceDb,
+  token: string,
+  now: Date,
+): Promise<{ userId: string } | null> {
+  return asFinanceApp(db, async (tx) => {
+    const resolved = await financeAuthStore.resolveSession(tx, token, {
+      now,
+      maxAgeSeconds: financeSessionCookie.maxAgeSeconds,
+      sessionOf: async ({ userId }) =>
+        (await lookups.membershipsOfUser(tx, userId)).length === 0
+          ? { userId }
+          : null,
+      mayRefresh: () => false,
+    });
+    return resolved?.session ?? null;
+  });
+}

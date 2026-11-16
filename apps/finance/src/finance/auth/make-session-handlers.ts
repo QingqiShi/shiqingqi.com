@@ -1,10 +1,14 @@
 import { authJson } from "@tuja/server-auth/auth-json";
 import { HttpError } from "@tuja/server-auth/http-error";
+import { readAuthBody } from "@tuja/server-auth/read-auth-body";
+import { readRequestCookie } from "@tuja/server-auth/read-request-cookie";
 import { lookups } from "#src/finance/db/lookups.ts";
 import { asFinanceApp } from "#src/finance/db/with-household.ts";
 import { financeSessionCookie } from "./finance-session-cookie.ts";
 import type { FinanceAuth } from "./make-finance-auth.ts";
 import { requireSession } from "./require-session.ts";
+import { resolveNewUser } from "./resolve-session.ts";
+import { setUpFields, setUpHousehold } from "./set-up-household.ts";
 
 export function makeSessionHandlers(auth: FinanceAuth) {
   const { handle } = auth;
@@ -28,6 +32,25 @@ export function makeSessionHandlers(auth: FinanceAuth) {
       },
       { method: "GET" },
     ),
+
+    /** Makes the first Household of a signed-in user who is a Member of none. */
+    setUp: handle(async (request, context) => {
+      const fields = await readAuthBody(request, setUpFields);
+      const token = readRequestCookie(request, financeSessionCookie.name);
+      const user = token
+        ? await resolveNewUser(context.db, token, context.now)
+        : null;
+      if (!user) {
+        await requireSession(request, context, { write: false });
+        throw new HttpError(409, "already_set_up");
+      }
+      return authJson(
+        context,
+        await asFinanceApp(context.db, (tx) =>
+          setUpHousehold(tx, { userId: user.userId, fields }),
+        ),
+      );
+    }),
 
     /** Signs the visitor in to the read-only demo Household as its owner. */
     startDemo: handle(async (request, context) => {

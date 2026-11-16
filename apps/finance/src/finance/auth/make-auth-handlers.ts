@@ -27,6 +27,7 @@ export interface AuthHandlers {
   recoveryVerify: AuthHandler;
   signOut: AuthHandler;
   session: AuthHandler;
+  setUp: AuthHandler;
   startDemo: AuthHandler;
 }
 

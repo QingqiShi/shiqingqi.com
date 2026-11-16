@@ -2,8 +2,10 @@ import { createSoftwareAuthenticator } from "@tuja/server-auth/testing/create-so
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import { members, passkeys, users } from "#src/finance/db/schema.ts";
+import { withHousehold } from "#src/finance/db/with-household.ts";
 import { readOutbox } from "../email/make-outbox-email-sender.ts";
 import type { AuthHandlerDeps } from "./make-auth-handlers.ts";
+import { revokeMemberAccess } from "./revoke-member-access.ts";
 import {
   createAuthTestClient,
   TEST_ORIGIN,
@@ -210,6 +212,20 @@ describe("recovery by email", () => {
     return { lostDevice, lostPhone, result, userId: session.body.userId };
   }
 
+  /** Removes the Member the way the members route does. */
+  async function removeMember(
+    { householdId, memberId }: { householdId: string; memberId: string },
+    userId: string,
+  ) {
+    await withHousehold(db, householdId, async (scope) => {
+      await scope.db
+        .update(members)
+        .set({ deletedAt: now })
+        .where(eq(members.id, memberId));
+      await revokeMemberAccess(scope, { memberId, userId });
+    });
+  }
+
   async function requestRecovery(
     email: string,
     handlers = makeHandlers(),
@@ -307,20 +323,16 @@ describe("recovery by email", () => {
   });
 
   it("sends nothing for a removed member", async () => {
-    const { result } = await ownerWithEmail("qingqi@example.com");
-    await db
-      .update(members)
-      .set({ deletedAt: now })
-      .where(eq(members.id, result.body.memberId));
+    const { result, userId } = await ownerWithEmail("qingqi@example.com");
+    await removeMember(result.body, userId);
 
     expect((await requestRecovery("qingqi@example.com")).status).toBe(202);
 
     expect(await readOutbox(outboxDir)).toEqual([]);
   });
 
-  it("gives no session, and keeps the passkeys, when the member is removed after the link was opened", async () => {
-    const { lostPhone, result, userId } =
-      await ownerWithEmail("qingqi@example.com");
+  it("gives no session when the member is removed after the link was opened", async () => {
+    const { result, userId } = await ownerWithEmail("qingqi@example.com");
     await requestRecovery("qingqi@example.com");
     const token = recoveryTokenIn((await readOutbox(outboxDir))[0]?.text);
     const browser = createAuthTestClient(makeHandlers());
@@ -332,16 +344,13 @@ describe("recovery by email", () => {
       options.body.options,
       TEST_ORIGIN,
     );
-    await db
-      .update(members)
-      .set({ deletedAt: now })
-      .where(eq(members.id, result.body.memberId));
+    await removeMember(result.body, userId);
 
     const verified = await browser.post("recoveryVerify", { token, response });
 
     expect(verified).toMatchObject({
-      status: 403,
-      body: { error: "no_membership" },
+      status: 410,
+      body: { error: "recovery_invalid" },
     });
     expect((await browser.get("session")).status).toBe(401);
     expect(
@@ -349,16 +358,7 @@ describe("recovery by email", () => {
         .select({ id: passkeys.id })
         .from(passkeys)
         .where(eq(passkeys.userId, userId)),
-    ).toEqual([{ id: lostPhone.credentials[0]?.id }]);
-    expect(
-      (
-        await recover(
-          createAuthTestClient(makeHandlers()),
-          createSoftwareAuthenticator(),
-          token,
-        )
-      ).status,
-    ).toBe(410);
+    ).toEqual([]);
   });
 
   it("gets back in with the emailed code in the browser that asked, and the emailed link still works", async () => {

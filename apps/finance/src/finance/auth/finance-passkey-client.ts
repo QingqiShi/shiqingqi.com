@@ -48,7 +48,7 @@ interface SignedIn {
   memberId: string;
 }
 
-interface SignUpDetails {
+interface SetUpDetails {
   /** The new Member's name, which also names the Household. */
   memberName: string;
   baseCurrency: string;
@@ -79,15 +79,18 @@ export const financePasskeyClient = {
     return path;
   },
 
-  /** Creates a household with the visitor as its owner, and a passkey on this device. */
-  async signUp(token: string, details: SignUpDetails): Promise<SignedIn> {
+  /** Creates a user for the visitor, and a passkey on this device. */
+  async signUp(token: string): Promise<void> {
     const { options } = await post<{
       options: PublicKeyCredentialCreationOptionsJSON;
     }>("/sign-up/options", { token });
     const response = await register(options);
-    return post<SignedIn>("/sign-up/verify", {
-      token,
-      response,
+    await post("/sign-up/verify", { token, response });
+  },
+
+  /** Creates the first household of the signed-in user, with the user as its owner. */
+  async setUp(details: SetUpDetails): Promise<SignedIn> {
+    return post<SignedIn>("/set-up", {
       ...details,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });

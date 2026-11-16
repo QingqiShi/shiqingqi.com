@@ -200,10 +200,12 @@ export async function signUpWithEmail(
   await expect(
     page.getByRole("heading", { name: "Sign up for Finance" }),
   ).toBeVisible();
-  await expect(page.getByRole("textbox")).toHaveCount(1);
-  await expect(page.getByText(/household/i)).toHaveCount(0);
-  await page.getByRole("textbox", { name: /Your name/ }).fill(name);
   await page.getByRole("button", { name: "Save a passkey" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Welcome to Finance" }),
+  ).toBeVisible();
+  await page.getByRole("textbox", { name: /Your name/ }).fill(name);
+  await page.getByRole("button", { name: "Start" }).click();
   await page.waitForURL((url) => url.pathname === "/");
 }
 

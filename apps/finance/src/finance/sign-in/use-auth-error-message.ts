@@ -47,10 +47,6 @@ export function useAuthErrorMessage() {
       en: "Only the household owner can do this.",
       zh: "只有家庭所有者可以这样做。",
     }),
-    no_membership: t({
-      en: "This passkey belongs to no household. Ask for an invite.",
-      zh: "此通行密钥不属于任何家庭。请家人发送邀请。",
-    }),
     email_invalid: t({
       en: "That does not look like an email address.",
       zh: "这不像是一个邮箱地址。",

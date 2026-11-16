@@ -41,21 +41,6 @@ export const lookups = {
   },
 
   /**
-   * The live Member whose user has `email` as a verified Recovery email, or
-   * null when there is none.
-   */
-  async recoveryMember(db: FinanceAppDb, email: string) {
-    const rows = await db
-      .select({
-        householdId: sql<string>`recovery.household_id`,
-        memberId: sql<string>`recovery.member_id`,
-        userId: sql<string>`recovery.user_id`,
-      })
-      .from(sql`finance_auth.recovery_members(${email}) as recovery`);
-    return rows.at(0) ?? null;
-  },
-
-  /**
    * The open invite with this token hash at `now`: not used, not expired, its
    * Member live, and its Member's user the one the invite was made for (none
    * for a new-member invite).

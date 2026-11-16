@@ -17,7 +17,7 @@ function setRequestHeader(response: NextResponse, name: string, value: string) {
 }
 
 const OPEN_PATH =
-  /^(?:\/zh)?\/(?:sign-in|sign-up|invite|recover|verify-email)(?:\/|$)/;
+  /^(?:\/zh)?\/(?:sign-in|sign-up|welcome|invite|recover|verify-email)(?:\/|$)/;
 
 /** `pathname` without its locale prefix: `/zh/reports` is `/reports`, and `/zh` is `/`. */
 function withoutLocale(pathname: string) {
