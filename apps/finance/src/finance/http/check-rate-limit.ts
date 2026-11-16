@@ -1,3 +1,4 @@
+import { retryAfterSeconds } from "@tuja/server-auth/retry-after-seconds";
 import { financeJson } from "./finance-json.ts";
 import type { FinanceRateLimitBucket, LimitFinanceRequest } from "./types.ts";
 
@@ -28,9 +29,4 @@ export async function checkRateLimit(
       headers: { "Retry-After": String(retryAfterSeconds(result.reset, now)) },
     },
   );
-}
-
-/** The `Retry-After` seconds until a limit that resets at `reset` (Unix ms) allows a request again. */
-export function retryAfterSeconds(reset: number, now: Date): number {
-  return Math.max(1, Math.ceil((reset - now.getTime()) / 1000));
 }

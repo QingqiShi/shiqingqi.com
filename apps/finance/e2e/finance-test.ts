@@ -12,9 +12,8 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { z } from "zod";
 import { createInvite } from "../src/finance/auth/create-invite.ts";
-import { createSession } from "../src/finance/auth/create-session.ts";
+import { financeAuthStore } from "../src/finance/auth/finance-auth-store.ts";
 import { financeSessionCookie } from "../src/finance/auth/finance-session-cookie.ts";
-import { startSignUp } from "../src/finance/auth/start-sign-up.ts";
 import { lookups } from "../src/finance/db/lookups.ts";
 import { schema } from "../src/finance/db/schema.ts";
 import type { FinanceDb } from "../src/finance/db/types.ts";
@@ -87,7 +86,7 @@ async function probeFinance(
   db: FinanceDb,
 ): Promise<string | null> {
   const token = await asFinanceApp(db, (tx) =>
-    startSignUp(tx, {
+    financeAuthStore.startSignUp(tx, {
       email: `probe-${randomUUID()}@example.com`,
       now: new Date(),
     }),
@@ -358,10 +357,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   cookieSession: async ({ page, household, financeDb, baseURL }, provide) => {
     if (baseURL === undefined) throw new Error("No baseURL is set.");
     const token = await asFinanceApp(financeDb, (tx) =>
-      createSession(tx, {
+      financeAuthStore.createSession(tx, {
         userId: household.ownerUserId,
         userAgent: "e2e",
         now: new Date(),
+        maxAgeSeconds: financeSessionCookie.maxAgeSeconds,
       }),
     );
     await page.context().addCookies([

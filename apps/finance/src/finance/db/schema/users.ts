@@ -1,15 +1,16 @@
+import { makeAuthTables } from "@tuja/server-auth/make-auth-tables";
 import { sql } from "drizzle-orm";
 import {
+  bigint,
   index,
   pgTable,
-  smallint,
   text,
   timestamp,
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 import { createdAt } from "./created-at.ts";
-import { bytea, minor } from "./minor.ts";
+import { bytea } from "./minor.ts";
 
 // identity and tenancy
 
@@ -55,31 +56,10 @@ export const emailVerifications = pgTable(
 );
 
 /**
- * A six-digit code emailed with a link, that continues the flow in the
- * browser that asked for it. Only the code's hash is stored, and the
- * browser holds the row's id in a sealed cookie.
+ * The tables of sign-in that every app has. `passkeys` is below, because
+ * Finance's has one more column.
  */
-export const emailCodes = pgTable("email_codes", {
-  id: uuid("id").primaryKey(),
-  purpose: text("purpose", { enum: ["recovery", "sign-up"] }).notNull(),
-  email: text("email").notNull(),
-  codeHash: bytea("code_hash").notNull(),
-  /** Each check counts, right or wrong; the code ends at the limit. */
-  attempts: smallint("attempts").notNull().default(0),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  usedAt: timestamp("used_at", { withTimezone: true }),
-  createdAt: createdAt(),
-});
-
-/** One-use links that let a person who confirmed `email` create a Household and its Owner. Only the token's hash is stored. */
-export const signUps = pgTable("sign_ups", {
-  id: uuid("id").primaryKey(),
-  email: text("email").notNull(),
-  tokenHash: bytea("token_hash").notNull().unique(),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  usedAt: timestamp("used_at", { withTimezone: true }),
-  createdAt: createdAt(),
-});
+export const { emailCodes, signUps, sessions } = makeAuthTables(() => users.id);
 
 export const passkeys = pgTable(
   "passkeys",
@@ -89,7 +69,7 @@ export const passkeys = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     publicKey: bytea("public_key").notNull(),
-    counter: minor("counter").notNull().default(0),
+    counter: bigint("counter", { mode: "number" }).notNull().default(0),
     transports: text("transports")
       .array()
       .notNull()
@@ -99,25 +79,4 @@ export const passkeys = pgTable(
     lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
   },
   (t) => [index("passkeys_user_idx").on(t.userId)],
-);
-
-export const sessions = pgTable(
-  "sessions",
-  {
-    id: uuid("id").primaryKey(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    tokenHash: bytea("token_hash").notNull().unique(),
-    createdAt: createdAt(),
-    refreshedAt: timestamp("refreshed_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    lastSeenAt: timestamp("last_seen_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-    userAgent: text("user_agent").notNull().default(""),
-  },
-  (t) => [index("sessions_user_idx").on(t.userId)],
 );

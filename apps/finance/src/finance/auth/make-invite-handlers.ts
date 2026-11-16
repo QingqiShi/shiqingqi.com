@@ -1,38 +1,32 @@
 import { randomUUID } from "node:crypto";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { authBodies } from "@tuja/server-auth/auth-bodies";
+import { authJson } from "@tuja/server-auth/auth-json";
+import { HttpError } from "@tuja/server-auth/http-error";
+import { makeChallenge } from "@tuja/server-auth/make-challenge";
 import { normaliseEmail } from "@tuja/server-auth/normalise-email";
+import { passkeyRegistrationOptions } from "@tuja/server-auth/passkey-registration-options";
+import { passkeyResponseSchemas } from "@tuja/server-auth/passkey-response-schemas";
+import { readAuthBody } from "@tuja/server-auth/read-auth-body";
+import { verifyPasskeyRegistration } from "@tuja/server-auth/verify-passkey-registration";
 import { and, eq, gt, isNull } from "drizzle-orm";
 import { z } from "zod";
-import { invites, passkeys, sessions, users } from "#src/finance/db/schema.ts";
-import {
-  withHousehold,
-  type FinanceAppDb,
-} from "#src/finance/db/with-household.ts";
+import { invites, users } from "#src/finance/db/schema.ts";
+import { withHousehold } from "#src/finance/db/with-household.ts";
 import { buildVerificationEmail } from "../email/build-verification-email.ts";
 import { bindUserToMember } from "./bind-user-to-member.ts";
 import { createInvite } from "./create-invite.ts";
+import { financeAuthStore } from "./finance-auth-store.ts";
+import {
+  financeChallengeCookie,
+  inviteChallenge,
+} from "./finance-challenge-cookie.ts";
 import { lookupInvite } from "./lookup-invite.ts";
-import {
-  HttpError,
-  json,
-  localeSchema,
-  readBody,
-  type AuthHandlerDeps,
-  type AuthRouteKit,
-} from "./make-auth-route-kit.ts";
-import {
-  openSession,
-  requireSession,
-  startSession,
-} from "./require-session.ts";
+import type { AuthHandlerDeps, FinanceAuth } from "./make-finance-auth.ts";
+import { requireSession } from "./require-session.ts";
 import { startEmailVerification } from "./start-email-verification.ts";
-import { issueChallenge, takeChallenge } from "./take-challenge.ts";
-import {
-  insertPasskey,
-  registrationOptions,
-  registrationResponseSchema,
-  verifyRegistration,
-} from "./verify-registration.ts";
+
+const challenge = makeChallenge(financeChallengeCookie);
 
 const inviteOptionsBody = z.object({
   token: z.string().min(1),
@@ -41,17 +35,12 @@ const inviteOptionsBody = z.object({
 
 const inviteVerifyBody = z.object({
   token: z.string().min(1),
-  response: registrationResponseSchema,
+  response: passkeyResponseSchemas.registration,
   email: z.string().max(320).optional(),
-  locale: localeSchema,
+  locale: authBodies.locale,
 });
 
 const createInviteBody = z.object({ memberId: z.uuid() });
-
-async function revokeUserAccess(db: FinanceAppDb, userId: string) {
-  await db.delete(passkeys).where(eq(passkeys.userId, userId));
-  await db.delete(sessions).where(eq(sessions.userId, userId));
-}
 
 /** The email that a new-member invite needs. Null for a recovery invite, whose user keeps the email it has. */
 function inviteEmail(recovery: boolean, given: string | undefined) {
@@ -62,28 +51,28 @@ function inviteEmail(recovery: boolean, given: string | undefined) {
 }
 
 export function makeInviteHandlers(
-  { handle }: AuthRouteKit,
-  deps: AuthHandlerDeps,
+  { handle, createSession, startSession }: FinanceAuth,
+  deps: Pick<AuthHandlerDeps, "emailSender" | "afterResponse">,
 ) {
   return {
     inviteOptions: handle(async (request, context) => {
-      const body = await readBody(request, inviteOptionsBody);
+      const body = await readAuthBody(request, inviteOptionsBody);
       const invite = await lookupInvite(context.db, body.token, context.now);
       if (!invite) throw new HttpError(410, "invite_invalid");
       inviteEmail(invite.recoveryUserId !== null, body.email);
 
       const userId = invite.recoveryUserId ?? randomUUID();
-      const options = await registrationOptions(context, {
+      const options = await passkeyRegistrationOptions(context, {
         userId,
         userName: invite.memberName,
       });
-      issueChallenge(context, {
+      challenge.issue(context, {
         purpose: "invite",
         challenge: options.challenge,
         userId,
         inviteId: invite.inviteId,
       });
-      return json(context, {
+      return authJson(context, {
         options,
         householdName: invite.householdName,
         memberName: invite.memberName,
@@ -92,12 +81,9 @@ export function makeInviteHandlers(
     }),
 
     inviteVerify: handle(async (request, context) => {
-      const body = await readBody(request, inviteVerifyBody);
-      const { challenge, userId, inviteId } = takeChallenge(
-        request,
-        context,
-        "invite",
-      );
+      const body = await readAuthBody(request, inviteVerifyBody);
+      const taken = challenge.take(request, context, inviteChallenge);
+      const { userId, inviteId } = taken;
       const { now } = context;
       const invite = await lookupInvite(context.db, body.token, now);
       if (
@@ -108,7 +94,11 @@ export function makeInviteHandlers(
         throw new HttpError(410, "invite_invalid");
       }
       const email = inviteEmail(invite.recoveryUserId !== null, body.email);
-      const info = await verifyRegistration(context, body.response, challenge);
+      const credential = await verifyPasskeyRegistration(
+        context,
+        body.response,
+        taken.challenge,
+      );
 
       const { token, verification } = await withHousehold(
         context.db,
@@ -132,7 +122,7 @@ export function makeInviteHandlers(
           if (invite.recoveryUserId !== null) {
             // The Member lost every passkey. A lost device must not keep
             // access, so its passkeys and sessions stop here.
-            await revokeUserAccess(db, userId);
+            await financeAuthStore.revokeUserAccess(db, userId);
           } else {
             await db
               .insert(users)
@@ -143,9 +133,9 @@ export function makeInviteHandlers(
             });
             if (!bound) throw new HttpError(409, "member_claimed");
           }
-          await insertPasskey(db, userId, info, now);
+          await financeAuthStore.insertPasskey(db, userId, credential, now);
           return {
-            token: await openSession(db, request, userId, now),
+            token: await createSession(db, request, context, userId),
             verification:
               email === null
                 ? null
@@ -179,7 +169,7 @@ export function makeInviteHandlers(
           }
         });
       }
-      return json(context, {
+      return authJson(context, {
         householdId: invite.householdId,
         memberId: invite.memberId,
       });
@@ -187,7 +177,7 @@ export function makeInviteHandlers(
 
     createInvite: handle(async (request, context) => {
       const session = await requireSession(request, context, { write: true });
-      const { memberId } = await readBody(request, createInviteBody);
+      const { memberId } = await readAuthBody(request, createInviteBody);
       const result = await withHousehold(
         context.db,
         session.householdId,
@@ -207,7 +197,7 @@ export function makeInviteHandlers(
           result.reason,
         );
       }
-      return json(
+      return authJson(
         context,
         {
           token: result.token,
