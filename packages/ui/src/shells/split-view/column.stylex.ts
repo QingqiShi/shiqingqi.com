@@ -118,6 +118,7 @@ export const columnStyles = stylex.create({
     minInlineSize: 0,
     backgroundColor: color.background,
     overflow: "clip",
+    outlineStyle: "none",
   },
   // The pages of a column lie on top of each other, and a motion moves
   // them inside the column.
