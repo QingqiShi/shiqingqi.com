@@ -70,19 +70,3 @@ describe("trip password gate", () => {
     );
   });
 });
-
-describe("locale cookie", () => {
-  it("is written only by a page the visitor opened", async () => {
-    const fetched = new NextRequest("http://localhost:3000/zh/~offline", {
-      headers: { "Accept-Language": "en-GB", "Sec-Fetch-Dest": "empty" },
-    });
-    const opened = new NextRequest("http://localhost:3000/zh/~offline", {
-      headers: { "Accept-Language": "en-GB", "Sec-Fetch-Dest": "document" },
-    });
-
-    expect((await proxy(fetched)).headers.getSetCookie()).toEqual([]);
-    expect((await proxy(opened)).headers.getSetCookie().join()).toMatch(
-      /NEXT_LOCALE=zh/,
-    );
-  });
-});

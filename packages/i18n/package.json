@@ -14,6 +14,7 @@
     "./get-locale-path": "./src/get-locale-path.ts",
     "./i18n-context": "./src/i18n-context.ts",
     "./i18n-provider": "./src/i18n-provider.tsx",
+    "./keep-locale-preference": "./src/keep-locale-preference.ts",
     "./locale-context": "./src/locale-context.ts",
     "./normalize-path": "./src/normalize-path.ts",
     "./parse-message": "./src/parse-message.tsx",
@@ -38,6 +39,8 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "jsdom": "catalog:",
+    "next": "catalog:",
+    "next-i18n-router": "^5.5.8",
     "react": "catalog:",
     "react-dom": "catalog:",
     "vitest": "catalog:"

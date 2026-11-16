@@ -1,8 +1,4 @@
-import {
-  LOCALE_COOKIE_MAX_AGE_SECONDS,
-  LOCALE_COOKIE_NAME,
-} from "@tuja/i18n/constants";
-import { isValidLocale } from "@tuja/i18n/validate-locale";
+import { keepLocalePreference } from "@tuja/i18n/keep-locale-preference";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { i18nRouter } from "next-i18n-router";
@@ -65,55 +61,6 @@ async function lockedTripResponse(
   return NextResponse.redirect(unlock);
 }
 
-// Next deletes its `RSC` and `Next-Router-Prefetch` headers before the proxy
-// runs, so `Sec-Fetch-Dest` and `Sec-Purpose` are the only signals left.
-function isDocumentRequest(request: NextRequest): boolean {
-  if (
-    ["Sec-Purpose", "Purpose"].some((name) =>
-      request.headers.get(name)?.includes("prefetch"),
-    )
-  ) {
-    return false;
-  }
-
-  const destination = request.headers.get("Sec-Fetch-Dest");
-  return destination === null || destination === "document";
-}
-
-function localeResponse(request: NextRequest): NextResponse {
-  const response = i18nRouter(request, i18nConfig);
-
-  // Only a document load may change the Locale: it is the one URL the visitor
-  // chose. next-i18n-router writes NEXT_LOCALE on every locale-prefixed path,
-  // and the service worker fetches `/zh/~offline` for every visitor, which
-  // turned an English visitor's next page Chinese.
-  if (!isDocumentRequest(request)) {
-    // `x-middleware-set-cookie` is Next's mirror of the middleware's cookies
-    // that the render reads back.
-    response.headers.delete("set-cookie");
-    response.headers.delete("x-middleware-set-cookie");
-    return response;
-  }
-
-  // Safari and Brave keep a cookie that script sets for 7 days at most, and
-  // next-i18n-router refreshes NEXT_LOCALE only on locale-prefixed paths.
-  // Issue the cookie again, unless the router set a new one itself.
-  const cookieLocale = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
-  if (
-    cookieLocale &&
-    isValidLocale(cookieLocale) &&
-    !response.cookies.get(LOCALE_COOKIE_NAME)
-  ) {
-    response.cookies.set(LOCALE_COOKIE_NAME, cookieLocale, {
-      path: "/",
-      sameSite: "lax",
-      maxAge: LOCALE_COOKIE_MAX_AGE_SECONDS,
-    });
-  }
-
-  return response;
-}
-
 // The service worker precaches the English offline page at this URL. The
 // locale router sends `/en/…` to `/…`, and `/…` to `/zh/…` for a Chinese
 // browser, so a redirect here can store the page of the wrong locale.
@@ -121,5 +68,8 @@ const ENGLISH_OFFLINE_PATH = "/en/~offline";
 
 export async function proxy(req: NextRequest) {
   if (req.nextUrl.pathname === ENGLISH_OFFLINE_PATH) return NextResponse.next();
-  return (await lockedTripResponse(req)) ?? localeResponse(req);
+  return (
+    (await lockedTripResponse(req)) ??
+    keepLocalePreference(req, i18nRouter(req, i18nConfig))
+  );
 }
