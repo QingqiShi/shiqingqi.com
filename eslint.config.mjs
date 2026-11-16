@@ -102,10 +102,7 @@ const stylexPluginsMessage =
 export default defineConfig([
   {
     ignores: [
-      "apps/*/babel.config.js",
       "eslint.config.mjs",
-      "apps/*/next.config.js",
-      "apps/*/postcss.config.js",
       "apps/*/src/_generated/**/*",
       "packages/*/src/_generated/**/*",
       "packages/system-palette-codegen/src/vendor/**/*",
@@ -191,7 +188,7 @@ export default defineConfig([
         },
         {
           selector:
-            'MemberExpression[object.property.name="env"][property.name="NODE_ENV"]',
+            'MemberExpression[object.property.name="env"]:matches([property.name="NODE_ENV"], [property.value="NODE_ENV"]), VariableDeclarator[init.property.name="env"] > ObjectPattern > Property:matches([key.name="NODE_ENV"], [key.value="NODE_ENV"])',
           message:
             "Import `DEV` from `esm-env`. For a test run, use a `test` export condition, as `@tuja/i18n` does with `#is-test`.",
         },
@@ -795,7 +792,12 @@ export default defineConfig([
   // Tooling JS files are CJS and not covered by tsconfig, so disable
   // type-checked rules and configure for Node.js/CommonJS.
   {
-    files: ["packages/**/*.js"],
+    files: [
+      "packages/**/*.js",
+      "apps/*/babel.config.js",
+      "apps/*/next.config.js",
+      "apps/*/postcss.config.js",
+    ],
     ignores: ["packages/tmdb-codegen/src/generator.js"],
     ...tsEslint.configs.disableTypeChecked,
     languageOptions: {
@@ -814,6 +816,12 @@ export default defineConfig([
       ...tsEslint.configs.disableTypeChecked.rules,
       "@typescript-eslint/no-require-imports": "off",
     },
+  },
+  {
+    // `scripts/` at the repository root is not a package, so a config file
+    // can only reach it with a relative path.
+    files: ["apps/*/next.config.js"],
+    rules: { "import-x/no-relative-packages": "off" },
   },
   // Tooling ESM files — disable type-checked rules and add Node globals.
   {
