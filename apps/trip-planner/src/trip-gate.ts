@@ -33,7 +33,7 @@ const gates: Record<string, TripGate | undefined> = {
 };
 
 export function tripGate(slug: string): TripGate | undefined {
-  return gates[slug];
+  return Object.hasOwn(gates, slug) ? gates[slug] : undefined;
 }
 
 // ~90 days: unlock once, stay unlocked across browser sessions.
@@ -47,4 +47,17 @@ export async function gateToken(realm: string, password: string) {
   return Array.from(new Uint8Array(digest))
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
+}
+
+interface CookieStore {
+  get(name: string): { value: string } | undefined;
+}
+
+/** Whether the request's cookies hold this trip's unlock. False for a trip
+ *  without a gate or a password, so a misconfigured trip stays locked. */
+export async function isTripUnlocked(slug: string, cookies: CookieStore) {
+  const gate = tripGate(slug);
+  if (!gate?.password) return false;
+  const expected = await gateToken(gate.realm, gate.password);
+  return cookies.get(gate.cookie)?.value === expected;
 }

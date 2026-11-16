@@ -1,39 +1,10 @@
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import type { Metadata, Viewport } from "next";
-import type { ReactNode } from "react";
-import { SerwistProvider } from "@/pwa/serwist-provider";
 import "./globals.css";
+import "./stylex.css";
 
-export const metadata: Metadata = {
-  title: "旅行计划",
-  description: "自驾行程：每日安排、景点、餐厅与住宿。",
-  robots: { index: false, follow: false },
-};
-
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-};
-
-export default function RootLayout({ children }: { children: ReactNode }) {
-  return (
-    <html
-      lang="zh"
-      className="motion-safe:scroll-smooth"
-      data-scroll-behavior="smooth"
-      suppressHydrationWarning
-    >
-      <body className="min-h-dvh antialiased">
-        <SerwistProvider
-          swUrl="/sw.js"
-          disable={process.env.NODE_ENV === "development"}
-        >
-          {children}
-        </SerwistProvider>
-        <Analytics />
-        <SpeedInsights />
-      </body>
-    </html>
-  );
+/**
+ * Loads the stylesheets above the `[locale]` layout, so they stay when the
+ * locale changes.
+ */
+export default function Layout({ children }: React.PropsWithChildren<object>) {
+  return children;
 }

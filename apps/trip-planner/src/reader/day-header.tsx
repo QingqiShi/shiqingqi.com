@@ -60,8 +60,8 @@ export function DayHeader({
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span className="font-medium text-foreground">Day {dayNumber}</span>
             <span>·</span>
-            <span>{dateLabel(day.date)}</span>
-            <span>{weekdayLabel(day.date)}</span>
+            <span>{dateLabel(day.date, "zh")}</span>
+            <span>{weekdayLabel(day.date, "zh")}</span>
             {isToday ? <Badge className="ml-1">今天</Badge> : null}
           </div>
 

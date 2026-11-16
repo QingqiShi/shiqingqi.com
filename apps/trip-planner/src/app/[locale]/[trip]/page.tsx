@@ -1,16 +1,20 @@
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
+import { notFound, redirect } from "next/navigation";
 import { dateRangeLabel } from "@/reader/date-label";
 import { resolveDay } from "@/reader/resolve-day";
 import { TripView } from "@/reader/trip-view";
 import { getTripWeather } from "@/reader/weather/get-trip-weather";
+import { isTripUnlocked } from "@/trip-gate";
 import { tripBySlug } from "@/trips";
 
 // "Current day" depends on the wall clock, so render per-request.
 export const dynamic = "force-dynamic";
 
 interface TripPageProps {
-  params: Promise<{ trip: string }>;
+  params: Promise<{ locale: string; trip: string }>;
 }
 
 export async function generateMetadata({
@@ -21,14 +25,20 @@ export async function generateMetadata({
   if (!trip) return {};
   return {
     title: `${trip.title} · 行程`,
-    description: `${dateRangeLabel(trip.days)}${trip.subtitle}：每日安排、景点、餐厅与住宿。`,
+    description: `${dateRangeLabel(trip.days, "zh")}${trip.subtitle}：每日安排、景点、餐厅与住宿。`,
   };
 }
 
 export default async function TripPage({ params }: TripPageProps) {
-  const { trip: slug } = await params;
+  const { locale, trip: slug } = await params;
   const trip = tripBySlug(slug);
   if (!trip) notFound();
+
+  // The proxy gates trips already. This second check keeps a trip locked for
+  // a path that the proxy reads differently from the router.
+  if (!(await isTripUnlocked(slug, await cookies()))) {
+    redirect(getLocalePath(`/unlock/${slug}`, validateLocale(locale)));
+  }
 
   // force-dynamic page: request time IS the content, and render is its only per-request phase.
   const { index, phase, daysUntil } = resolveDay(

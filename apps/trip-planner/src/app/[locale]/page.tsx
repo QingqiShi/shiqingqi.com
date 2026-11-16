@@ -44,7 +44,7 @@ function TripCard({ trip, now }: { trip: Trip; now: Date }) {
         <div className="mt-3 flex flex-wrap gap-2">
           <Badge variant="outline">
             <CalendarDays />
-            {dateRangeLabel(trip.days)}
+            {dateRangeLabel(trip.days, "zh")}
           </Badge>
           <Badge variant="outline">
             <Users />

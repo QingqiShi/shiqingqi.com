@@ -3,11 +3,18 @@
 A standalone Next.js app for planning trips, deployed as its **own Vercel project**
 (separate from the main `web` site) out of this monorepo.
 
-- **Locale:** Chinese only (`zh`). No i18n pipeline — copy is written inline.
-- **UI:** [shadcn/ui](https://ui.shadcn.com) on **Tailwind CSS v4** (Radix primitives,
-  CSS-variable theming). This deliberately diverges from the main `web` site's
-  StyleX + `@tuja/ui` system — trip-planner is an isolated experiment and does not
-  share the design system.
+- **Locale:** English at `/`, Chinese at `/zh`, through the repo's inline `t()`
+  pipeline (`@tuja/i18n`). The pages are still written in Chinese in both
+  locales.
+- **UI:** [shadcn/ui](https://ui.shadcn.com) on **Tailwind CSS v4**, moving to
+  StyleX and `@tuja/ui`. Both are set up: the StyleX CSS and the `@tuja/ui`
+  effect layer load beside the Tailwind styles, and `predev`/`prebuild`
+  download the Haffer font files. `@tuja/ui/fonts.css` is not imported yet,
+  because its rules change the Tailwind pages.
+- **Access:** each trip has its own password (`SITE_PASSWORD_GB`,
+  `SITE_PASSWORD_TUSCANY`). `src/proxy.ts` sends a locked trip to
+  `/unlock/<slug>` (or `/zh/unlock/<slug>`), and the trip page checks the
+  unlock again.
 
 ## UI components
 
