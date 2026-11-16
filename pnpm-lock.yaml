@@ -838,12 +838,21 @@ importers:
       '@vercel/analytics':
         specifier: 'catalog:'
         version: 2.0.1(next@16.4.6(@babel/core@8.1.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.65.0)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
+      '@vercel/functions':
+        specifier: ^3.11.0
+        version: 3.11.0
       '@vercel/speed-insights':
         specifier: 'catalog:'
         version: 2.0.0(next@16.4.6(@babel/core@8.1.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.65.0)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
+      drizzle-orm:
+        specifier: ^0.45.4
+        version: 0.45.4(@electric-sql/pglite@0.5.16)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
       next:
         specifier: 'catalog:'
         version: 16.4.6(@babel/core@8.1.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.65.0)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      pg:
+        specifier: ^8.23.1
+        version: 8.23.1
       react:
         specifier: 'catalog:'
         version: 19.3.1
@@ -869,6 +878,9 @@ importers:
       '@babel/preset-typescript':
         specifier: 'catalog:'
         version: 8.0.7(@babel/core@8.1.0)
+      '@electric-sql/pglite':
+        specifier: 0.5.16
+        version: 0.5.16
       '@playwright/test':
         specifier: ^1.65.0
         version: 1.65.0
@@ -887,6 +899,9 @@ importers:
       '@tuja/babel-plugins':
         specifier: workspace:*
         version: link:../../packages/babel-plugins
+      '@tuja/dev-tools':
+        specifier: workspace:*
+        version: link:../../packages/dev-tools
       '@tuja/i18n-codegen':
         specifier: workspace:*
         version: link:../../packages/i18n-codegen
@@ -899,6 +914,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.6
+      '@types/pg':
+        specifier: ^8.23.1
+        version: 8.23.1
       '@types/react':
         specifier: 'catalog:'
         version: 19.3.0
@@ -914,6 +932,12 @@ importers:
       babel-plugin-react-compiler:
         specifier: 'catalog:'
         version: 1.0.0
+      dotenv:
+        specifier: 'catalog:'
+        version: 18.0.9
+      drizzle-kit:
+        specifier: ^0.31.11
+        version: 0.31.11
       jsdom:
         specifier: 'catalog:'
         version: 30.1.3
@@ -1244,6 +1268,9 @@ importers:
       '@electric-sql/pglite':
         specifier: 0.5.16
         version: 0.5.16
+      '@next/env':
+        specifier: 'catalog:'
+        version: 16.4.6
       '@tuja/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig

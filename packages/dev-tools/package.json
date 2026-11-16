@@ -2,7 +2,7 @@
   "name": "@tuja/dev-tools",
   "version": "0.0.0",
   "private": true,
-  "description": "Helpers for the apps' local dev scripts: CLI options, port checks and a PGlite socket server.",
+  "description": "Helpers for the apps' local dev scripts: CLI options, port checks, a PGlite socket server and a runner that gives a command a local database.",
   "type": "module",
   "exports": {
     "./*": "./src/*.ts"
@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.16",
+    "@next/env": "catalog:",
     "@tuja/tsconfig": "workspace:*",
     "@types/node": "catalog:",
     "vitest": "catalog:"

@@ -6,7 +6,7 @@ import { EmptyState } from "@tuja/ui/components/empty-state";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { isTripUnlocked } from "#src/is-trip-unlocked.ts";
-import { tripBySlug } from "#src/trips/index.ts";
+import { getTrip } from "#src/trips/get-trips.ts";
 import { UnlockForm } from "./unlock-form.tsx";
 
 // The unlock prompt depends on the per-request cookie, so render per-request.
@@ -26,7 +26,7 @@ export async function generateMetadata({
 export default async function UnlockPage({ params }: UnlockPageProps) {
   const { locale: localeParam, trip: slug } = await params;
   const locale = validateLocale(localeParam);
-  const trip = tripBySlug(slug);
+  const trip = await getTrip(slug);
   if (!trip) notFound();
 
   // Already unlocked (e.g. a bookmarked /unlock link) — skip straight to the

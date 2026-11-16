@@ -10,6 +10,11 @@ A standalone Next.js app for planning trips, deployed as its **own Vercel projec
 - **UI:** the repo's StyleX design system, `@tuja/ui` (see the `styling`
   skill). The app sits in a `TabView` (Trips, Settings), and the list of trips
   sits beside the open trip in a `NavigationSplitView`.
+- **Data:** trips are documents in Postgres, one row in `trips` and one in
+  `trip_revisions` for each save. Pages read them through
+  `src/trips/get-trips.ts`, which reads only a trip that has a password gate.
+  The two real trips are still files in `src/trips/data` for now: each
+  deployment copies them into its database.
 - **Access:** each trip has its own password. The proxy gates a trip path with
   or without a locale prefix, and the trip page checks the unlock cookie too.
 
@@ -19,12 +24,16 @@ A standalone Next.js app for planning trips, deployed as its **own Vercel projec
 pnpm --filter trip-planner dev   # port: node scripts/get-worktree-port.mjs 100
 ```
 
-Set `SITE_PASSWORD_SAMPLE` to any value to add the made-up sample trip at
+Unless `TRIPS_DATABASE_URL` is set, `pnpm dev` starts a database of its own
+in `.trips-db/`, with the made-up sample trip and the trip files. After a
+change to `src/db/schema.ts`, run `pnpm trips:generate` for the migration.
+
+Set `SITE_PASSWORD_SAMPLE` to any value to open the made-up sample trip at
 `/sample-lisbon`. Use it for tests and screenshots, because the real trips
 show bookings and phone numbers.
 
 ```bash
-pnpm --filter trip-planner test:e2e   # builds, then serves the build with the sample trip
+pnpm --filter trip-planner test:e2e   # builds, then serves the build with a database in memory
 ```
 
 The Playwright specs in `e2e/` unlock the sample trip, step through its days,
@@ -55,7 +64,14 @@ This app is a second Vercel project pointing at the same Git repo:
 - **Root Directory:** `apps/trip-planner`
 - **Framework preset:** Next.js (auto-detected)
 - **Install Command:** `pnpm install` (run at repo root; inherited)
-- **Build Command:** `pnpm build` (or leave default — Vercel runs `next build`)
+- **Build Command:** `buildCommand` in `vercel.json`. On a preview or
+  production deployment it first runs `pnpm trips:migrate`, which applies the
+  migrations and copies the trip files into the database.
+- **Database:** a Neon project with the branches `main` (production) and
+  `preview`. Set `TRIPS_DATABASE_URL` (pooled) and
+  `TRIPS_DATABASE_URL_UNPOOLED` for each of the two environments. With the
+  repository variable `TRIPS_NEON_PROJECT_ID`, a daily workflow makes
+  `preview` a copy of `main` again.
 - **Font:** set `LICENSED_FONTS_READ_WRITE_TOKEN` so the build downloads the
   licensed Haffer font; without it the app uses the fallback font.
 

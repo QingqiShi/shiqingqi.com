@@ -1,0 +1,27 @@
+name: Trip Planner Reset Preview DB
+
+on:
+  schedule:
+    - cron: '20 4 * * *'   # Daily at 04:20 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: trip-planner-preview-db
+
+jobs:
+  # Previews read the Neon branch `preview`. This makes it a copy of
+  # production again, so that what a preview wrote does not stay.
+  reset:
+    if: ${{ vars.TRIPS_NEON_PROJECT_ID != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: neondatabase/reset-branch-action@v1.3.2
+        with:
+          project_id: ${{ vars.TRIPS_NEON_PROJECT_ID }}
+          branch: preview
+          parent: true
+          api_key: ${{ secrets.NEON_API_KEY }}

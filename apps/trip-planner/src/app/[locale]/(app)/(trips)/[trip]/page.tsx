@@ -8,7 +8,7 @@ import { dateRangeLabel } from "#src/reader/date-label.ts";
 import { resolveDay } from "#src/reader/resolve-day.ts";
 import { TripPage } from "#src/reader/trip-page.tsx";
 import { getTripWeather } from "#src/reader/weather/get-trip-weather.ts";
-import { tripBySlug } from "#src/trips/index.ts";
+import { getTrip } from "#src/trips/get-trips.ts";
 
 // "Current day" depends on the wall clock, so render per-request.
 export const dynamic = "force-dynamic";
@@ -21,7 +21,7 @@ export async function generateMetadata({
   params,
 }: TripRouteProps): Promise<Metadata> {
   const { locale, trip: slug } = await params;
-  const trip = tripBySlug(slug);
+  const trip = await getTrip(slug);
   if (!trip) return {};
   const description = t({
     en: "{dates}. {subtitle}: the plan for each day, with places, food and beds.",
@@ -37,7 +37,7 @@ export async function generateMetadata({
 
 export default async function TripRoute({ params }: TripRouteProps) {
   const { locale, trip: slug } = await params;
-  const trip = tripBySlug(slug);
+  const trip = await getTrip(slug);
   if (!trip) notFound();
   if (!(await isTripUnlocked(slug))) {
     redirect(getLocalePath(`/unlock/${slug}`, validateLocale(locale)));
