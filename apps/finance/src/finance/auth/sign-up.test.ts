@@ -17,7 +17,6 @@ import {
   TEST_ORIGIN,
 } from "./testing/create-auth-test-client.ts";
 import {
-  acceptInvite,
   advance,
   confirmRecoveryEmail,
   cookieShapes,
@@ -26,6 +25,7 @@ import {
   makeHandlers,
   now,
   outboxDir,
+  recover,
   recoveryTokenIn,
   requestSignUpToken,
   setUpAuthHandlerTests,
@@ -128,7 +128,7 @@ describe("sign-up", () => {
   });
 
   it("answers the same for an address that a user has, and emails that address a Recovery link, not a sign-up link", async () => {
-    const first = await signUp(
+    await signUp(
       createAuthTestClient(makeHandlers()),
       createSoftwareAuthenticator(),
       "taken@example.com",
@@ -163,12 +163,12 @@ describe("sign-up", () => {
     ).toEqual([expect.objectContaining({ usedAt: now })]);
 
     const link = recoveryTokenIn(sent[0]?.text);
-    const recovered = await acceptInvite(
+    const recovered = await recover(
       createAuthTestClient(makeHandlers()),
       createSoftwareAuthenticator(),
       link,
     );
-    expect(recovered).toMatchObject({ status: 200, body: first.body });
+    expect(recovered).toMatchObject({ status: 200, body: { ok: true } });
     expect(await db.select().from(households)).toHaveLength(1);
   });
 

@@ -23,6 +23,8 @@ export interface AuthHandlers {
   verifyEmail: AuthHandler;
   requestRecovery: AuthHandler;
   recoveryCode: AuthHandler;
+  recoveryOptions: AuthHandler;
+  recoveryVerify: AuthHandler;
   signOut: AuthHandler;
   session: AuthHandler;
   startDemo: AuthHandler;

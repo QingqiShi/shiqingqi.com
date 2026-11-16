@@ -16,7 +16,8 @@ function setRequestHeader(response: NextResponse, name: string, value: string) {
   response.headers.set(`x-middleware-request-${name}`, value);
 }
 
-const OPEN_PATH = /^(?:\/zh)?\/(?:sign-in|sign-up|invite|verify-email)(?:\/|$)/;
+const OPEN_PATH =
+  /^(?:\/zh)?\/(?:sign-in|sign-up|invite|recover|verify-email)(?:\/|$)/;
 
 /** `pathname` without its locale prefix: `/zh/reports` is `/reports`, and `/zh` is `/`. */
 function withoutLocale(pathname: string) {

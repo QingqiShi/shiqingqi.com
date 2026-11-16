@@ -82,9 +82,9 @@ test.describe("Sign-up", () => {
       ownerEmail,
       /^\d{6} is your Finance code$/,
     );
-    await otherPage.goto(linkIn(registered, "/invite/"));
+    await otherPage.goto(linkIn(registered, "/recover/"));
     await expect(
-      otherPage.getByRole("heading", { name: "Back into Riley" }),
+      otherPage.getByRole("heading", { name: "Welcome back" }),
     ).toBeVisible();
     await otherPage.getByRole("button", { name: "Save a new passkey" }).click();
     await otherPage.waitForURL((url) => url.pathname === "/");

@@ -15,6 +15,7 @@ describe("isPrecacheableFinancePath", () => {
   it("refuses open pages, queries and odd paths", () => {
     expect(isPrecacheableFinancePath("/sign-in")).toBe(false);
     expect(isPrecacheableFinancePath("/zh/invite/abc")).toBe(false);
+    expect(isPrecacheableFinancePath("/recover/abc")).toBe(false);
     expect(isPrecacheableFinancePath("/?id=1")).toBe(false);
     expect(isPrecacheableFinancePath("//x")).toBe(false);
     expect(isPrecacheableFinancePath("https://example.com/")).toBe(false);

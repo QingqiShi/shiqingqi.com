@@ -10,6 +10,7 @@ import { HttpError } from "./http-error.ts";
 import type { makeAuthTables } from "./make-auth-tables.ts";
 
 const SIGN_UP_LIFETIME_MS = 30 * 60 * 1000;
+const RECOVERY_LIFETIME_MS = 30 * 60 * 1000;
 const REFRESH_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
 const LAST_SEEN_PRECISION_MS = 60 * 60 * 1000;
 
@@ -57,6 +58,7 @@ export type AuthStore = ReturnType<typeof makeAuthStore>;
 export function makeAuthStore({
   emailCodes,
   signUps,
+  recoveries,
   passkeys,
   sessions,
 }: AuthTables) {
@@ -199,6 +201,97 @@ export function makeAuthStore({
           ),
         )
         .returning({ id: signUps.id });
+      return used.length === 1;
+    },
+
+    /**
+     * Stores a recovery link for the user and returns its raw token.
+     * `emailed` is false for a link that a person gives to the user by hand.
+     * With `replace`, the user's earlier links stop working: only the
+     * emailed ones for an emailed link, so that a request by email cannot
+     * end a link given by hand. Expired links of every user go.
+     */
+    async startRecovery(
+      tx: AuthTx,
+      {
+        userId,
+        now,
+        emailed,
+        replace,
+        lifetimeMs = RECOVERY_LIFETIME_MS,
+      }: {
+        userId: string;
+        now: Date;
+        emailed: boolean;
+        replace: boolean;
+        lifetimeMs?: number;
+      },
+    ): Promise<{ token: string; expiresAt: Date }> {
+      const token = generateToken();
+      const expiresAt = new Date(now.getTime() + lifetimeMs);
+      await tx
+        .delete(recoveries)
+        .where(
+          replace
+            ? or(
+                and(
+                  eq(recoveries.userId, userId),
+                  isNull(recoveries.usedAt),
+                  emailed ? recoveries.emailed : undefined,
+                ),
+                lte(recoveries.expiresAt, now),
+              )
+            : lte(recoveries.expiresAt, now),
+        );
+      await tx.insert(recoveries).values({
+        id: randomUUID(),
+        userId,
+        tokenHash: hashToken(token),
+        emailed,
+        createdAt: now,
+        expiresAt,
+      });
+      return { token, expiresAt };
+    },
+
+    /** Null when the token is unknown, used or expired. */
+    async lookupRecovery(
+      tx: AuthTx,
+      token: string,
+      now: Date,
+    ): Promise<{ recoveryId: string; userId: string } | null> {
+      const recovery = (
+        await tx
+          .select({ recoveryId: recoveries.id, userId: recoveries.userId })
+          .from(recoveries)
+          .where(
+            and(
+              eq(recoveries.tokenHash, hashToken(token)),
+              isNull(recoveries.usedAt),
+              gt(recoveries.expiresAt, now),
+            ),
+          )
+          .limit(1)
+      ).at(0);
+      return recovery ?? null;
+    },
+
+    /** Uses the recovery link up. False when it is used or expired already. */
+    async consumeRecovery(
+      tx: AuthTx,
+      { recoveryId, now }: { recoveryId: string; now: Date },
+    ): Promise<boolean> {
+      const used = await tx
+        .update(recoveries)
+        .set({ usedAt: now })
+        .where(
+          and(
+            eq(recoveries.id, recoveryId),
+            isNull(recoveries.usedAt),
+            gt(recoveries.expiresAt, now),
+          ),
+        )
+        .returning({ id: recoveries.id });
       return used.length === 1;
     },
 

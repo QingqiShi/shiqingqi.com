@@ -3,10 +3,8 @@ import { sql } from "drizzle-orm";
 import {
   bigint,
   boolean,
-  customType,
   date,
   doublePrecision,
-  index,
   pgTable,
   primaryKey,
   text,
@@ -14,10 +12,6 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-
-const bytea = customType<{ data: Uint8Array; driverData: Uint8Array }>({
-  dataType: () => "bytea",
-});
 
 function createdAt() {
   return timestamp("created_at", { withTimezone: true }).notNull().defaultNow();
@@ -49,23 +43,8 @@ export const accounts = pgTable("accounts", {
 });
 
 /** The tables of sign-in that every app has. */
-export const { emailCodes, signUps, passkeys, sessions } = makeAuthTables(
-  () => accounts.id,
-);
-
-/** One-use links, sent to the account's email, that replace its passkeys. Only the token's hash is stored. */
-export const recoveries = pgTable(
-  "recoveries",
-  {
-    id: uuid("id").primaryKey(),
-    userId: userId(),
-    tokenHash: bytea("token_hash").notNull().unique(),
-    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-    usedAt: timestamp("used_at", { withTimezone: true }),
-    createdAt: createdAt(),
-  },
-  (t) => [index("recoveries_user_idx").on(t.userId)],
-);
+export const { emailCodes, signUps, recoveries, passkeys, sessions } =
+  makeAuthTables(() => accounts.id);
 
 /** A Mac that may upload for its account: it signs each upload with the private half of `public_key`. */
 export const machines = pgTable(

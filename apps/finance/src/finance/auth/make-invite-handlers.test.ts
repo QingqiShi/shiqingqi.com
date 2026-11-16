@@ -1,7 +1,7 @@
 import { createSoftwareAuthenticator } from "@tuja/server-auth/testing/create-software-authenticator";
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
-import { invites, members, passkeys } from "#src/finance/db/schema.ts";
+import { invites, members, passkeys, users } from "#src/finance/db/schema.ts";
 import { createTestHousehold } from "#src/finance/db/testing/create-test-household.ts";
 import { readOutbox } from "../email/make-outbox-email-sender.ts";
 import {
@@ -19,6 +19,7 @@ import {
   makeHandlers,
   now,
   outboxDir,
+  recover,
   setUpAuthHandlerTests,
   signIn,
   verificationTokenIn,
@@ -161,7 +162,7 @@ describe("invites", () => {
   });
 });
 
-describe("recovery invites", () => {
+describe("recovery links from the owner", () => {
   async function ownerAndPartner() {
     const { imported, owner } = await claimedHousehold();
     const invite = await owner.post<{ token: string }>("createInvite", {
@@ -173,7 +174,7 @@ describe("recovery invites", () => {
     return { imported, owner, partner, lostPhone };
   }
 
-  it("lets the owner re-invite a member who lost every passkey", async () => {
+  it("lets a member who lost every passkey back in", async () => {
     const { imported, owner, lostPhone } = await ownerAndPartner();
     const partnerMember = (
       await db
@@ -182,20 +183,20 @@ describe("recovery invites", () => {
         .where(eq(members.id, imported.memberIds[1]))
     ).at(0);
 
-    const recovery = await owner.post<{ token: string; recovery: boolean }>(
+    const recovery = await owner.post<{ token: string; path: string }>(
       "createInvite",
       { memberId: imported.memberIds[1] },
     );
-    expect(recovery).toMatchObject({ status: 201, body: { recovery: true } });
+    expect(recovery).toMatchObject({
+      status: 201,
+      body: { recovery: true, path: `/recover/${recovery.body.token}` },
+    });
 
     const newPhone = createSoftwareAuthenticator();
     const newDevice = createAuthTestClient(makeHandlers());
-    const result = await acceptInvite(newDevice, newPhone, recovery.body.token);
+    const result = await recover(newDevice, newPhone, recovery.body.token);
 
-    expect(result).toMatchObject({
-      status: 200,
-      body: { memberId: imported.memberIds[1] },
-    });
+    expect(result).toMatchObject({ status: 200, body: { ok: true } });
     const session = await newDevice.get<{ userId: string; memberId: string }>(
       "session",
     );
@@ -222,13 +223,45 @@ describe("recovery invites", () => {
       memberId: imported.memberIds[1],
     });
 
-    await acceptInvite(
+    await recover(
       createAuthTestClient(makeHandlers()),
       createSoftwareAuthenticator(),
       recovery.body.token,
     );
 
     expect((await partner.get("session")).status).toBe(401);
+  });
+
+  it("still works after someone asks for a recovery by email", async () => {
+    const { imported, owner } = await ownerAndPartner();
+    const [partnerMember] = await db
+      .select({ userId: members.userId })
+      .from(members)
+      .where(eq(members.id, imported.memberIds[1]));
+    await db
+      .update(users)
+      .set({ email: "partner@example.com", emailVerifiedAt: now })
+      .where(eq(users.id, partnerMember.userId ?? ""));
+    const recovery = await owner.post<{ token: string }>("createInvite", {
+      memberId: imported.memberIds[1],
+    });
+
+    await createAuthTestClient(makeHandlers()).post("requestRecovery", {
+      email: "partner@example.com",
+      locale: "en",
+    });
+    await Promise.all(afterTasks.splice(0));
+    expect((await readOutbox(outboxDir)).at(-1)?.to).toBe(
+      "partner@example.com",
+    );
+
+    const result = await recover(
+      createAuthTestClient(makeHandlers()),
+      createSoftwareAuthenticator(),
+      recovery.body.token,
+    );
+
+    expect(result.status).toBe(200);
   });
 
   it("is for the owner only", async () => {
@@ -244,7 +277,7 @@ describe("recovery invites", () => {
     });
   });
 
-  it("refuses a recovery invite once its member has another user", async () => {
+  it("refuses the link once its user is the user of no member", async () => {
     const { imported, owner } = await ownerAndPartner();
     const recovery = await owner.post<{ token: string }>("createInvite", {
       memberId: imported.memberIds[1],
@@ -254,7 +287,7 @@ describe("recovery invites", () => {
       .set({ userId: null })
       .where(eq(members.id, imported.memberIds[1]));
 
-    const result = await acceptInvite(
+    const result = await recover(
       createAuthTestClient(makeHandlers()),
       createSoftwareAuthenticator(),
       recovery.body.token,

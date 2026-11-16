@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   bigint,
+  boolean,
   customType,
   index,
   pgTable,
@@ -57,6 +58,22 @@ export function makeAuthTables(userId: () => AnyPgColumn) {
     createdAt: createdAt(),
   });
 
+  /** One-use links that replace the passkeys of a user. Only the token's hash is stored. */
+  const recoveries = pgTable(
+    "recoveries",
+    {
+      id: uuid("id").primaryKey(),
+      userId: userIdColumn(),
+      tokenHash: bytea("token_hash").notNull().unique(),
+      expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+      usedAt: timestamp("used_at", { withTimezone: true }),
+      /** False for a link that a person gives to the user by hand. A request by email does not end such a link. */
+      emailed: boolean("emailed").notNull().default(true),
+      createdAt: createdAt(),
+    },
+    (t) => [index("recoveries_user_idx").on(t.userId)],
+  );
+
   const passkeys = pgTable(
     "passkeys",
     {
@@ -93,5 +110,5 @@ export function makeAuthTables(userId: () => AnyPgColumn) {
     (t) => [index("sessions_user_idx").on(t.userId)],
   );
 
-  return { emailCodes, signUps, passkeys, sessions };
+  return { emailCodes, signUps, recoveries, passkeys, sessions };
 }

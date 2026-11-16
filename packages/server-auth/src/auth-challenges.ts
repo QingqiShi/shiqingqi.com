@@ -18,9 +18,16 @@ export const authChallenges = {
     challenge: z.string(),
     userId: z.uuid(),
   }),
+  recovery: z.object({
+    purpose: z.literal("recovery"),
+    challenge: z.string(),
+    userId: z.uuid(),
+    recoveryId: z.uuid(),
+  }),
 };
 
 export type AuthChallengePayload =
   | z.infer<typeof authChallenges.signIn>
   | z.infer<typeof authChallenges.signUp>
-  | z.infer<typeof authChallenges.addPasskey>;
+  | z.infer<typeof authChallenges.addPasskey>
+  | z.infer<typeof authChallenges.recovery>;

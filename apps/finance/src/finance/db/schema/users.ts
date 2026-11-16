@@ -59,7 +59,9 @@ export const emailVerifications = pgTable(
  * The tables of sign-in that every app has. `passkeys` is below, because
  * Finance's has one more column.
  */
-export const { emailCodes, signUps, sessions } = makeAuthTables(() => users.id);
+export const { emailCodes, signUps, recoveries, sessions } = makeAuthTables(
+  () => users.id,
+);
 
 export const passkeys = pgTable(
   "passkeys",

@@ -2,9 +2,10 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
+import { lookupRecovery } from "@tuja/server-auth/lookup-recovery";
 import type { Metadata } from "next";
 import { connection } from "next/server";
-import { lookupRecovery } from "#src/server/auth/create-email-recovery.ts";
+import { buddyAuthConfig } from "#src/server/auth/make-buddy-auth.ts";
 import { getBuddyDb } from "#src/server/db/get-buddy-db.ts";
 import { AuthFrame } from "#src/sign-in/auth-frame.tsx";
 import { AuthNotice } from "#src/sign-in/auth-notice.tsx";
@@ -28,12 +29,12 @@ export default async function Page({
   await connection();
   const db = getBuddyDb();
   if (!db) return <NotConfigured />;
-  const recovery = await lookupRecovery(db, token, new Date());
+  const recovery = await lookupRecovery(buddyAuthConfig, db, token, new Date());
 
   return (
     <AuthFrame>
       {recovery ? (
-        <RecoveryPanel token={token} accountName={recovery.name} />
+        <RecoveryPanel token={token} userName={recovery.userName} />
       ) : (
         <AuthNotice
           heading={t({ en: "This link has ended", zh: "此链接已失效" })}

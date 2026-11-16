@@ -15,6 +15,13 @@
       "when": 1794184351099,
       "tag": "0001_visitor_care",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794864697503,
+      "tag": "0002_recovery_emailed",
+      "breakpoints": true
     }
   ]
 }

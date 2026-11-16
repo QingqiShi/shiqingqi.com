@@ -1,6 +1,5 @@
 import type { AuthHandler } from "@tuja/server-auth/make-auth-route-kit";
 import { makeBuddyAuth, type AuthHandlerDeps } from "./make-buddy-auth.ts";
-import { makeRecoveryHandlers } from "./make-recovery-handlers.ts";
 
 export type { AuthHandlerDeps };
 
@@ -24,6 +23,5 @@ export interface AuthHandlers {
  * through a code sent to its email.
  */
 export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
-  const auth = makeBuddyAuth(deps);
-  return { ...auth.handlers, ...makeRecoveryHandlers(auth) };
+  return makeBuddyAuth(deps).handlers;
 }

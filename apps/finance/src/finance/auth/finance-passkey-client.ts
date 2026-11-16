@@ -93,10 +93,10 @@ export const financePasskeyClient = {
     });
   },
 
-  /** `email` is the new user's Recovery email; a recovery invite takes none. */
+  /** `email` is the new user's Recovery email. */
   async acceptInvite(
     token: string,
-    { email, locale }: { email?: string; locale: SupportedLocale },
+    { email, locale }: { email: string; locale: SupportedLocale },
   ): Promise<SignedIn> {
     const { options } = await post<{
       options: PublicKeyCredentialCreationOptionsJSON;
@@ -115,9 +115,9 @@ export const financePasskeyClient = {
   },
 
   /**
-   * Returns the invite path, `/invite/<token>`, without a locale.
-   * For a Member who has signed in before, only the owner may invite, and the
-   * link (`recovery: true`) replaces that Member's passkeys.
+   * Returns the path of the link's page, without a locale. For a Member who
+   * has signed in before, only the owner may make the link, and it is a
+   * recovery link (`recovery: true`), which replaces that Member's passkeys.
    */
   async createInvite(
     memberId: string,
@@ -156,6 +156,15 @@ export const financePasskeyClient = {
   async checkRecoveryCode(code: string): Promise<string> {
     const { path } = await post<{ path: string }>("/recovery/code", { code });
     return path;
+  },
+
+  /** Saves a new passkey on this device in place of the lost passkeys of the user that the recovery link is for, and signs in. */
+  async recover(token: string): Promise<void> {
+    const { options } = await post<{
+      options: PublicKeyCredentialCreationOptionsJSON;
+    }>("/recovery/options", { token });
+    const response = await register(options);
+    await post("/recovery/verify", { token, response });
   },
 
   async signOut(): Promise<void> {

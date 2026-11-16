@@ -1,7 +1,7 @@
 import { createSoftwareAuthenticator } from "@tuja/server-auth/testing/create-software-authenticator";
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
-import { members, users } from "#src/finance/db/schema.ts";
+import { members, passkeys, users } from "#src/finance/db/schema.ts";
 import { readOutbox } from "../email/make-outbox-email-sender.ts";
 import type { AuthHandlerDeps } from "./make-auth-handlers.ts";
 import {
@@ -9,7 +9,6 @@ import {
   TEST_ORIGIN,
 } from "./testing/create-auth-test-client.ts";
 import {
-  acceptInvite,
   advance,
   afterTasks,
   codeIn,
@@ -21,12 +20,14 @@ import {
   now,
   otherCode,
   outboxDir,
+  recover,
   recoveryTokenIn,
   setUpAuthHandlerTests,
   signIn,
   signUp,
   verificationTokenIn,
   type Client,
+  type RegistrationOptionsBody,
 } from "./testing/test-auth-handlers.ts";
 
 setUpAuthHandlerTests();
@@ -259,7 +260,7 @@ describe("recovery by email", () => {
   });
 
   it("replaces the lost passkeys and signs out every other device", async () => {
-    const { lostDevice, lostPhone, result, userId } =
+    const { lostDevice, lostPhone, userId } =
       await ownerWithEmail("qingqi@example.com");
 
     await requestRecovery("qingqi@example.com");
@@ -268,9 +269,9 @@ describe("recovery by email", () => {
 
     const newPhone = createSoftwareAuthenticator();
     const newDevice = createAuthTestClient(makeHandlers());
-    const recovered = await acceptInvite(newDevice, newPhone, link);
+    const recovered = await recover(newDevice, newPhone, link);
 
-    expect(recovered).toMatchObject({ status: 200, body: result.body });
+    expect(recovered).toMatchObject({ status: 200, body: { ok: true } });
     expect((await newDevice.get("session")).body).toMatchObject({ userId });
     expect((await lostDevice.get("session")).status).toBe(401);
     expect(
@@ -281,7 +282,7 @@ describe("recovery by email", () => {
     ).toBe(200);
     expect(
       (
-        await acceptInvite(
+        await recover(
           createAuthTestClient(makeHandlers()),
           createSoftwareAuthenticator(),
           link,
@@ -296,7 +297,7 @@ describe("recovery by email", () => {
     const token = recoveryTokenIn((await readOutbox(outboxDir))[0]?.text);
     advance(31 * 60 * 1000);
 
-    const result = await acceptInvite(
+    const result = await recover(
       createAuthTestClient(makeHandlers()),
       createSoftwareAuthenticator(),
       token,
@@ -317,9 +318,51 @@ describe("recovery by email", () => {
     expect(await readOutbox(outboxDir)).toEqual([]);
   });
 
-  it("gets back in with the emailed code in the browser that asked, and the emailed link still works", async () => {
-    const { lostDevice, result, userId } =
+  it("gives no session, and keeps the passkeys, when the member is removed after the link was opened", async () => {
+    const { lostPhone, result, userId } =
       await ownerWithEmail("qingqi@example.com");
+    await requestRecovery("qingqi@example.com");
+    const token = recoveryTokenIn((await readOutbox(outboxDir))[0]?.text);
+    const browser = createAuthTestClient(makeHandlers());
+    const options = await browser.post<RegistrationOptionsBody>(
+      "recoveryOptions",
+      { token },
+    );
+    const response = await createSoftwareAuthenticator().register(
+      options.body.options,
+      TEST_ORIGIN,
+    );
+    await db
+      .update(members)
+      .set({ deletedAt: now })
+      .where(eq(members.id, result.body.memberId));
+
+    const verified = await browser.post("recoveryVerify", { token, response });
+
+    expect(verified).toMatchObject({
+      status: 403,
+      body: { error: "no_membership" },
+    });
+    expect((await browser.get("session")).status).toBe(401);
+    expect(
+      await db
+        .select({ id: passkeys.id })
+        .from(passkeys)
+        .where(eq(passkeys.userId, userId)),
+    ).toEqual([{ id: lostPhone.credentials[0]?.id }]);
+    expect(
+      (
+        await recover(
+          createAuthTestClient(makeHandlers()),
+          createSoftwareAuthenticator(),
+          token,
+        )
+      ).status,
+    ).toBe(410);
+  });
+
+  it("gets back in with the emailed code in the browser that asked, and the emailed link still works", async () => {
+    const { lostDevice, userId } = await ownerWithEmail("qingqi@example.com");
     const { browser, code, sent } = await browserWithCode("qingqi@example.com");
     expect(sent?.subject).toBe(`${code} is your Finance recovery code`);
 
@@ -331,15 +374,15 @@ describe("recovery by email", () => {
     expect(entered.status).toBe(200);
     const token = recoveryTokenIn(entered.body.path);
     const newPhone = createSoftwareAuthenticator();
-    const recovered = await acceptInvite(browser, newPhone, token);
-    expect(recovered).toMatchObject({ status: 200, body: result.body });
+    const recovered = await recover(browser, newPhone, token);
+    expect(recovered).toMatchObject({ status: 200, body: { ok: true } });
     expect((await browser.get("session")).body).toMatchObject({ userId });
     expect((await lostDevice.get("session")).status).toBe(401);
     expect((await enterCode(browser, code)).status).toBe(410);
 
     const emailed = recoveryTokenIn(sent?.text);
     const emailedLink = await createAuthTestClient(makeHandlers()).post(
-      "inviteOptions",
+      "recoveryOptions",
       { token: emailed },
     );
     expect(emailedLink.status).toBe(200);

@@ -1,8 +1,7 @@
 import { authJson } from "@tuja/server-auth/auth-json";
 import { HttpError } from "@tuja/server-auth/http-error";
 import { lookups } from "#src/finance/db/lookups.ts";
-import { memberRepository } from "#src/finance/db/repositories/member-repository.ts";
-import { asFinanceApp, withHousehold } from "#src/finance/db/with-household.ts";
+import { asFinanceApp } from "#src/finance/db/with-household.ts";
 import { financeSessionCookie } from "./finance-session-cookie.ts";
 import type { FinanceAuth } from "./make-finance-auth.ts";
 import { requireSession } from "./require-session.ts";
@@ -13,14 +12,6 @@ export function makeSessionHandlers(auth: FinanceAuth) {
     ...auth.addPasskeyHandlers({
       requireUser: (request, context) =>
         requireSession(request, context, { write: true }),
-      passkeyName: async (context, session) => {
-        const member = await withHousehold(
-          context.db,
-          session.householdId,
-          (scope) => memberRepository.findById(scope, session.memberId),
-        );
-        return member?.name ?? "Finance";
-      },
     }),
 
     session: handle(

@@ -42,9 +42,8 @@ const inviteVerifyBody = z.object({
 
 const createInviteBody = z.object({ memberId: z.uuid() });
 
-/** The email that a new-member invite needs. Null for a recovery invite, whose user keeps the email it has. */
-function inviteEmail(recovery: boolean, given: string | undefined) {
-  if (recovery) return null;
+/** The Recovery email that the new user gives. */
+function inviteEmail(given: string | undefined) {
   const email = normaliseEmail(given ?? "");
   if (!email) throw new HttpError(400, "email_invalid");
   return email;
@@ -59,9 +58,9 @@ export function makeInviteHandlers(
       const body = await readAuthBody(request, inviteOptionsBody);
       const invite = await lookupInvite(context.db, body.token, context.now);
       if (!invite) throw new HttpError(410, "invite_invalid");
-      inviteEmail(invite.recoveryUserId !== null, body.email);
+      inviteEmail(body.email);
 
-      const userId = invite.recoveryUserId ?? randomUUID();
+      const userId = randomUUID();
       const options = await passkeyRegistrationOptions(context, {
         userId,
         userName: invite.memberName,
@@ -76,7 +75,6 @@ export function makeInviteHandlers(
         options,
         householdName: invite.householdName,
         memberName: invite.memberName,
-        recovery: invite.recoveryUserId !== null,
       });
     }),
 
@@ -86,14 +84,10 @@ export function makeInviteHandlers(
       const { userId, inviteId } = taken;
       const { now } = context;
       const invite = await lookupInvite(context.db, body.token, now);
-      if (
-        !invite ||
-        invite.inviteId !== inviteId ||
-        (invite.recoveryUserId !== null && invite.recoveryUserId !== userId)
-      ) {
+      if (invite?.inviteId !== inviteId) {
         throw new HttpError(410, "invite_invalid");
       }
-      const email = inviteEmail(invite.recoveryUserId !== null, body.email);
+      const email = inviteEmail(body.email);
       const credential = await verifyPasskeyRegistration(
         context,
         body.response,
@@ -119,41 +113,28 @@ export function makeInviteHandlers(
             .returning({ id: invites.id });
           if (used.length === 0) throw new HttpError(410, "invite_invalid");
 
-          if (invite.recoveryUserId !== null) {
-            // The Member lost every passkey. A lost device must not keep
-            // access, so its passkeys and sessions stop here.
-            await financeAuthStore.revokeUserAccess(db, userId);
-          } else {
-            await db
-              .insert(users)
-              .values({ id: userId, displayName: invite.memberName });
-            const bound = await bindUserToMember(scope, {
-              memberId: invite.memberId,
-              userId,
-            });
-            if (!bound) throw new HttpError(409, "member_claimed");
-          }
+          await db
+            .insert(users)
+            .values({ id: userId, displayName: invite.memberName });
+          const bound = await bindUserToMember(scope, {
+            memberId: invite.memberId,
+            userId,
+          });
+          if (!bound) throw new HttpError(409, "member_claimed");
           await financeAuthStore.insertPasskey(db, userId, credential, now);
           return {
             token: await createSession(db, request, context, userId),
-            verification:
-              email === null
-                ? null
-                : {
-                    email,
-                    token: await startEmailVerification(db, {
-                      userId,
-                      email,
-                      now,
-                    }),
-                  },
+            verification: {
+              email,
+              token: await startEmailVerification(db, { userId, email, now }),
+            },
           };
         },
       );
 
       startSession(context, token);
       const sender = deps.emailSender();
-      if (verification && sender) {
+      if (sender) {
         const url = `${context.origin}${getLocalePath(`/verify-email/${verification.token}`, body.locale)}`;
         deps.afterResponse(async () => {
           try {
@@ -201,7 +182,7 @@ export function makeInviteHandlers(
         context,
         {
           token: result.token,
-          path: `/invite/${result.token}`,
+          path: result.path,
           expiresAt: result.expiresAt.toISOString(),
           recovery: result.recovery,
         },
