@@ -32,9 +32,9 @@ type CreateInviteResult =
     };
 
 /**
- * Makes the link that lets a Member sign in: an invite for a Member who has
- * no user, and a recovery link, which replaces the passkeys, for a Member
- * who has one.
+ * Makes the link for a Member: an invite, which a signed-in user accepts,
+ * for a Member who has no user, and a recovery link, which replaces the
+ * passkeys, for a Member who has one.
  */
 export async function createInvite(
   { db, householdId }: RepositoryScope,

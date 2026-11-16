@@ -88,12 +88,12 @@ export function SignInPanel({ next }: SignInPanelProps) {
             zh: "丢失了通行密钥？",
           })}
         >
-          <RecoveryRequestForm />
+          <RecoveryRequestForm next={next} />
         </Disclosure>
       </div>
       <FlowBlock css={stack.section}>
         <Divider />
-        <SignUpRequestForm />
+        <SignUpRequestForm next={next} />
         <Divider />
         <DemoEntry />
       </FlowBlock>

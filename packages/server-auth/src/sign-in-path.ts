@@ -21,9 +21,13 @@ export function safeNextPath(next: string | null | undefined): string {
   return next;
 }
 
+/** `path` with `nextPath` as its `next` parameter. Home is the default, so it adds none. */
+export function withNext(path: string, nextPath?: string | null): string {
+  const next = safeNextPath(nextPath);
+  return next === HOME ? path : `${path}?next=${encodeURIComponent(next)}`;
+}
+
 /** `nextPath` has no locale prefix, e.g. `/settings?tab=…`. */
 export function signInPath(locale: SupportedLocale, nextPath?: string): string {
-  const signIn = getLocalePath("/sign-in", locale);
-  const next = safeNextPath(nextPath);
-  return next === HOME ? signIn : `${signIn}?next=${encodeURIComponent(next)}`;
+  return withNext(getLocalePath("/sign-in", locale), nextPath);
 }

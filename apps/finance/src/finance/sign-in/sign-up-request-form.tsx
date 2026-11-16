@@ -3,6 +3,7 @@
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { withNext } from "@tuja/server-auth/sign-in-path";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -10,7 +11,12 @@ import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
 import { EmailCodeForm } from "./email-code-form.tsx";
 
 /** Asks for a sign-up code by email. The code, or the emailed link, opens the sign-up page. */
-export function SignUpRequestForm() {
+export function SignUpRequestForm({
+  next,
+}: {
+  /** Where to go after the sign-up, without a locale. */
+  next: string;
+}) {
   const locale = useLocale();
   const sentPrefix = t({
     en: "We sent a code to ",
@@ -42,11 +48,11 @@ export function SignUpRequestForm() {
       })}
       sentMessage={(email) => `${sentPrefix}${email}${sentSuffix}`}
       send={(email, sendLocale) =>
-        financePasskeyClient.requestSignUp(email, sendLocale)
+        financePasskeyClient.requestSignUp(email, sendLocale, next)
       }
       verify={async (code) => {
         const path = await financePasskeyClient.checkSignUpCode(code);
-        window.location.assign(getLocalePath(path, locale));
+        window.location.assign(withNext(getLocalePath(path, locale), next));
       }}
     />
   );

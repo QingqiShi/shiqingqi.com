@@ -3,6 +3,7 @@
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { withNext } from "@tuja/server-auth/sign-in-path";
 import { Text } from "@tuja/ui/components/text";
 import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
 import { EmailCodeForm } from "./email-code-form.tsx";
@@ -11,7 +12,12 @@ import { EmailCodeForm } from "./email-code-form.tsx";
  * Asks for a recovery email, then for its code, which opens the user's
  * Recovery link. The answers do not say whether a user has the address.
  */
-export function RecoveryRequestForm() {
+export function RecoveryRequestForm({
+  next,
+}: {
+  /** Where to go after the recovery, without a locale. */
+  next: string;
+}) {
   const locale = useLocale();
   const sentPrefix = t({
     en: "If ",
@@ -36,11 +42,11 @@ export function RecoveryRequestForm() {
       submitLabel={t({ en: "Email me a code", zh: "发送验证码到邮箱" })}
       sentMessage={(email) => `${sentPrefix}${email}${sentSuffix}`}
       send={(email, sendLocale) =>
-        financePasskeyClient.requestRecovery(email, sendLocale)
+        financePasskeyClient.requestRecovery(email, sendLocale, next)
       }
       verify={async (code) => {
         const path = await financePasskeyClient.checkRecoveryCode(code);
-        window.location.assign(getLocalePath(path, locale));
+        window.location.assign(withNext(getLocalePath(path, locale), next));
       }}
     />
   );

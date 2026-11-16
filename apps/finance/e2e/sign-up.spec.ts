@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { households, users } from "../src/finance/db/schema.ts";
 import {
+  acceptInviteWithEmail,
   addVirtualAuthenticator,
   emailTo,
   expect,
@@ -58,11 +59,7 @@ test.describe("Sign-up", () => {
     await expect(
       samPage.getByRole("heading", { name: "Join Riley" }),
     ).toBeVisible();
-    await samPage
-      .getByRole("textbox", { name: "Recovery email" })
-      .fill(samEmail);
-    await samPage.getByRole("button", { name: "Create a passkey" }).click();
-    await samPage.waitForURL((url) => url.pathname === "/");
+    await acceptInviteWithEmail(samPage, inviteUrl, samEmail);
     const sam = await readSession(samPage);
     expect(sam).toMatchObject({
       householdId: owner.householdId,

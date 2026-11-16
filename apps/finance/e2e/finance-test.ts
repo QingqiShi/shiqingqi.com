@@ -182,11 +182,8 @@ export function uniqueEmail(name: string): string {
  * and their Household with a passkey from the page's authenticator, and
  * waits for the Household's home page.
  */
-export async function signUpWithEmail(
-  page: Page,
-  { email, name = "Alex" }: { email: string; name?: string },
-) {
-  await page.goto("/sign-in");
+/** On the sign-in page: asks for a sign-up code for `email`, types it, and saves a passkey. */
+async function signUpOnSignInPage(page: Page, email: string) {
   await page.getByRole("textbox", { name: /^Email/ }).fill(email);
   await page.getByRole("button", { name: "Email me a sign-up code" }).click();
   await expect(
@@ -201,11 +198,32 @@ export async function signUpWithEmail(
     page.getByRole("heading", { name: "Sign up for Finance" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Save a passkey" }).click();
+}
+
+export async function signUpWithEmail(
+  page: Page,
+  { email, name = "Alex" }: { email: string; name?: string },
+) {
+  await page.goto("/sign-in");
+  await signUpOnSignInPage(page, email);
   await expect(
     page.getByRole("heading", { name: "Welcome to Finance" }),
   ).toBeVisible();
   await page.getByRole("textbox", { name: /Your name/ }).fill(name);
   await page.getByRole("button", { name: "Start" }).click();
+  await page.waitForURL((url) => url.pathname === "/");
+}
+
+/** Opens the invite, signs up with `email` on the way, and joins the household. `page` needs a virtual authenticator. */
+export async function acceptInviteWithEmail(
+  page: Page,
+  inviteUrl: string,
+  email: string,
+) {
+  await page.goto(inviteUrl);
+  await page.getByRole("link", { name: "Sign in or sign up" }).click();
+  await signUpOnSignInPage(page, email);
+  await page.getByRole("button", { name: "Join" }).click();
   await page.waitForURL((url) => url.pathname === "/");
 }
 

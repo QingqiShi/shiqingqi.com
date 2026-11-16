@@ -25,6 +25,7 @@ import { passkeyRegistrationOptions } from "./passkey-registration-options.ts";
 import { passkeyResponseSchemas } from "./passkey-response-schemas.ts";
 import { readAuthBody } from "./read-auth-body.ts";
 import { readRequestCookie } from "./read-request-cookie.ts";
+import { withNext } from "./sign-in-path.ts";
 import { verifyPasskeyRegistration } from "./verify-passkey-registration.ts";
 import { verifyPasskeySignIn } from "./verify-passkey-sign-in.ts";
 
@@ -150,7 +151,7 @@ export function makeAuth<
     const body = await readAuthBody(request, authBodies.email);
     const email = normaliseEmail(body.email);
     if (!email) throw new HttpError(400, "email_invalid");
-    return { email, locale: body.locale };
+    return { email, locale: body.locale, next: body.next };
   }
 
   function hashedAddress(email: string) {
@@ -278,7 +279,7 @@ export function makeAuth<
     }),
 
     requestSignUp: handle(async (request, context) => {
-      const { email, locale } = await readEmail(request);
+      const { email, locale, next } = await readEmail(request);
       const sender = requireEmailSender();
       await withLimits(
         [
@@ -308,7 +309,7 @@ export function makeAuth<
               to: email,
               locale,
               code,
-              url: `${origin}${getLocalePath(path, locale)}`,
+              url: `${origin}${withNext(getLocalePath(path, locale), next)}`,
               reason: registered ? "registered-sign-up" : "sign-up",
             }),
           );
@@ -399,7 +400,7 @@ export function makeAuth<
     }),
 
     requestRecovery: handle(async (request, context) => {
-      const { email, locale } = await readEmail(request);
+      const { email, locale, next } = await readEmail(request);
       const sender = requireEmailSender();
       await limit("recovery-email-ip", config.clientIp(request));
       await limit("recovery-email-address", hashedAddress(email));
@@ -421,7 +422,7 @@ export function makeAuth<
               to: email,
               locale,
               code,
-              url: `${origin}${getLocalePath(path, locale)}`,
+              url: `${origin}${withNext(getLocalePath(path, locale), next)}`,
               reason: "recovery",
             }),
           );

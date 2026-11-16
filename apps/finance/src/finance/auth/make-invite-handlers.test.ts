@@ -4,16 +4,12 @@ import { describe, expect, it } from "vitest";
 import { invites, members, passkeys, users } from "#src/finance/db/schema.ts";
 import { createTestHousehold } from "#src/finance/db/testing/create-test-household.ts";
 import { readOutbox } from "../email/make-outbox-email-sender.ts";
-import {
-  createAuthTestClient,
-  TEST_ORIGIN,
-} from "./testing/create-auth-test-client.ts";
+import { createAuthTestClient } from "./testing/create-auth-test-client.ts";
 import {
   acceptInvite,
   advance,
   afterTasks,
   claimedHousehold,
-  confirmRecoveryEmail,
   DAY_MS,
   db,
   makeHandlers,
@@ -22,8 +18,6 @@ import {
   recover,
   setUpAuthHandlerTests,
   signIn,
-  verificationTokenIn,
-  type RegistrationOptionsBody,
 } from "./testing/test-auth-handlers.ts";
 
 setUpAuthHandlerTests();
@@ -38,32 +32,30 @@ describe("invites", () => {
     return { imported, owner, invite };
   }
 
-  it("binds a new user to the invited member, starts a session, and sends a confirmation to the user's email", async () => {
-    const { imported, invite } = await ownerAndInvite();
+  it("makes a user who signed up the invited member, and refuses a visitor and a user who is a member already", async () => {
+    const { imported, owner, invite } = await ownerAndInvite();
     expect(invite.status).toBe(201);
     expect(invite.body.path).toBe(`/invite/${invite.body.token}`);
+    const { token } = invite.body;
 
+    const visitor = await createAuthTestClient(makeHandlers()).post(
+      "acceptInvite",
+      { token },
+    );
+    const member = await owner.post("acceptInvite", { token });
     const partner = createAuthTestClient(makeHandlers());
-    const options = await partner.post<RegistrationOptionsBody>(
-      "inviteOptions",
-      { token: invite.body.token, email: "Partner@Example.com" },
+    const result = await acceptInvite(
+      partner,
+      createSoftwareAuthenticator(),
+      token,
+      "partner@example.com",
     );
-    expect(options.body).toMatchObject({
-      householdName: "Home",
-      memberName: "Partner",
-    });
-    const response = await createSoftwareAuthenticator().register(
-      options.body.options,
-      TEST_ORIGIN,
-    );
-    const result = await partner.post("inviteVerify", {
-      token: invite.body.token,
-      response,
-      email: "Partner@Example.com",
-      locale: "zh",
-    });
-    await Promise.all(afterTasks.splice(0));
 
+    expect(visitor.status).toBe(401);
+    expect(member).toMatchObject({
+      status: 409,
+      body: { error: "already_member" },
+    });
     expect(result.status).toBe(200);
     const session = await partner.get<{ userId: string }>("session");
     expect(session.body).toMatchObject({
@@ -80,16 +72,8 @@ describe("invites", () => {
     expect(used?.usedAt).toEqual(now);
     expect((await partner.get("recoveryEmail")).body).toEqual({
       email: "partner@example.com",
-      verified: false,
+      verified: true,
     });
-    const [sent] = await readOutbox(outboxDir);
-    expect(sent).toMatchObject({
-      to: "partner@example.com",
-      subject: "确认家庭账本恢复邮箱",
-    });
-    expect(
-      await confirmRecoveryEmail(verificationTokenIn(sent.text, "/zh")),
-    ).toBe(true);
   });
 
   it("rejects a used invite", async () => {
@@ -104,6 +88,7 @@ describe("invites", () => {
       createAuthTestClient(makeHandlers()),
       createSoftwareAuthenticator(),
       invite.body.token,
+      "late@example.com",
     );
 
     expect(again).toMatchObject({

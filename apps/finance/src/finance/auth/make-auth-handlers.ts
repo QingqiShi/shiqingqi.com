@@ -13,8 +13,7 @@ export interface AuthHandlers {
   signUpCode: AuthHandler;
   signUpOptions: AuthHandler;
   signUpVerify: AuthHandler;
-  inviteOptions: AuthHandler;
-  inviteVerify: AuthHandler;
+  acceptInvite: AuthHandler;
   createInvite: AuthHandler;
   passkeyOptions: AuthHandler;
   passkeyVerify: AuthHandler;
@@ -36,7 +35,7 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
   return {
     ...auth.handlers,
     ...makeSessionHandlers(auth),
-    ...makeInviteHandlers(auth, deps),
+    ...makeInviteHandlers(auth),
     ...makeRecoveryEmailHandlers(auth, deps),
   };
 }

@@ -10,11 +10,13 @@ import { createInvite } from "../auth/create-invite.ts";
 import { financeSessionCookie } from "../auth/finance-session-cookie.ts";
 import { makeGetFinanceSession } from "../auth/get-finance-session.ts";
 import { isAllowedFinanceOrigin } from "../auth/is-allowed-finance-origin.ts";
+import { lookupInvite } from "../auth/lookup-invite.ts";
 import { makeAuthHandlers } from "../auth/make-auth-handlers.ts";
 import {
   createAuthTestClient,
   TEST_ORIGIN,
 } from "../auth/testing/create-auth-test-client.ts";
+import { signUpTokenIn } from "../auth/testing/test-auth-handlers.ts";
 import type { FinanceSession } from "../auth/types.ts";
 import { members, passkeys, sessions } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
@@ -28,9 +30,11 @@ type Authenticator = ReturnType<typeof createSoftwareAuthenticator>;
 
 let db: TestDb;
 let now: Date;
+let sent: { text: string }[];
 
 beforeEach(async () => {
   db = await createTestDb();
+  sent = [];
   now = new Date("2026-10-10T12:00:00Z");
 });
 
@@ -46,7 +50,12 @@ function authHandlers() {
     limitRequest: () => Promise.resolve({ success: true, reset: 0 }),
     refundRequest: () => Promise.resolve(),
     isAllowedOrigin: isAllowedFinanceOrigin,
-    emailSender: () => null,
+    emailSender: () => ({
+      send: (email) => {
+        sent.push(email);
+        return Promise.resolve();
+      },
+    }),
     afterResponse: (task) => {
       void task();
     },
@@ -88,20 +97,20 @@ function patchMember(
   );
 }
 
+/** Signs up on `client` with `email`, then accepts the invite. */
 async function acceptInvite(client: Client, token: string, email: string) {
-  const body = { token, email };
+  await client.post("requestSignUp", { email, locale: "en" });
+  const signUp = { token: signUpTokenIn(sent.at(-1)?.text) };
   const options = await client.post<{
     options: PublicKeyCredentialCreationOptionsJSON;
-  }>("inviteOptions", body);
+  }>("signUpOptions", signUp);
   const authenticator = createSoftwareAuthenticator();
   const response = await authenticator.register(
     options.body.options,
     TEST_ORIGIN,
   );
-  const result = await client.post("inviteVerify", {
-    ...body,
-    response,
-  });
+  await client.post("signUpVerify", { ...signUp, response });
+  const result = await client.post("acceptInvite", { token });
   return { authenticator, status: result.status };
 }
 
@@ -194,7 +203,7 @@ describe("makeMembersHandler", () => {
     ).toEqual([]);
     const lostDevice = createAuthTestClient(authHandlers());
     expect(
-      (await lostDevice.post("inviteOptions", { token: recovery.body.token }))
+      (await lostDevice.post("recoveryOptions", { token: recovery.body.token }))
         .status,
     ).not.toBe(200);
     expect((await home.owner.get("session")).status).toBe(200);
@@ -205,10 +214,7 @@ describe("makeMembersHandler", () => {
 
     await patchMember(home.owner, { id: home.joId, removed: true });
 
-    const jo = createAuthTestClient(authHandlers());
-    expect(
-      (await jo.post("inviteOptions", { token: home.joToken })).status,
-    ).not.toBe(200);
+    expect(await lookupInvite(db, home.joToken, now)).toBeNull();
     expect(
       (await home.owner.post("createInvite", { memberId: home.joId })).status,
     ).not.toBe(201);

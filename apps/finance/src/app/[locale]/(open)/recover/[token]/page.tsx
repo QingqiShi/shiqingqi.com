@@ -3,6 +3,7 @@ import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import { lookupRecovery } from "@tuja/server-auth/lookup-recovery";
+import { safeNextPath } from "@tuja/server-auth/sign-in-path";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { financeAuthConfig } from "#src/finance/auth/make-finance-auth.ts";
@@ -22,12 +23,18 @@ export async function generateMetadata(props: {
 
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; token: string }>;
+  searchParams: Promise<{ next?: string | string[] }>;
 }) {
   const { locale: rawLocale, token } = await params;
   const locale = validateLocale(rawLocale);
   await connection();
+  const requested = (await searchParams).next;
+  const next = safeNextPath(
+    typeof requested === "string" ? requested : undefined,
+  );
   if (!isFinanceConfigured()) return <FinanceNotConfigured />;
   const recovery = await lookupRecovery(
     financeAuthConfig,
@@ -39,7 +46,7 @@ export default async function Page({
   return (
     <FinanceAuthFrame>
       {recovery ? (
-        <RecoveryPanel token={token} userName={recovery.userName} />
+        <RecoveryPanel token={token} userName={recovery.userName} next={next} />
       ) : (
         <AuthNotice
           heading={t({ en: "This link has ended", zh: "此链接已失效" })}

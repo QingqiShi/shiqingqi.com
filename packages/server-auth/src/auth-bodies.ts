@@ -9,7 +9,12 @@ export const authBodies = {
   token: z.object({ token: z.string().min(1).max(200) }),
   /** A typed code from an email. */
   code: z.object({ code: z.string().max(20) }),
-  email: z.object({ email: z.string().max(320), locale }),
+  /** `next` is where the emailed link goes on to, after its page. */
+  email: z.object({
+    email: z.string().max(320),
+    locale,
+    next: z.string().max(500).optional(),
+  }),
 };
 
 export type AuthLocale = z.infer<typeof locale>;
