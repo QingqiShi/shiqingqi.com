@@ -1,10 +1,10 @@
 const { createRequire } = require("node:module");
 const { DEV } = require("esm-env");
-const { stylexExtractionPlugins } = require("./babel-plugins.mjs");
 // `postcss-import`'s own resolver, so the fallback below is additive rather
 // than a replacement. It is reached through the package's file layout because
 // `postcss-import` publishes no `exports` map.
 const resolveCssId = require("postcss-import/lib/resolve-id");
+const { stylexExtractionPlugins } = require("./babel-plugins.mjs");
 
 // Node's resolver, reached through `createRequire` so the bundler does not try
 // to statically analyse a `require.resolve` call whose specifier is a runtime
