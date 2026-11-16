@@ -31,6 +31,10 @@ export function useAuthErrorMessage() {
       en: "This passkey is registered already. Sign in with it.",
       zh: "此通行密钥已注册，可直接用它登录。",
     }),
+    recovery_invalid: t({
+      en: "This link has expired or was used already. Ask for a new code on the sign-in page.",
+      zh: "此链接已过期或已被使用。请在登录页重新获取验证码。",
+    }),
     invite_invalid: t({
       en: "This invite has expired or was used already.",
       zh: "此邀请已过期或已被使用。",

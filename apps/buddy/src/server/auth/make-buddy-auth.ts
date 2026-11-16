@@ -14,7 +14,6 @@ import { buddyChallengeCookie } from "./buddy-challenge-cookie.ts";
 import { buddyEmailCodeCookie } from "./buddy-email-code-cookie.ts";
 import { buddySessionCookie } from "./buddy-session-cookie.ts";
 import { createAccount } from "./create-account.ts";
-import { createEmailRecovery } from "./create-email-recovery.ts";
 import { passkeyRpId } from "./passkey-rp-id.ts";
 
 export interface AuthHandlerDeps {
@@ -40,40 +39,49 @@ export interface AuthHandlerDeps {
   afterResponse: (task: () => Promise<void>) => void;
 }
 
-export type BuddyAuth = ReturnType<typeof makeBuddyAuth>;
-
 /**
- * The shared sign-in with what only Buddy has: a new account gets a random
+ * What only Buddy has in the shared sign-in: a new account gets a random
  * name, and sign-in answers with that name, so that the page can go to the
  * account's pet.
  */
+export const buddyAuthConfig = {
+  appName: "Buddy",
+  passkeyRpId,
+  postBucket: "auth",
+  store: buddyAuthStore,
+  transaction: <T>(db: BuddyDb, run: (tx: BuddyDb) => Promise<T>) =>
+    db.transaction(run),
+  sessionCookie: buddySessionCookie,
+  challengeCookie: buddyChallengeCookie,
+  emailCodeCookie: buddyEmailCodeCookie,
+  buildCodeEmail,
+  isEmailRegistered: async (tx: BuddyDb, email: string) =>
+    (await tx.$count(accounts, eq(accounts.email, email))) > 0,
+  findRecoveryUser: async (tx: BuddyDb, email: string) => {
+    const account = await tx
+      .select({ id: accounts.id })
+      .from(accounts)
+      .where(eq(accounts.email, email));
+    return account[0]?.id ?? null;
+  },
+  passkeyName: async (tx: BuddyDb, userId: string) => {
+    const account = await tx
+      .select({ email: accounts.email })
+      .from(accounts)
+      .where(eq(accounts.id, userId));
+    return account[0]?.email ?? "Buddy";
+  },
+  signUpFields: z.object({}),
+  createUser: createAccount,
+  signIn: async (tx: BuddyDb, userId: string) => {
+    const account = await tx
+      .select({ name: accounts.name })
+      .from(accounts)
+      .where(eq(accounts.id, userId));
+    return { name: account[0]?.name };
+  },
+} as const;
+
 export function makeBuddyAuth(deps: AuthHandlerDeps) {
-  return makeAuth({
-    ...deps,
-    appName: "Buddy",
-    passkeyRpId,
-    postBucket: "auth",
-    store: buddyAuthStore,
-    transaction: <T>(db: BuddyDb, run: (tx: BuddyDb) => Promise<T>) =>
-      db.transaction(run),
-    sessionCookie: buddySessionCookie,
-    challengeCookie: buddyChallengeCookie,
-    emailCodeCookie: buddyEmailCodeCookie,
-    buildCodeEmail,
-    isEmailRegistered: async (tx, email) =>
-      (await tx.$count(accounts, eq(accounts.email, email))) > 0,
-    startRecovery: async (tx, input) => {
-      const token = await createEmailRecovery(tx, input);
-      return token === null ? null : `/recover/${token}`;
-    },
-    signUpFields: z.object({}),
-    createUser: createAccount,
-    signIn: async (tx, userId) => {
-      const account = await tx
-        .select({ name: accounts.name })
-        .from(accounts)
-        .where(eq(accounts.id, userId));
-      return { name: account[0]?.name };
-    },
-  });
+  return makeAuth({ ...deps, ...buddyAuthConfig });
 }

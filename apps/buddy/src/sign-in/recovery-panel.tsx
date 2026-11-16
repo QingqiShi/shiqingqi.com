@@ -18,13 +18,14 @@ import {
 import { passkeyClient } from "./passkey-client.ts";
 import { useAuthErrorMessage } from "./use-auth-error-message.ts";
 
-/** Saves a new passkey on this device in place of the account's lost passkeys. */
+/** Saves a new passkey on this device in place of the user's lost passkeys. */
 export function RecoveryPanel({
   token,
-  accountName,
+  userName,
 }: {
   token: string;
-  accountName: string;
+  /** The name of the user that the link is for. */
+  userName: string;
 }) {
   const locale = useLocale();
   const messageOf = useAuthErrorMessage();
@@ -54,7 +55,7 @@ export function RecoveryPanel({
         <Heading level={1} look="h1">
           {t({ en: "Welcome back", zh: "欢迎回来" })}
         </Heading>
-        <Text tone="muted">@{accountName}</Text>
+        <Text tone="muted">{userName}</Text>
         <Text tone="muted">
           {t({
             en: "Save a new passkey on this device. The passkeys saved before stop working, and every other device signs out.",

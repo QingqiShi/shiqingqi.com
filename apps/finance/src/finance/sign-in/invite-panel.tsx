@@ -23,20 +23,16 @@ interface InvitePanelProps {
   token: string;
   householdName: string;
   memberName: string;
-  /** The invite lets a Member who lost their passkeys back in. */
-  recovery: boolean;
 }
 
 /**
  * Accepts an invite: takes the new user's Recovery email, saves a passkey on
- * this device and joins as the invited Member. A recovery invite replaces the
- * Member's lost passkeys instead.
+ * this device and joins as the invited Member.
  */
 export function InvitePanel({
   token,
   householdName,
   memberName,
-  recovery,
 }: InvitePanelProps) {
   const locale = useLocale();
   const messageOf = useAuthErrorMessage();
@@ -53,10 +49,7 @@ export function InvitePanel({
         setBusy(true);
         setError(null);
         financePasskeyClient
-          .acceptInvite(token, {
-            email: recovery ? undefined : email,
-            locale,
-          })
+          .acceptInvite(token, { email, locale })
           .then(() => {
             window.location.assign(getLocalePath("/", locale));
           })
@@ -69,22 +62,15 @@ export function InvitePanel({
     >
       <div css={stack.tight}>
         <Heading level={1} look="h1">
-          {recovery
-            ? `${t({ en: "Back into", zh: "重新进入" })} ${householdName}`
-            : `${t({ en: "Join", zh: "加入" })} ${householdName}`}
+          {`${t({ en: "Join", zh: "加入" })} ${householdName}`}
         </Heading>
         <Text tone="muted">
-          {`${invitedFor}${locale === "zh" ? "" : " "}${memberName}${locale === "zh" ? "。" : ". "}${
-            recovery
-              ? t({
-                  en: "Save a new passkey on this device. The passkeys saved before stop working, and every other device signs out.",
-                  zh: "在本设备上保存新的通行密钥。之前保存的通行密钥将失效，其他设备都会退出登录。",
-                })
-              : t({
-                  en: "Save a passkey on this device to join.",
-                  zh: "在本设备上保存通行密钥即可加入。",
-                })
-          }`}
+          {`${invitedFor}${locale === "zh" ? "" : " "}${memberName}${locale === "zh" ? "。" : ". "}${t(
+            {
+              en: "Save a passkey on this device to join.",
+              zh: "在本设备上保存通行密钥即可加入。",
+            },
+          )}`}
         </Text>
       </div>
       {error ? (
@@ -92,23 +78,21 @@ export function InvitePanel({
           {messageOf(error)}
         </Callout>
       ) : null}
-      {recovery ? null : (
-        <TextField
-          label={t({ en: "Recovery email", zh: "恢复邮箱" })}
-          description={t({
-            en: "We send a link to confirm it. If you lose your passkey, you can get back in through it.",
-            zh: "我们会发送链接以确认此邮箱。如果你丢失了通行密钥，可以通过它重新进入。",
-          })}
-          type="email"
-          autoComplete="email"
-          required
-          maxLength={254}
-          value={email}
-          onChange={(event) => {
-            setEmail(event.target.value);
-          }}
-        />
-      )}
+      <TextField
+        label={t({ en: "Recovery email", zh: "恢复邮箱" })}
+        description={t({
+          en: "We send a link to confirm it. If you lose your passkey, you can get back in through it.",
+          zh: "我们会发送链接以确认此邮箱。如果你丢失了通行密钥，可以通过它重新进入。",
+        })}
+        type="email"
+        autoComplete="email"
+        required
+        maxLength={254}
+        value={email}
+        onChange={(event) => {
+          setEmail(event.target.value);
+        }}
+      />
       <Button
         type="submit"
         look="primary"
@@ -118,9 +102,7 @@ export function InvitePanel({
         disabled={busy}
         css={fill.inline}
       >
-        {recovery
-          ? t({ en: "Save a new passkey", zh: "保存新的通行密钥" })
-          : t({ en: "Create a passkey", zh: "创建通行密钥" })}
+        {t({ en: "Create a passkey", zh: "创建通行密钥" })}
       </Button>
     </form>
   );

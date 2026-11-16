@@ -1,5 +1,5 @@
 const FINANCE_PAGE = /^\/$|^(?:\/[a-z0-9-]+)+$/;
-const OPEN_PAGE = /^(?:\/zh)?\/(?:sign-in|invite)(?:\/|$)/;
+const OPEN_PAGE = /^(?:\/zh)?\/(?:sign-in|invite|recover)(?:\/|$)/;
 
 /** Whether `path` is a gated Finance page the service worker may store, such as `/zh/analytics`. */
 export function isPrecacheableFinancePath(path: string): boolean {

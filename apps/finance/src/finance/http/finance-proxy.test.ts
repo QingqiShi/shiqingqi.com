@@ -41,11 +41,12 @@ describe("finance proxy gate", () => {
     expect(response.headers.get("x-finance-shell")).toBe("1");
   });
 
-  it("leaves sign-in, sign-up, invites, and email verification alone", () => {
+  it("leaves sign-in, sign-up, invites, recovery links, and email verification alone", () => {
     for (const path of [
       "/sign-in",
       "/zh/sign-up/abc",
       "/invite/abc",
+      "/zh/recover/abc",
       "/verify-email/abc",
     ]) {
       const response = proxy(documentRequest(path));

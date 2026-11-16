@@ -10,18 +10,16 @@ import {
 import { authJson } from "./auth-json.ts";
 import { hashToken } from "./hash-token.ts";
 import { HttpError } from "./http-error.ts";
+import { lookupRecovery } from "./lookup-recovery.ts";
 import {
   makeAuthRouteKit,
   type AuthContext,
   type AuthRouteKitDeps,
 } from "./make-auth-route-kit.ts";
-import type { AuthStore, AuthTx, EmailCodePurpose } from "./make-auth-store.ts";
+import type { AuthStore, AuthTx } from "./make-auth-store.ts";
 import { makeChallenge, type ChallengeCookie } from "./make-challenge.ts";
-import type {
-  EmailCodePayload,
-  makeEmailCodeCookie,
-} from "./make-email-code-cookie.ts";
-import { normaliseEmailCode } from "./normalise-email-code.ts";
+import type { makeEmailCodeCookie } from "./make-email-code-cookie.ts";
+import { makeEmailCode } from "./make-email-code.ts";
 import { normaliseEmail } from "./normalise-email.ts";
 import { passkeyRegistrationOptions } from "./passkey-registration-options.ts";
 import { passkeyResponseSchemas } from "./passkey-response-schemas.ts";
@@ -42,6 +40,9 @@ const signInVerifyBody = z.object({
   response: passkeyResponseSchemas.authentication,
 });
 const addPasskeyVerifyBody = z.object({
+  response: passkeyResponseSchemas.registration,
+});
+const recoveryVerifyBody = authBodies.token.extend({
   response: passkeyResponseSchemas.registration,
 });
 const signUpVerifyBody = z.looseObject({
@@ -95,15 +96,10 @@ export interface AuthConfig<
   }) => Email;
   /** True when a user has `email`. */
   isEmailRegistered: (tx: Tx, email: string) => Promise<boolean>;
-  /**
-   * Makes a recovery link when a user has `email`, and returns its path.
-   * Null when no user has it. `replaceEmailed` is false when the link is
-   * for the browser that typed the code, so the emailed link stays good.
-   */
-  startRecovery: (
-    tx: Tx,
-    input: { email: string; now: Date; replaceEmailed: boolean },
-  ) => Promise<string | null>;
+  /** The id of the user that gets a recovery link at `email`. Null when there is none. */
+  findRecoveryUser: (tx: Tx, email: string) => Promise<string | null>;
+  /** The name that a passkey of the user shows on the user's device. */
+  passkeyName: (tx: Tx, userId: string) => Promise<string>;
   /** What the app reads from the last request of a sign-up, beside the link's token and the passkey. */
   signUpFields: z.ZodType<SignUpFields>;
   /** Makes the user with id `userId` and all that the app gives a new user. Returns the body of the answer. */
@@ -111,14 +107,18 @@ export interface AuthConfig<
     tx: Tx,
     input: { userId: string; email: string; now: Date; fields: SignUpFields },
   ) => Promise<Record<string, unknown>>;
-  /** Runs when a passkey is good, before the session opens. A refusal ends the sign-in. Returns the body of the answer. */
+  /**
+   * Runs before a session opens for a user who has an account: at sign-in
+   * when the passkey is good, and at each step of a recovery. A refusal
+   * ends the sign-in. Returns the body of the answer.
+   */
   signIn: (tx: Tx, userId: string) => Promise<Record<string, unknown>>;
 }
 
 /**
  * Sign-in for an app: the routes of sign-in, sign-out, sign-up by an emailed
- * code, and the emailed code that starts a recovery; and the parts that the
- * app's own auth routes build on.
+ * code, and recovery of a user who lost every passkey, by a code sent to
+ * the user's email; and the parts that the app's own auth routes build on.
  */
 export function makeAuth<
   Db,
@@ -131,51 +131,12 @@ export function makeAuth<
   const kit = makeAuthRouteKit(config);
   const { handle, limit, withLimits, requireEmailSender } = kit;
   const challenge = makeChallenge(config.challengeCookie);
-  const { store, transaction, sessionCookie, emailCodeCookie } = config;
-
-  function issueEmailCode(context: Context, payload: EmailCodePayload) {
-    context.setCookies.push(
-      emailCodeCookie.serialize(
-        emailCodeCookie.seal(payload, context.secret, context.now),
-        context.secure,
-      ),
-    );
-  }
-
-  /**
-   * Checks a typed code against the emailed code that this browser asked
-   * for, and returns the address it went to. A code that has ended clears
-   * the cookie, so that the browser asks for a new one.
-   */
-  async function takeEmailCode(
-    request: Request,
-    context: Context,
-    purpose: EmailCodePurpose,
-    typed: string,
-  ): Promise<string> {
-    const value = readRequestCookie(request, emailCodeCookie.name);
-    const payload = value
-      ? emailCodeCookie.open(value, context.secret, context.now)
-      : null;
-    if (payload?.purpose !== purpose) {
-      context.setCookies.push(emailCodeCookie.clear(context.secure));
-      throw new HttpError(410, "code_expired");
-    }
-    const code = normaliseEmailCode(typed);
-    if (!code) throw new HttpError(400, "code_invalid");
-    const result = await transaction(context.db, (tx) =>
-      store.checkEmailCode(tx, {
-        purpose,
-        codeId: payload.codeId,
-        code,
-        now: context.now,
-      }),
-    );
-    if (!result.ok && !result.ended) throw new HttpError(400, "code_invalid");
-    context.setCookies.push(emailCodeCookie.clear(context.secure));
-    if (!result.ok) throw new HttpError(410, "code_expired");
-    return result.email;
-  }
+  const { store, transaction, sessionCookie } = config;
+  const emailCode = makeEmailCode({
+    cookie: config.emailCodeCookie,
+    store,
+    transaction,
+  });
 
   async function sendOrFail(sender: EmailSender<Email>, email: Email) {
     try {
@@ -231,14 +192,39 @@ export function makeAuth<
   }
 
   /**
-   * Makes a recovery link when a user has `email`, and else starts a
-   * sign-up. Returns the path of the new link.
+   * Makes a recovery link when a user gets one at `email`, and returns its
+   * path. Null when there is no such user. `replaceEmailed` is false when
+   * the link is for the browser that typed the code, so the emailed link
+   * stays good.
+   */
+  async function startRecovery(
+    tx: Tx,
+    {
+      email,
+      now,
+      replaceEmailed,
+    }: { email: string; now: Date; replaceEmailed: boolean },
+  ): Promise<string | null> {
+    const userId = await config.findRecoveryUser(tx, email);
+    if (userId === null) return null;
+    const { token } = await store.startRecovery(tx, {
+      userId,
+      now,
+      emailed: true,
+      replace: replaceEmailed,
+    });
+    return `/recover/${token}`;
+  }
+
+  /**
+   * Makes a recovery link when a user gets one at `email`, and else starts
+   * a sign-up. Returns the path of the new link.
    */
   async function startSignUpOrRecovery(
     tx: Tx,
     input: { email: string; now: Date; replaceEmailed: boolean },
   ): Promise<{ path: string; registered: boolean }> {
-    const recoveryPath = await config.startRecovery(tx, input);
+    const recoveryPath = await startRecovery(tx, input);
     if (recoveryPath !== null) return { path: recoveryPath, registered: true };
     // A new link for the address ends the emailed one, so that one
     // request makes at most one user.
@@ -330,7 +316,7 @@ export function makeAuth<
               reason: registered ? "registered-sign-up" : "sign-up",
             }),
           );
-          issueEmailCode(context, { purpose: "sign-up", codeId });
+          emailCode.issue(context, { purpose: "sign-up", codeId });
         },
       );
       return authJson(context, { ok: true }, 202);
@@ -338,7 +324,7 @@ export function makeAuth<
 
     signUpCode: handle(async (request, context) => {
       const { code } = await readAuthBody(request, authBodies.code);
-      const email = await takeEmailCode(request, context, "sign-up", code);
+      const email = await emailCode.take(request, context, "sign-up", code);
       const { path } = await transaction(context.db, (tx) =>
         startSignUpOrRecovery(tx, {
           email,
@@ -428,13 +414,13 @@ export function makeAuth<
       const { codeId, code } = await transaction(db, (tx) =>
         store.startEmailCode(tx, { purpose: "recovery", email, now }),
       );
-      issueEmailCode(context, { purpose: "recovery", codeId });
+      emailCode.issue(context, { purpose: "recovery", codeId });
       // The response must be the same when no user has this email. Thus the
       // search and the email occur after the response.
       config.afterResponse(async () => {
         try {
           const path = await transaction(db, (tx) =>
-            config.startRecovery(tx, { email, now, replaceEmailed: true }),
+            startRecovery(tx, { email, now, replaceEmailed: true }),
           );
           if (path === null) return;
           await sender.send(
@@ -455,42 +441,97 @@ export function makeAuth<
 
     recoveryCode: handle(async (request, context) => {
       const { code } = await readAuthBody(request, authBodies.code);
-      const email = await takeEmailCode(request, context, "recovery", code);
+      const email = await emailCode.take(request, context, "recovery", code);
       const path = await transaction(context.db, (tx) =>
-        config.startRecovery(tx, {
-          email,
-          now: context.now,
-          replaceEmailed: false,
-        }),
+        startRecovery(tx, { email, now: context.now, replaceEmailed: false }),
       );
       if (path === null) throw new HttpError(410, "code_expired");
       return authJson(context, { path });
     }),
+
+    recoveryOptions: handle(async (request, context) => {
+      const { token } = await readAuthBody(request, authBodies.token);
+      const recovery = await lookupRecovery(
+        config,
+        context.db,
+        token,
+        context.now,
+      );
+      if (!recovery) throw new HttpError(410, "recovery_invalid");
+      const options = await passkeyRegistrationOptions(context, recovery);
+      challenge.issue(context, {
+        purpose: "recovery",
+        challenge: options.challenge,
+        userId: recovery.userId,
+        recoveryId: recovery.recoveryId,
+      });
+      return authJson(context, { options });
+    }),
+
+    recoveryVerify: handle(async (request, context) => {
+      const body = await readAuthBody(request, recoveryVerifyBody);
+      const {
+        challenge: expected,
+        userId,
+        recoveryId,
+      } = challenge.take(request, context, authChallenges.recovery);
+      const { db, now } = context;
+      const recovery = await transaction(db, (tx) =>
+        store.lookupRecovery(tx, body.token, now),
+      );
+      if (recovery?.recoveryId !== recoveryId || recovery.userId !== userId) {
+        throw new HttpError(410, "recovery_invalid");
+      }
+      const credential = await verifyPasskeyRegistration(
+        context,
+        body.response,
+        expected,
+      );
+
+      const { answer, token } = await transaction(db, async (tx) => {
+        if (!(await store.consumeRecovery(tx, { recoveryId, now }))) {
+          throw new HttpError(410, "recovery_invalid");
+        }
+        const signedIn = await config.signIn(tx, userId);
+        await store.revokeUserAccess(tx, userId);
+        await store.insertPasskey(tx, userId, credential, now);
+        return {
+          answer: signedIn,
+          token: await createSession(tx, request, context, userId),
+        };
+      });
+      startSession(context, token);
+      return authJson(context, answer);
+    }),
   };
 
   /** The routes that save one more passkey for the user that is signed in. */
-  function addPasskeyHandlers<User extends { userId: string }>(hooks: {
+  function addPasskeyHandlers(hooks: {
     /** The user that is signed in. Refuses a request with no session. */
-    requireUser: (request: Request, context: Context) => Promise<User>;
-    /** The name that the passkey shows on the user's device. */
-    passkeyName: (context: Context, user: User) => Promise<string>;
+    requireUser: (
+      request: Request,
+      context: Context,
+    ) => Promise<{ userId: string }>;
   }) {
     return {
       passkeyOptions: handle(async (request, context) => {
-        const user = await hooks.requireUser(request, context);
-        const userName = await hooks.passkeyName(context, user);
-        const existing = await transaction(context.db, (tx) =>
-          store.listPasskeys(tx, user.userId),
+        const { userId } = await hooks.requireUser(request, context);
+        const { userName, existing } = await transaction(
+          context.db,
+          async (tx) => ({
+            userName: await config.passkeyName(tx, userId),
+            existing: await store.listPasskeys(tx, userId),
+          }),
         );
         const options = await passkeyRegistrationOptions(context, {
-          userId: user.userId,
+          userId,
           userName,
           excludeCredentials: existing,
         });
         challenge.issue(context, {
           purpose: "add-passkey",
           challenge: options.challenge,
-          userId: user.userId,
+          userId,
         });
         return authJson(context, { options });
       }),

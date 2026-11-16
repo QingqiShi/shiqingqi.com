@@ -16,6 +16,7 @@ export const financeChallengeCookie = makeSealedCookie({
     authChallenges.signIn,
     authChallenges.signUp,
     authChallenges.addPasskey,
+    authChallenges.recovery,
     inviteChallenge,
   ]),
 });

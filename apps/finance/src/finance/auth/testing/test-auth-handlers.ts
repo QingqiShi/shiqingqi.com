@@ -135,7 +135,7 @@ export function signUpTokenIn(text = ""): string {
 }
 
 export function recoveryTokenIn(text = ""): string {
-  const tokens = [...text.matchAll(/\/invite\/([\w-]+)/g)];
+  const tokens = [...text.matchAll(/\/recover\/([\w-]+)/g)];
   if (tokens.length !== 1 || !tokens[0]?.[1]) {
     throw new Error(`Not one Recovery link in: ${text}`);
   }
@@ -236,6 +236,24 @@ export async function acceptInvite(
     response,
     email: email ?? undefined,
   });
+}
+
+/** Saves a new passkey through a recovery link, as the page of the link does. */
+export async function recover(
+  client: Client,
+  authenticator: Authenticator,
+  token: string,
+) {
+  const options = await client.post<RegistrationOptionsBody>(
+    "recoveryOptions",
+    { token },
+  );
+  if (options.status !== 200) return options;
+  const response = await authenticator.register(
+    options.body.options,
+    TEST_ORIGIN,
+  );
+  return client.post("recoveryVerify", { token, response });
 }
 
 /** A household from the importer: two members, neither signed in. */

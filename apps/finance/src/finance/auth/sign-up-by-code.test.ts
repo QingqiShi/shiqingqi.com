@@ -5,13 +5,13 @@ import { households } from "#src/finance/db/schema.ts";
 import { readOutbox } from "../email/make-outbox-email-sender.ts";
 import { createAuthTestClient } from "./testing/create-auth-test-client.ts";
 import {
-  acceptInvite,
   codeIn,
   db,
   finishSignUp,
   itChecksEmailCodes,
   makeHandlers,
   outboxDir,
+  recover,
   recoveryTokenIn,
   setUpAuthHandlerTests,
   signUp,
@@ -80,7 +80,7 @@ describe("sign-up by code", () => {
 
   it("opens the Recovery link in the browser that asked when a user has the address", async () => {
     const lostDevice = createAuthTestClient(makeHandlers());
-    const first = await signUp(
+    await signUp(
       lostDevice,
       createSoftwareAuthenticator(),
       "taken@example.com",
@@ -96,12 +96,12 @@ describe("sign-up by code", () => {
 
     expect(entered.status).toBe(200);
     const token = recoveryTokenIn(entered.body.path);
-    const recovered = await acceptInvite(
+    const recovered = await recover(
       browser,
       createSoftwareAuthenticator(),
       token,
     );
-    expect(recovered).toMatchObject({ status: 200, body: first.body });
+    expect(recovered).toMatchObject({ status: 200, body: { ok: true } });
     expect((await lostDevice.get("session")).status).toBe(401);
     expect(await db.select().from(households)).toHaveLength(1);
   });

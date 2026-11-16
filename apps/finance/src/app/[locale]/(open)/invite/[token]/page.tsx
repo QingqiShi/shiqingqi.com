@@ -37,7 +37,6 @@ export default async function Page({
           token={token}
           householdName={invite.householdName}
           memberName={invite.memberName}
-          recovery={invite.recoveryUserId !== null}
         />
       ) : (
         <AuthNotice

@@ -56,7 +56,7 @@ interface TestFixtures {
   passkeys: string;
   /** A new synthetic Household. Its owner has a user but no passkey yet. */
   household: SyntheticHousehold & { ownerUserId: string };
-  /** The test's page, signed in as the owner of `household` through a recovery invite, which asks for no email. */
+  /** The test's page, signed in as the owner of `household` through a recovery link, which asks for no email. */
   session: FinanceSession;
   /** The test's page, signed in as the owner of `household` with a session cookie. Unlike `session`, it needs no passkey, so it works outside Chromium. */
   cookieSession: undefined;
@@ -107,7 +107,7 @@ function seedHousehold(db: FinanceDb, ownerUserId?: string) {
   });
 }
 
-/** Seeds a Household and gives its owner a user, so that a recovery invite can sign the test in. */
+/** Seeds a Household and gives its owner a user, so that a recovery link can sign the test in. */
 async function seedClaimedHousehold(db: FinanceDb) {
   const ownerUserId = randomUUID();
   return { ...(await seedHousehold(db, ownerUserId)), ownerUserId };
@@ -232,8 +232,8 @@ export async function addVirtualAuthenticator(page: Page): Promise<string> {
   return addAuthenticator(cdp);
 }
 
-/** Signs `page` in as the owner of `household` through a recovery invite, with a new passkey of the page's authenticator. */
-export async function signInWithRecoveryInvite(
+/** Signs `page` in as the owner of `household` through a recovery link, with a new passkey of the page's authenticator. */
+export async function signInWithRecoveryLink(
   page: Page,
   financeDb: FinanceDb,
   household: SyntheticHousehold,
@@ -249,8 +249,8 @@ export async function signInWithRecoveryInvite(
         now: new Date(),
       }),
   );
-  if (!invite.ok) throw new Error(`No invite: ${invite.reason}`);
-  await page.goto(`/invite/${invite.token}`);
+  if (!invite.ok) throw new Error(`No link: ${invite.reason}`);
+  await page.goto(invite.path);
   await page.getByRole("button", { name: "Save a new passkey" }).click();
   await page.waitForURL((url) => url.pathname === "/");
 }
@@ -380,7 +380,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     { page, passkeys: _passkeys, household, financeDb },
     provide,
   ) => {
-    await signInWithRecoveryInvite(page, financeDb, household);
+    await signInWithRecoveryLink(page, financeDb, household);
     await page.goto("/transactions");
     const session = await readSession(page);
     expect(session.householdId).toBe(household.householdId);

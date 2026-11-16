@@ -1,0 +1,1 @@
+ALTER TABLE "recoveries" ADD COLUMN "emailed" boolean DEFAULT true NOT NULL;

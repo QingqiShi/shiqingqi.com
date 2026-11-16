@@ -78,7 +78,7 @@ async function main() {
     console.log(
       `${result.recovery ? "Recovery link" : "Invite"} for ${member.name}, valid until ${result.expiresAt.toISOString()}:`,
     );
-    console.log(`${origin}${getLocalePath(`/invite/${result.token}`, locale)}`);
+    console.log(`${origin}${getLocalePath(result.path, locale)}`);
   } finally {
     await pool.end();
   }

@@ -9,7 +9,7 @@ describe.each(["en", "zh"] as const)("buildCodeEmail in %s", (locale) => {
         to: "qingqi@example.com",
         locale,
         code: "482913",
-        url: "https://example.com/invite/b2",
+        url: "https://example.com/recover/b2",
         reason,
       });
       expect(signUp.text).not.toMatch(/household|家庭(?!账本)/i);

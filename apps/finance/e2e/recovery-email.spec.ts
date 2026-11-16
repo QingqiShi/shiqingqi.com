@@ -7,7 +7,7 @@ import {
   linkIn,
   readSession,
   signInWithPasskey,
-  signInWithRecoveryInvite,
+  signInWithRecoveryLink,
   test,
   uniqueEmail,
 } from "./finance-test.ts";
@@ -29,7 +29,7 @@ test.describe("Recovery email", () => {
     const cdp = await page.context().newCDPSession(page);
     await cdp.send("WebAuthn.enable");
     const lostAuthenticator = await addAuthenticator(cdp);
-    await signInWithRecoveryInvite(page, financeDb, household);
+    await signInWithRecoveryLink(page, financeDb, household);
     const address = uniqueEmail("alex");
 
     await page.goto("/settings/members");
@@ -83,14 +83,14 @@ test.describe("Recovery email", () => {
       address,
       /^\d{6} is your Finance recovery code$/,
     );
-    expect(recovery.text).toContain("/invite/");
+    expect(recovery.text).toContain("/recover/");
     const code = recovery.subject.slice(0, 6);
 
     const newAuthenticator = await addAuthenticator(cdp);
     await page.getByRole("textbox", { name: "Code" }).fill(code);
     await page.getByRole("button", { name: "Continue" }).click();
     await expect(
-      page.getByRole("heading", { name: "Back into Home" }),
+      page.getByRole("heading", { name: "Welcome back" }),
     ).toBeVisible();
     await page.getByRole("button", { name: "Save a new passkey" }).click();
     await page.waitForURL((url) => url.pathname === "/");
