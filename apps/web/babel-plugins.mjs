@@ -13,12 +13,12 @@ const uiPackageRoot = path.resolve(appRoot, "../../packages/ui");
  * build does.
  *
  * @param {object} options
- * @param {string | undefined} options.nodeEnv - Decides the StyleX plugin's
- *   `dev` and `test` modes.
+ * @param {boolean} [options.dev] - The StyleX plugin's `dev` mode.
+ * @param {boolean} [options.test] - The StyleX plugin's `test` mode.
  * @returns {import("@babel/core").PluginItem[]}
  */
-export function babelPlugins({ nodeEnv }) {
-  return [...sourcePlugins, ...transformPlugins({ nodeEnv })];
+export function babelPlugins({ dev, test }) {
+  return [...sourcePlugins, ...transformPlugins({ dev, test })];
 }
 
 /**
@@ -37,12 +37,15 @@ export const sourcePlugins = ["@tuja/babel-plugins/specimen-source"];
  * {@link babelPlugins} without {@link sourcePlugins}.
  *
  * @param {object} options
- * @param {string | undefined} options.nodeEnv - Decides the StyleX plugin's
- *   `dev` and `test` modes.
+ * @param {boolean} [options.dev] - The StyleX plugin's `dev` mode.
+ * @param {boolean} [options.test] - The StyleX plugin's `test` mode.
  * @returns {import("@babel/core").PluginItem[]}
  */
-export function transformPlugins({ nodeEnv }) {
-  return ["@tuja/babel-plugins/i18n", ...stylexExtractionPlugins({ nodeEnv })];
+export function transformPlugins({ dev, test }) {
+  return [
+    "@tuja/babel-plugins/i18n",
+    ...stylexExtractionPlugins({ dev, test }),
+  ];
 }
 
 /**
@@ -51,11 +54,11 @@ export function transformPlugins({ nodeEnv }) {
  * plugins. The StyleX PostCSS plugin runs only this part.
  *
  * @param {object} options
- * @param {string | undefined} options.nodeEnv - Decides the StyleX plugin's
- *   `dev` and `test` modes.
+ * @param {boolean} [options.dev] - The StyleX plugin's `dev` mode.
+ * @param {boolean} [options.test] - The StyleX plugin's `test` mode.
  * @returns {import("@babel/core").PluginItem[]}
  */
-export function stylexExtractionPlugins({ nodeEnv }) {
+export function stylexExtractionPlugins({ dev, test }) {
   return [
     [
       "module-resolver",
@@ -68,7 +71,8 @@ export function stylexExtractionPlugins({ nodeEnv }) {
     ...stylexPlugins({
       rootDir: workspaceRoot,
       breakpointsRootDir: uiPackageRoot,
-      nodeEnv,
+      dev,
+      test,
     }),
   ];
 }

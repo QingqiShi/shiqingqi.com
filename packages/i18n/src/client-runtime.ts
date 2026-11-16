@@ -1,3 +1,4 @@
+import { DEV } from "esm-env";
 import type { ReactNode } from "react";
 import { use } from "react";
 import { I18nContext } from "./i18n-context.ts";
@@ -13,10 +14,7 @@ export function i18nLookup(
   translations: Translations,
   translationKey: string,
 ): string {
-  if (
-    process.env.NODE_ENV !== "production" &&
-    !(translationKey in translations)
-  ) {
+  if (DEV && !(translationKey in translations)) {
     throw new Error(`[i18n] Missing translation key: ${translationKey}`);
   }
   return translations[translationKey];

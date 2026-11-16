@@ -1,3 +1,4 @@
+import { DEV } from "esm-env";
 import {
   computeAnalyticsView,
   type AnalyticsState,
@@ -26,7 +27,7 @@ export function selectAnalyticsView(
   }
   const started = performance.now();
   const view = computeAnalyticsView(index, state, today);
-  if (process.env.NODE_ENV !== "production") {
+  if (DEV) {
     performance.measure("finance:analytics", {
       start: started,
       detail: `${state.range} ${state.kind} ${String(index.length)} rows`,

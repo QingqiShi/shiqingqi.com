@@ -281,6 +281,7 @@ build that has to produce the app's CSS reads them from here.
 ```js
 // babel.config.js
 const path = require("node:path");
+const { DEV } = require("esm-env");
 const { stylexPluginOptions } = require("@tuja/babel-plugins/stylex-options");
 
 module.exports = {
@@ -289,7 +290,7 @@ module.exports = {
       "@stylexjs/babel-plugin",
       stylexPluginOptions({
         rootDir: path.resolve(__dirname, "../.."),
-        nodeEnv: process.env.NODE_ENV,
+        dev: DEV,
       }),
     ],
   ],
@@ -297,7 +298,8 @@ module.exports = {
 ```
 
 `rootDir` is the directory `unstable_moduleResolution` resolves a `.stylex.ts`
-import against, and `nodeEnv` decides the plugin's `dev` and `test` modes.
+import against. `dev` and `test` set the plugin's modes of the same names: a
+development build passes `dev`, and a test run passes `test: true`.
 
 ## @tuja/babel-plugins/stylex-plugins
 
@@ -310,6 +312,7 @@ options. ESLint reports `@stylexjs/babel-plugin` named anywhere else.
 ```js
 // babel.config.js
 const path = require("node:path");
+const { DEV } = require("esm-env");
 const { stylexPlugins } = require("@tuja/babel-plugins/stylex-plugins");
 
 module.exports = {
@@ -317,7 +320,7 @@ module.exports = {
     ...stylexPlugins({
       rootDir: path.resolve(__dirname, "../.."),
       breakpointsRootDir: path.resolve(__dirname, "../../packages/ui"),
-      nodeEnv: process.env.NODE_ENV,
+      dev: DEV,
     }),
   ],
 };
@@ -326,6 +329,26 @@ module.exports = {
 `breakpointsRootDir` is the package that owns `src/breakpoints.stylex.ts`. Each
 plugin comes back as a resolved path, so the chain works from any working
 directory.
+
+## @tuja/babel-plugins/inline-esm-env
+
+Replaces each use of `DEV` from [`esm-env`](https://github.com/benmccann/esm-env)
+with a boolean literal and removes the import. `esm-env` already gives `DEV`
+the correct value from the package export conditions. But Turbopack does not
+inline a constant from another module's default export, so the production
+bundle keeps every branch that `DEV` guards. With a literal, the bundler
+removes the branch and the modules only that branch imports.
+
+```js
+// babel.config.js
+const { DEV } = require("esm-env");
+
+module.exports = {
+  plugins: [["@tuja/babel-plugins/inline-esm-env", { dev: DEV }]],
+};
+```
+
+Leave it out of a test run, where `esm-env` resolves `DEV` at run time.
 
 ## @tuja/babel-plugins/react-compiler
 

@@ -4,6 +4,7 @@ import {
   SerwistProvider as BaseSerwistProvider,
   useSerwist,
 } from "@serwist/next/react";
+import { DEV } from "esm-env";
 import { useEffect, type ReactNode } from "react";
 
 // A remount of the [locale] tree (e.g. a locale switch) runs the effect again
@@ -40,7 +41,7 @@ export function SerwistProvider({ children }: { children: ReactNode }) {
     <BaseSerwistProvider
       swUrl="/sw.js"
       register={false}
-      disable={process.env.NODE_ENV === "development"}
+      disable={DEV}
       // sw.ts runtime caching (defaultCache + withLocaleRobustPageCaching)
       // already caches pages at fetch time, and the provider's CACHE_URLS
       // message can reject uncaught.

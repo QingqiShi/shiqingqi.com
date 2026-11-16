@@ -2,6 +2,7 @@
 
 import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
+import { DEV } from "esm-env";
 import { useEffect, type ComponentProps, type ReactNode } from "react";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
@@ -144,7 +145,7 @@ export function Select({
     rest["aria-label"] === undefined &&
     rest["aria-labelledby"] === undefined;
   useEffect(() => {
-    if (process.env.NODE_ENV !== "production" && hasNoName) {
+    if (DEV && hasNoName) {
       console.warn(
         "Select: it has no `label`, `aria-label` or `aria-labelledby`, and it is not in the `control` slot of a `SettingRow`, so a screen reader cannot name it.",
       );

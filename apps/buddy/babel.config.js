@@ -1,3 +1,4 @@
+const { DEV } = require("esm-env");
 const { babelPlugins } = require("./babel-plugins.mjs");
 
 module.exports = {
@@ -12,11 +13,14 @@ module.exports = {
           // Required to make Server Actions work
           // Without it server actions compile to non-async functions which breaks the build.
           targets: { node: "current" },
-          // Preserve ESM modules for test environment to work with Vitest
-          modules: process.env.NODE_ENV === "test" ? false : "auto",
         },
       },
     ],
   ],
-  plugins: babelPlugins({ nodeEnv: process.env.NODE_ENV }),
+  plugins: [
+    // Turbopack does not inline `DEV` from `esm-env`. Without a literal, the
+    // production bundle keeps the development-only code.
+    ["@tuja/babel-plugins/inline-esm-env", { dev: DEV }],
+    ...babelPlugins({ dev: DEV }),
+  ],
 };

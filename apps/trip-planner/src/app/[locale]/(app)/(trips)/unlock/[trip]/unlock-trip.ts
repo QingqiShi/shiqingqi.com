@@ -2,6 +2,7 @@
 
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { validateLocale } from "@tuja/i18n/validate-locale";
+import { DEV } from "esm-env";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { GATE_COOKIE_MAX_AGE, gateToken, tripGate } from "#src/trip-gate.ts";
@@ -34,7 +35,7 @@ export async function unlockTrip(
   const store = await cookies();
   store.set(gate.cookie, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: !DEV,
     sameSite: "lax",
     path: "/",
     maxAge: GATE_COOKIE_MAX_AGE,

@@ -1,5 +1,6 @@
 import "server-only";
 import path from "node:path";
+import { DEV } from "esm-env";
 import { makeOutboxEmailSender } from "./make-outbox-email-sender.ts";
 import { makeResendEmailSender } from "./make-resend-email-sender.ts";
 import type { BuddyEmailSender } from "./types.ts";
@@ -18,7 +19,7 @@ export function getBuddyEmailSender(): BuddyEmailSender | null {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.BUDDY_EMAIL_FROM;
   if (apiKey && from) return makeResendEmailSender({ apiKey, from });
-  if (process.env.NODE_ENV === "development") {
+  if (DEV) {
     const devOutbox = path.resolve(process.cwd(), ".buddy-outbox");
     if (!hasLoggedDevOutbox) {
       hasLoggedDevOutbox = true;

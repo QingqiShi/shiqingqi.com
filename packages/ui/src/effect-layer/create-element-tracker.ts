@@ -1,3 +1,4 @@
+import { DEV } from "esm-env";
 import { carrierOf } from "./carrier-of.ts";
 import { checkDeclaredCarrier } from "./check-declared-carrier.ts";
 import type {
@@ -373,7 +374,7 @@ export function createElementTracker(
       if (box !== null) {
         const ref = declared ?? context.carrierOf(element);
         const carrier = carrierOf(resolveCarrier(ref, context));
-        if (process.env.NODE_ENV !== "production") {
+        if (DEV) {
           checkDeclaredCarrier(element, ref, context);
         }
         const local = carrier.toLocal(box, context);

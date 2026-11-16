@@ -32,7 +32,7 @@ export default defineConfig({
         plugins: stylexPlugins({
           rootDir: workspaceRoot,
           breakpointsRootDir: __dirname,
-          nodeEnv: "test",
+          test: true,
         }),
       },
     }),

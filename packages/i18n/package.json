@@ -6,6 +6,12 @@
   "license": "MIT",
   "author": "Qingqi Shi <hi@qingqi.dev>",
   "type": "module",
+  "imports": {
+    "#is-test": {
+      "test": "./src/vitest/is-test.ts",
+      "default": "./src/is-test.ts"
+    }
+  },
   "exports": {
     ".": "./src/i18n.ts",
     "./client-runtime": "./src/client-runtime.ts",
@@ -29,6 +35,9 @@
     "lint": "eslint --max-warnings 0 .",
     "test": "vitest run"
   },
+  "dependencies": {
+    "esm-env": "catalog:"
+  },
   "peerDependencies": {
     "react": ">=19.3.0 <20"
   },
@@ -43,6 +52,7 @@
     "next-i18n-router": "^5.5.8",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "vite": "catalog:",
     "vitest": "catalog:"
   }
 }

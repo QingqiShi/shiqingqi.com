@@ -1,4 +1,5 @@
 const { createRequire } = require("node:module");
+const { DEV } = require("esm-env");
 const { stylexExtractionPlugins } = require("./babel-plugins.mjs");
 // `postcss-import`'s own resolver, so the fallback below is additive rather
 // than a replacement. It is reached through the package's file layout because
@@ -72,7 +73,7 @@ module.exports = {
         configFile: false,
         code: false,
         parserOpts: { plugins: ["typescript", "jsx"] },
-        plugins: stylexExtractionPlugins({ nodeEnv: process.env.NODE_ENV }),
+        plugins: stylexExtractionPlugins({ dev: DEV }),
       },
     },
 

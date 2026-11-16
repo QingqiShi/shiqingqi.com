@@ -1,3 +1,4 @@
+import { DEV } from "esm-env";
 import { captureOwnerStack, useEffect, useState, type RefObject } from "react";
 import type { ScrollMaskOrientation } from "./use-scroll-mask.ts";
 
@@ -131,9 +132,7 @@ const describe = (element: Element) => {
 
 // The e2e builds are production builds, so they turn the check on with this
 // flag.
-const isOn =
-  process.env.NODE_ENV !== "production" ||
-  process.env.NEXT_PUBLIC_UI_DEV_CHECKS === "1";
+const isOn = DEV || process.env.NEXT_PUBLIC_UI_DEV_CHECKS === "1";
 
 const warned = new WeakSet<Element>();
 

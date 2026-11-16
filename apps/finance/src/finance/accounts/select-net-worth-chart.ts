@@ -1,3 +1,4 @@
+import { DEV } from "esm-env";
 import {
   buildChartSeries,
   type ChartSeries,
@@ -65,7 +66,7 @@ export function selectNetWorthChart(
     valuesAt: (days) => sampleBalances(accounts, seriesByAccount, fx, days),
   });
   cached.byRange.set(key, series);
-  if (process.env.NODE_ENV !== "production") {
+  if (DEV) {
     performance.measure("finance:net-worth-chart", {
       start: started,
       detail: range,

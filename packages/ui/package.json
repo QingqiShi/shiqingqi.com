@@ -231,6 +231,7 @@
   },
   "dependencies": {
     "@phosphor-icons/react": "catalog:",
+    "esm-env": "catalog:",
     "react-remove-scroll": "catalog:",
     "typegpu": "catalog:"
   },

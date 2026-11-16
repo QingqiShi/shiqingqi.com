@@ -54,6 +54,7 @@
     "@tuja/ui": "workspace:*",
     "@upstash/redis": "^1.40.0",
     "ai": "^7.0.171",
+    "esm-env": "catalog:",
     "next": "catalog:",
     "posthog-js": "^1.442.1",
     "react": "catalog:",
