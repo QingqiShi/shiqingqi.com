@@ -1,7 +1,7 @@
 import type { SupportedLocale } from "@tuja/i18n/types";
+import { signInPath } from "@tuja/server-auth/sign-in-path";
 import { redirect } from "next/navigation";
 import "server-only";
-import { financeSignInPath } from "./finance-sign-in-path.ts";
 import { getFinancePageSession } from "./get-finance-page-session.ts";
 import type { FinanceSession } from "./types.ts";
 
@@ -15,6 +15,6 @@ export async function requireFinancePageSession(
   nextPath: string,
 ): Promise<FinanceSession> {
   const session = await getFinancePageSession();
-  if (!session) redirect(financeSignInPath(locale, nextPath));
+  if (!session) redirect(signInPath(locale, nextPath));
   return session;
 }

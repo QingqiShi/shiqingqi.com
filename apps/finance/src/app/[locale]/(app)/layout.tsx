@@ -1,9 +1,9 @@
 import { setLocale } from "@tuja/i18n/server-locale";
 import { validateLocale } from "@tuja/i18n/validate-locale";
+import { safeNextPath } from "@tuja/server-auth/sign-in-path";
 import { SIDEBAR_COLLAPSED_COOKIE } from "@tuja/ui/components/sidebar-collapsed-cookie";
 import { cookies, headers } from "next/headers";
 import { connection } from "next/server";
-import { safeFinanceNextPath } from "#src/finance/auth/finance-sign-in-path.ts";
 import { requireFinancePageSession } from "#src/finance/auth/require-finance-page-session.ts";
 import { getFinanceDb } from "#src/finance/db/get-finance-db.ts";
 import { isFinanceConfigured } from "#src/finance/db/is-finance-configured.ts";
@@ -30,7 +30,7 @@ export default async function Layout({
 
   const session = await requireFinancePageSession(
     locale,
-    safeFinanceNextPath((await headers()).get(FINANCE_PATH_HEADER)),
+    safeNextPath((await headers()).get(FINANCE_PATH_HEADER)),
   );
   const { household, member } = await withHousehold(
     getFinanceDb(),

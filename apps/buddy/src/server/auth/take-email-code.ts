@@ -1,19 +1,18 @@
 import { hashToken } from "@tuja/server-auth/hash-token";
+import type { EmailCodePayload } from "@tuja/server-auth/make-email-code-cookie";
 import { normaliseEmail } from "@tuja/server-auth/normalise-email";
+import { normaliseEmailCode } from "@tuja/server-auth/normalise-email-code";
 import { readRequestCookie } from "@tuja/server-auth/read-request-cookie";
 import { z } from "zod";
 import type { BuddyEmail, BuddyEmailSender } from "../email/types.ts";
-import {
-  buddyEmailCodeCookie,
-  type EmailCodePayload,
-} from "./buddy-email-code-cookie.ts";
+import { buddyEmailCodeCookie } from "./buddy-email-code-cookie.ts";
 import {
   HttpError,
   localeSchema,
   readBody,
   type Context,
 } from "./make-auth-route-kit.ts";
-import { checkEmailCode, normaliseEmailCode } from "./start-email-code.ts";
+import { checkEmailCode } from "./start-email-code.ts";
 
 export const codeBody = z.object({ code: z.string().max(20) });
 

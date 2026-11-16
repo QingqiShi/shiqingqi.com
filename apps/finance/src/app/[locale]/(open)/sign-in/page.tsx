@@ -2,10 +2,10 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
+import { safeNextPath } from "@tuja/server-auth/sign-in-path";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
-import { safeFinanceNextPath } from "#src/finance/auth/finance-sign-in-path.ts";
 import { getFinancePageSession } from "#src/finance/auth/get-finance-page-session.ts";
 import { isFinanceConfigured } from "#src/finance/db/is-finance-configured.ts";
 import { FinanceNotConfigured } from "#src/finance/shell/finance-not-configured.tsx";
@@ -27,7 +27,7 @@ export default async function Page({
   await connection();
   if (!isFinanceConfigured()) return <FinanceNotConfigured />;
   const requested = (await searchParams).next;
-  const next = safeFinanceNextPath(
+  const next = safeNextPath(
     typeof requested === "string" ? requested : undefined,
   );
   if (await getFinancePageSession()) redirect(getLocalePath(next, locale));

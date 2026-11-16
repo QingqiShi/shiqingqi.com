@@ -13,7 +13,7 @@ module.exports = async (phase) => {
   const nextConfig = {
     reactStrictMode: true,
     allowedDevOrigins,
-    // `is-allowed-buddy-origin.ts` reads this to allow a passkey ceremony on a LAN dev host.
+    // `isAllowedOrigin` of `@tuja/server-auth` reads this to allow a passkey ceremony on a LAN dev host.
     env: { ALLOWED_DEV_ORIGINS: allowedDevOrigins.join(",") },
     reactCompiler: { ...reactCompilerOptions },
     // The CI `tsc` job does the type check, so `next build` does not.

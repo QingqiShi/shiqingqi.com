@@ -2,8 +2,8 @@
 
 import { normalizePath } from "@tuja/i18n/normalize-path";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { signInPath } from "@tuja/server-auth/sign-in-path";
 import { useEffect, useState, type ReactNode } from "react";
-import { financeSignInPath } from "../auth/finance-sign-in-path.ts";
 import { createFinanceRuntime } from "./create-finance-runtime.ts";
 import { FinanceRuntimeContext } from "./finance-runtime-context.ts";
 
@@ -31,7 +31,7 @@ export function FinanceProvider({
       readOnly,
       onUnauthorised: () => {
         const here = `${normalizePath(window.location.pathname)}${window.location.search}`;
-        window.location.assign(financeSignInPath(locale, here));
+        window.location.assign(signInPath(locale, here));
       },
     }),
   );

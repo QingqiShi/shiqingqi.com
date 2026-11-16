@@ -1,9 +1,9 @@
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { signInPath } from "@tuja/server-auth/sign-in-path";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { useState } from "react";
 import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
-import { financeSignInPath } from "../auth/finance-sign-in-path.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { clearHouseholdFromDevice } from "./clear-household-from-device.ts";
 
@@ -29,7 +29,7 @@ export function useSignOut() {
     setBusy(true);
     try {
       await clearHouseholdFromDevice(householdId, runtime);
-      window.location.assign(financeSignInPath(locale));
+      window.location.assign(signInPath(locale));
     } catch {
       setBusy(false);
       showToast({

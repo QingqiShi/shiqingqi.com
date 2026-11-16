@@ -1,6 +1,6 @@
+import { makeSeal } from "@tuja/server-auth/make-seal";
 import { z } from "zod";
 import { ACCOUNT_NAME_PATTERN } from "../account-name-pattern.ts";
-import { makeSeal } from "../auth/make-seal.ts";
 
 const macKeySchema = z.strictObject({
   machineId: z.string(),

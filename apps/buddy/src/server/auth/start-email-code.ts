@@ -1,15 +1,10 @@
-import {
-  createHash,
-  randomInt,
-  randomUUID,
-  timingSafeEqual,
-} from "node:crypto";
+import { randomUUID } from "node:crypto";
+import { EMAIL_CODE_LIMITS } from "@tuja/server-auth/email-code-limits";
+import { generateEmailCode } from "@tuja/server-auth/generate-email-code";
+import { hashEmailCode, isEmailCode } from "@tuja/server-auth/hash-email-code";
 import { and, eq, gt, isNull, lt, lte, sql } from "drizzle-orm";
 import { emailCodes } from "#src/server/db/schema.ts";
 import type { BuddyDb } from "#src/server/db/types.ts";
-
-export const EMAIL_CODE_LIFETIME_MS = 30 * 60 * 1000;
-const MAX_ATTEMPTS = 5;
 
 type EmailCodePurpose = (typeof emailCodes.$inferInsert)["purpose"];
 
@@ -17,16 +12,6 @@ type EmailCodeCheck =
   | { ok: true; email: string }
   /** `ended` when the code is used, expired or out of tries, so that a new one is needed. */
   | { ok: false; ended: boolean };
-
-function hashCode(codeId: string, code: string): Buffer {
-  return createHash("sha256").update(`${codeId}:${code}`).digest();
-}
-
-/** The six digits of a typed code, with spaces and dashes taken out, or null. */
-export function normaliseEmailCode(value: string): string | null {
-  const code = value.replace(/[\s-]/g, "");
-  return /^\d{6}$/.test(code) ? code : null;
-}
 
 /** Stores a new six-digit code for `email` and returns it with its id. Expired codes of any address go. */
 export async function startEmailCode(
@@ -38,15 +23,15 @@ export async function startEmailCode(
   }: { purpose: EmailCodePurpose; email: string; now: Date },
 ): Promise<{ codeId: string; code: string }> {
   const codeId = randomUUID();
-  const code = randomInt(0, 1_000_000).toString().padStart(6, "0");
+  const code = generateEmailCode();
   await db.delete(emailCodes).where(lte(emailCodes.expiresAt, now));
   await db.insert(emailCodes).values({
     id: codeId,
     purpose,
     email,
-    codeHash: new Uint8Array(hashCode(codeId, code)),
+    codeHash: new Uint8Array(hashEmailCode(codeId, code)),
     createdAt: now,
-    expiresAt: new Date(now.getTime() + EMAIL_CODE_LIFETIME_MS),
+    expiresAt: new Date(now.getTime() + EMAIL_CODE_LIMITS.lifetimeMs),
   });
   return { codeId, code };
 }
@@ -75,7 +60,7 @@ export async function checkEmailCode(
     await db
       .update(emailCodes)
       .set({ attempts: sql`${emailCodes.attempts} + 1` })
-      .where(and(open, lt(emailCodes.attempts, MAX_ATTEMPTS)))
+      .where(and(open, lt(emailCodes.attempts, EMAIL_CODE_LIMITS.maxAttempts)))
       .returning({
         email: emailCodes.email,
         codeHash: emailCodes.codeHash,
@@ -83,9 +68,11 @@ export async function checkEmailCode(
       })
   ).at(0);
   if (!counted) return { ok: false, ended: true };
-  const expected = Buffer.from(counted.codeHash);
-  if (!timingSafeEqual(hashCode(codeId, code), expected)) {
-    return { ok: false, ended: counted.attempts >= MAX_ATTEMPTS };
+  if (!isEmailCode(codeId, code, counted.codeHash)) {
+    return {
+      ok: false,
+      ended: counted.attempts >= EMAIL_CODE_LIMITS.maxAttempts,
+    };
   }
   const used = await db
     .update(emailCodes)
