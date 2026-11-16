@@ -12,8 +12,8 @@ function getPreferencesSnapshot() {
 /**
  * Reads the current preferences from the shared store and exposes mutators
  * for deleting individual items or clearing everything. Every write — whether
- * it originates from this hook, from `usePreferencePersistence` (when the AI
- * saves a preference), or from any future caller of the store's write
+ * it originates from this hook, from `useAIChat` (when the AI saves a
+ * preference), or from any future caller of the store's write
  * functions — propagates to every subscriber through `useSyncExternalStore`,
  * so the `PreferenceTrigger` count, the `PreferencePanel` list, and any other
  * consumer stay in sync without remounting.

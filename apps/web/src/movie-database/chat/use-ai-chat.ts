@@ -1,4 +1,5 @@
 import { type UseChatHelpers, useChat } from "@ai-sdk/react";
+import { captureException } from "@tuja/analytics/capture-exception";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import type { UIMessage } from "ai";
 import { DefaultChatTransport } from "ai";
@@ -6,7 +7,9 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { z } from "zod";
 import { accumulateToolOutputs } from "#src/movie-database/chat/tool-output/accumulate-tool-outputs.ts";
 import { toolOutputsFingerprint } from "#src/movie-database/chat/tool-output/tool-outputs-fingerprint.ts";
+import { savePreferenceInputSchema } from "#src/movie-database/chat/tools/save-preference-tool.ts";
 import { getPreferencesContextReady } from "#src/movie-database/taste/get-preferences-context-ready.ts";
+import { mergePreferences } from "#src/movie-database/taste/merge-preferences.ts";
 import { preferenceCache } from "#src/movie-database/taste/preference-cache.ts";
 import { captureMessageSend } from "./capture-message-send.ts";
 import { chatMessageMetadataSchema } from "./chat-message-metadata-schema.ts";
@@ -137,6 +140,15 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
       },
     }),
     messageMetadataSchema: chatMessageMetadataSchema,
+    onToolCall: ({ toolCall }) => {
+      if (toolCall.toolName !== "save_preference") return;
+      const parsed = savePreferenceInputSchema.safeParse(toolCall.input);
+      if (!parsed.success) return;
+      mergePreferences(parsed.data.preferences).catch((error: unknown) => {
+        console.error("Failed to save preferences", error);
+        captureException(error);
+      });
+    },
     onFinish: ({ messages }) => {
       const sessionId = findSessionIdFromMessages(messages);
       if (sessionId) {
