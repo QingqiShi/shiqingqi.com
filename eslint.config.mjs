@@ -664,7 +664,7 @@ export default defineConfig([
   // Every link goes through the shared `Link`, which prefetches only on intent.
   {
     files: ["apps/**", "packages/**"],
-    ignores: ["apps/*/src/link.tsx", "packages/next-links/src/link.tsx"],
+    ignores: ["packages/next-links/src/link.tsx"],
     rules: {
       "no-restricted-imports": [
         "error",
@@ -673,7 +673,7 @@ export default defineConfig([
             {
               name: "next/link",
               message:
-                "Import `Link` from `@tuja/next-links/link` (`@/link` in trip-planner). It prefetches only on intent, when `prefetchOnIntent` is set.",
+                "Import `Link` from `@tuja/next-links/link`. It prefetches only on intent, when `prefetchOnIntent` is set.",
             },
           ],
         },
@@ -707,13 +707,6 @@ export default defineConfig([
     files: ["**/*.test.{ts,tsx,js,mjs}", "**/*.spec.{ts,tsx,js,mjs}"],
     rules: {
       "@tuja/no-t-outside-render": "off",
-    },
-  },
-  // shadcn/ui generates these files and keeps its own convention.
-  {
-    files: ["apps/trip-planner/src/shadcn/**"],
-    rules: {
-      "@tuja/no-single-use-literal-alias": "off",
     },
   },
   // A hook can only run inside a client component, so a module that exports
@@ -752,8 +745,6 @@ export default defineConfig([
       // A showcase's operable specimens sit beside it, named after the
       // showcase they serve: the file holds several, so none of them names it.
       "apps/web/src/design-system/sections/**/*-specimens.tsx",
-      // shadcn/ui generates these files and keeps its own convention.
-      "apps/trip-planner/src/shadcn/**",
       // A constant-only bag is named for its category.
       "**/constants.ts",
       // The i18n Babel plugin imports these files by path, so their names

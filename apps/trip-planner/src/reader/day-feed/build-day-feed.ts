@@ -1,4 +1,4 @@
-import { momentMinutes, momentTimeLabel } from "./moment-time-label";
+import { momentMinutes } from "./moment-minutes.ts";
 import type {
   Checklist,
   Day,
@@ -6,6 +6,7 @@ import type {
   MapPlace,
   Moment,
   MomentItem,
+  MomentTime,
   NavLeg,
   Restaurant,
   SignSheet,
@@ -17,7 +18,7 @@ type Item<T extends MomentItem["type"]> = Extract<MomentItem, { type: T }>;
 /** One time slot of a day, with what happens around it, grouped by kind. */
 export interface DayMoment {
   id: string;
-  time: string;
+  time: MomentTime;
   minutes: number;
   text?: string;
   flights: (Flight & { id: string })[];
@@ -40,7 +41,7 @@ export function buildDayFeed(day: Day): DayMoment[] {
     .filter((moment) => moment.text !== undefined || moment.items.length > 0)
     .map((moment) => ({
       id: moment.id,
-      time: momentTimeLabel(moment.time),
+      time: moment.time,
       minutes: momentMinutes(moment.time),
       text: moment.text,
       flights: ofType(moment, "flight"),

@@ -1,37 +1,54 @@
+import { WifiSlashIcon } from "@phosphor-icons/react/dist/ssr/WifiSlash";
+import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { validateLocale } from "@tuja/i18n/validate-locale";
-import { WifiOff } from "lucide-react";
+import { Button } from "@tuja/ui/components/button";
+import { EmptyState } from "@tuja/ui/components/empty-state";
+import { space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
-import { Link } from "@/link";
 
-export const metadata: Metadata = {
-  title: "当前离线",
-};
+interface OfflinePageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({
+  params,
+}: OfflinePageProps): Promise<Metadata> {
+  validateLocale((await params).locale);
+  return { title: t({ en: "Offline", zh: "当前离线" }) };
+}
 
 // Served by the service worker when a navigation has no network and no cached
 // copy. Pages the visitor has opened before are served from cache instead and
 // never reach this fallback.
-export default async function OfflinePage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function OfflinePage({ params }: OfflinePageProps) {
   const locale = validateLocale((await params).locale);
   return (
-    <div className="mx-auto flex min-h-dvh max-w-3xl flex-col items-center justify-center gap-4 px-4 py-10 text-center">
-      <WifiOff className="size-10 text-muted-foreground" />
-      <h1 className="text-2xl font-semibold tracking-tight">
-        当前处于离线状态
-      </h1>
-      <p className="max-w-prose text-muted-foreground text-pretty">
-        这个页面还没有离线缓存。打开过的行程会自动保存在本机，恢复网络后再访问一次即可离线查看。
-      </p>
-      <Link
-        href={getLocalePath("/", locale)}
-        className="rounded-lg border bg-card px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
-      >
-        返回首页
-      </Link>
-    </div>
+    <main css={styles.page}>
+      <EmptyState
+        level={2}
+        icon={<WifiSlashIcon weight="bold" />}
+        title={t({ en: "You are offline", zh: "当前处于离线状态" })}
+        description={t({
+          en: "This page is not saved on this device yet. A trip you have opened is saved, so open it once more when you are back online, and it reads offline after that.",
+          zh: "这个页面还没有离线缓存。打开过的行程会自动保存在本机，恢复网络后再访问一次即可离线查看。",
+        })}
+        action={
+          <Button href={getLocalePath("/", locale)} look="outline">
+            {t({ en: "Back to the trips", zh: "返回首页" })}
+          </Button>
+        }
+      />
+    </main>
   );
 }
+
+const styles = stylex.create({
+  page: {
+    display: "grid",
+    placeItems: "center",
+    minBlockSize: "100dvh",
+    padding: space._5,
+  },
+});

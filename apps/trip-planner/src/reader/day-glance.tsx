@@ -1,78 +1,79 @@
-import type { LucideIcon } from "lucide-react";
-import {
-  BedDouble,
-  Car,
-  LogOut,
-  Plane,
-  Sparkles,
-  TrainFront,
-  UserRoundMinus,
-  UserRoundPlus,
-  Utensils,
-} from "lucide-react";
-import type { DayHighlight } from "./day-highlights";
-import { NavLink } from "@/reader/maps/nav-link";
-import type { HighlightKind } from "@/trips/types";
+"use client";
 
-const anchorIcon: Record<HighlightKind, LucideIcon> = {
-  flight: Plane,
-  pickup: UserRoundPlus,
-  dropoff: UserRoundMinus,
-  checkin: BedDouble,
-  checkout: LogOut,
-  reservation: Utensils,
-  transit: TrainFront,
-  drive: Car,
-};
+import { AirplaneTiltIcon } from "@phosphor-icons/react/dist/ssr/AirplaneTilt";
+import { BedIcon } from "@phosphor-icons/react/dist/ssr/Bed";
+import { CarIcon } from "@phosphor-icons/react/dist/ssr/Car";
+import { ForkKnifeIcon } from "@phosphor-icons/react/dist/ssr/ForkKnife";
+import { SignOutIcon } from "@phosphor-icons/react/dist/ssr/SignOut";
+import { TrainSimpleIcon } from "@phosphor-icons/react/dist/ssr/TrainSimple";
+import { UserMinusIcon } from "@phosphor-icons/react/dist/ssr/UserMinus";
+import { UserPlusIcon } from "@phosphor-icons/react/dist/ssr/UserPlus";
+import { t } from "@tuja/i18n";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
+import { Section } from "@tuja/ui/components/section";
+import type { ReactNode } from "react";
+import type { HighlightKind } from "#src/trips/types.ts";
+import type { DayHighlight } from "./day-highlights.ts";
+import { DirectionsButton } from "./directions-button.tsx";
+import { TripText } from "./trip-text.tsx";
+import { useTimeLabel } from "./use-time-label.ts";
 
-/** The at-a-glance card: the day's fixed "must-be-there" moments. Tapping a row
- *  jumps to that moment in the feed below; the 导航 button opens maps. Answers
- *  "where do I have to be". */
+/** The day's fixed commitments: where to be, and when. A row jumps to its
+ *  moment below, and its button opens the directions. */
 export function DayGlance({
   highlights,
   onJump,
 }: {
   highlights: DayHighlight[];
-  onJump?: (momentId: string) => void;
+  onJump: (momentId: string) => void;
 }) {
+  const timeLabel = useTimeLabel();
+
   return (
-    <section className="rounded-2xl border bg-card p-4 shadow-sm">
-      <h3 className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-        <Sparkles className="size-4" />
-        今日要点
-      </h3>
-      <ul className="space-y-3">
-        {highlights.map((anchor) => {
-          const Icon = anchorIcon[anchor.kind];
-          const canJump = Boolean(onJump && anchor.inFeed);
-          return (
-            <li key={anchor.momentId} className="flex items-center gap-3">
-              <span className="w-12 shrink-0 text-right text-sm tabular-nums text-muted-foreground">
-                {anchor.time}
-              </span>
-              <Icon className="size-4 shrink-0 text-muted-foreground" />
-              {canJump ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onJump?.(anchor.momentId);
-                  }}
-                  className="min-w-0 flex-1 text-left text-sm font-medium text-pretty underline-offset-4 transition-colors hover:text-muted-foreground hover:underline"
-                >
-                  {anchor.label}
-                </button>
-              ) : (
-                <span className="min-w-0 flex-1 text-sm font-medium text-pretty">
-                  {anchor.label}
-                </span>
-              )}
-              {anchor.query ? (
-                <NavLink to={anchor.query} mode={anchor.mode} />
-              ) : null}
-            </li>
+    <Section title={t({ en: "At a glance", zh: "今日要点" })} look="label">
+      <List>
+        {highlights.map((highlight) => {
+          const shared = {
+            leading: highlightIcon[highlight.kind],
+            leadingShape: "circle" as const,
+            detail: timeLabel(highlight.time),
+            wrap: true,
+            actions: highlight.query ? (
+              <DirectionsButton
+                destination={highlight.query}
+                mode={highlight.mode}
+              />
+            ) : undefined,
+          };
+          return highlight.inFeed ? (
+            <ListRow
+              key={highlight.momentId}
+              {...shared}
+              onClick={() => {
+                onJump(highlight.momentId);
+              }}
+            >
+              <TripText>{highlight.label}</TripText>
+            </ListRow>
+          ) : (
+            <ListRow key={highlight.momentId} {...shared}>
+              <TripText>{highlight.label}</TripText>
+            </ListRow>
           );
         })}
-      </ul>
-    </section>
+      </List>
+    </Section>
   );
 }
+
+const highlightIcon: Record<HighlightKind, ReactNode> = {
+  flight: <AirplaneTiltIcon weight="bold" />,
+  pickup: <UserPlusIcon weight="bold" />,
+  dropoff: <UserMinusIcon weight="bold" />,
+  checkin: <BedIcon weight="bold" />,
+  checkout: <SignOutIcon weight="bold" />,
+  reservation: <ForkKnifeIcon weight="bold" />,
+  transit: <TrainSimpleIcon weight="bold" />,
+  drive: <CarIcon weight="bold" />,
+};

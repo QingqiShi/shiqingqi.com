@@ -1,127 +1,105 @@
-import { Plane, Radar } from "lucide-react";
-import { cn } from "@/shadcn/utils";
-import type { Flight, FlightEndpoint } from "@/trips/types";
+"use client";
 
-/** One end of the route: airport code, city, and the local time / terminal. */
-function Endpoint({
-  endpoint,
-  align,
-}: {
-  endpoint: FlightEndpoint;
-  align: "left" | "right";
-}) {
-  const right = align === "right";
+import { AirplaneTiltIcon } from "@phosphor-icons/react/dist/ssr/AirplaneTilt";
+import { BroadcastIcon } from "@phosphor-icons/react/dist/ssr/Broadcast";
+import { t } from "@tuja/i18n";
+import { Badge } from "@tuja/ui/components/badge";
+import { Card } from "@tuja/ui/components/card";
+import { MetaLine } from "@tuja/ui/components/meta-line";
+import { Stat } from "@tuja/ui/components/stat";
+import { StatGroup } from "@tuja/ui/components/stat-group";
+import { Text } from "@tuja/ui/components/text";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { ExternalButton } from "#src/reader/external-button.tsx";
+import { TripText } from "#src/reader/trip-text.tsx";
+import type { Flight, FlightEndpoint } from "#src/trips/types.ts";
+
+/** The local time, a delay as the struck-out planned time, and the terminal. */
+function EndpointDetail({ endpoint }: { endpoint: FlightEndpoint }) {
+  const delayed =
+    endpoint.scheduledTime !== undefined &&
+    endpoint.scheduledTime !== endpoint.time;
   return (
-    <div className={cn("flex flex-col", right ? "items-end text-right" : "")}>
-      <span className="text-2xl leading-none font-semibold tracking-tight tabular-nums">
-        {endpoint.code}
-      </span>
-      <span className="mt-1 text-xs text-muted-foreground">
-        {endpoint.city}
-      </span>
-      {endpoint.time || endpoint.terminal ? (
-        <span className="mt-2 text-sm font-medium tabular-nums">
-          {endpoint.scheduledTime &&
-          endpoint.scheduledTime !== endpoint.time ? (
-            <span className="mr-1.5 font-normal text-muted-foreground line-through">
-              {endpoint.scheduledTime}
-            </span>
-          ) : null}
-          {endpoint.time}
-          {endpoint.dayOffset ? (
-            <sup className="ml-0.5 text-[10px] font-normal text-muted-foreground">
-              +{endpoint.dayOffset}
-            </sup>
-          ) : null}
-          {endpoint.terminal ? (
-            <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-              {endpoint.terminal}
-            </span>
-          ) : null}
-        </span>
-      ) : null}
-    </div>
+    <MetaLine
+      facts={[
+        <TripText key="city">{endpoint.city}</TripText>,
+        endpoint.time ? (
+          <span key="time">
+            {delayed ? <del>{endpoint.scheduledTime}</del> : null}
+            {delayed ? " " : null}
+            {endpoint.time}
+            {endpoint.dayOffset ? (
+              <sup>
+                {endpoint.dayOffset > 0 ? "+" : ""}
+                {endpoint.dayOffset}
+              </sup>
+            ) : null}
+          </span>
+        ) : null,
+        endpoint.terminal ? (
+          <TripText key="terminal">{endpoint.terminal}</TripText>
+        ) : null,
+      ].filter(Boolean)}
+    />
   );
 }
 
-/**
- * A flight as a boarding-pass-style card: airline + flight number up top, the
- * FROM → TO route with local times in the middle, and a 实时追踪 button that
- * opens a live flight tracker. Woven into the day feed at the flight's `time`.
- */
+/** A flight: its number, where it leaves and lands with local times, and a
+ *  link to follow it live. */
 export function FlightCard({ flight }: { flight: Flight }) {
   return (
-    <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
-      <div className="flex items-center gap-2.5 border-b bg-muted/40 px-4 py-2.5">
-        <Plane className="size-4 shrink-0 text-muted-foreground" />
-        <span className="text-sm font-semibold tracking-wide">
-          {flight.number}
-        </span>
-        {flight.airline ? (
-          <span className="text-xs text-muted-foreground">
-            {flight.airline}
-          </span>
-        ) : null}
-        {flight.statusLabel ? (
-          <span className="ml-auto rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive">
-            {flight.statusLabel}
-          </span>
-        ) : null}
-        {flight.passenger ? (
-          <span
-            className={cn(
-              "rounded-full bg-foreground px-2 py-0.5 text-[11px] font-medium text-background",
-              flight.statusLabel ? "ml-1.5" : "ml-auto",
-            )}
-          >
-            {flight.passenger}
-          </span>
-        ) : null}
-      </div>
-
-      <div className="flex items-start gap-4 px-4 py-4">
-        <Endpoint endpoint={flight.from} align="left" />
-        <div
-          aria-hidden
-          className="flex flex-1 items-center gap-1.5 self-center text-muted-foreground"
-        >
-          <span className="h-px flex-1 border-t border-dashed border-border" />
-          <Plane className="size-4 rotate-45" />
-          <span className="h-px flex-1 border-t border-dashed border-border" />
-        </div>
-        <Endpoint endpoint={flight.to} align="right" />
-      </div>
-
-      {flight.track || flight.note ? (
-        <div className="relative flex items-center gap-3 border-t border-dashed border-border px-4 py-2.5">
-          <span
-            aria-hidden
-            className="absolute top-0 left-0 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-background"
-          />
-          <span
-            aria-hidden
-            className="absolute top-0 right-0 size-3 translate-x-1/2 -translate-y-1/2 rounded-full bg-background"
-          />
-          {flight.note ? (
-            <span className="min-w-0 flex-1 text-xs text-pretty text-muted-foreground">
-              {flight.note}
-            </span>
-          ) : (
-            <span className="flex-1" />
-          )}
-          {flight.track ? (
-            <a
-              href={flight.track}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background transition-opacity hover:opacity-90"
-            >
-              <Radar className="size-3.5" />
-              实时追踪
-            </a>
+    <Card>
+      <div css={stack.item}>
+        <div css={cluster.tight}>
+          <AirplaneTiltIcon weight="bold" aria-hidden />
+          <Text as="span" weight="semibold">
+            {flight.number}
+          </Text>
+          {flight.airline ? (
+            <Text as="span" look="bodySmall" tone="muted">
+              <TripText>{flight.airline}</TripText>
+            </Text>
+          ) : null}
+          {flight.statusLabel ? (
+            <Badge size="sm" intent="destructive">
+              <TripText>{flight.statusLabel}</TripText>
+            </Badge>
+          ) : null}
+          {flight.passenger ? (
+            <Badge size="sm" intent="neutral">
+              <TripText>{flight.passenger}</TripText>
+            </Badge>
           ) : null}
         </div>
-      ) : null}
-    </div>
+        <StatGroup look="plain">
+          <Stat
+            label={t({ en: "From", zh: "出发" })}
+            value={flight.from.code}
+            detail={<EndpointDetail endpoint={flight.from} />}
+          />
+          <Stat
+            label={t({ en: "To", zh: "到达" })}
+            value={flight.to.code}
+            detail={<EndpointDetail endpoint={flight.to} />}
+          />
+        </StatGroup>
+        {flight.note ? (
+          <Text look="bodySmall" tone="muted">
+            <TripText>{flight.note}</TripText>
+          </Text>
+        ) : null}
+        {flight.track ? (
+          <div>
+            <ExternalButton
+              href={flight.track}
+              look="outline"
+              icon={<BroadcastIcon weight="bold" />}
+            >
+              {t({ en: "Track live", zh: "实时追踪" })}
+            </ExternalButton>
+          </div>
+        ) : null}
+      </div>
+    </Card>
   );
 }

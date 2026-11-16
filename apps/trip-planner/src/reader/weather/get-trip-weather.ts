@@ -11,7 +11,7 @@
 
 import { unstable_cache } from "next/cache";
 import type { LiveWeather } from "./types";
-import { wmoCondition } from "./wmo-condition";
+import { dateInZone } from "@/reader/resolve-day";
 import type { Trip } from "@/trips/types";
 
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
@@ -112,20 +112,9 @@ function readForecast(
   if (code === null || min === null || max === null) return undefined;
   return {
     temp: `${String(Math.round(min))}–${String(Math.round(max))}°C`,
-    condition: wmoCondition(code),
     code,
     updated,
   };
-}
-
-/** "6/9 更新" — the trip-local date the forecast was last fetched. */
-function fetchedLabel(now: Date, timeZone: string): string {
-  const date = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    month: "numeric",
-    day: "numeric",
-  }).format(now);
-  return `${date} 更新`;
 }
 
 async function fetchWeather(
@@ -151,7 +140,7 @@ async function fetchWeather(
     const blocks = Array.isArray(body) ? body : [body];
     // Stamp every live day with the fetch time; `unstable_cache` freezes it
     // until the next revalidation, so it reads as "last refreshed at".
-    const updated = fetchedLabel(new Date(), timeZone);
+    const updated = dateInZone(new Date(), timeZone);
     points.forEach((point, i) => {
       const daily = asDailyBlock(blocks[i]);
       if (!daily) return;
@@ -169,7 +158,7 @@ async function fetchWeather(
  * `force-dynamic` rendering, and folds the points into the cache key, so a
  * trip caches by its places and dates and an edit to them fetches again.
  */
-const cachedWeather = unstable_cache(fetchWeather, ["trip-weather-v3"], {
+const cachedWeather = unstable_cache(fetchWeather, ["trip-weather-v4"], {
   revalidate: REVALIDATE_SECONDS,
 });
 

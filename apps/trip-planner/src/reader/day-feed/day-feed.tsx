@@ -1,156 +1,95 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { type DayMoment, buildDayFeed } from "./build-day-feed";
-import { ChecklistCard } from "./checklist-card";
-import { FlightCard } from "./flight-card";
-import { momentDomId } from "./moment-dom-id";
-import { SignSheetCard } from "./sign-sheet-card";
-import { DiningList } from "@/reader/dining-list";
-import { NavLegRow } from "@/reader/maps/nav-leg-row";
-import { PlacePill } from "@/reader/place-pill";
-import { minutesInZone } from "@/reader/resolve-day";
-import { TipRow } from "@/reader/tip-row";
-import { cn } from "@/shadcn/utils";
-import type { Day } from "@/trips/types";
+import * as stylex from "@stylexjs/stylex";
+import { List } from "@tuja/ui/components/list";
+import { Section } from "@tuja/ui/components/section";
+import { Text } from "@tuja/ui/components/text";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { DiningList } from "#src/reader/dining-list.tsx";
+import { NavLegRow } from "#src/reader/maps/nav-leg-row.tsx";
+import { PlaceRows } from "#src/reader/place-list.tsx";
+import { TipCallout } from "#src/reader/tip-callout.tsx";
+import { TripText } from "#src/reader/trip-text.tsx";
+import { useTimeLabel } from "#src/reader/use-time-label.ts";
+import type { Day } from "#src/trips/types.ts";
+import { type DayMoment, buildDayFeed } from "./build-day-feed.ts";
+import { ChecklistCard } from "./checklist-card.tsx";
+import { FlightCard } from "./flight-card.tsx";
+import { momentDomId } from "./moment-dom-id.ts";
+import { SignSheetCard } from "./sign-sheet-card.tsx";
 
-// Only nudge the scroll on phones; on wider screens the day mostly fits.
-const MOBILE_QUERY = "(max-width: 767px)";
-
-/** Index of the moment that's "now" — the last one already started. */
-function currentMomentIndex(moments: DayMoment[], nowMinutes: number) {
-  let index = 0;
-  for (const [i, moment] of moments.entries()) {
-    if (moment.minutes <= nowMinutes) index = i;
-  }
-  return index;
+function MomentSection({
+  moment,
+  tripSlug,
+}: {
+  moment: DayMoment;
+  tripSlug: string;
+}) {
+  const timeLabel = useTimeLabel();
+  return (
+    <Section
+      id={momentDomId(moment.id)}
+      title={timeLabel(moment.time)}
+      look="label"
+      css={styles.moment}
+    >
+      <div css={stack.item}>
+        {moment.text === undefined ? null : (
+          <Text>
+            <TripText>{moment.text}</TripText>
+          </Text>
+        )}
+        {moment.flights.map((flight) => (
+          <FlightCard key={flight.id} flight={flight} />
+        ))}
+        {moment.checklists.map((list) => (
+          <ChecklistCard key={list.id} tripSlug={tripSlug} list={list} />
+        ))}
+        {moment.signSheets.map((sheet) => (
+          <SignSheetCard key={sheet.id} sheet={sheet} />
+        ))}
+        {moment.nav.length > 0 ? (
+          <List>
+            {moment.nav.map((leg) => (
+              <NavLegRow key={leg.id} leg={leg} />
+            ))}
+          </List>
+        ) : null}
+        {moment.dining.length > 0 ? (
+          <DiningList restaurants={moment.dining} />
+        ) : null}
+        {moment.places.length > 0 ? <PlaceRows places={moment.places} /> : null}
+        {moment.tips.map((tip) => (
+          <TipCallout key={tip.id} tip={tip} />
+        ))}
+      </div>
+    </Section>
+  );
 }
 
 /**
- * The day as one chronological feed: every timeline moment, with its nav,
- * checklist, dining and place ideas, and heads-up tips gathered around it.
- * On phones, the initially-loaded day scrolls to the current time so "now" is
- * in view without hunting.
+ * On a phone, scrolls today to the moment that is on now, so that it is in
+ * view at once. On a wider screen the day mostly fits.
  */
-export function DayFeed({
-  tripSlug,
-  timeZone,
-  day,
-  isToday,
-}: {
-  tripSlug: string;
-  timeZone: string;
-  day: Day;
-  isToday: boolean;
-}) {
+/**
+ * The day in time order: each moment with its flights, lists, routes, places
+ * to eat and go, and heads-ups.
+ */
+export function DayFeed({ tripSlug, day }: { tripSlug: string; day: Day }) {
   const moments = buildDayFeed(day);
-  const didInitialScrollRef = useRef(false);
-
-  useEffect(() => {
-    if (didInitialScrollRef.current) return;
-    didInitialScrollRef.current = true;
-    if (!isToday || moments.length === 0) return;
-    if (!window.matchMedia(MOBILE_QUERY).matches) return;
-
-    const nowMinutes = minutesInZone(new Date(), timeZone);
-    const index = currentMomentIndex(moments, nowMinutes);
-    const target = document.getElementById(momentDomId(moments[index].id));
-    target?.scrollIntoView({ block: "start" });
-  }, [moments, isToday, timeZone]);
 
   return (
-    <ol>
-      {moments.map((moment, i) => {
-        const isLast = i === moments.length - 1;
-        const hasExtras =
-          moment.flights.length > 0 ||
-          moment.checklists.length > 0 ||
-          moment.signSheets.length > 0 ||
-          moment.nav.length > 0 ||
-          moment.dining.length > 0 ||
-          moment.places.length > 0 ||
-          moment.tips.length > 0;
-
-        return (
-          <li
-            key={moment.id}
-            id={momentDomId(moment.id)}
-            className="grid scroll-mt-32 grid-cols-[3.25rem_1fr] gap-x-3"
-          >
-            <div className="pt-0.5 text-right text-sm tabular-nums text-muted-foreground">
-              {moment.time}
-            </div>
-
-            <div
-              className={cn(
-                "relative border-l pl-5",
-                isLast ? "border-l-transparent pb-1" : "pb-8",
-              )}
-            >
-              <span className="absolute top-1.5 -left-[5px] size-2.5 rounded-full bg-foreground ring-4 ring-background" />
-
-              {moment.text === undefined ? null : (
-                <p className="text-[15px] leading-snug font-medium text-pretty">
-                  {moment.text}
-                </p>
-              )}
-
-              {hasExtras ? (
-                <div
-                  className={cn(
-                    "space-y-3",
-                    moment.text !== undefined && "mt-3",
-                  )}
-                >
-                  {moment.flights.map((flight) => (
-                    <FlightCard key={flight.id} flight={flight} />
-                  ))}
-
-                  {moment.checklists.map((list) => (
-                    <ChecklistCard
-                      key={list.id}
-                      tripSlug={tripSlug}
-                      list={list}
-                    />
-                  ))}
-
-                  {moment.signSheets.map((sheet) => (
-                    <SignSheetCard key={sheet.id} sheet={sheet} />
-                  ))}
-
-                  {moment.nav.length > 0 ? (
-                    <ul className="space-y-2">
-                      {moment.nav.map((leg) => (
-                        <NavLegRow key={leg.id} leg={leg} />
-                      ))}
-                    </ul>
-                  ) : null}
-
-                  {moment.dining.length > 0 ? (
-                    <DiningList restaurants={moment.dining} />
-                  ) : null}
-
-                  {moment.places.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {moment.places.map((place) => (
-                        <PlacePill key={place.id} place={place} />
-                      ))}
-                    </div>
-                  ) : null}
-
-                  {moment.tips.length > 0 ? (
-                    <ul className="space-y-2.5">
-                      {moment.tips.map((tip) => (
-                        <TipRow key={tip.id} tip={tip} />
-                      ))}
-                    </ul>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
-          </li>
-        );
-      })}
-    </ol>
+    <>
+      {moments.map((moment) => (
+        <MomentSection key={moment.id} moment={moment} tripSlug={tripSlug} />
+      ))}
+    </>
   );
 }
+
+const styles = stylex.create({
+  // Clears the bar with the back link that stays at the top on a phone.
+  moment: {
+    scrollMarginTop: "4rem",
+  },
+});

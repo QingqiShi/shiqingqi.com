@@ -5,31 +5,31 @@ A standalone Next.js app for planning trips, deployed as its **own Vercel projec
 
 - **Locale:** English and Chinese routes under `src/app/[locale]`: English has
   no prefix (`/gb`), Chinese is at `/zh` (`/zh/gb`). App text uses inline
-  `t({ en, zh })` (see the `i18n-patterns` skill). The current screens are
-  still written in Chinese in both locales; they move to `t()` as they are
-  rebuilt on `@tuja/ui`.
-- **UI:** moving from [shadcn/ui](https://ui.shadcn.com) on **Tailwind CSS v4**
-  to the repo's StyleX design system, `@tuja/ui`. Both build side by side
-  until the last screen moves; then shadcn, Tailwind and lucide go.
+  `t({ en, zh })` (see the `i18n-patterns` skill). Trip content stays in the
+  trip's own language, with a `lang` where it differs from the page.
+- **UI:** the repo's StyleX design system, `@tuja/ui` (see the `styling`
+  skill). The app sits in a `TabView` (Trips, Settings), and the list of trips
+  sits beside the open trip in a `NavigationSplitView`. Tailwind, shadcn and
+  lucide are still installed; a clean-up PR removes them.
 - **Access:** each trip has its own password. The proxy gates a trip path with
   or without a locale prefix, and the trip page checks the unlock cookie too.
-
-## UI components
-
-Components live in `src/shadcn` and are added via the shadcn CLI:
-
-```bash
-pnpm --filter trip-planner dlx shadcn@latest add <component>
-```
-
-Config is in `components.json` (style `new-york`, base color `neutral`, `@/*`
-alias → `src/*`). The `cn()` helper is in `src/shadcn/utils.ts`.
 
 ## Develop
 
 ```bash
 pnpm --filter trip-planner dev   # port: node scripts/get-worktree-port.mjs 100
 ```
+
+Set `SITE_PASSWORD_SAMPLE` to any value to add the made-up sample trip at
+`/sample-lisbon`. Use it for tests and screenshots, because the real trips
+show bookings and phone numbers.
+
+```bash
+pnpm --filter trip-planner test:e2e   # builds, then serves the build with the sample trip
+```
+
+The Playwright specs in `e2e/` unlock the sample trip, step through its days,
+and read it again with no network.
 
 ## Maps
 

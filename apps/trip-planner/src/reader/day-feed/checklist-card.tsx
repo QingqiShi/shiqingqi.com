@@ -1,9 +1,14 @@
 "use client";
 
-import { Check, ChevronDown } from "lucide-react";
-import { useState, useSyncExternalStore } from "react";
-import { cn } from "@/shadcn/utils";
-import type { Checklist } from "@/trips/types";
+import { ListChecksIcon } from "@phosphor-icons/react/dist/ssr/ListChecks";
+import { Badge } from "@tuja/ui/components/badge";
+import { Checkbox } from "@tuja/ui/components/checkbox";
+import { Disclosure } from "@tuja/ui/components/disclosure";
+import { Text } from "@tuja/ui/components/text";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { useSyncExternalStore } from "react";
+import { TripText, useTripLang } from "#src/reader/trip-text.tsx";
+import type { Checklist } from "#src/trips/types.ts";
 
 const EMPTY: Record<string, boolean> = {};
 
@@ -100,7 +105,7 @@ function getServerSnapshot(): Record<string, boolean> {
   return EMPTY;
 }
 
-/** A single tick-through checklist card with on-device persistence. */
+/** A list to tick through, kept on this device, folded until it is opened. */
 export function ChecklistCard({
   tripSlug,
   list,
@@ -114,89 +119,42 @@ export function ChecklistCard({
     store.getSnapshot,
     getServerSnapshot,
   );
-  const [isOpen, setIsOpen] = useState(false);
+  const lang = useTripLang();
 
   const total = list.items.length;
   const doneCount = list.items.filter((item) => checked[item.id]).length;
-  const allDone = total > 0 && doneCount === total;
 
   return (
-    <div className="rounded-xl border bg-card">
-      <button
-        type="button"
-        onClick={() => {
-          setIsOpen((value) => !value);
-        }}
-        aria-expanded={isOpen}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left"
-      >
-        <span
-          className={cn(
-            "flex size-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-medium tabular-nums",
-            allDone
-              ? "border-foreground bg-foreground text-background"
-              : "text-muted-foreground",
-          )}
-        >
-          {allDone ? <Check className="size-3.5" /> : doneCount}
-        </span>
-        <span className="min-w-0 flex-1 text-sm font-medium">{list.title}</span>
-        <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+    <Disclosure
+      look="card"
+      icon={<ListChecksIcon weight="bold" />}
+      summary={<TripText>{list.title}</TripText>}
+      trailing={
+        <Badge size="sm" intent={doneCount === total ? "success" : "neutral"}>
           {doneCount}/{total}
-        </span>
-        <ChevronDown
-          className={cn(
-            "size-4 shrink-0 text-muted-foreground transition-transform",
-            isOpen && "rotate-180",
-          )}
-        />
-      </button>
-
-      {isOpen ? (
-        <div className="border-t px-4 py-3">
-          <ul className="space-y-0.5">
-            {list.items.map((item) => {
-              const id = item.id;
-              const isChecked = checked[id] ?? false;
-              return (
-                <li key={id}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      store.setChecked(id, !isChecked);
-                    }}
-                    className="flex w-full items-start gap-2.5 rounded-lg py-1.5 text-left"
-                  >
-                    <span
-                      className={cn(
-                        "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border transition-colors",
-                        isChecked
-                          ? "border-foreground bg-foreground text-background"
-                          : "border-muted-foreground/40",
-                      )}
-                    >
-                      {isChecked ? <Check className="size-3" /> : null}
-                    </span>
-                    <span
-                      className={cn(
-                        "text-sm leading-relaxed",
-                        isChecked && "text-muted-foreground line-through",
-                      )}
-                    >
-                      {item.text}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-          {list.note ? (
-            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-              {list.note}
-            </p>
-          ) : null}
+        </Badge>
+      }
+    >
+      <div css={stack.item}>
+        <div lang={lang} css={stack.tight}>
+          {list.items.map((item) => (
+            <Checkbox
+              key={item.id}
+              look="done"
+              label={item.text}
+              checked={checked[item.id] ?? false}
+              onChange={(event) => {
+                store.setChecked(item.id, event.target.checked);
+              }}
+            />
+          ))}
         </div>
-      ) : null}
-    </div>
+        {list.note ? (
+          <Text look="caption" tone="muted">
+            <TripText>{list.note}</TripText>
+          </Text>
+        ) : null}
+      </div>
+    </Disclosure>
   );
 }

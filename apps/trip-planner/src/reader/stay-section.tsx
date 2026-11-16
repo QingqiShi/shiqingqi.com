@@ -1,142 +1,168 @@
-import type { LucideIcon } from "lucide-react";
-import {
-  BedDouble,
-  ChevronRight,
-  LogIn,
-  LogOut,
-  MapPin,
-  Phone,
-} from "lucide-react";
-import { Section } from "./section";
-import { MapsLink } from "@/reader/maps/maps-link";
-import { Badge } from "@/shadcn/badge";
-import type { Lodging, Stay } from "@/trips/types";
+"use client";
+
+import { BedIcon } from "@phosphor-icons/react/dist/ssr/Bed";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
+import { t } from "@tuja/i18n";
+import { Badge } from "@tuja/ui/components/badge";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
+import { MetaLine } from "@tuja/ui/components/meta-line";
+import { Section } from "@tuja/ui/components/section";
+import { Text } from "@tuja/ui/components/text";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import type { Lodging, Stay } from "#src/trips/types.ts";
+import { ExternalButton } from "./external-button.tsx";
+import { ExternalLinkIndicator } from "./external-link-indicator.tsx";
+import { ExternalRowLink } from "./external-row-link.tsx";
+import { googleMapsUrl } from "./maps/google-maps-url.ts";
+import { TripText } from "./trip-text.tsx";
 
 function StatusBadge({ lodging }: { lodging: Lodging }) {
-  if (lodging.status === "booked") return <Badge>已预订</Badge>;
-  if (lodging.status === "pending")
-    return <Badge variant="secondary">待定</Badge>;
-  if (lodging.recommended) return <Badge>推荐</Badge>;
-  return <Badge variant="outline">备选</Badge>;
-}
-
-function DetailRow({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string;
-}) {
+  const booked = t({ en: "Booked", zh: "已预订" });
+  const pending = t({ en: "To confirm", zh: "待定" });
+  const recommended = t({ en: "Recommended", zh: "推荐" });
+  const option = t({ en: "Option", zh: "备选" });
+  if (lodging.status === "booked") {
+    return (
+      <Badge size="sm" intent="success">
+        {booked}
+      </Badge>
+    );
+  }
+  if (lodging.status === "pending") {
+    return (
+      <Badge size="sm" intent="warning">
+        {pending}
+      </Badge>
+    );
+  }
+  if (lodging.recommended) {
+    return (
+      <Badge size="sm" intent="primary">
+        {recommended}
+      </Badge>
+    );
+  }
   return (
-    <div className="flex items-center gap-2 text-sm">
-      <Icon className="size-3.5 shrink-0 text-muted-foreground" />
-      <span className="w-8 shrink-0 text-muted-foreground">{label}</span>
-      <span className="tabular-nums">{value}</span>
-    </div>
+    <Badge size="sm" intent="neutral">
+      {option}
+    </Badge>
   );
 }
 
-function LodgingCard({ lodging }: { lodging: Lodging }) {
-  return (
-    <div className="rounded-xl border bg-card p-4">
-      <div className="flex items-start justify-between gap-2">
-        <div className="font-medium">{lodging.name}</div>
-        <span className="shrink-0">
+function LodgingRow({ lodging }: { lodging: Lodging }) {
+  const checkIn = t({ en: "Check-in {time}", zh: "入住 {time}" });
+  const checkOut = t({ en: "Check-out {time}", zh: "退房 {time}" });
+  const room = t({ en: "Room: {room}", zh: "房型：{room}" });
+  const phone = t({ en: "Phone {phone}", zh: "电话 {phone}" });
+  const facts = [
+    lodging.checkIn ? checkIn.replace("{time}", lodging.checkIn) : null,
+    lodging.checkOut ? checkOut.replace("{time}", lodging.checkOut) : null,
+    lodging.room ? room.replace("{room}", lodging.room) : null,
+    lodging.phone ? phone.replace("{phone}", lodging.phone) : null,
+  ].filter((fact) => fact !== null);
+  const mapsQuery = lodging.query ?? lodging.address;
+
+  const shared = {
+    leading: <BedIcon weight="bold" />,
+    leadingShape: "circle" as const,
+    wrap: true,
+    detail: lodging.address ? (
+      <TripText>{lodging.address}</TripText>
+    ) : undefined,
+    extra:
+      facts.length > 0 || lodging.note ? (
+        <>
+          {facts.length > 0 ? (
+            <MetaLine
+              facts={facts.map((fact) => (
+                <TripText key={fact}>{fact}</TripText>
+              ))}
+            />
+          ) : null}
+          {lodging.note ? <TripText>{lodging.note}</TripText> : null}
+        </>
+      ) : undefined,
+  };
+  const name = <TripText>{lodging.name}</TripText>;
+
+  return mapsQuery ? (
+    <ListRow
+      {...shared}
+      trailing={
+        <>
           <StatusBadge lodging={lodging} />
-        </span>
-      </div>
-
-      {lodging.address ? (
-        <MapsLink
-          query={lodging.query ?? lodging.address}
-          className="mt-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <MapPin className="size-3.5 shrink-0" />
-          {lodging.address}
-        </MapsLink>
-      ) : null}
-
-      {lodging.checkIn || lodging.checkOut || lodging.room || lodging.phone ? (
-        <div className="mt-3 grid gap-1.5">
-          {lodging.checkIn ? (
-            <DetailRow icon={LogIn} label="入住" value={lodging.checkIn} />
-          ) : null}
-          {lodging.checkOut ? (
-            <DetailRow icon={LogOut} label="退房" value={lodging.checkOut} />
-          ) : null}
-          {lodging.room ? (
-            <DetailRow icon={BedDouble} label="房型" value={lodging.room} />
-          ) : null}
-          {lodging.phone ? (
-            <DetailRow icon={Phone} label="电话" value={lodging.phone} />
-          ) : null}
-        </div>
-      ) : null}
-
-      {lodging.note ? (
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          {lodging.note}
-        </p>
-      ) : null}
-    </div>
+          <ExternalLinkIndicator />
+        </>
+      }
+      caret={false}
+      href={googleMapsUrl(mapsQuery)}
+      linkComponent={ExternalRowLink}
+    >
+      {name}
+    </ListRow>
+  ) : (
+    <ListRow {...shared} trailing={<StatusBadge lodging={lodging} />}>
+      {name}
+    </ListRow>
   );
 }
 
+/** Where the night is spent: the booked or possible places, or a link back to
+ *  the day that has the same bed. */
 export function StaySection({
   stay,
-  sameAsIndex,
+  sameAsDay,
   onOpenDay,
 }: {
   stay: Stay;
-  /** The index of the day whose bed this night repeats. */
-  sameAsIndex?: number;
+  /** The index of the earlier day whose bed this night repeats. */
+  sameAsDay: number | null;
   onOpenDay: (index: number) => void;
 }) {
-  const ref = stay.sameAs;
+  const title = t({ en: "Stay", zh: "住宿" });
+  const search = t({ en: "Search on Booking.com", zh: "在 Booking.com 搜索" });
 
   return (
-    <Section icon={BedDouble} title="住宿">
-      {ref && sameAsIndex !== undefined ? (
-        <button
-          type="button"
-          onClick={() => {
-            onOpenDay(sameAsIndex);
-          }}
-          className="flex w-full items-center justify-between gap-3 rounded-xl border border-dashed bg-muted/30 px-4 py-3 text-left text-sm transition-colors hover:bg-accent"
-        >
-          <span className="flex items-center gap-2 text-muted-foreground">
-            <BedDouble className="size-4 shrink-0" />
-            {ref.label}
-          </span>
-          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-        </button>
-      ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {stay.lodging.map((lodging) => (
-            <LodgingCard key={lodging.name} lodging={lodging} />
-          ))}
-        </div>
-      )}
-
-      {stay.note ? (
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          {stay.note}
-        </p>
-      ) : null}
-
-      {stay.bookingUrl ? (
-        <a
-          href={stay.bookingUrl}
-          target="_blank"
-          rel="noreferrer noopener"
-          className="mt-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
-        >
-          <MapPin className="size-3.5" />
-          Booking.com 搜索 ≤£50/晚
-        </a>
-      ) : null}
+    <Section title={title} look="label">
+      <div css={stack.item}>
+        {stay.sameAs && sameAsDay !== null ? (
+          <List>
+            <ListRow
+              leading={<BedIcon weight="bold" />}
+              leadingShape="circle"
+              wrap
+              onClick={() => {
+                onOpenDay(sameAsDay);
+              }}
+            >
+              <TripText>{stay.sameAs.label}</TripText>
+            </ListRow>
+          </List>
+        ) : (
+          <List>
+            {stay.lodging.map((lodging) => (
+              <LodgingRow key={lodging.id} lodging={lodging} />
+            ))}
+          </List>
+        )}
+        {stay.note ? (
+          <Text tone="muted">
+            <TripText>{stay.note}</TripText>
+          </Text>
+        ) : null}
+        {stay.bookingUrl ? (
+          <div>
+            <ExternalButton
+              href={stay.bookingUrl}
+              look="outline"
+              icon={<MagnifyingGlassIcon weight="bold" />}
+            >
+              {search}
+            </ExternalButton>
+          </div>
+        ) : null}
+      </div>
     </Section>
   );
 }
