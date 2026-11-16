@@ -20,6 +20,9 @@ module.exports = async (phase) => {
     // ESLint during `next build`.)
     typescript: { ignoreBuildErrors: true },
     experimental: {
+      // Keep a page that the client fetched for 5 minutes, so that a switch
+      // back to a tab shows at once.
+      staleTimes: { dynamic: 300 },
       // Next 16.3 defaults to the `typescript` package's CLI binary, but our
       // workspace aliases that package to `@typescript/typescript6`, which
       // ships the compiler API without a `tsc` binary. Use the API instead.

@@ -228,7 +228,9 @@ export function OptionCard({
         optionCardMarker,
         styles[look],
         Boolean(resolvedIndicator) &&
-          (look === "row" ? styles.rowWithIndicator : styles.tileWithIndicator),
+          (look === "row"
+            ? styles.rowWithIndicator
+            : !icon && styles.tileWithIndicator),
         css,
       ]}
     >
@@ -349,7 +351,9 @@ const styles = stylex.create({
     paddingInlineEnd: markEdgeInset,
   },
   // The indicator sits in the corner, out of the flow, so the same space on
-  // both sides keeps the label clear of it and centred.
+  // both sides keeps the label clear of it and centred. An icon above the
+  // label takes the row of the indicator, so a tile with an icon does not
+  // need this space.
   tileWithIndicator: {
     paddingInline: `calc(${cornerCentre} + ${optionCardMark.size} / 2 + ${rhythm.tight})`,
   },

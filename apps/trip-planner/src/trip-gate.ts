@@ -30,6 +30,15 @@ const gates: Record<string, TripGate | undefined> = {
     realm: "trip-tuscany",
     password: process.env.SITE_PASSWORD_TUSCANY,
   },
+  ...(process.env.SITE_PASSWORD_SAMPLE
+    ? {
+        "sample-lisbon": {
+          cookie: "trip_gate_sample",
+          realm: "trip-sample",
+          password: process.env.SITE_PASSWORD_SAMPLE,
+        },
+      }
+    : {}),
 };
 
 export function tripGate(slug: string): TripGate | undefined {

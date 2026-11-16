@@ -2,11 +2,9 @@
 export interface LiveWeather {
   /** Temperature range for the day, e.g. "12–17°C". */
   temp: string;
-  /** Chinese condition label derived from the WMO code, e.g. "多云". */
-  condition: string;
-  /** Raw WMO weather code, so the badge can pick a matching icon. */
+  /** Raw WMO weather code, for the condition and its icon. */
   code: number;
-  /** When the forecast was last fetched, e.g. "6/9 更新" — marks the day as
-   *  live and shows its freshness. Identical across days (one fetch). */
+  /** The trip-local date the forecast was fetched, as "YYYY-MM-DD". It is the
+   *  same for every day of one fetch. */
   updated: string;
 }

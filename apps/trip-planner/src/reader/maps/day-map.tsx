@@ -1,21 +1,17 @@
-import { Map as MapIcon } from "lucide-react";
-import { mapsEmbedEnabled, MAX_ROUTE_WAYPOINTS } from "./constants";
-import { dayRouteMode } from "./day-route-mode";
-import { dayRoutePoints } from "./day-route-points";
-import { googleMapsEmbedDirectionsUrl } from "./google-maps-embed-directions-url";
-import { MapEmbed } from "./map-embed";
-import { dayNavLegs } from "@/reader/day-feed/build-day-feed";
-import { Section } from "@/reader/section";
-import type { Day } from "@/trips/types";
+"use client";
 
-/**
- * An at-a-glance map of the whole day, chaining the nav legs into one route.
- * Drawn in the day's travel mode (driving for road-trip days, walking for
- * no-car city days) — it frames the shape of the day, while the per-leg maps
- * below carry the exact mode for each hop. Renders nothing when no key is
- * configured or the day has too few stops to draw a route.
- */
-export function DayMap({ day }: { day: Day }) {
+import { t } from "@tuja/i18n";
+import { Section } from "@tuja/ui/components/section";
+import { dayNavLegs } from "#src/reader/day-feed/build-day-feed.ts";
+import type { Day } from "#src/trips/types.ts";
+import { mapsEmbedEnabled, MAX_ROUTE_WAYPOINTS } from "./constants.ts";
+import { dayRouteMode } from "./day-route-mode.ts";
+import { dayRoutePoints } from "./day-route-points.ts";
+import { googleMapsEmbedDirectionsUrl } from "./google-maps-embed-directions-url.ts";
+import { MapEmbed } from "./map-embed.tsx";
+
+/** The route of the whole day as one map, with the day's legs chained. */
+function dayRouteSrc(day: Day) {
   const legs = dayNavLegs(day);
   if (!mapsEmbedEnabled || legs.length === 0) return null;
 
@@ -30,16 +26,26 @@ export function DayMap({ day }: { day: Day }) {
   // genuinely nothing to route between.
   if (origin === destination && waypoints.length === 0) return null;
 
-  const src = googleMapsEmbedDirectionsUrl({
+  return googleMapsEmbedDirectionsUrl({
     origin,
     destination,
     waypoints,
     mode: dayRouteMode(legs),
   });
+}
 
+/**
+ * A map of the whole day in the day's main way to travel. It shows the shape
+ * of the day; the map of each leg shows its exact route. Nothing shows when no
+ * key is set or the day has too few stops.
+ */
+export function DayMap({ day }: { day: Day }) {
+  const title = t({ en: "Route", zh: "本日路线" });
+  const src = dayRouteSrc(day);
+  if (!src) return null;
   return (
-    <Section icon={MapIcon} title="本日路线">
-      <MapEmbed src={src} title={`${day.title} · 本日路线地图`} />
+    <Section title={title} look="label">
+      <MapEmbed src={src} title={`${day.title} · ${title}`} />
     </Section>
   );
 }

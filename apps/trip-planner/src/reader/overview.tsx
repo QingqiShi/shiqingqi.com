@@ -1,89 +1,20 @@
-import {
-  BedDouble,
-  CalendarDays,
-  Car,
-  ChevronRight,
-  Users,
-  Utensils,
-} from "lucide-react";
-import { dateLabel, dateRangeLabel, weekdayLabel } from "./date-label";
-import { dayRestaurants } from "./day-feed/build-day-feed";
-import { DayParty } from "./day-party";
-import { presencesOnDay } from "./presences-on-day";
-import { Badge } from "@/shadcn/badge";
-import type { Day, DayPresence, Trip } from "@/trips/types";
+"use client";
 
-function OverviewRow({
-  day,
-  dayNumber,
-  people,
-  isToday,
-  onOpen,
-}: {
-  day: Day;
-  dayNumber: number;
-  people: DayPresence[];
-  isToday: boolean;
-  onOpen: () => void;
-}) {
-  const booked = dayRestaurants(day).find((r) => r.status === "booked");
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
+import { Badge } from "@tuja/ui/components/badge";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
+import { MetaLine } from "@tuja/ui/components/meta-line";
+import { Text } from "@tuja/ui/components/text";
+import type { Trip } from "#src/trips/types.ts";
+import { dayDateLabel } from "./date-label.ts";
+import { dayRestaurants } from "./day-feed/build-day-feed.ts";
+import { DayParty } from "./day-party.tsx";
+import { presencesOnDay } from "./presences-on-day.ts";
+import { TripText } from "./trip-text.tsx";
 
-  return (
-    <li>
-      <button
-        type="button"
-        onClick={onOpen}
-        className="group block w-full rounded-xl border bg-card p-4 text-left transition-colors hover:border-foreground/30 hover:bg-accent/40"
-      >
-        <div className="flex items-center gap-3">
-          <div className="flex size-11 shrink-0 flex-col items-center justify-center rounded-lg bg-muted leading-none">
-            <span className="text-[10px] tracking-wide text-muted-foreground">
-              DAY
-            </span>
-            <span className="mt-0.5 text-base font-semibold">{dayNumber}</span>
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>
-                {dateLabel(day.date, "zh")} {weekdayLabel(day.date, "zh")}
-              </span>
-              {isToday ? <Badge>今天</Badge> : null}
-            </div>
-            <div className="mt-0.5 truncate font-medium">{day.title}</div>
-            <div className="mt-0.5 truncate text-sm text-muted-foreground">
-              {day.route}
-            </div>
-          </div>
-
-          <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
-        </div>
-
-        <DayParty people={people} compact className="mt-3" />
-
-        <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          {day.driving ? (
-            <Badge variant="outline">
-              <Car />
-              {day.driving}
-            </Badge>
-          ) : null}
-          <Badge variant="outline">
-            <BedDouble />
-            {day.stay.summary}
-          </Badge>
-          {booked ? (
-            <Badge variant="secondary">
-              <Utensils />
-              已订 · {booked.name}
-            </Badge>
-          ) : null}
-        </div>
-      </button>
-    </li>
-  );
-}
-
+/** Every day of the trip on one list, each a way into that day. */
 export function Overview({
   trip,
   todayIndex,
@@ -93,41 +24,63 @@ export function Overview({
   todayIndex: number;
   onOpenDay: (index: number) => void;
 }) {
-  return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-balance">
-          {trip.title}
-        </h1>
-        <p className="mt-2 text-muted-foreground text-pretty">
-          {trip.subtitle}
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Badge variant="outline">
-            <CalendarDays />
-            {dateRangeLabel(trip.days, "zh")}
-          </Badge>
-          <Badge variant="outline">
-            <Users />
-            {trip.party}
-          </Badge>
-        </div>
-      </div>
+  const locale = useLocale();
+  const today = t({ en: "Today", zh: "今天" });
+  const bookedAt = t({ en: "Booked: {name}", zh: "已订 · {name}" });
 
-      <ol className="space-y-3">
-        {trip.days.map((day, i) => (
-          <OverviewRow
+  return (
+    <List>
+      {trip.days.map((day, index) => {
+        const booked = dayRestaurants(day).find((r) => r.status === "booked");
+        const facts = [
+          day.driving ? <TripText key="driving">{day.driving}</TripText> : null,
+          <TripText key="stay">{day.stay.summary}</TripText>,
+          booked ? (
+            <TripText key="booked">
+              {bookedAt.replace("{name}", booked.name)}
+            </TripText>
+          ) : null,
+        ].filter(Boolean);
+        return (
+          <ListRow
             key={day.id}
-            day={day}
-            dayNumber={i}
-            people={presencesOnDay(trip.people, day.id)}
-            isToday={i === todayIndex}
-            onOpen={() => {
-              onOpenDay(i);
+            leading={
+              <Text as="span" weight="semibold">
+                {index}
+              </Text>
+            }
+            leadingShape="square"
+            wrap
+            detail={
+              <MetaLine
+                facts={[
+                  dayDateLabel(day.date, locale),
+                  <TripText key="route">{day.route}</TripText>,
+                ]}
+              />
+            }
+            extra={
+              <>
+                <MetaLine facts={facts} />
+                <DayParty
+                  people={presencesOnDay(trip.people, day.id)}
+                  compact
+                />
+              </>
+            }
+            trailing={
+              index === todayIndex ? (
+                <Badge size="sm">{today}</Badge>
+              ) : undefined
+            }
+            onClick={() => {
+              onOpenDay(index);
             }}
-          />
-        ))}
-      </ol>
-    </div>
+          >
+            <TripText>{day.title}</TripText>
+          </ListRow>
+        );
+      })}
+    </List>
   );
 }

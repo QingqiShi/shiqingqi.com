@@ -1,108 +1,102 @@
-import { PlacePill } from "./place-pill";
-import { MapsLink } from "@/reader/maps/maps-link";
-import { NavLink } from "@/reader/maps/nav-link";
-import { Badge } from "@/shadcn/badge";
-import { cn } from "@/shadcn/utils";
-import type { MapPlace, PlaceTier } from "@/trips/types";
+"use client";
+
+import { MapPinIcon } from "@phosphor-icons/react/dist/ssr/MapPin";
+import { t } from "@tuja/i18n";
+import { Badge } from "@tuja/ui/components/badge";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
+import { Text } from "@tuja/ui/components/text";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import type { MapPlace, PlaceTier } from "#src/trips/types.ts";
+import { DirectionsButton } from "./directions-button.tsx";
+import { ExternalLinkIndicator } from "./external-link-indicator.tsx";
+import { ExternalRowLink } from "./external-row-link.tsx";
+import { googleMapsUrl } from "./maps/google-maps-url.ts";
+import { TripText } from "./trip-text.tsx";
 
 const TIER_ORDER: PlaceTier[] = ["primary", "backup", "fallback"];
 
-const TIER_LABEL: Record<PlaceTier, string> = {
-  primary: "首选",
-  backup: "备选",
-  fallback: "兜底",
-};
-
-function PlaceCard({
+function PlaceRow({
   place,
-  featured = false,
+  directions,
 }: {
   place: MapPlace;
-  featured?: boolean;
+  directions: boolean;
 }) {
   return (
-    <div
-      className={cn(
-        "flex flex-col rounded-xl border bg-card p-4",
-        featured && "border-foreground/25 bg-accent/30",
-      )}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <MapsLink query={place.query} className="font-medium">
-          {place.name}
-        </MapsLink>
-        {place.when ? (
-          <Badge variant="outline" className="shrink-0">
-            {place.when}
+    <ListRow
+      href={googleMapsUrl(place.query)}
+      linkComponent={ExternalRowLink}
+      leading={<MapPinIcon weight="bold" />}
+      leadingShape="circle"
+      detail={place.note ? <TripText>{place.note}</TripText> : undefined}
+      trailing={
+        place.when ? (
+          <Badge size="sm" intent="neutral">
+            <TripText>{place.when}</TripText>
           </Badge>
-        ) : null}
-      </div>
+        ) : (
+          <ExternalLinkIndicator />
+        )
+      }
+      caret={false}
+      wrap
+      actions={
+        directions ? <DirectionsButton destination={place.query} /> : undefined
+      }
+    >
+      <TripText>{place.name}</TripText>
+    </ListRow>
+  );
+}
 
-      {place.note ? (
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          {place.note}
-        </p>
-      ) : null}
-
-      <div className="mt-3 flex justify-end pt-1">
-        <NavLink to={place.query} label="导航前往" />
-      </div>
-    </div>
+/** Loose places to go, as rows that open Google Maps. */
+export function PlaceRows({ places }: { places: MapPlace[] }) {
+  return (
+    <List>
+      {places.map((place) => (
+        <PlaceRow key={place.name} place={place} directions={false} />
+      ))}
+    </List>
   );
 }
 
 /**
- * The day's places. When at least one carries a `tier`, the list reads as a
- * Plan A/B/C ladder — grouped under 首选 / 备选 / 兜底 with each option as a
- * card and its `when` trigger as a chip. Otherwise it stays a flat pill list,
- * the right weight for a day that's just a handful of loose ideas.
+ * The day's places. When one of them has a `tier`, the list reads as plan A,
+ * B and C, with the condition of each as a badge. Otherwise it is one list.
  */
 export function PlaceList({ places }: { places: MapPlace[] }) {
-  const tiered = places.some((place) => place.tier);
+  const tierLabel: Record<PlaceTier, string> = {
+    primary: t({ en: "First choice", zh: "首选" }),
+    backup: t({ en: "Backup", zh: "备选" }),
+    fallback: t({ en: "Fallback", zh: "兜底" }),
+  };
 
-  if (!tiered) {
-    return (
-      <div className="flex flex-wrap gap-2">
-        {places.map((place) => (
-          <PlacePill key={place.name} place={place} />
-        ))}
-      </div>
-    );
+  if (!places.some((place) => place.tier)) {
+    return <PlaceRows places={places} />;
   }
 
   const groups = TIER_ORDER.map((tier) => ({
     tier,
     places: places.filter((place) => place.tier === tier),
   })).filter((group) => group.places.length > 0);
-  // Any untiered place on a tiered day still gets shown, after the ladder.
-  const looseIdeas = places.filter((place) => !place.tier);
+  const loose = places.filter((place) => !place.tier);
 
   return (
-    <div className="space-y-5">
+    <div css={stack.group}>
       {groups.map((group) => (
-        <div key={group.tier}>
-          <p className="mb-2 text-xs font-medium tracking-wide text-muted-foreground">
-            {TIER_LABEL[group.tier]}
-          </p>
-          <div className="grid gap-3 sm:grid-cols-2">
+        <div key={group.tier} css={stack.tight}>
+          <Text look="label" tone="muted">
+            {tierLabel[group.tier]}
+          </Text>
+          <List>
             {group.places.map((place) => (
-              <PlaceCard
-                key={place.name}
-                place={place}
-                featured={group.tier === "primary"}
-              />
+              <PlaceRow key={place.name} place={place} directions />
             ))}
-          </div>
+          </List>
         </div>
       ))}
-
-      {looseIdeas.length > 0 ? (
-        <div className="flex flex-wrap gap-2">
-          {looseIdeas.map((place) => (
-            <PlacePill key={place.name} place={place} />
-          ))}
-        </div>
-      ) : null}
+      {loose.length > 0 ? <PlaceRows places={loose} /> : null}
     </div>
   );
 }

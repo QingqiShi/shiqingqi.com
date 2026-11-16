@@ -1,28 +1,24 @@
 "use client";
 
-import type { LucideIcon } from "lucide-react";
-import {
-  Car,
-  ChevronDown,
-  Footprints,
-  MapPin,
-  Navigation,
-  TrainFront,
-} from "lucide-react";
-import { useId, useState } from "react";
-import { mapsEmbedEnabled } from "./constants";
-import { googleMapsDirectionsUrl } from "./google-maps-directions-url";
-import { googleMapsEmbedDirectionsUrl } from "./google-maps-embed-directions-url";
-import { googleMapsEmbedPlaceUrl } from "./google-maps-embed-place-url";
-import { MapEmbed } from "./map-embed";
-import { cn } from "@/shadcn/utils";
-import type { NavLeg, TravelMode } from "@/trips/types";
-
-const modeIcon: Record<TravelMode, LucideIcon> = {
-  driving: Car,
-  transit: TrainFront,
-  walking: Footprints,
-};
+import { CarIcon } from "@phosphor-icons/react/dist/ssr/Car";
+import { MapTrifoldIcon } from "@phosphor-icons/react/dist/ssr/MapTrifold";
+import { PersonSimpleWalkIcon } from "@phosphor-icons/react/dist/ssr/PersonSimpleWalk";
+import { TrainSimpleIcon } from "@phosphor-icons/react/dist/ssr/TrainSimple";
+import { t } from "@tuja/i18n";
+import { Button } from "@tuja/ui/components/button";
+import { ListRow } from "@tuja/ui/components/list-row";
+import type { ReactNode } from "react";
+import { useState } from "react";
+import { ExternalLinkIndicator } from "#src/reader/external-link-indicator.tsx";
+import { ExternalRowLink } from "#src/reader/external-row-link.tsx";
+import { TripText } from "#src/reader/trip-text.tsx";
+import type { TravelMode } from "#src/trips/types.ts";
+import type { NavLeg } from "#src/trips/types.ts";
+import { mapsEmbedEnabled } from "./constants.ts";
+import { googleMapsDirectionsUrl } from "./google-maps-directions-url.ts";
+import { googleMapsEmbedDirectionsUrl } from "./google-maps-embed-directions-url.ts";
+import { googleMapsEmbedPlaceUrl } from "./google-maps-embed-place-url.ts";
+import { MapEmbed } from "./map-embed.tsx";
 
 /**
  * The Embed API needs a concrete origin, so legs starting from the device's
@@ -30,9 +26,9 @@ const modeIcon: Record<TravelMode, LucideIcon> = {
  */
 function legEmbedSrc(leg: NavLeg) {
   // Keep the embed preview in sync with the deep-link: both route through the
-  // leg's waypoints, so the inline map and the 导航 link open the same route.
-  // (Every waypoint must be a name the Maps geocoder resolves, or the embed
-  // route fails to render.)
+  // leg's waypoints, so the inline map and the directions link open the same
+  // route. (Every waypoint must be a name the Maps geocoder resolves, or the
+  // embed route fails to render.)
   return leg.from
     ? googleMapsEmbedDirectionsUrl({
         origin: leg.from,
@@ -43,70 +39,64 @@ function legEmbedSrc(leg: NavLeg) {
     : googleMapsEmbedPlaceUrl(leg.to);
 }
 
-/** One nav leg: a deep-link to directions plus an optional inline map preview. */
+/** One leg of the day as a row of a `List`: it opens the directions in Google
+ *  Maps, and can show the route on a map in place. */
 export function NavLegRow({ leg }: { leg: NavLeg }) {
-  const [open, setOpen] = useState(false);
-  const panelId = useId();
-  const Icon = modeIcon[leg.mode ?? "driving"];
+  const [mapOpen, setMapOpen] = useState(false);
+  const mapLabel = t({ en: "Map", zh: "地图" });
+  const mapTitle = t({ en: "Route map", zh: "路线地图" });
 
   return (
-    <li className="overflow-hidden rounded-xl border bg-card transition-colors hover:border-foreground/30">
-      <div className="flex items-center gap-3 p-3">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
-          <Icon className="size-4 text-muted-foreground" />
-        </span>
-        <a
-          href={googleMapsDirectionsUrl({
-            origin: leg.from,
-            destination: leg.to,
-            waypoints: leg.waypoints,
-            mode: leg.mode,
-          })}
-          target="_blank"
-          rel="noreferrer noopener"
-          className="group min-w-0 flex-1"
-        >
-          <span className="flex items-center gap-1.5 text-sm font-medium">
-            {leg.label}
-            <Navigation className="size-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
-          </span>
-          {leg.note ? (
-            <span className="mt-0.5 block text-xs text-muted-foreground">
-              {leg.note}
-            </span>
-          ) : null}
-          {leg.waypoints && leg.waypoints.length > 0 ? (
-            <span className="mt-1 flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
-              <MapPin className="size-3 shrink-0" />
-              {leg.waypoints.join(" · ")}
-            </span>
-          ) : null}
-        </a>
-        {mapsEmbedEnabled ? (
-          <button
-            type="button"
+    <ListRow
+      href={googleMapsDirectionsUrl({
+        origin: leg.from,
+        destination: leg.to,
+        waypoints: leg.waypoints,
+        mode: leg.mode,
+      })}
+      linkComponent={ExternalRowLink}
+      leading={travelModeIcon[leg.mode ?? "driving"]}
+      leadingShape="circle"
+      detail={leg.note ? <TripText>{leg.note}</TripText> : undefined}
+      extra={
+        leg.waypoints && leg.waypoints.length > 0 ? (
+          <TripText>{leg.waypoints.join(" · ")}</TripText>
+        ) : undefined
+      }
+      trailing={<ExternalLinkIndicator />}
+      caret={false}
+      wrap
+      actions={
+        mapsEmbedEnabled ? (
+          <Button
+            look="ghost"
+            size="sm"
+            icon={<MapTrifoldIcon weight="bold" />}
+            aria-pressed={mapOpen}
             onClick={() => {
-              setOpen((value) => !value);
+              setMapOpen((open) => !open);
             }}
-            aria-expanded={open}
-            aria-controls={panelId}
-            className="flex shrink-0 items-center gap-1 rounded-full border bg-card px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
-            地图
-            <ChevronDown
-              className={cn(
-                "size-3.5 transition-transform",
-                open && "rotate-180",
-              )}
-            />
-          </button>
-        ) : null}
-      </div>
-      {open ? (
-        <div id={panelId} className="border-t p-3">
-          <MapEmbed src={legEmbedSrc(leg)} title={`${leg.label} · 路线地图`} />
-        </div>
-      ) : null}
-    </li>
+            {mapLabel}
+          </Button>
+        ) : undefined
+      }
+      below={
+        mapOpen ? (
+          <MapEmbed
+            src={legEmbedSrc(leg)}
+            title={`${leg.label} · ${mapTitle}`}
+          />
+        ) : undefined
+      }
+    >
+      <TripText>{leg.label}</TripText>
+    </ListRow>
   );
 }
+
+const travelModeIcon: Record<TravelMode, ReactNode> = {
+  driving: <CarIcon weight="bold" />,
+  transit: <TrainSimpleIcon weight="bold" />,
+  walking: <PersonSimpleWalkIcon weight="bold" />,
+};

@@ -5,7 +5,7 @@ description: How to build a screen and how to style in this project, and where i
 
 # Styling
 
-`apps/web`, `apps/finance`, `apps/assistant` and `packages/ui` style with StyleX through a `css` prop. `apps/trip-planner` uses Tailwind, and this skill does not apply there.
+`apps/web`, `apps/finance`, `apps/assistant`, `apps/trip-planner` and `packages/ui` style with StyleX through a `css` prop.
 
 Import paths below are `@tuja/ui` package exports. Inside `packages/ui`, import the same files by relative path.
 
@@ -21,7 +21,7 @@ When the task is how something looks, show before you build: two or three real d
 
 ## Navigation
 
-Every screen outside the home page and `apps/trip-planner` sits in the same three shells, as in SwiftUI. Do not build a sidebar, a drawer, a header bar or a back link by hand.
+Every screen outside the home page sits in the same three shells, as in SwiftUI. Do not build a sidebar, a drawer, a header bar or a back link by hand.
 
 | The screen has                                   | Use                   |
 | ------------------------------------------------ | --------------------- |
