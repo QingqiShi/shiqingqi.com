@@ -1,3 +1,4 @@
+import { isPlainClick } from "@tuja/ui/utils/is-plain-click";
 import type { MouseEvent } from "react";
 import { tripLocationHash } from "../use-trip-location.ts";
 
@@ -16,9 +17,7 @@ export function dayLinkProps(
     href: tripLocationHash({ view: "day", day: index }),
     "aria-current": index === todayIndex ? ("date" as const) : undefined,
     onClick: (event: MouseEvent) => {
-      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-        return;
-      }
+      if (!isPlainClick(event)) return;
       event.preventDefault();
       onOpenDay(index);
     },

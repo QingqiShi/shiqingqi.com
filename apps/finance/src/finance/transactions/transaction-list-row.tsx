@@ -11,7 +11,8 @@ import { Text } from "@tuja/ui/components/text";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
-import { createContext, type MouseEvent, use } from "react";
+import { isPlainClick } from "@tuja/ui/utils/is-plain-click";
+import { createContext, use } from "react";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
 import type {
@@ -73,16 +74,6 @@ function TransactionLink(props: ListRowLinkProps) {
         target.onOpen(target.id);
       }}
     />
-  );
-}
-
-function isPlainClick(event: MouseEvent) {
-  return (
-    event.button === 0 &&
-    !event.metaKey &&
-    !event.ctrlKey &&
-    !event.shiftKey &&
-    !event.altKey
   );
 }
 

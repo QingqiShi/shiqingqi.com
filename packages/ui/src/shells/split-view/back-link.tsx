@@ -3,8 +3,8 @@
 import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
 import * as stylex from "@stylexjs/stylex";
 import { use } from "react";
+import { isPlainClick } from "../../actions/is-plain-click.ts";
 import { PlainAnchor } from "../../actions/tab-bar.tsx";
-import { isPlainClick } from "../../actions/use-tab-press.ts";
 import { a11y } from "../../primitives/a11y.stylex.ts";
 import { corner } from "../../primitives/corner.stylex.ts";
 import { typeRole } from "../../primitives/type.stylex.ts";
