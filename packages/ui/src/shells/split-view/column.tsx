@@ -186,6 +186,9 @@ export function Column({
     <Landmark
       ref={sticks ? ref : undefined}
       aria-label={label}
+      // Only a script gives focus to the column, when it shows a new page. The
+      // column is not a control, thus it shows no focus ring. Safari on iOS
+      // shows the ring after a tap, because a tapped link does not take focus.
       tabIndex={-1}
       inert={isLeaving}
       data-split-view-column={column}
@@ -194,7 +197,6 @@ export function Column({
       data-split-view-nav={carriesNav}
       {...stylex.props(
         columnStyles.column,
-        a11y.focusRingInset,
         css,
         // A page of the stack does not stick. On the plane of a sticky box,
         // it would cover the pages of the content that move in over it.
