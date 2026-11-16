@@ -45,6 +45,7 @@ import { Text } from "@tuja/ui/components/text";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState, type ReactNode } from "react";
+import { usePatternsExitItem } from "#src/design-system/patterns/use-patterns-exit-item.ts";
 
 interface Todo {
   id: string;
@@ -490,6 +491,7 @@ export function DashboardScreen({
   const locale = useLocale();
   const path = getLocalePath("/design-system/patterns/dashboard", locale);
   const listHref = `${path}/reports`;
+  const exitItem = usePatternsExitItem();
   const destinations = [
     {
       href: path,
@@ -513,6 +515,7 @@ export function DashboardScreen({
       label: t({ en: "Settings", zh: "设置" }),
       icon: GearSixIcon,
     },
+    exitItem,
   ];
   const reportsLabel = t({ en: "Reports", zh: "报告" });
   return (
