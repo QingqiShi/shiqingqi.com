@@ -5,8 +5,8 @@ import {
 import { asc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
+import { buddyAuthStore } from "../auth/buddy-auth-store.ts";
 import { buddySessionCookie } from "../auth/buddy-session-cookie.ts";
-import { createSession } from "../auth/create-session.ts";
 import { accounts, schema } from "../db/schema.ts";
 import { assertLocalDatabaseUrl } from "./assert-local-database-url.ts";
 import { readDevBuddyEnv } from "./read-dev-buddy-env.ts";
@@ -62,10 +62,11 @@ async function main() {
       if (account === undefined) {
         throw new Error(`No account is named ${values.name ?? ""}.`);
       }
-      const token = await createSession(tx, {
+      const token = await buddyAuthStore.createSession(tx, {
         userId: account.id,
         userAgent: "buddy:session",
         now: new Date(),
+        maxAgeSeconds: buddySessionCookie.maxAgeSeconds,
       });
       return { account, token };
     });

@@ -55,7 +55,6 @@
     "@tuja/server-clients": "workspace:*",
     "@tuja/ui": "workspace:*",
     "@typesafe-ai/sdk": "0.7.0",
-    "@upstash/ratelimit": "^2.2.0",
     "@upstash/redis": "^1.40.0",
     "@vercel/functions": "^3.11.0",
     "ai": "^7.0.171",

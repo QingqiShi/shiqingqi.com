@@ -1,3 +1,4 @@
+import { makeAuthTables } from "@tuja/server-auth/make-auth-tables";
 import { sql } from "drizzle-orm";
 import {
   bigint,
@@ -8,7 +9,6 @@ import {
   index,
   pgTable,
   primaryKey,
-  smallint,
   text,
   timestamp,
   uniqueIndex,
@@ -48,28 +48,10 @@ export const accounts = pgTable("accounts", {
   createdAt: createdAt(),
 });
 
-/** Six-digit codes sent by email for a sign-up or a recovery. Only a hash of each code is stored. */
-export const emailCodes = pgTable("email_codes", {
-  id: uuid("id").primaryKey(),
-  purpose: text("purpose", { enum: ["recovery", "sign-up"] }).notNull(),
-  email: text("email").notNull(),
-  codeHash: bytea("code_hash").notNull(),
-  /** Each check counts, right or wrong; the code ends at the limit. */
-  attempts: smallint("attempts").notNull().default(0),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  usedAt: timestamp("used_at", { withTimezone: true }),
-  createdAt: createdAt(),
-});
-
-/** One-use links that let a person who confirmed `email` make an account. Only the token's hash is stored. */
-export const signUps = pgTable("sign_ups", {
-  id: uuid("id").primaryKey(),
-  email: text("email").notNull(),
-  tokenHash: bytea("token_hash").notNull().unique(),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  usedAt: timestamp("used_at", { withTimezone: true }),
-  createdAt: createdAt(),
-});
+/** The tables of sign-in that every app has. */
+export const { emailCodes, signUps, passkeys, sessions } = makeAuthTables(
+  () => accounts.id,
+);
 
 /** One-use links, sent to the account's email, that replace its passkeys. Only the token's hash is stored. */
 export const recoveries = pgTable(
@@ -83,42 +65,6 @@ export const recoveries = pgTable(
     createdAt: createdAt(),
   },
   (t) => [index("recoveries_user_idx").on(t.userId)],
-);
-
-export const passkeys = pgTable(
-  "passkeys",
-  {
-    id: text("id").primaryKey(),
-    userId: userId(),
-    publicKey: bytea("public_key").notNull(),
-    counter: bigint("counter", { mode: "number" }).notNull().default(0),
-    transports: text("transports")
-      .array()
-      .notNull()
-      .default(sql`'{}'::text[]`),
-    createdAt: createdAt(),
-    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
-  },
-  (t) => [index("passkeys_user_idx").on(t.userId)],
-);
-
-export const sessions = pgTable(
-  "sessions",
-  {
-    id: uuid("id").primaryKey(),
-    userId: userId(),
-    tokenHash: bytea("token_hash").notNull().unique(),
-    createdAt: createdAt(),
-    refreshedAt: timestamp("refreshed_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    lastSeenAt: timestamp("last_seen_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-    userAgent: text("user_agent").notNull().default(""),
-  },
-  (t) => [index("sessions_user_idx").on(t.userId)],
 );
 
 /** A Mac that may upload for its account: it signs each upload with the private half of `public_key`. */

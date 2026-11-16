@@ -36,6 +36,7 @@
     "@tuja/i18n": "workspace:*",
     "@tuja/next-links": "workspace:*",
     "@tuja/server-auth": "workspace:*",
+    "@tuja/server-clients": "workspace:*",
     "@tuja/ui": "workspace:*",
     "@upstash/redis": "^1.40.0",
     "@vercel/functions": "^3.11.0",

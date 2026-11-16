@@ -2,7 +2,7 @@
   "name": "@tuja/server-clients",
   "version": "0.0.0",
   "private": true,
-  "description": "Server-only clients for Anthropic and Upstash Redis, created once from the environment.",
+  "description": "Server-only clients for Anthropic and Upstash Redis, created once from the environment, and the rate limiter on that Redis.",
   "type": "module",
   "exports": {
     "./*": "./src/*.ts"
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.103",
+    "@upstash/ratelimit": "^2.2.0",
     "@upstash/redis": "^1.40.0"
   },
   "devDependencies": {

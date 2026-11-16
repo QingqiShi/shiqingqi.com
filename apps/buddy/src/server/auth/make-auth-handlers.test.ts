@@ -44,7 +44,8 @@ function newBrowser(overrides: Partial<AuthHandlerDeps> = {}) {
       now: () => now,
       authSecret: () => "test-auth-secret",
       isAllowedOrigin: isAllowedBuddyOrigin,
-      limitRequest: () => Promise.resolve(true),
+      limitRequest: () => Promise.resolve({ success: true, reset: 0 }),
+      refundRequest: () => Promise.resolve(),
       clientIp: () => "test",
       emailSender: () => makeOutboxEmailSender(outboxDir),
       afterResponse: (task) => {
@@ -252,7 +253,10 @@ describe("sign-up", () => {
     const browser = newBrowser({
       limitRequest: (bucket, identifier) => {
         counted.push(`${bucket} ${identifier}`);
-        return Promise.resolve(bucket !== "sign-up-address");
+        return Promise.resolve({
+          success: bucket !== "sign-up-address",
+          reset: now.getTime() + 1000,
+        });
       },
     });
 

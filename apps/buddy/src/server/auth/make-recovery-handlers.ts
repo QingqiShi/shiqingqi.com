@@ -1,140 +1,73 @@
-import { getLocalePath } from "@tuja/i18n/get-locale-path";
-import { eq } from "drizzle-orm";
-import { passkeys, sessions } from "#src/server/db/schema.ts";
-import { buildCodeEmail } from "../email/build-code-email.ts";
+import { authBodies } from "@tuja/server-auth/auth-bodies";
+import { authJson } from "@tuja/server-auth/auth-json";
+import { HttpError } from "@tuja/server-auth/http-error";
+import { makeChallenge } from "@tuja/server-auth/make-challenge";
+import { passkeyRegistrationOptions } from "@tuja/server-auth/passkey-registration-options";
+import { passkeyResponseSchemas } from "@tuja/server-auth/passkey-response-schemas";
+import { readAuthBody } from "@tuja/server-auth/read-auth-body";
+import { verifyPasskeyRegistration } from "@tuja/server-auth/verify-passkey-registration";
+import { buddyAuthStore } from "./buddy-auth-store.ts";
 import {
-  consumeRecovery,
-  createEmailRecovery,
-  lookupRecovery,
-} from "./create-email-recovery.ts";
-import {
-  HttpError,
-  issueChallenge,
-  json,
-  openSession,
-  readBody,
-  takeChallenge,
-  tokenBody,
-  type AuthRouteKit,
-} from "./make-auth-route-kit.ts";
-import { startEmailCode } from "./start-email-code.ts";
-import {
-  codeBody,
-  hashedAddress,
-  issueEmailCode,
-  readEmail,
-  takeEmailCode,
-} from "./take-email-code.ts";
-import {
-  insertPasskey,
-  registrationOptions,
-  registrationResponseSchema,
-  verifyRegistration,
-} from "./verify-registration.ts";
+  buddyChallengeCookie,
+  recoveryChallenge,
+} from "./buddy-challenge-cookie.ts";
+import { consumeRecovery, lookupRecovery } from "./create-email-recovery.ts";
+import type { BuddyAuth } from "./make-buddy-auth.ts";
 
-const recoveryVerifyBody = tokenBody.extend({
-  response: registrationResponseSchema,
+const challenge = makeChallenge(buddyChallengeCookie);
+
+const recoveryVerifyBody = authBodies.token.extend({
+  response: passkeyResponseSchemas.registration,
 });
 
+/** The routes that save a new passkey from a recovery link. */
 export function makeRecoveryHandlers({
   handle,
-  limit,
-  clientIp,
-  requireEmailSender,
-  afterResponse,
-}: AuthRouteKit) {
+  createSession,
+  startSession,
+}: BuddyAuth) {
   return {
-    requestRecovery: handle(async (request, context) => {
-      const { email, locale } = await readEmail(request);
-      const sender = requireEmailSender();
-      await limit("recovery-email-ip", clientIp(request));
-      await limit("recovery-email-address", hashedAddress(email));
-      const { db, now, origin } = context;
-      const { codeId, code } = await startEmailCode(db, {
-        purpose: "recovery",
-        email,
-        now,
-      });
-      issueEmailCode(context, { purpose: "recovery", codeId });
-      // The response must be the same when no account has this email. Thus
-      // the search and the email occur after the response.
-      afterResponse(async () => {
-        try {
-          const token = await createEmailRecovery(db, {
-            email,
-            now,
-            replaceEmailed: true,
-          });
-          if (token === null) return;
-          await sender.send(
-            buildCodeEmail({
-              to: email,
-              locale,
-              code,
-              url: `${origin}${getLocalePath(`/recover/${token}`, locale)}`,
-            }),
-          );
-        } catch (error) {
-          console.error("Buddy recovery email failed:", error);
-        }
-      });
-      return json(context, { ok: true }, 202);
-    }),
-
-    recoveryCode: handle(async (request, context) => {
-      const { code } = await readBody(request, codeBody);
-      const email = await takeEmailCode(request, context, "recovery", code);
-      const token = await createEmailRecovery(context.db, {
-        email,
-        now: context.now,
-        replaceEmailed: false,
-      });
-      if (token === null) throw new HttpError(410, "code_expired");
-      return json(context, { path: `/recover/${token}` });
-    }),
-
     recoveryOptions: handle(async (request, context) => {
-      const { token } = await readBody(request, tokenBody);
+      const { token } = await readAuthBody(request, authBodies.token);
       const recovery = await lookupRecovery(context.db, token, context.now);
       if (!recovery) throw new HttpError(410, "recovery_invalid");
-      const options = await registrationOptions(context, {
+      const options = await passkeyRegistrationOptions(context, {
         userId: recovery.userId,
         userName: recovery.email,
       });
-      issueChallenge(context, {
+      challenge.issue(context, {
         purpose: "recovery",
         challenge: options.challenge,
         userId: recovery.userId,
         recoveryId: recovery.recoveryId,
       });
-      return json(context, { options });
+      return authJson(context, { options });
     }),
 
     recoveryVerify: handle(async (request, context) => {
-      const body = await readBody(request, recoveryVerifyBody);
-      const { challenge, userId, recoveryId } = takeChallenge(
-        request,
-        context,
-        "recovery",
-      );
+      const body = await readAuthBody(request, recoveryVerifyBody);
+      const taken = challenge.take(request, context, recoveryChallenge);
+      const { userId, recoveryId } = taken;
       const { now } = context;
       const recovery = await lookupRecovery(context.db, body.token, now);
       if (recovery?.recoveryId !== recoveryId || recovery.userId !== userId) {
         throw new HttpError(410, "recovery_invalid");
       }
-      const info = await verifyRegistration(context, body.response, challenge);
-      await context.db.transaction(async (db) => {
+      const credential = await verifyPasskeyRegistration(
+        context,
+        body.response,
+        taken.challenge,
+      );
+      const token = await context.db.transaction(async (db) => {
         if (!(await consumeRecovery(db, { recoveryId, now }))) {
           throw new HttpError(410, "recovery_invalid");
         }
-        // The account lost every passkey. A lost device must not keep
-        // access, so its passkeys and sessions stop here.
-        await db.delete(passkeys).where(eq(passkeys.userId, userId));
-        await db.delete(sessions).where(eq(sessions.userId, userId));
-        await insertPasskey(db, userId, info, now);
-        await openSession(db, request, context, userId);
+        await buddyAuthStore.revokeUserAccess(db, userId);
+        await buddyAuthStore.insertPasskey(db, userId, credential, now);
+        return createSession(db, request, context, userId);
       });
-      return json(context, { name: recovery.name });
+      startSession(context, token);
+      return authJson(context, { name: recovery.name });
     }),
   };
 }
