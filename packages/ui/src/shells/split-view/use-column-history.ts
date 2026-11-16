@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from "react";
-import { isPlainClick } from "../../actions/use-tab-press.ts";
+import { isPlainClick } from "../../actions/is-plain-click.ts";
 import { normalizeUrl } from "../normalize-url.ts";
 import type { SplitViewState } from "./split-view-link.tsx";
 import type {

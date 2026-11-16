@@ -18,6 +18,7 @@ import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
+import { isPlainClick } from "@tuja/ui/utils/is-plain-click";
 import {
   createContext,
   use,
@@ -154,13 +155,7 @@ export function PrincipleLink({
   });
 
   const onClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    const opensElsewhere =
-      event.button !== 0 ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey;
-    if (opensElsewhere) return;
+    if (!isPlainClick(event)) return;
     event.preventDefault();
     goTo(id);
   };

@@ -2,6 +2,7 @@
 
 import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
 import type { StyleProp } from "@tuja/ui/types";
+import { isPlainClick } from "@tuja/ui/utils/is-plain-click";
 import { useEffect, useRef, type MouseEvent, type ReactNode } from "react";
 import { springScrollTo } from "./principles/spring-scroll-to.ts";
 
@@ -22,13 +23,7 @@ export function PropAnchors({ css, children }: PropAnchorsProps) {
   const scroller = useSplitViewColumn()?.scroller ?? null;
 
   const onClickCapture = (event: MouseEvent<HTMLDivElement>) => {
-    const opensElsewhere =
-      event.button !== 0 ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey;
-    if (opensElsewhere || !(event.target instanceof Element)) return;
+    if (!isPlainClick(event) || !(event.target instanceof Element)) return;
     const href = event.target.closest("a")?.getAttribute("href");
     if (href == null || !href.startsWith("#") || href === "#") return;
     const target = document.getElementById(decodeURIComponent(href.slice(1)));

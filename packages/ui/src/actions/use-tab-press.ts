@@ -3,21 +3,7 @@ import {
   useSegmentTrack,
   type SegmentTrackOptions,
 } from "../forms/use-segment-track.ts";
-
-/**
- * Whether a click opens the link in place, with no key and no other button.
- *
- * @internal
- */
-export function isPlainClick(event: MouseEvent) {
-  return (
-    event.button === 0 &&
-    !event.metaKey &&
-    !event.ctrlKey &&
-    !event.shiftKey &&
-    !event.altKey
-  );
-}
+import { isPlainClick } from "./is-plain-click.ts";
 
 interface TabPressOptions extends Pick<
   SegmentTrackOptions<HTMLDivElement>,
