@@ -1,5 +1,6 @@
 "use client";
 
+import { toApiError, type ApiError } from "@tuja/auth-ui/api-error";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
@@ -15,10 +16,6 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
 import { currencyOptions } from "../accounts/currency-options.ts";
 import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
-import {
-  toFinanceApiError,
-  type FinanceApiError,
-} from "../http/finance-api-error.ts";
 import { useAuthErrorMessage } from "./use-auth-error-message.ts";
 
 const NAME_MAX_LENGTH = 100;
@@ -31,7 +28,7 @@ export function SetUpPanel() {
   const [baseCurrency, setBaseCurrency] = useState("GBP");
   const [busy, setBusy] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
-  const [error, setError] = useState<FinanceApiError | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
   const home = getLocalePath("/", locale);
 
   return (
@@ -47,7 +44,7 @@ export function SetUpPanel() {
             window.location.assign(home);
           })
           .catch((caught: unknown) => {
-            const apiError = toFinanceApiError(caught);
+            const apiError = toApiError(caught);
             if (apiError.code === "already_set_up") {
               window.location.assign(home);
               return;

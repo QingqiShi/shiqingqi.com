@@ -11,33 +11,30 @@ import { Text } from "@tuja/ui/components/text";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
-import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
-import {
-  toFinanceApiError,
-  type FinanceApiError,
-} from "../http/finance-api-error.ts";
-import { useAuthErrorMessage } from "./use-auth-error-message.ts";
+import { toApiError, type ApiError } from "../api-error.ts";
+import { passkeyClient } from "../passkey-client.ts";
+import { useAuthErrorMessage } from "../use-auth-error-message.ts";
 
 interface SignUpPanelProps {
   token: string;
-  /** The confirmed address that becomes the new User's Recovery email. */
+  /** The confirmed address, which recovers the user if the passkeys are lost. */
   email: string;
   /** Where to go after the sign-up, without a locale. */
   next: string;
 }
 
-/** Creates a User and saves a passkey on this device. The first-run screen comes next. */
+/** Creates the user for the confirmed address and saves a passkey on this device. */
 export function SignUpPanel({ token, email, next }: SignUpPanelProps) {
   const locale = useLocale();
   const messageOf = useAuthErrorMessage();
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<FinanceApiError | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
 
   return (
     <div css={stack.item}>
       <div css={stack.tight}>
         <Heading level={1} look="h1">
-          {t({ en: "Sign up for Finance", zh: "注册家庭账本" })}
+          {t({ en: "Sign up", zh: "注册" })}
         </Heading>
         <Text tone="muted">
           {`${t({ en: "Email confirmed: ", zh: "邮箱已确认：" })}${email}${t({
@@ -60,13 +57,13 @@ export function SignUpPanel({ token, email, next }: SignUpPanelProps) {
         onClick={() => {
           setBusy(true);
           setError(null);
-          financePasskeyClient
+          passkeyClient
             .signUp(token)
             .then(() => {
               window.location.assign(getLocalePath(next, locale));
             })
             .catch((caught: unknown) => {
-              const apiError = toFinanceApiError(caught);
+              const apiError = toApiError(caught);
               if (apiError.code !== "cancelled") setError(apiError);
               setBusy(false);
             });

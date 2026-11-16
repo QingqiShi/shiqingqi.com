@@ -66,9 +66,10 @@ test.describe("Recovery email", () => {
       authenticatorId: lostAuthenticator,
     });
 
-    const recoveryField = page.getByRole("textbox", {
-      name: "Recovery email",
-    });
+    const recoveryField = page
+      .locator("form")
+      .filter({ has: page.getByRole("button", { name: "Email me a code" }) })
+      .getByRole("textbox", { name: "Email" });
     await expect(async () => {
       if (!(await recoveryField.isVisible())) {
         await page
@@ -113,7 +114,7 @@ test.describe("Recovery email", () => {
       () =>
         expect(
           page.getByRole("alert").filter({
-            hasText: "This passkey is not registered for Finance",
+            hasText: "This passkey belongs to no account",
           }),
         ).toBeVisible({ timeout: 5000 }),
     );

@@ -40,8 +40,7 @@ export interface AuthHandlerDeps {
 
 /**
  * What only Buddy has in the shared sign-in: a new account gets a random
- * name, and sign-in answers with that name, so that the page can go to the
- * account's pet.
+ * name, and sign-in answers with that name.
  */
 export const buddyAuthConfig = {
   appName: "Buddy",

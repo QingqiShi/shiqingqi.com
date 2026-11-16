@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { ApiError } from "@tuja/auth-ui/api-error";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Select } from "@tuja/ui/components/select";
@@ -9,7 +10,6 @@ import { useToast } from "@tuja/ui/components/toast-provider";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useDeferredValue, useState, type SubmitEvent } from "react";
 import { DEFAULT_HOUSEHOLD_TIME_ZONE } from "../domain/dates/default-household-time-zone.ts";
-import { FinanceApiError } from "../http/finance-api-error.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { withPending } from "../shell/with-pending.ts";
@@ -72,7 +72,7 @@ export function HouseholdSettings() {
       } catch (failure) {
         showToast({
           message:
-            failure instanceof FinanceApiError && failure.status === 403
+            failure instanceof ApiError && failure.status === 403
               ? messages.ownerOnly
               : messages.failed,
         });

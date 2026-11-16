@@ -1,5 +1,6 @@
 "use client";
 
+import { postJson } from "@tuja/auth-ui/fetch-json";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
@@ -13,7 +14,6 @@ import { useIsHydrated } from "@tuja/ui/hooks/use-is-hydrated";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { postJson } from "../http/post-json.ts";
 
 interface MacEntry {
   machineId: string;

@@ -7,10 +7,21 @@ import { writeFileSyncIfChanged } from "@tuja/codegen-fs";
 import type { TranslationEntry } from "./extract-from-source.ts";
 import { extractFromSource } from "./extract-from-source.ts";
 import { mergeResults } from "./merge-results.ts";
-import { clearTraceCaches, traceClientFiles } from "./trace-client-files.ts";
+import {
+  clearTraceCaches,
+  traceClientFiles,
+  type PackageSources,
+} from "./trace-client-files.ts";
 
 const { values } = parseArgs({
-  options: { root: { type: "string" } },
+  options: {
+    root: { type: "string" },
+    // A workspace package whose `t()` calls belong to this app, as a path
+    // from the working directory. Repeat it for each package. Only its client
+    // modules can call `t()`: a server module's lookup is an import from the
+    // app's `#src`, which a package cannot resolve.
+    include: { type: "string", multiple: true },
+  },
   strict: false,
 });
 
@@ -20,6 +31,32 @@ const projectRoot =
     : path.resolve(import.meta.dirname, "../../../apps/web");
 const srcDir = path.join(projectRoot, "src");
 const outputDir = path.join(srcDir, "_generated", "i18n");
+const packageSources = readPackageSources(
+  Array.isArray(values.include)
+    ? values.include.filter((dir) => typeof dir === "string")
+    : [],
+);
+const sourceDirs = [srcDir, ...packageSources.values()];
+
+function readPackageSources(packageDirs: string[]): PackageSources {
+  const sources = new Map<string, string>();
+  for (const dir of packageDirs) {
+    const packageDir = path.resolve(dir);
+    const manifest: unknown = JSON.parse(
+      fs.readFileSync(path.join(packageDir, "package.json"), "utf8"),
+    );
+    if (
+      typeof manifest !== "object" ||
+      manifest === null ||
+      !("name" in manifest) ||
+      typeof manifest.name !== "string"
+    ) {
+      throw new Error(`${packageDir} has no package name`);
+    }
+    sources.set(manifest.name, path.join(packageDir, "src"));
+  }
+  return sources;
+}
 
 /**
  * Recursively collect .ts and .tsx files from a directory,
@@ -157,7 +194,7 @@ function generatePerPageBundles(allEntries: TranslationEntry[]): void {
   let totalBundles = 0;
 
   for (const entryPoint of entryPoints) {
-    const clientFiles = traceClientFiles(entryPoint, srcDir);
+    const clientFiles = traceClientFiles(entryPoint, srcDir, packageSources);
 
     // Collect entries from client files
     const clientEntries: TranslationEntry[] = [];
@@ -230,7 +267,7 @@ function generatePerPageBundles(allEntries: TranslationEntry[]): void {
 function main(): void {
   console.log("Scanning source files for t() calls...");
 
-  const sourceFiles = collectSourceFiles(srcDir);
+  const sourceFiles = sourceDirs.flatMap(collectSourceFiles);
   console.log(`Found ${String(sourceFiles.length)} source files`);
 
   const results = sourceFiles.map((filePath) => {
@@ -302,21 +339,23 @@ if (process.argv.includes("--watch")) {
 
   console.log("\nWatching for changes in src/...");
 
-  fs.watch(srcDir, { recursive: true }, (_event, filename) => {
-    if (!filename) return;
-    // Only care about TS/TSX source files, ignore generated output
-    if (!/\.[jt]sx?$/.test(filename)) return;
-    if (filename.includes("_generated")) return;
+  for (const dir of sourceDirs) {
+    fs.watch(dir, { recursive: true }, (_event, filename) => {
+      if (!filename) return;
+      // Only care about TS/TSX source files, ignore generated output
+      if (!/\.[jt]sx?$/.test(filename)) return;
+      if (filename.includes("_generated")) return;
 
-    if (debounceTimer) clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-      console.log(`\nChange detected: ${filename}`);
-      try {
-        clearTraceCaches();
-        main();
-      } catch (error) {
-        console.error(`\nCodegen error: ${String(error)}`);
-      }
-    }, 100);
-  });
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        console.log(`\nChange detected: ${filename}`);
+        try {
+          clearTraceCaches();
+          main();
+        } catch (error) {
+          console.error(`\nCodegen error: ${String(error)}`);
+        }
+      }, 100);
+    });
+  }
 }

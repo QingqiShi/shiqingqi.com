@@ -1,42 +1,6 @@
-import {
-  startAuthentication,
-  startRegistration,
-  type PublicKeyCredentialCreationOptionsJSON,
-  type PublicKeyCredentialRequestOptionsJSON,
-} from "@simplewebauthn/browser";
+import { fetchJson } from "@tuja/auth-ui/fetch-json";
+import { passkeyClient, postAuth } from "@tuja/auth-ui/passkey-client";
 import type { SupportedLocale } from "@tuja/i18n/types";
-import { FinanceApiError } from "../http/finance-api-error.ts";
-import { financeFetch } from "../http/finance-fetch.ts";
-
-const BASE = "/api/auth";
-
-/**
- * Throws `FinanceApiError` with the server's error code (e.g. `invite_invalid`,
- * `sign_up_invalid`, `rate_limited`), or `request_failed`.
- */
-async function post<T>(path: string, body: unknown = {}): Promise<T> {
-  const response = await financeFetch(
-    `${BASE}${path}`,
-    { method: "POST", body: JSON.stringify(body) },
-    "request_failed",
-  );
-  return (await response.json()) as T;
-}
-
-async function runCeremony<T>(ceremony: () => Promise<T>): Promise<T> {
-  try {
-    return await ceremony();
-  } catch (error) {
-    if (error instanceof Error && error.name === "NotAllowedError") {
-      throw new FinanceApiError("cancelled", 0);
-    }
-    throw error;
-  }
-}
-
-async function register(optionsJSON: PublicKeyCredentialCreationOptionsJSON) {
-  return runCeremony(() => startRegistration({ optionsJSON }));
-}
 
 export interface RecoveryEmail {
   email: string | null;
@@ -56,45 +20,13 @@ interface SetUpDetails {
   locale: SupportedLocale;
 }
 
-/** Browser calls for every passkey flow. Each throws `FinanceApiError`; its code is `cancelled` when the visitor closed the passkey sheet. */
+/** The shared passkey calls, and the calls to Finance's own auth routes. Each throws `ApiError`. */
 export const financePasskeyClient = {
-  async signIn(): Promise<void> {
-    const { options } = await post<{
-      options: PublicKeyCredentialRequestOptionsJSON;
-    }>("/sign-in/options");
-    const response = await runCeremony(() =>
-      startAuthentication({ optionsJSON: options }),
-    );
-    await post("/sign-in/verify", { response });
-  },
-
-  /** Emails a sign-up code and link to `email`, in `locale`. The answer is the same for every address. */
-  async requestSignUp(
-    email: string,
-    locale: SupportedLocale,
-    next: string,
-  ): Promise<void> {
-    await post("/sign-up", { email, locale, next });
-  },
-
-  /** Checks the code from the sign-up email that this browser asked for, and returns the sign-up page's path, without a locale. When a user has the address already, it is the path of that user's Recovery link. */
-  async checkSignUpCode(code: string): Promise<string> {
-    const { path } = await post<{ path: string }>("/sign-up/code", { code });
-    return path;
-  },
-
-  /** Creates a user for the visitor, and a passkey on this device. */
-  async signUp(token: string): Promise<void> {
-    const { options } = await post<{
-      options: PublicKeyCredentialCreationOptionsJSON;
-    }>("/sign-up/options", { token });
-    const response = await register(options);
-    await post("/sign-up/verify", { token, response });
-  },
+  ...passkeyClient,
 
   /** Creates the first household of the signed-in user, with the user as its owner. */
   async setUp(details: SetUpDetails): Promise<SignedIn> {
-    return post<SignedIn>("/set-up", {
+    return postAuth<SignedIn>("/set-up", {
       ...details,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
@@ -102,16 +34,7 @@ export const financePasskeyClient = {
 
   /** Makes the signed-in user the Member that the invite is for. */
   async acceptInvite(token: string): Promise<SignedIn> {
-    return post<SignedIn>("/invite/accept", { token });
-  },
-
-  /** Adds a passkey for the signed-in user, e.g. on a new device. */
-  async addPasskey(): Promise<void> {
-    const { options } = await post<{
-      options: PublicKeyCredentialCreationOptionsJSON;
-    }>("/passkeys/options");
-    const response = await register(options);
-    await post("/passkeys/verify", { response });
+    return postAuth<SignedIn>("/invite/accept", { token });
   },
 
   /**
@@ -122,11 +45,11 @@ export const financePasskeyClient = {
   async createInvite(
     memberId: string,
   ): Promise<{ path: string; expiresAt: string; recovery: boolean }> {
-    return post("/invites", { memberId });
+    return postAuth("/invites", { memberId });
   },
 
   async getRecoveryEmail(): Promise<RecoveryEmail> {
-    const response = await financeFetch(`${BASE}/email`, {}, "request_failed");
+    const response = await fetchJson("/api/auth/email", {}, "request_failed");
     return (await response.json()) as RecoveryEmail;
   },
 
@@ -135,47 +58,19 @@ export const financePasskeyClient = {
     email: string,
     locale: SupportedLocale,
   ): Promise<RecoveryEmail> {
-    return post("/email", { email, locale });
+    return postAuth("/email", { email, locale });
   },
 
   /** Opens the verification link with `token`. False when the link is unknown, used or expired, or the email changed after it was sent. Throws `email_registered` when another user has the address. `locale` is for the notice to the Recovery email that this one replaces. */
   async verifyEmail(token: string, locale: SupportedLocale): Promise<boolean> {
-    const { verified } = await post<{ verified: boolean }>("/email/verify", {
-      token,
-      locale,
-    });
+    const { verified } = await postAuth<{ verified: boolean }>(
+      "/email/verify",
+      { token, locale },
+    );
     return verified;
   },
 
-  /** Asks for a recovery email. The answer is the same whether or not a user has this address. */
-  async requestRecovery(
-    email: string,
-    locale: SupportedLocale,
-    next: string,
-  ): Promise<void> {
-    await post("/recovery", { email, locale, next });
-  },
-
-  /** Checks the code from the recovery email that this browser asked for, and returns the path of the Recovery link, without a locale. */
-  async checkRecoveryCode(code: string): Promise<string> {
-    const { path } = await post<{ path: string }>("/recovery/code", { code });
-    return path;
-  },
-
-  /** Saves a new passkey on this device in place of the lost passkeys of the user that the recovery link is for, and signs in. */
-  async recover(token: string): Promise<void> {
-    const { options } = await post<{
-      options: PublicKeyCredentialCreationOptionsJSON;
-    }>("/recovery/options", { token });
-    const response = await register(options);
-    await post("/recovery/verify", { token, response });
-  },
-
-  async signOut(): Promise<void> {
-    await post("/sign-out");
-  },
-
   async startDemo(): Promise<void> {
-    await post("/demo");
+    await postAuth("/demo");
   },
 };

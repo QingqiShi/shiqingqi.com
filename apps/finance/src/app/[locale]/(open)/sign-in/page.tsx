@@ -1,3 +1,4 @@
+import { SignInPanel } from "@tuja/auth-ui/components/sign-in-panel";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { PageProps } from "@tuja/i18n/types";
@@ -12,8 +13,8 @@ import {
 } from "#src/finance/auth/get-finance-page-session.ts";
 import { isFinanceConfigured } from "#src/finance/db/is-finance-configured.ts";
 import { FinanceNotConfigured } from "#src/finance/shell/finance-not-configured.tsx";
+import { DemoEntry } from "#src/finance/sign-in/demo-entry.tsx";
 import { FinanceAuthFrame } from "#src/finance/sign-in/finance-auth-frame.tsx";
-import { SignInPanel } from "#src/finance/sign-in/sign-in-panel.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);
@@ -41,7 +42,9 @@ export default async function Page({
 
   return (
     <FinanceAuthFrame>
-      <SignInPanel next={next} />
+      <SignInPanel next={next}>
+        <DemoEntry />
+      </SignInPanel>
     </FinanceAuthFrame>
   );
 }

@@ -1,6 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { toApiError, type ApiError } from "@tuja/auth-ui/api-error";
+import { AuthNotice } from "@tuja/auth-ui/components/auth-notice";
+import { postJson } from "@tuja/auth-ui/fetch-json";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
@@ -13,12 +16,6 @@ import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
-import {
-  toBuddyApiError,
-  type BuddyApiError,
-} from "../http/buddy-api-error.ts";
-import { postJson } from "../http/post-json.ts";
-import { AuthNotice } from "../sign-in/auth-notice.tsx";
 
 type Decision = "approve" | "deny";
 
@@ -33,7 +30,7 @@ export function ConnectPanel({
   const locale = useLocale();
   const [busy, setBusy] = useState<Decision | null>(null);
   const [done, setDone] = useState<Decision | null>(null);
-  const [error, setError] = useState<BuddyApiError | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
 
   const errorMessages: Record<string, string> = {
     not_found: t({
@@ -87,7 +84,7 @@ export function ConnectPanel({
         setDone(decision);
       })
       .catch((caught: unknown) => {
-        setError(toBuddyApiError(caught));
+        setError(toApiError(caught));
         setBusy(null);
       });
   }

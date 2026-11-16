@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { ApiError } from "@tuja/auth-ui/api-error";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { TextField } from "@tuja/ui/components/text-field";
@@ -8,7 +9,6 @@ import { useToast } from "@tuja/ui/components/toast-provider";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState, type SubmitEvent } from "react";
 import { bankApiClient } from "../bank/bank-api-client.ts";
-import { FinanceApiError } from "../http/finance-api-error.ts";
 import { withPending } from "../shell/with-pending.ts";
 
 interface CredentialFormProps {
@@ -69,9 +69,8 @@ export function CredentialForm({
           "not-configured": messages.notReady,
         };
         setError(
-          (failure instanceof FinanceApiError
-            ? messageOf[failure.code]
-            : undefined) ?? messages.failed,
+          (failure instanceof ApiError ? messageOf[failure.code] : undefined) ??
+            messages.failed,
         );
       }
     });

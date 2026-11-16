@@ -1,0 +1,37 @@
+{
+  "name": "@tuja/auth-ui",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The sign-in, sign-up and recovery screens that the apps share, with the browser's passkey calls to an app's @tuja/server-auth routes.",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts",
+    "./components/*": "./src/components/*.tsx"
+  },
+  "scripts": {
+    "build:tsc": "tsc --noEmit",
+    "lint": "eslint --max-warnings 0 .",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "next": ">=16",
+    "react": ">=19.3.0 <20"
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "catalog:",
+    "@simplewebauthn/browser": "^14.0.0",
+    "@stylexjs/stylex": "catalog:",
+    "@tuja/i18n": "workspace:*",
+    "@tuja/next-links": "workspace:*",
+    "@tuja/server-auth": "workspace:*",
+    "@tuja/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@tuja/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "vitest": "catalog:"
+  }
+}

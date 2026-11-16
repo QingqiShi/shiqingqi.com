@@ -1,11 +1,11 @@
 "use client";
 
+import { passkeyClient } from "@tuja/auth-ui/passkey-client";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { useState } from "react";
-import { passkeyClient } from "../sign-in/passkey-client.ts";
 
 export function SignOutButton() {
   const locale = useLocale();

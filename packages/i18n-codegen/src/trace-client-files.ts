@@ -8,6 +8,9 @@ import { isStringLiteral } from "@babel/types";
 const SRC_ALIAS = "#src/";
 const SOURCE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"];
 
+/** The `src` directory of each workspace package that the trace follows, by package name. */
+export type PackageSources = ReadonlyMap<string, string>;
+
 /**
  * Resolve an import specifier to an absolute file path.
  * Returns null if the import can't be resolved (external package, etc.).
@@ -16,12 +19,13 @@ function resolveImport(
   specifier: string,
   fromFile: string,
   srcDir: string,
+  packages: PackageSources,
 ): string | null {
   const cacheKey = `${specifier}\0${fromFile}`;
   const cached = resolveCache.get(cacheKey);
   if (cached !== undefined) return cached;
 
-  const result = resolveImportUncached(specifier, fromFile, srcDir);
+  const result = resolveImportUncached(specifier, fromFile, srcDir, packages);
   resolveCache.set(cacheKey, result);
   return result;
 }
@@ -30,6 +34,7 @@ function resolveImportUncached(
   specifier: string,
   fromFile: string,
   srcDir: string,
+  packages: PackageSources,
 ): string | null {
   let basePath: string;
 
@@ -38,8 +43,10 @@ function resolveImportUncached(
   } else if (specifier.startsWith(".")) {
     basePath = path.resolve(path.dirname(fromFile), specifier);
   } else {
+    const packageSrc = packageSourceOf(specifier, packages);
     // External package — not a source file
-    return null;
+    if (packageSrc === null) return null;
+    basePath = packageSrc;
   }
 
   // Try the path as-is (might already include extension)
@@ -57,6 +64,19 @@ function resolveImportUncached(
     if (isFile(indexPath)) return indexPath;
   }
 
+  return null;
+}
+
+/** The path in a followed package that `specifier` names, without an extension. Null for every other package. */
+function packageSourceOf(
+  specifier: string,
+  packages: PackageSources,
+): string | null {
+  for (const [name, packageSrcDir] of packages) {
+    if (specifier.startsWith(`${name}/`)) {
+      return path.join(packageSrcDir, specifier.slice(name.length + 1));
+    }
+  }
   return null;
 }
 
@@ -168,6 +188,7 @@ function shouldSkip(filePath: string): boolean {
 export function traceClientFiles(
   entryFile: string,
   srcDir: string,
+  packages: PackageSources = new Map(),
 ): Set<string> {
   const serverVisited = new Set<string>();
   const clientFiles = new Set<string>();
@@ -185,7 +206,7 @@ export function traceClientFiles(
     }
 
     for (const source of getImportSources(ast)) {
-      const resolved = resolveImport(source, filePath, srcDir);
+      const resolved = resolveImport(source, filePath, srcDir, packages);
       if (resolved && !shouldSkip(resolved)) {
         traceServer(resolved);
       }
@@ -200,7 +221,7 @@ export function traceClientFiles(
     if (!ast) return;
 
     for (const source of getImportSources(ast)) {
-      const resolved = resolveImport(source, filePath, srcDir);
+      const resolved = resolveImport(source, filePath, srcDir, packages);
       if (resolved && !shouldSkip(resolved)) {
         traceClient(resolved);
       }

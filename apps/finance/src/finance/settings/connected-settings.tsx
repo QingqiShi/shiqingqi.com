@@ -2,6 +2,7 @@
 
 import { ArrowsClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowsClockwise";
 import * as stylex from "@stylexjs/stylex";
+import { ApiError } from "@tuja/auth-ui/api-error";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
@@ -16,7 +17,6 @@ import type {
   ProviderAccountsResponse,
   SyncNowResponse,
 } from "../bank/types.ts";
-import { FinanceApiError } from "../http/finance-api-error.ts";
 import { useFinanceNavigator } from "../navigation/finance-navigator.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
@@ -173,7 +173,7 @@ export function ConnectedSettings({
       } catch (error) {
         showToast({
           message:
-            error instanceof FinanceApiError && error.code === "owner-only"
+            error instanceof ApiError && error.code === "owner-only"
               ? labels.ownerOnly
               : labels.failed,
         });
@@ -229,7 +229,7 @@ export function ConnectedSettings({
         showSyncResult(result);
         onReload();
       } catch (error) {
-        const code = error instanceof FinanceApiError ? error.code : null;
+        const code = error instanceof ApiError ? error.code : null;
         showToast({
           message:
             code === "too-many-requests"

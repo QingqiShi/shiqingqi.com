@@ -1,6 +1,6 @@
+import { AuthNotice } from "@tuja/auth-ui/components/auth-notice";
 import { t } from "@tuja/i18n";
 import { AuthFrame } from "./auth-frame.tsx";
-import { AuthNotice } from "./auth-notice.tsx";
 
 /** What an owner page shows on a server without `BUDDY_DATABASE_URL`. */
 export function NotConfigured() {

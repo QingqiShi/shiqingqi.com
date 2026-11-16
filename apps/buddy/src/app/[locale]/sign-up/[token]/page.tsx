@@ -1,3 +1,5 @@
+import { AuthNotice } from "@tuja/auth-ui/components/auth-notice";
+import { SignUpPanel } from "@tuja/auth-ui/components/sign-up-panel";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
@@ -7,9 +9,8 @@ import { connection } from "next/server";
 import { buddyAuthStore } from "#src/server/auth/buddy-auth-store.ts";
 import { getBuddyDb } from "#src/server/db/get-buddy-db.ts";
 import { AuthFrame } from "#src/sign-in/auth-frame.tsx";
-import { AuthNotice } from "#src/sign-in/auth-notice.tsx";
 import { NotConfigured } from "#src/sign-in/not-configured.tsx";
-import { SignUpPanel } from "#src/sign-in/sign-up-panel.tsx";
+import { nextOf } from "#src/sign-in/signed-in-home.ts";
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: SupportedLocale }>;
@@ -20,8 +21,10 @@ export async function generateMetadata(props: {
 
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; token: string }>;
+  searchParams: Promise<{ next?: string | string[] }>;
 }) {
   const { locale: rawLocale, token } = await params;
   const locale = validateLocale(rawLocale);
@@ -33,7 +36,11 @@ export default async function Page({
   return (
     <AuthFrame>
       {signUp ? (
-        <SignUpPanel token={token} email={signUp.email} />
+        <SignUpPanel
+          token={token}
+          email={signUp.email}
+          next={nextOf((await searchParams).next)}
+        />
       ) : (
         <AuthNotice
           heading={t({ en: "This link has ended", zh: "此链接已失效" })}

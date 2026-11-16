@@ -1,8 +1,8 @@
+import { ApiError } from "@tuja/auth-ui/api-error";
 import { useEffect, useRef, useState } from "react";
 import type { QuickAddResponse } from "../ai/types.ts";
 import { bankApiClient } from "../bank/bank-api-client.ts";
 import { useEditorData } from "../editor/use-editor-data.ts";
-import { FinanceApiError } from "../http/finance-api-error.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useSyncStatus } from "../replica/use-sync-status.ts";
 import {
@@ -76,7 +76,7 @@ export function useQuickAddInterpretation(
       try {
         reply = await bankApiClient.quickAdd({ text }, controller.signal);
       } catch (error) {
-        noModel = error instanceof FinanceApiError && error.status === 503;
+        noModel = error instanceof ApiError && error.status === 503;
       }
       clearTimeout(timeout);
       if (controller.signal.aborted && !timedOut) return;

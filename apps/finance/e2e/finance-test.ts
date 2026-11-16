@@ -195,7 +195,7 @@ async function signUpOnSignInPage(page: Page, email: string) {
     .fill(sent.subject.slice(0, 6));
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(
-    page.getByRole("heading", { name: "Sign up for Finance" }),
+    page.getByRole("heading", { name: "Sign up", exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Save a passkey" }).click();
 }

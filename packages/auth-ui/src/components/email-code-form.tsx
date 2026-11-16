@@ -9,11 +9,8 @@ import { TextField } from "@tuja/ui/components/text-field";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState, type ReactNode } from "react";
-import {
-  toBuddyApiError,
-  type BuddyApiError,
-} from "../http/buddy-api-error.ts";
-import { useAuthErrorMessage } from "./use-auth-error-message.ts";
+import { toApiError, type ApiError } from "../api-error.ts";
+import { useAuthErrorMessage } from "../use-auth-error-message.ts";
 
 interface EmailCodeFormProps {
   /** The text above the email field. */
@@ -48,7 +45,7 @@ export function EmailCodeForm({
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<BuddyApiError | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
 
   const errorCallout =
     error === null ? null : (
@@ -71,7 +68,7 @@ export function EmailCodeForm({
               setStep("code");
             })
             .catch((caught: unknown) => {
-              setError(toBuddyApiError(caught));
+              setError(toApiError(caught));
             })
             .finally(() => {
               setBusy(false);
@@ -106,7 +103,7 @@ export function EmailCodeForm({
         setBusy(true);
         setError(null);
         verify(code).catch((caught: unknown) => {
-          const apiError = toBuddyApiError(caught);
+          const apiError = toApiError(caught);
           setError(apiError);
           if (apiError.code === "code_expired") setStep("email");
           setBusy(false);
