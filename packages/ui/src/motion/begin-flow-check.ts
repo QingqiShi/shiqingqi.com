@@ -34,6 +34,18 @@ function paintsSurface(style: CSSStyleDeclaration) {
   );
 }
 
+// A clip of the whole box is how `a11y.srOnly` hides a text from the eye.
+const showsNothing = (style: CSSStyleDeclaration) =>
+  style.display === "none" ||
+  style.visibility === "hidden" ||
+  style.clipPath === "inset(50%)";
+
+// Such a box paints all that it holds after each positioned box before it.
+const paintsAsLayer = (style: CSSStyleDeclaration) =>
+  style.position !== "static" ||
+  style.zIndex !== "auto" ||
+  style.isolation === "isolate";
+
 function rectOfText(text: Text) {
   const range = document.createRange();
   range.selectNodeContents(text);
@@ -60,7 +72,8 @@ interface Place {
  * - an element or a text in the flow that moves outside each registered block;
  * - a surface that changes its height, and no block with a skin paints it;
  * - a `position: fixed` box in a block that moves, as it then moves with it;
- * - a positioned box with no `z-index`, before a block that moves and under it;
+ * - a positioned box with no `z-index`, before a block that moves and under it,
+ *   when the block is not over the box already;
  * - a block that moves and has its own CSS `translate`, as the motion replaces it;
  * - a scroller around the panel that no Scroll region declares.
  *
@@ -139,11 +152,7 @@ export function beginFlowCheck(
       isOnScreen: boolean,
     ) => {
       const style = getComputedStyle(element);
-      if (
-        style.display === "none" ||
-        style.visibility === "hidden" ||
-        element.hasAttribute("data-flow-skin")
-      ) {
+      if (showsNothing(style) || element.hasAttribute("data-flow-skin")) {
         return;
       }
       const offset = offsets.get(element) ?? outer;
@@ -263,13 +272,13 @@ export function beginFlowCheck(
     };
     visit(document.body, { dx: 0, dy: 0 }, null, isAnchored);
 
-    const hasOwnPlane = (element: Element, box: Element) => {
+    const isOverAtRest = (element: Element, box: Element) => {
       for (
         let node: Element | null = element;
         node !== null && !node.contains(box);
         node = node.parentElement
       ) {
-        if (getComputedStyle(node).zIndex !== "auto") return true;
+        if (paintsAsLayer(getComputedStyle(node))) return true;
       }
       return false;
     };
@@ -283,7 +292,7 @@ export function beginFlowCheck(
           at === undefined ||
           root.contains(box) ||
           element.contains(box) ||
-          hasOwnPlane(element, box) ||
+          isOverAtRest(element, box) ||
           box.compareDocumentPosition(element) !==
             Node.DOCUMENT_POSITION_FOLLOWING
         ) {
