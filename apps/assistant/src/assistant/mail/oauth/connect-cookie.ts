@@ -1,5 +1,5 @@
+import { makeSealedCookie } from "@tuja/server-auth/make-sealed-cookie";
 import { z } from "zod";
-import { makeSealedCookie } from "#src/assistant/auth/make-sealed-cookie.ts";
 import { OAUTH_PROVIDERS } from "./oauth-providers.ts";
 
 /**

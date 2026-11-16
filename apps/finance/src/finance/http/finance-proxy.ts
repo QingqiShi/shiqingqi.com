@@ -1,6 +1,6 @@
+import { signInPath } from "@tuja/server-auth/sign-in-path";
 import { NextResponse, type NextRequest } from "next/server";
 import { financeSessionCookie } from "../auth/finance-session-cookie.ts";
-import { financeSignInPath } from "../auth/finance-sign-in-path.ts";
 import { isFinanceConfigured } from "../db/is-finance-configured.ts";
 import { FINANCE_PATH_HEADER, FINANCE_SHELL_HEADER } from "./constants.ts";
 
@@ -45,7 +45,7 @@ export function financeProxy(
       pathname.startsWith("/zh/") || pathname === "/zh" ? "zh" : "en";
     const nextPath = `${withoutLocale(pathname)}${search}`;
     return NextResponse.redirect(
-      new URL(financeSignInPath(locale, nextPath), request.url),
+      new URL(signInPath(locale, nextPath), request.url),
     );
   }
   response.headers.set(FINANCE_SHELL_HEADER, "1");

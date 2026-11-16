@@ -1,5 +1,5 @@
+import { makeSealedCookie } from "@tuja/server-auth/make-sealed-cookie";
 import { z } from "zod";
-import { makeSealedCookie } from "./make-sealed-cookie.ts";
 
 const challengePayloadSchema = z.discriminatedUnion("purpose", [
   z.object({ purpose: z.literal("sign-in"), challenge: z.string() }),
