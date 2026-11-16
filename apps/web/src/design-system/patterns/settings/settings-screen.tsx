@@ -37,6 +37,7 @@ import { TextField } from "@tuja/ui/components/text-field";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useId, useState, type ReactNode } from "react";
+import { usePatternsExitItem } from "#src/design-system/patterns/use-patterns-exit-item.ts";
 
 const DELIVERY_TIMES = ["06:00", "06:30", "07:00", "07:30", "08:00", "08:30"];
 
@@ -391,6 +392,7 @@ function Settings() {
 
 export function SettingsScreen() {
   const locale = useLocale();
+  const exitItem = usePatternsExitItem();
   const destinations = [
     {
       href: getLocalePath("/design-system/patterns/dashboard", locale),
@@ -414,6 +416,7 @@ export function SettingsScreen() {
       icon: GearSixIcon,
       current: true,
     },
+    exitItem,
   ];
   return (
     <TabView

@@ -9,7 +9,6 @@ import { BriefcaseIcon } from "@phosphor-icons/react/dist/ssr/Briefcase";
 import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import { ChartLineUpIcon } from "@phosphor-icons/react/dist/ssr/ChartLineUp";
-import { ChartPieSliceIcon } from "@phosphor-icons/react/dist/ssr/ChartPieSlice";
 import { ForkKnifeIcon } from "@phosphor-icons/react/dist/ssr/ForkKnife";
 import { GearSixIcon } from "@phosphor-icons/react/dist/ssr/GearSix";
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
@@ -50,6 +49,7 @@ import { TextField } from "@tuja/ui/components/text-field";
 import { flex, grow } from "@tuja/ui/primitives/flex.stylex";
 import { show } from "@tuja/ui/primitives/show.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { usePatternsExitItem } from "#src/design-system/patterns/use-patterns-exit-item.ts";
 
 type Category =
   | "groceries"
@@ -500,6 +500,7 @@ function Transactions() {
 
 export function ListScreen() {
   const locale = useLocale();
+  const exitItem = usePatternsExitItem();
   const destinations = [
     {
       href: "#overview",
@@ -519,15 +520,11 @@ export function ListScreen() {
       icon: BankIcon,
     },
     {
-      href: "#analytics",
-      label: t({ en: "Analytics", zh: "分析" }),
-      icon: ChartPieSliceIcon,
-    },
-    {
       href: "#settings",
       label: t({ en: "Settings", zh: "设置" }),
       icon: GearSixIcon,
     },
+    exitItem,
   ];
   return (
     <TabView

@@ -2,7 +2,6 @@
 
 import { BankIcon } from "@phosphor-icons/react/dist/ssr/Bank";
 import { CameraIcon } from "@phosphor-icons/react/dist/ssr/Camera";
-import { ChartPieSliceIcon } from "@phosphor-icons/react/dist/ssr/ChartPieSlice";
 import { GearSixIcon } from "@phosphor-icons/react/dist/ssr/GearSix";
 import { ImageIcon } from "@phosphor-icons/react/dist/ssr/Image";
 import { ReceiptIcon } from "@phosphor-icons/react/dist/ssr/Receipt";
@@ -34,6 +33,7 @@ import { Textarea } from "@tuja/ui/components/textarea";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useId, useState, type ReactNode } from "react";
+import { usePatternsExitItem } from "#src/design-system/patterns/use-patterns-exit-item.ts";
 
 const RECENT_PAYEES = ["Tesco Express", "TfL", "Dishoom Shoreditch"];
 
@@ -363,6 +363,7 @@ export function FormScreen() {
     "/design-system/patterns/list",
     locale,
   );
+  const exitItem = usePatternsExitItem();
   const destinations = [
     {
       href: "#overview",
@@ -381,15 +382,11 @@ export function FormScreen() {
       icon: BankIcon,
     },
     {
-      href: "#analytics",
-      label: t({ en: "Analytics", zh: "分析" }),
-      icon: ChartPieSliceIcon,
-    },
-    {
       href: "#settings",
       label: t({ en: "Settings", zh: "设置" }),
       icon: GearSixIcon,
     },
+    exitItem,
   ];
   return (
     <TabView
