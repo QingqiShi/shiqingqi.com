@@ -42,6 +42,7 @@
       "title": "飞比萨 · 取车 · Cortona 晚餐",
       "route": "Gatwick ✈ Pisa → 酒店休整 → Cortona",
       "driving": "约 2h50 自驾",
+      "drivingMinutes": 170,
       "weather": {
         "temp": "16–30°C",
         "summary": "晴热，注意防晒补水"
@@ -462,6 +463,7 @@
       "title": "San Gimignano · Arnolfo 纪念日午餐 · Siena",
       "route": "San Gimignano → Colle di Val d'Elsa → Siena → Baccoleno 丝柏",
       "driving": "约 3h50 自驾",
+      "drivingMinutes": 230,
       "weather": {
         "temp": "16–31°C",
         "summary": "晴热，午后偶有热雷雨"
@@ -703,6 +705,7 @@
       "title": "Val d'Orcia 经典环线",
       "route": "Montepulciano → Monticchiello → Pienza → San Quirico → Montalcino",
       "driving": "约 3h 自驾",
+      "drivingMinutes": 180,
       "weather": {
         "temp": "16–31°C",
         "summary": "晴热，紫外线强"
@@ -976,6 +979,7 @@
       "title": "海滩日 · 白沙滩与 Maremma 海岸",
       "route": "Spiagge Bianche → Castiglione della Pescaia",
       "driving": "约 5h40 自驾",
+      "drivingMinutes": 340,
       "weather": {
         "temp": "20–29°C",
         "summary": "晴，海边风大，紫外线强"
@@ -1154,6 +1158,7 @@
       "title": "还车 · 飞回伦敦",
       "route": "Villa Vignacce → Pisa 机场 ✈ Stansted",
       "driving": "约 2h 自驾",
+      "drivingMinutes": 120,
       "weather": {
         "temp": "17–30°C",
         "summary": "晴"

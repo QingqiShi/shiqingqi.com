@@ -2,13 +2,15 @@
 
 import { useSyncExternalStore } from "react";
 
-/** What the trip page shows: one day, or the overview of every day. */
-export type TripLocation = { view: "day"; day: number } | { view: "overview" };
+/** What the trip page shows: one day, or the calendar of every day. */
+export type TripLocation = { view: "day"; day: number } | { view: "calendar" };
 
 // The hash holds the place, not the path: the whole trip is one page, so the
 // service worker keeps one copy of it, and every day reads offline after one
 // visit. A path per day would need each day stored on its own.
 const DAY_HASH = /^#day-(\d+)$/;
+const CALENDAR_HASH = "#calendar";
+// The name of the calendar before it was one. Old links still open it.
 const OVERVIEW_HASH = "#overview";
 
 const listeners = new Set<() => void>();
@@ -35,7 +37,9 @@ function parse(
   dayCount: number,
   fallbackDay: number,
 ): TripLocation {
-  if (hash === OVERVIEW_HASH) return { view: "overview" };
+  if (hash === CALENDAR_HASH || hash === OVERVIEW_HASH) {
+    return { view: "calendar" };
+  }
   const day = Number(DAY_HASH.exec(hash)?.[1] ?? Number.NaN);
   if (Number.isInteger(day) && day >= 0 && day < dayCount) {
     return { view: "day", day };
@@ -44,8 +48,8 @@ function parse(
 }
 
 export function tripLocationHash(location: TripLocation) {
-  return location.view === "overview"
-    ? OVERVIEW_HASH
+  return location.view === "calendar"
+    ? CALENDAR_HASH
     : `#day-${String(location.day)}`;
 }
 

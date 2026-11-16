@@ -67,7 +67,7 @@ export function DayGlance({
   );
 }
 
-const highlightIcon: Record<HighlightKind, ReactNode> = {
+export const highlightIcon: Record<HighlightKind, ReactNode> = {
   flight: <AirplaneTiltIcon weight="bold" />,
   pickup: <UserPlusIcon weight="bold" />,
   dropoff: <UserMinusIcon weight="bold" />,

@@ -342,6 +342,7 @@
       "title": "抵达英国 · 剑桥 · 诺丁汉",
       "route": "希思罗接机 → 剑桥 → 诺丁汉",
       "driving": "约 4 小时",
+      "drivingMinutes": 240,
       "weather": {
         "temp": "17–24°C",
         "summary": "晴，热浪开局",
@@ -676,6 +677,7 @@
       "title": "诺丁汉大学 · 毕业十周年",
       "route": "诺丁汉市内（无需驾车）",
       "driving": "无需驾车",
+      "drivingMinutes": 0,
       "weather": {
         "temp": "15–28°C",
         "summary": "晴，高温防晒",
@@ -891,6 +893,7 @@
       "title": "北上苏格兰 · 因弗内斯",
       "route": "诺丁汉 → A9 → 因弗内斯",
       "driving": "约 6.5 小时",
+      "drivingMinutes": 390,
       "weather": {
         "temp": "11–19°C",
         "summary": "有阵雨，北上渐凉",
@@ -1191,6 +1194,7 @@
       "title": "Speyside 威士忌酒厂日（随到随品）",
       "route": "因弗内斯 ↔ Speyside（往返）",
       "driving": "约 2.5 小时",
+      "drivingMinutes": 150,
       "weather": {
         "temp": "10–17°C",
         "summary": "高地有雨，室内品酒无碍",
@@ -1452,6 +1456,7 @@
       "title": "尼斯湖 · 天空岛",
       "route": "因弗内斯 → 尼斯湖 → 天空岛 → Fort William",
       "driving": "约 5 小时（分段）",
+      "drivingMinutes": 300,
       "weather": {
         "temp": "10–16°C",
         "summary": "阵雨，防风防水外套必备",
@@ -1842,6 +1847,7 @@
       "title": "格伦科 · 湖区",
       "route": "Fort William → 格伦科 → 温德米尔",
       "driving": "约 5 小时（格伦科→湖区单程 4h35 / 232mi）",
+      "drivingMinutes": 300,
       "weather": {
         "temp": "10–15°C",
         "summary": "偏凉，可能小雨"
@@ -2153,6 +2159,7 @@
       "title": "湖区 · 前往伯明翰",
       "route": "湖区 → 伯明翰",
       "driving": "约 3 小时（Grasmere→伯明翰单程 3h / 165mi）",
+      "drivingMinutes": 180,
       "weather": {
         "temp": "10–18°C",
         "summary": "湖区偏凉有雨"
@@ -2453,6 +2460,7 @@
       "title": "送机 · 布里斯托",
       "route": "伯明翰 → 希思罗 → 布里斯托",
       "driving": "约 3.5 小时",
+      "drivingMinutes": 210,
       "weather": {
         "temp": "12–17°C",
         "summary": "多云，偶有小雨"
@@ -2678,6 +2686,7 @@
       "title": "巴斯一日",
       "route": "布里斯托 ↔ 巴斯",
       "driving": "约 0.5 小时",
+      "drivingMinutes": 30,
       "weather": {
         "temp": "10–17°C",
         "summary": "多云间晴，泡温泉舒适",
@@ -2869,6 +2878,7 @@
       "title": "科茨沃尔德 · 牛津 · 伦敦",
       "route": "布里斯托 → 科茨沃尔德 → 牛津 → 伦敦",
       "driving": "约 3 小时",
+      "drivingMinutes": 180,
       "weather": {
         "temp": "12–19°C",
         "summary": "多云，伦敦回暖",
@@ -3120,6 +3130,7 @@
       "title": "伦敦 · 独自自由活动",
       "route": "全天地铁出行（车停 Moxy）",
       "driving": "无需驾车",
+      "drivingMinutes": 0,
       "weather": {
         "temp": "15–19°C",
         "summary": "多云间晴"
@@ -3408,6 +3419,7 @@
       "title": "还车 · 返程回国",
       "route": "Moxy → M25 → Gatwick 还车 → CA852 回国",
       "driving": "约 1 小时",
+      "drivingMinutes": 60,
       "moments": [
         {
           "id": "c4lknu30",

@@ -16,30 +16,21 @@ import type { PresenceKind, TravelVia } from "#src/trips/types.ts";
 import type { DayPresence } from "#src/trips/types.ts";
 import { useTripLang } from "./trip-text.tsx";
 
-function PersonAvatar({
-  person,
-  size,
-}: {
-  person: DayPresence;
-  size: "sm" | "md";
-}) {
+function PersonAvatar({ person }: { person: DayPresence }) {
   const verbs = {
     arrive: t({ en: "arrives", zh: "抵达" }),
     depart: t({ en: "leaves", zh: "离开" }),
     home: t({ en: "goes home", zh: "回家" }),
   };
-  return person.kind === "present" ? (
+  if (person.kind === "present") {
+    return (
+      <Avatar name={person.name} initials={person.initial} look="subtle" />
+    );
+  }
+  return (
     <Avatar
       name={person.name}
       initials={person.initial}
-      size={size}
-      look="subtle"
-    />
-  ) : (
-    <Avatar
-      name={person.name}
-      initials={person.initial}
-      size={size}
       look="solid"
       badge={presenceIcon[`${person.kind}-${person.via}`]}
       badgeLabel={verbs[person.kind]}
@@ -49,35 +40,17 @@ function PersonAvatar({
 
 /**
  * Who is on the day. A person who arrives, leaves or goes home that day shows
- * solid, with a badge for how, so the comings and goings stand out. `compact`
- * leaves out the names, for the list of every day.
+ * solid, with a badge for how, so the comings and goings stand out.
  */
-export function DayParty({
-  people,
-  compact = false,
-}: {
-  people: DayPresence[];
-  compact?: boolean;
-}) {
+export function DayParty({ people }: { people: DayPresence[] }) {
   const lang = useTripLang();
   if (people.length === 0) return null;
-
-  // The list of days puts this in a button, which holds only inline content.
-  if (compact) {
-    return (
-      <span css={cluster.tight}>
-        {people.map((person) => (
-          <PersonAvatar key={person.id} person={person} size="sm" />
-        ))}
-      </span>
-    );
-  }
 
   return (
     <ul css={[cluster.item, styles.list]}>
       {people.map((person) => (
         <li key={person.id} css={styles.person}>
-          <PersonAvatar person={person} size="md" />
+          <PersonAvatar person={person} />
           <span aria-hidden lang={lang}>
             <Text
               as="span"

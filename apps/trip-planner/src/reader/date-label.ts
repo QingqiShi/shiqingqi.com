@@ -54,6 +54,13 @@ export function dateLabel(iso: string, locale: SupportedLocale): string {
   return `${String(month)}月${String(day)}日`;
 }
 
+/** "18 Jun", "6月18日" */
+export function shortDateLabel(iso: string, locale: SupportedLocale): string {
+  const { month, day } = parts(iso);
+  if (locale === "en") return `${String(day)} ${shortMonth(month)}`;
+  return `${String(month)}月${String(day)}日`;
+}
+
 /** "Thu", "周四" */
 export function weekdayLabel(iso: string, locale: SupportedLocale): string {
   return (locale === "en" ? WEEKDAYS_EN : WEEKDAYS_ZH)[weekday(iso)];

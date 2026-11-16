@@ -11,10 +11,10 @@ import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useRef } from "react";
 import type { ResolvedDay, Trip } from "#src/trips/types.ts";
+import { TripCalendar } from "./calendar/trip-calendar.tsx";
 import { dateLabel, dateRangeLabel } from "./date-label.ts";
 import { DayStepper } from "./day-stepper.tsx";
 import { DayView } from "./day-view.tsx";
-import { Overview } from "./overview.tsx";
 import { TripLanguageProvider, TripText } from "./trip-text.tsx";
 import { useKeepPageOffline } from "./use-keep-page-offline.ts";
 import { useScrollToNow } from "./use-scroll-to-now.ts";
@@ -44,7 +44,7 @@ function PhaseNote({ trip, today }: { trip: Trip; today: ResolvedDay }) {
   );
 }
 
-/** A trip: one day at a time, or every day on one list. */
+/** A trip: one day at a time, or every day on a calendar. */
 export function TripPage({
   trip,
   serverToday,
@@ -89,8 +89,8 @@ export function TripPage({
               size="sm"
               value={location.view}
               onChange={(view) => {
-                if (view === "overview") {
-                  go({ view: "overview" });
+                if (view === "calendar") {
+                  go({ view: "calendar" });
                 } else {
                   openDay(today.index);
                 }
@@ -98,8 +98,8 @@ export function TripPage({
               options={[
                 { value: "day", label: t({ en: "Day", zh: "每日" }) },
                 {
-                  value: "overview",
-                  label: t({ en: "Overview", zh: "总览" }),
+                  value: "calendar",
+                  label: t({ en: "Calendar", zh: "日历" }),
                 },
               ]}
             />
@@ -123,7 +123,12 @@ export function TripPage({
             />
           </>
         ) : (
-          <Overview trip={trip} todayIndex={todayIndex} onOpenDay={openDay} />
+          <TripCalendar
+            trip={trip}
+            todayIndex={todayIndex}
+            weatherByDay={weatherByDay}
+            onOpenDay={openDay}
+          />
         )}
         <FlowBlock>
           <Text look="caption" tone="muted">

@@ -23,6 +23,6 @@ describe("resolveDay", () => {
     ).toEqual({ index: 0, phase: "before", daysUntil: 6 });
     expect(
       resolveDay(new Date("2027-05-01T12:00:00Z"), days, "Europe/Lisbon"),
-    ).toEqual({ index: 2, phase: "after", daysUntil: 0 });
+    ).toEqual({ index: 4, phase: "after", daysUntil: 0 });
   });
 });

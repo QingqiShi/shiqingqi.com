@@ -180,6 +180,8 @@ export const day = z.object({
   title: text,
   route: text,
   driving: text.optional(),
+  /** The time at the wheel that `driving` describes, for sums and charts. */
+  drivingMinutes: z.number().int().min(0).optional(),
   /** The written forecast, shown when no live forecast covers the day. */
   weather: z
     .object({ temp: text, summary: text, note: text.optional() })
