@@ -10,7 +10,6 @@ import type { ChatStatus, UIMessage } from "ai";
 import { type ReactNode, useEffect, useEffectEvent, useRef } from "react";
 import type { ToolOutputMaps } from "#src/movie-database/chat/tool-output/accumulate-tool-outputs.ts";
 import { screenScrollerOf } from "#src/movie-database/screen-scroller-of.ts";
-import { usePreferencePersistence } from "#src/movie-database/taste/use-preference-persistence.ts";
 import { ChatMessage } from "./chat-message";
 import {
   COMPACTION_TRIGGER_TOKENS,
@@ -57,8 +56,6 @@ export function ChatMessageList({
   typingIndicatorLabel,
   errorLabel,
 }: ChatMessageListProps) {
-  usePreferencePersistence(messages);
-
   const lastMessageRole =
     messages.length > 0 ? messages[messages.length - 1]?.role : undefined;
   const lastAssistantIndex = messages.findLastIndex(
