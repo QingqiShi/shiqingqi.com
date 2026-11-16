@@ -71,12 +71,18 @@ const styles = stylex.create({
     backgroundColor: color.popover,
     minInlineSize: 0,
     inlineSize: "100%",
+    minBlockSize: 0,
+    maxBlockSize: "100%",
   },
   head: {
     justifyContent: "space-between",
     paddingInline: `calc(${space._3} - ${border.size_1})`,
   },
+  // The block takes the room that the card has left, and the code scrolls in
+  // it on both axes.
   code: {
+    gridTemplateRows: "minmax(0, 1fr)",
+    minBlockSize: 0,
     borderStartStartRadius: 0,
     borderStartEndRadius: 0,
     borderEndStartRadius: `calc(${border.radius_2} - ${border.size_1})`,
@@ -84,6 +90,7 @@ const styles = stylex.create({
     cornerShape: "squircle",
   },
   codeInset: {
+    overflowY: "auto",
     paddingInline: `calc(${space._3} - ${border.size_1})`,
     paddingBlockEnd: `calc(${space._2} + ${space._1} - ${border.size_1})`,
   },
