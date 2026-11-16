@@ -290,7 +290,7 @@ export function nextLine(
 
 /** What the page says and does over the view: the first-run line, a pat, the sprouting party. */
 export type SceneOverride = Partial<
-  Pick<SceneInput, "mood" | "action" | "isConfetti" | "isPop">
+  Pick<SceneInput, "mood" | "action" | "isConfetti" | "isPop" | "beat" | "hop">
 > & { text?: string };
 
 export function sceneInputFor(
@@ -311,6 +311,8 @@ export function sceneInputFor(
     isDay: view.local.hour >= 7 && view.local.hour < 19,
     rows,
     isPop: view.isPop,
+    beat: 0,
+    hop: 0,
     ...rest,
   };
 }

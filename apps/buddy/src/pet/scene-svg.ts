@@ -1,9 +1,11 @@
 import type { Level } from "./levels.ts";
 import { LEVELS, levelInfo } from "./levels.ts";
 import type { Mood } from "./mood-of.ts";
+import { BREEZE_S, CLOUD_LEAD, sceneCss } from "./scene-css.ts";
 import { sceneInk } from "./scene-ink.stylex.ts";
 import type { SkyPalette } from "./sky-palette.ts";
 import { skyPalette } from "./sky-palette.ts";
+import { spriteRuns } from "./sprite-runs.ts";
 import { esc, n, svg, svgOpen, textWidth, uid } from "./svg.ts";
 
 const SEED_SINK = 6;
@@ -13,6 +15,12 @@ const WIDE_WIDTH = 720;
 const TOP_STRIP = 48;
 const TAIL = 10;
 const TAIL_GAP = 6;
+/** How high the hop takes the pet, in sprite cells. The bubble over the pet goes up as far. */
+const HOP_CELLS = 4.6;
+/** How many blades of grass move as one. */
+const TUFT_BLADES = 5;
+/** How many groups the stars twinkle in. */
+const STAR_GROUPS = 10;
 
 export const BUBBLE_ROWS = 3;
 const BUBBLE_PAD = 12;
@@ -121,6 +129,10 @@ export type SceneInput = SceneBox & {
   isDay: boolean;
   rows: readonly string[];
   isPop: boolean;
+  /** The count of the pats, the waterings and the new lines so far. A move plays again when it changes. */
+  beat: number;
+  /** The count of the hops so far. It stays the same while the pet is in the air, so a second pat does not pull it down. */
+  hop: number;
 };
 
 type Layout = {
@@ -198,34 +210,8 @@ function rng(seed: number) {
   };
 }
 
-function runs(
-  rows: readonly string[],
-  yOffset: number,
-  pick: (ch: string, x: number, y: number) => string | null,
-) {
-  let out = "";
-  rows.forEach((row, ry) => {
-    const y = ry + yOffset;
-    let x = 0;
-    while (x < row.length) {
-      const color = pick(row[x] ?? ".", x, y);
-      if (color === null) {
-        x += 1;
-        continue;
-      }
-      let end = x + 1;
-      while (end < row.length && pick(row[end] ?? ".", end, y) === color)
-        end += 1;
-      out += svg`<rect x="${x}" y="${y}" width="${end - x + 0.02}" height="1.02" fill="${color}"/>`;
-      x = end;
-    }
-  });
-
-  return out;
-}
-
 function birdSvg(id: string) {
-  return svg`<g class="bird-${id}"><rect x="12" y="-1" width="2" height="2" fill="#60A5FA"/><rect x="14" y="-.4" width="1" height=".6" fill="#F59E0B"/><rect x="13" y="-.7" width=".5" height=".5" fill="#0B1020"/></g>`;
+  return svg`<g class="bird-${id}"><g class="birdturn-${id}"><rect x="12" y="-1" width="2" height="2" fill="#60A5FA"/><rect x="14" y="-.4" width="1" height=".6" fill="#F59E0B"/><rect x="13" y="-.7" width=".5" height=".5" fill="#0B1020"/></g></g>`;
 }
 
 function petalsSvg(id: string) {
@@ -235,8 +221,9 @@ function petalsSvg(id: string) {
     const x = (3 + random() * 9).toFixed(1);
     const y = (random() * 5).toFixed(1);
     const delay = (random() * 3).toFixed(2);
-    const duration = (2.4 + random() * 1.6).toFixed(2);
-    out += svg`<rect class="petal-${id}" style="animation-delay:${delay}s;animation-duration:${duration}s" x="${x}" y="${y}" width=".6" height=".6" fill="#F9A8D4"/>`;
+    const duration = (2.8 + random() * 1.8).toFixed(2);
+    const drift = (1.3 + random() * 0.9).toFixed(2);
+    out += svg`<g class="petal-${id}" style="animation-delay:-${delay}s;animation-duration:${duration}s"><rect class="flutter-${id}" style="animation-duration:${drift}s" x="${x}" y="${y}" width=".6" height=".6" fill="#F9A8D4"/></g>`;
   }
 
   return out;
@@ -248,50 +235,68 @@ function goldSvg(layout: Layout, id: string, isAsleep: boolean) {
   if (isAsleep) return aura;
   const sparkles = SPARKLES.map(
     ([x, y], i) =>
-      svg`<g class="spark-${id}" style="animation-delay:${(i * 0.3).toFixed(1)}s" fill="#FFE9A8"><rect x="${x - 0.3}" y="${y - 0.9}" width=".6" height="1.8"/><rect x="${x - 0.9}" y="${y - 0.3}" width="1.8" height=".6"/></g>`,
+      svg`<g class="spark-${id}" style="animation-delay:-${(i * 0.37).toFixed(2)}s" fill="#FFE9A8"><rect x="${x - 0.3}" y="${y - 0.9}" width=".6" height="1.8"/><rect x="${x - 0.9}" y="${y - 0.3}" width="1.8" height=".6"/></g>`,
   ).join("");
 
   return aura + sparkles;
 }
 
-/**
- * The color of one body pixel, `y` counted from the body's top row, in this mood. Open eyes (the happy mood)
- * come back null, so that the scene can draw them apart and blink them.
- */
-function bodyPixel(mood: Mood) {
-  const eyeSet =
-    mood === "sleep"
-      ? EYES.shut
-      : mood === "worry"
-        ? EYES.squint
-        : mood === "party"
-          ? EYES.smile
-          : null;
-  const isEye = (x: number, y: number) =>
-    eyeSet?.some(([ex, ey]) => ex === x && ey === y) ?? false;
+type Face = "open" | keyof typeof EYES;
 
-  return (ch: string, x: number, y: number): string | null => {
-    if (ch === ".") return null;
-    if (ch === "E")
-      return eyeSet === null ? null : isEye(x, y) ? COLORS.E : COLORS.b;
-    if (eyeSet !== null && ch === "b" && isEye(x, y)) return COLORS.E;
-    if (mood === "sleep" && ch === "m" && x === 8) return COLORS.b;
+/** The pet shuts its eyes with joy while someone cares for it; a pet that sleeps stays asleep. */
+function faceOf(input: SceneInput): Face {
+  if (input.mood === "sleep") return "shut";
+  if (input.action !== null || input.isConfetti || input.mood === "party")
+    return "smile";
 
-    return COLORS[ch] ?? null;
-  };
+  return input.mood === "worry" ? "squint" : "open";
 }
 
+function eyesSvg(face: Face, crownRows: number) {
+  if (face === "open")
+    return spriteRuns(BODY, crownRows, (ch) => (ch === "E" ? COLORS.E : null));
+  const cells = EYES[face];
+
+  return spriteRuns(BODY, crownRows, (_, x, y) =>
+    cells.some(([ex, ey]) => ex === x && ey === y - crownRows)
+      ? COLORS.E
+      : null,
+  );
+}
+
+/** How the pet moves when nothing happens to it. */
+function motionOf(input: SceneInput) {
+  if (input.mood === "sleep") return "sleep";
+
+  return input.isConfetti ? "party" : input.mood;
+}
+
+/**
+ * The pet is a stack of groups, and each group has one motion: the answer to a pat or to water,
+ * then the mood's own move, then the breath. The crown and the eyes are inside, and they move
+ * later than the body does.
+ */
 function petSvg(input: SceneInput, layout: Layout, id: string) {
   const { level, crownRows: C } = layout;
+  const isAsleep = input.mood === "sleep";
+  const motion = motionOf(input);
+  const take = input.beat % 2 === 0 ? "a" : "b";
+  const hopTake = input.hop % 2 === 0 ? "a" : "b";
+  const face = faceOf(input);
+  const footRow = C + BODY.length - (level.isSeed === true ? SEED_SINK : 0);
+  const foot = svg`transform-origin:8px ${footRow}px`;
+  const stem = svg`transform-origin:8px ${C}px`;
+
   const crown =
-    runs(level.crown, 0, (ch) => COLORS[ch] ?? null) +
+    spriteRuns(level.crown, 0, (ch) => COLORS[ch] ?? null, true) +
     (level.hasBird === true ? birdSvg(id) : "");
-  const pixel = bodyPixel(input.mood);
-  const body = runs(BODY, C, (ch, x, y) => pixel(ch, x, y - C));
-  const openEyes =
-    input.mood === "happy"
-      ? runs(BODY, C, (ch) => (ch === "E" ? COLORS.E : null))
-      : "";
+  const body = spriteRuns(BODY, C, (ch, x) => {
+    if (ch === ".") return null;
+    if (ch === "E") return COLORS.b;
+    if (isAsleep && ch === "m" && x === 8) return COLORS.b;
+
+    return COLORS[ch] ?? null;
+  });
 
   let fx = level.hasPetals === true ? petalsSvg(id) : "";
   if (input.mood === "worry") {
@@ -299,21 +304,36 @@ function petSvg(input: SceneInput, layout: Layout, id: string) {
   }
   if (input.action === "feed") {
     const heart = (x: number, y: number, fill: string, delay: number) =>
-      svg`<g class="heart-${id}" style="animation-delay:${delay}s"><rect x="${x}" y="${y}" width="1" height="1" fill="${fill}"/><rect x="${x + 2}" y="${y}" width="1" height="1" fill="${fill}"/><rect x="${x}" y="${y + 1}" width="3" height="1" fill="${fill}"/><rect x="${x + 1}" y="${y + 2}" width="1" height="1" fill="${fill}"/></g>`;
-    fx += heart(0, C - 1, "#F472B6", 0.35) + heart(13, C - 3, "#F9A8D4", 0.6);
+      svg`<g class="heart${take}-${id}" style="animation-delay:${delay}s"><rect x="${x}" y="${y}" width="1" height="1" fill="${fill}"/><rect x="${x + 2}" y="${y}" width="1" height="1" fill="${fill}"/><rect x="${x}" y="${y + 1}" width="3" height="1" fill="${fill}"/><rect x="${x + 1}" y="${y + 2}" width="1" height="1" fill="${fill}"/></g>`;
+    fx += heart(0, C - 1, "#F472B6", 0.5) + heart(13, C - 3, "#F9A8D4", 0.68);
     fx += [6, 9, 11]
       .map(
         (x, i) =>
-          svg`<rect class="drop-${id}" style="animation-delay:${i * 0.12}s" x="${x}" y="-3" width="1" height="1" fill="#7DD3FC"/>`,
+          svg`<rect class="drop${take}-${id}" style="animation-delay:${(i * 0.13).toFixed(2)}s" x="${x}" y="-6" width="1" height="1.4" fill="#7DD3FC"/>`,
       )
       .join("");
   }
 
-  const bodyClass =
-    input.action === "pat" ? "hop" : input.isConfetti ? "party" : input.mood;
+  const isHop = input.action === "pat" && !isAsleep;
+  const act =
+    input.action === "feed"
+      ? svg`sip${take}`
+      : input.action === "pat"
+        ? svg`${isAsleep ? "jelly" : "hop"}${hopTake}`
+        : "none";
+  const crownAct = isHop
+    ? svg`crownhop${hopTake}`
+    : input.action === "feed"
+      ? svg`crownsip${take}`
+      : svg`crown-${motion}`;
+  const shade =
+    level.isSeed === true
+      ? ""
+      : svg`<ellipse class="${isHop ? svg`shadehop${hopTake}` : svg`shade-${motion}`}-${id}" style="transform-origin:8px ${footRow}px" cx="8" cy="${footRow + 0.35}" rx="6.6" ry=".9" fill="rgba(0,0,0,.2)"/>`;
   const back =
     level.isGold === true ? goldSvg(layout, id, input.mood === "sleep") : "";
-  const pet = svg`<g transform="translate(${n(layout.x0)},${n(layout.y0)}) scale(${layout.s.toFixed(3)})" shape-rendering="crispEdges">${back}<g class="${bodyClass}-${id}"><g class="sway-${id}${input.mood === "worry" ? svg` fast-${id}` : ""}">${crown}</g>${body}<g class="eyes-${id}">${openEyes}</g></g>${fx}</g>`;
+  const eyes = svg`<g class="${face === "open" ? "look" : face === "squint" ? "dart" : "still"}-${id}"><g class="${face === "open" ? "blink" : "still"}-${id}">${eyesSvg(face, C)}</g></g>`;
+  const pet = svg`<g transform="translate(${n(layout.x0)},${n(layout.y0)}) scale(${layout.s.toFixed(3)})">${shade}<g class="${act}-${id}" style="${foot}">${back}<g class="move-${motion}-${id}" style="${foot}"><g class="tilt-${motion}-${id}" style="${foot}"><g class="breathe-${motion}-${id}" style="${foot}"><g class="${crownAct}-${id}" style="${stem}"><g class="sway-${motion}-${id}" style="${stem}">${crown}</g></g>${body}${eyes}</g></g></g></g>${fx}</g>`;
 
   return level.isSeed === true
     ? svg`<g clip-path="url(#soil-${id})">${pet}</g>`
@@ -390,7 +410,18 @@ function bubbleSvg(input: SceneInput, layout: Layout, id: string) {
     )
     .join("");
 
-  return svg`<g class="${input.isPop ? svg`pop-${id}` : ""}" style="transform-origin:${origin}"><g shape-rendering="crispEdges">${shadow}${frame}${tail}</g>${text}</g>`;
+  const take = input.beat % 2 === 0 ? "a" : "b";
+  // Over the pet, the bubble is in the way of a hop, so the pet pushes it up.
+  const isBumped =
+    input.action === "pat" && input.mood !== "sleep" && !layout.isWide;
+
+  const bump = isBumped
+    ? svg`bump${input.hop % 2 === 0 ? "a" : "b"}`
+    : motionOf(input) === "party" && !layout.isWide
+      ? "bumpparty"
+      : "none";
+
+  return svg`<g class="float-${id}"><g class="${bump}-${id}"><g class="${input.isPop ? svg`pop${take}` : "none"}-${id}" style="transform-origin:${origin}"><g shape-rendering="crispEdges">${shadow}${frame}${tail}</g>${text}</g></g></g>`;
 }
 
 function groundSvg(
@@ -405,9 +436,16 @@ function groundSvg(
   const { groundY, petCx, s } = layout;
   let out = svg`<ellipse class="${isGlowing ? svg`glow-${id}` : ""}" cx="${n(petCx)}" cy="${groundY + 2}" rx="${n(10 * s)}" ry="${n(Math.max(12, 2.5 * s))}" fill="url(#glow-${id})"/>`;
   out += svg`<rect y="${groundY}" width="${W}" height="${H - groundY}" fill="${palette.ground}"/>`;
-  for (let x = 0; x < W; x += 9) {
+  // A wind goes through the grass from the left: each tuft moves a little later than the last.
+  // The blades of a tuft move as one, so that a wide window does not animate each blade.
+  let tuft = "";
+  for (let x = 0, i = 1; x < W; x += 9, i++) {
     const hh = 3 + Math.round(random() * 4);
-    out += svg`<rect x="${x}" y="${groundY - hh}" width="2" height="${hh}" fill="${palette.tuft}"/>`;
+    tuft += svg`<rect x="${x}" y="${groundY - hh}" width="2" height="${hh}"/>`;
+    if (i % TUFT_BLADES !== 0 && x + 9 < W) continue;
+    const delay = ((x / 240) % BREEZE_S).toFixed(2);
+    out += svg`<g class="blade-${id}" style="animation-delay:-${delay}s" fill="${palette.tuft}">${tuft}</g>`;
+    tuft = "";
   }
 
   return out;
@@ -426,35 +464,53 @@ function skySvg(input: SceneInput, layout: Layout, id: string) {
   let s = svg`<defs><linearGradient id="sky-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${bottom}"/></linearGradient><radialGradient id="glow-${id}"><stop offset="0" stop-color="${glow}" stop-opacity="${input.isDay ? ".7" : ".9"}"/><stop offset="1" stop-color="${glow}" stop-opacity="0"/></radialGradient></defs>`;
   s += svg`<rect width="${W}" height="${H}" fill="url(#sky-${id})"/>`;
   if (input.isDay) {
-    s += svg`<g transform="translate(${n(lightX)},${n(lightY)}) scale(${u})" shape-rendering="crispEdges" fill="${light}"><g class="sunray-${id}" style="transform-origin:8px 8px"><rect x="7" y="-8" width="2" height="4"/><rect x="7" y="20" width="2" height="4"/><rect x="-8" y="7" width="4" height="2"/><rect x="20" y="7" width="4" height="2"/><rect x="-4" y="-4" width="2" height="2"/><rect x="18" y="-4" width="2" height="2"/><rect x="-4" y="18" width="2" height="2"/><rect x="18" y="18" width="2" height="2"/></g><rect width="16" height="16"/><rect x="-2" y="2" width="20" height="12"/><rect x="2" y="-2" width="12" height="20"/><rect x="2" y="2" width="4" height="4" fill="#FFF7D1"/></g>`;
-    const cloud = (cx: number, cy: number, k: number, delay: number) =>
-      svg`<g class="cloud-${id}" style="animation-delay:${delay}s" shape-rendering="crispEdges" fill="${cloudFill}" opacity=".92"><rect x="${cx}" y="${cy + 4 * k}" width="${22 * k}" height="${4 * k}"/><rect x="${cx + 4 * k}" y="${cy}" width="${8 * k}" height="${4 * k}"/><rect x="${cx + 10 * k}" y="${cy - 2 * k}" width="${6 * k}" height="${6 * k}"/></g>`;
+    s += svg`<g transform="translate(${n(lightX)},${n(lightY)}) scale(${u})" fill="${light}"><g class="sunturn-${id}" style="transform-origin:8px 8px"><g class="sunray-${id}" style="transform-origin:8px 8px"><rect x="7" y="-8" width="2" height="4"/><rect x="7" y="20" width="2" height="4"/><rect x="-8" y="7" width="4" height="2"/><rect x="20" y="7" width="4" height="2"/><rect x="-4" y="-4" width="2" height="2"/><rect x="18" y="-4" width="2" height="2"/><rect x="-4" y="18" width="2" height="2"/><rect x="18" y="18" width="2" height="2"/></g></g><g shape-rendering="crispEdges"><rect width="16" height="16"/><rect x="-2" y="2" width="20" height="12"/><rect x="2" y="-2" width="12" height="20"/><rect x="2" y="2" width="4" height="4" fill="#FFF7D1"/></g></g>`;
+    // Each cloud is drawn left of the window and crosses it. A negative delay starts it at `cx`,
+    // and the attribute puts it there when nothing moves.
+    const cloud = (cx: number, cy: number, k: number, seconds: number) => {
+      const delay = ((seconds * (cx + CLOUD_LEAD)) / (W + CLOUD_LEAD)).toFixed(
+        1,
+      );
+
+      return svg`<g class="cloud-${id}" transform="translate(${cx + CLOUD_LEAD},0)" style="animation-duration:${seconds}s;animation-delay:-${delay}s"><g class="cloudbob-${id}" style="animation-delay:-${delay}s" shape-rendering="crispEdges" fill="${cloudFill}" opacity=".92"><rect x="${-CLOUD_LEAD}" y="${cy + 4 * k}" width="${22 * k}" height="${4 * k}"/><rect x="${-CLOUD_LEAD + 4 * k}" y="${cy}" width="${8 * k}" height="${4 * k}"/><rect x="${-CLOUD_LEAD + 10 * k}" y="${cy - 2 * k}" width="${6 * k}" height="${6 * k}"/></g></g>`;
+    };
     s +=
-      cloud(Math.round(W * 0.08), skyTop + 26, 1.2 * u, 0) +
-      cloud(Math.round(W * 0.46), skyTop + 64, 0.8 * u, 1.4);
-    if (layout.isWide) s += cloud(Math.round(W * 0.74), skyTop + 118, u, 0.7);
+      cloud(Math.round(W * 0.08), skyTop + 26, 1.2 * u, 96) +
+      cloud(Math.round(W * 0.46), skyTop + 64, 0.8 * u, 140);
+    if (layout.isWide) s += cloud(Math.round(W * 0.74), skyTop + 118, u, 118);
     s += groundSvg(input, layout, palette, random, id, false);
 
     return s;
   }
 
   const stars = Math.max(24, Math.min(90, Math.round((W * H) / 3200)));
+  // The stars twinkle in a few groups, each at its own pace, so that many stars cost few animations.
+  const twinkles = Array.from({ length: STAR_GROUPS }, () => "");
   for (let i = 0; i < stars; i++) {
     const x = Math.round(random() * (W - 8));
     const y = Math.round(random() * Math.max(40, layout.groundY - 40));
-    const delay = (random() * 3).toFixed(2);
     const z = random() < 0.3 ? 2 : 1;
-    s += svg`<rect class="star-${id}" x="${x}" y="${y}" width="${z}" height="${z}" fill="#FFF6D6" style="animation-delay:${delay}s"/>`;
+    twinkles[i % STAR_GROUPS] +=
+      svg`<rect x="${x}" y="${y}" width="${z}" height="${z}"/>`;
   }
-  s += svg`<g transform="translate(${n(lightX)},${n(lightY)}) scale(${u})" shape-rendering="crispEdges"><g fill="${light}"><rect x="2" width="12" height="12"/><rect y="2" width="2" height="8"/><rect x="14" y="2" width="2" height="8"/><rect x="4" y="-2" width="8" height="2"/><rect x="4" y="12" width="8" height="2"/></g><rect x="6" width="10" height="10" fill="${top}" opacity=".9"/></g>`;
+  for (const group of twinkles) {
+    const delay = (random() * 5).toFixed(2);
+    const duration = (1.6 + random() * 2.6).toFixed(2);
+    s += svg`<g class="star-${id}" fill="#FFF6D6" style="animation-delay:-${delay}s;animation-duration:${duration}s">${group}</g>`;
+  }
+  if (!isWorry) {
+    s += svg`<g class="comet-${id}" fill="#FFF6D6"><rect x="${n(W * 0.12)}" y="${skyTop + 6}" width="3" height="3"/><rect x="${n(W * 0.12) - 5}" y="${skyTop + 4}" width="4" height="2" opacity=".6"/><rect x="${n(W * 0.12) - 11}" y="${skyTop + 2}" width="5" height="1" opacity=".3"/></g>`;
+  }
+  s += svg`<g transform="translate(${n(lightX)},${n(lightY)}) scale(${u})"><g class="moon-${id}" shape-rendering="crispEdges"><g fill="${light}"><rect x="2" width="12" height="12"/><rect y="2" width="2" height="8"/><rect x="14" y="2" width="2" height="8"/><rect x="4" y="-2" width="8" height="2"/><rect x="4" y="12" width="8" height="2"/></g><rect x="6" width="10" height="10" fill="${top}" opacity=".9"/></g></g>`;
   s += groundSvg(input, layout, palette, random, id, true);
   if (!isWorry) {
     const flies = layout.isWide ? 9 : 5;
     for (let i = 0; i < flies; i++) {
       const x = Math.round(8 + random() * (W - 24));
       const y = Math.round(layout.groundY - 90 + random() * 70);
-      const delay = (random() * 4).toFixed(2);
-      s += svg`<g class="fly-${id}" style="animation-delay:${delay}s"><rect class="blink-${id}" x="${x}" y="${y}" width="2" height="2" fill="#E9FF8A" style="animation-delay:${delay}s"/></g>`;
+      const delay = (random() * 6).toFixed(2);
+      const duration = (6.5 + random() * 4).toFixed(1);
+      s += svg`<g class="fly${i % 3}-${id}" style="animation-delay:-${delay}s;animation-duration:${duration}s"><rect class="flyglow-${id}" x="${x}" y="${y}" width="2" height="2" fill="#E9FF8A" style="animation-delay:-${delay}s"/></g>`;
     }
   }
 
@@ -471,8 +527,8 @@ function sleepSvg(layout: Layout, id: string) {
 
   return (
     z(x, y, k, 0) +
-    z(x + 4 * k, y - 11 * k, k, 1) +
-    z(x + 6 * k, y - 23 * k, k + 1, 2)
+    z(x + 4 * k, y - 11 * k, k, 1.5) +
+    z(x + 6 * k, y - 23 * k, k + 1, 3)
   );
 }
 
@@ -483,70 +539,21 @@ function confettiSvg(W: number, id: string) {
   let s = "";
   for (let i = 0; i < count; i++) {
     const x = Math.round(6 + random() * (W - 12));
-    const delay = (random() * 2.4).toFixed(2);
-    s += svg`<rect class="confetti-${id}" style="animation-delay:${delay}s" x="${x}" y="-6" width="3" height="4" fill="${colors[i % colors.length]}"/>`;
+    const delay = (random() * 3.2).toFixed(2);
+    const fall = (2.6 + random() * 1.4).toFixed(2);
+    const flutter = (0.7 + random() * 0.7).toFixed(2);
+    s += svg`<g class="confetti-${id}" style="animation-delay:-${delay}s;animation-duration:${fall}s"><rect class="tumble-${id}" style="animation-duration:${flutter}s" x="${x}" y="-6" width="3" height="4" fill="${colors[i % colors.length]}"/></g>`;
   }
 
   return s;
 }
 
-function sceneCss(id: string, H: number) {
-  return svg`<style>
-@keyframes bob-${id}{0%,100%{transform:translateY(0)}50%{transform:translateY(-.6px)}}
-@keyframes breathe-${id}{0%,100%{transform:translateY(0)}50%{transform:translateY(.4px)}}
-@keyframes shake-${id}{0%,100%{transform:translateX(0)}25%{transform:translateX(-.5px)}75%{transform:translateX(.5px)}}
-@keyframes hop-${id}{0%,100%{transform:translateY(0)}40%{transform:translateY(-3px)}}
-@keyframes party-${id}{0%,30%,100%{transform:translateY(0)}10%,20%{transform:translateY(-3px)}15%{transform:translateY(-1px)}}
-@keyframes blinkeye-${id}{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.15)}}
-@keyframes sway-${id}{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
-@keyframes tw-${id}{0%,100%{opacity:.15}50%{opacity:1}}
-@keyframes fly-${id}{0%,100%{transform:translate(0,0)}25%{transform:translate(6px,-5px)}50%{transform:translate(-3px,-9px)}75%{transform:translate(-7px,-3px)}}
-@keyframes glow-${id}{0%,100%{opacity:.35}50%{opacity:.7}}
-@keyframes heart-${id}{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(-6px);opacity:0}}
-@keyframes drop-${id}{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(4px);opacity:0}}
-@keyframes pop-${id}{0%{transform:scale(.9)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
-@keyframes z-${id}{0%{opacity:0;transform:translate(0,6px)}30%{opacity:1}100%{opacity:0;transform:translate(6px,-8px)}}
-@keyframes confetti-${id}{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(${H + 12}px) rotate(200deg)}}
-@keyframes cloud-${id}{0%,100%{transform:translateX(0)}50%{transform:translateX(8px)}}
-@keyframes sun-${id}{0%,100%{opacity:1}50%{opacity:.45}}
-@keyframes birdhop-${id}{0%,70%,100%{transform:translateY(0)}80%{transform:translateY(-1px)}90%{transform:translateY(-.4px)}}
-@keyframes petal-${id}{0%{transform:translate(0,0);opacity:0}10%{opacity:1}80%{opacity:.8}100%{transform:translate(-4px,14px);opacity:0}}
-@keyframes aura-${id}{0%,100%{opacity:.55}50%{opacity:1}}
-@keyframes spark-${id}{0%,100%{opacity:0}12%,28%{opacity:1}40%{opacity:0}}
-.happy-${id}{animation:bob-${id} 1.1s steps(2) infinite}
-.sleep-${id}{animation:breathe-${id} 3s steps(3) infinite}
-.worry-${id}{animation:shake-${id} .22s steps(2) infinite}
-.hop-${id}{animation:hop-${id} .35s steps(3) 3}
-.party-${id}{animation:party-${id} 1.6s steps(8) infinite}
-.happy-${id} .eyes-${id}{animation:blinkeye-${id} 3.6s infinite;transform-box:fill-box;transform-origin:center}
-.sway-${id}{animation:sway-${id} 2.6s steps(4) infinite;transform-box:fill-box;transform-origin:center bottom}
-.fast-${id}{animation-duration:.5s}
-.sleep-${id} .sway-${id}{animation-duration:6s}
-.sweat-${id}{animation:tw-${id} .5s steps(2) infinite}
-.star-${id}{animation:tw-${id} 2.4s steps(3) infinite}
-.blink-${id}{animation:tw-${id} 1.6s infinite}
-.fly-${id}{animation:fly-${id} 5s ease-in-out infinite}
-.glow-${id}{animation:glow-${id} 2.8s ease-in-out infinite}
-.heart-${id}{opacity:0;animation:heart-${id} 1.4s steps(5) forwards}
-.drop-${id}{opacity:0;animation:drop-${id} .5s steps(4) forwards}
-.pop-${id}{animation:pop-${id} .25s ease-out}
-.z-${id}{opacity:0;animation:z-${id} 3s steps(6) infinite}
-.confetti-${id}{animation:confetti-${id} 2.6s linear infinite}
-.cloud-${id}{animation:cloud-${id} 9s steps(8) infinite}
-.sunray-${id}{animation:sun-${id} 2.4s steps(2) infinite}
-.bird-${id}{animation:birdhop-${id} 2.2s steps(1) infinite}
-.petal-${id}{opacity:0;animation:petal-${id} 3s steps(10) infinite}
-.aura-${id}{animation:aura-${id} 3s ease-in-out infinite}
-.spark-${id}{opacity:0;animation:spark-${id} 2.4s steps(3) infinite}
-@media (prefers-reduced-motion: reduce){.scene-${id} *{animation:none!important}.heart-${id},.drop-${id},.z-${id},.petal-${id}{opacity:0}.spark-${id}{opacity:1}}
-</style>`;
-}
-
 /** The pet's window: the sky, the ground, the pet in the middle and its bubble, filling `width` × `height`. */
 export function sceneSvg(input: SceneInput) {
-  const id = uid("scene", JSON.stringify(input));
   const { width: W, height: H } = input;
+  // The names stay the same while the box does, so a new line or a pat starts no loop again.
+  const id = uid("scene", W, H, input.topInset, input.level);
   const layout = layoutOf(input);
 
-  return svg`${svgOpen(W, H, { cover: true })}${sceneCss(id, H)}<defs><clipPath id="soil-${id}"><rect width="${W}" height="${layout.groundY}"/></clipPath></defs><g class="scene-${id}">${skySvg(input, layout, id)}${input.isConfetti ? confettiSvg(W, id) : ""}${petSvg(input, layout, id)}${input.mood === "sleep" ? sleepSvg(layout, id) : ""}${bubbleSvg(input, layout, id)}</g></svg>`;
+  return svg`${svgOpen(W, H, { cover: true })}${sceneCss(id, W, H, n(HOP_CELLS * layout.s))}<defs><clipPath id="soil-${id}"><rect width="${W}" height="${layout.groundY}"/></clipPath></defs><g class="scene-${id}">${skySvg(input, layout, id)}${input.isConfetti ? confettiSvg(W, id) : ""}${petSvg(input, layout, id)}${input.mood === "sleep" ? sleepSvg(layout, id) : ""}${bubbleSvg(input, layout, id)}</g></svg>`;
 }

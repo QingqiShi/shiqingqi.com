@@ -13,6 +13,8 @@ export type CareKind = "feed" | "pat";
 
 /** How long each action plays: the pet hops after a tap or a pat, and the water pours. */
 const ACTION_MS: Record<CareKind, number> = { feed: 1800, pat: 1100 };
+/** How long a hop keeps the pet off the ground. A pat in this time does not start the hop again. */
+const HOP_AIR_MS = 800;
 
 /**
  * What a page needs to draw the pet's scene: the view at this minute, the props of `Scene`, whose
@@ -31,6 +33,8 @@ export function usePetScene(
   const [action, setAction] = useState<{ kind: CareKind; at: number } | null>(
     null,
   );
+  const [beat, setBeat] = useState(0);
+  const [hop, setHop] = useState({ count: 0, at: 0 });
   const { box, sceneRef, insetRef } = useSceneBox();
   const now = Math.max(clock, line?.at ?? 0);
 
@@ -45,19 +49,31 @@ export function usePetScene(
   }, [action]);
 
   const view = buildView(state, { now, range, copy, line });
-  const shown: SceneOverride | undefined =
-    action === null ? override : { ...override, action: action.kind };
+  const shown: SceneOverride = {
+    ...override,
+    beat,
+    hop: hop.count,
+    ...(action === null ? {} : { action: action.kind }),
+  };
+
+  const startHop = (at: number) => {
+    if (at - hop.at >= HOP_AIR_MS) setHop({ count: hop.count + 1, at });
+  };
 
   const onTap = () => {
     const at = new Date().getTime();
     setLine(nextLine(view, line, at));
     setAction({ kind: "pat", at });
+    setBeat(beat + 1);
+    startHop(at);
   };
 
   const care = (kind: CareKind) => {
     const at = new Date().getTime();
     setLine(nextLine(view, line, at, kind));
     setAction({ kind, at });
+    setBeat(beat + 1);
+    if (kind === "pat") startHop(at);
   };
 
   return {
