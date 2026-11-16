@@ -109,8 +109,16 @@ export const sharedStyles = stylex.create({
     // content width by default.
     minInlineSize: 0,
   },
+  // The `a11y.srOnly` recipe below `md`: the label leaves the picture and
+  // stays in the accessibility tree, so it names the button at every width.
   hideLabelBelowMd: {
-    display: { default: "none", [breakpoints.md]: "inline-flex" },
+    position: { default: "absolute", [breakpoints.md]: "static" },
+    inlineSize: { default: "1px", [breakpoints.md]: "auto" },
+    blockSize: { default: "1px", [breakpoints.md]: "auto" },
+    margin: { default: "-1px", [breakpoints.md]: 0 },
+    overflow: { default: "hidden", [breakpoints.md]: "visible" },
+    clipPath: { default: "inset(50%)", [breakpoints.md]: "none" },
+    whiteSpace: { default: "nowrap", [breakpoints.md]: "inherit" },
   },
   active: {
     [buttonTokens.color]: color.primaryForeground,

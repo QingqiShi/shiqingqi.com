@@ -32,11 +32,12 @@ import { outlineSurface } from "./outline-surface.stylex.ts";
 interface SharedProps {
   /**
    * Below the `md` breakpoint, collapses to a square icon-only button and
-   * hides the label. Its glyph there is one step smaller than an icon-only
-   * button's, because it stands for a word in a row of text. Pass
-   * `aria-label` too, so the collapsed form keeps its name.
+   * hides the label from view. Its glyph there is one step smaller than an
+   * icon-only button's, because it stands for a word in a row of text. The
+   * label stays in the accessibility tree, so it names the button at every
+   * width and no `aria-label` is necessary.
    *
-   * @zh 在 `md` 断点以下收起为纯图标的正方形按钮，并隐藏标签。此时其图标比纯图标按钮小一级，因为它代替的是一行文字中的一个词。同时提供 `aria-label`，使收起后的按钮仍保留名称。
+   * @zh 在 `md` 断点以下收起为纯图标的正方形按钮，标签不再显示。此时其图标比纯图标按钮小一级，因为它代替的是一行文字中的一个词。标签仍保留在无障碍树中，因此在任何宽度下都为按钮命名，无需再提供 `aria-label`。
    */
   hideLabelOnMobile?: boolean;
   /**
