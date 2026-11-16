@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
+import { buddyAuthStore } from "#src/server/auth/buddy-auth-store.ts";
 import { buddySessionCookie } from "#src/server/auth/buddy-session-cookie.ts";
-import { createSession } from "#src/server/auth/create-session.ts";
 import { accounts } from "#src/server/db/schema.ts";
 import {
   createTestDb,
@@ -36,10 +36,11 @@ export async function createBuddyTestKit(start = 1_800_000_000_000) {
 
   /** The Cookie header of a new session of the account. */
   async function sessionCookie(userId: string) {
-    const token = await createSession(db, {
+    const token = await buddyAuthStore.createSession(db, {
       userId,
       userAgent: "vitest",
       now: new Date(clock.now),
+      maxAgeSeconds: buddySessionCookie.maxAgeSeconds,
     });
     return `${buddySessionCookie.name}=${token}`;
   }

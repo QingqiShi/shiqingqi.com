@@ -4,7 +4,7 @@ import type { SupportedLocale } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
 import { connection } from "next/server";
-import { lookupSignUp } from "#src/server/auth/start-sign-up.ts";
+import { buddyAuthStore } from "#src/server/auth/buddy-auth-store.ts";
 import { getBuddyDb } from "#src/server/db/get-buddy-db.ts";
 import { AuthFrame } from "#src/sign-in/auth-frame.tsx";
 import { AuthNotice } from "#src/sign-in/auth-notice.tsx";
@@ -28,7 +28,7 @@ export default async function Page({
   await connection();
   const db = getBuddyDb();
   if (!db) return <NotConfigured />;
-  const signUp = await lookupSignUp(db, token, new Date());
+  const signUp = await buddyAuthStore.lookupSignUp(db, token, new Date());
 
   return (
     <AuthFrame>
