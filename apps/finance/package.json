@@ -80,7 +80,7 @@
     "@babel/preset-env": "catalog:",
     "@babel/preset-react": "catalog:",
     "@babel/preset-typescript": "catalog:",
-    "@electric-sql/pglite": "0.5.14",
+    "@electric-sql/pglite": "0.5.16",
     "@next/env": "catalog:",
     "@playwright/test": "^1.65.0",
     "@serwist/cli": "catalog:",
