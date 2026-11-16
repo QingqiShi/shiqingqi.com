@@ -13,10 +13,10 @@ import { ErrorScreen } from "#src/site-shell/error-screen.tsx";
  */
 export default function WithHeaderError({
   error,
-  unstable_retry,
+  retry,
 }: {
   error: Error & { digest?: string };
-  unstable_retry: () => void;
+  retry: () => void;
 }) {
-  return <ErrorScreen error={error} onRetry={unstable_retry} />;
+  return <ErrorScreen error={error} onRetry={retry} />;
 }

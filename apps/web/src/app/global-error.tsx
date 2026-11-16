@@ -12,10 +12,10 @@ import { useEffect } from "react";
  */
 export default function GlobalError({
   error,
-  unstable_retry,
+  retry,
 }: {
   error: Error & { digest?: string };
-  unstable_retry: () => void;
+  retry: () => void;
 }) {
   useEffect(() => {
     console.error("Global error:", error);
@@ -49,7 +49,7 @@ export default function GlobalError({
         </p>
         <button
           type="button"
-          onClick={unstable_retry}
+          onClick={retry}
           style={{
             marginTop: "1rem",
             padding: "0.5rem 1.5rem",

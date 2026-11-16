@@ -15,15 +15,15 @@ import { ErrorScreen } from "#src/site-shell/error-screen.tsx";
  */
 export default function LocaleError({
   error,
-  unstable_retry,
+  retry,
 }: {
   error: Error & { digest?: string };
-  unstable_retry: () => void;
+  retry: () => void;
 }) {
   const { locale } = useParams();
   return (
     <NavigationStack label={locale === "zh" ? "页面出错" : "Page error"}>
-      <ErrorScreen error={error} onRetry={unstable_retry} />
+      <ErrorScreen error={error} onRetry={retry} />
     </NavigationStack>
   );
 }
