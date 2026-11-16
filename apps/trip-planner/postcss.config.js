@@ -8,12 +8,11 @@ module.exports = {
     "postcss-import": {
       // postcss-import does not read the `exports` map of a package, and
       // `@tuja/ui` maps its CSS to a file in `src`. Node's resolver reads the
-      // map. Tailwind resolves its own imports, so they stay as they are.
+      // map. For every other id, the default resolver applies.
       resolve: (id, basedir) =>
         id.startsWith("@tuja/")
           ? nodeRequire.resolve(id, { paths: [basedir] })
           : id,
-      filter: (id) => id.startsWith("@tuja/"),
     },
     "@stylexjs/postcss-plugin": {
       include: [
@@ -32,7 +31,6 @@ module.exports = {
         plugins: stylexExtractionPlugins({ nodeEnv: process.env.NODE_ENV }),
       },
     },
-    "@tailwindcss/postcss": {},
     "postcss-flexbugs-fixes": {},
     "postcss-preset-env": {
       autoprefixer: {

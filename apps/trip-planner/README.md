@@ -9,8 +9,7 @@ A standalone Next.js app for planning trips, deployed as its **own Vercel projec
   trip's own language, with a `lang` where it differs from the page.
 - **UI:** the repo's StyleX design system, `@tuja/ui` (see the `styling`
   skill). The app sits in a `TabView` (Trips, Settings), and the list of trips
-  sits beside the open trip in a `NavigationSplitView`. Tailwind, shadcn and
-  lucide are still installed; a clean-up PR removes them.
+  sits beside the open trip in a `NavigationSplitView`.
 - **Access:** each trip has its own password. The proxy gates a trip path with
   or without a locale prefix, and the trip page checks the unlock cookie too.
 
