@@ -196,7 +196,9 @@ export function Column({
         columnStyles.column,
         a11y.focusRingInset,
         css,
-        sticks && stickyCss,
+        // A page of the stack does not stick. On the plane of a sticky box,
+        // it would cover the pages of the content that move in over it.
+        sticks && presentation === "column" && stickyCss,
         awayCss,
       )}
     >

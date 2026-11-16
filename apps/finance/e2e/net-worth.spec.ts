@@ -10,6 +10,54 @@ async function openNetWorth(page: Page) {
   ).toBeVisible({ timeout: SYNC_TIMEOUT });
 }
 
+/**
+ * Waits for the first frame where a page of the content moves, stops the
+ * motions of the view where that page is part way in, and tells whether the
+ * page shows at its inline-start edge then.
+ */
+async function showsMovingPage(page: Page) {
+  const shows = await page.waitForFunction(
+    () => {
+      // `data-moving` marks each box that a motion moves now.
+      const moving = document.querySelector(
+        '[data-split-view-column="content"] [data-moving]',
+      );
+      const view = moving?.closest("[data-split-view]");
+      if (moving == null || view == null) return null;
+      const motions = view
+        .getAnimations({ subtree: true })
+        .filter((motion) => motion.playState === "running");
+      const column = view.getBoundingClientRect();
+      const stopAt = (share: number) => {
+        for (const motion of motions) {
+          motion.pause();
+          const end = motion.effect?.getComputedTiming().endTime;
+          if (typeof end === "number" && Number.isFinite(end)) {
+            motion.currentTime = end * share;
+          }
+        }
+        return moving.getBoundingClientRect().left - column.left;
+      };
+      let share = 0.2;
+      // The motion is a spring, so the share of its time is not the share of its way.
+      while (share > 0.001 && stopAt(share) < column.width / 4) share /= 2;
+      const { left, top, bottom } = moving.getBoundingClientRect();
+      const isPartWay =
+        left - column.left >= column.width / 4 && left < column.right - 16;
+      const hit = document.elementFromPoint(
+        left + 8,
+        (top + Math.min(bottom, window.innerHeight)) / 2,
+      );
+      for (const motion of motions) motion.play();
+      if (!isPartWay) return "not part way";
+      return hit !== null && moving.contains(hit) ? "shows" : "covered";
+    },
+    null,
+    { polling: "raf" },
+  );
+  return shows.jsonValue();
+}
+
 test.describe("Net worth at 1440 px", () => {
   test.use({ viewport: DESKTOP });
 
@@ -65,6 +113,8 @@ test.describe("Net worth at 1440 px", () => {
     await expect(list).toBeVisible();
 
     await list.getByRole("link", { name: /Alex Current/ }).click();
+    // The list covered the account while it came in.
+    expect(await showsMovingPage(page)).toBe("shows");
     await expect(page).toHaveURL(/[?&]account=/);
     const account = page.getByRole("region", { name: "Alex Current" });
     await expect(account).toBeVisible();
