@@ -122,7 +122,7 @@ jobs:
     # (actions/runner-images#11347). The image pull overlaps with the build job
     # (see above), so it stays off the critical path.
     container:
-      image: mcr.microsoft.com/playwright:v1.64.0-noble
+      image: mcr.microsoft.com/playwright:v1.65.0-noble
     strategy:
       fail-fast: false
       matrix:
@@ -332,7 +332,7 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.64.0-noble
+      image: mcr.microsoft.com/playwright:v1.65.0-noble
     strategy:
       fail-fast: false
       matrix:
