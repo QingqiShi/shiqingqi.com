@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   integer,
   jsonb,
@@ -59,13 +60,18 @@ export const tripMembers = pgTable(
 /**
  * A link that lets one person join a trip as an editor. The link holds a
  * random token and the row holds only its hash. The row goes when the person
- * joins or when an owner ends the link (`drizzle/0003_invites.sql`).
+ * joins, when an owner ends the link (`drizzle/0003_invites.sql`), or when
+ * the owner who made it deletes the account (`drizzle/0004_delete_account.sql`).
  */
 export const tripInvites = pgTable("trip_invites", {
   id: uuid("id").primaryKey().defaultRandom(),
   tripId: uuid("trip_id")
     .notNull()
     .references(() => trips.id, { onDelete: "cascade" }),
+  /** Null only for a link made before the column was added, on a trip that had more than one owner. */
+  createdBy: uuid("created_by")
+    .default(sql`public.trips_viewer_id()`)
+    .references(() => users.id, { onDelete: "cascade" }),
   tokenHash: text("token_hash").notNull().unique(),
   createdAt: createdAt(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),

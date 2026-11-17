@@ -1,18 +1,17 @@
-import { authJson } from "@tuja/server-auth/auth-json";
 import { HttpError } from "@tuja/server-auth/http-error";
 import {
   makeAuth,
   type AuthRateLimitBucket,
 } from "@tuja/server-auth/make-auth";
 import type {
-  AuthHandler,
+  AuthContext,
   AuthRateLimitResult,
 } from "@tuja/server-auth/make-auth-route-kit";
 import { readRequestCookie } from "@tuja/server-auth/read-request-cookie";
 import { makeCodeEmailBuilder } from "@tuja/server-email/make-code-email-builder";
 import type { EmailSender } from "@tuja/server-email/types";
-import { eq } from "drizzle-orm";
-import { emailCodes, sessions, signUps, users } from "#src/db/auth-schema.ts";
+import { eq, sql } from "drizzle-orm";
+import { users } from "#src/db/auth-schema.ts";
 import type { TripsDb } from "#src/db/types.ts";
 import { passkeyRpId } from "./passkey-rp-id.ts";
 import { resolveSession } from "./resolve-session.ts";
@@ -91,43 +90,43 @@ export const tripsAuthConfig = {
 
 export type AuthHandlers = ReturnType<typeof makeTripsAuth>;
 
+/** The user of the session cookie. Refuses a request with no live session. */
+async function requireUser(
+  request: Request,
+  { db, now }: AuthContext<TripsDb>,
+) {
+  const token = readRequestCookie(request, tripsSessionCookie.name);
+  const resolved = token
+    ? await resolveSession(db, token, { now, allowRefresh: false })
+    : null;
+  if (!resolved) throw new HttpError(401, "unauthorized");
+  return { userId: resolved.session.userId };
+}
+
+/**
+ * Takes the user out of every trip, by the rule of `trips_forget_user`, and
+ * then deletes the user. A trip that only this user owns goes; a trip with
+ * one more owner stays.
+ */
+async function deleteUser(tx: TripsDb, userId: string) {
+  await tx.execute(sql`select public.trips_forget_user(${userId})`);
+  const deleted = await tx
+    .delete(users)
+    .where(eq(users.id, userId))
+    .returning({ email: users.email });
+  return { email: deleted.at(0)?.email ?? null };
+}
+
 /**
  * The passkey routes: sign-in with a saved passkey; sign-up with an emailed
  * code, then a passkey; recovery of a user who lost every passkey, through a
- * code sent to the user's email; and the removal of the signed-in user.
+ * code sent to the user's email; and the deletion of the signed-in user's
+ * account, after a check with one of the user's passkeys.
  */
 export function makeTripsAuth(deps: AuthHandlerDeps) {
   const auth = makeAuth({ ...deps, ...tripsAuthConfig });
-
-  const deleteAccount: AuthHandler = auth.handle(async (request, context) => {
-    const { db, now } = context;
-    const token = readRequestCookie(request, tripsSessionCookie.name);
-    const resolved = token
-      ? await resolveSession(db, token, { now, allowRefresh: false })
-      : null;
-    if (!resolved) throw new HttpError(401, "unauthorized");
-    await db.transaction(async (tx) => {
-      // Recovery can end the session after the check above. The lock makes
-      // recovery wait for this transaction, or shows that the session is gone.
-      const live = await tx
-        .select({ id: sessions.id })
-        .from(sessions)
-        .where(eq(sessions.id, resolved.session.sessionId))
-        .for("update");
-      if (live.length === 0) throw new HttpError(401, "unauthorized");
-      // The passkeys, sessions and recovery links go with the user.
-      const deleted = await tx
-        .delete(users)
-        .where(eq(users.id, resolved.session.userId))
-        .returning({ email: users.email });
-      const user = deleted.at(0);
-      if (!user) return;
-      await tx.delete(emailCodes).where(eq(emailCodes.email, user.email));
-      await tx.delete(signUps).where(eq(signUps.email, user.email));
-    });
-    context.setCookies.push(tripsSessionCookie.clear(context.secure));
-    return authJson(context, { ok: true });
-  });
-
-  return { ...auth.handlers, deleteAccount };
+  return {
+    ...auth.handlers,
+    ...auth.deleteAccountHandlers({ requireUser, deleteUser }),
+  };
 }

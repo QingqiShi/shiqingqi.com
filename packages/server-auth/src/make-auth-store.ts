@@ -423,6 +423,23 @@ export function makeAuthStore({
       return locked.at(0)?.userId ?? null;
     },
 
+    /**
+     * Deletes all that sign-in keeps of a user whose account goes: the
+     * passkeys, sessions and recovery links of the user, and the codes and
+     * sign-up links sent to `email`.
+     */
+    async deleteAccount(
+      tx: AuthTx,
+      { userId, email }: { userId: string; email: string | null },
+    ): Promise<void> {
+      await tx.delete(recoveries).where(eq(recoveries.userId, userId));
+      await tx.delete(passkeys).where(eq(passkeys.userId, userId));
+      await tx.delete(sessions).where(eq(sessions.userId, userId));
+      if (email === null) return;
+      await tx.delete(emailCodes).where(eq(emailCodes.email, email));
+      await tx.delete(signUps).where(eq(signUps.email, email));
+    },
+
     async deleteSession(tx: AuthTx, token: string): Promise<void> {
       await tx.delete(sessions).where(eq(sessions.tokenHash, hashToken(token)));
     },
