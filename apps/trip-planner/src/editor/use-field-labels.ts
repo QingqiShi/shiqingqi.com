@@ -10,7 +10,7 @@ export function useKindLabels(): Record<ItemKind, string> {
     lodging: t({ en: "Stay", zh: "住宿" }),
     tip: t({ en: "Tip", zh: "提示" }),
     flight: t({ en: "Flight", zh: "航班" }),
-    nav: t({ en: "Directions", zh: "路线" }),
+    nav: t({ en: "Directions", zh: "导航" }),
     checklist: t({ en: "Checklist", zh: "清单" }),
     signSheet: t({ en: "Road signs", zh: "路标" }),
   };
