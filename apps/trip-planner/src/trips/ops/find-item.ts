@@ -184,6 +184,8 @@ export function insertBefore<T extends { id: string }>(
   before: string | undefined,
 ) {
   const at = before ? entries.findIndex((each) => each.id === before) : -1;
+  // When another person removed `before`, the entry goes last. Thus the
+  // change of this person stays.
   entries.splice(at < 0 ? entries.length : at, 0, entry);
 }
 

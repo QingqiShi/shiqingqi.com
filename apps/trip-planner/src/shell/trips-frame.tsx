@@ -90,19 +90,29 @@ export function TripsFrame({
   const locale = useLocale();
   const router = useRouter();
   const segments = useSelectedLayoutSegments();
-  const [segment, page] = segments;
+  const [segment, page, version] = segments;
   const hash = useTripHash();
   const open = trips.find((trip) => trip.id === segment) ?? null;
   const listHref = getLocalePath("/", locale);
   const listLabel = t({ en: "Trips", zh: "行程" });
-  const isEditing = open !== null && page === "edit";
-  // The way back from the edit screen is the reader, at the day that the
-  // hash names: the day of the last change.
-  const back = isEditing
-    ? { href: getLocalePath(`/${open.id}`, locale) + hash, label: open.title }
-    : open
-      ? { href: listHref, label: listLabel }
-      : null;
+  const historyLabel = t({ en: "History", zh: "历史版本" });
+  const backOf = (trip: TripSummary) => {
+    const tripPath = (path: string) =>
+      getLocalePath(`/${trip.id}${path}`, locale);
+    switch (page) {
+      case "edit":
+        // The way back from the edit screen is the reader, at the day that
+        // the hash names: the day of the last change.
+        return { href: tripPath("") + hash, label: trip.title };
+      case "history":
+        return version
+          ? { href: tripPath("/history"), label: historyLabel }
+          : { href: tripPath("/edit"), label: trip.title };
+      default:
+        return { href: listHref, label: listLabel };
+    }
+  };
+  const back = open ? backOf(open) : null;
 
   // With no trip, a list column is an empty box, and on a phone it is the
   // whole page.
@@ -134,8 +144,8 @@ export function TripsFrame({
         accessory: <NewTripFloatingButton />,
       }}
       content={{
-        key: open ? (isEditing ? `${open.id}/edit` : open.id) : "home",
-        label: open?.title ?? listLabel,
+        key: open ? [open.id, page, version].filter(Boolean).join("/") : "home",
+        label: page === "history" ? historyLabel : (open?.title ?? listLabel),
         back,
         node: children,
       }}

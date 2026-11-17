@@ -63,7 +63,6 @@ export type NewItem =
   | (Omit<Extract<Item, { type: "dining" }>, "query"> & { query?: string })
   | (Omit<Extract<Item, { type: "place" }>, "query"> & { query?: string });
 
-const expect = z.string().min(1);
 const nullable = <T extends z.ZodType>(schema: T) =>
   schema.nullable().optional();
 const fields = z.record(z.string(), z.unknown());
@@ -79,134 +78,149 @@ const itemPlace = z.union([
 export type ItemPlace = z.infer<typeof itemPlace>;
 
 /**
+ * The kinds of op. `expect` is the field that an op on a thing that exists
+ * carries, or nothing for an op as the sender makes it.
+ */
+function opVariants<Expect extends z.core.$ZodLooseShape>(expect: Expect) {
+  return [
+    z.strictObject({
+      op: z.literal("setTrip"),
+      fields: z.strictObject({
+        title: nullable(z.string()),
+        subtitle: nullable(z.string()),
+        party: nullable(z.string()),
+        timeZone: nullable(z.string()),
+        language: nullable(z.enum(["en", "zh"])),
+      }),
+      ...expect,
+    }),
+    z.strictObject({
+      op: z.literal("setFirstDate"),
+      date: z.iso.date(),
+      ...expect,
+    }),
+    z.strictObject({
+      op: z.literal("addDay"),
+      id: entityId,
+      before: entityId.optional(),
+      /** The date of the new day. Else it takes the date where it goes. */
+      date: z.iso.date().optional(),
+    }),
+    z.strictObject({ op: z.literal("removeDay"), id: entityId, ...expect }),
+    z.strictObject({
+      op: z.literal("moveDay"),
+      id: entityId,
+      before: entityId.optional(),
+      ...expect,
+    }),
+    z.strictObject({
+      op: z.literal("setDay"),
+      id: entityId,
+      fields: z.strictObject({
+        title: nullable(z.string()),
+        route: nullable(z.string()),
+        driving: nullable(z.string()),
+        drivingMinutes: nullable(z.number()),
+        weather: nullable(
+          z.object({
+            temp: z.string(),
+            summary: z.string(),
+            note: z.string().optional(),
+          }),
+        ),
+        coords: nullable(z.object({ lat: z.number(), lon: z.number() })),
+      }),
+      ...expect,
+    }),
+    z.strictObject({
+      op: z.literal("addMoment"),
+      dayId: entityId,
+      before: entityId.optional(),
+      moment: z.strictObject({
+        id: entityId,
+        time: momentTimeSchema,
+        text: z.string().optional(),
+        highlight: highlight.optional(),
+      }),
+    }),
+    z.strictObject({
+      op: z.literal("setMoment"),
+      id: entityId,
+      fields: z.strictObject({
+        time: momentTimeSchema.optional(),
+        text: nullable(z.string()),
+        highlight: nullable(highlight),
+      }),
+      ...expect,
+    }),
+    z.strictObject({
+      op: z.literal("moveMoment"),
+      id: entityId,
+      dayId: entityId,
+      before: entityId.optional(),
+      ...expect,
+    }),
+    z.strictObject({ op: z.literal("removeMoment"), id: entityId, ...expect }),
+    z.strictObject({
+      op: z.literal("addItem"),
+      to: itemPlace,
+      before: entityId.optional(),
+      item: z.custom<NewItem>(
+        (value) =>
+          typeof value === "object" &&
+          value !== null &&
+          "type" in value &&
+          typeof value.type === "string" &&
+          Object.hasOwn(itemSchemas, value.type),
+      ),
+    }),
+    z.strictObject({
+      op: z.literal("setItem"),
+      id: entityId,
+      fields: fields,
+      ...expect,
+    }),
+    z.strictObject({
+      op: z.literal("moveItem"),
+      id: entityId,
+      to: itemPlace,
+      before: entityId.optional(),
+      ...expect,
+    }),
+    z.strictObject({ op: z.literal("removeItem"), id: entityId, ...expect }),
+    z.strictObject({
+      op: z.literal("setStay"),
+      dayId: entityId,
+      fields: z.strictObject({
+        summary: nullable(z.string()),
+        note: nullable(z.string()),
+        bookingUrl: nullable(z.string()),
+        sameAs: nullable(z.object({ dayId: entityId, label: z.string() })),
+      }),
+      ...expect,
+    }),
+    z.strictObject({
+      op: z.literal("setPresence"),
+      personId: entityId,
+      dayId: entityId,
+      presence: presence.nullable(),
+      ...expect,
+    }),
+  ] as const;
+}
+
+/**
  * One change to a trip. Each op on a thing that exists carries `expect`,
  * the `digest` of that thing as the sender last saw it (see `expectedOf`).
  * The payloads of items are checked by `applyOps`, by the kind of the item.
  */
-export const opSchema = z.discriminatedUnion("op", [
-  z.strictObject({
-    op: z.literal("setTrip"),
-    fields: z.strictObject({
-      title: nullable(z.string()),
-      subtitle: nullable(z.string()),
-      party: nullable(z.string()),
-      timeZone: nullable(z.string()),
-      language: nullable(z.enum(["en", "zh"])),
-    }),
-    expect,
-  }),
-  z.strictObject({
-    op: z.literal("setFirstDate"),
-    date: z.iso.date(),
-    expect,
-  }),
-  z.strictObject({
-    op: z.literal("addDay"),
-    id: entityId,
-    before: entityId.optional(),
-    /** The date of the new day. Else it takes the date where it goes. */
-    date: z.iso.date().optional(),
-  }),
-  z.strictObject({ op: z.literal("removeDay"), id: entityId, expect }),
-  z.strictObject({
-    op: z.literal("moveDay"),
-    id: entityId,
-    before: entityId.optional(),
-    expect,
-  }),
-  z.strictObject({
-    op: z.literal("setDay"),
-    id: entityId,
-    fields: z.strictObject({
-      title: nullable(z.string()),
-      route: nullable(z.string()),
-      driving: nullable(z.string()),
-      drivingMinutes: nullable(z.number()),
-      weather: nullable(
-        z.object({
-          temp: z.string(),
-          summary: z.string(),
-          note: z.string().optional(),
-        }),
-      ),
-      coords: nullable(z.object({ lat: z.number(), lon: z.number() })),
-    }),
-    expect,
-  }),
-  z.strictObject({
-    op: z.literal("addMoment"),
-    dayId: entityId,
-    before: entityId.optional(),
-    moment: z.strictObject({
-      id: entityId,
-      time: momentTimeSchema,
-      text: z.string().optional(),
-      highlight: highlight.optional(),
-    }),
-  }),
-  z.strictObject({
-    op: z.literal("setMoment"),
-    id: entityId,
-    fields: z.strictObject({
-      time: momentTimeSchema.optional(),
-      text: nullable(z.string()),
-      highlight: nullable(highlight),
-    }),
-    expect,
-  }),
-  z.strictObject({
-    op: z.literal("moveMoment"),
-    id: entityId,
-    dayId: entityId,
-    before: entityId.optional(),
-    expect,
-  }),
-  z.strictObject({ op: z.literal("removeMoment"), id: entityId, expect }),
-  z.strictObject({
-    op: z.literal("addItem"),
-    to: itemPlace,
-    before: entityId.optional(),
-    item: z.custom<NewItem>(
-      (value) =>
-        typeof value === "object" &&
-        value !== null &&
-        "type" in value &&
-        typeof value.type === "string" &&
-        Object.hasOwn(itemSchemas, value.type),
-    ),
-  }),
-  z.strictObject({
-    op: z.literal("setItem"),
-    id: entityId,
-    fields: fields,
-    expect,
-  }),
-  z.strictObject({
-    op: z.literal("moveItem"),
-    id: entityId,
-    to: itemPlace,
-    before: entityId.optional(),
-    expect,
-  }),
-  z.strictObject({ op: z.literal("removeItem"), id: entityId, expect }),
-  z.strictObject({
-    op: z.literal("setStay"),
-    dayId: entityId,
-    fields: z.strictObject({
-      summary: nullable(z.string()),
-      note: nullable(z.string()),
-      bookingUrl: nullable(z.string()),
-      sameAs: nullable(z.object({ dayId: entityId, label: z.string() })),
-    }),
-    expect,
-  }),
-  z.strictObject({
-    op: z.literal("setPresence"),
-    personId: entityId,
-    dayId: entityId,
-    presence: presence.nullable(),
-    expect,
-  }),
-]);
+export const opSchema = z.discriminatedUnion(
+  "op",
+  opVariants({ expect: z.string().min(1) }),
+);
+
+/** An op as the sender makes it, before `withExpect` adds what it saw. */
+export const draftOpSchema = z.discriminatedUnion("op", opVariants({}));
 
 export type Op = z.infer<typeof opSchema>;
+export type DraftOp = z.infer<typeof draftOpSchema>;
