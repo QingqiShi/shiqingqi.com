@@ -50,6 +50,13 @@
       "when": 1794915456308,
       "tag": "0006_trip_writes",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794929221987,
+      "tag": "0007_ai_runs",
+      "breakpoints": true
     }
   ]
 }

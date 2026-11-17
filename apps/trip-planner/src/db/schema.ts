@@ -88,10 +88,40 @@ export const tripInvites = pgTable("trip_invites", {
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 });
 
+/**
+ * One row for each request to change or draft a trip with a model: the
+ * counts, never the text. A member cannot read or write the rows; the app
+ * writes one only through `trips_log_ai_run` (`drizzle/0007_ai_runs.sql`).
+ * A row stays when its user or its trip goes.
+ */
+export const aiRuns = pgTable("ai_runs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  tripId: uuid("trip_id").references(() => trips.id, {
+    onDelete: "set null",
+  }),
+  kind: text("kind", { enum: ["edit", "draft"] }).notNull(),
+  model: text("model").notNull(),
+  status: text("status", {
+    enum: ["ok", "invalid", "failed", "aborted", "timeout"],
+  }).notNull(),
+  /** The requests to the model: 1, and one more for each repair. */
+  rounds: integer("rounds").notNull(),
+  inputTokens: integer("input_tokens").notNull(),
+  outputTokens: integer("output_tokens").notNull(),
+  cacheReadTokens: integer("cache_read_tokens").notNull(),
+  cacheWriteTokens: integer("cache_write_tokens").notNull(),
+  durationMs: integer("duration_ms").notNull(),
+  createdAt: createdAt(),
+});
+
 export const schema = {
   trips,
   tripRevisions,
   tripMembers,
   tripInvites,
+  aiRuns,
   ...authSchema,
 };

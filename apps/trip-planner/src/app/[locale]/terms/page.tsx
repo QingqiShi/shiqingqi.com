@@ -56,8 +56,8 @@ export default function Page() {
         </Text>
         <Text as="p">
           {t({
-            en: "Vercel hosts the site and counts the pages that are opened. Neon holds the database. Resend sends the emails with your codes. Upstash counts requests by IP address and by a hash of your email address, to limit them. Maps come from Google Maps, and the weather from Open-Meteo.",
-            zh: "Vercel 托管网站并统计被打开的页面。Neon 存放数据库。Resend 发送带验证码的邮件。Upstash 按 IP 地址和邮箱地址的哈希值统计请求次数，以限制请求频率。地图来自 Google 地图，天气来自 Open-Meteo。",
+            en: "Vercel hosts the site and counts the pages that are opened. Neon holds the database. Resend sends the emails with your codes. Upstash counts requests by IP address and by a hash of your email address, to limit them. Maps come from Google Maps, and the weather from Open-Meteo. When you ask for a change, Anthropic gets the trip and what you type or paste.",
+            zh: "Vercel 托管网站并统计被打开的页面。Neon 存放数据库。Resend 发送带验证码的邮件。Upstash 按 IP 地址和邮箱地址的哈希值统计请求次数，以限制请求频率。地图来自 Google 地图，天气来自 Open-Meteo。当你请求修改时，Anthropic 会收到行程和你输入或粘贴的内容。",
           })}
         </Text>
         <Text as="p">
