@@ -4,6 +4,7 @@ import { Grid } from "@1771technologies/lytenyte-pro";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
+import { useMediaQuery } from "@tuja/ui/hooks/use-media-query";
 import { useReducedMotion } from "@tuja/ui/motion/use-reduced-motion";
 import { border, font, space } from "@tuja/ui/tokens.stylex";
 import { copyTextToClipboard } from "@tuja/ui/utils/copy-text-to-clipboard";
@@ -40,6 +41,9 @@ export function MediaTableGrid({
   onLoadMore,
 }: MediaTableGridProps) {
   const prefersReducedMotion = useReducedMotion();
+  // The server renders as a touch device does. A wrong guess mounts the rows
+  // again after hydration, and a desktop pays that more easily than a phone.
+  const isTouchPrimary = useMediaQuery("(pointer: coarse)", true);
 
   const events: Grid.Events<MediaTableSpec> = {
     cell: {
@@ -123,7 +127,9 @@ export function MediaTableGrid({
         cellSelectionMode="range"
         cellSelectionExcludeMarker
         columnDoubleClickToAutosize
-        suppressScrollFlash
+        // This moves the rows on the main thread, one frame behind a touch
+        // scroll, which the compositor moves.
+        suppressScrollFlash={!isTouchPrimary}
         viewportInitialHeight={520}
         viewportInitialWidth={1140}
         events={events}
