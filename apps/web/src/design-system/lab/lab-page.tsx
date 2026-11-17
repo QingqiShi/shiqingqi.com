@@ -3,6 +3,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import type { PageProps as LocalePageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import type { ComponentType, ReactNode } from "react";
@@ -76,7 +77,8 @@ interface LabPageProps {
  * The Lab view: the Canvas, under the header the route's `layout.tsx` renders.
  * It takes the Shell's content width rather than the reading column, because
  * the Lab has nothing to read. It starts where the documentation view does, so
- * a switch between the two views moves nothing above it.
+ * a switch between the two views moves nothing above it. From `md` it ends at
+ * the foot of the viewport.
  */
 export function LabPage({ lab: Lab }: LabPageProps) {
   return (
@@ -87,7 +89,12 @@ export function LabPage({ lab: Lab }: LabPageProps) {
 }
 
 const styles = stylex.create({
+  // From `md` the Lab takes what the header leaves of the viewport, so the
+  // page does not scroll.
   page: {
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: { default: 0, [breakpoints.md]: 1 },
     marginBlockStart: rhythm.section,
   },
 });

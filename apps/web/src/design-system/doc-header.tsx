@@ -48,6 +48,7 @@ export function DocHeader({ path, description }: DocHeaderProps) {
 
 const styles = stylex.create({
   header: {
+    inlineSize: "100%",
     maxInlineSize: readingColumn.inlineSize,
     marginInline: "auto",
   },

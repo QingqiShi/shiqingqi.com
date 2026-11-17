@@ -81,7 +81,7 @@ export function DesignSystemFrame({
           <div
             id={DESIGN_SYSTEM_CONTENT_ID}
             tabIndex={-1}
-            css={[corner.radius_3, styles.page, a11y.focusRing]}
+            css={[corner.radius_3, styles.page, styles.fill, a11y.focusRing]}
           >
             {children}
           </div>
@@ -96,6 +96,13 @@ const styles = stylex.create({
   // where the sidebar first fits.
   view: {
     [splitViewTokens.sidebarInlineSize]: space._13,
+  },
+  // The page takes the height of the column, so a Lab can end at the foot of
+  // the viewport.
+  fill: {
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
   },
   page: {
     paddingBlockStart: { default: space._3, [breakpoints.md]: space._7 },

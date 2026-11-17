@@ -18,7 +18,6 @@ import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { mergeRefs } from "@tuja/ui/utils/merge-refs";
 import type { ReactNode } from "react";
 import { Identifier } from "#src/design-system/identifier.tsx";
 import { LabControl } from "./lab-control.tsx";
@@ -110,9 +109,10 @@ export function LabControls({
 }
 
 /**
- * The panel is the sticky box and its own scroller. The Scroll region must
- * know the sticky carrier as its parent, so it is a component inside that
- * carrier.
+ * The panel is the sticky box, and the scroller is a box inside it: the Glass
+ * rim is an absolute box, and in a scroller it stops at the scrollbar and
+ * scrolls away with the content. The Scroll region must know the sticky
+ * carrier as its parent, so it is a component inside that carrier.
  */
 function PanelScroller({
   sticky,
@@ -125,38 +125,55 @@ function PanelScroller({
   const region = useScrollRegion();
   const { scroller, content } = region;
   return (
-    <div
-      ref={mergeRefs(ref, scroller)}
-      css={[
-        corner.radius_3,
-        glassSurface.base,
-        scrollY.base,
-        scrollbar.autoHide,
-        transition.scrollbarColor,
-        styles.panel,
-        css,
-      ]}
-    >
-      <div ref={content} css={styles.content}>
-        <EffectCarrier value={region}>{children}</EffectCarrier>
+    <div css={styles.cell}>
+      <div
+        ref={ref}
+        css={[corner.radius_3, glassSurface.base, styles.panel, css]}
+      >
+        <div
+          ref={scroller}
+          css={[
+            scrollY.base,
+            scrollbar.autoHide,
+            transition.scrollbarColor,
+            styles.scroller,
+          ]}
+        >
+          <div ref={content} css={styles.content}>
+            <EffectCarrier value={region}>{children}</EffectCarrier>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
 const styles = stylex.create({
-  panel: {
+  // The panel's column in the Canvas. Size containment keeps the height of
+  // the controls out of the height of the Canvas, so a long list of props
+  // does not make the page scroll.
+  cell: {
     // Below `md` the bar at the foot of the viewport carries the controls
     // instead, so the Specimen keeps the whole screen.
     display: { default: "none", [breakpoints.md]: "block" },
-    // Sticky below the header, so the controls stay in view while the Canvas
-    // runs on. It also positions the Glass rim.
+    containerType: "size",
+  },
+  panel: {
+    // Sticky, so the controls stay in view when a tall Specimen makes the
+    // page scroll. It also positions the Glass rim.
     position: "sticky",
     insetBlockStart: space._4,
-    alignSelf: "start",
-    // A panel taller than the viewport would pin its foot out of reach, so it
-    // stops at the viewport and scrolls inside instead.
-    maxBlockSize: { [breakpoints.md]: `calc(100dvh - ${space._7})` },
+    // The panel stops at the foot of the Canvas, or of the viewport when the
+    // Canvas is taller, and scrolls inside instead.
+    maxBlockSize: `min(100cqb, calc(100dvh - ${space._7}))`,
+    display: "flex",
+    flexDirection: "column",
+  },
+  // The scroller clips to the corners of the panel.
+  scroller: {
+    minBlockSize: 0,
+    borderRadius: "inherit",
+    cornerShape: "inherit",
   },
   content: {
     position: "relative",

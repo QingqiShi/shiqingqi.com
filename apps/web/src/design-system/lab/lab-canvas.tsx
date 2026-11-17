@@ -258,13 +258,12 @@ const styles = stylex.create({
       default: `calc(${labBar.clearance} + ${space._4} - ${space._8} - env(safe-area-inset-bottom))`,
       [breakpoints.md]: space._4,
     },
-    // The Canvas is the page below the header, so it runs to the foot of the
-    // viewport: what stands outside it is the shell's padding above and below.
-    // Below `md` the stage sizes itself to the screen instead.
-    minBlockSize: {
-      default: null,
-      [breakpoints.md]: `max(28rem, calc(100dvh - ${space._7} - ${space._4} - ${space._8}))`,
-    },
+    // From `md` the Canvas takes what the header leaves of the viewport, so
+    // the page does not scroll. The floor keeps room for the Specimen in a
+    // short window, and the page scrolls there. Below `md` the stage sizes
+    // itself to the screen instead.
+    flexGrow: { default: 0, [breakpoints.md]: 1 },
+    minBlockSize: { default: null, [breakpoints.md]: "20rem" },
   },
   stage: {
     display: "flex",
@@ -278,7 +277,7 @@ const styles = stylex.create({
     // it leaves.
     minBlockSize: {
       default: `calc(100dvh - ${labStage.blockStart} - ${labBar.clearance} - ${space._4})`,
-      [breakpoints.md]: null,
+      [breakpoints.md]: "auto",
     },
   },
   stageBlockStart: (blockStart: string) => ({
@@ -294,14 +293,24 @@ const styles = stylex.create({
     justifyContent: "center",
     inlineSize: "100%",
     minInlineSize: 0,
-    flexGrow: { default: 1, [breakpoints.md]: 0 },
+    flexGrow: 1,
   },
   specimen: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
   },
+  // From `md` the snippet stands at the foot of the stage and takes the room
+  // that the Specimen leaves. Its basis is the least room it keeps, so long
+  // code scrolls in its card and does not make the page scroll.
   snippet: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
+    flexGrow: { default: 0, [breakpoints.md]: 1 },
+    flexShrink: { default: 0, [breakpoints.md]: 1 },
+    flexBasis: { default: "auto", [breakpoints.md]: "12rem" },
+    minBlockSize: { default: "auto", [breakpoints.md]: 0 },
     inlineSize: "100%",
     maxInlineSize: "34rem",
     minInlineSize: 0,

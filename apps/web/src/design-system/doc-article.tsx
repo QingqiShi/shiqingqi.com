@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
 import { DocHeader } from "./doc-header.tsx";
@@ -23,9 +24,17 @@ interface DocArticleProps {
  */
 export function DocArticle({ path, description, children }: DocArticleProps) {
   return (
-    <article>
+    <article css={styles.article}>
       <DocHeader path={path} description={description} />
       {children}
     </article>
   );
 }
+
+const styles = stylex.create({
+  article: {
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
+  },
+});
