@@ -4,6 +4,8 @@ import { FingerprintIcon } from "@phosphor-icons/react/dist/ssr/Fingerprint";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { RouterLink } from "@tuja/next-links/router-link";
+import { Anchor } from "@tuja/ui/components/anchor";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
@@ -21,10 +23,37 @@ interface SignUpPanelProps {
   email: string;
   /** Where to go after the sign-up, without a locale. */
   next: string;
+  /**
+   * The app's page of terms and privacy, with the locale. With it, the panel
+   * says that a sign-up agrees to them. An app with no such page leaves it out.
+   */
+  termsHref?: string;
+}
+
+function TermsNote({ href }: { href: string }) {
+  return (
+    <Text look="caption" tone="muted">
+      {t({ en: "By signing up, you agree to the ", zh: "注册即表示你同意" })}
+      <Anchor
+        href={href}
+        tone="muted"
+        linkComponent={RouterLink}
+        newTabLabel={t({ en: "(opens in new tab)", zh: "(在新标签页中打开)" })}
+      >
+        {t({ en: "terms and privacy policy", zh: "服务条款和隐私政策" })}
+      </Anchor>
+      {t({ en: ".", zh: "。" })}
+    </Text>
+  );
 }
 
 /** Creates the user for the confirmed address and saves a passkey on this device. */
-export function SignUpPanel({ token, email, next }: SignUpPanelProps) {
+export function SignUpPanel({
+  token,
+  email,
+  next,
+  termsHref,
+}: SignUpPanelProps) {
   const locale = useLocale();
   const messageOf = useAuthErrorMessage();
   const [busy, setBusy] = useState(false);
@@ -71,6 +100,7 @@ export function SignUpPanel({ token, email, next }: SignUpPanelProps) {
       >
         {t({ en: "Save a passkey", zh: "保存通行密钥" })}
       </Button>
+      {termsHref ? <TermsNote href={termsHref} /> : null}
     </div>
   );
 }

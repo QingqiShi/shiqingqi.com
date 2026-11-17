@@ -25,7 +25,7 @@ import type { TripsDb } from "#src/db/types.ts";
 import { tripSharing } from "#src/share/trip-sharing.ts";
 import { asViewer } from "#src/trips/as-viewer.ts";
 import { importTrip } from "#src/trips/import-trip.ts";
-import sample from "#src/trips/testing/sample-trip.json";
+import sample from "#src/trips/sample-trip.json";
 import { makeTripsAuth, type AuthHandlers } from "./make-trips-auth.ts";
 import { resolveSession } from "./resolve-session.ts";
 import { tripsSessionCookie } from "./trips-session-cookie.ts";

@@ -1,5 +1,6 @@
 import { SignUpPanel } from "@tuja/auth-ui/components/sign-up-panel";
 import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { setLocale } from "@tuja/i18n/server-locale";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
@@ -26,8 +27,9 @@ export default async function Page({
   params: Promise<{ locale: string; token: string }>;
   searchParams: Promise<{ next?: string | string[] }>;
 }) {
-  const { locale, token } = await params;
-  setLocale(validateLocale(locale));
+  const { locale: localeParam, token } = await params;
+  const locale = validateLocale(localeParam);
+  setLocale(locale);
   await connection();
   if (!getAuthSecret()) return <NotConfigured />;
   const signUp = await lookupPageSignUp(token);
@@ -39,6 +41,7 @@ export default async function Page({
           token={token}
           email={signUp.email}
           next={nextOf((await searchParams).next)}
+          termsHref={getLocalePath("/terms", locale)}
         />
       ) : (
         <LinkEnded />

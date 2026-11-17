@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import sample from "./testing/sample-trip.json";
+import sample from "./sample-trip.json";
 import { tripSchema } from "./trip-schema";
 
 function withSample(change: (trip: typeof sample) => void) {

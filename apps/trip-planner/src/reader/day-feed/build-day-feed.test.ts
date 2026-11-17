@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildDayFeed } from "./build-day-feed";
-import sample from "@/trips/testing/sample-trip.json";
+import sample from "@/trips/sample-trip.json";
 import { tripSchema } from "@/trips/trip-schema";
 
 const trip = tripSchema.parse(sample);
