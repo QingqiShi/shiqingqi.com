@@ -19,6 +19,7 @@ import {
 import { findMoment } from "#src/trips/ops/find-item.ts";
 import type { Trip } from "#src/trips/types.ts";
 import { itemName, locateItem } from "./build-outline.ts";
+import { goesWithTheirs } from "./create-save-queue.ts";
 import { useEditor } from "./editor-provider.tsx";
 import { SheetActions } from "./sheet-actions.tsx";
 import { useDayLabels } from "./use-day-labels.ts";
@@ -71,6 +72,8 @@ function useDescribe() {
       return [
         `${dayOf(moment.day.id)} · ${timeLabel(moment.moment.time)}`,
         moment.moment.text,
+        // What the moment holds goes with it when the person takes it out.
+        ...moment.moment.items.map(itemName),
       ].filter((line) => line !== undefined);
     }
     const found = locateItem(trip, id);
@@ -127,12 +130,28 @@ export function ConflictView({ onDone }: { onDone: () => void }) {
       problem.theirs,
       withExpect(problem.theirs, batch.ops),
     );
+    // The later changes of the person that go with this one.
+    const later = goesWithTheirs(problem.theirs, state.pending).filter(
+      (each) => each.id !== batch.id,
+    );
     return {
       problem,
       mine: merged.status === "applied" ? merged.trip : state.trip,
       // A thing that the change adds has no other version.
       ids: batch.touches.filter(
         (id) => !batch.ops.some((op) => addedId(op) === id),
+      ),
+      hasLater: later.length > 0,
+      hasOther: later.some((each) =>
+        each.touches.some((id) => !batch.touches.includes(id)),
+      ),
+      // The person's version takes the thing out, with all that someone
+      // else put in it.
+      removes: batch.ops.some(
+        (op) =>
+          op.op === "removeDay" ||
+          op.op === "removeMoment" ||
+          op.op === "removeItem",
       ),
     };
   });
@@ -145,7 +164,25 @@ export function ConflictView({ onDone }: { onDone: () => void }) {
   const theirVersion = t({ en: "Their version", zh: "对方的版本" });
   const yourVersion = t({ en: "Your version", zh: "你的版本" });
   if (!conflict) return null;
-  const { problem, mine, ids } = conflict;
+  const { problem, mine, ids, hasLater, hasOther, removes } = conflict;
+  const later = !hasLater
+    ? null
+    : problem.canKeepMine
+      ? hasOther
+        ? t({
+            en: "You made more changes after that, and some of them also changed other things. If you keep their version, all of those changes go too.",
+            zh: "之后你还做了其他修改，其中有些同时改了别处。如果保留对方的版本，这些修改都会一并放弃。",
+          })
+        : t({
+            en: "You changed this again after that. If you keep their version, those changes go too.",
+            zh: "之后你又改过这里。如果保留对方的版本，这些修改也会一并放弃。",
+          })
+      : hasOther
+        ? t({
+            en: "Some changes that you made after that also changed other things. They cannot be saved either.",
+            zh: "之后你做的一些修改同时改了别处，它们也无法保存。",
+          })
+        : null;
 
   return (
     <div css={stack.item}>
@@ -160,6 +197,11 @@ export function ConflictView({ onDone }: { onDone: () => void }) {
               zh: "在你修改的同时，其他人移除了它，所以你的修改无法保存。",
             })}
       </Text>
+      {later ? (
+        <Text as="p" tone="muted">
+          {later}
+        </Text>
+      ) : null}
       {ids.map((id) => (
         <Columns key={id} gap="item">
           <Version title={theirVersion} lines={describe(problem.theirs, id)} />
@@ -168,11 +210,17 @@ export function ConflictView({ onDone }: { onDone: () => void }) {
       ))}
       <SheetActions>
         <Button
-          look={problem.canKeepMine ? "outline" : "primary"}
+          look={problem.canKeepMine && !removes ? "outline" : "primary"}
           onClick={() => {
             queue.keepTheirs();
-            // This takes the place of the toast that offers to undo the change.
-            showToast({ message: problem.canKeepMine ? theirsKept : notSaved });
+            // This takes the place of the toast that offers to undo the
+            // change. A change to a different thing that goes too has its
+            // own toast, which stays.
+            if (!hasOther) {
+              showToast({
+                message: problem.canKeepMine ? theirsKept : notSaved,
+              });
+            }
             onDone();
           }}
         >
@@ -182,7 +230,7 @@ export function ConflictView({ onDone }: { onDone: () => void }) {
         </Button>
         {problem.canKeepMine ? (
           <Button
-            look="primary"
+            look={removes ? "outline" : "primary"}
             onClick={() => {
               queue.keepMine();
               onDone();

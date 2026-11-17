@@ -159,7 +159,12 @@ export function EditorProvider({
   }, [failedId, showToast, notSavedMessage]);
 
   const undo = () => {
-    showToast({ message: queue.undo() ? undone : cannotUndo });
+    const result = queue.undo();
+    // When the thing changed after the change, the conflict sheet opens,
+    // so the change is not taken back yet.
+    if (result !== "asks") {
+      showToast({ message: result === "taken" ? undone : cannotUndo });
+    }
   };
 
   const statusOf = (id: string): RowStatus => {

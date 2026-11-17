@@ -20,6 +20,8 @@ export interface Batch {
   sent: readonly Op[];
   /** The ids of the days, moments and items that the batch changes, and `trip` for the trip's own fields. */
   touches: readonly string[];
+  /** The id of the batch that this one takes back, when it is an undo. */
+  undoes?: number;
 }
 
 export type Problem =
@@ -69,10 +71,12 @@ export interface SaveQueue {
     ops: readonly DraftOp[],
   ) => { ok: true; batchId: number } | { ok: false; refused: string | null };
   /**
-   * Takes back the newest change that is not taken back yet. False when
-   * there is none, or when it no longer applies.
+   * Takes back the newest change that is not taken back yet: `taken` when
+   * the screen shows it taken back, `asks` when the thing changed after
+   * that change, so a conflict will ask the person, and `none` when there
+   * is no change to take back or the trip cannot take it.
    */
-  undo: () => boolean;
+  undo: () => "taken" | "asks" | "none";
   /** Sends a change that failed again. */
   retry: () => void;
   /** Ends a conflict: drops the person's change and shows the other version. */
@@ -91,6 +95,13 @@ export interface SaveQueue {
 interface UndoEntry {
   batchId: number;
   inverse: readonly DraftOp[];
+  /**
+   * The inverse as it goes to the server. Each `expect` is from the trip
+   * right after the change, so the server takes the undo only while each
+   * thing is still as the change left it. A thing that another person
+   * changed after that gets a conflict, not the older version.
+   */
+  sent: readonly Op[];
 }
 
 const UNDO_DEPTH = 20;
@@ -102,8 +113,9 @@ const UNDO_DEPTH = 20;
  * with the changes of the queue applied. A batch gets its `expect` one
  * time, when the person makes the change: a newer base never stamps it
  * again, because that would write over a change that the person did not
- * see. A request that fails, or a conflict, stops the queue until the
- * person decides.
+ * see. An undo gets its `expect` from the trip right after the change that
+ * it takes back, for the same reason. A request that fails, or a conflict,
+ * stops the queue until the person decides.
  */
 export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
   const { send, read } = options;
@@ -152,8 +164,7 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
   function dropWhatNoLongerApplies() {
     const { kept } = project(base, pending);
     if (kept.length === pending.length) return;
-    forget(pending.slice(kept.length));
-    pending = kept;
+    drop(pending.slice(kept.length));
     reportDropped();
   }
 
@@ -164,15 +175,22 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
     void pump();
   }
 
-  /** A change that never reached the server has nothing to take back. */
-  function forget(batches: readonly Batch[]) {
-    const ids = new Set(batches.map((batch) => batch.id));
+  /**
+   * Takes batches out of the queue. A change that never reached the server
+   * has nothing to take back, so the undo of each goes with it: the one on
+   * the stack, and the one that waits in the queue.
+   */
+  function drop(batches: readonly Batch[]) {
+    const ids = withUndos(
+      pending,
+      batches.map((batch) => batch.id),
+    );
+    pending = pending.filter((batch) => !ids.has(batch.id));
     undoStack = undoStack.filter((entry) => !ids.has(entry.batchId));
   }
 
   function dropHead() {
-    forget(pending.slice(0, 1));
-    pending = pending.slice(1);
+    drop(pending.slice(0, 1));
   }
 
   function gone() {
@@ -319,9 +337,16 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
 
   function keepTheirs() {
     if (problem?.kind !== "conflict") return;
+    const things = new Set(problem.batch.touches);
+    const goes = goesWithTheirs(problem.theirs, pending);
     base = problem.theirs;
     problem = null;
-    dropHead();
+    drop(goes);
+    // The sheet showed the things of the conflict. A change to a different
+    // thing that goes with them gets its own message.
+    if (goes.some((batch) => batch.touches.some((id) => !things.has(id)))) {
+      reportDropped();
+    }
     resume();
   }
 
@@ -361,9 +386,14 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
       pending = [...pending, batch];
       const inverse = invertOps(before, ops);
       if (inverse.length > 0) {
-        undoStack = [...undoStack, { batchId: batch.id, inverse }].slice(
-          -UNDO_DEPTH,
-        );
+        undoStack = [
+          ...undoStack,
+          {
+            batchId: batch.id,
+            inverse,
+            sent: withExpect(result.trip, inverse),
+          },
+        ].slice(-UNDO_DEPTH);
       }
       publish();
       void pump();
@@ -371,40 +401,44 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
     },
     undo() {
       const entry = undoStack.at(-1);
-      if (!entry) return false;
+      if (!entry) return "none";
       undoStack = undoStack.slice(0, -1);
       const last = pending.at(-1);
       if (last?.id === entry.batchId) {
         if (problem?.kind === "conflict" && problem.batch.id === last.id) {
           keepTheirs();
-          return true;
+          return "taken";
         }
         // A change that has not left yet needs no request to take it back.
         if (sendingId !== last.id && problem?.batch.id !== last.id) {
           pending = pending.slice(0, -1);
           publish();
-          return true;
+          return "taken";
         }
       }
-      const sent = withExpect(state.trip, entry.inverse);
-      if (applyOps(state.trip, sent).status !== "applied") {
+      // A thing that changed after the change of the person gives a
+      // conflict here. The undo goes to the server all the same, which
+      // answers with the conflict, and the person chooses a version.
+      const { status } = applyOps(state.trip, entry.sent);
+      if (status === "refused") {
         publish();
-        return false;
+        return "none";
       }
       pending = [
         ...pending,
         {
           id: nextId++,
           ops: entry.inverse,
-          sent,
+          sent: entry.sent,
           touches: touchedIds(entry.inverse),
+          undoes: entry.batchId,
         },
       ];
       publish();
       // When the request of the change itself failed, it goes again first.
       if (problem?.kind === "failed") retry();
       else void pump();
-      return true;
+      return status === "conflict" ? "asks" : "taken";
     },
     retry,
     keepTheirs,
@@ -432,6 +466,41 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
       });
     },
   };
+}
+
+/** The ids of batches, with the id of each batch of `pending` that takes one of them back. */
+function withUndos(pending: readonly Batch[], ids: readonly number[]) {
+  const all = new Set(ids);
+  // An undo waits behind the batch that it takes back, so one pass finds it.
+  for (const batch of pending) {
+    if (batch.undoes !== undefined && all.has(batch.undoes)) all.add(batch.id);
+  }
+  return all;
+}
+
+/**
+ * The batches that go when the person keeps the other version in a conflict
+ * on the first batch of `pending`: that batch, each later batch that does
+ * not apply to the other version as the person made it, and the undo of
+ * each. The person made each of them on the version that they give up, and
+ * the server would answer it as it answered the first. A batch goes whole,
+ * because its ops can depend on each other.
+ */
+export function goesWithTheirs(
+  theirs: Trip,
+  pending: readonly Batch[],
+): Batch[] {
+  const gone = new Set(pending.slice(0, 1).map((batch) => batch.id));
+  let trip = theirs;
+  for (const batch of pending.slice(1)) {
+    const result =
+      batch.undoes !== undefined && gone.has(batch.undoes)
+        ? null
+        : applyOps(trip, batch.sent);
+    if (result?.status === "applied") trip = result.trip;
+    else gone.add(batch.id);
+  }
+  return pending.filter((batch) => gone.has(batch.id));
 }
 
 /**
