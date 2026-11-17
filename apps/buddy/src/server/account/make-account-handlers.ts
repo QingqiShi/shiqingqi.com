@@ -1,12 +1,11 @@
 import { isSameOrigin } from "@tuja/server-auth/is-same-origin";
-import { eq } from "drizzle-orm";
 import { z } from "zod";
 import type { OwnerPetState, PublicPetState } from "#src/pet/types.ts";
 import { readSession } from "../auth/read-session.ts";
-import { accounts } from "../db/schema.ts";
 import type { BuddyDb } from "../db/types.ts";
 import { machineStore } from "../machines/machine-store.ts";
 import type { MachineRegistry } from "../machines/make-machine-registry.ts";
+import { ownAccount, setOwnVisibility } from "./own-account.ts";
 
 interface AccountHandlerDeps {
   getDb: () => BuddyDb | null;
@@ -24,15 +23,6 @@ function json(body: unknown, status = 200, setCookie?: string | null) {
   const headers = new Headers({ "Cache-Control": "no-store" });
   if (setCookie) headers.append("Set-Cookie", setCookie);
   return Response.json(body, { status, headers });
-}
-
-async function readAccount(db: BuddyDb, userId: string) {
-  const rows = await db
-    .select({ name: accounts.name, isPublic: accounts.isPublic })
-    .from(accounts)
-    .where(eq(accounts.id, userId))
-    .limit(1);
-  return rows.at(0) ?? null;
 }
 
 /** The signed-in owner's routes for their own page. */
@@ -58,28 +48,13 @@ export function makeAccountHandlers(deps: AccountHandlerDeps) {
       const body = visibilityBody.safeParse(raw);
       if (!body.success) return reply({ error: "invalid_body" }, 400);
       const { userId } = signedIn.session;
-      let updated: { name: string; isPublic: boolean } | undefined;
+      let updated: { name: string; isPublic: boolean } | null;
       try {
-        updated = await db.transaction(async (tx) => {
-          const locked = (
-            await tx
-              .select({ name: accounts.name })
-              .from(accounts)
-              .where(eq(accounts.id, userId))
-              .for("update")
-          ).at(0);
-          if (!locked) return undefined;
-          const isPublic = body.data.public;
-          await tx
-            .update(accounts)
-            .set({ isPublic })
-            .where(eq(accounts.id, userId));
-          await deps.registry.setVisibility({
-            userId,
-            name: locked.name,
-            isPublic,
-          });
-          return { name: locked.name, isPublic };
+        updated = await setOwnVisibility(db, {
+          userId,
+          isPublic: body.data.public,
+          whileLocked: ({ name, isPublic }) =>
+            deps.registry.setVisibility({ userId, name, isPublic }),
         });
       } catch {
         return reply({ error: "visibility_failed" }, 503);
@@ -100,7 +75,7 @@ export function makeAccountHandlers(deps: AccountHandlerDeps) {
       const signedIn = await readSession(db, request, deps.now());
       if (!signedIn) return json({ error: "unauthorized" }, 401);
       const { userId } = signedIn.session;
-      const account = await readAccount(db, userId);
+      const account = await ownAccount(db, userId);
       const [state, machines] = account
         ? await Promise.all([
             deps.readOwnPetState(account.name),

@@ -7,7 +7,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { buddyAuthStore } from "../auth/buddy-auth-store.ts";
 import { buddySessionCookie } from "../auth/buddy-session-cookie.ts";
-import { accounts, schema } from "../db/schema.ts";
+import { accounts } from "../db/schema.ts";
 import { assertLocalDatabaseUrl } from "./assert-local-database-url.ts";
 import { readDevBuddyEnv } from "./read-dev-buddy-env.ts";
 import { seedDevAccount } from "./seed-dev-account.ts";
@@ -39,7 +39,7 @@ async function main() {
 
   const pool = new Pool({ connectionString: databaseUrl, max: 1 });
   try {
-    const db = drizzle({ client: pool, schema });
+    const db = drizzle({ client: pool });
     await seedDevAccount(db).catch((error: unknown) => {
       throw new Error(
         `No database answers at ${databaseUrl}. Start \`pnpm dev\` in apps/buddy first.`,

@@ -2,7 +2,6 @@ import { attachDatabasePool } from "@vercel/functions";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import "server-only";
-import { schema } from "./schema.ts";
 import type { BuddyDb } from "./types.ts";
 
 let db: BuddyDb | null = null;
@@ -24,7 +23,7 @@ export function getBuddyDb(): BuddyDb | null {
       idleTimeoutMillis: 5_000,
     });
     attachDatabasePool(pool);
-    db = drizzle({ client: pool, schema });
+    db = drizzle({ client: pool });
   }
   return db;
 }

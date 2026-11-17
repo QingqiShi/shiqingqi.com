@@ -1,10 +1,10 @@
 import { getRequestOrigin } from "@tuja/server-auth/get-request-origin";
 import { isSameOrigin } from "@tuja/server-auth/is-same-origin";
 import { z } from "zod";
+import { ownAccountName } from "../account/own-account.ts";
 import { readSession } from "../auth/read-session.ts";
 import type { BuddyDb } from "../db/types.ts";
 import { slowDown, withinRateLimit } from "../http/within-rate-limit.ts";
-import { accountNameOf } from "../machines/account-name-of.ts";
 import { machineStore } from "../machines/machine-store.ts";
 import type { MachineRegistry } from "../machines/make-machine-registry.ts";
 import type { BuddyKv } from "../store/types.ts";
@@ -141,7 +141,7 @@ export function makeConnectHandlers(deps: ConnectHandlerDeps) {
       if (!found) return reply({ error: "not_found" }, 404);
       const { requestId, request: pending } = found;
       const { userId } = signedIn.session;
-      const name = await accountNameOf(db, userId);
+      const name = await ownAccountName(db, userId);
       if (!name) return reply({ error: "unauthorized" }, 401);
       if (
         pending.status !== "pending" ||

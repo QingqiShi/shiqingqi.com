@@ -1,8 +1,7 @@
-import { eq } from "drizzle-orm";
 import "server-only";
 import { getPageSession } from "../auth/get-page-session.ts";
 import { getBuddyDb } from "../db/get-buddy-db.ts";
-import { accounts } from "../db/schema.ts";
+import { ownAccount } from "./own-account.ts";
 
 /**
  * The signed-in visitor's account, for a server component. Null without a
@@ -16,11 +15,6 @@ export async function getPageAccount(): Promise<{
   const db = getBuddyDb();
   const session = db ? await getPageSession() : null;
   if (!db || !session) return null;
-  const rows = await db
-    .select({ name: accounts.name, isPublic: accounts.isPublic })
-    .from(accounts)
-    .where(eq(accounts.id, session.userId))
-    .limit(1);
-  const account = rows.at(0);
+  const account = await ownAccount(db, session.userId);
   return account ? { userId: session.userId, ...account } : null;
 }

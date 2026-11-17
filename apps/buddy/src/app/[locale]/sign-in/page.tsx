@@ -7,9 +7,9 @@ import { safeNextPath } from "@tuja/server-auth/sign-in-path";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
+import { ownAccountName } from "#src/server/account/own-account.ts";
 import { getPageSession } from "#src/server/auth/get-page-session.ts";
 import { getBuddyDb } from "#src/server/db/get-buddy-db.ts";
-import { accountNameOf } from "#src/server/machines/account-name-of.ts";
 import { AuthFrame } from "#src/sign-in/auth-frame.tsx";
 import { NotConfigured } from "#src/sign-in/not-configured.tsx";
 import { SIGNED_IN_HOME } from "#src/sign-in/signed-in-home.ts";
@@ -33,7 +33,7 @@ export default async function Page({
   const next = typeof requested === "string" ? safeNextPath(requested) : null;
   const session = await getPageSession();
   if (session) {
-    const name = await accountNameOf(db, session.userId);
+    const name = await ownAccountName(db, session.userId);
     redirect(getLocalePath(next ?? `/u/${name ?? ""}`, locale));
   }
 
