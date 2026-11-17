@@ -186,6 +186,32 @@ describe("ToastProvider", () => {
     expect(screen.getByRole("status")).toBeEmptyDOMElement();
   });
 
+  it("keeps a toast that the action shows", () => {
+    function UndoButton() {
+      const show = useToast();
+      return (
+        <ShowButton
+          options={{
+            message: "Transaction deleted",
+            action: {
+              label: "Undo",
+              onAction: () => {
+                show({ message: "Transaction is back" });
+              },
+            },
+          }}
+        />
+      );
+    }
+    renderProvider(<UndoButton />);
+    fireEvent.click(screen.getByRole("button", { name: "Show" }));
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    // A toast that is on its way out goes when its fade ends. This one is
+    // not on its way out.
+    finishLeaving("Transaction is back");
+    expect(screen.getByRole("status")).toHaveTextContent("Transaction is back");
+  });
+
   it("takes the toast away from its close button", () => {
     renderProvider(<ShowButton options={{ message: "Saved" }} />);
     fireEvent.click(screen.getByRole("button", { name: "Show" }));

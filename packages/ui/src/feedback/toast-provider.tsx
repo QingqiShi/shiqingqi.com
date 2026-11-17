@@ -192,9 +192,10 @@ function leaveAfter(
   if (!action) return undefined;
   return {
     label: action.label,
+    // The toast leaves first, so that a toast that the action shows stays.
     onAction: () => {
-      action.onAction();
       leave();
+      action.onAction();
     },
   };
 }

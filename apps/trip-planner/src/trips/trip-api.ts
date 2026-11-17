@@ -3,6 +3,7 @@ import { fetchJson, postJson } from "@tuja/auth-ui/fetch-json";
 import { useRouter } from "next/navigation";
 import type { NewTrip } from "./ops/new-trip.ts";
 import type { Op } from "./ops/op-schema.ts";
+import type { Trip } from "./types.ts";
 import type { ChangeResult } from "./write-trips.ts";
 
 /** The answers of `change` that are not a failed request. */
@@ -19,6 +20,19 @@ export const tripApi = {
   async create(input: NewTrip): Promise<string> {
     const { tripId } = await postJson<{ tripId: string }>("/api/trips", input);
     return tripId;
+  },
+
+  /** The newest trip, or null when the user is not a member of it. */
+  async read(tripId: string): Promise<Trip | null> {
+    try {
+      const { trip } = await postJson<{ trip: Trip }>("/api/trips/read", {
+        tripId,
+      });
+      return trip;
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) return null;
+      throw error;
+    }
   },
 
   /** Applies a batch of ops to the newest trip, all or none. Make the ops with `withExpect`. */
@@ -60,6 +74,7 @@ export function useTripApi(): typeof tripApi {
       router.refresh();
       return tripId;
     },
+    read: (tripId) => tripApi.read(tripId),
     async change(tripId, ops) {
       const result = await tripApi.change(tripId, ops);
       if (result.status === "applied") router.refresh();

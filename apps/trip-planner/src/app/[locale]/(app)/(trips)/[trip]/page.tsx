@@ -1,4 +1,5 @@
 import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import { signInPath } from "@tuja/server-auth/sign-in-path";
 import type { Metadata } from "next";
@@ -9,6 +10,7 @@ import { TripPage } from "#src/reader/trip-page.tsx";
 import { getTripWeather } from "#src/reader/weather/get-trip-weather.ts";
 import { getSharing } from "#src/share/get-sharing.ts";
 import { ShareTrip } from "#src/share/share-trip.tsx";
+import { canEditTrip } from "#src/trips/can-edit-trip.ts";
 import { getTrip, getViewerId } from "#src/trips/get-trips.ts";
 import { isTripId } from "#src/trips/is-trip-id.ts";
 
@@ -71,6 +73,11 @@ export default async function TripRoute({ params }: TripRouteProps) {
       trip={trip}
       serverToday={serverToday}
       weatherByDay={weatherByDay}
+      editHref={
+        canEditTrip(viewed.role)
+          ? getLocalePath(`/${viewed.id}/edit`, validateLocale(locale))
+          : undefined
+      }
       actions={
         sharing ? (
           <ShareTrip

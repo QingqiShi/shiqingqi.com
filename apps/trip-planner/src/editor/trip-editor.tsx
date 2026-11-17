@@ -1,0 +1,436 @@
+"use client";
+
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { WifiSlashIcon } from "@phosphor-icons/react/dist/ssr/WifiSlash";
+import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { useLocale } from "@tuja/i18n/use-locale";
+import { Button } from "@tuja/ui/components/button";
+import { Callout } from "@tuja/ui/components/callout";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
+import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
+import { Sheet } from "@tuja/ui/components/sheet";
+import {
+  StickyControlGroup,
+  StickyControls,
+} from "@tuja/ui/components/sticky-controls";
+import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
+import { Text } from "@tuja/ui/components/text";
+import { ToastProvider, useToast } from "@tuja/ui/components/toast-provider";
+import { toastTokens } from "@tuja/ui/components/toast.stylex";
+import { usePortalTarget } from "@tuja/ui/hooks/use-portal-target";
+import { row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { dateRangeLabel } from "#src/reader/date-label.ts";
+import { TripLanguageProvider, TripText } from "#src/reader/trip-text.tsx";
+import { useTripHash } from "#src/reader/use-trip-location.ts";
+import { newId } from "#src/trips/ops/new-id.ts";
+import type { Trip } from "#src/trips/types.ts";
+import { AddPanel } from "./add-panel.tsx";
+import { buildOutline } from "./build-outline.ts";
+import { ConflictView } from "./conflict-view.tsx";
+import { DayForm } from "./day-form.tsx";
+import { DayGroup } from "./day-group.tsx";
+import { EditorProvider, useEditor } from "./editor-provider.tsx";
+import { ItemForm } from "./item-form.tsx";
+import { pressTarget } from "./item-row.tsx";
+import { MomentForm } from "./moment-form.tsx";
+import { SheetActions } from "./sheet-actions.tsx";
+import { TripForm } from "./trip-form.tsx";
+import type { OpenSheet, SheetTarget } from "./types.ts";
+import { useDayLabels } from "./use-day-labels.ts";
+import { useKindLabels } from "./use-field-labels.ts";
+
+const TRIP_ROW = "trip";
+
+interface OpenedSheet {
+  target: SheetTarget;
+  /** The row that the sheet grows from and goes back into. */
+  rowId: string;
+  /** Changes at each open, so that the form starts from the trip as it is then. */
+  key: number;
+}
+
+function useSheetTitle() {
+  const kindLabels = useKindLabels();
+  const dayLabels = useDayLabels();
+  const addTo = t({ en: "Add to {day}", zh: "添加到{day}" });
+  const note = t({ en: "Time and note", zh: "时间与备注" });
+  const dayDetails = t({ en: "{day} details", zh: "{day}详情" });
+  const tripDetails = t({ en: "Trip details", zh: "行程详情" });
+  const conflict = t({ en: "Changed by someone else", zh: "其他人也改了这里" });
+  const leave = t({ en: "A change is not saved", zh: "有修改尚未保存" });
+  return (target: SheetTarget) => {
+    switch (target.kind) {
+      case "item":
+        return kindLabels[target.found.item.type];
+      case "add":
+        return addTo.replace("{day}", dayLabels.byId(target.dayId));
+      case "moment":
+        return note;
+      case "day":
+        return dayDetails.replace("{day}", dayLabels.byId(target.day.id));
+      case "trip":
+        return tripDetails;
+      case "conflict":
+        return conflict;
+      case "leave":
+        return leave;
+    }
+  };
+}
+
+function EditorScreen() {
+  const editor = useEditor();
+  const { state, queue, trip, canEdit, isOnline } = editor;
+  const locale = useLocale();
+  const router = useRouter();
+  const column = useSplitViewColumn();
+  const hash = useTripHash();
+  const sheetTitle = useSheetTitle();
+  const [sheet, setSheet] = useState<OpenedSheet | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [shownConflict, setShownConflict] = useState<number | null>(null);
+  const [isLeaving, setIsLeaving] = useState(false);
+
+  const openSheet: OpenSheet = (target, rowId) => {
+    setSheet((current) => ({ target, rowId, key: (current?.key ?? 0) + 1 }));
+    setIsOpen(true);
+  };
+  const close = (rowId?: string) => {
+    if (rowId) setSheet((current) => current && { ...current, rowId });
+    setIsOpen(false);
+  };
+
+  const { problem } = state;
+  const conflictRow = problem?.batch.touches[0] ?? TRIP_ROW;
+  // A conflict opens the sheet by itself, one time. A person who closes it
+  // without a choice finds it again on the row and at the top of the screen.
+  if (problem?.kind === "conflict" && shownConflict !== problem.batch.id) {
+    setShownConflict(problem.batch.id);
+    openSheet({ kind: "conflict" }, conflictRow);
+  }
+  if (isLeaving && problem) {
+    setIsLeaving(false);
+    openSheet({ kind: "leave" }, TRIP_ROW);
+  }
+
+  const readerHref = getLocalePath(`/${editor.tripId}`, locale) + hash;
+  const leave = () => {
+    if (column?.close) column.close();
+    else router.push(readerHref);
+  };
+  const isSaved = state.pending.length === 0;
+  useEffect(() => {
+    if (!isLeaving || !isSaved) return;
+    if (column?.close) column.close();
+    else router.push(readerHref);
+  }, [isLeaving, isSaved, column, router, readerHref]);
+
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (id) document.getElementById(id)?.scrollIntoView({ block: "start" });
+  }, []);
+
+  const status = !isOnline
+    ? t({ en: "Offline", zh: "离线" })
+    : problem
+      ? t({ en: "Not saved", zh: "未保存" })
+      : !isSaved
+        ? t({ en: "Saving…", zh: "正在保存…" })
+        : editor.hasChanged
+          ? t({ en: "Saved", zh: "已保存" })
+          : null;
+  const dayAdded = t({ en: "Day added", zh: "已添加一天" });
+  const discarded = t({ en: "Change discarded", zh: "已放弃修改" });
+  const showToast = useToast();
+
+  return (
+    <div css={stack.group}>
+      <StickyControls css={styles.bar}>
+        <StickyControlGroup>
+          <span role="status" css={styles.status}>
+            <Text
+              as="span"
+              look="caption"
+              tone={problem ? "destructive" : "muted"}
+            >
+              {status}
+            </Text>
+          </span>
+          <Button
+            size="sm"
+            look="ghost"
+            icon={<ArrowCounterClockwiseIcon weight="bold" />}
+            disabled={!state.canUndo || !canEdit}
+            onClick={editor.undo}
+          >
+            {t({ en: "Undo", zh: "撤销" })}
+          </Button>
+          <Button
+            size="sm"
+            look="primary"
+            loading={isLeaving}
+            onClick={() => {
+              if (isSaved) leave();
+              else if (problem) openSheet({ kind: "leave" }, TRIP_ROW);
+              else setIsLeaving(true);
+            }}
+          >
+            {t({ en: "Done", zh: "完成" })}
+          </Button>
+        </StickyControlGroup>
+      </StickyControls>
+
+      {state.isGone ? (
+        <Callout
+          intent="warning"
+          action={
+            <Button size="sm" href={getLocalePath("/", locale)}>
+              {t({ en: "All trips", zh: "全部行程" })}
+            </Button>
+          }
+        >
+          {t({
+            en: "You can no longer change this trip: it was deleted, or you are no longer on it.",
+            zh: "你已无法修改这个行程：它已被删除，或你已不在其中。",
+          })}
+        </Callout>
+      ) : !isOnline ? (
+        <Callout intent="neutral" icon={<WifiSlashIcon weight="bold" />}>
+          {t({
+            en: "You are offline, so you cannot change the trip now. Editing comes back with the connection.",
+            zh: "你现在处于离线状态，暂时不能修改行程。恢复连接后即可继续编辑。",
+          })}
+        </Callout>
+      ) : problem?.kind === "failed" ? (
+        <Callout
+          intent="destructive"
+          action={
+            <div css={row.tight}>
+              <Button
+                size="sm"
+                look="ghost"
+                onClick={() => {
+                  queue.discard();
+                  // This takes the place of the toast that offers to undo
+                  // the change.
+                  showToast({ message: discarded });
+                }}
+              >
+                {t({ en: "Discard it", zh: "放弃修改" })}
+              </Button>
+              <Button size="sm" onClick={queue.retry}>
+                {t({ en: "Try again", zh: "重试" })}
+              </Button>
+            </div>
+          }
+        >
+          {t({
+            en: "A change is not saved. The changes after it wait for it.",
+            zh: "有一项修改没有保存，之后的修改都在等它。",
+          })}
+        </Callout>
+      ) : problem?.kind === "conflict" && !isOpen ? (
+        <Callout
+          intent="warning"
+          action={
+            <Button
+              size="sm"
+              onClick={() => {
+                openSheet({ kind: "conflict" }, conflictRow);
+              }}
+            >
+              {t({ en: "Choose", zh: "选择" })}
+            </Button>
+          }
+        >
+          {t({
+            en: "Someone else changed the same thing. Your later changes wait until you choose a version.",
+            zh: "其他人改了同一处。选好保留哪个版本后，你之后的修改才会保存。",
+          })}
+        </Callout>
+      ) : null}
+
+      <List aria-label={t({ en: "Trip", zh: "行程" })}>
+        <ListRow
+          ref={editor.rowRef(TRIP_ROW)}
+          wrap
+          detail={
+            <>
+              {dateRangeLabel(trip.days, locale)}
+              {trip.party ? (
+                <>
+                  {" · "}
+                  <TripText>{trip.party}</TripText>
+                </>
+              ) : null}
+            </>
+          }
+          {...pressTarget(
+            canEdit
+              ? () => {
+                  openSheet({ kind: "trip" }, TRIP_ROW);
+                }
+              : null,
+          )}
+        >
+          <TripText>{trip.title}</TripText>
+        </ListRow>
+      </List>
+
+      {buildOutline(trip).map((outline) => (
+        <DayGroup
+          key={outline.day.id}
+          outline={outline}
+          openSheet={openSheet}
+        />
+      ))}
+
+      <div>
+        <Button
+          icon={<PlusIcon weight="bold" />}
+          disabled={!canEdit}
+          onClick={() => {
+            const id = newId();
+            editor.change([{ op: "addDay", id }], {
+              message: dayAdded,
+              dayId: id,
+            });
+          }}
+        >
+          {t({ en: "Add a day", zh: "添加一天" })}
+        </Button>
+      </div>
+
+      <Sheet
+        isOpen={isOpen}
+        onClose={() => {
+          setIsOpen(false);
+        }}
+        closeLabel={t({ en: "Close", zh: "关闭" })}
+        title={sheet ? sheetTitle(sheet.target) : ""}
+        liftFrom={() => (sheet ? editor.rowElement(sheet.rowId) : null)}
+      >
+        {sheet ? (
+          <SheetContent
+            key={sheet.key}
+            target={sheet.target}
+            onDone={close}
+            onLeave={leave}
+          />
+        ) : null}
+      </Sheet>
+    </div>
+  );
+}
+
+function SheetContent({
+  target,
+  onDone,
+  onLeave,
+}: {
+  target: SheetTarget;
+  onDone: (rowId?: string) => void;
+  onLeave: () => void;
+}) {
+  const { queue } = useEditor();
+  switch (target.kind) {
+    case "item":
+      return <ItemForm target={{ found: target.found }} onDone={onDone} />;
+    case "add":
+      return <AddPanel dayId={target.dayId} onDone={onDone} />;
+    case "moment":
+      return <MomentForm target={target} onDone={onDone} />;
+    case "day":
+      return <DayForm day={target.day} onDone={onDone} />;
+    case "trip":
+      return <TripForm onDone={onDone} />;
+    case "conflict":
+      return <ConflictView onDone={onDone} />;
+    case "leave":
+      return (
+        <div css={stack.item}>
+          <Text as="p" tone="muted">
+            {t({
+              en: "Your last change did not reach the server. If you leave now, it is lost.",
+              zh: "你最近的修改没有传到服务器。现在离开，它就会丢失。",
+            })}
+          </Text>
+          <SheetActions>
+            <Button
+              look="ghost"
+              intent="destructive"
+              onClick={() => {
+                onDone();
+                onLeave();
+              }}
+            >
+              {t({ en: "Leave without it", zh: "不保存并离开" })}
+            </Button>
+            <Button
+              look="primary"
+              onClick={() => {
+                queue.retry();
+                onDone();
+              }}
+            >
+              {t({ en: "Stay and try again", zh: "留下并重试" })}
+            </Button>
+          </SheetActions>
+        </div>
+      );
+  }
+}
+
+/**
+ * The edit screen of a trip: an outline of every day, where each row opens
+ * a sheet that changes it, and each change saves at once. The space at the
+ * bottom of the screen stays free: the next phase puts a prompt there.
+ */
+export function TripEditor({
+  tripId,
+  trip,
+  isOwner,
+}: {
+  tripId: string;
+  /** The trip as the server has it when the screen opens. */
+  trip: Trip;
+  isOwner: boolean;
+}) {
+  const portalTarget = usePortalTarget();
+  return (
+    <ToastProvider
+      dismissLabel={t({ en: "Dismiss", zh: "关闭" })}
+      portalTarget={portalTarget}
+      css={styles.toasts}
+    >
+      <EditorProvider tripId={tripId} trip={trip} isOwner={isOwner}>
+        <TripLanguageProvider language={trip.language}>
+          <EditorScreen />
+        </TripLanguageProvider>
+      </EditorProvider>
+    </ToastProvider>
+  );
+}
+
+const styles = stylex.create({
+  // The bar is narrower than nine tenths of the screen. Safari on iOS takes
+  // the colour of its status bar from a sticky box that is as wide as the
+  // screen.
+  bar: {
+    alignSelf: "flex-end",
+    inlineSize: "fit-content",
+  },
+  // A toast shows above the tab bar.
+  toasts: {
+    [toastTokens.clearance]: tabViewTokens.barClearance,
+  },
+  status: {
+    paddingInline: "0.5rem",
+  },
+});
