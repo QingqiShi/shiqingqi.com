@@ -844,6 +844,9 @@ importers:
       '@stylexjs/stylex':
         specifier: 'catalog:'
         version: 0.19.1
+      '@tuja/auth-ui':
+        specifier: workspace:*
+        version: link:../../packages/auth-ui
       '@tuja/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
@@ -853,6 +856,15 @@ importers:
       '@tuja/pwa-runtime-caching':
         specifier: workspace:*
         version: link:../../packages/pwa-runtime-caching
+      '@tuja/server-auth':
+        specifier: workspace:*
+        version: link:../../packages/server-auth
+      '@tuja/server-clients':
+        specifier: workspace:*
+        version: link:../../packages/server-clients
+      '@tuja/server-email':
+        specifier: workspace:*
+        version: link:../../packages/server-email
       '@tuja/ui':
         specifier: workspace:*
         version: link:../../packages/ui

@@ -27,6 +27,8 @@ runWithLocalDb({
   start: startDevDb,
   dataDir: path.join(APP_DIR, ".trips-db"),
   seed,
+  // Not a secret: it seals cookies only on this machine.
+  localEnv: { TRIPS_AUTH_SECRET: "local-trips-auth-secret-for-dev-only" },
 }).catch((error: unknown) => {
   console.error(error instanceof Error ? error.message : error);
   process.exit(1);

@@ -49,8 +49,9 @@ apps/assistant/.assistant-db/
 apps/buddy/.buddy-db/
 apps/buddy/.buddy-outbox/
 
-# Trip Planner local dev database (PGlite data directory)
+# Trip Planner local dev database (PGlite data directory) and email outbox
 apps/trip-planner/.trips-db/
+apps/trip-planner/.trips-outbox/
 
 # Generated i18n bundles
 **/src/_generated/i18n/

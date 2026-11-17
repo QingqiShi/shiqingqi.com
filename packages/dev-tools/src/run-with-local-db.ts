@@ -25,6 +25,8 @@ interface LocalDbOptions {
   dataDir: string;
   /** Runs when the local database is up, also when another process serves it. */
   seed: (databaseUrl: string) => Promise<void>;
+  /** Values for the command with the local database, for each variable that the developer did not set. */
+  localEnv?: Record<string, string>;
 }
 
 function localDatabaseUrl(port: number): string {
@@ -77,8 +79,8 @@ export async function runWithLocalDb(options: LocalDbOptions) {
   const [command, ...args] = positionals;
   const port = readPortOption("db-port", values["db-port"]);
   const inMemory = values.memory === true;
-  const isLocal =
-    inMemory || readNextDevEnv(options.appDir)[urlName] === undefined;
+  const devEnv = readNextDevEnv(options.appDir);
+  const isLocal = inMemory || devEnv[urlName] === undefined;
   const databaseUrl = localDatabaseUrl(port);
 
   let db: LocalDb | null = null;
@@ -99,7 +101,17 @@ export async function runWithLocalDb(options: LocalDbOptions) {
 
   const child = spawn(command, args, {
     stdio: "inherit",
-    env: isLocal ? { ...process.env, [urlName]: databaseUrl } : process.env,
+    env: isLocal
+      ? {
+          ...Object.fromEntries(
+            Object.entries(options.localEnv ?? {}).filter(
+              ([name]) => devEnv[name] === undefined,
+            ),
+          ),
+          ...process.env,
+          [urlName]: databaseUrl,
+        }
+      : process.env,
   });
   for (const signal of STOP_SIGNALS) {
     process.on(signal, () => {

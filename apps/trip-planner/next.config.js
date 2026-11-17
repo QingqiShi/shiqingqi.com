@@ -39,9 +39,13 @@ module.exports = async (phase) => {
       lightningCssFeatures: { exclude: ["light-dark"] },
     },
     transpilePackages: [
+      "@tuja/auth-ui",
       "@tuja/i18n",
       "@tuja/next-links",
       "@tuja/pwa-runtime-caching",
+      "@tuja/server-auth",
+      "@tuja/server-clients",
+      "@tuja/server-email",
       "@tuja/ui",
     ],
     // The app lives in a pnpm workspace; trace from the repo root so Next

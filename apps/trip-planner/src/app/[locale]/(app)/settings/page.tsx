@@ -4,6 +4,8 @@ import { validateLocale } from "@tuja/i18n/validate-locale";
 import { NavigationStack } from "@tuja/ui/components/navigation-stack";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import type { Metadata } from "next";
+import { getPageUser } from "#src/auth/get-page-user.ts";
+import { AccountSettings } from "#src/settings/account-settings.tsx";
 import { PreferencesSettings } from "#src/settings/preferences-settings.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
@@ -11,13 +13,15 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return { title: t({ en: "Settings", zh: "设置" }) };
 }
 
-export default function Page() {
+export default async function Page() {
+  const user = await getPageUser();
   return (
     <NavigationStack
       label={t({ en: "Settings", zh: "设置" })}
       css={pageColumn.settings}
     >
       <PreferencesSettings />
+      {user ? <AccountSettings email={user.email} /> : null}
     </NavigationStack>
   );
 }
