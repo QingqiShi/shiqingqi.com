@@ -4,7 +4,7 @@ import { connection } from "next/server";
 import type { ReactNode } from "react";
 import { tripSummary } from "#src/shell/trip-summary.ts";
 import { TripsFrame } from "#src/shell/trips-frame.tsx";
-import { getTrips } from "#src/trips/get-trips.ts";
+import { getTrips, getViewerId } from "#src/trips/get-trips.ts";
 
 export default async function Layout({
   children,
@@ -15,6 +15,9 @@ export default async function Layout({
 }) {
   const locale = validateLocale((await params).locale);
   setLocale(locale);
+  // A visitor who is not signed in gets the landing page, which has its own
+  // frame. A trip page sends such a visitor to sign in.
+  if ((await getViewerId()) === null) return children;
   // Which trip is on today depends on the wall clock.
   await connection();
   const now = new Date();

@@ -10,7 +10,7 @@ import type { TripsDb } from "#src/db/types.ts";
 import { asViewer } from "#src/trips/as-viewer.ts";
 import { importTrip } from "#src/trips/import-trip.ts";
 import { readTrips } from "#src/trips/read-trips.ts";
-import sample from "#src/trips/testing/sample-trip.json";
+import sample from "#src/trips/sample-trip.json";
 import { inviteToken } from "./invite-token.ts";
 import { tripSharing } from "./trip-sharing.ts";
 

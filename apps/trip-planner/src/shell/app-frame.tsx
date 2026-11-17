@@ -21,11 +21,17 @@ function TabLink(props: TabViewLinkProps) {
   return <Link {...props} prefetchOnIntent />;
 }
 
-/** The frame of every page but the offline page: Trips and Settings. */
+/**
+ * The frame of every page but the offline page: Trips and Settings. A
+ * visitor who is not signed in gets the landing page at home, which stands
+ * alone.
+ */
 export function AppFrame({
+  signedIn,
   defaultCollapsed,
   children,
 }: {
+  signedIn: boolean;
   /** The visitor collapsed the sidebar, from the cookie that the `TabView` keeps. */
   defaultCollapsed: boolean;
   children: ReactNode;
@@ -34,6 +40,8 @@ export function AppFrame({
   const path = normalizePath(usePathname());
   const inSettings = path === "/settings" || path.startsWith("/settings/");
   const appName = t({ en: "Trips", zh: "旅行计划" });
+
+  if (!signedIn && path === "/") return children;
 
   return (
     <TabView

@@ -9,7 +9,7 @@ import { TRIPS_MIGRATIONS_FOLDER } from "#src/db/trips-migrations-folder.ts";
 import type { TripsDb } from "#src/db/types.ts";
 import { importTrip } from "./import-trip.ts";
 import { readTrips } from "./read-trips.ts";
-import sample from "./testing/sample-trip.json";
+import sample from "./sample-trip.json";
 
 let client: PGlite;
 let db: TripsDb;

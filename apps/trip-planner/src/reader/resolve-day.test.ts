@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { resolveDay } from "./resolve-day";
-import sample from "@/trips/testing/sample-trip.json";
+import sample from "@/trips/sample-trip.json";
 import { tripSchema } from "@/trips/trip-schema";
 
 const { days } = tripSchema.parse(sample);

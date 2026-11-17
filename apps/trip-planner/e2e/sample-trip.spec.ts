@@ -5,14 +5,14 @@ const dayTitle = (page: Page) => page.getByRole("heading", { level: 2 });
 const tripTitle = (page: Page) =>
   page.getByRole("heading", { level: 1, name: "Lisbon and Porto" });
 
-test("a visitor who opens a trip signs up, lands on the trip and steps through its days", async ({
+test("a visitor finds sign-up from the landing page, opens a trip, signs up, and steps through its days", async ({
   page,
 }) => {
   await page.goto("/");
+  await page.getByRole("link", { name: "Sign up or sign in" }).click();
   await expect(
-    page.getByRole("heading", { name: "Sign in to see your trips" }),
+    page.getByRole("button", { name: "Email me a sign-up code" }),
   ).toBeVisible();
-  await expect(page.getByRole("link", { name: /Lisbon/ })).toHaveCount(0);
 
   await page.goto("/sample-lisbon");
   await expect(page).toHaveURL(/\/sign-in\?next=%2Fsample-lisbon$/);

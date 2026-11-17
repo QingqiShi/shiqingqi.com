@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { calendarWeeks } from "./calendar-weeks";
 import { monthBands } from "./month-bands";
 import { tripStays } from "./trip-stays";
-import sample from "@/trips/testing/sample-trip.json";
+import sample from "@/trips/sample-trip.json";
 import { tripSchema } from "@/trips/trip-schema";
 
 const trip = tripSchema.parse(sample);

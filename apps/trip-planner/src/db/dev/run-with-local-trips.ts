@@ -4,7 +4,7 @@ import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { importTrip } from "../../trips/import-trip.ts";
-import sampleTrip from "../../trips/testing/sample-trip.json";
+import sampleTrip from "../../trips/sample-trip.json";
 import { schema } from "../schema.ts";
 import { startDevDb } from "./start-dev-db.ts";
 
