@@ -302,6 +302,7 @@ function ColumnPageView({
             >
               {top?.(page)}
               {body === undefined ? page.column.node : body(page)}
+              {accessory == null ? null : <Accessory>{accessory}</Accessory>}
             </div>
           </ScrollMask>
         )}

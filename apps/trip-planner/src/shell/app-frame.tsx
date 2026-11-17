@@ -14,6 +14,8 @@ import {
 } from "@tuja/ui/components/tab-view";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { NewTripRailAction } from "#src/new-trip/new-trip-button.tsx";
+import { NewTripProvider } from "#src/new-trip/new-trip-provider.tsx";
 import { SettingsSkeleton } from "./settings-skeleton.tsx";
 import { TripsSkeleton } from "./trips-skeleton.tsx";
 
@@ -28,10 +30,13 @@ function TabLink(props: TabViewLinkProps) {
  */
 export function AppFrame({
   signedIn,
+  hasTrips,
   defaultCollapsed,
   children,
 }: {
   signedIn: boolean;
+  /** The visitor is a member of a trip. Without one, home is an empty state whose action is New trip. */
+  hasTrips: boolean;
   /** The visitor collapsed the sidebar, from the cookie that the `TabView` keeps. */
   defaultCollapsed: boolean;
   children: ReactNode;
@@ -43,14 +48,21 @@ export function AppFrame({
 
   if (!signedIn && path === "/") return children;
 
-  return (
+  const view = (
     <TabView
       label={appName}
       sidebarToggleLabel={t({ en: "Sidebar", zh: "侧边栏" })}
       linkComponent={TabLink}
       linkStatus={LinkStatus}
       defaultCollapsed={defaultCollapsed}
-      header={<TabViewBrand name={appName} initials="Qi" detail="qingqi.dev" />}
+      header={
+        <>
+          <TabViewBrand name={appName} initials="Qi" detail="qingqi.dev" />
+          {signedIn && (hasTrips || path !== "/") ? (
+            <NewTripRailAction />
+          ) : null}
+        </>
+      }
       items={[
         {
           href: getLocalePath("/", locale),
@@ -71,4 +83,5 @@ export function AppFrame({
       {children}
     </TabView>
   );
+  return signedIn ? <NewTripProvider>{view}</NewTripProvider> : view;
 }
