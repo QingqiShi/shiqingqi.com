@@ -74,18 +74,23 @@ export function HeroVisibilityProvider({ children }: { children: ReactNode }) {
     heroElementRef.current = el;
   };
   const engine = useMotionEngine();
-  const isFirstRenderRef = useRef(true);
+  const settledVisibilityRef = useRef(isHeroInputVisible);
   const morphRef = useRef<Morph | null>(null);
   const refinePrevRectRef = useRef<Rect | null>(null);
 
   useLayoutEffect(() => {
+    // Strict Mode runs this effect two times on mount, so only a change of
+    // the visibility starts a motion.
+    const hasChanged = settledVisibilityRef.current !== isHeroInputVisible;
+    settledVisibilityRef.current = isHeroInputVisible;
+
     const refineFound = findVisibleElement(`[${DATA_HERO_REFINE_BUTTON}]`);
     if (refineFound) {
       const prev = refinePrevRectRef.current;
       refinePrevRectRef.current = engine.measure(() =>
         inDocument(refineFound.el, refineFound.el.getBoundingClientRect()),
       );
-      if (prev && !isFirstRenderRef.current) {
+      if (prev && hasChanged) {
         // The refine button can be another element than the one before, so
         // the move starts from the box on record whatever element it is.
         playLayout(
@@ -99,10 +104,7 @@ export function HeroVisibilityProvider({ children }: { children: ReactNode }) {
       refinePrevRectRef.current = null;
     }
 
-    if (isFirstRenderRef.current) {
-      isFirstRenderRef.current = false;
-      return;
-    }
+    if (!hasChanged) return;
 
     const hero = heroElementRef.current;
     if (!hero) return;
