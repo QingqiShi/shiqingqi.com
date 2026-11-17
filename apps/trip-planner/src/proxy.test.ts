@@ -70,3 +70,12 @@ describe("trip password gate", () => {
     );
   });
 });
+
+it("passes an API request on with no redirect to a locale", async () => {
+  const response = await proxy(
+    request("/api/auth/sign-up", { acceptLanguage: "zh-CN,zh;q=0.9" }),
+  );
+
+  expect(response.headers.get("Location")).toBeNull();
+  expect(response.headers.get("x-middleware-next")).toBe("1");
+});

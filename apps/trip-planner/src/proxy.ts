@@ -67,7 +67,11 @@ async function lockedTripResponse(
 const ENGLISH_OFFLINE_PATH = "/en/~offline";
 
 export async function proxy(req: NextRequest) {
-  if (req.nextUrl.pathname === ENGLISH_OFFLINE_PATH) return NextResponse.next();
+  const { pathname } = req.nextUrl;
+  // An API route checks its own credentials and has no locale.
+  if (pathname.startsWith("/api/") || pathname === ENGLISH_OFFLINE_PATH) {
+    return NextResponse.next();
+  }
   return (
     (await lockedTripResponse(req)) ??
     keepLocalePreference(req, i18nRouter(req, i18nConfig))

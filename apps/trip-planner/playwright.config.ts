@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { defineConfig, devices } from "@playwright/test";
+import { emailOutbox } from "./e2e/email-outbox.ts";
 import { samplePassword } from "./e2e/sample-password.ts";
 
 const port = execFileSync(
@@ -36,7 +37,10 @@ export default defineConfig({
     // before this one builds the app, so this only starts it.
     command: process.env.CI ? start : `pnpm build && ${start}`,
     url: baseURL,
-    env: { SITE_PASSWORD_SAMPLE: samplePassword },
+    env: {
+      SITE_PASSWORD_SAMPLE: samplePassword,
+      TRIPS_EMAIL_OUTBOX: emailOutbox(port),
+    },
     reuseExistingServer: !process.env.CI,
     timeout: (process.env.CI ? 2 : 10) * 60 * 1000,
   },

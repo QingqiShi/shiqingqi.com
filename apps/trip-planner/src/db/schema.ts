@@ -7,6 +7,7 @@ import {
   unique,
   uuid,
 } from "drizzle-orm/pg-core";
+import { authSchema } from "./auth-schema.ts";
 
 function createdAt() {
   return timestamp("created_at", { withTimezone: true }).notNull().defaultNow();
@@ -35,4 +36,4 @@ export const tripRevisions = pgTable(
   (t) => [unique("trip_revisions_trip_revision_key").on(t.tripId, t.revision)],
 );
 
-export const schema = { trips, tripRevisions };
+export const schema = { trips, tripRevisions, ...authSchema };

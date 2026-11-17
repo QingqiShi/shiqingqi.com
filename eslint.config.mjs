@@ -767,6 +767,27 @@ export default defineConfig([
       ],
     },
   },
+  // Sign-in reaches the database, but only its own tables: the users and
+  // the tables of sign-in in `auth-schema.ts`.
+  {
+    files: ["apps/trip-planner/src/auth/**/*.ts"],
+    ignores: ["apps/trip-planner/src/**/*.test.ts"],
+    rules: {
+      "restricted/trip-tables": [
+        "error",
+        {
+          patterns: [
+            {
+              regex: "/db/schema(\\.ts)?$|/(read-trips|import-trip)(\\.ts)?$",
+              allowTypeImports: true,
+              message:
+                "Sign-in reads only the tables in `#src/db/auth-schema.ts`. Read a trip with `getTrips` or `getTrip` from `#src/trips/get-trips.ts`.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   // Test files may call t() outside render scope for unit testing purposes.
   {
     files: ["**/*.test.{ts,tsx,js,mjs}", "**/*.spec.{ts,tsx,js,mjs}"],
