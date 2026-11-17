@@ -125,23 +125,24 @@ function renderActionRows(
   { action, code }: EmailContent,
   copyLink: string,
 ): string {
+  if (!action) return code ? renderCode(code) : "";
   if (!code) {
     return `<tr><td style="padding-top:32px">${renderAction(action, copyLink, false)}</td></tr>`;
   }
-  const alternative = `<p class="fg" style="${style({ ...text, margin: "0 0 16px", "font-size": "16px", "line-height": "24px", color: LIGHT.fg })}">${escapeHtml(code.alternative)}</p>`;
+  const alternative = `<p class="fg" style="${style({ ...text, margin: "0 0 16px", "font-size": "16px", "line-height": "24px", color: LIGHT.fg })}">${escapeHtml(code.alternative ?? "")}</p>`;
   return [
     renderCode(code),
     ruledRow(`${alternative}${renderAction(action, copyLink, true)}`),
   ].join("\n");
 }
 
-/** A code to type on the device that asked for the email. It leads the email, and the action becomes the other way in. */
+/** A code to type on the device that asked for the email. It leads the email, and the action, if any, becomes the other way in. */
 interface EmailCode {
   value: string;
   /** Where to type the code. */
   hint: string;
-  /** The line that brings in the action. */
-  alternative: string;
+  /** The line that brings in the action. Give it when there is an action. */
+  alternative?: string;
 }
 
 export interface EmailContent {
@@ -153,7 +154,8 @@ export interface EmailContent {
   heading: string;
   intro: string;
   code?: EmailCode;
-  action: EmailAction;
+  /** None for a code that works only where it was asked for. */
+  action?: EmailAction;
   /** How long the code and the links work. */
   expiry?: string;
   /** The last note. By default it says to ignore the email when you did not ask for it. */
@@ -161,25 +163,31 @@ export interface EmailContent {
 }
 
 /**
- * An email of an app: a heading, an intro, an optional code to type, a button
- * with its link also as text, and quieter notes below, which end with
- * "ignore this email". The plain-text body has the same parts.
+ * An email of an app: a heading, an intro, an optional code to type, an
+ * optional button with its link also as text, and quieter notes below,
+ * which end with "ignore this email". The plain-text body has the same parts.
  */
 export function renderEmail(content: EmailContent): Email {
   const { to, locale, subject, intro, code, action, expiry, ignore } = content;
   const notes = [...(expiry ? [expiry] : []), ignore ?? COPY[locale].ignore];
-  const link = [action.heading, action.text, action.url]
-    .filter((part) => part !== undefined)
-    .join("\n");
+  const codeLines = code
+    ? [
+        code.value,
+        code.hint,
+        ...(action && code.alternative ? [code.alternative] : []),
+      ]
+    : [];
+  const link = action
+    ? [
+        [action.heading, action.text, action.url]
+          .filter((part) => part !== undefined)
+          .join("\n"),
+      ]
+    : [];
   return {
     to,
     subject,
-    text: [
-      intro,
-      ...(code ? [code.value, code.hint, code.alternative] : []),
-      link,
-      ...notes,
-    ].join("\n\n"),
+    text: [intro, ...codeLines, ...link, ...notes].join("\n\n"),
     html: renderHtml(content, notes),
   };
 }

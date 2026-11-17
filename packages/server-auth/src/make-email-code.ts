@@ -34,19 +34,21 @@ export function makeEmailCode<Db>({
     /**
      * Checks a typed code against the emailed code that this browser asked
      * for, and returns the address it went to. A code that has ended clears
-     * the cookie, so that the browser asks for a new one.
+     * the cookie, so that the browser asks for a new one. `userId` is the
+     * signed-in user of a flow that has one: the code must be this user's.
      */
     async take(
       request: Request,
       context: AuthContext<Db>,
       purpose: EmailCodePurpose,
       typed: string,
+      userId?: string,
     ): Promise<string> {
       const value = readRequestCookie(request, cookie.name);
       const payload = value
         ? cookie.open(value, context.secret, context.now)
         : null;
-      if (payload?.purpose !== purpose) {
+      if (payload?.purpose !== purpose || payload.userId !== userId) {
         context.setCookies.push(cookie.clear(context.secure));
         throw new HttpError(410, "code_expired");
       }

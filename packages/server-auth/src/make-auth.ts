@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { generateAuthenticationOptions } from "@simplewebauthn/server";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { z } from "zod";
-import { authBodies, type AuthLocale } from "./auth-bodies.ts";
+import { authBodies } from "./auth-bodies.ts";
 import {
   authChallenges,
   type AuthChallengePayload,
@@ -22,6 +22,10 @@ import {
   makeDeleteAccountHandlers,
   type DeleteAccountHooks,
 } from "./make-delete-account-handlers.ts";
+import {
+  makeEmailChangeHandlers,
+  type EmailChangeHooks,
+} from "./make-email-change-handlers.ts";
 import type { makeEmailCodeCookie } from "./make-email-code-cookie.ts";
 import { makeEmailCode } from "./make-email-code.ts";
 import { normaliseEmail } from "./normalise-email.ts";
@@ -30,6 +34,7 @@ import { passkeyResponseSchemas } from "./passkey-response-schemas.ts";
 import { readAuthBody } from "./read-auth-body.ts";
 import { readRequestCookie } from "./read-request-cookie.ts";
 import { withNext } from "./sign-in-path.ts";
+import type { CodeEmailInput } from "./types.ts";
 import { verifyPasskeyRegistration } from "./verify-passkey-registration.ts";
 import { verifyPasskeySignIn } from "./verify-passkey-sign-in.ts";
 
@@ -90,14 +95,8 @@ export interface AuthConfig<
   emailCodeCookie: ReturnType<typeof makeEmailCodeCookie>;
   /** Runs `task` after the response is sent, so that its time does not show in the response. */
   afterResponse: (task: () => Promise<void>) => void;
-  /** The email that carries a code and its link. */
-  buildCodeEmail: (input: {
-    to: string;
-    locale: AuthLocale;
-    code: string;
-    url: string;
-    reason: "recovery" | "sign-up" | "registered-sign-up";
-  }) => Email;
+  /** The email that carries a code, and its link when the flow has one. */
+  buildCodeEmail: (input: CodeEmailInput) => Email;
   /** True when a user has `email`. */
   isEmailRegistered: (tx: Tx, email: string) => Promise<boolean>;
   /** The id of the user that gets a recovery link at `email`. Null when there is none. */
@@ -575,11 +574,18 @@ export function makeAuth<
     );
   }
 
+  /** The routes that set or change the signed-in user's email by a code. */
+  function emailChangeHandlers(hooks: EmailChangeHooks<Context, Tx>) {
+    const deps = { ...kit, readEmail, sendOrFail, hashedAddress, emailCode };
+    return makeEmailChangeHandlers({ ...deps, config }, hooks);
+  }
+
   return {
     ...kit,
     handlers,
     addPasskeyHandlers,
     deleteAccountHandlers,
+    emailChangeHandlers,
     sendOrFail,
     readEmail,
     createSession,

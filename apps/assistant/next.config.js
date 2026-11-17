@@ -37,11 +37,13 @@ module.exports = async (phase) => {
       lightningCssFeatures: { exclude: ["light-dark"] },
     },
     transpilePackages: [
+      "@tuja/auth-ui",
       "@tuja/dev-tools",
       "@tuja/i18n",
       "@tuja/next-links",
       "@tuja/server-auth",
       "@tuja/server-clients",
+      "@tuja/server-email",
       "@tuja/ui",
     ],
     outputFileTracingRoot: path.resolve(__dirname, "../.."),

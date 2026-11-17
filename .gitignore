@@ -44,8 +44,10 @@ next-env.d.ts
 apps/finance/.finance-db/
 apps/finance/.finance-outbox/
 
-# Assistant local dev database (PGlite data directory)
+# Assistant local dev database (PGlite data directory), email outbox and screenshots
 apps/assistant/.assistant-db/
+apps/assistant/.assistant-outbox/
+apps/assistant/.screenshots/
 apps/buddy/.buddy-db/
 apps/buddy/.buddy-outbox/
 

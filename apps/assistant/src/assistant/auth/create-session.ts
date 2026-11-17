@@ -1,37 +1,16 @@
-import { randomUUID } from "node:crypto";
-import { generateToken } from "@tuja/server-auth/generate-token";
-import { hashToken } from "@tuja/server-auth/hash-token";
-import { and, eq, lte } from "drizzle-orm";
-import { sessions } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
+import { assistantAuthStore } from "./assistant-auth-store.ts";
 import { assistantSessionCookie } from "./assistant-session-cookie.ts";
 
-interface CreateSessionInput {
-  userId: string;
-  userAgent: string;
-  now: Date;
-}
-
-/** Returns the raw token. Only its hash is stored. Also deletes the user's expired sessions. */
-export async function createSession(
+/** Stores a new session of the user and returns its raw token. For `assistant:session`, which signs an agent in without a passkey. */
+export function createSession(
   db: AssistantDb,
-  { userId, userAgent, now }: CreateSessionInput,
+  { userId, userAgent, now }: { userId: string; userAgent: string; now: Date },
 ): Promise<string> {
-  const token = generateToken();
-  await db
-    .delete(sessions)
-    .where(and(eq(sessions.userId, userId), lte(sessions.expiresAt, now)));
-  await db.insert(sessions).values({
-    id: randomUUID(),
+  return assistantAuthStore.createSession(db, {
     userId,
-    tokenHash: hashToken(token),
-    createdAt: now,
-    refreshedAt: now,
-    lastSeenAt: now,
-    expiresAt: new Date(
-      now.getTime() + assistantSessionCookie.maxAgeSeconds * 1000,
-    ),
-    userAgent: userAgent.slice(0, 512),
+    userAgent,
+    now,
+    maxAgeSeconds: assistantSessionCookie.maxAgeSeconds,
   });
-  return token;
 }

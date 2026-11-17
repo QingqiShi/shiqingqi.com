@@ -25,6 +25,10 @@ interface EmailCodeFormProps {
    * page or to a view that replaces this form, so the form stays busy.
    */
   verify: (code: string) => Promise<void>;
+  /** The copy for error codes that mean something else in this flow. */
+  messages?: Record<string, string>;
+  /** Shows a Cancel button under the email field that calls it. */
+  onCancel?: () => void;
 }
 
 /**
@@ -38,9 +42,11 @@ export function EmailCodeForm({
   sentMessage,
   send,
   verify,
+  messages,
+  onCancel,
 }: EmailCodeFormProps) {
   const locale = useLocale();
-  const messageOf = useAuthErrorMessage();
+  const messageOf = useAuthErrorMessage(messages);
   const [step, setStep] = useState<"email" | "code">("email");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -91,6 +97,16 @@ export function EmailCodeForm({
         <Button type="submit" look="outline" loading={busy} css={fill.inline}>
           {submitLabel}
         </Button>
+        {onCancel ? (
+          <Button
+            look="ghost"
+            disabled={busy}
+            css={fill.inline}
+            onClick={onCancel}
+          >
+            {t({ en: "Cancel", zh: "取消" })}
+          </Button>
+        ) : null}
       </form>
     );
   }

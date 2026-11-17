@@ -25,6 +25,9 @@ async function runCeremony<T>(ceremony: () => Promise<T>): Promise<T> {
     if (error instanceof Error && error.name === "NotAllowedError") {
       throw new ApiError("cancelled", 0);
     }
+    if (error instanceof Error && error.name === "InvalidStateError") {
+      throw new ApiError("passkey_exists", 0);
+    }
     throw error;
   }
 }
@@ -40,7 +43,7 @@ async function register(path: string, body: object = {}): Promise<void> {
   await postAuth(`${path}/verify`, { ...body, response });
 }
 
-/** Browser calls for the passkey flows of `@tuja/server-auth`. Each throws `ApiError`; its code is `cancelled` when the visitor closed the passkey sheet. */
+/** Browser calls for the passkey flows of `@tuja/server-auth`. Each throws `ApiError`; its code is `cancelled` when the visitor closed the passkey sheet, and `passkey_exists` when the device has a passkey of this user already. */
 export const passkeyClient = {
   async signIn(): Promise<void> {
     const { options } = await postAuth<{
@@ -77,6 +80,22 @@ export const passkeyClient = {
   /** Adds a passkey for the signed-in user, e.g. on a new device. */
   async addPasskey(): Promise<void> {
     await register("/passkeys");
+  },
+
+  /** Emails a code to `email`, the new address of the signed-in user, in `locale`. */
+  async requestEmailChange(
+    email: string,
+    locale: SupportedLocale,
+  ): Promise<void> {
+    await postAuth("/email", { email, locale });
+  },
+
+  /** Checks the code from the email that this browser asked for, gives the signed-in user that address, and returns it. */
+  async confirmEmailChange(code: string): Promise<string> {
+    const { email } = await postAuth<{ email: string }>("/email/verify", {
+      code,
+    });
+    return email;
   },
 
   /** Asks for a recovery email. The answer is the same whether or not a user has this address. */

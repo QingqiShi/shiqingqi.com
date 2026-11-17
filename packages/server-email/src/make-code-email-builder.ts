@@ -2,7 +2,8 @@ import type { SupportedLocale } from "@tuja/i18n/types";
 import { renderEmail } from "./render-email.ts";
 import type { Email } from "./types.ts";
 
-type CodeEmailReason = "recovery" | "sign-up" | "registered-sign-up";
+type LinkReason = "recovery" | "sign-up" | "registered-sign-up";
+type CodeEmailReason = LinkReason | "email-change";
 
 const COPY: Record<
   SupportedLocale,
@@ -14,6 +15,7 @@ const COPY: Record<
       intro: (app: string) => string;
       hint?: string;
       action?: string;
+      expiry?: string;
     }
   > & {
     hint: string;
@@ -43,6 +45,13 @@ const COPY: Record<
       intro: (app) =>
         `Someone asked to sign up for ${app} with this email address, but you already have an account with it. Sign in with your passkey. If you lost it, use this code to save a new passkey. Your old passkeys then stop working, and every other device signs out.`,
     },
+    "email-change": {
+      subject: (app, code) => `${code} is your ${app} email code`,
+      heading: () => "Confirm your email",
+      intro: (app) =>
+        `Someone signed in to ${app} asked to use this email address for their account. If it was you, type this code in ${app}.`,
+      expiry: "The code works once, for 30 minutes.",
+    },
     hint: "Type it on the device where you asked for it.",
     alternative: "Or open this link on any device:",
     action: "Save a new passkey",
@@ -69,6 +78,13 @@ const COPY: Record<
       intro: (app) =>
         `有人使用此邮箱申请注册${app}，但此邮箱已有账号。请用你的通行密钥登录。如果丢失了通行密钥，请用此验证码保存新的通行密钥。之后旧的通行密钥将失效，其他设备都会退出登录。`,
     },
+    "email-change": {
+      subject: (app, code) => `${app}邮箱验证码：${code}`,
+      heading: () => "确认你的邮箱",
+      intro: (app) =>
+        `有人在${app}中申请将此邮箱用于其账号。如果是你本人，请在${app}中输入此验证码。`,
+      expiry: "验证码仅可使用一次，30 分钟内有效。",
+    },
     hint: "请在你提出申请的设备上输入。",
     alternative: "也可以在任意设备上打开此链接：",
     action: "保存新的通行密钥",
@@ -77,28 +93,24 @@ const COPY: Record<
 };
 
 /**
- * Builds an app's email with a one-use code and its link. `"recovery"` goes
- * to the user who has this email, `"sign-up"` to a new address that asks to
- * sign up, and `"registered-sign-up"` answers a sign-up request for an
- * address that a user has already.
+ * Builds an app's email with a one-use code, and its link when the flow has
+ * one. `"recovery"` goes to the user who has this email, `"sign-up"` to a new
+ * address that asks to sign up, `"registered-sign-up"` answers a sign-up
+ * request for an address that a user has already, and `"email-change"` goes
+ * to the new address of a signed-in user, with no link.
  */
 export function makeCodeEmailBuilder(
   /** The app's name in each locale. */
   appName: Record<SupportedLocale, string>,
 ) {
-  return function buildCodeEmail({
-    to,
-    locale,
-    code,
-    url,
-    reason,
-  }: {
-    to: string;
-    locale: SupportedLocale;
-    code: string;
-    url: string;
-    reason: CodeEmailReason;
-  }): Email {
+  return function buildCodeEmail(
+    input: {
+      to: string;
+      locale: SupportedLocale;
+      code: string;
+    } & ({ url: string; reason: LinkReason } | { reason: "email-change" }),
+  ): Email {
+    const { to, locale, code, reason } = input;
     const copy = COPY[locale];
     const app = appName[locale];
     const {
@@ -107,6 +119,7 @@ export function makeCodeEmailBuilder(
       intro,
       hint = copy.hint,
       action = copy.action,
+      expiry = copy.expiry,
     } = copy[reason];
     return renderEmail({
       wordmark: app,
@@ -116,8 +129,8 @@ export function makeCodeEmailBuilder(
       heading: heading(app),
       intro: intro(app),
       code: { value: code, hint, alternative: copy.alternative },
-      action: { label: action, url },
-      expiry: copy.expiry,
+      action: "url" in input ? { label: action, url: input.url } : undefined,
+      expiry,
     });
   };
 }
