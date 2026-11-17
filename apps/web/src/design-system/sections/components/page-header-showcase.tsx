@@ -44,6 +44,12 @@ export function PageHeaderShowcase() {
             zh: "eyebrow 在标题上方加一行简短的弱化文字，例如报告的日期。",
           })}
         </GuideNote>
+        <GuideNote>
+          {t({
+            en: "Every other title on the page is a Heading, or the title of a Section.",
+            zh: "页面上的其他标题都用 Heading，或用 Section 的标题。",
+          })}
+        </GuideNote>
       </GuideSection>
 
       <GuideSection
@@ -77,6 +83,28 @@ export function PageHeaderShowcase() {
                 </Button>
               </>
             }
+          />
+        </Example>
+      </GuideSection>
+
+      <GuideSection
+        title={t({
+          en: "Make it small on a screen of an app.",
+          zh: "在应用的屏幕上用小号。",
+        })}
+        lead={t({
+          en: 'On a screen that a person opens many times a day, the content is what they came for. size="sm" sets the title and the description one step smaller, so the header names the screen and gives the room to what is below.',
+          zh: '一天要打开很多次的屏幕，访客是为内容而来。size="sm" 让标题与说明各小一级，标题区只点明这是哪个屏幕，把空间留给下方的内容。',
+        })}
+      >
+        <Example fill>
+          <PageHeader
+            size="sm"
+            title={t({ en: "Transactions", zh: "交易" })}
+            description={t({
+              en: "214 transactions this month",
+              zh: "本月 214 笔交易",
+            })}
           />
         </Example>
       </GuideSection>
