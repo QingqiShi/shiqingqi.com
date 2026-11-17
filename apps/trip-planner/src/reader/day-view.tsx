@@ -23,11 +23,13 @@ import type { LiveWeather } from "./weather/types.ts";
 
 /** One day of the trip, from its figures and fixed times down to the bed. */
 export function DayView({
+  tripId,
   trip,
   day,
   liveWeather,
   onOpenDay,
 }: {
+  tripId: string;
   trip: Trip;
   day: Day;
   liveWeather: LiveWeather | undefined;
@@ -70,7 +72,7 @@ export function DayView({
         </Section>
       ) : null}
       <DayMap day={day} />
-      <DayFeed tripSlug={trip.slug} day={day} />
+      <DayFeed tripId={tripId} day={day} />
       {day.dining.length > 0 ? (
         <Section
           title={t({ en: "Places to eat", zh: "餐饮选择" })}

@@ -111,7 +111,7 @@ async function isInviteOpen(db: TripsDb, token: string): Promise<boolean> {
 
 /**
  * Makes the user an editor of the trip of an open invite, which ends the
- * invite, and gives the slug of the trip. A user who is a member already
+ * invite, and gives the id of the trip. A user who is a member already
  * keeps the role, and the invite stays open for another person. Null when
  * the invite is not open.
  */
@@ -121,14 +121,14 @@ async function acceptInvite(
   token: string,
 ): Promise<string | null> {
   if (!inviteToken.isValid(token)) return null;
-  const [{ slug }] = await asViewer(db, userId, (tx) =>
+  const [{ tripId }] = await asViewer(db, userId, (tx) =>
     tx
-      .select({ slug: sql<string | null>`slug` })
+      .select({ tripId: sql<string | null>`trip_id` })
       .from(
-        sql`public.trips_accept_invite(${inviteToken.hash(token)}) as slug`,
+        sql`public.trips_join_by_invite(${inviteToken.hash(token)}) as trip_id`,
       ),
   );
-  return slug;
+  return tripId;
 }
 
 /** The members of a trip, owners first. Only an owner of the trip gets any. */

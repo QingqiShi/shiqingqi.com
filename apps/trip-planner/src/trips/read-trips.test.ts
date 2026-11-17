@@ -1,5 +1,5 @@
 import { PGlite } from "@electric-sql/pglite";
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import { afterAll, beforeAll, expect, it } from "vitest";
@@ -15,6 +15,8 @@ let client: PGlite;
 let db: TripsDb;
 let mara: string;
 let noor: string;
+const lisbon = crypto.randomUUID();
+const porto = crypto.randomUUID();
 
 async function addUser(email: string) {
   const [{ id }] = await db
@@ -24,12 +26,8 @@ async function addUser(email: string) {
   return id;
 }
 
-async function addMember(slug: string, userId: string) {
-  const [{ id }] = await db
-    .select({ id: trips.id })
-    .from(trips)
-    .where(eq(trips.slug, slug));
-  await db.insert(tripMembers).values({ tripId: id, userId, role: "owner" });
+async function addMember(tripId: string, userId: string) {
+  await db.insert(tripMembers).values({ tripId, userId, role: "owner" });
 }
 
 beforeAll(async () => {
@@ -40,25 +38,23 @@ beforeAll(async () => {
   });
   mara = await addUser("mara@example.com");
   noor = await addUser("noor@example.com");
-  await importTrip(db, sample);
-  await importTrip(db, { ...sample, id: "porto", slug: "porto" });
-  await addMember(sample.slug, mara);
-  await addMember("porto", noor);
+  await importTrip(db, lisbon, sample);
+  await importTrip(db, porto, { ...sample, id: "porto" });
+  await addMember(lisbon, mara);
+  await addMember(porto, noor);
 });
 
 afterAll(() => client.close());
 
-function slugsOf(userId: string | null) {
-  return readTrips(db, userId).then((viewed) =>
-    viewed.map(({ trip }) => trip.slug),
-  );
+function idsOf(userId: string | null) {
+  return readTrips(db, userId).then((viewed) => viewed.map(({ id }) => id));
 }
 
 it("gives a user the trips that the user is a member of, and a visitor none", async () => {
-  expect(await slugsOf(mara)).toEqual([sample.slug]);
-  expect(await slugsOf(noor)).toEqual(["porto"]);
-  expect(await slugsOf(crypto.randomUUID())).toEqual([]);
-  expect(await slugsOf(null)).toEqual([]);
+  expect(await idsOf(mara)).toEqual([lisbon]);
+  expect(await idsOf(noor)).toEqual([porto]);
+  expect(await idsOf(crypto.randomUUID())).toEqual([]);
+  expect(await idsOf(null)).toEqual([]);
 });
 
 it("shows the reader's role no row of another user, with no filter in the query", async () => {
@@ -107,16 +103,18 @@ it("lets the reader's role reach no table of sign-in, and write nothing", async 
 
 it("reads the newest revision, and does not save a known document again", async () => {
   const renamed = { ...sample, title: "Lisbon, again" };
-  expect(await importTrip(db, renamed)).toBe("revised");
-  expect(await importTrip(db, renamed)).toBe("known");
+  expect(await importTrip(db, lisbon, renamed)).toBe("revised");
+  expect(await importTrip(db, lisbon, renamed)).toBe("known");
   // The first document is older, as in a build of an older commit.
-  expect(await importTrip(db, sample)).toBe("known");
+  expect(await importTrip(db, lisbon, sample)).toBe("known");
   const [{ trip }] = await readTrips(db, mara);
   expect(trip.title).toBe("Lisbon, again");
 });
 
 it("refuses a document that is not a trip", async () => {
   const before = await db.$count(tripRevisions);
-  await expect(importTrip(db, { ...sample, days: [] })).rejects.toThrow();
+  await expect(
+    importTrip(db, lisbon, { ...sample, days: [] }),
+  ).rejects.toThrow();
   expect(await db.$count(tripRevisions)).toBe(before);
 });

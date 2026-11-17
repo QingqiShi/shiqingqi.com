@@ -166,14 +166,11 @@ function isSignedIn({ browser }: Person) {
 }
 
 async function addTrip(
-  slug: string,
+  name: string,
   members: [Person, "owner" | "editor"][],
 ): Promise<string> {
-  await importTrip(db, { ...sample, id: slug, slug });
-  const [{ id }] = await db
-    .select({ id: trips.id })
-    .from(trips)
-    .where(eq(trips.slug, slug));
+  const id = crypto.randomUUID();
+  await importTrip(db, id, { ...sample, id: name });
   await db
     .insert(tripMembers)
     .values(

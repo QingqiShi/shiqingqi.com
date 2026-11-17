@@ -5,7 +5,8 @@ import type { Trip, TripPhase } from "#src/trips/types.ts";
 
 /** What the trip list shows of a trip. It is public, so it holds no more than a title and dates. */
 export interface TripSummary {
-  slug: string;
+  /** The id of the trip, which is its path. */
+  id: string;
   title: string;
   language: Trip["language"];
   dates: string;
@@ -15,13 +16,14 @@ export interface TripSummary {
 }
 
 export function tripSummary(
+  id: string,
   trip: Trip,
   now: Date,
   locale: SupportedLocale,
 ): TripSummary {
   const { index, phase } = resolveDay(now, trip.days, trip.timeZone);
   return {
-    slug: trip.slug,
+    id,
     title: trip.title,
     language: trip.language,
     dates: shortRangeLabel(trip.days, locale),

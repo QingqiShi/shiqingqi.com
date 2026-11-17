@@ -46,11 +46,13 @@ function PhaseNote({ trip, today }: { trip: Trip; today: ResolvedDay }) {
 
 /** A trip: one day at a time, or every day on a calendar. */
 export function TripPage({
+  tripId,
   trip,
   serverToday,
   weatherByDay,
   actions,
 }: {
+  tripId: string;
   trip: Trip;
   /** Where today falls on the trip when the server rendered the page. */
   serverToday: ResolvedDay;
@@ -124,6 +126,7 @@ export function TripPage({
             />
             <DayView
               key={trip.days[location.day].id}
+              tripId={tripId}
               trip={trip}
               day={trip.days[location.day]}
               liveWeather={weatherByDay[trip.days[location.day].id]}

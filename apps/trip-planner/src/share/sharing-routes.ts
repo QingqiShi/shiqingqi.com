@@ -78,12 +78,12 @@ const endInvite = signedInRoute(
 const acceptInvite = signedInRoute(
   z.object({ token: z.string() }),
   async (userId, { token }) => {
-    const slug = await tripSharing.acceptInvite(getTripsDb(), userId, token);
+    const tripId = await tripSharing.acceptInvite(getTripsDb(), userId, token);
     // One answer for an invite that was used, ended, is past its time, or
     // never was.
-    return slug === null
+    return tripId === null
       ? json({ error: "invite_invalid" }, 410)
-      : json({ slug });
+      : json({ tripId });
   },
 );
 

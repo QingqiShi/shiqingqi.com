@@ -4,14 +4,15 @@ A standalone Next.js app for planning trips, deployed as its **own Vercel projec
 (separate from the main `web` site) out of this monorepo.
 
 - **Locale:** English and Chinese routes under `src/app/[locale]`: English has
-  no prefix (`/gb`), Chinese is at `/zh` (`/zh/gb`). App text uses inline
+  no prefix (`/<trip id>`), Chinese is at `/zh` (`/zh/<trip id>`). App text uses inline
   `t({ en, zh })` (see the `i18n-patterns` skill). Trip content stays in the
   trip's own language, with a `lang` where it differs from the page.
 - **UI:** the repo's StyleX design system, `@tuja/ui` (see the `styling`
   skill). The app sits in a `TabView` (Trips, Settings), and the list of trips
   sits beside the open trip in a `NavigationSplitView`.
 - **Data:** trips are documents in Postgres, one row in `trips` and one in
-  `trip_revisions` for each save. Pages read them through
+  `trip_revisions` for each save. The path of a trip is the id of its row in
+  `trips`. Pages read them through
   `src/trips/get-trips.ts`, which reads only the trips that the viewer can open.
   The real trips are only in the deployed database, not in the repository.
 - **Access:** a trip shows only to its members (`trip_members`). The reader
@@ -36,7 +37,7 @@ in `.trips-db/`, with the made-up sample trip. After a change to
 `src/db/schema.ts`, run `pnpm trips:generate` for the migration.
 
 In that database, each user who signs up at `/sign-in` becomes an owner of the
-made-up sample trip at `/sample-lisbon`; the emailed code is in
+made-up sample trip at `/00000000-0000-4000-8000-000000000001`; the emailed code is in
 `.trips-outbox/`. A user whose address starts with `guest` gets no trip, so
 that you can try an invite with it. Use the sample trip for tests and screenshots, because the
 real trips show bookings and phone numbers.

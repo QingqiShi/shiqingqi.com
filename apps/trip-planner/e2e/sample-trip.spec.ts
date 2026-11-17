@@ -1,5 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
+import { SAMPLE_TRIP_ID } from "../src/trips/sample-trip-id.ts";
 import { signUp } from "./sign-up.ts";
+
+const tripPath = `/${SAMPLE_TRIP_ID}`;
 
 const dayTitle = (page: Page) => page.getByRole("heading", { level: 2 });
 const tripTitle = (page: Page) =>
@@ -14,11 +17,13 @@ test("a visitor finds sign-up from the landing page, opens a trip, signs up, and
     page.getByRole("button", { name: "Email me a sign-up code" }),
   ).toBeVisible();
 
-  await page.goto("/sample-lisbon");
-  await expect(page).toHaveURL(/\/sign-in\?next=%2Fsample-lisbon$/);
+  await page.goto(tripPath);
+  await expect(page).toHaveURL(
+    new RegExp(`/sign-in\\?next=%2F${SAMPLE_TRIP_ID}$`),
+  );
   await signUp(page);
   await expect(tripTitle(page)).toBeVisible();
-  await expect(page).toHaveURL(/\/sample-lisbon$/);
+  await expect(page).toHaveURL(new RegExp(`${tripPath}$`));
 
   await page
     .getByRole("combobox", { name: "Day", exact: true })
@@ -43,13 +48,13 @@ test("a visitor finds sign-up from the landing page, opens a trip, signs up, and
 });
 
 const isTripKept = (page: Page) =>
-  page.evaluate(async () => (await caches.match("/sample-lisbon")) != null);
+  page.evaluate(async (path) => (await caches.match(path)) != null, tripPath);
 
 test("an opened trip reads with no network, until the user signs out", async ({
   page,
   context,
 }) => {
-  await page.goto("/sample-lisbon");
+  await page.goto(tripPath);
   await signUp(page);
   await expect(tripTitle(page)).toBeVisible();
   await expect.poll(() => isTripKept(page)).toBe(true);
@@ -70,7 +75,7 @@ test("an opened trip reads with no network, until the user signs out", async ({
   expect(await isTripKept(page)).toBe(false);
 
   await context.setOffline(true);
-  await page.goto("/sample-lisbon");
+  await page.goto(tripPath);
   await expect(
     page.getByRole("heading", { name: "You are offline" }),
   ).toBeVisible();

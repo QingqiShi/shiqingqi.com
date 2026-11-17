@@ -1,5 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
+import { SAMPLE_TRIP_ID } from "../src/trips/sample-trip-id.ts";
 import { signUp } from "./sign-up.ts";
+
+const tripPath = `/${SAMPLE_TRIP_ID}`;
 
 const tripTitle = (page: Page) =>
   page.getByRole("heading", { level: 1, name: "Lisbon and Porto" });
@@ -10,7 +13,7 @@ test("a companion opens an invite link, signs up and joins the trip, until the o
   page,
   browser,
 }) => {
-  await page.goto("/sample-lisbon");
+  await page.goto(tripPath);
   await signUp(page);
   await expect(tripTitle(page)).toBeVisible();
   await page.getByRole("button", { name: "Share" }).click();
@@ -34,13 +37,13 @@ test("a companion opens an invite link, signs up and joins the trip, until the o
   // The sign-up comes back to the invite, and the trip is still closed.
   const join = companion.getByRole("button", { name: "Join the trip" });
   await expect(join).toBeVisible();
-  await companion.goto("/sample-lisbon");
+  await companion.goto(tripPath);
   await expect(notFound(companion)).toBeVisible();
 
   await companion.goto(link);
   await join.click();
   await expect(tripTitle(companion)).toBeVisible();
-  await expect(companion).toHaveURL(/\/sample-lisbon$/);
+  await expect(companion).toHaveURL(new RegExp(`${tripPath}$`));
   await expect(companion.getByRole("button", { name: "Share" })).toHaveCount(0);
 
   // The link was for one person.
@@ -58,7 +61,7 @@ test("a companion opens an invite link, signs up and joins the trip, until the o
     .click();
   await expect(page.getByText(email)).toHaveCount(0);
 
-  await companion.goto("/sample-lisbon");
+  await companion.goto(tripPath);
   await expect(notFound(companion)).toBeVisible();
   await companionContext.close();
 });

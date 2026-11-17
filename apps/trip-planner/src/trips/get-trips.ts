@@ -14,6 +14,7 @@ export const getTrips = cache(async (): Promise<ViewedTrip[]> =>
   readTrips(getTripsDb(), await getViewerId()),
 );
 
-export async function getTrip(slug: string): Promise<ViewedTrip | undefined> {
-  return (await getTrips()).find(({ trip }) => trip.slug === slug);
+/** The trip at the path `/<id>`, when the signed-in user is a member of it. */
+export async function getTrip(id: string): Promise<ViewedTrip | undefined> {
+  return (await getTrips()).find((viewed) => viewed.id === id);
 }

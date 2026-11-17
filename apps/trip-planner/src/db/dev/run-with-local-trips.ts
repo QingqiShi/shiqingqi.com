@@ -4,6 +4,7 @@ import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { importTrip } from "../../trips/import-trip.ts";
+import { SAMPLE_TRIP_ID } from "../../trips/sample-trip-id.ts";
 import sampleTrip from "../../trips/sample-trip.json";
 import { schema } from "../schema.ts";
 import { startDevDb } from "./start-dev-db.ts";
@@ -13,8 +14,8 @@ const APP_DIR = path.resolve(import.meta.dirname, "../../..");
 /**
  * Copies the made-up trip into the local database, so that a change to its
  * file shows after a restart. It also makes every user of the local database
- * an owner of each trip in it, now and at each sign-up: a trip shows only to
- * its members, and a local database has no other way to get one. A user
+ * an owner of it, now and at each sign-up: a trip shows only to its members,
+ * and a local database has no other way to get one. A user
  * whose address starts with `guest` gets none, so that an invite can be the
  * way in.
  */
@@ -22,13 +23,19 @@ async function seed(connectionString: string) {
   const pool = new Pool({ connectionString, max: 1 });
   try {
     const db = drizzle({ client: pool, schema });
-    await importTrip(db, sampleTrip);
+    // A database from before trips had a fixed id holds the sample trip
+    // under another id.
+    await db.execute(
+      sql`delete from trips where slug = 'sample-lisbon' and id <> ${SAMPLE_TRIP_ID}`,
+    );
+    await importTrip(db, SAMPLE_TRIP_ID, sampleTrip);
     await db.execute(sql`
       create or replace function local_trip_owner() returns trigger
       language plpgsql as $$
       begin
         insert into trip_members (trip_id, user_id, role)
-        select id, new.id, 'owner' from trips where new.email not like 'guest%';
+        select id, new.id, 'owner' from trips
+        where id = '${sql.raw(SAMPLE_TRIP_ID)}' and new.email not like 'guest%';
         return new;
       end
       $$`);
@@ -37,7 +44,7 @@ async function seed(connectionString: string) {
       for each row execute function local_trip_owner()`);
     await db.execute(sql`
       insert into trip_members (trip_id, user_id, role)
-      select trips.id, users.id, 'owner' from trips cross join users
+      select ${SAMPLE_TRIP_ID}::uuid, users.id, 'owner' from users
       where users.email not like 'guest%'
       on conflict do nothing`);
   } finally {
