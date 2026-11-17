@@ -1,5 +1,6 @@
 "use client";
 
+import * as stylex from "@stylexjs/stylex";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { createContext, use, type ReactNode } from "react";
 import type { Trip } from "#src/trips/types.ts";
@@ -26,9 +27,20 @@ export function useTripLang(): Trip["language"] | undefined {
 /**
  * Words from the trip itself. The page is in the reader's language, and the
  * trip in the language it was written in, so a screen reader and the font
- * read each in its own language.
+ * read each in its own language. A note typed on more than one line keeps
+ * its lines and blank lines.
  */
 export function TripText({ children }: { children: ReactNode }) {
   const lang = useTripLang();
-  return lang ? <span lang={lang}>{children}</span> : children;
+  const hasLines = typeof children === "string" && children.includes("\n");
+  if (!lang && !hasLines) return children;
+  return (
+    <span lang={lang} css={hasLines && styles.lines}>
+      {children}
+    </span>
+  );
 }
+
+const styles = stylex.create({
+  lines: { whiteSpace: "pre-line" },
+});

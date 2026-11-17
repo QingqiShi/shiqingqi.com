@@ -1,5 +1,5 @@
 import { t } from "@tuja/i18n";
-import type { ItemKind } from "#src/trips/ops/op-schema.ts";
+import type { DayList, ItemKind } from "#src/trips/ops/op-schema.ts";
 import type { FormKind } from "./item-fields.ts";
 
 /** The names of the kinds of item, as the rows and the sheet show them. */
@@ -16,6 +16,16 @@ export function useKindLabels(): Record<ItemKind, string> {
   };
 }
 
+/** The names of the lists of a day that hold the items with no time, as the reader names them. */
+export function useListLabels(): Record<DayList, string> {
+  return {
+    tips: t({ en: "Good to know", zh: "今日须知" }),
+    dining: t({ en: "Places to eat", zh: "餐饮选择" }),
+    places: t({ en: "Places to go", zh: "想去的地方" }),
+    lodging: t({ en: "Stay", zh: "住宿" }),
+  };
+}
+
 /** The label of each field of the form of a kind, by the key of the field. */
 export function useFieldLabels(): Record<FormKind, Record<string, string>> {
   const name = t({ en: "Name", zh: "名称" });
@@ -25,14 +35,14 @@ export function useFieldLabels(): Record<FormKind, Record<string, string>> {
   return {
     dining: {
       name,
-      description: note,
+      description: t({ en: "About the place", zh: "餐厅介绍" }),
       status,
       "booking.date": t({ en: "Booking date", zh: "预订日期" }),
       "booking.time": t({ en: "Booking time", zh: "预订时间" }),
       "booking.party": t({ en: "Table for", zh: "人数" }),
       "booking.by": t({ en: "Booked by", zh: "预订人" }),
       "booking.contact": t({ en: "Booking contact", zh: "预订联系方式" }),
-      "booking.note": t({ en: "Booking note", zh: "预订备注" }),
+      "booking.note": t({ en: "Note on the booking", zh: "预订备注" }),
       area: t({ en: "Area", zh: "区域" }),
       tag: t({ en: "Kind of food", zh: "菜系" }),
       price: t({ en: "Price", zh: "价格" }),
@@ -80,7 +90,7 @@ export function useOptionLabels(): Record<string, string> {
     warn: t({ en: "Warning", zh: "注意" }),
     parking: t({ en: "Parking", zh: "停车" }),
     fuel: t({ en: "Fuel", zh: "加油" }),
-    drive: t({ en: "Driving", zh: "驾驶" }),
+    drive: t({ en: "Driving", zh: "驾车" }),
     transit: t({ en: "Public transport", zh: "公共交通" }),
     money: t({ en: "Money", zh: "费用" }),
   };

@@ -3,7 +3,7 @@ import type { Trip } from "#src/trips/types.ts";
 import { buildDayFeed, type DayMoment } from "./day-feed/build-day-feed.ts";
 import { momentDomId } from "./day-feed/moment-dom-id.ts";
 import { minutesInZone } from "./resolve-day.ts";
-import { tripLocationHash } from "./use-trip-location.ts";
+import { takeArrived, tripLocationHash } from "./use-trip-location.ts";
 
 const MOBILE_QUERY = "(max-width: 47.99rem)";
 
@@ -18,13 +18,15 @@ function currentMomentIndex(moments: DayMoment[], nowMinutes: number) {
 
 /**
  * On a phone, scrolls once to the moment of today that is now, when the page
- * opens at today.
+ * opens at today and no other screen named the place to open at.
  */
 export function useScrollToNow(trip: Trip, todayIndex: number) {
   const doneRef = useRef(false);
   useEffect(() => {
     if (doneRef.current) return;
     doneRef.current = true;
+    // A person who comes from the editor lands where the editor says.
+    if (takeArrived()) return;
     const day = trip.days.at(todayIndex);
     if (todayIndex < 0 || !day) return;
     // The first render of the page does not know the hash yet. A page opened

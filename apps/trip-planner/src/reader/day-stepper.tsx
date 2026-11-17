@@ -51,10 +51,12 @@ export function DayStepper({
         }}
         options={days.map((day, index) => ({
           value: String(index),
+          // "Today" comes before the date, so that a cut on a narrow screen
+          // takes the end of the date and not "Today".
           label: [
             dayLabel(index),
-            dayDateLabel(day.date, locale),
             index === todayIndex ? today : null,
+            dayDateLabel(day.date, locale),
           ]
             .filter(Boolean)
             .join(" · "),

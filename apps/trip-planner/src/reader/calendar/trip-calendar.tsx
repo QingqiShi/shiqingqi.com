@@ -34,7 +34,7 @@ function Summary({ trip, stays }: Pick<CalendarProps, "trip" | "stays">) {
   const beds = t({ en: "{n} places to sleep", zh: "{n} 处住宿" });
   const driving = t({ en: "≈ {n}h at the wheel", zh: "驾车约 {n} 小时" });
 
-  const bedCount = new Set(stays.values()).size;
+  const bedCount = new Set([...stays.values()].map((stay) => stay.order)).size;
   const drivingHours = Math.round(
     trip.days.reduce((sum, day) => sum + (day.drivingMinutes ?? 0), 0) / 60,
   );

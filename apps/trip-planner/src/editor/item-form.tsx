@@ -31,12 +31,14 @@ import {
   type FormValues,
 } from "./item-fields.ts";
 import { addItemOps, moveItemOps } from "./move-item-ops.ts";
-import { SheetActions } from "./sheet-actions.tsx";
+import { AddAnotherButton, SheetActions } from "./sheet-actions.tsx";
 import {
   DayField,
   momentTimeOf,
   TimeFields,
   timeValueOf,
+  type AddStart,
+  type TimeValue,
 } from "./time-fields.tsx";
 import {
   useFieldLabels,
@@ -45,6 +47,11 @@ import {
 } from "./use-field-labels.ts";
 import { useFormChange } from "./use-form-change.tsx";
 import { usePlaceMessages } from "./use-place-messages.ts";
+
+/** The keypad that a phone shows for a field. */
+const INPUT_MODES: Partial<
+  Record<FieldSpec["input"], "url" | "tel" | "numeric">
+> = { url: "url", phone: "tel", count: "numeric" };
 
 function Field({
   spec,
@@ -99,8 +106,10 @@ function Field({
       error={error}
       autoFocus={autoFocus}
       autoComplete="off"
-      type={spec.input === "url" ? "url" : "text"}
-      inputMode={spec.input === "url" ? "url" : undefined}
+      type={
+        spec.input === "url" ? "url" : spec.input === "phone" ? "tel" : "text"
+      }
+      inputMode={INPUT_MODES[spec.input]}
       onChange={(event) => {
         onChange(event.target.value);
       }}
@@ -110,7 +119,7 @@ function Field({
 
 /** What the sheet edits: an item of the trip, or a new item of a kind on a day. */
 export type ItemFormTarget =
-  { found: LocatedItem } | { kind: FormKind; dayId: string };
+  { found: LocatedItem } | { kind: FormKind; dayId: string; time?: TimeValue };
 
 /**
  * The form of one item, for a change and for an add: its name, its day, its
@@ -121,10 +130,13 @@ export type ItemFormTarget =
 export function ItemForm({
   target,
   onDone,
+  onAnother,
 }: {
   target: ItemFormTarget;
   /** Closes the sheet. With an id, the sheet goes back into the row of that thing. */
   onDone: (rowId?: string) => void;
+  /** Starts the form of one more new item, at the day and the time of the item that the person added. */
+  onAnother?: (start: AddStart) => void;
 }) {
   const editor = useEditor();
   const fieldLabels = useFieldLabels();
@@ -143,8 +155,11 @@ export function ItemForm({
     formKind ? formOf(formKind, found?.item) : {},
   );
   const [dayId, setDayId] = useState(start.dayId);
-  const [time, setTime] = useState(() => timeValueOf(start.time));
+  const [time, setTime] = useState(
+    () => ("time" in target ? target.time : null) ?? timeValueOf(start.time),
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isTimeMissing, setIsTimeMissing] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const specs = formKind ? ITEM_FIELDS[formKind] : [];
 
@@ -153,14 +168,13 @@ export function ItemForm({
     en: "A link starts with https://",
     zh: "链接应以 https:// 开头",
   });
-  const noClock = t({ en: "Set a time.", zh: "请选择时间。" });
   const invalid = t({
     en: "This cannot be added as it is. Check what you entered.",
     zh: "这样无法添加，请检查填写的内容。",
   });
   const removed = t({ en: "Removed “{name}”", zh: "已移除“{name}”" });
 
-  const save = () => {
+  const save = (another = false) => {
     const nextErrors: Record<string, string> = {};
     for (const spec of specs) {
       const value = (values[spec.key] ?? "").trim();
@@ -171,8 +185,8 @@ export function ItemForm({
     }
     const momentTime: MomentTime | null | undefined =
       kind === "lodging" ? null : momentTimeOf(time);
-    if (momentTime === undefined) nextErrors.time = noClock;
     setErrors(nextErrors);
+    setIsTimeMissing(momentTime === undefined);
     if (specs.some((spec) => spec.group === "more" && nextErrors[spec.key])) {
       setIsMoreOpen(true);
     }
@@ -186,12 +200,15 @@ export function ItemForm({
         form.setProblem(invalid);
         return;
       }
-      form.submit(
+      const isAdded = form.submit(
         addItemOps(editor.trip, item, slot, newId),
         { message: messages.added(dayId), dayId },
         id,
+        another,
       );
+      if (!isAdded) return;
       editor.reveal(id);
+      if (another) onAnother?.({ dayId, time });
       return;
     }
     const patch = formKind ? patchOf(formKind, found.item, values) : {};
@@ -202,11 +219,12 @@ export function ItemForm({
         : []),
       ...moves,
     ];
-    form.submit(
+    const isSaved = form.submit(
       ops,
-      { message: messages.saved(start, slot), dayId },
+      { message: messages.saved(start, slot, LIST_OF_KIND[kind]), dayId },
       found.item.id,
     );
+    if (isSaved && moves.length > 0) editor.reveal(found.item.id);
   };
 
   const field = (spec: FieldSpec) => (
@@ -249,7 +267,7 @@ export function ItemForm({
           value={time}
           onChange={setTime}
           allowNone={LIST_OF_KIND[kind] !== undefined}
-          error={errors.time}
+          isMissing={isTimeMissing}
         />
       )}
       {mainFields.slice(1).map(field)}
@@ -272,7 +290,7 @@ export function ItemForm({
           found ? (
             <Button
               type="button"
-              look="ghost"
+              look="outline"
               intent="destructive"
               onClick={() => {
                 form.submit([{ op: "removeItem", id: found.item.id }], {
@@ -286,6 +304,13 @@ export function ItemForm({
           ) : null
         }
       >
+        {onAnother ? (
+          <AddAnotherButton
+            onClick={() => {
+              save(true);
+            }}
+          />
+        ) : null}
         <Button type="submit" look="primary" disabled={!editor.canEdit}>
           {found ? t({ en: "Save", zh: "保存" }) : t({ en: "Add", zh: "添加" })}
         </Button>

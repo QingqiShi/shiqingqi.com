@@ -12,19 +12,38 @@ import { FORM_KINDS, type FormKind } from "./item-fields.ts";
 import { ItemForm } from "./item-form.tsx";
 import { KindIcon } from "./item-row.tsx";
 import { MomentForm } from "./moment-form.tsx";
+import type { AddStart } from "./time-fields.tsx";
 import { useKindLabels } from "./use-field-labels.ts";
 
-/** What a person adds to a day: an item of a kind that has a form, or a note, which is a moment with only words. */
+/**
+ * What a person adds to a day: an item of a kind that has a form, or a note,
+ * which is a moment with only words. After "Add and add another", the form
+ * of the same kind opens again, at the day and the time of the last thing.
+ */
 export function AddPanel({
   dayId,
   onDone,
+  onFresh,
 }: {
   dayId: string;
   onDone: (rowId?: string) => void;
+  /** Called when the form starts again with nothing in it that the person typed. */
+  onFresh: () => void;
 }) {
   const kindLabels = useKindLabels();
   const [kind, setKind] = useState<FormKind | "note" | null>(null);
-  const noteLabel = t({ en: "Note", zh: "备注" });
+  const [start, setStart] = useState<{
+    dayId: string;
+    time?: AddStart["time"];
+  }>({ dayId });
+  // Changes at each "Add and add another", so that the form starts empty.
+  const [round, setRound] = useState(0);
+  const another = (next: AddStart) => {
+    setStart(next);
+    setRound((current) => current + 1);
+    onFresh();
+  };
+  const noteLabel = t({ en: "Note", zh: "事项" });
   const details: Record<FormKind | "note", string> = {
     dining: t({ en: "A place to eat", zh: "吃饭的地方" }),
     place: t({ en: "A place to go or to see", zh: "要去或要看的地方" }),
@@ -84,9 +103,19 @@ export function AddPanel({
         </Button>
       </div>
       {kind === "note" ? (
-        <MomentForm target={{ dayId }} onDone={onDone} />
+        <MomentForm
+          key={round}
+          target={start}
+          onDone={onDone}
+          onAnother={another}
+        />
       ) : (
-        <ItemForm target={{ kind, dayId }} onDone={onDone} />
+        <ItemForm
+          key={round}
+          target={{ kind, ...start }}
+          onDone={onDone}
+          onAnother={another}
+        />
       )}
     </div>
   );

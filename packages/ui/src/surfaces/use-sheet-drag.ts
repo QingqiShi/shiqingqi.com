@@ -50,7 +50,7 @@ interface SheetDragOptions {
   /** Whether a drag can start: the sheet is shown and not leaving. */
   readonly isEnabled: boolean;
   /** A drag let go far enough or fast enough to close the sheet. */
-  readonly onDismiss: () => void;
+  readonly onDismiss: () => boolean;
 }
 
 /**
@@ -200,11 +200,11 @@ export function useSheetDrag({
     if (!drag.isActive || !card || !motion) return;
     const velocity = releaseVelocity(drag.samples, performance.now());
     motion.release(velocity * 1000);
-    if (canDismiss && shouldDismiss(drag.y, velocity, card.offsetHeight)) {
+    const isDismissed =
+      canDismiss &&
+      shouldDismiss(drag.y, velocity, card.offsetHeight) &&
       onDismiss();
-    } else {
-      motion.settle();
-    }
+    if (!isDismissed) motion.settle();
   };
 
   // The browser scrolls the content on a touch unless the first move is

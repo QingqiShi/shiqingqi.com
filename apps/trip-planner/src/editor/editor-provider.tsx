@@ -15,6 +15,7 @@ import {
 } from "react";
 import {
   arriveAt,
+  forgetArrival,
   replaceTripLocation,
   type TripLocation,
 } from "#src/reader/use-trip-location.ts";
@@ -26,6 +27,7 @@ import {
   type QueueState,
   type SaveQueue,
 } from "./create-save-queue.ts";
+import { readerAnchor } from "./reader-anchor.ts";
 import { useOnline } from "./use-online.ts";
 
 /** What a row shows about a change to its thing that the server does not have yet. */
@@ -48,18 +50,39 @@ interface Editor {
    */
   change: (
     ops: readonly DraftOp[],
-    options: { message: string; dayId?: string },
+    options: {
+      message: string;
+      /** The day that the reader opens at after the change. */
+      dayId?: string;
+      /** The moment or the item that the reader opens with in view. */
+      thingId?: string;
+    },
   ) => { ok: true } | { ok: false; message: string };
   undo: () => void;
   statusOf: (id: string) => RowStatus;
   /** Whether the person made a change since the screen opened. */
   hasChanged: boolean;
-  /** Brings the row of a new thing into view, after the screen shows it. */
+  /**
+   * Shows where a thing that is new or that moved is now, after the screen
+   * shows it: marks its row for a moment, and scrolls only when the row is
+   * not clear of the bars and the toast.
+   */
   reveal: (id: string) => void;
+  /** Says a thing in a toast that stays when the person leaves this screen. */
+  announce: (message: string) => void;
+  /** The row that `reveal` marks now. */
+  markedId: string | null;
   /** A ref for the element of a row, so that a sheet can grow from it and go back into it. */
   rowRef: (id: string) => (element: HTMLElement | null) => void;
   rowElement: (id: string) => HTMLElement | null;
 }
+
+/** How long a row keeps the mark of `reveal`, in ms. */
+const MARK_MS = 2500;
+/** The part of the screen that the bar at the top covers, in px. */
+const TOP_COVER = 96;
+/** The part of the screen that the tab bar and a toast cover at the bottom, in px. */
+const BOTTOM_COVER = 200;
 
 const EditorContext = createContext<Editor | null>(null);
 
@@ -79,11 +102,13 @@ export function EditorProvider({
   tripId,
   trip: firstTrip,
   isOwner,
+  announce,
   children,
 }: {
   tripId: string;
   trip: Trip;
   isOwner: boolean;
+  announce: (message: string) => void;
   children: ReactNode;
 }) {
   const router = useRouter();
@@ -105,6 +130,7 @@ export function EditorProvider({
   );
   const [rows] = useState(() => new Map<string, HTMLElement>());
   const [hasChanged, setHasChanged] = useState(false);
+  const [markedId, setMarkedId] = useState<string | null>(null);
   const state = useSyncExternalStore(
     queue.subscribe,
     queue.getState,
@@ -158,6 +184,27 @@ export function EditorProvider({
     if (failedId !== null) showToast({ message: notSavedMessage });
   }, [failedId, showToast, notSavedMessage]);
 
+  // The reader opens at the place that this screen names only when the
+  // person goes from this screen to the reader: at the top of the day that
+  // its hash names, until a change names a day and a thing. After a visit
+  // to another page, the trip opens at today.
+  useEffect(() => {
+    arriveAt(readerPath, null);
+    return () => {
+      if (window.location.pathname !== readerPath) forgetArrival();
+    };
+  }, [readerPath]);
+
+  useEffect(() => {
+    if (markedId === null) return undefined;
+    const timer = setTimeout(() => {
+      setMarkedId(null);
+    }, MARK_MS);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [markedId]);
+
   const undo = () => {
     const result = queue.undo();
     // When the thing changed after the change, the conflict sheet opens,
@@ -183,7 +230,7 @@ export function EditorProvider({
     queue,
     isOnline,
     canEdit: isOnline && !state.isGone,
-    change(ops, { message, dayId }) {
+    change(ops, { message, dayId, thingId }) {
       if (ops.length === 0) return { ok: true };
       if (!isOnline) return { ok: false, message: offlineMessage };
       const result = queue.submit(ops);
@@ -194,14 +241,18 @@ export function EditorProvider({
         };
       }
       setHasChanged(true);
-      const dayIndex = queue
-        .getState()
-        .trip.days.findIndex((day) => day.id === dayId);
+      const changed = queue.getState().trip;
+      const dayIndex = changed.days.findIndex((day) => day.id === dayId);
       if (dayIndex >= 0) {
-        // The reader opens at the day of the last change.
+        // The reader opens at the day of the last change, with the thing
+        // that changed in view.
         const location: TripLocation = { view: "day", day: dayIndex };
         replaceTripLocation(location);
-        arriveAt(readerPath, location);
+        arriveAt(
+          readerPath,
+          location,
+          thingId ? readerAnchor(changed, thingId) : null,
+        );
       }
       showToast({ message, action: { label: undoLabel, onAction: undo } });
       return { ok: true };
@@ -209,11 +260,19 @@ export function EditorProvider({
     undo,
     statusOf,
     hasChanged,
+    markedId,
     reveal(id) {
+      setMarkedId(id);
       requestAnimationFrame(() => {
-        rows.get(id)?.scrollIntoView({ block: "center", behavior: "smooth" });
+        const row = rows.get(id);
+        if (!row) return;
+        const { top, bottom } = row.getBoundingClientRect();
+        if (top < TOP_COVER || bottom > window.innerHeight - BOTTOM_COVER) {
+          row.scrollIntoView({ block: "center", behavior: "smooth" });
+        }
       });
     },
+    announce,
     rowRef: (id) => (element) => {
       if (element) rows.set(id, element);
       else rows.delete(id);

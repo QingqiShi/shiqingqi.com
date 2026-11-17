@@ -7,3 +7,9 @@ export function useDayNumber(trip: Pick<Trip, "firstDayNumber">) {
   const dayN = t({ en: "Day {n}", zh: "第 {n} 天" });
   return (index: number) => dayN.replace("{n}", String(dayNumber(trip, index)));
 }
+
+/** "D3", "第 3 天": the name of the day where the room is small. */
+export function useShortDayNumber(trip: Pick<Trip, "firstDayNumber">) {
+  const dayN = t({ en: "D{n}", zh: "第 {n} 天" });
+  return (index: number) => dayN.replace("{n}", String(dayNumber(trip, index)));
+}

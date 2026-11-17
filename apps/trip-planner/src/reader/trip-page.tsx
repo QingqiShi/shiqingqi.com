@@ -160,6 +160,9 @@ export function TripPage({
               day={trip.days[location.day]}
               liveWeather={weatherByDay[trip.days[location.day].id]}
               onOpenDay={openDay}
+              editHref={
+                editHref ? editHref + tripLocationHash(location) : undefined
+              }
             />
           </>
         ) : (

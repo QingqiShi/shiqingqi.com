@@ -7,6 +7,7 @@ export type SheetTarget =
   | { kind: "add"; dayId: string }
   | { kind: "moment"; moment: Moment; dayId: string }
   | { kind: "day"; day: Day }
+  | { kind: "removeDay"; day: Day }
   | { kind: "trip" }
   | { kind: "conflict" }
   | { kind: "leave" };

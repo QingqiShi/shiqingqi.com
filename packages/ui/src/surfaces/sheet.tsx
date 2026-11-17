@@ -41,6 +41,16 @@ interface SheetBaseProps {
    */
   onClose: () => void;
   /**
+   * Asked each time the user asks to close the sheet, before `onClose`. When
+   * it gives `false`, the sheet stays open and `onClose` is not called: a
+   * drag down springs the card back. Use it to ask before the sheet loses
+   * what the user typed. A sheet that the consumer closes with `isOpen`
+   * does not ask.
+   *
+   * @zh 用户每次请求关闭面板时、在 `onClose` 之前询问。返回 `false` 时面板保持打开，也不会调用 `onClose`：向下拖动的卡片会弹回原位。可用它在面板丢失用户输入之前先行确认。由使用方通过 `isOpen` 关闭的面板不会询问。
+   */
+  canClose?: () => boolean;
+  /**
    * Accessible label for the close button. Required — the package ships no
    * i18n, so the consumer supplies the localized string.
    *
@@ -87,10 +97,11 @@ type SheetLabelProps =
   | {
       /**
        * The sheet's title. It shares the top row with the close button, which
-       * it never runs under, and it names the dialog. It scrolls with the
-       * content.
+       * it never runs under, and it names the dialog. The row stays at the
+       * top of the card while the content scrolls under it, so the close
+       * button is never over the content.
        *
-       * @zh 面板的标题。它与关闭按钮共用顶部一行，且不会延伸到按钮下方；它同时为对话框命名。标题随内容一起滚动。
+       * @zh 面板的标题。它与关闭按钮共用顶部一行，且不会延伸到按钮下方；它同时为对话框命名。内容在标题行下方滚动时，标题行停在卡片顶部，因此关闭按钮不会压在内容上。
        */
       title: ReactNode;
       "aria-label"?: undefined;
@@ -129,7 +140,7 @@ export type SheetProps = SheetBaseProps & SheetLabelProps;
  * label. It portals to `document.body`.
  */
 export function Sheet(props: SheetProps) {
-  const { isOpen, onClose } = props;
+  const { isOpen, onClose, canClose } = props;
   // The visitor asked to close. The card leaves before `isOpen` turns false.
   const [isDismissed, setIsDismissed] = useState(false);
   const [hasLeft, setHasLeft] = useState(!isOpen);
@@ -153,8 +164,10 @@ export function Sheet(props: SheetProps) {
       isShown={isShown}
       isContained={boundary !== undefined}
       onDismiss={() => {
+        if (canClose?.() === false) return false;
         setIsDismissed(true);
         onClose();
+        return true;
       }}
       onLeft={() => {
         setHasLeft(true);
