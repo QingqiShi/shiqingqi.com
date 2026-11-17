@@ -72,6 +72,27 @@ it("rolls back a savepoint in the transaction", async () => {
   expect(await values()).toEqual([1]);
 });
 
+it("throws when the database rolls back at COMMIT, after the work caught a failed statement", async () => {
+  await expect(
+    runTransaction(db, async (tx) => {
+      await tx.insert(counts).values({ value: 1 });
+      await tx.execute(sql`select 1 / 0`).catch(() => undefined);
+    }),
+  ).rejects.toThrow(/rolled the transaction back/);
+  expect(watched.releases).toEqual([false]);
+  expect(await values()).toEqual([]);
+});
+
+it("begins the transaction with its config", async () => {
+  await expect(
+    runTransaction(db, (tx) => tx.insert(counts).values({ value: 1 }), {
+      accessMode: "read only",
+    }),
+  ).rejects.toThrow();
+  expect(watched.releases).toEqual([false]);
+  expect(await values()).toEqual([]);
+});
+
 // A regression test: drizzle's transaction kept the client after a failed
 // BEGIN, and gave back a client whose COMMIT or ROLLBACK failed.
 it.each([

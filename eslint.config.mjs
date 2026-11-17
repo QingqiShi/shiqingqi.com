@@ -41,6 +41,7 @@ const restrictedPlugin = {
     "assistant-owner-tables": builtinRules.get("no-restricted-imports"),
     "assistant-owner-sql": noRestrictedSyntax,
     "assistant-dynamic-import": noRestrictedSyntax,
+    "pool-transaction": noRestrictedSyntax,
     "vercel-observability": builtinRules.get("no-restricted-imports"),
   },
 };
@@ -862,6 +863,40 @@ export default defineConfig([
                 "Sign-in reads only the accounts and the tables of sign-in. Read a user's Macs with `machineStore` from `#src/server/machines/machine-store.ts`.",
             },
           ],
+        },
+      ],
+    },
+  },
+  // drizzle's `db.transaction` keeps the connection of the pool when BEGIN
+  // fails. The rule finds `db` and `get…Db()` by name only, because the type
+  // of the pool database and of a transaction is the same. In Assistant, a
+  // `db` outside these files is a `UserScope`, which has its own client.
+  // Dev tools, import scripts and the IndexedDB of Finance are not in scope.
+  {
+    files: [
+      "apps/{trip-planner,buddy,finance}/src/**/*.{ts,tsx}",
+      "apps/assistant/src/assistant/{auth,db}/**/*.ts",
+      "apps/assistant/src/assistant/http/{assistant-proxy,make-user-cron-handler}.ts",
+      "apps/assistant/src/app/api/cron/*/route.ts",
+      "apps/assistant/src/assistant/report/{capture-handlers,make-capture-handlers}.ts",
+    ],
+    ignores: [
+      "apps/*/src/**/dev/**",
+      "apps/*/src/**/testing/**",
+      "apps/*/src/**/*-cli.ts",
+      "apps/*/src/**/*.test.{ts,tsx}",
+      "apps/trip-planner/src/trips/import-trip.ts",
+      "apps/finance/src/finance/replica/**",
+      "apps/assistant/src/assistant/db/scope-to.ts",
+    ],
+    rules: {
+      "restricted/pool-transaction": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.property.name='transaction']:matches([callee.object.type='Identifier'][callee.object.name='db'], [callee.object.type='CallExpression'][callee.object.callee.name=/^get\\w*Db$/])",
+          message:
+            "Open a transaction on the pool with `runTransaction(db, work)` from `@tuja/server-db/run-transaction`: drizzle's `db.transaction` keeps the connection when BEGIN fails. A savepoint in an open transaction is `tx.transaction`.",
         },
       ],
     },

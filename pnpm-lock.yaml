@@ -247,6 +247,9 @@ importers:
       '@tuja/server-clients':
         specifier: workspace:*
         version: link:../../packages/server-clients
+      '@tuja/server-db':
+        specifier: workspace:*
+        version: link:../../packages/server-db
       '@tuja/server-email':
         specifier: workspace:*
         version: link:../../packages/server-email
@@ -630,6 +633,9 @@ importers:
       '@tuja/server-clients':
         specifier: workspace:*
         version: link:../../packages/server-clients
+      '@tuja/server-db':
+        specifier: workspace:*
+        version: link:../../packages/server-db
       '@tuja/server-email':
         specifier: workspace:*
         version: link:../../packages/server-email

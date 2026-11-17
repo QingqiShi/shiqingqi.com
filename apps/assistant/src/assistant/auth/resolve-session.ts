@@ -1,3 +1,4 @@
+import { runTransaction } from "@tuja/server-db/run-transaction";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
 import { assistantAuthStore } from "./assistant-auth-store.ts";
 import { assistantSessionCookie } from "./assistant-session-cookie.ts";
@@ -22,7 +23,7 @@ export function resolveSession(
   token: string,
   { now, allowRefresh }: ResolveSessionOptions,
 ): Promise<ResolvedSession | null> {
-  return db.transaction((tx) =>
+  return runTransaction(db, (tx) =>
     assistantAuthStore.resolveSession<AssistantSession>(tx, token, {
       now,
       maxAgeSeconds: assistantSessionCookie.maxAgeSeconds,

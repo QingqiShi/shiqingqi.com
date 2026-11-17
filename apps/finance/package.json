@@ -51,6 +51,7 @@
     "@tuja/pwa-runtime-caching": "workspace:*",
     "@tuja/server-auth": "workspace:*",
     "@tuja/server-clients": "workspace:*",
+    "@tuja/server-db": "workspace:*",
     "@tuja/server-email": "workspace:*",
     "@tuja/ui": "workspace:*",
     "@typesafe-ai/sdk": "0.7.0",

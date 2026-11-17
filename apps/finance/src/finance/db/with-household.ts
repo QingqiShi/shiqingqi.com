@@ -1,3 +1,4 @@
+import { runTransaction } from "@tuja/server-db/run-transaction";
 import { sql } from "drizzle-orm";
 import type { PgTransactionConfig } from "drizzle-orm/pg-core";
 import type { RepositoryScope } from "./repositories/types.ts";
@@ -34,7 +35,7 @@ export function asFinanceApp<T>(
   db: FinanceDb,
   run: (db: FinanceAppDb) => Promise<T>,
 ): Promise<T> {
-  return db.transaction(async (tx) => {
+  return runTransaction(db, async (tx) => {
     await tx.execute(sql.raw("set local role finance_app"));
     return run(Object.assign(tx, { [financeApp]: true as const }));
   });
@@ -52,12 +53,16 @@ export function withHousehold<T>(
   run: (scope: RepositoryScope) => Promise<T>,
   config?: PgTransactionConfig,
 ): Promise<T> {
-  return db.transaction(async (tx) => {
-    await tx.execute(
-      sql`select set_config('role', 'finance_app', true), set_config('app.household_id', ${householdId}, true)`,
-    );
-    return run({ db: markHousehold(tx), householdId });
-  }, config);
+  return runTransaction(
+    db,
+    async (tx) => {
+      await tx.execute(
+        sql`select set_config('role', 'finance_app', true), set_config('app.household_id', ${householdId}, true)`,
+      );
+      return run({ db: markHousehold(tx), householdId });
+    },
+    config,
+  );
 }
 
 /** Runs `run` in a savepoint of the scope's transaction, so that its writes roll back on their own. */

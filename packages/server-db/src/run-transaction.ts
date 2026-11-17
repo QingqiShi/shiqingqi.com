@@ -5,6 +5,7 @@ import {
   type PgDatabase,
   type PgQueryResultHKT,
   type PgTransaction,
+  type PgTransactionConfig,
 } from "drizzle-orm/pg-core";
 import type { PoolClient } from "pg";
 
@@ -38,6 +39,17 @@ function poolOf(db: object): ClientPool | null {
   return isPool(client) ? client : null;
 }
 
+function transactionModes(config: PgTransactionConfig | undefined) {
+  const modes: string[] = [];
+  if (config?.isolationLevel) {
+    modes.push(`isolation level ${config.isolationLevel}`);
+  }
+  if (config?.accessMode) modes.push(config.accessMode);
+  if (config?.deferrable === true) modes.push("deferrable");
+  if (config?.deferrable === false) modes.push("not deferrable");
+  return modes.map((mode) => ` ${mode}`).join("");
+}
+
 function relationsOf<
   TFullSchema extends Record<string, unknown>,
   TSchema extends TablesRelationalConfig,
@@ -51,9 +63,9 @@ function relationsOf<
  * place of drizzle's `db.transaction`. Every path gives the client back
  * once. The pool gets the client again only after a COMMIT or a ROLLBACK
  * that completed; after any other end, the client is closed,
- * because its connection can be broken or still in the transaction. On
- * another driver, such as PGlite in tests, and inside a transaction, it is
- * `db.transaction`.
+ * because its connection can be broken or still in the transaction. A COMMIT
+ * that the database answers with ROLLBACK throws. On another driver, such as
+ * PGlite in tests, and inside a transaction, it is `db.transaction`.
  */
 export async function runTransaction<
   TFullSchema extends Record<string, unknown>,
@@ -62,9 +74,10 @@ export async function runTransaction<
 >(
   db: Db<TFullSchema, TSchema>,
   work: (tx: Transaction<TFullSchema, TSchema>) => Promise<T>,
+  config?: PgTransactionConfig,
 ): Promise<T> {
   const pool = poolOf(db);
-  if (!pool) return db.transaction(work);
+  if (!pool) return db.transaction(work, config);
 
   // drizzle 0.45 sends BEGIN before its `try`, so a BEGIN that fails keeps
   // the client out of the pool. Thus this sends BEGIN, COMMIT and ROLLBACK
@@ -72,13 +85,13 @@ export async function runTransaction<
   const client = await pool.connect();
   let isClean = false;
   try {
-    await client.query("begin");
     const dialect = new PgDialect();
     const relations = relationsOf(db);
     const tx: Transaction<TFullSchema, TSchema> = new NodePgTransaction<
       TFullSchema,
       TSchema
     >(dialect, new NodePgSession(client, dialect, relations), relations);
+    await client.query(`begin${transactionModes(config)}`);
     let result: T;
     try {
       result = await work(tx);
@@ -91,8 +104,13 @@ export async function runTransaction<
       );
       throw error;
     }
-    await client.query("commit");
+    const commit = await client.query("commit");
     isClean = true;
+    if (commit.command === "ROLLBACK") {
+      throw new Error(
+        "A statement in this transaction failed, so the database rolled the transaction back at its COMMIT. Do not catch the error of a statement inside a transaction; to go on after it, run the statement in a savepoint (`tx.transaction`).",
+      );
+    }
     return result;
   } finally {
     client.release(

@@ -4,8 +4,9 @@ import { Pool, type PoolClient } from "pg";
 
 /**
  * A pg Pool of one connection to `pglite`, the driver that production uses.
- * A connect that waits fails after a second, so a client that a test keeps
- * shows as an error, not as a hang.
+ * A connect that waits fails after a second, and `close` fails while a client
+ * is not given back, so a client that a test keeps shows as an error, not as
+ * a hang.
  */
 export async function poolOn(pglite: PGlite) {
   const server = await servePglite(pglite, { host: "127.0.0.1", port: 0 });
@@ -17,6 +18,13 @@ export async function poolOn(pglite: PGlite) {
   return {
     pool,
     close: async () => {
+      const kept = pool.totalCount - pool.idleCount;
+      if (kept > 0) {
+        await server.close();
+        throw new Error(
+          `${String(kept)} client(s) of the pool were not given back.`,
+        );
+      }
       await pool.end();
       await server.close();
     },

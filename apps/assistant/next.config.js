@@ -43,6 +43,7 @@ module.exports = async (phase) => {
       "@tuja/next-links",
       "@tuja/server-auth",
       "@tuja/server-clients",
+      "@tuja/server-db",
       "@tuja/server-email",
       "@tuja/ui",
     ],
