@@ -68,7 +68,7 @@
     "esm-env": "catalog:",
     "next": "catalog:",
     "pg": "^8.23.1",
-    "posthog-js": "^1.442.1",
+    "posthog-js": "^1.450.0",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-virtuoso": "^4.18.20",

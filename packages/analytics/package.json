@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "esm-env": "catalog:",
-    "posthog-js": "^1.442.1"
+    "posthog-js": "^1.450.0"
   },
   "devDependencies": {
     "@tuja/tsconfig": "workspace:*",
