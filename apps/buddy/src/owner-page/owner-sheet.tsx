@@ -3,6 +3,7 @@
 import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
 import { LaptopIcon } from "@phosphor-icons/react/dist/ssr/Laptop";
 import { SignOutIcon } from "@phosphor-icons/react/dist/ssr/SignOut";
+import { UserCircleIcon } from "@phosphor-icons/react/dist/ssr/UserCircle";
 import { postJson } from "@tuja/auth-ui/fetch-json";
 import { passkeyClient } from "@tuja/auth-ui/passkey-client";
 import { t } from "@tuja/i18n";
@@ -33,7 +34,7 @@ type OwnerSheetProps = {
 
 /**
  * The owner's own things, behind the corner button so that they never compete with the pet: what
- * the page puts in, and the way out.
+ * the page puts in, the account, and the way out.
  */
 export function OwnerSheet({
   isOpen,
@@ -66,6 +67,15 @@ export function OwnerSheet({
         {settings}
         <List form="plain">
           {rows}
+          <ListRow
+            href={getLocalePath("/account", locale)}
+            linkComponent={RouterLink}
+            leading={<UserCircleIcon weight="bold" aria-hidden />}
+            leadingSize="sm"
+            detail={t({ en: "Email and passkeys", zh: "邮箱和通行密钥" })}
+          >
+            {t({ en: "Account", zh: "账号" })}
+          </ListRow>
           <ListRow
             onClick={signOut}
             caret={false}

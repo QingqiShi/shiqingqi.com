@@ -353,3 +353,123 @@ describe("sign-in", () => {
     ).toMatchObject({ status: 403, body: { error: "forbidden_origin" } });
   });
 });
+
+describe("the signed-in account", () => {
+  async function emails() {
+    return (await db.select({ email: accounts.email }).from(accounts))
+      .map(({ email }) => email)
+      .sort();
+  }
+
+  /** A browser with the session of `owner` and the other cookies of `asker`. */
+  function thief(owner: Client, asker: Client) {
+    const browser = newBrowser();
+    for (const [name, value] of asker.jar) browser.jar.set(name, value);
+    browser.jar.set(
+      buddySessionCookie.name,
+      owner.jar.get(buddySessionCookie.name) ?? "",
+    );
+    return browser;
+  }
+
+  it("refuses every account route to a request with no live session", async () => {
+    const stale = newBrowser();
+    stale.jar.set(buddySessionCookie.name, "not-a-session");
+    for (const browser of [newBrowser(), stale]) {
+      for (const route of [
+        "passkeyOptions",
+        "passkeyVerify",
+        "emailRequest",
+        "emailVerify",
+      ] as const) {
+        expect(
+          (
+            await browser.post(route, {
+              email: "new@example.com",
+              code: "123456",
+            })
+          ).status,
+        ).toBe(401);
+      }
+    }
+    expect(await lastEmail()).toBeUndefined();
+  });
+
+  it("changes the email with the code sent to the new address, and ends the recovery links of the old one", async () => {
+    const browser = newBrowser();
+    await signUp(browser, createSoftwareAuthenticator());
+    await newBrowser().post("requestRecovery", { email: "owner@example.com" });
+    const recoveryLink = tokenIn("recover", (await lastEmail())?.text);
+
+    expect(
+      (await browser.post("emailRequest", { email: "next@example.com" }))
+        .status,
+    ).toBe(202);
+    const sent = await lastEmail();
+    expect(sent?.to).toBe("next@example.com");
+    expect(
+      await browser.post("emailVerify", { code: codeIn(sent?.text) }),
+    ).toMatchObject({ status: 200, body: { email: "next@example.com" } });
+
+    expect(await emails()).toEqual(["next@example.com"]);
+    expect(
+      await newBrowser().post("recoveryOptions", { token: recoveryLink }),
+    ).toMatchObject({ status: 410, body: { error: "recovery_invalid" } });
+  });
+
+  it("does not let another account's session change the email or add a passkey", async () => {
+    const mara = newBrowser();
+    await signUp(mara, createSoftwareAuthenticator(), "mara@example.com");
+    const noor = newBrowser();
+    await signUp(noor, createSoftwareAuthenticator(), "noor@example.com");
+
+    await mara.post("emailRequest", { email: "next@example.com" });
+    const code = codeIn((await lastEmail())?.text);
+    expect((await thief(noor, mara).post("emailVerify", { code })).status).toBe(
+      410,
+    );
+
+    const options = await mara.post<OptionsBody>("passkeyOptions");
+    const response = await createSoftwareAuthenticator().register(
+      options.body.options,
+      TEST_ORIGIN,
+    );
+    expect(
+      await thief(noor, mara).post("passkeyVerify", { response }),
+    ).toMatchObject({ status: 400, body: { error: "challenge_invalid" } });
+
+    expect(await emails()).toEqual(["mara@example.com", "noor@example.com"]);
+    expect(await db.$count(passkeys)).toBe(2);
+  });
+
+  it("refuses an address that another account has", async () => {
+    await signUp(
+      newBrowser(),
+      createSoftwareAuthenticator(),
+      "noor@example.com",
+    );
+    const mara = newBrowser();
+    await signUp(mara, createSoftwareAuthenticator(), "mara@example.com");
+
+    await mara.post("emailRequest", { email: "noor@example.com" });
+    expect(
+      await mara.post("emailVerify", {
+        code: codeIn((await lastEmail())?.text),
+      }),
+    ).toMatchObject({ status: 409, body: { error: "email_registered" } });
+    expect(await emails()).toEqual(["mara@example.com", "noor@example.com"]);
+  });
+
+  it("adds a passkey that then signs in", async () => {
+    const browser = newBrowser();
+    await signUp(browser, createSoftwareAuthenticator());
+    const phone = createSoftwareAuthenticator();
+    const options = await browser.post<OptionsBody>("passkeyOptions");
+    const response = await phone.register(options.body.options, TEST_ORIGIN);
+
+    expect((await browser.post("passkeyVerify", { response })).status).toBe(
+      200,
+    );
+    expect((await signIn(newBrowser(), phone)).status).toBe(200);
+  });
+});

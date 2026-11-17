@@ -1,16 +1,13 @@
-import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
-import { row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
 import { connection } from "next/server";
-import { Anchor } from "#src/links/anchor.tsx";
 import { MacsList } from "#src/macs-page/macs-list.tsx";
-import { SignOutButton } from "#src/macs-page/sign-out-button.tsx";
 import { ownAccountName } from "#src/server/account/own-account.ts";
 import { requirePageSession } from "#src/server/auth/require-page-session.ts";
 import { getBuddyDb } from "#src/server/db/get-buddy-db.ts";
@@ -19,6 +16,7 @@ import { readSnapshots } from "#src/server/snapshot/read-snapshots.ts";
 import { getBuddyBackend } from "#src/server/store/get-buddy-backend.ts";
 import { AuthFrame } from "#src/sign-in/auth-frame.tsx";
 import { NotConfigured } from "#src/sign-in/not-configured.tsx";
+import { OwnerFooter } from "#src/sign-in/owner-footer.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);
@@ -61,21 +59,22 @@ export default async function Page({ params }: PageProps) {
           lastUploadAt: snapshots.get(machine.machineId)?.receivedAt ?? null,
         }))}
       />
-      <div css={[row.item, styles.footer]}>
-        {name ? (
-          <Anchor href={getLocalePath(`/u/${name}`, locale)}>
-            {t({ en: "See your pet", zh: "去看看你的宠物" })}
-          </Anchor>
-        ) : null}
-        <SignOutButton />
-      </div>
+      <OwnerFooter
+        links={[
+          ...(name
+            ? [
+                {
+                  href: getLocalePath(`/u/${name}`, locale),
+                  label: t({ en: "See your pet", zh: "去看看你的宠物" }),
+                },
+              ]
+            : []),
+          {
+            href: getLocalePath("/account", locale),
+            label: t({ en: "Account", zh: "账号" }),
+          },
+        ]}
+      />
     </AuthFrame>
   );
 }
-
-const styles = stylex.create({
-  footer: {
-    justifyContent: "space-between",
-    flexWrap: "wrap",
-  },
-});
