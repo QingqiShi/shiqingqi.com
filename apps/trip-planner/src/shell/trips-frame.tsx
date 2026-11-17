@@ -9,6 +9,7 @@ import { NavGroup } from "@tuja/ui/components/nav-group";
 import { NavLink } from "@tuja/ui/components/nav-link";
 import { NavList } from "@tuja/ui/components/nav-list";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
+import { NavigationStack } from "@tuja/ui/components/navigation-stack";
 import { Text } from "@tuja/ui/components/text";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { useRouter, useSelectedLayoutSegments } from "next/navigation";
@@ -16,12 +17,6 @@ import type { ReactNode } from "react";
 import { useDayNumber } from "#src/reader/use-day-number.ts";
 import { TripSkeleton } from "./trip-skeleton.tsx";
 import type { TripSummary } from "./trip-summary.ts";
-
-/** The slug of the trip that the URL shows, on its page or its unlock form. */
-function openSlug(segments: string[]): string | null {
-  if (segments[0] === "unlock") return segments[1] ?? null;
-  return segments[0] ?? null;
-}
 
 function TripLink({ trip, current }: { trip: TripSummary; current: boolean }) {
   const locale = useLocale();
@@ -80,7 +75,8 @@ function TripNav({
 
 /**
  * The trips beside the open trip where both fit. Where they do not, `/` is
- * the list, and a trip opens over it with a way back.
+ * the list, and a trip opens over it with a way back. A visitor with no trip
+ * gets the page alone.
  */
 export function TripsFrame({
   trips,
@@ -91,10 +87,20 @@ export function TripsFrame({
 }) {
   const locale = useLocale();
   const router = useRouter();
-  const slug = openSlug(useSelectedLayoutSegments());
+  const slug = useSelectedLayoutSegments().at(0);
   const open = trips.find((trip) => trip.slug === slug) ?? null;
   const listHref = getLocalePath("/", locale);
   const listLabel = t({ en: "Trips", zh: "行程" });
+
+  // With no trip, a list column is an empty box, and on a phone it is the
+  // whole page.
+  if (trips.length === 0) {
+    return (
+      <NavigationStack label={listLabel} css={pageColumn.report}>
+        {children}
+      </NavigationStack>
+    );
+  }
 
   return (
     <NavigationSplitView

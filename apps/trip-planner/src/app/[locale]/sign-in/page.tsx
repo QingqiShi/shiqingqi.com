@@ -10,8 +10,8 @@ import { connection } from "next/server";
 import { getAuthSecret } from "#src/auth/get-auth-secret.ts";
 import { getPageSession } from "#src/auth/get-page-session.ts";
 import { AuthFrame } from "#src/sign-in/auth-frame.tsx";
+import { nextOf } from "#src/sign-in/next-of.ts";
 import { NotConfigured } from "#src/sign-in/not-configured.tsx";
-import { nextOf } from "#src/sign-in/signed-in-home.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   setLocale(validateLocale((await props.params).locale));

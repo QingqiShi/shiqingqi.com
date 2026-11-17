@@ -1,14 +1,13 @@
 import { t } from "@tuja/i18n";
-import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { validateLocale } from "@tuja/i18n/validate-locale";
+import { signInPath } from "@tuja/server-auth/sign-in-path";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { isTripUnlocked } from "#src/is-trip-unlocked.ts";
 import { dateRangeLabel } from "#src/reader/date-label.ts";
 import { resolveDay } from "#src/reader/resolve-day.ts";
 import { TripPage } from "#src/reader/trip-page.tsx";
 import { getTripWeather } from "#src/reader/weather/get-trip-weather.ts";
-import { getTrip } from "#src/trips/get-trips.ts";
+import { getTrip, getViewerId } from "#src/trips/get-trips.ts";
 
 // "Current day" depends on the wall clock, so render per-request.
 export const dynamic = "force-dynamic";
@@ -38,9 +37,13 @@ export async function generateMetadata({
 export default async function TripRoute({ params }: TripRouteProps) {
   const { locale, trip: slug } = await params;
   const trip = await getTrip(slug);
-  if (!trip) notFound();
-  if (!(await isTripUnlocked(slug))) {
-    redirect(getLocalePath(`/unlock/${slug}`, validateLocale(locale)));
+  if (!trip) {
+    // The answer is the same for a trip that exists and one that does not,
+    // so that it does not tell which trips there are.
+    if ((await getViewerId()) === null) {
+      redirect(signInPath(validateLocale(locale), `/${slug}`));
+    }
+    notFound();
   }
 
   // force-dynamic page: request time IS the content, and render is its only per-request phase.
