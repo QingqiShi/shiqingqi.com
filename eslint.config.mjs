@@ -740,9 +740,9 @@ export default defineConfig([
     ],
     rules: { "restricted/browser-typegpu": browserTypegpuRule("^\\./") },
   },
-  // Until trips have members, the password gate is all that keeps a trip
-  // private. So only the reader that checks the gates, and the code that
-  // fills the database, reach the trip tables.
+  // A trip shows only to its members. So only the reader, which runs under
+  // row-level security as the signed-in user, and the code that fills the
+  // database, reach the trip tables.
   {
     files: ["apps/trip-planner/src/**/*.{ts,tsx}"],
     ignores: [
@@ -760,7 +760,7 @@ export default defineConfig([
                 "^pg$|^drizzle-orm(/|$)|/db/|/(read-trips|import-trip)(\\.ts)?$",
               allowTypeImports: true,
               message:
-                "Read a trip with `getTrips` or `getTrip` from `#src/trips/get-trips.ts`, which gives only the trips that have a password gate.",
+                "Read a trip with `getTrips` or `getTrip` from `#src/trips/get-trips.ts`, which gives only the trips of the signed-in user.",
             },
           ],
         },

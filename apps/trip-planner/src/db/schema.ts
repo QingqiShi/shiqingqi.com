@@ -2,12 +2,13 @@ import {
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   unique,
   uuid,
 } from "drizzle-orm/pg-core";
-import { authSchema } from "./auth-schema.ts";
+import { authSchema, users } from "./auth-schema.ts";
 
 function createdAt() {
   return timestamp("created_at", { withTimezone: true }).notNull().defaultNow();
@@ -15,7 +16,7 @@ function createdAt() {
 
 export const trips = pgTable("trips", {
   id: uuid("id").primaryKey().defaultRandom(),
-  /** The path of the trip, as in `/gb`. Its password gate has the same key. */
+  /** The path of the trip, as in `/gb`. */
   slug: text("slug").notNull().unique(),
   createdAt: createdAt(),
 });
@@ -36,4 +37,23 @@ export const tripRevisions = pgTable(
   (t) => [unique("trip_revisions_trip_revision_key").on(t.tripId, t.revision)],
 );
 
-export const schema = { trips, tripRevisions, ...authSchema };
+/**
+ * Who can open a trip. Row-level security shows a trip, its revisions and
+ * its member rows only to these users (`drizzle/0002_members.sql`).
+ */
+export const tripMembers = pgTable(
+  "trip_members",
+  {
+    tripId: uuid("trip_id")
+      .notNull()
+      .references(() => trips.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    role: text("role", { enum: ["owner", "editor"] }).notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.tripId, t.userId] })],
+);
+
+export const schema = { trips, tripRevisions, tripMembers, ...authSchema };

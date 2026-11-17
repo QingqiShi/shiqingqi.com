@@ -1,22 +1,24 @@
 import { expect, test, type Page } from "@playwright/test";
-import { samplePassword } from "./sample-password.ts";
+import { signUp } from "./sign-up.ts";
 
 const dayTitle = (page: Page) => page.getByRole("heading", { level: 2 });
+const tripTitle = (page: Page) =>
+  page.getByRole("heading", { level: 1, name: "Lisbon and Porto" });
 
-async function unlock(page: Page) {
-  await page.getByLabel("Trip password").fill(samplePassword);
-  await page.getByRole("button", { name: "Open the trip" }).click();
-  await expect(
-    page.getByRole("heading", { level: 1, name: "Lisbon and Porto" }),
-  ).toBeVisible();
-}
-
-test("a visitor unlocks the sample trip and steps through its days", async ({
+test("a visitor who opens a trip signs up, lands on the trip and steps through its days", async ({
   page,
 }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: /Lisbon and Porto/ }).click();
-  await unlock(page);
+  await expect(
+    page.getByRole("heading", { name: "Sign in to see your trips" }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: /Lisbon/ })).toHaveCount(0);
+
+  await page.goto("/sample-lisbon");
+  await expect(page).toHaveURL(/\/sign-in\?next=%2Fsample-lisbon$/);
+  await signUp(page);
+  await expect(tripTitle(page)).toBeVisible();
+  await expect(page).toHaveURL(/\/sample-lisbon$/);
 
   await page
     .getByRole("combobox", { name: "Day", exact: true })
@@ -37,20 +39,20 @@ test("a visitor unlocks the sample trip and steps through its days", async ({
 
   await page.getByRole("link", { name: "Trips", exact: true }).click();
   await page.getByRole("link", { name: /Lisbon and Porto/ }).click();
-  await expect(
-    page.getByRole("heading", { level: 1, name: "Lisbon and Porto" }),
-  ).toBeVisible();
-  await expect(page.getByLabel("Trip password")).toHaveCount(0);
+  await expect(tripTitle(page)).toBeVisible();
 });
 
-test("an opened trip reads with no network", async ({ page, context }) => {
-  await page.goto("/unlock/sample-lisbon");
-  await unlock(page);
-  await expect
-    .poll(() =>
-      page.evaluate(async () => (await caches.match("/sample-lisbon")) != null),
-    )
-    .toBe(true);
+const isTripKept = (page: Page) =>
+  page.evaluate(async () => (await caches.match("/sample-lisbon")) != null);
+
+test("an opened trip reads with no network, until the user signs out", async ({
+  page,
+  context,
+}) => {
+  await page.goto("/sample-lisbon");
+  await signUp(page);
+  await expect(tripTitle(page)).toBeVisible();
+  await expect.poll(() => isTripKept(page)).toBe(true);
 
   await page
     .getByRole("combobox", { name: "Day", exact: true })
@@ -61,7 +63,14 @@ test("an opened trip reads with no network", async ({ page, context }) => {
   await page.getByRole("button", { name: "Next day" }).click();
   await expect(dayTitle(page)).toHaveText("Train to Porto");
 
+  await context.setOffline(false);
   await page.goto("/settings");
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page.getByRole("heading", { name: "Account" })).toHaveCount(0);
+  expect(await isTripKept(page)).toBe(false);
+
+  await context.setOffline(true);
+  await page.goto("/sample-lisbon");
   await expect(
     page.getByRole("heading", { name: "You are offline" }),
   ).toBeVisible();

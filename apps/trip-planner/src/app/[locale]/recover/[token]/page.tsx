@@ -9,8 +9,8 @@ import { getAuthSecret } from "#src/auth/get-auth-secret.ts";
 import { lookupPageRecovery } from "#src/auth/lookup-page-recovery.ts";
 import { AuthFrame } from "#src/sign-in/auth-frame.tsx";
 import { LinkEnded } from "#src/sign-in/link-ended.tsx";
+import { nextOf } from "#src/sign-in/next-of.ts";
 import { NotConfigured } from "#src/sign-in/not-configured.tsx";
-import { nextOf } from "#src/sign-in/signed-in-home.ts";
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: SupportedLocale }>;
