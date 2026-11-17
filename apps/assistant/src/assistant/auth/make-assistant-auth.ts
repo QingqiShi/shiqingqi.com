@@ -8,6 +8,7 @@ import type {
   AuthRateLimitResult,
 } from "@tuja/server-auth/make-auth-route-kit";
 import { readRequestCookie } from "@tuja/server-auth/read-request-cookie";
+import { runTransaction } from "@tuja/server-db/run-transaction";
 import { makeCodeEmailBuilder } from "@tuja/server-email/make-code-email-builder";
 import type { EmailSender } from "@tuja/server-email/types";
 import { and, eq, ne } from "drizzle-orm";
@@ -62,7 +63,7 @@ export const assistantAuthConfig = {
   postBucket: "auth",
   store: assistantAuthStore,
   transaction: <T>(db: AssistantDb, run: (tx: AssistantDb) => Promise<T>) =>
-    db.transaction(run),
+    runTransaction(db, run),
   sessionCookie: assistantSessionCookie,
   challengeCookie: assistantChallengeCookie,
   emailCodeCookie: assistantEmailCodeCookie,
