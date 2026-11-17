@@ -911,8 +911,11 @@ export default defineConfig([
       "restricted/assistant-owner-sql": [
         "error",
         {
-          selector:
-            "CallExpression[callee.property.name='execute'], MemberExpression[property.name='$client'], MemberExpression[property.name='query']",
+          selector: [
+            "MemberExpression[property.name=/^(execute|query|\\$client|_)$/]",
+            "MemberExpression[computed=true][property.value=/^(execute|query|\\$client|_)$/]",
+            "CallExpression[callee.property.name=/^(from|update|insert|delete|innerJoin|leftJoin|rightJoin|fullJoin)$/][arguments.0.type=/^(TaggedTemplateExpression|TSAsExpression)$/]",
+          ].join(", "),
           message:
             "This module runs as the owner of the tables. Run SQL in a module under `#src/assistant/db/`, or read a user's rows through a `UserScope`.",
         },

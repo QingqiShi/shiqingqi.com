@@ -139,6 +139,8 @@ function readMessages(
 }
 
 interface PgliteServer {
+  /** The port that the server listens on. Port 0 asks the system for a free one. */
+  port: number;
   close: () => Promise<void>;
 }
 
@@ -242,7 +244,9 @@ export async function servePglite(
     });
   });
 
+  const address = server.address();
   return {
+    port: address !== null && typeof address === "object" ? address.port : port,
     close: () =>
       new Promise<void>((resolve) => {
         for (const socket of sockets) socket.destroy();

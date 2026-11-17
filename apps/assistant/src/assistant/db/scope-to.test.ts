@@ -1,10 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { createServer } from "node:net";
 import { PGlite } from "@electric-sql/pglite";
-import { servePglite } from "@tuja/dev-tools/serve-pglite";
 import { eq, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/pglite";
+import type { Pool, PoolClient } from "pg";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { z } from "zod";
 import { pushDevices } from "../push/push-devices.ts";
@@ -22,9 +20,8 @@ import {
   users,
   userSettings,
 } from "./schema.ts";
-import { scopeTo, withoutUser, type UserScope } from "./scope-to.ts";
+import { scopeTo, withoutUser } from "./scope-to.ts";
 import { createTestDb, type TestDb } from "./testing/create-test-db.ts";
-import { loadMigratedDataDir } from "./testing/load-migrated-data-dir.ts";
 import type { AssistantDb } from "./types.ts";
 
 let db: TestDb;
@@ -59,55 +56,44 @@ async function insertRows(owner: AssistantDb, userId: string) {
   return { todo, account, run };
 }
 
-/** Keeps the transaction, a savepoint and a query that was not awaited past the end, then uses each. */
-async function expectKeptHandlesRefused(scope: UserScope) {
-  const kept: (() => PromiseLike<unknown>)[] = [];
-  const seen = await scope.db.transaction(async (tx) => {
-    await tx
-      .insert(todos)
-      .values({ userId: scope.userId, title: "in a transaction" });
-    return tx.transaction((savepoint) => {
-      const notAwaited = tx.select().from(todos);
-      kept.push(
-        () => tx.select().from(todos),
-        () => savepoint.select().from(todos),
-        () => notAwaited,
-      );
-      return savepoint.select({ title: todos.title }).from(todos);
-    });
-  });
+const titlesOf = async (owner: AssistantDb) =>
+  (await owner.select({ title: todos.title }).from(todos))
+    .map((row) => row.title)
+    .toSorted();
 
-  expect(seen).toEqual([{ title: "in a transaction" }]);
-  expect(kept).toHaveLength(3);
-  for (const use of kept) {
-    await expect(Promise.resolve().then(use)).rejects.toThrow();
-  }
+const textOf = (args: unknown[]) => {
+  const [query] = args;
+  return typeof query === "string"
+    ? query
+    : String(Reflect.get(Object(query), "text"));
+};
+
+/** Wraps `query` of each client that the pool gives out. */
+function onEachQuery(
+  pool: Pool,
+  wrap: (send: () => Promise<unknown>, text: string) => Promise<unknown>,
+) {
+  const wrapped = new WeakSet<PoolClient>();
+  pool.on("acquire", (client: PoolClient) => {
+    const query: unknown = Reflect.get(client, "query");
+    if (wrapped.has(client) || typeof query !== "function") return;
+    wrapped.add(client);
+    Reflect.set(client, "query", (...args: unknown[]) =>
+      wrap(
+        () => Promise.resolve(Reflect.apply(query, client, args)),
+        textOf(args).trim().toLowerCase(),
+      ),
+    );
+  });
 }
 
-/** A query of the scope inside its own transaction, and one of another scope. */
-async function expectNestedScopesHandled(
-  owner: AssistantDb,
-  userId: string,
-  otherUserId: string,
-) {
-  const scope = scopeTo(owner, userId);
-  const seen = await scope.db.transaction(async (tx) => {
-    await tx.insert(todos).values({ userId, title: "not committed yet" });
-    return {
-      rows: await scope.db.select({ title: todos.title }).from(todos),
-      inSavepoint: await scope.db.transaction((inner) => inner.$count(todos)),
-      other: await scopeTo(owner, otherUserId)
-        .db.select()
-        .from(todos)
-        .then(
-          () => null,
-          (error: unknown) => String(error),
-        ),
-    };
-  });
-  expect(seen.rows).toEqual([{ title: "not committed yet" }]);
-  expect(seen.inSavepoint).toBe(1);
-  expect(seen.other).toMatch(/inside a transaction of another scope/);
+async function withOneConnection(work: (owner: TestDb) => Promise<void>) {
+  const owner = await createTestDb({ maxConnections: 1 });
+  try {
+    await work(owner);
+  } finally {
+    await owner.close();
+  }
 }
 
 beforeEach(async () => {
@@ -150,6 +136,24 @@ describe("a user scope", () => {
         .where(eq(todos.id, other.todo.id)),
     ).toEqual([{ title: other.todo.title }]);
     expect(await db.$count(mailAccounts)).toBe(2);
+  });
+
+  it("limits statements and transactions at once to the user, and leaves the connections clean", async () => {
+    await insertRows(db, alice);
+    await insertRows(db, bob);
+    const { db: scoped } = scopeTo(db, alice);
+
+    const [seen, count, inTransaction] = await Promise.all([
+      scoped.select({ userId: todos.userId }).from(todos),
+      scoped.$count(mailAccounts),
+      scoped.transaction((tx) =>
+        tx.select({ userId: agentRuns.userId }).from(agentRuns),
+      ),
+    ]);
+    expect(seen).toEqual([{ userId: alice }]);
+    expect(count).toBe(1);
+    expect(inTransaction).toEqual([{ userId: alice }]);
+    expect(await db.$count(todos)).toBe(2);
   });
 
   it("cannot write a row for another user, nor take another user's row in an upsert", async () => {
@@ -249,15 +253,6 @@ describe("a user scope", () => {
     );
   });
 
-  it("keeps a transaction to one user, and refuses what is kept past its end", async () => {
-    await insertRows(db, bob);
-    await expectKeptHandlesRefused(scopeTo(db, alice));
-  });
-
-  it("runs a query of the same scope inside its transaction, and refuses another scope's", async () => {
-    await expectNestedScopesHandled(db, alice, bob);
-  });
-
   it("joins as drizzle does, with null for a missing row", async () => {
     await insertRows(db, alice);
     const rows = await scopeTo(db, alice)
@@ -270,6 +265,235 @@ describe("a user scope", () => {
 
   it("refuses a scope without a user id", () => {
     expect(() => scopeTo(db, "")).toThrow();
+  });
+
+  it("refuses an owner that is not on a pg Pool", async () => {
+    const client = await PGlite.create();
+    try {
+      await expect(
+        scopeTo(drizzle({ client, schema }), alice).db.select().from(todos),
+      ).rejects.toThrow(/pg Pool/);
+    } finally {
+      await client.close();
+    }
+  });
+});
+
+describe("a transaction of a user scope", () => {
+  it("refuses the transaction, a savepoint and a query kept past its end", async () => {
+    await insertRows(db, bob);
+    const scope = scopeTo(db, alice);
+    const kept: (() => PromiseLike<unknown>)[] = [];
+    const seen = await scope.db.transaction(async (tx) => {
+      await tx.insert(todos).values({ userId: alice, title: "mine" });
+      return tx.transaction((savepoint) => {
+        const notAwaited = tx.select().from(todos);
+        kept.push(
+          () => tx.select().from(todos),
+          () => savepoint.select().from(todos),
+          () => notAwaited,
+        );
+        return savepoint.select({ title: todos.title }).from(todos);
+      });
+    });
+
+    expect(seen).toEqual([{ title: "mine" }]);
+    for (const use of kept) {
+      await expect(Promise.resolve().then(use)).rejects.toThrow();
+    }
+  });
+
+  // A regression test: a query that the work did not await ran as the owner
+  // while the COMMIT or the ROLLBACK ran.
+  it("refuses a query from the end of the work, also while COMMIT or ROLLBACK runs", async () => {
+    await insertRows(db, bob);
+    let hold = Promise.withResolvers<null>();
+    let held = Promise.withResolvers<null>();
+    onEachQuery(db.pool, async (send, text) => {
+      if (text === "commit" || text === "rollback") {
+        held.resolve(null);
+        await hold.promise;
+      }
+      return send();
+    });
+
+    for (const fails of [false, true]) {
+      hold = Promise.withResolvers();
+      held = Promise.withResolvers();
+      const kept: AssistantDb[] = [];
+      const done = scopeTo(db, alice)
+        .db.transaction(async (tx) => {
+          kept.push(tx);
+          await tx.select().from(todos);
+          if (fails) throw new Error("The work failed.");
+        })
+        .catch(() => undefined);
+      await held.promise;
+      const late = expect(
+        kept[0]
+          .select({ userId: todos.userId })
+          .from(todos)
+          .then((rows) => rows),
+      ).rejects.toThrow();
+      hold.resolve(null);
+      await done;
+      await late;
+    }
+  });
+
+  it("runs a query and a transaction of the same scope in it, on its connection, and refuses another scope's", async () => {
+    await withOneConnection(async (owner) => {
+      const userId = await insertUser(owner);
+      const otherUserId = await insertUser(owner);
+      const scope = scopeTo(owner, userId);
+      const seen = await scope.db.transaction(async (tx) => {
+        await tx.insert(todos).values({ userId, title: "not committed yet" });
+        return {
+          rows: await scope.db.select({ title: todos.title }).from(todos),
+          inSavepoint: await scope.db.transaction((inner) =>
+            inner.$count(todos),
+          ),
+          other: await scopeTo(owner, otherUserId)
+            .db.select()
+            .from(todos)
+            .then(
+              () => null,
+              (error: unknown) => String(error),
+            ),
+        };
+      });
+      expect(seen.rows).toEqual([{ title: "not committed yet" }]);
+      expect(seen.inSavepoint).toBe(1);
+      expect(seen.other).toMatch(/inside a transaction of another scope/);
+    });
+  });
+
+  it("sends one query at a time on its connection", async () => {
+    let running = 0;
+    let most = 0;
+    onEachQuery(db.pool, async (send) => {
+      running += 1;
+      most = Math.max(most, running);
+      try {
+        return await send();
+      } finally {
+        running -= 1;
+      }
+    });
+    const scope = scopeTo(db, alice);
+
+    const counts = await scope.db.transaction(async (tx) => {
+      await tx.insert(todos).values({ userId: alice, title: "mine" });
+      return Promise.all(
+        Array.from({ length: 10 }, (_, index) =>
+          index % 2 ? scope.db.$count(todos) : tx.$count(todos),
+        ),
+      );
+    });
+    expect(counts).toEqual(Array.from({ length: 10 }, () => 1));
+    expect(most).toBe(1);
+  });
+
+  // A regression test: each savepoint of the scope had the name sp1, so a
+  // rollback went to the wrong one.
+  it("rolls back each nested savepoint to its own start", async () => {
+    const scope = scopeTo(db, alice);
+    const add = (title: string) =>
+      scope.db.insert(todos).values({ userId: alice, title });
+
+    await scope.db.transaction(async () => {
+      await add("before");
+      await scope.db
+        .transaction(async (outer) => {
+          await add("outer");
+          await scope.db
+            .transaction(async () => {
+              await add("inner");
+              throw new Error("The inner savepoint failed.");
+            })
+            .catch(() => undefined);
+          await outer.transaction(async () => {
+            await add("inner, kept");
+          });
+          throw new Error("The outer savepoint failed.");
+        })
+        .catch(() => undefined);
+      await add("after");
+    });
+
+    expect(await titlesOf(db)).toEqual(["after", "before"]);
+  });
+
+  it("refuses a second savepoint while one is open", async () => {
+    const scope = scopeTo(db, alice);
+
+    const outcomes = await scope.db.transaction(async () => {
+      const results = await Promise.allSettled([
+        scope.db.transaction(async (savepoint) => {
+          await savepoint
+            .insert(todos)
+            .values({ userId: alice, title: "first" });
+        }),
+        scope.db.transaction(async (savepoint) => {
+          await savepoint
+            .insert(todos)
+            .values({ userId: alice, title: "second" });
+        }),
+      ]);
+      return results.map((result) =>
+        result.status === "rejected" ? String(result.reason) : "done",
+      );
+    });
+
+    expect(outcomes[0]).toBe("done");
+    expect(outcomes[1]).toMatch(/innermost open transaction or savepoint/);
+    expect(await titlesOf(db)).toEqual(["first"]);
+  });
+
+  it("fails loudly when a caught error of a statement made COMMIT roll back", async () => {
+    const scope = scopeTo(db, alice);
+
+    await expect(
+      scope.db.transaction(async (tx) => {
+        await tx.insert(todos).values({ userId: alice, title: "lost" });
+        await scope.db.execute(sql`select 1/0`).catch(() => undefined);
+      }),
+    ).rejects.toThrow(/rolled the transaction back at its COMMIT/);
+    expect(await db.$count(todos)).toBe(0);
+  });
+
+  // A regression test: drizzle gave no client back when BEGIN failed.
+  it("closes the connection of a transaction that failed to begin, and keeps one that rolled back", async () => {
+    await withOneConnection(async (owner) => {
+      const userId = await insertUser(owner);
+      await insertRows(owner, userId);
+      const { pool } = owner;
+      const connect = pool.connect.bind(pool);
+      let broken = 2;
+      Reflect.set(pool, "connect", async () => {
+        const client = await connect();
+        if (broken > 0) {
+          broken -= 1;
+          const query: unknown = Reflect.get(client, "query");
+          Reflect.set(client, "query", () => {
+            Reflect.set(client, "query", query);
+            return Promise.reject(new Error("Connection terminated"));
+          });
+        }
+        return client;
+      });
+      const { db: scoped } = scopeTo(owner, userId);
+
+      await expect(scoped.select().from(todos)).rejects.toThrow();
+      await expect(scoped.select().from(todos)).rejects.toThrow();
+      expect(pool.totalCount).toBe(0);
+      Reflect.deleteProperty(pool, "connect");
+      expect(await scoped.$count(todos)).toBe(1);
+
+      await expect(scoped.execute(sql`select 1/0`)).rejects.toThrow();
+      expect(pool.totalCount).toBe(1);
+      expect(await owner.$count(todos)).toBe(1);
+    });
   });
 });
 
@@ -363,116 +587,5 @@ describe("the database", () => {
       "recoveries",
       "sessions",
     ]);
-  });
-});
-
-describe("a user scope over node-postgres", () => {
-  async function freePort() {
-    const server = createServer();
-    await new Promise<void>((resolve) =>
-      server.listen(0, "127.0.0.1", resolve),
-    );
-    const address = server.address();
-    await new Promise((resolve) => server.close(resolve));
-    if (address === null || typeof address === "string") throw new Error();
-    return address.port;
-  }
-
-  async function withPool(
-    max: number,
-    work: (owner: AssistantDb, pool: Pool) => Promise<void>,
-  ) {
-    const client = await PGlite.create({
-      loadDataDir: await loadMigratedDataDir(),
-    });
-    const port = await freePort();
-    const server = await servePglite(client, { host: "127.0.0.1", port });
-    const pool = new Pool({
-      connectionString: `postgres://postgres@127.0.0.1:${String(port)}/postgres`,
-      max,
-      connectionTimeoutMillis: 2000,
-    });
-    try {
-      await work(drizzle({ client: pool, schema }), pool);
-    } finally {
-      await pool.end();
-      await server.close();
-      await client.close();
-    }
-  }
-
-  it("limits each statement and each transaction to the user", async () => {
-    await withPool(3, async (owner) => {
-      const a = await insertUser(owner);
-      const b = await insertUser(owner);
-      await insertRows(owner, a);
-      await insertRows(owner, b);
-      const { db: scoped } = scopeTo(owner, a);
-
-      const [seen, count, inTransaction] = await Promise.all([
-        scoped.select({ userId: todos.userId }).from(todos),
-        scoped.$count(mailAccounts),
-        scoped.transaction((tx) =>
-          tx.select({ userId: agentRuns.userId }).from(agentRuns),
-        ),
-      ]);
-      expect(seen).toEqual([{ userId: a }]);
-      expect(count).toBe(1);
-      expect(inTransaction).toEqual([{ userId: a }]);
-      // The pooled connections keep neither the role nor the user.
-      expect(await owner.$count(todos)).toBe(2);
-    });
-  });
-
-  it("refuses a transaction, savepoint or query kept past the end", async () => {
-    await withPool(1, async (owner) => {
-      const a = await insertUser(owner);
-      await insertRows(owner, await insertUser(owner));
-      await expectKeptHandlesRefused(scopeTo(owner, a));
-      expect(await owner.$count(todos)).toBe(2);
-    });
-  });
-
-  it("runs a query of the same scope inside its transaction on the same connection", async () => {
-    await withPool(1, async (owner) => {
-      await expectNestedScopesHandled(
-        owner,
-        await insertUser(owner),
-        await insertUser(owner),
-      );
-    });
-  });
-
-  // A regression test: drizzle gave no client back when BEGIN failed.
-  it("closes the connection of a transaction that failed to begin, and keeps one that rolled back", async () => {
-    await withPool(2, async (owner, pool) => {
-      const a = await insertUser(owner);
-      await insertRows(owner, a);
-      const connect = pool.connect.bind(pool);
-      let broken = 2;
-      Reflect.set(pool, "connect", async () => {
-        const client = await connect();
-        if (broken > 0) {
-          broken -= 1;
-          const query: unknown = Reflect.get(client, "query");
-          Reflect.set(client, "query", () => {
-            Reflect.set(client, "query", query);
-            return Promise.reject(new Error("Connection terminated"));
-          });
-        }
-        return client;
-      });
-      const { db: scoped } = scopeTo(owner, a);
-
-      await expect(scoped.select().from(todos)).rejects.toThrow();
-      await expect(scoped.select().from(todos)).rejects.toThrow();
-      expect(pool.totalCount).toBe(0);
-      Reflect.deleteProperty(pool, "connect");
-      expect(await scoped.$count(todos)).toBe(1);
-
-      await expect(scoped.execute(sql`select 1/0`)).rejects.toThrow();
-      expect(pool.totalCount).toBe(1);
-      expect(await owner.$count(todos)).toBe(1);
-    });
   });
 });

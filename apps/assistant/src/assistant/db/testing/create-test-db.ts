@@ -1,12 +1,18 @@
 import { PGlite } from "@electric-sql/pglite";
-import { drizzle } from "drizzle-orm/pglite";
+import { servePglite } from "@tuja/dev-tools/serve-pglite";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import { afterAll } from "vitest";
 import { z } from "zod";
 import { schema } from "../schema.ts";
 import type { AssistantDb } from "../types.ts";
 import { loadMigratedDataDir } from "./load-migrated-data-dir.ts";
 
-export type TestDb = AssistantDb & { close: () => Promise<void> };
+export type TestDb = AssistantDb & {
+  /** The pool of the connections, for a test that counts them. */
+  pool: Pool;
+  close: () => Promise<void>;
+};
 
 /** How to put a database that a test changed back to the migrated state. */
 interface ResetPlan {
@@ -136,31 +142,34 @@ async function takeClient(): Promise<PooledClient> {
 }
 
 /**
- * An empty, migrated, in-memory Postgres. The first call in a test file opens
- * the cached migrated database. A later call resets a database that a test
- * closed, which is much faster than a new one.
+ * An empty, migrated, in-memory Postgres behind a `pg` Pool, the driver that
+ * production uses. The first call in a test file opens the cached migrated
+ * database. A later call resets a database that a test closed, which is much
+ * faster than a new one. A query after `close` fails, because the pool has
+ * ended.
  */
-export async function createTestDb(): Promise<TestDb> {
+export async function createTestDb({
+  maxConnections = 5,
+}: { maxConnections?: number } = {}): Promise<TestDb> {
   const pooled = await takeClient();
-  // A query after `close` must fail as before, and not change the database of
-  // the next test.
-  const { proxy, revoke } = Proxy.revocable(pooled.client, {
-    get(target, key) {
-      const value: unknown = Reflect.get(target, key, target);
-      if (typeof value !== "function") return value;
-      const bound: unknown = value.bind(target);
-      return bound;
+  const server = await servePglite(pooled.client, {
+    host: "127.0.0.1",
+    port: 0,
+  });
+  const pool = new Pool({
+    connectionString: `postgres://postgres@127.0.0.1:${String(server.port)}/postgres`,
+    max: maxConnections,
+    connectionTimeoutMillis: 5000,
+  });
+  let isClosed = false;
+  return Object.assign(drizzle({ client: pool, schema }), {
+    pool,
+    close: async () => {
+      if (isClosed) return;
+      isClosed = true;
+      await pool.end();
+      await server.close();
+      closedClients.push(pooled);
     },
   });
-  const db = drizzle({ client: proxy, schema });
-  let isClosed = false;
-  const close = () => {
-    if (!isClosed) {
-      isClosed = true;
-      revoke();
-      closedClients.push(pooled);
-    }
-    return Promise.resolve();
-  };
-  return Object.assign(db, { close });
 }
