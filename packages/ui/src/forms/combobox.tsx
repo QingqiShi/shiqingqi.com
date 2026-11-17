@@ -10,6 +10,7 @@ import {
   useState,
   type ComponentProps,
   type KeyboardEvent,
+  type MouseEvent,
   type ReactNode,
 } from "react";
 import { Text } from "../content/text.tsx";
@@ -37,6 +38,8 @@ export interface ComboboxOption {
   label: string;
   /** Shown under the label, such as "Groceries · 3 days ago". A search also reads it. */
   detail?: string;
+  /** More words that a search reads and the list does not show, such as the name of the option in another language. */
+  keywords?: string;
   /** A small mark before the label, such as an emoji. */
   leading?: ReactNode;
 }
@@ -189,7 +192,8 @@ type ComboboxProps = ComboboxPickerProps | ComboboxTextProps;
  * a listbox popup). Without `value`, it is a picker for one option of many,
  * such as a time zone: typing searches the options by the start of each
  * word of the label and the detail, and the field shows the picked option.
- * Its `name` posts the id of the picked option.
+ * Focus or a tap selects that text, so typing replaces it, and the list
+ * opens at the picked option. Its `name` posts the id of the picked option.
  * With `value`, it is a text field whose suggestions the caller gives, such
  * as payees, and can offer to make a new one.
  *
@@ -235,6 +239,8 @@ export function Combobox(props: ComboboxProps) {
   const listId = useId();
   const optionId = (index: number) => `${listId}-option-${String(index)}`;
   const [open, setOpen] = useState(false);
+  // While the field shows the picked option, -1 makes it the active one,
+  // also when the options change, as a caller can give them only on focus.
   const [active, setActive] = useState(-1);
   const [query, setQuery] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -260,7 +266,10 @@ export function Combobox(props: ComboboxProps) {
   const showEmpty =
     emptyLabel !== undefined && emptyLabel !== "" && count === 0 && isTyped;
   const expanded = open && (count > 0 || showEmpty);
-  const activeIndex = active < count ? active : -1;
+  const pickedIndex = picked === undefined ? -1 : shown.indexOf(picked);
+  const showsPick = isPicker && query === null;
+  const activeIndex =
+    active === -1 && showsPick ? pickedIndex : active < count ? active : -1;
 
   useLayoutEffect(() => {
     const root = rootRef.current;
@@ -274,7 +283,8 @@ export function Combobox(props: ComboboxProps) {
   const isFocusClickRef = useRef(false);
   useLayoutEffect(() => {
     const list = listRef.current;
-    const isOpening = expanded && !wasExpandedRef.current;
+    const isOpening =
+      expanded && (!wasExpandedRef.current || (active === -1 && showsPick));
     wasExpandedRef.current = expanded;
     if (!expanded || !list) return;
     const option = activeIndex === -1 ? null : list.children.item(activeIndex);
@@ -291,7 +301,7 @@ export function Combobox(props: ComboboxProps) {
     } else if (bottom > list.scrollTop + list.clientHeight) {
       list.scrollTop = bottom - list.clientHeight;
     }
-  }, [expanded, activeIndex, text]);
+  }, [expanded, active, activeIndex, showsPick, text]);
 
   const close = () => {
     setOpen(false);
@@ -317,8 +327,6 @@ export function Combobox(props: ComboboxProps) {
     else if (index === shown.length) onCreate?.(trimmed);
   };
 
-  const pickedIndex = () => (picked === undefined ? -1 : shown.indexOf(picked));
-
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     isFocusClickRef.current = false;
     if (event.nativeEvent.isComposing) return;
@@ -327,7 +335,7 @@ export function Combobox(props: ComboboxProps) {
         event.preventDefault();
         if (!expanded) {
           setOpen(true);
-          setActive(Math.max(0, pickedIndex()));
+          setActive(Math.max(0, pickedIndex));
         } else if (count > 0) {
           setActive((activeIndex + 1) % count);
         }
@@ -337,7 +345,7 @@ export function Combobox(props: ComboboxProps) {
         event.preventDefault();
         if (!expanded) {
           setOpen(true);
-          setActive(pickedIndex() === -1 ? count - 1 : pickedIndex());
+          setActive(pickedIndex === -1 ? count - 1 : pickedIndex);
         } else if (count > 0) {
           setActive(activeIndex <= 0 ? count - 1 : activeIndex - 1);
         }
@@ -347,6 +355,11 @@ export function Combobox(props: ComboboxProps) {
         if (expanded && activeIndex !== -1) {
           event.preventDefault();
           pick(activeIndex);
+          return;
+        }
+        // A search that finds nothing must not send the form with the old pick.
+        if (isPicker && query !== null) {
+          event.preventDefault();
           return;
         }
         setOpen(false);
@@ -406,7 +419,7 @@ export function Combobox(props: ComboboxProps) {
           setOpen(true);
           if (isPicker) {
             event.target.select();
-            setActive(pickedIndex());
+            setActive(-1);
             isFocusClickRef.current = true;
           }
           onFocus?.(event);
@@ -414,14 +427,18 @@ export function Combobox(props: ComboboxProps) {
         onClick={(event) => {
           if (!expanded) {
             setOpen(true);
-            if (isPicker) setActive(pickedIndex());
+            if (isPicker) setActive(-1);
           }
+          // Typing after a tap replaces the picked option's text.
+          if (showsPick) event.currentTarget.select();
           onClick?.(event);
         }}
         onMouseUp={(event) => {
-          // Safari puts the caret where the pointer lets go, after focus
-          // selected the text. Thus stop that on the press that gave focus.
-          if (isFocusClickRef.current) event.preventDefault();
+          // A browser puts the caret where the pointer lets go: Safari after
+          // focus selected the text, and each browser in selected text.
+          // Thus stop that on the press that gave focus, and while the field
+          // shows the picked option.
+          if (isFocusClickRef.current || showsPick) event.preventDefault();
           isFocusClickRef.current = false;
           onMouseUp?.(event);
         }}
@@ -451,16 +468,8 @@ export function Combobox(props: ComboboxProps) {
             id={optionId(index)}
             role="option"
             aria-selected={index === activeIndex}
-            css={[
-              flex.row,
-              corner.radius_1,
-              quietSurface.interactive,
-              a11y.touchRow,
-              styles.option,
-            ]}
-            onMouseDown={(event) => {
-              event.preventDefault();
-            }}
+            css={rowStyles}
+            onMouseDown={keepFocus}
             onClick={() => {
               pick(index);
             }}
@@ -497,16 +506,8 @@ export function Combobox(props: ComboboxProps) {
             id={optionId(shown.length)}
             role="option"
             aria-selected={activeIndex === shown.length}
-            css={[
-              flex.row,
-              corner.radius_1,
-              quietSurface.interactive,
-              a11y.touchRow,
-              styles.option,
-            ]}
-            onMouseDown={(event) => {
-              event.preventDefault();
-            }}
+            css={rowStyles}
+            onMouseDown={keepFocus}
             onClick={() => {
               pick(shown.length);
             }}
@@ -521,7 +522,7 @@ export function Combobox(props: ComboboxProps) {
         ) : null}
         {showEmpty ? (
           <li role="presentation" css={styles.empty}>
-            <Text as="span" look="control" tone="muted" lines={1}>
+            <Text as="span" look="control" tone="muted">
               {emptyLabel}
             </Text>
           </li>
@@ -529,6 +530,10 @@ export function Combobox(props: ComboboxProps) {
       </ul>
     </div>
   );
+}
+
+function keepFocus(event: MouseEvent) {
+  event.preventDefault();
 }
 
 const styles = stylex.create({
@@ -574,3 +579,11 @@ const styles = stylex.create({
     paddingInline: space._2,
   },
 });
+
+const rowStyles = [
+  flex.row,
+  corner.radius_1,
+  quietSurface.interactive,
+  a11y.touchRow,
+  styles.option,
+];

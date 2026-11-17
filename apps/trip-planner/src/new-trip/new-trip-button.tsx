@@ -54,6 +54,19 @@ export function NewTripRailAction() {
   );
 }
 
+/**
+ * New trip as the action of the empty trip list where the rail shows. Where
+ * the tab bar shows, `NewTripFloatingButton` is the action, in reach of the
+ * thumb.
+ */
+export function NewTripEmptyAction() {
+  return (
+    <div css={styles.railOnly}>
+      <NewTripButton />
+    </div>
+  );
+}
+
 /** New trip over the trip list, in reach of the thumb, where the tab bar shows and the rail does not. */
 export function NewTripFloatingButton() {
   return (
@@ -74,5 +87,8 @@ const styles = stylex.create({
   },
   barOnly: {
     display: { default: "block", [tabViewWidth.fromRail]: "none" },
+  },
+  railOnly: {
+    display: { default: "none", [tabViewWidth.fromRail]: "block" },
   },
 });
