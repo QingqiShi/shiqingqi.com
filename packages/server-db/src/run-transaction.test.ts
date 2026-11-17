@@ -119,10 +119,7 @@ it.each([
 );
 
 it("runs as drizzle's transaction on a driver with no pool", async () => {
-  const single = await PGlite.create();
-  const local = drizzleOnPglite({ client: single });
-  await single.exec("create table counts (value integer not null)");
+  const local = drizzleOnPglite({ client: pglite });
   await runTransaction(local, (tx) => tx.insert(counts).values({ value: 3 }));
   expect(await local.select().from(counts)).toEqual([{ value: 3 }]);
-  await single.close();
 });
