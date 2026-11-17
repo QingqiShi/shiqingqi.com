@@ -15,6 +15,7 @@ import {
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { NewTripRailAction } from "#src/new-trip/new-trip-button.tsx";
+import { NewTripNotice } from "#src/new-trip/new-trip-notice.tsx";
 import { NewTripProvider } from "#src/new-trip/new-trip-provider.tsx";
 import { AppToasts } from "./app-toasts.tsx";
 import { SettingsSkeleton } from "./settings-skeleton.tsx";
@@ -83,7 +84,10 @@ export function AppFrame({
     >
       {/* A page can say a thing here that stays when the person goes to
           another page, such as that a trip is deleted. */}
-      <AppToasts>{children}</AppToasts>
+      <AppToasts>
+        <NewTripNotice />
+        {children}
+      </AppToasts>
     </TabView>
   );
   return signedIn ? <NewTripProvider>{view}</NewTripProvider> : view;
