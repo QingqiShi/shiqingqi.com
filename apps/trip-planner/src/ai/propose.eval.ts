@@ -332,8 +332,20 @@ Early morning: Arashiyama bamboo grove
 11:00 Tenryu-ji
 16:00 train back to the airport`;
 
-function judgeDraft(draft: TripDraft, after: Trip): string | null {
-  const { fields } = draft;
+const APP_WORDS = /\b(batch(es)?|ops?|ids?|placeholders?|schema|json)\b|\$day/i;
+
+function judgeDraft(
+  draft: TripDraft,
+  after: Trip,
+  locale: "en" | "zh",
+): string | null {
+  const { fields, message } = draft;
+  if (/[一-鿿]/.test(message) !== (locale === "zh")) {
+    return `The message is not in ${locale}: ${message}`;
+  }
+  if (APP_WORDS.test(message)) {
+    return `The message uses the app's words: ${message}`;
+  }
   if (fields.firstDate !== "2027-05-07" || fields.days !== 3) {
     return `The trip starts ${fields.firstDate} with ${String(fields.days)} days.`;
   }
@@ -426,40 +438,44 @@ for (const modelId of MODELS) {
         });
       }
 
-      it(`draft a pasted itinerary (${String(run)})`, async () => {
-        const use = emptyUse();
-        const started = performance.now();
-        const outcome = await askModel({
-          model,
-          instructions: tripPrompts.draft.instructions,
-          message: tripPrompts.draft.message(
-            PASTED,
-            BEFORE_TRIP,
-            "Europe/London",
-            "en",
-          ),
-          check: checkDraft,
-          maxOutputTokens: 48_000,
-          signal: AbortSignal.timeout(270_000),
-          use,
-        });
-        const seconds = (performance.now() - started) / 1000;
-        let failure: string | null;
-        if (outcome.status === "ok") {
-          const made = newTrip(outcome.value.fields);
-          failure = judgeDraft(
-            outcome.value,
-            applyAll(made, bindDraftDays(outcome.value, made)),
+      it.for(["en", "zh"] as const)(
+        `draft a pasted itinerary for a person in %s (${String(run)})`,
+        async (locale) => {
+          const use = emptyUse();
+          const started = performance.now();
+          const outcome = await askModel({
+            model,
+            instructions: tripPrompts.draft.instructions,
+            message: tripPrompts.draft.message(
+              PASTED,
+              BEFORE_TRIP,
+              "Europe/London",
+              locale,
+            ),
+            check: checkDraft,
+            maxOutputTokens: 48_000,
+            signal: AbortSignal.timeout(270_000),
+            use,
+          });
+          const seconds = (performance.now() - started) / 1000;
+          let failure: string | null;
+          if (outcome.status === "ok") {
+            const made = newTrip(outcome.value.fields);
+            failure = judgeDraft(
+              outcome.value,
+              applyAll(made, bindDraftDays(outcome.value, made)),
+              locale,
+            );
+          } else {
+            failure = `${outcome.status}: ${"reason" in outcome ? outcome.reason : ""}`;
+          }
+          tally(`${modelId} draft`, failure === null, use, seconds);
+          console.log(
+            `${modelId} | draft ${locale} | ${failure ?? "pass"} | ${String(use.rounds)} rounds | ${seconds.toFixed(1)} s`,
           );
-        } else {
-          failure = `${outcome.status}: ${"reason" in outcome ? outcome.reason : ""}`;
-        }
-        tally(`${modelId} draft`, failure === null, use, seconds);
-        console.log(
-          `${modelId} | draft | ${failure ?? "pass"} | ${String(use.rounds)} rounds | ${seconds.toFixed(1)} s`,
-        );
-        expect(failure).toBeNull();
-      });
+          expect(failure).toBeNull();
+        },
+      );
     }
   });
 }
