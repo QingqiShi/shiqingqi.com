@@ -1,6 +1,8 @@
 "use client";
 
+import { AddPasskeyButton } from "@tuja/auth-ui/components/add-passkey-button";
 import { DeleteAccountSheet } from "@tuja/auth-ui/components/delete-account-sheet";
+import { EmailChangeForm } from "@tuja/auth-ui/components/email-change-form";
 import { postAuth } from "@tuja/auth-ui/passkey-client";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
@@ -50,7 +52,7 @@ function TripList({
   );
 }
 
-/** The signed-in account: its email, sign-out, and the deletion of the account with the trips that only it owns. */
+/** The signed-in account: its email and passkeys, sign-out, and the deletion of the account with the trips that only it owns. */
 export function AccountSettings({
   email,
   tripsThatGo,
@@ -67,11 +69,27 @@ export function AccountSettings({
   };
 
   return (
-    <SettingsSection
-      level={2}
-      title={t({ en: "Account", zh: "账号" })}
-      description={`${t({ en: "You are signed in as ", zh: "当前登录账号：" })}${email}${t({ en: ".", zh: "。" })}`}
-    >
+    <SettingsSection level={2} title={t({ en: "Account", zh: "账号" })}>
+      <SettingsSection
+        level={3}
+        title={t({ en: "Email", zh: "邮箱" })}
+        description={t({
+          en: "The address of your account.",
+          zh: "你账号的邮箱地址。",
+        })}
+      >
+        <EmailChangeForm email={email} />
+      </SettingsSection>
+      <SettingsSection
+        level={3}
+        title={t({ en: "Passkeys", zh: "通行密钥" })}
+        description={t({
+          en: "Add a passkey to sign in on another device or with another password manager.",
+          zh: "添加通行密钥，以便在其他设备上或用其他密码管理器登录。",
+        })}
+      >
+        <AddPasskeyButton />
+      </SettingsSection>
       <div css={cluster.tight}>
         <Button
           look="outline"
