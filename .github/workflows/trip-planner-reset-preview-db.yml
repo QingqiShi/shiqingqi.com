@@ -25,3 +25,5 @@ jobs:
           branch: preview
           parent: true
           api_key: ${{ secrets.NEON_API_KEY }}
+          cs_role_name: neondb_owner
+          cs_database: neondb
