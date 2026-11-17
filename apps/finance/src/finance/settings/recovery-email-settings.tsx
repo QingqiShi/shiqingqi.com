@@ -59,7 +59,7 @@ export function RecoveryEmailSettings() {
     <section css={stack.item}>
       <div css={stack.text}>
         <Heading level={3} look="h4">
-          {t({ en: "Your recovery email", zh: "你的恢复邮箱" })}
+          {t({ en: "Your email", zh: "你的邮箱" })}
         </Heading>
         <Text look="bodySmall" tone="muted">
           {verified
@@ -125,8 +125,8 @@ export function RecoveryEmailSettings() {
         <TextField
           label={
             email === null
-              ? t({ en: "Recovery email", zh: "恢复邮箱" })
-              : t({ en: "New recovery email", zh: "新的恢复邮箱" })
+              ? t({ en: "Email", zh: "邮箱" })
+              : t({ en: "New email", zh: "新邮箱" })
           }
           type="email"
           autoComplete="email"

@@ -58,7 +58,7 @@ describe("recovery email", () => {
     const [sent] = await readOutbox(outboxDir);
     expect(sent).toMatchObject({
       to: "qingqi@example.com",
-      subject: "确认家庭账本恢复邮箱",
+      subject: "确认家庭账本邮箱",
     });
     const token = verificationTokenIn(sent.text, "/zh");
     expect((await client.get("recoveryEmail")).body).toEqual({
@@ -130,7 +130,7 @@ describe("recovery email", () => {
       ({ to }) => to === "owner@example.com",
     );
     expect(notices).toHaveLength(1);
-    expect(notices[0]).toMatchObject({ subject: "家庭账本恢复邮箱已更改" });
+    expect(notices[0]).toMatchObject({ subject: "家庭账本邮箱已更改" });
     expect(notices[0]?.text).toContain("j•••@example.com");
     expect(notices[0]?.text).not.toContain("jane@example.com");
     expect(notices[0]?.text).toContain(`${TEST_ORIGIN}/zh/settings/members`);

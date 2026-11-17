@@ -33,23 +33,20 @@ test.describe("Recovery email", () => {
     const address = uniqueEmail("alex");
 
     await page.goto("/settings/members");
-    await expect(
-      page.getByRole("heading", { name: "Your recovery email" }),
-    ).toBeVisible({ timeout: SYNC_TIMEOUT });
-    await page.getByRole("textbox", { name: "Recovery email" }).fill(address);
+    await expect(page.getByRole("heading", { name: "Your email" })).toBeVisible(
+      { timeout: SYNC_TIMEOUT },
+    );
+    await page.getByRole("textbox", { name: "Email" }).fill(address);
     await page.getByRole("button", { name: "Send confirmation link" }).click();
     await expect(
       page.getByRole("status").filter({ hasText: address }),
     ).toBeVisible();
 
-    const confirmation = await emailTo(
-      address,
-      "Confirm your Finance recovery email",
-    );
+    const confirmation = await emailTo(address, "Confirm your Finance email");
     await page.goto(linkIn(confirmation, "/verify-email/"));
     await page.getByRole("button", { name: "Confirm email" }).click();
     await expect(
-      page.getByRole("heading", { name: "Recovery email confirmed" }),
+      page.getByRole("heading", { name: "Email confirmed" }),
     ).toBeVisible();
     await page.goto("/settings/members");
     await expect(page.getByText("Confirmed", { exact: true })).toBeVisible({

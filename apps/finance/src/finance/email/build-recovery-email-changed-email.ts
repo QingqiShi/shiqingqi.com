@@ -5,24 +5,24 @@ import { renderFinanceEmail } from "./render-finance-email.ts";
 
 const COPY = {
   en: {
-    subject: "Your Finance recovery email was changed",
-    heading: "Your recovery email was changed",
+    subject: "Your Finance email was changed",
+    heading: "Your email was changed",
     intro: (newEmail: string, when: string) =>
-      `Your Finance recovery email changed from this address to ${newEmail} on ${when}. Recovery links now go to that address.`,
+      `Your Finance email changed from this address to ${newEmail} on ${when}. Recovery links now go to that address.`,
     notYou: "If you did not make this change",
     steps:
-      "Sign in, change your recovery email back in Settings, under Members, and confirm it. Then sign out and get back in with a recovery code from the sign-in page. Your old passkeys then stop working, and every other device signs out.",
+      "Sign in, change your email back in Settings, under Members, and confirm it. Then sign out and get back in with a recovery code from the sign-in page. Your old passkeys then stop working, and every other device signs out.",
     action: "Open Settings",
     ignore: "If you made this change, you can ignore this email.",
   },
   zh: {
-    subject: "家庭账本恢复邮箱已更改",
-    heading: "你的恢复邮箱已更改",
+    subject: "家庭账本邮箱已更改",
+    heading: "你的邮箱已更改",
     intro: (newEmail: string, when: string) =>
-      `${when}，你的家庭账本恢复邮箱已从此邮箱改为 ${newEmail}。今后恢复链接会发到新邮箱。`,
+      `${when}，你的家庭账本邮箱已从此邮箱改为 ${newEmail}。今后恢复链接会发到新邮箱。`,
     notYou: "如果不是你本人更改的",
     steps:
-      "请登录，在设置的“成员”中把恢复邮箱改回来并完成确认。然后退出登录，在登录页用恢复验证码重新进入。之后旧的通行密钥将失效，其他设备都会退出登录。",
+      "请登录，在设置的“成员”中把邮箱改回来并完成确认。然后退出登录，在登录页用恢复验证码重新进入。之后旧的通行密钥将失效，其他设备都会退出登录。",
     action: "打开设置",
     ignore: "如果是你本人更改的，请忽略此邮件。",
   },

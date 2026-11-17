@@ -4,16 +4,16 @@ import { renderFinanceEmail } from "./render-finance-email.ts";
 
 const COPY = {
   en: {
-    subject: "Confirm your Finance recovery email",
-    heading: "Confirm your recovery email",
+    subject: "Confirm your Finance email",
+    heading: "Confirm your email",
     intro:
       "Confirm this address so that Finance can send you a recovery link if you lose every passkey.",
     action: "Confirm email",
     expiry: "The link works once, for 1 hour.",
   },
   zh: {
-    subject: "确认家庭账本恢复邮箱",
-    heading: "确认你的恢复邮箱",
+    subject: "确认家庭账本邮箱",
+    heading: "确认你的邮箱",
     intro:
       "确认此邮箱后，如果你丢失了全部通行密钥，家庭账本可以把恢复链接发到这里。",
     action: "确认邮箱",
