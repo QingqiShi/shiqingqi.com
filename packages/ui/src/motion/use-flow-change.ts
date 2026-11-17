@@ -53,10 +53,13 @@ function createFlowChange() {
         const to = before.get(block);
         return from === undefined || to === undefined ? null : { from, to };
       },
-      (_block, _element, from, to) => ({
-        dx: to.left - from.left,
-        dy: to.top - from.top,
-      }),
+      (block, _element, from, to) => {
+        const share = block.isCentered ? 0.5 : 0;
+        return {
+          dx: to.left - from.left + (to.width - from.width) * share,
+          dy: to.top - from.top + (to.height - from.height) * share,
+        };
+      },
       true,
     );
     const most = Math.max(

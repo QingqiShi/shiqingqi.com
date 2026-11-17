@@ -4,20 +4,18 @@ import * as stylex from "@stylexjs/stylex";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { FlowBlock } from "@tuja/ui/components/flow-block";
+import { useFlowChange } from "@tuja/ui/hooks/use-flow-change";
 import { useMediaQuery } from "@tuja/ui/hooks/use-media-query";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
-  startTransition,
   useEffect,
   useLayoutEffect,
   useReducer,
   useRef,
   useState,
 } from "react";
-import { ViewTransition } from "react";
-import { labMorph } from "#src/view-transition-classes.stylex.ts";
 import { buildLabSnippet } from "./build-lab-snippet.ts";
 import { labBar } from "./lab-bar.stylex.ts";
 import { LabBar } from "./lab-bar.tsx";
@@ -68,17 +66,10 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
     }),
   );
 
-  // A View Transition captures the whole page, and Safari shows a blank page
-  // while it runs. One per keystroke or slider step makes input slow and
-  // makes the page flash, so only a change that is complete animates.
+  const flow = useFlowChange();
   const run = (next: LabAction) => {
-    const action = withReplaced(next, model.controls);
-    if (action.type === "setProp" && action.isLive === true) {
-      dispatch(action);
-      return;
-    }
-    startTransition(() => {
-      dispatch(action);
+    flow(() => {
+      dispatch(withReplaced(next, model.controls));
     });
   };
 
@@ -122,18 +113,10 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
     specimenProps[control.name] = sample?.value;
   }
 
-  // A change from the Specimen is a live step, so that it does not start a
-  // View Transition. A drag on a Slider, for example, sets the value at each
-  // step.
   const { state: binding } = config;
   const setBound = (next: unknown) => {
     if (binding === undefined) return;
-    run({
-      type: "setProp",
-      prop: String(binding.prop),
-      value: next,
-      isLive: true,
-    });
+    run({ type: "setProp", prop: String(binding.prop), value: next });
   };
   if (binding !== undefined) {
     const { nextValue } = binding;
@@ -182,25 +165,23 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
         ]}
       >
         <div css={styles.specimenArea}>
-          <ViewTransition name="lab-specimen" default={labMorph}>
-            <div
-              css={[styles.specimen, config.scene !== undefined && fill.inline]}
-            >
-              {binding?.trigger}
-              {config.scene === undefined ? (
-                renderSpecimen(config, specimenProps)
-              ) : (
-                <LabScene kind={config.scene}>
-                  {renderSpecimen(config, specimenProps)}
-                </LabScene>
-              )}
-            </div>
-          </ViewTransition>
+          <FlowBlock
+            anchor="center"
+            css={[styles.specimen, config.scene !== undefined && fill.inline]}
+          >
+            {binding?.trigger}
+            {config.scene === undefined ? (
+              renderSpecimen(config, specimenProps)
+            ) : (
+              <LabScene kind={config.scene}>
+                {renderSpecimen(config, specimenProps)}
+              </LabScene>
+            )}
+          </FlowBlock>
         </div>
-        {/* A Specimen can contain a Disclosure. When it opens, the snippet moves. */}
-        <FlowBlock css={styles.snippet}>
+        <div css={styles.snippet}>
           <LabSnippet snippet={snippet} />
-        </FlowBlock>
+        </div>
       </div>
       <LabControls
         variants={model.variants}

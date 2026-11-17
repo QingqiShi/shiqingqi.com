@@ -5,12 +5,14 @@ import type { HTMLAttributes, Ref } from "react";
 import { mergeRefs } from "../merge-refs.ts";
 import {
   useFlowBlock,
+  type FlowAnchorOption,
   type FlowSurfaceOption,
 } from "../motion/use-flow-block.tsx";
 import type { StyleProp } from "../types.ts";
 
 type FlowBlockProps = Omit<HTMLAttributes<HTMLElement>, "className" | "style"> &
-  FlowSurfaceOption & {
+  FlowSurfaceOption &
+  FlowAnchorOption & {
     /**
      * The element to render.
      *
@@ -41,12 +43,13 @@ type FlowBlockProps = Omit<HTMLAttributes<HTMLElement>, "className" | "style"> &
 export function FlowBlock({
   as = "div",
   surface = false,
+  anchor = "start",
   css,
   ref,
   children,
   ...restProps
 }: FlowBlockProps) {
-  const { ref: flowRef, skin } = useFlowBlock({ surface });
+  const { ref: flowRef, skin } = useFlowBlock({ surface, anchor });
   const props = { ...restProps, ...stylex.props(css) };
   const merged = mergeRefs<HTMLElement>(ref, flowRef);
   if (as === "hr") return <hr {...props} ref={merged} />;

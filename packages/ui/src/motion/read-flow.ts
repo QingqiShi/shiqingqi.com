@@ -26,6 +26,8 @@ export interface FlowSurface {
 export interface FlowBlock {
   readonly element: HTMLElement | null;
   readonly isSticky: boolean;
+  /** A state change that gives the block another size keeps its centre, not its start corner. */
+  readonly isCentered: boolean;
   readonly place?: (() => void) | undefined;
   readonly mover: FlowMover;
   readonly surface: FlowSurface | null;
