@@ -6,12 +6,12 @@ import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { DateField } from "@tuja/ui/components/date-field";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { MenuItem } from "@tuja/ui/components/menu-item";
 import { Popover } from "@tuja/ui/components/popover";
 import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
 import { Text } from "@tuja/ui/components/text";
-import { TextField } from "@tuja/ui/components/text-field";
 import { useEffectSticky } from "@tuja/ui/hooks/use-effect-sticky";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { layer, rhythm, shadow, space } from "@tuja/ui/tokens.stylex";
@@ -67,14 +67,11 @@ function BulkDateActions({
           if (picked) onPick(picked);
         }}
       >
-        <TextField
-          type="date"
+        <DateField
           label={t({ en: "Pick a date", zh: "选择日期" })}
           value={picked}
-          controlCss={styles.dateField}
-          onChange={(event) => {
-            setPicked(event.target.value);
-          }}
+          css={styles.dateField}
+          onValueChange={setPicked}
         />
         <Button type="submit" size="sm" look="outline" disabled={!picked}>
           {t({ en: "Move", zh: "移动" })}

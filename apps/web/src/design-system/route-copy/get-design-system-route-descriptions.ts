@@ -175,6 +175,14 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "A field for a prompt with its send button inside.",
       zh: "内含发送按钮的提问输入框。",
     }),
+    "/design-system/components/date-field": t({
+      en: "A field for a day, with the device's own date picker.",
+      zh: "填写日期的输入框，使用设备自带的日期选择器。",
+    }),
+    "/design-system/components/time-field": t({
+      en: "A field for a time of day, with the device's own time picker.",
+      zh: "填写时刻的输入框，使用设备自带的时间选择器。",
+    }),
     "/design-system/components/checkbox": t({
       en: "A checkbox with label, indeterminate, and error states.",
       zh: "带标签、未定态与错误态的复选框。",

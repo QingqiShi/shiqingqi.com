@@ -1,5 +1,6 @@
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
+import { DateField } from "@tuja/ui/components/date-field";
 import { FormFooter } from "@tuja/ui/components/form-footer";
 import { TextField } from "@tuja/ui/components/text-field";
 import { Textarea } from "@tuja/ui/components/textarea";
@@ -69,9 +70,8 @@ export function FormFooterShowcase() {
               leading="£"
               defaultValue="64.50"
             />
-            <TextField
+            <DateField
               label={t({ en: "Date", zh: "日期" })}
-              type="date"
               defaultValue="2026-11-10"
             />
             <TextField

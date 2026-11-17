@@ -18,7 +18,7 @@ import { useTypingDust } from "./use-typing-dust.ts";
 
 // `size` on the intrinsic input is the HTML character-width attribute; the
 // design system reuses the name for its own scale, so drop the native one.
-interface TextFieldProps extends Omit<
+export interface TextFieldProps extends Omit<
   ComponentProps<"input">,
   "size" | "className" | "style"
 > {

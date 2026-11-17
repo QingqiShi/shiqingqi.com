@@ -16,6 +16,7 @@ import { Card } from "@tuja/ui/components/card";
 import { CardHeader } from "@tuja/ui/components/card-header";
 import { CardTitle } from "@tuja/ui/components/card-title";
 import { Columns } from "@tuja/ui/components/columns";
+import { DateField } from "@tuja/ui/components/date-field";
 import { FormFooter } from "@tuja/ui/components/form-footer";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
@@ -128,9 +129,8 @@ function DetailsCard() {
           defaultValue="64.50"
           leading="£"
         />
-        <TextField
+        <DateField
           label={t({ en: "Date", zh: "日期" })}
-          type="date"
           defaultValue="2026-10-31"
           error={t({
             en: "October is closed. Reopen it in Settings or pick a date in November.",

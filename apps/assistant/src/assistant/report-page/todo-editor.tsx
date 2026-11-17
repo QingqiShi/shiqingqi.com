@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
+import { DateField } from "@tuja/ui/components/date-field";
 import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
@@ -35,7 +36,7 @@ function openDatePicker(field: HTMLInputElement) {
 }
 
 /** A date, or none. It takes the focus and opens its picker when the menu asked for it. */
-function DateField({
+function OptionalDateField({
   label,
   value,
   max,
@@ -59,18 +60,15 @@ function DateField({
 
   return (
     <div css={[cluster.tight, styles.dateRow]}>
-      <TextField
+      <DateField
         ref={fieldRef}
-        type="date"
         label={label}
         value={value}
         max={max}
         error={error}
         autoFocus={autoPick}
-        controlCss={styles.dateField}
-        onChange={(event) => {
-          onChange(event.target.value);
-        }}
+        css={styles.dateField}
+        onValueChange={onChange}
       />
       {value ? (
         <Button
@@ -232,7 +230,7 @@ export function TodoEditor({
           newStep={newStep}
           onNewStepChange={setNewStep}
         />
-        <DateField
+        <OptionalDateField
           label={t({ en: "Due date", zh: "到期日" })}
           value={dueDate}
           autoPick={focus === "dueDate"}
@@ -241,7 +239,7 @@ export function TodoEditor({
             setStartError("");
           }}
         />
-        <DateField
+        <OptionalDateField
           label={t({ en: "Start date", zh: "开始日期" })}
           value={startDate}
           max={dueDate || undefined}
@@ -270,7 +268,7 @@ export function TodoEditor({
           </Text>
         </div>
         {waitingOn.trim() ? (
-          <DateField
+          <OptionalDateField
             label={t({ en: "Follow up on", zh: "跟进日期" })}
             value={followUpDate}
             autoPick={false}
