@@ -130,7 +130,7 @@ export function AccountGroupList({
             onChange={(state) => {
               setShowHidden(state === "on");
             }}
-            css={styles.noWrap}
+            css={styles.wholeWords}
           />
         ) : null}
         <Button
@@ -153,8 +153,10 @@ const styles = stylex.create({
   body: {
     marginBlockStart: rhythm.tight,
   },
-  noWrap: {
-    whiteSpace: "nowrap",
+  // When the row is too narrow, the label goes onto two lines. It breaks
+  // only between words, also in Chinese.
+  wholeWords: {
+    wordBreak: "keep-all",
   },
   reorder: {
     marginInlineStart: "auto",

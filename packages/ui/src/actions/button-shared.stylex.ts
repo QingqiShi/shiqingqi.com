@@ -80,15 +80,18 @@ export const sharedStyles = stylex.create({
   },
   // With no label to pad, the button is a square of its own height, so a row
   // of icon-only buttons reads as one size rather than as narrow pills. The
-  // height is fixed too, so a stretching container cannot pull it tall.
+  // height is fixed too, so a stretching container cannot pull it tall. A row
+  // must not make it narrow, because then it is smaller than the tap size.
   iconOnly: {
     inlineSize: buttonTokens.height,
     blockSize: buttonTokens.height,
+    flexShrink: 0,
     paddingInlineStart: 0,
     paddingInlineEnd: 0,
   },
   iconOnlyBelowMd: {
     inlineSize: { default: buttonTokens.height, [breakpoints.md]: "auto" },
+    flexShrink: { default: 0, [breakpoints.md]: 1 },
     blockSize: { default: buttonTokens.height, [breakpoints.md]: "auto" },
     paddingInlineStart: { default: 0, [breakpoints.md]: controlSize._2 },
     paddingInlineEnd: {
