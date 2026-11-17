@@ -1,0 +1,47 @@
+name: Wait for a build artifact
+description: >-
+  Waits until a job of this run has uploaded an artifact, and fails when that
+  job fails. A job that uses it can start together with the build job, and
+  needs the `actions: read` permission.
+inputs:
+  artifact:
+    description: The name of the artifact.
+    required: true
+  job:
+    description: The name of the job that uploads the artifact.
+    required: true
+runs:
+  using: composite
+  steps:
+    # Artifacts v4 are downloadable via the API the instant the upload finishes,
+    # mid-run. Uses curl + node rather than `gh` because the Playwright
+    # container image does not ship the GitHub CLI.
+    - name: Wait for the artifact
+      # The container's default shell is `sh` (dash), which rejects
+      # `set -o pipefail`; force bash, which the Playwright image ships.
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        RUN_URL: ${{ github.api_url }}/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        ARTIFACT: ${{ inputs.artifact }}
+        BUILD_JOB: ${{ inputs.job }}
+      run: |
+        set -euo pipefail
+        auth="Authorization: Bearer $GH_TOKEN"
+        accept="Accept: application/vnd.github+json"
+        for _ in $(seq 1 60); do
+          if curl -sf -H "$auth" -H "$accept" "$RUN_URL/artifacts" \
+               | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8"));process.exit((d.artifacts||[]).some((a)=>a.name===process.env.ARTIFACT)?0:1)'; then
+            echo "Build artifact is ready."
+            exit 0
+          fi
+          conclusion=$(curl -sf -H "$auth" -H "$accept" "$RUN_URL/jobs?per_page=100" \
+               | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8"));const b=(d.jobs||[]).find((j)=>j.name===process.env.BUILD_JOB);process.stdout.write((b&&b.conclusion)||"")' || true)
+          if [ "$conclusion" = "failure" ] || [ "$conclusion" = "cancelled" ]; then
+            echo "Job $BUILD_JOB $conclusion — aborting." >&2
+            exit 1
+          fi
+          sleep 5
+        done
+        echo "Timed out waiting for the build artifact." >&2
+        exit 1

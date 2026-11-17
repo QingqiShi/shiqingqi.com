@@ -139,39 +139,13 @@ jobs:
           cache: "pnpm"
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      # Wait for the build job to publish the web-build artifact. Artifacts v4 are
-      # downloadable via the API the instant the upload finishes — mid-run — so we
-      # poll for it here rather than gating the whole job on `needs: [build]`. Bail
-      # out early if the build job fails so a broken build fails fast instead of
-      # hanging until the timeout. Uses curl + node rather than `gh` because the
-      # Playwright container image does not ship the GitHub CLI.
+      # Poll for the web-build artifact here rather than gating the whole job on
+      # `needs: [build]`. A broken build fails the shard fast.
       - name: Wait for prebuilt web app
-        # The container's default shell is `sh` (dash), which rejects
-        # `set -o pipefail`; force bash, which the Playwright image ships.
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          run="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          auth="Authorization: Bearer $GH_TOKEN"
-          accept="Accept: application/vnd.github+json"
-          for _ in $(seq 1 60); do
-            if curl -sf -H "$auth" -H "$accept" "$run/artifacts" \
-                 | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8"));process.exit((d.artifacts||[]).some((a)=>a.name==="web-build")?0:1)'; then
-              echo "Build artifact is ready."
-              exit 0
-            fi
-            conclusion=$(curl -sf -H "$auth" -H "$accept" "$run/jobs" \
-                 | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8"));const b=(d.jobs||[]).find((j)=>j.name==="build");process.stdout.write((b&&b.conclusion)||"")' || true)
-            if [ "$conclusion" = "failure" ] || [ "$conclusion" = "cancelled" ]; then
-              echo "Build job $conclusion — aborting shard." >&2
-              exit 1
-            fi
-            sleep 5
-          done
-          echo "Timed out waiting for the build artifact." >&2
-          exit 1
+        uses: ./.github/actions/wait-for-build
+        with:
+          artifact: web-build
+          job: build
       - name: Download prebuilt web app
         uses: actions/download-artifact@v8
         with:
@@ -197,11 +171,15 @@ jobs:
   # Linux, where WebKit follows Chromium in the rules that these specs are for,
   # such as which element a press focuses: there a spec passes with the fault.
   # The build output from Linux is JavaScript, so this job serves it as it is.
+  # As `test` does, it starts together with the build: the wait for a macOS
+  # runner and the setup then overlap the build.
   webkit-macos:
-    needs: [changes, build]
+    needs: [changes]
     if: ${{ needs.changes.outputs.web != 'false' }}
     permissions:
       contents: read
+      # Needed to poll the run's artifacts/jobs API while waiting for the build.
+      actions: read
     runs-on: macos-latest
     timeout-minutes: 20
     steps:
@@ -216,6 +194,11 @@ jobs:
       - name: Install WebKit
         working-directory: apps/web
         run: pnpm exec playwright install webkit
+      - name: Wait for prebuilt web app
+        uses: ./.github/actions/wait-for-build
+        with:
+          artifact: web-build
+          job: build
       - name: Download prebuilt web app
         uses: actions/download-artifact@v8
         with:
@@ -350,30 +333,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Wait for prebuilt finance app
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          run="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          auth="Authorization: Bearer $GH_TOKEN"
-          accept="Accept: application/vnd.github+json"
-          for _ in $(seq 1 60); do
-            if curl -sf -H "$auth" -H "$accept" "$run/artifacts" \
-                 | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8"));process.exit((d.artifacts||[]).some((a)=>a.name==="finance-build")?0:1)'; then
-              echo "Build artifact is ready."
-              exit 0
-            fi
-            conclusion=$(curl -sf -H "$auth" -H "$accept" "$run/jobs" \
-                 | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8"));const b=(d.jobs||[]).find((j)=>j.name==="finance-build");process.stdout.write((b&&b.conclusion)||"")' || true)
-            if [ "$conclusion" = "failure" ] || [ "$conclusion" = "cancelled" ]; then
-              echo "Build job $conclusion — aborting shard." >&2
-              exit 1
-            fi
-            sleep 5
-          done
-          echo "Timed out waiting for the build artifact." >&2
-          exit 1
+        uses: ./.github/actions/wait-for-build
+        with:
+          artifact: finance-build
+          job: finance-build
       - name: Download prebuilt finance app
         uses: actions/download-artifact@v8
         with:
