@@ -91,7 +91,7 @@ describe("readMailView", () => {
     expect(mail.log.logins).toBe(0);
   });
 
-  it("marks the account for a new connect when the server refuses the login", async () => {
+  it("records nothing on the account when the server refuses the login", async () => {
     const refusing = createFakeMailServer({
       user: "me@icloud.com",
       password: "a-new-password",
@@ -105,11 +105,14 @@ describe("readMailView", () => {
       Promise.resolve(null),
     );
 
-    expect(result?.kind).toBe("reconnect");
+    expect(result?.kind).toBe("unavailable");
     const [account] = await db
-      .select({ status: mailAccounts.status })
+      .select({
+        status: mailAccounts.status,
+        lastErrorCode: mailAccounts.lastErrorCode,
+      })
       .from(mailAccounts)
       .where(eq(mailAccounts.id, accountId));
-    expect(account.status).toBe("reconnect");
+    expect(account).toEqual({ status: "ok", lastErrorCode: null });
   });
 });

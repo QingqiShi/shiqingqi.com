@@ -13,6 +13,7 @@ import type { AssistantDb } from "#src/assistant/db/types.ts";
 import { recordAccountError } from "#src/assistant/mail/accounts/check-account.ts";
 import {
   describeSyncError,
+  RECONNECT_CODES,
   type SyncErrorCode,
 } from "#src/assistant/mail/accounts/describe-sync-error.ts";
 import {
@@ -240,20 +241,31 @@ export async function undoAgentActions(
   }
 
   /**
-   * Refuses after a failed login: try later, or connect again. A login that
-   * only a new connect can fix goes on the account, as a run puts it, so that
-   * Mailboxes offers the connect that the refusal asks for.
+   * Refuses after a failed login: try later, or connect again. A refused
+   * login goes on the account, as a run puts it, and asks for a new connect
+   * when the account then waits for one, so that Mailboxes offers it.
    */
   async function refuseLogin(
     error: unknown,
     account: { id: string; address: string },
   ): Promise<never> {
     const { status, code } = describeSyncError(error);
-    if (status !== "reconnect") {
-      throw new Refused("login-failed", { address: account.address });
+    if (status === "reconnect" || code === "password_refused") {
+      const recorded = await recordAccountError(
+        db,
+        userId,
+        account.id,
+        error,
+        now(),
+      );
+      if (RECONNECT_CODES.has(recorded)) {
+        throw new Refused("login-refused", {
+          address: account.address,
+          code: recorded,
+        });
+      }
     }
-    await recordAccountError(db, userId, account.id, error, now());
-    throw new Refused("login-refused", { address: account.address, code });
+    throw new Refused("login-failed", { address: account.address });
   }
 
   function mailboxOf(accountId: string | null) {

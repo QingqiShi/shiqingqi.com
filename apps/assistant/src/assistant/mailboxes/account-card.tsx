@@ -54,6 +54,10 @@ function ErrorText({ code }: { code: string }) {
       en: "The provider did not renew access. The next run tries again.",
       zh: "服务商没有续期授权，下次运行会再试。",
     }),
+    password_refused: t({
+      en: "The mail server refused the login. The next run tries again; after two hours of refusals, you will be asked to connect again.",
+      zh: "邮件服务器拒绝了登录。下次运行会再试；如果连续两小时都被拒绝，会请你重新连接。",
+    }),
     session_refused: t({
       en: "The mail server turned the assistant away for now, though access is still valid. The next run tries again.",
       zh: "授权仍然有效，但邮件服务器暂时拒绝了连接，下次运行会再试。",

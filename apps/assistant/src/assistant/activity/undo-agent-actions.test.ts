@@ -311,7 +311,7 @@ describe("undoing what an agent did", () => {
     expect((await actionsOf(runId))[0].undoneAt).toBeNull();
   });
 
-  it("names the mailbox that refuses the login, so the owner can connect it again", async () => {
+  it("asks to try later after a refused login, and to connect again once the mailbox waits for a new connect", async () => {
     deliver("INBOX", "Council tax");
     const { runId, call } = await startRun();
     const ids = await idsIn(call, "INBOX");
@@ -324,14 +324,30 @@ describe("undoing what an agent did", () => {
       user: "me@icloud.com",
       password: "new-password",
     });
-
-    expect(
-      await undoAgentActions(
+    const undoWithChangedPassword = () =>
+      undoAgentActions(
         { db, userId, now: nextInstant },
         { ...deps(), connector: changedPassword.connector },
         { runId },
-      ),
-    ).toEqual([
+      );
+
+    expect(await undoWithChangedPassword()).toEqual([
+      expect.objectContaining({
+        undone: false,
+        refusal: "login-failed",
+        address: "me@icloud.com",
+      }),
+    ]);
+    expect((await db.select().from(mailAccounts))[0]).toMatchObject({
+      status: "error",
+      lastErrorCode: "password_refused",
+    });
+
+    // The crons set this after two hours of refusals.
+    await db
+      .update(mailAccounts)
+      .set({ status: "reconnect", lastErrorCode: "login_refused" });
+    expect(await undoWithChangedPassword()).toEqual([
       expect.objectContaining({
         undone: false,
         refusal: "login-refused",

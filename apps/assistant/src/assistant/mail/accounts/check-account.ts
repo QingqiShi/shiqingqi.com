@@ -16,10 +16,47 @@ import { ownAccount } from "./own-account.ts";
 export const SESSION_REFUSED_LIMIT_MS = 24 * 60 * 60 * 1000;
 
 /**
+ * How long a server may refuse the stored password before the account asks
+ * for a new connect: four or five runs of the organise cron. It is short,
+ * because many bad logins can make a provider lock the account.
+ */
+export const PASSWORD_REFUSED_LIMIT_MS = 2 * 60 * 60 * 1000;
+
+/**
+ * When a refusal that can pass has lasted too long, and the time that
+ * `last_error_at` keeps while it has not. Both read the row before the update.
+ */
+function refusalLimit(code: SyncErrorCode, now: Date) {
+  const at = sql`${now.toISOString()}::timestamptz`;
+  if (code === "session_refused") {
+    const limit = new Date(now.getTime() - SESSION_REFUSED_LIMIT_MS);
+    return {
+      overLimit: sql`coalesce(${mailAccounts.lastSyncedAt}, ${mailAccounts.createdAt}) < ${limit.toISOString()}::timestamptz`,
+      since: at,
+    };
+  }
+  if (code === "password_refused") {
+    const limit = new Date(now.getTime() - PASSWORD_REFUSED_LIMIT_MS);
+    const since = sql`case when ${mailAccounts.lastErrorCode} = 'password_refused' then coalesce(${mailAccounts.lastErrorAt}, ${at}) else ${at} end`;
+    return {
+      overLimit: sql`(${mailAccounts.status} = 'reconnect' or ${since} <= ${limit.toISOString()}::timestamptz)`,
+      since,
+    };
+  }
+  return null;
+}
+
+/**
  * Records a failed login or run on the account; `reconnect` stops the crons
- * until the user connects again. A `session_refused` account that has not
- * opened for `SESSION_REFUSED_LIMIT_MS` becomes `login_refused`: the refusal
- * is not a passing one, and the connect flow shows the server's answer at once.
+ * until the user connects again. A refusal can pass, so it keeps the account
+ * in `error` and becomes `login_refused` only after its limit: a
+ * `session_refused` account that has not opened for
+ * `SESSION_REFUSED_LIMIT_MS`, or a `password_refused` one whose password the
+ * server has refused, with no other result between, since
+ * `PASSWORD_REFUSED_LIMIT_MS` ago. While a password is refused,
+ * `last_error_at` keeps the first refusal. An account that waits for a new
+ * connect stays so when its password is refused again. The connect flow
+ * tries the typed password itself and shows a refusal at once.
  */
 export async function recordAccountError(
   db: AssistantDb,
@@ -29,16 +66,16 @@ export async function recordAccountError(
   now: Date,
 ): Promise<SyncErrorCode> {
   const described = describeSyncError(error);
-  if (described.code === "session_refused") {
-    const limit = new Date(now.getTime() - SESSION_REFUSED_LIMIT_MS);
-    const overLimit = sql`coalesce(${mailAccounts.lastSyncedAt}, ${mailAccounts.createdAt}) < ${limit.toISOString()}::timestamptz`;
+  const limit = refusalLimit(described.code, now);
+  if (limit) {
+    const { overLimit, since } = limit;
     const rows = await db
       .update(mailAccounts)
       .set({
         status: sql`case when ${overLimit} then 'reconnect' else 'error' end`,
-        lastErrorCode: sql`case when ${overLimit} then 'login_refused' else 'session_refused' end`,
+        lastErrorCode: sql`case when ${overLimit} then 'login_refused' else ${described.code} end`,
         lastErrorMessage: described.message,
-        lastErrorAt: now,
+        lastErrorAt: sql`case when ${overLimit} then ${now.toISOString()}::timestamptz else ${since} end`,
       })
       .where(ownAccount(userId, accountId))
       .returning({ code: mailAccounts.lastErrorCode });
