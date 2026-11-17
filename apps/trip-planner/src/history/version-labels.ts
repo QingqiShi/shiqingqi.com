@@ -17,6 +17,7 @@ export interface VersionWords {
   made: string;
   oldest: string;
   none: string;
+  restored: string;
   trip: string;
   day: string;
   dayAdded: string;
@@ -103,6 +104,13 @@ export function versionLabels(words: VersionWords, locale: SupportedLocale) {
       if (author === "member") return words.member;
       return null;
     },
+
+    /** "Restored the version of 17 Nov, 14:05": the line of a version that put an older one back. */
+    restored: (from: TripVersion, timeZone: string, now: Date) =>
+      words.restored.replace(
+        "{date}",
+        savedAtLabel(from.savedAt, timeZone, locale, now),
+      ),
 
     /** The line of the oldest version, which has no version before it. */
     first: (version: TripVersion) =>

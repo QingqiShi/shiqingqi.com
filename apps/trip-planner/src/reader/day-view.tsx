@@ -30,7 +30,7 @@ export function DayView({
   liveWeather,
   onOpenDay,
 }: {
-  tripId: string;
+  tripId: string | null;
   trip: Trip;
   day: Day;
   liveWeather: LiveWeather | undefined;

@@ -19,6 +19,7 @@ import { useDayNumber } from "#src/reader/use-day-number.ts";
 import { useTripHash } from "#src/reader/use-trip-location.ts";
 import { TripSkeleton } from "./trip-skeleton.tsx";
 import type { TripSummary } from "./trip-summary.ts";
+import { useOnReturn } from "./use-on-return.ts";
 
 function TripLink({ trip, current }: { trip: TripSummary; current: boolean }) {
   const locale = useLocale();
@@ -92,6 +93,9 @@ export function TripsFrame({
   const segments = useSelectedLayoutSegments();
   const [segment, page, version] = segments;
   const hash = useTripHash();
+  useOnReturn(() => {
+    router.refresh();
+  });
   const open = trips.find((trip) => trip.id === segment) ?? null;
   const listHref = getLocalePath("/", locale);
   const listLabel = t({ en: "Trips", zh: "行程" });

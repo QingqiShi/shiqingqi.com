@@ -55,7 +55,11 @@ export function TripPage({
   actions,
   editHref,
 }: {
-  tripId: string;
+  /**
+   * The trip whose checklist ticks stay on this device. A past version has
+   * none: it shows its lists with no ticks, and keeps none.
+   */
+  tripId: string | null;
   trip: Trip;
   /** The edit screen of the trip, for a viewer who can change it. */
   editHref?: string;

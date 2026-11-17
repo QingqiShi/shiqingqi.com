@@ -1,6 +1,7 @@
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
+import { RouterLink } from "@tuja/next-links/router-link";
 import { Badge } from "@tuja/ui/components/badge";
 import { Callout } from "@tuja/ui/components/callout";
 import { List } from "@tuja/ui/components/list";
@@ -8,6 +9,7 @@ import { ListRow } from "@tuja/ui/components/list-row";
 import { PageHeader } from "@tuja/ui/components/page-header";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Trip } from "#src/trips/types.ts";
+import { restoredFrom } from "./restored-from.ts";
 import { summarizeChange } from "./summarize-change.ts";
 import type { TripVersion } from "./trip-history.ts";
 import { versionLabels, type VersionWords } from "./version-labels.ts";
@@ -35,7 +37,11 @@ export function VersionList({
     member: t({ en: "Another member", zh: "其他成员" }),
     made: t({ en: "Trip made", zh: "创建行程" }),
     oldest: t({ en: "Oldest version kept", zh: "保留的最早版本" }),
-    none: t({ en: "No changes", zh: "没有改动" }),
+    none: t({ en: "Same as the version before", zh: "与上一个版本相同" }),
+    restored: t({
+      en: "Restored the version of {date}",
+      zh: "恢复了 {date} 的版本",
+    }),
     trip: t({ en: "Trip details", zh: "行程信息" }),
     day: t({ en: "Day {n}", zh: "第 {n} 天" }),
     dayAdded: t({ en: "{day} added", zh: "新增{day}" }),
@@ -51,7 +57,11 @@ export function VersionList({
   const labels = versionLabels(words, locale);
   const current = t({ en: "Current", zh: "当前" });
 
+  const restores = restoredFrom(versions);
+
   const changeOf = (version: TripVersion, older: TripVersion | undefined) => {
+    const from = restores.get(version.revision);
+    if (from) return labels.restored(from, trip.timeZone, now);
     if (!older) return labels.first(version);
     if (!version.trip || !older.trip) return null;
     return labels.change(summarizeChange(older.trip, version.trip));
@@ -60,7 +70,6 @@ export function VersionList({
   return (
     <div css={stack.group}>
       <PageHeader
-        eyebrow={<span lang={trip.language}>{trip.title}</span>}
         title={t({ en: "History", zh: "历史版本" })}
         description={t({
           en: "Each saved version of the trip, newest first. Times are in the trip’s time zone, {zone}.",
@@ -83,6 +92,7 @@ export function VersionList({
               `/${tripId}/history/${String(version.revision)}`,
               locale,
             )}
+            linkComponent={RouterLink}
             wrap
             value={labels.savedAt(version.savedAt, trip.timeZone, now)}
             detail={[

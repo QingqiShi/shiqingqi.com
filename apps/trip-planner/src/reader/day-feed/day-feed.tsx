@@ -23,7 +23,7 @@ function MomentSection({
   tripId,
 }: {
   moment: DayMoment;
-  tripId: string;
+  tripId: string | null;
 }) {
   const timeLabel = useTimeLabel();
   return (
@@ -75,7 +75,7 @@ function MomentSection({
  * The day in time order: each moment with its flights, lists, routes, places
  * to eat and go, and heads-ups.
  */
-export function DayFeed({ tripId, day }: { tripId: string; day: Day }) {
+export function DayFeed({ tripId, day }: { tripId: string | null; day: Day }) {
   const moments = buildDayFeed(day);
 
   return (
