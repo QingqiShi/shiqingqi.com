@@ -43,8 +43,31 @@ const nameOf = (trip: Trip) => {
   return item && "name" in item ? item.name : null;
 };
 
+/**
+ * A server that makes digests in a different way than the editor does, as
+ * after a deploy that changes them: it knows a digest only with a mark in
+ * front, and its answers carry digests with that mark.
+ */
+function applyWithOtherDigests(trip: Trip, ops: readonly Op[]) {
+  const result = applyOps(
+    trip,
+    ops.map((op) =>
+      "expect" in op
+        ? {
+            ...op,
+            expect: op.expect.startsWith("new:") ? op.expect.slice(4) : "-",
+          }
+        : op,
+    ),
+  );
+  return result.status === "conflict" && result.expect !== null
+    ? { ...result, expect: `new:${result.expect}` }
+    : result;
+}
+
 /** A server that applies each batch with the real `applyOps`, and answers when the test lets it. */
-function setup() {
+function setup(options: { hasOtherDigests?: boolean } = {}) {
+  const apply = options.hasOtherDigests ? applyWithOtherDigests : applyOps;
   const sent: (readonly Op[])[] = [];
   const server = { trip: start, sent };
   const gates: (() => void)[] = [];
@@ -61,7 +84,7 @@ function setup() {
       const fails = failures > 0;
       if (fails) failures--;
       if (fails && !landsBeforeFailure) throw new Error("offline");
-      const result = applyOps(server.trip, ops);
+      const result = apply(server.trip, ops);
       if (result.status === "applied") server.trip = result.trip;
       if (fails) throw new Error("the answer was lost");
       return (
@@ -219,6 +242,22 @@ describe("the save queue", () => {
       note: "Their note",
     });
     expect(queue.getState().problem).toBeNull();
+  });
+
+  it("sends the person's change with the digest of the server's answer, so a server with other digests takes it", async () => {
+    const { queue, server, answer } = setup({ hasOtherDigests: true });
+    queue.submit([rename("My castle")]);
+    await answer();
+    expect(queue.getState().problem).toMatchObject({
+      kind: "conflict",
+      canKeepMine: true,
+    });
+
+    queue.keepMine();
+    await answer();
+    expect(nameOf(server.trip)).toBe("My castle");
+    expect(queue.getState().problem).toBeNull();
+    expect(queue.getState().pending).toHaveLength(0);
   });
 
   it("offers only their version when the thing is gone, and drops the changes that need it", async () => {

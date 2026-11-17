@@ -7,31 +7,34 @@ import { invertOps } from "#src/trips/ops/invert-ops.ts";
 import type { Op } from "#src/trips/ops/op-schema.ts";
 import type { Trip } from "#src/trips/types.ts";
 import type { ChangeResult } from "#src/trips/write-trips.ts";
+import {
+  goesWithTheirs,
+  touchedIds,
+  withUndos,
+  type Batch,
+} from "./goes-with-theirs.ts";
+import { hasLanded } from "./has-landed.ts";
 
-/** One change that a person made: a batch of ops that applies whole. */
-export interface Batch {
-  id: number;
-  ops: readonly DraftOp[];
-  /**
-   * The ops as they go to the server. Each `expect` is from the trip that
-   * the person saw when they made the change, so the server can tell when
-   * someone else changed the same thing since.
-   */
-  sent: readonly Op[];
-  /** The ids of the days, moments and items that the batch changes, and `trip` for the trip's own fields. */
-  touches: readonly string[];
-  /** The id of the batch that this one takes back, when it is an undo. */
-  undoes?: number;
-}
+export type { Batch };
 
 export type Problem =
   /** The request failed, so the change is not saved. Sending it again is safe. */
   | { kind: "failed"; batch: Batch }
   /**
    * Someone else changed the same thing. `theirs` is the trip as the server
-   * has it. `canKeepMine` is false when the thing is gone.
+   * has it. `canKeepMine` is false when the thing is gone. `index` is the
+   * op of the batch that the server did not take, and `expect` is the
+   * digest that the server has for the thing of that op, or null when the
+   * thing is gone.
    */
-  | { kind: "conflict"; batch: Batch; theirs: Trip; canKeepMine: boolean };
+  | {
+      kind: "conflict";
+      batch: Batch;
+      theirs: Trip;
+      canKeepMine: boolean;
+      index: number;
+      expect: string | null;
+    };
 
 export interface QueueState {
   /** The trip with each change of the queue applied: what the screen shows. */
@@ -227,7 +230,7 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
         await refresh();
         break;
       case "conflict":
-        await conflict(head, result.expect !== null);
+        await conflict(head, result.index, result.expect);
         break;
       case undefined:
         break;
@@ -255,7 +258,7 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
     }
   }
 
-  async function conflict(head: Batch, canKeepMine: boolean) {
+  async function conflict(head: Batch, index: number, expect: string | null) {
     let theirs: Trip | null;
     try {
       theirs = await read();
@@ -267,7 +270,14 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
       gone();
       return;
     }
-    problem = { kind: "conflict", batch: head, theirs, canKeepMine };
+    problem = {
+      kind: "conflict",
+      batch: head,
+      theirs,
+      canKeepMine: expect !== null,
+      index,
+      expect,
+    };
   }
 
   /**
@@ -443,9 +453,23 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
     retry,
     keepTheirs,
     keepMine() {
-      if (problem?.kind !== "conflict" || !problem.canKeepMine) return;
+      if (problem?.kind !== "conflict" || problem.expect === null) return;
+      const { batch, index, expect } = problem;
       base = problem.theirs;
-      expectTheirs(new Set(problem.batch.touches));
+      expectTheirs(new Set(batch.touches));
+      // The op that the server did not take goes with the digest of the
+      // server's answer. A server that makes digests in a different way
+      // than this editor does then takes the op all the same.
+      pending = pending.map((each) =>
+        each.id === batch.id
+          ? {
+              ...each,
+              sent: each.sent.map((op, at) =>
+                at === index && "expect" in op ? { ...op, expect } : op,
+              ),
+            }
+          : each,
+      );
       problem = null;
       resume();
     },
@@ -466,113 +490,4 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
       });
     },
   };
-}
-
-/** The ids of batches, with the id of each batch of `pending` that takes one of them back. */
-function withUndos(pending: readonly Batch[], ids: readonly number[]) {
-  const all = new Set(ids);
-  // An undo waits behind the batch that it takes back, so one pass finds it.
-  for (const batch of pending) {
-    if (batch.undoes !== undefined && all.has(batch.undoes)) all.add(batch.id);
-  }
-  return all;
-}
-
-/**
- * The batches that go when the person keeps the other version in a conflict
- * on the first batch of `pending`: that batch, each later batch that does
- * not apply to the other version as the person made it, and the undo of
- * each. The person made each of them on the version that they give up, and
- * the server would answer it as it answered the first. A batch goes whole,
- * because its ops can depend on each other.
- */
-export function goesWithTheirs(
-  theirs: Trip,
-  pending: readonly Batch[],
-): Batch[] {
-  const gone = new Set(pending.slice(0, 1).map((batch) => batch.id));
-  let trip = theirs;
-  for (const batch of pending.slice(1)) {
-    const result =
-      batch.undoes !== undefined && gone.has(batch.undoes)
-        ? null
-        : applyOps(trip, batch.sent);
-    if (result?.status === "applied") trip = result.trip;
-    else gone.add(batch.id);
-  }
-  return pending.filter((batch) => gone.has(batch.id));
-}
-
-/**
- * Whether the newest trip holds what a batch makes: each thing that the
- * batch adds, changes or removes is in `newest` as it is in `expected`. A
- * move is not looked at, because a move that goes again does no harm.
- */
-function hasLanded(ops: readonly DraftOp[], expected: Trip, newest: Trip) {
-  const probes = ops.map(probeOf).filter((probe) => probe !== null);
-  return (
-    probes.length > 0 &&
-    probes.every(
-      (probe) => thingDigest(expected, probe) === thingDigest(newest, probe),
-    )
-  );
-}
-
-/** An op whose `expect` is the digest of the thing that `op` makes or changes. */
-function probeOf(op: DraftOp): DraftOp | null {
-  switch (op.op) {
-    case "addDay":
-      return { op: "removeDay", id: op.id };
-    case "addMoment":
-      return { op: "removeMoment", id: op.moment.id };
-    case "addItem":
-      return { op: "removeItem", id: op.item.id };
-    case "moveDay":
-    case "moveMoment":
-    case "moveItem":
-      return null;
-    default:
-      return op;
-  }
-}
-
-function thingDigest(trip: Trip, probe: DraftOp) {
-  const [stamped] = withExpect(trip, [probe]);
-  return "expect" in stamped ? stamped.expect : undefined;
-}
-
-/** The ids of the things that a batch changes, for the state on their rows. */
-function touchedIds(ops: readonly DraftOp[]): string[] {
-  const ids = new Set<string>();
-  for (const op of ops) {
-    switch (op.op) {
-      case "setTrip":
-      case "setFirstDate":
-        ids.add("trip");
-        break;
-      case "setStay":
-      case "setPresence":
-        ids.add(op.dayId);
-        break;
-      case "addMoment":
-        ids.add(op.moment.id);
-        break;
-      case "addItem":
-        ids.add(op.item.id);
-        break;
-      case "addDay":
-      case "removeDay":
-      case "moveDay":
-      case "setDay":
-      case "setMoment":
-      case "moveMoment":
-      case "removeMoment":
-      case "setItem":
-      case "moveItem":
-      case "removeItem":
-        ids.add(op.id);
-        break;
-    }
-  }
-  return [...ids];
 }

@@ -3,6 +3,7 @@ import sample from "../sample-trip.json";
 import { tripSchema } from "../trip-schema.ts";
 import type { Trip } from "../types.ts";
 import { applyOps, withExpect, type DraftOp } from "./apply-ops.ts";
+import { digest } from "./digest.ts";
 import { newTrip } from "./new-trip.ts";
 import type { ItemPatch } from "./op-schema.ts";
 
@@ -367,5 +368,69 @@ describe("a batch", () => {
       current: null,
       expect: null,
     });
+  });
+
+  it("refuses a remove or a move of a thing that someone else put in a different place, but not one whose neighbour moved", () => {
+    const remove = withExpect(lisbon, [{ op: "removeItem", id: "p0lx" }]);
+    const move = withExpect(lisbon, [
+      {
+        op: "moveItem",
+        id: "p0lx",
+        to: { dayId: "day2sample", list: "places" },
+      },
+    ]);
+    const itemMoved = applied(lisbon, [
+      {
+        op: "moveItem",
+        id: "p0lx",
+        to: { dayId: "day1sample", list: "places" },
+      },
+    ]);
+    expect(applyOps(itemMoved, remove).status).toBe("conflict");
+    expect(applyOps(itemMoved, move).status).toBe("conflict");
+
+    const removeMoment = withExpect(lisbon, [
+      { op: "removeMoment", id: "m1backup" },
+    ]);
+    const momentMoved = applied(lisbon, [
+      { op: "moveMoment", id: "m1backup", dayId: "day2sample" },
+    ]);
+    expect(applyOps(momentMoved, removeMoment).status).toBe("conflict");
+
+    // The castle and the view are in one moment. The castle goes last.
+    const removeView = withExpect(lisbon, [{ op: "removeItem", id: "i0view" }]);
+    const neighbourMoved = applied(lisbon, [
+      { op: "moveItem", id: "i0castle", to: { momentId: "m0afternoon" } },
+    ]);
+    expect(applyOps(neighbourMoved, removeView).status).toBe("applied");
+  });
+
+  it("refuses the removal of a day on which someone else marked a person present", () => {
+    const added = applied(lisbon, [{ op: "addDay", id: "restday" }]);
+    const remove = withExpect(added, [{ op: "removeDay", id: "restday" }]);
+    const marked = applied(added, [
+      {
+        op: "setPresence",
+        dayId: "restday",
+        personId: "ana",
+        presence: "present",
+      },
+    ]);
+    expect(applyOps(marked, remove).status).toBe("conflict");
+    expect(applyOps(added, remove).status).toBe("applied");
+  });
+
+  it("takes the digest of an editor that was open before a move or a remove covered the place", () => {
+    const castle = lisbon.days[0].moments
+      .flatMap((moment) => moment.items)
+      .find((item) => item.id === "i0castle");
+    const older = [
+      { op: "removeItem", id: "i0castle", expect: digest(castle) },
+    ] as const;
+    expect(applyOps(lisbon, older).status).toBe("applied");
+    const changed = applied(lisbon, [
+      { op: "setItem", id: "i0castle", fields: { note: "Closed on Mondays" } },
+    ]);
+    expect(applyOps(changed, older).status).toBe("conflict");
   });
 });
