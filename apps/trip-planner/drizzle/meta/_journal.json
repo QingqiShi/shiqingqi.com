@@ -57,6 +57,13 @@
       "when": 1794929221987,
       "tag": "0007_ai_runs",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794932910148,
+      "tag": "0008_trip_restore",
+      "breakpoints": true
     }
   ]
 }

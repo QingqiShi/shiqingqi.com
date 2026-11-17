@@ -14,7 +14,7 @@ import {
   takeItem,
   withQuery,
 } from "./find-item.ts";
-import { opSchema, type Op } from "./op-schema.ts";
+import { opSchema, type DraftOp, type Op } from "./op-schema.ts";
 import { issueText, Refusal } from "./refusal.ts";
 
 export type ApplyResult =
@@ -33,11 +33,7 @@ export type ApplyResult =
   /** The op at `index` cannot apply, or makes a trip that is not valid. */
   | { status: "refused"; index: number; reason: string };
 
-type DistributiveOmit<T, K extends PropertyKey> = T extends unknown
-  ? Omit<T, K>
-  : never;
-/** An op as the sender makes it, before `withExpect` adds what it saw. */
-export type DraftOp = DistributiveOmit<Op, "expect">;
+export type { DraftOp };
 
 type AddOp = Extract<DraftOp, { op: "addDay" | "addMoment" | "addItem" }>;
 
@@ -249,8 +245,7 @@ function applyOne(trip: Trip, op: DraftOp, touched: Set<string>) {
       return;
     }
     case "addDay": {
-      let at = op.before ? dayIndex(trip, op.before) : -1;
-      if (at < 0) at = trip.days.length;
+      const at = dayIndexBefore(trip, op.before);
       const date =
         op.date ??
         (at < trip.days.length
@@ -291,8 +286,7 @@ function applyOne(trip: Trip, op: DraftOp, touched: Set<string>) {
       const before = structuredClone(trip.days);
       const dates = trip.days.map((day) => day.date);
       const [plan] = trip.days.splice(dayIndex(trip, op.id), 1);
-      let at = op.before ? dayIndex(trip, op.before) : -1;
-      if (at < 0) at = trip.days.length;
+      const at = dayIndexBefore(trip, op.before);
       trip.days.splice(at, 0, plan);
       trip.days.forEach((day, i) => {
         day.date = dates[i];
@@ -395,6 +389,13 @@ function applyOne(trip: Trip, op: DraftOp, touched: Set<string>) {
       return;
     }
   }
+}
+
+/** Where a day goes in front of the day `before`, or last. */
+function dayIndexBefore(trip: Trip, before: string | undefined) {
+  const at = before ? dayIndex(trip, before) : -1;
+  // As in `insertBefore`: a day whose `before` is gone goes last.
+  return at < 0 ? trip.days.length : at;
 }
 
 function dayIndex(trip: Trip, id: string) {

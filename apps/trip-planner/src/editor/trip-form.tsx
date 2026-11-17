@@ -1,5 +1,6 @@
 "use client";
 
+import { ClockCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ClockCounterClockwise";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
@@ -196,9 +197,19 @@ export function TripForm({ onDone }: { onDone: () => void }) {
           {t({ en: "Save", zh: "保存" })}
         </Button>
       </SheetActions>
-      {editor.isOwner ? (
-        <>
-          <Divider />
+      <Divider />
+      <div css={stack.tight}>
+        <div>
+          <Button
+            look="ghost"
+            bleed="start"
+            icon={<ClockCounterClockwiseIcon weight="bold" />}
+            href={getLocalePath(`/${editor.tripId}/history`, locale)}
+          >
+            {t({ en: "History", zh: "历史版本" })}
+          </Button>
+        </div>
+        {editor.isOwner ? (
           <div>
             <Button
               type="button"
@@ -212,8 +223,8 @@ export function TripForm({ onDone }: { onDone: () => void }) {
               {t({ en: "Delete trip…", zh: "删除行程…" })}
             </Button>
           </div>
-        </>
-      ) : null}
+        ) : null}
+      </div>
     </form>
   );
 }

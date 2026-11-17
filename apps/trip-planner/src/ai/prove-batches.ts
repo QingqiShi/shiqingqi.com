@@ -4,7 +4,7 @@ import {
   type DraftOp,
 } from "#src/trips/ops/apply-ops.ts";
 import { findItem, findMoment } from "#src/trips/ops/find-item.ts";
-import { opSchema } from "#src/trips/ops/op-schema.ts";
+import { draftOpSchema } from "#src/trips/ops/op-schema.ts";
 import { issueText } from "#src/trips/ops/refusal.ts";
 import type { Day, Trip } from "#src/trips/types.ts";
 import type { RawBatch } from "./bind-placeholders.ts";
@@ -109,19 +109,13 @@ function strayBefore(
   return null;
 }
 
-const ADDS = new Set(["addDay", "addMoment", "addItem"]);
-
 /** The op, checked as `applyOps` checks it but with no `expect`, or why it is not an op. */
 function readOp(raw: Record<string, unknown>): DraftOp | string {
   const draft = { ...raw };
+  // The model can send an `expect`. The server adds the correct one.
   Reflect.deleteProperty(draft, "expect");
-  const parsed = opSchema.safeParse(
-    ADDS.has(String(draft.op)) ? draft : { ...draft, expect: "-" },
-  );
-  if (!parsed.success) return issueText(parsed.error);
-  const op: DraftOp = { ...parsed.data };
-  Reflect.deleteProperty(op, "expect");
-  return op;
+  const parsed = draftOpSchema.safeParse(draft);
+  return parsed.success ? parsed.data : issueText(parsed.error);
 }
 
 function namedId(op: DraftOp): string {

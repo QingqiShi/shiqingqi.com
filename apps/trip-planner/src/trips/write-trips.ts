@@ -93,7 +93,8 @@ async function remove(
   return deleted;
 }
 
-function isSerializationFailure(error: unknown): boolean {
+/** Whether a save lost to another save of the trip (40001). */
+export function isSerializationFailure(error: unknown): boolean {
   for (let cause = error; cause instanceof Error; cause = cause.cause) {
     if ("code" in cause && cause.code === "40001") return true;
   }

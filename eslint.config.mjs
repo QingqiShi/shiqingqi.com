@@ -750,7 +750,7 @@ export default defineConfig([
     rules: { "restricted/browser-typegpu": browserTypegpuRule("^\\./") },
   },
   // A trip shows only to its members. So only the reader, the one writer,
-  // the sharing of a trip and the AI routes, which run under row-level
+  // the sharing of a trip, its history and the AI routes, which run under row-level
   // security as the signed-in user, and the code that fills the database,
   // reach the trip tables.
   {
@@ -760,6 +760,7 @@ export default defineConfig([
       "apps/trip-planner/src/trips/{get-trips,read-trips,write-trips,trip-routes,import-trip,as-viewer}.ts",
       "apps/trip-planner/src/share/{trip-sharing,sharing-routes,get-sharing}.ts",
       "apps/trip-planner/src/ai/{ai-routes,log-ai-run}.ts",
+      "apps/trip-planner/src/history/{trip-history,history-routes,get-history}.ts",
       "apps/trip-planner/src/**/*.test.{ts,tsx}",
     ],
     rules: {
