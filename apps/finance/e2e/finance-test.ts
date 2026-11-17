@@ -8,6 +8,8 @@ import {
   type Page,
 } from "@playwright/test";
 import { isPortOpen } from "@tuja/dev-tools/is-port-open";
+import { readOutbox } from "@tuja/server-email/make-outbox-email-sender";
+import type { Email } from "@tuja/server-email/types";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { z } from "zod";
@@ -26,8 +28,6 @@ import {
   seedSyntheticHousehold,
   type SyntheticHousehold,
 } from "../src/finance/dev/seed/seed-synthetic-household.ts";
-import { readOutbox } from "../src/finance/email/make-outbox-email-sender.ts";
-import type { FinanceEmail } from "../src/finance/email/types.ts";
 import {
   FINANCE_E2E_DB_PORT,
   FINANCE_E2E_EMAIL_OUTBOX,
@@ -144,8 +144,8 @@ export async function signInWithPasskey(page: Page) {
 export async function emailTo(
   to: string,
   subject: string | RegExp,
-): Promise<FinanceEmail> {
-  let found: FinanceEmail | undefined;
+): Promise<Email> {
+  let found: Email | undefined;
   await expect
     .poll(
       async () => {
@@ -166,7 +166,7 @@ export async function emailTo(
 }
 
 /** The first link in `email` whose path starts with `path`. */
-export function linkIn(email: FinanceEmail, path: string): string {
+export function linkIn(email: Email, path: string): string {
   const match = new RegExp(`https?://\\S+${path}[\\w-]+`).exec(email.text);
   if (!match) throw new Error(`No ${path} link in: ${email.text}`);
   return match[0];

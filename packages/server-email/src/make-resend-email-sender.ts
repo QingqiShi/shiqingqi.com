@@ -1,4 +1,4 @@
-import type { BuddyEmailSender } from "./types.ts";
+import type { EmailSender } from "./types.ts";
 
 export function makeResendEmailSender({
   apiKey,
@@ -6,7 +6,7 @@ export function makeResendEmailSender({
 }: {
   apiKey: string;
   from: string;
-}): BuddyEmailSender {
+}): EmailSender {
   return {
     async send({ to, subject, text, html }) {
       const response = await fetch("https://api.resend.com/emails", {

@@ -1,9 +1,9 @@
 import { createSoftwareAuthenticator } from "@tuja/server-auth/testing/create-software-authenticator";
+import { readOutbox } from "@tuja/server-email/make-outbox-email-sender";
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import { members, passkeys, users } from "#src/finance/db/schema.ts";
 import { withHousehold } from "#src/finance/db/with-household.ts";
-import { readOutbox } from "../email/make-outbox-email-sender.ts";
 import type { AuthHandlerDeps } from "./make-auth-handlers.ts";
 import { revokeMemberAccess } from "./revoke-member-access.ts";
 import {

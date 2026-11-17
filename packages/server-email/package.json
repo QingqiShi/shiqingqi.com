@@ -1,0 +1,22 @@
+{
+  "name": "@tuja/server-email",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The email that the apps send: one layout, the code email of sign-up and recovery, and the senders.",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "build:tsc": "tsc --noEmit",
+    "lint": "eslint --max-warnings 0 ."
+  },
+  "dependencies": {
+    "@tuja/i18n": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@tuja/tsconfig": "workspace:*",
+    "@types/node": "catalog:"
+  }
+}

@@ -1,7 +1,7 @@
 import type { SupportedLocale } from "@tuja/i18n/types";
+import type { Email } from "@tuja/server-email/types";
 import { displayLocale } from "#src/finance/domain/dates/display-day.ts";
 import { renderFinanceEmail } from "./render-finance-email.ts";
-import type { FinanceEmail } from "./types.ts";
 
 const COPY = {
   en: {
@@ -50,7 +50,7 @@ export function buildRecoveryEmailChangedEmail({
   /** The Household's time zone, in which the email gives the time of the change. */
   timeZone: string;
   settingsUrl: string;
-}): FinanceEmail {
+}): Email {
   const copy = COPY[locale];
   const when = new Intl.DateTimeFormat(displayLocale(locale), {
     day: "numeric",

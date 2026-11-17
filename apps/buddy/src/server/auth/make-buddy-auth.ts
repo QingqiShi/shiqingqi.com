@@ -3,11 +3,11 @@ import {
   type AuthRateLimitBucket,
 } from "@tuja/server-auth/make-auth";
 import type { AuthRateLimitResult } from "@tuja/server-auth/make-auth-route-kit";
+import { makeCodeEmailBuilder } from "@tuja/server-email/make-code-email-builder";
+import type { EmailSender } from "@tuja/server-email/types";
 import { eq } from "drizzle-orm";
 import { accounts } from "../db/schema.ts";
 import type { BuddyDb } from "../db/types.ts";
-import { buildCodeEmail } from "../email/build-code-email.ts";
-import type { BuddyEmailSender } from "../email/types.ts";
 import { buddyAuthStore } from "./buddy-auth-store.ts";
 import { buddyChallengeCookie } from "./buddy-challenge-cookie.ts";
 import { buddyEmailCodeCookie } from "./buddy-email-code-cookie.ts";
@@ -33,7 +33,7 @@ export interface AuthHandlerDeps {
   ) => Promise<void>;
   clientIp: (request: Request) => string;
   /** Null when Buddy sends no email. */
-  emailSender: () => BuddyEmailSender | null;
+  emailSender: () => EmailSender | null;
   /** Runs `task` after the response is sent, so that its time does not show in the response. */
   afterResponse: (task: () => Promise<void>) => void;
 }
@@ -52,7 +52,7 @@ export const buddyAuthConfig = {
   sessionCookie: buddySessionCookie,
   challengeCookie: buddyChallengeCookie,
   emailCodeCookie: buddyEmailCodeCookie,
-  buildCodeEmail,
+  buildCodeEmail: makeCodeEmailBuilder({ en: "Buddy", zh: "搭子" }),
   isEmailRegistered: async (tx: BuddyDb, email: string) =>
     (await tx.$count(accounts, eq(accounts.email, email))) > 0,
   findRecoveryUser: async (tx: BuddyDb, email: string) => {

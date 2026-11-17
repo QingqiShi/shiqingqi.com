@@ -6,6 +6,10 @@ import type {
   PublicKeyCredentialRequestOptionsJSON,
 } from "@simplewebauthn/server";
 import { createSoftwareAuthenticator } from "@tuja/server-auth/testing/create-software-authenticator";
+import {
+  makeOutboxEmailSender,
+  readOutbox,
+} from "@tuja/server-email/make-outbox-email-sender";
 import { afterEach, beforeEach, expect, it } from "vitest";
 import {
   createTestDb,
@@ -13,10 +17,6 @@ import {
 } from "#src/finance/db/testing/create-test-db.ts";
 import { createTestHousehold } from "#src/finance/db/testing/create-test-household.ts";
 import { withHousehold } from "#src/finance/db/with-household.ts";
-import {
-  makeOutboxEmailSender,
-  readOutbox,
-} from "../../email/make-outbox-email-sender.ts";
 import { createInvite } from "../create-invite.ts";
 import { isAllowedFinanceOrigin } from "../is-allowed-finance-origin.ts";
 import {

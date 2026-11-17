@@ -45,6 +45,7 @@ module.exports = async (phase) => {
       "@tuja/pwa-runtime-caching",
       "@tuja/server-auth",
       "@tuja/server-clients",
+      "@tuja/server-email",
       "@tuja/ui",
     ],
     outputFileTracingRoot: path.resolve(__dirname, "../.."),
