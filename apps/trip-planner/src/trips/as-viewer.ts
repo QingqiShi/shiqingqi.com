@@ -1,3 +1,4 @@
+import { runTransaction } from "@tuja/server-db/run-transaction";
 import { sql } from "drizzle-orm";
 import type { TripsDb } from "#src/db/types.ts";
 
@@ -13,7 +14,7 @@ export function asViewer<T>(
   userId: string | null,
   run: (tx: Transaction) => Promise<T>,
 ): Promise<T> {
-  return db.transaction(async (tx) => {
+  return runTransaction(db, async (tx) => {
     await tx.execute(
       sql`select set_config('role', 'trips_app', true), set_config('trips.user_id', ${userId ?? ""}, true)`,
     );

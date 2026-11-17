@@ -3,6 +3,7 @@ import {
   type AuthRateLimitBucket,
 } from "@tuja/server-auth/make-auth";
 import type { AuthRateLimitResult } from "@tuja/server-auth/make-auth-route-kit";
+import { runTransaction } from "@tuja/server-db/run-transaction";
 import { makeCodeEmailBuilder } from "@tuja/server-email/make-code-email-builder";
 import type { EmailSender } from "@tuja/server-email/types";
 import { eq } from "drizzle-orm";
@@ -45,7 +46,7 @@ export const buddyAuthConfig = {
   postBucket: "auth",
   store: buddyAuthStore,
   transaction: <T>(db: BuddyDb, run: (tx: BuddyDb) => Promise<T>) =>
-    db.transaction(run),
+    runTransaction(db, run),
   sessionCookie: buddySessionCookie,
   challengeCookie: buddyChallengeCookie,
   emailCodeCookie: buddyEmailCodeCookie,

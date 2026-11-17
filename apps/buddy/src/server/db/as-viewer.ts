@@ -1,3 +1,4 @@
+import { runTransaction } from "@tuja/server-db/run-transaction";
 import { sql } from "drizzle-orm";
 import type { BuddyDb } from "./types.ts";
 
@@ -13,7 +14,7 @@ export function asViewer<T>(
   userId: string | null,
   run: (tx: LimitedTx) => Promise<T>,
 ): Promise<T> {
-  return db.transaction(async (tx) => {
+  return runTransaction(db, async (tx) => {
     await tx.execute(
       sql`select set_config('role', 'buddy_app', true), set_config('buddy.user_id', ${userId ?? ""}, true)`,
     );

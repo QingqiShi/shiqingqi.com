@@ -443,6 +443,9 @@ importers:
       '@tuja/server-clients':
         specifier: workspace:*
         version: link:../../packages/server-clients
+      '@tuja/server-db':
+        specifier: workspace:*
+        version: link:../../packages/server-db
       '@tuja/server-email':
         specifier: workspace:*
         version: link:../../packages/server-email
@@ -850,6 +853,9 @@ importers:
       '@tuja/server-clients':
         specifier: workspace:*
         version: link:../../packages/server-clients
+      '@tuja/server-db':
+        specifier: workspace:*
+        version: link:../../packages/server-db
       '@tuja/server-email':
         specifier: workspace:*
         version: link:../../packages/server-email
@@ -1588,6 +1594,33 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.6
+      vitest:
+        specifier: 'catalog:'
+        version: 5.1.0(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.1.0)(@vitest/ui@5.1.0)(jsdom@30.1.3)(msw@3.0.3(@types/node@26.6.6)(graphql@16.14.2)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1)))(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1))
+
+  packages/server-db:
+    devDependencies:
+      '@electric-sql/pglite':
+        specifier: 0.5.16
+        version: 0.5.16
+      '@tuja/dev-tools':
+        specifier: workspace:*
+        version: link:../dev-tools
+      '@tuja/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.6.6
+      '@types/pg':
+        specifier: ^8.23.1
+        version: 8.23.1
+      drizzle-orm:
+        specifier: ^0.45.4
+        version: 0.45.4(@electric-sql/pglite@0.5.16)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
+      pg:
+        specifier: ^8.23.1
+        version: 8.23.1
       vitest:
         specifier: 'catalog:'
         version: 5.1.0(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.1.0)(@vitest/ui@5.1.0)(jsdom@30.1.3)(msw@3.0.3(@types/node@26.6.6)(graphql@16.14.2)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1)))(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1))
