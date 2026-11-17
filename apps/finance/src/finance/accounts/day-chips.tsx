@@ -2,12 +2,11 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { DateField } from "@tuja/ui/components/date-field";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
-import { TextField } from "@tuja/ui/components/text-field";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
 import { addDays } from "../domain/dates/add-days.ts";
-import { isValidDay } from "../domain/dates/to-epoch-day.ts";
 
 interface DayChipsProps {
   value: string;
@@ -46,15 +45,14 @@ export function DayChips({ value, today, onChange }: DayChipsProps) {
         }}
       />
       {picking ? (
-        <TextField
+        <DateField
           size="sm"
-          type="date"
           label={t({ en: "Day", zh: "日期" })}
           labelHidden
           value={value}
           max={today}
-          onChange={(event) => {
-            if (isValidDay(event.target.value)) onChange(event.target.value);
+          onValueChange={(day) => {
+            if (day) onChange(day);
           }}
         />
       ) : null}

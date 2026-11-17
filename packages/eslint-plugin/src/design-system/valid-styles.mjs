@@ -10,6 +10,9 @@
  * - A condition key that starts with `:is(`, `:where(` or `:not(`. The base
  *   rule's list of pseudo-classes does not have them, but StyleX compiles
  *   them. The key can be a string, or a `const` that a string initialises.
+ * - A pseudo-element of the native date and time inputs, such as
+ *   `::-webkit-calendar-picker-indicator`. The base rule's list does not
+ *   have them, but StyleX compiles them.
  *
  * All other reports of the base rule stay as they are. The rule takes the
  * options of the base rule.
@@ -27,6 +30,12 @@ const INVALID_CONDITION_MESSAGE =
   "Invalid Pseudo class or At Rule used for conditional style value";
 
 const COMPILED_SELECTOR_PREFIXES = [":is(", ":where(", ":not("];
+
+const COMPILED_PSEUDO_ELEMENTS = new Set([
+  "::-webkit-calendar-picker-indicator",
+  "::-webkit-date-and-time-value",
+  "::-webkit-datetime-edit",
+]);
 
 /**
  * @param {import("eslint").SourceCode} sourceCode
@@ -64,6 +73,12 @@ const validStyles = {
     /** @param {any} descriptor */
     function isFalseReport(descriptor) {
       const { node } = descriptor;
+      const pseudoElement = /^Unknown pseudo element "(.+)"$/.exec(
+        descriptor.message ?? "",
+      )?.[1];
+      if (pseudoElement !== undefined) {
+        return COMPILED_PSEUDO_ELEMENTS.has(pseudoElement);
+      }
       if (isStylexCall(node, "firstThatWorks")) {
         return node.arguments.every(
           (/** @type {any} */ argument) => argument.type !== "SpreadElement",

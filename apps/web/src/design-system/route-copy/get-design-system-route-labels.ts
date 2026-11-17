@@ -90,6 +90,14 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       en: "Prompt field",
       zh: "提问框",
     }),
+    "/design-system/components/date-field": t({
+      en: "Date field",
+      zh: "日期输入框",
+    }),
+    "/design-system/components/time-field": t({
+      en: "Time field",
+      zh: "时间输入框",
+    }),
     "/design-system/components/select": t({ en: "Select", zh: "下拉选择" }),
     "/design-system/components/checkbox": t({ en: "Checkbox", zh: "复选框" }),
     "/design-system/components/switch": t({ en: "Switch", zh: "开关" }),

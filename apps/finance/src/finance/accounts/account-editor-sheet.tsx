@@ -5,6 +5,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Checkbox } from "@tuja/ui/components/checkbox";
+import { DateField } from "@tuja/ui/components/date-field";
 import { Divider } from "@tuja/ui/components/divider";
 import { Heading } from "@tuja/ui/components/heading";
 import { Select } from "@tuja/ui/components/select";
@@ -372,12 +373,11 @@ function AccountEditorForm({
           />
         ) : null}
         {account && closed ? (
-          <TextField
-            type="date"
+          <DateField
             label={t({ en: "Closed on", zh: "关闭日期" })}
             value={closedOn}
-            onChange={(event) => {
-              if (event.target.value) setClosedOn(event.target.value);
+            onValueChange={(day) => {
+              if (day) setClosedOn(day);
             }}
           />
         ) : null}

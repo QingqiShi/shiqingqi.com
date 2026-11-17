@@ -3,6 +3,7 @@ import { t } from "@tuja/i18n";
 import { Card } from "@tuja/ui/components/card";
 import { CardTitle } from "@tuja/ui/components/card-title";
 import { Columns } from "@tuja/ui/components/columns";
+import { DateField } from "@tuja/ui/components/date-field";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -135,9 +136,8 @@ export function ColumnsShowcase() {
               leading="£"
               defaultValue="64.50"
             />
-            <TextField
+            <DateField
               label={t({ en: "Date", zh: "日期" })}
-              type="date"
               defaultValue="2026-11-10"
             />
           </Columns>

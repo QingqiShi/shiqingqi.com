@@ -21,4 +21,10 @@ describe("generatePropsDocs over @tuja/ui", () => {
       .map(([name]) => name);
     expect(empty).toEqual([]);
   });
+
+  it("leaves out the props that an Omit of a base removes", () => {
+    const names = result.docs.get("date-field")?.props.map(({ name }) => name);
+    expect(names).toContain("label");
+    expect(names).not.toContain("leading");
+  });
 });

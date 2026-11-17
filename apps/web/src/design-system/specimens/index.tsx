@@ -10,6 +10,7 @@ import { CardSpecimen } from "./card-specimen.tsx";
 import { CheckboxSpecimen } from "./checkbox-specimen.tsx";
 import { CodeBlockSpecimen } from "./code-block-specimen.tsx";
 import { ColumnsSpecimen } from "./columns-specimen.tsx";
+import { DateFieldSpecimen } from "./date-field-specimen.tsx";
 import { DisclosureSpecimen } from "./disclosure-specimen.tsx";
 import { DividerSpecimen } from "./divider-specimen.tsx";
 import { EmptyStateSpecimen } from "./empty-state-specimen.tsx";
@@ -47,6 +48,7 @@ import { TableSpecimen } from "./table-specimen.tsx";
 import { TextFieldSpecimen } from "./text-field-specimen.tsx";
 import { TextSpecimen } from "./text-specimen.tsx";
 import { TextareaSpecimen } from "./textarea-specimen.tsx";
+import { TimeFieldSpecimen } from "./time-field-specimen.tsx";
 
 interface ComponentSpecimen {
   element: ReactElement;
@@ -113,6 +115,8 @@ const COMPONENT_SPECIMENS: Partial<
   "/design-system/components/prompt-field": {
     element: <PromptFieldSpecimen />,
   },
+  "/design-system/components/date-field": { element: <DateFieldSpecimen /> },
+  "/design-system/components/time-field": { element: <TimeFieldSpecimen /> },
   "/design-system/components/checkbox": { element: <CheckboxSpecimen /> },
   "/design-system/components/segmented-control": {
     element: <SegmentedControlSpecimen />,

@@ -3,6 +3,7 @@
 import { t } from "@tuja/i18n";
 import { Callout } from "@tuja/ui/components/callout";
 import { Checkbox } from "@tuja/ui/components/checkbox";
+import { DateField } from "@tuja/ui/components/date-field";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Select } from "@tuja/ui/components/select";
 import { TextField } from "@tuja/ui/components/text-field";
@@ -176,29 +177,27 @@ export function RuleEditorFields({
         }}
       />
       {draft.rule === null ? (
-        <TextField
-          type="date"
+        <DateField
           label={t({ en: "Starts on", zh: "开始日期" })}
           description={t({
             en: "The first expected transaction falls on or after this day, and never before today.",
             zh: "第一笔待确认交易在这天或之后，且不早于今天。",
           })}
           value={draft.startsOn}
-          onChange={(event) => {
-            setDraft({ ...draft, startsOn: event.target.value });
+          onValueChange={(startsOn) => {
+            setDraft({ ...draft, startsOn });
           }}
         />
       ) : null}
-      <TextField
-        type="date"
+      <DateField
         label={t({ en: "Ends on", zh: "结束日期" })}
         description={t({
           en: "Leave empty to repeat with no end.",
           zh: "留空则一直重复。",
         })}
         value={draft.endsOn}
-        onChange={(event) => {
-          setDraft({ ...draft, endsOn: event.target.value });
+        onValueChange={(endsOn) => {
+          setDraft({ ...draft, endsOn });
         }}
       />
       <Checkbox

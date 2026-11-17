@@ -134,6 +134,18 @@ export const DESIGN_SYSTEM_COMPONENT_ROUTES = [
   {
     section: "components",
     category: "forms",
+    path: "/design-system/components/date-field",
+    keywords: ["date", "day", "calendar", "date picker", "input", "form"],
+  },
+  {
+    section: "components",
+    category: "forms",
+    path: "/design-system/components/time-field",
+    keywords: ["time", "clock", "hour", "time picker", "input", "form"],
+  },
+  {
+    section: "components",
+    category: "forms",
     path: "/design-system/components/select",
     lab: true,
     keywords: ["dropdown", "picker", "combobox", "options", "form"],

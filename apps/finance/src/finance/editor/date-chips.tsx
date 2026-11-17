@@ -2,17 +2,11 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
-import { fieldStyles } from "@tuja/ui/components/field-shared.stylex";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { corner, cornerTokens } from "@tuja/ui/primitives/corner.stylex";
+import { DateField } from "@tuja/ui/components/date-field";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, controlHeight, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { addDays } from "../domain/dates/add-days.ts";
-import { isValidDay } from "../domain/dates/to-epoch-day.ts";
 import { FieldLabel, type LabelMark } from "./field-label.tsx";
 
 interface DateChipsProps {
@@ -25,7 +19,6 @@ interface DateChipsProps {
 /** The date as Today · Yesterday · 2 days ago chips, with the native date input for any other day. */
 export function DateChips({ value, today, onChange, mark }: DateChipsProps) {
   const labelId = useId();
-  const inputId = useId();
   const choices = [
     { day: today, label: t({ en: "Today", zh: "今天" }) },
     { day: addDays(today, -1), label: t({ en: "Yesterday", zh: "昨天" }) },
@@ -50,25 +43,16 @@ export function DateChips({ value, today, onChange, mark }: DateChipsProps) {
             {choice.label}
           </Button>
         ))}
-        <label htmlFor={inputId} css={a11y.srOnly}>
-          {t({ en: "Pick a date", zh: "选择日期" })}
-        </label>
-        <input
-          id={inputId}
-          type="date"
+        <DateField
+          size="sm"
+          label={t({ en: "Pick a date", zh: "选择日期" })}
+          labelHidden
           value={value}
           max={addDays(today, 366)}
-          onChange={(event) => {
-            if (isValidDay(event.target.value)) onChange(event.target.value);
+          onValueChange={(day) => {
+            if (day) onChange(day);
           }}
-          css={[
-            typeRole.control,
-            fieldStyles.box,
-            fieldStyles.control,
-            corner.squircle_round,
-            a11y.focusRing,
-            styles.input,
-          ]}
+          css={styles.date}
         />
       </div>
     </div>
@@ -76,14 +60,7 @@ export function DateChips({ value, today, onChange, mark }: DateChipsProps) {
 }
 
 const styles = stylex.create({
-  input: {
-    [cornerTokens.height]: controlHeight.sm,
-    blockSize: controlHeight.sm,
+  date: {
     inlineSize: "auto",
-    paddingBlock: space._00,
-    paddingInline: space._2,
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.border,
   },
 });

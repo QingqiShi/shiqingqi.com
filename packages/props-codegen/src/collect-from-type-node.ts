@@ -7,8 +7,8 @@ const HTML_ATTRIBUTE_TYPES = new Set([
   "ComponentPropsWithRef",
 ]);
 
-/** Type references that pass their first argument through unchanged. */
-const PASSTHROUGH_TYPES = new Set(["Omit", "Pick", "Partial", "Required"]);
+/** Type references that pass the members of their first argument through. */
+const PASSTHROUGH_TYPES = new Set(["Partial", "Required"]);
 
 export interface MemberRecord {
   name: string;
@@ -145,6 +145,19 @@ function mergeUnionBranches(
   return merged;
 }
 
+/** The names that a union of string literals, such as the keys of `Omit`, lists. */
+function literalKeysOf(node: ts.TypeNode | undefined): Set<string> {
+  node = unwrapParens(node);
+  if (!node) return new Set();
+  if (ts.isUnionTypeNode(node)) {
+    return new Set(node.types.flatMap((member) => [...literalKeysOf(member)]));
+  }
+  if (ts.isLiteralTypeNode(node) && ts.isStringLiteral(node.literal)) {
+    return new Set([node.literal.text]);
+  }
+  return new Set();
+}
+
 /** The type inside any number of parentheses. */
 export function unwrapParens(
   node: ts.TypeNode | undefined,
@@ -192,6 +205,14 @@ export function collectFromTypeNode(
 
   if (PASSTHROUGH_TYPES.has(reference.name)) {
     return collectFromTypeNode(reference.typeArguments?.[0], context);
+  }
+  if (reference.name === "Omit" || reference.name === "Pick") {
+    const keys = literalKeysOf(reference.typeArguments?.[1]);
+    const keeps = (name: string) =>
+      reference.name === "Omit" ? !keys.has(name) : keys.has(name);
+    return collectFromTypeNode(reference.typeArguments?.[0], context).filter(
+      (record) => keeps(record.name),
+    );
   }
   if (reference.name === "PropsWithChildren") {
     return [

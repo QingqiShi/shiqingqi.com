@@ -134,6 +134,7 @@
     "./components/code-block": "./src/content/code-block.tsx",
     "./components/code-run.stylex": "./src/content/code-run.stylex.ts",
     "./components/columns": "./src/surfaces/columns.tsx",
+    "./components/date-field": "./src/forms/date-field.tsx",
     "./components/disclosure": "./src/surfaces/disclosure.tsx",
     "./components/empty-state": "./src/feedback/empty-state.tsx",
     "./components/filter-chips": "./src/forms/filter-chips.tsx",
@@ -217,6 +218,7 @@
     "./components/text": "./src/content/text.tsx",
     "./components/text-field": "./src/forms/text-field.tsx",
     "./components/textarea": "./src/forms/textarea.tsx",
+    "./components/time-field": "./src/forms/time-field.tsx",
     "./components/toast": "./src/feedback/toast.tsx",
     "./components/toast-provider": "./src/feedback/toast-provider.tsx",
     "./components/toast.stylex": "./src/feedback/toast.stylex.ts"
