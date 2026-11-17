@@ -45,7 +45,10 @@ export function DayMap({ day }: { day: Day }) {
   if (!src) return null;
   return (
     <Section title={title} look="label">
-      <MapEmbed src={src} title={`${day.title} · ${title}`} />
+      <MapEmbed
+        src={src}
+        title={day.title ? `${day.title} · ${title}` : title}
+      />
     </Section>
   );
 }

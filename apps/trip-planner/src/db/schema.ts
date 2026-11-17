@@ -21,7 +21,12 @@ export const trips = pgTable("trips", {
   createdAt: createdAt(),
 });
 
-/** Each save of a trip, as a whole document. The newest revision is the trip. */
+/**
+ * The saves of a trip, as whole documents. The newest revision is the trip.
+ * Saves by one author within 10 minutes of the start of the newest revision
+ * go into that revision, and a trip keeps its newest 100
+ * (`trips_save` in `drizzle/0006_trip_writes.sql`).
+ */
 export const tripRevisions = pgTable(
   "trip_revisions",
   {
@@ -32,7 +37,14 @@ export const tripRevisions = pgTable(
     revision: integer("revision").notNull(),
     /** A `Trip`. Read it through `tripSchema`, never as it is. */
     document: jsonb("document").notNull(),
+    /** Who saved it; null for an imported trip and after the user is deleted. */
+    authorId: uuid("author_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
     createdAt: createdAt(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [unique("trip_revisions_trip_revision_key").on(t.tripId, t.revision)],
 );

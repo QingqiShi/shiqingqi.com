@@ -3,7 +3,9 @@ import { DAY_PARTS } from "./day-parts";
 
 export const TRIP_SCHEMA_VERSION = 1;
 
-const id = z.string().regex(/^[a-z0-9-]{2,40}$/);
+/** The id of a thing in a trip, unique in the trip. */
+export const entityId = z.string().regex(/^[a-z0-9-]{2,40}$/);
+const id = entityId;
 const text = z.string().trim().min(1);
 const clock = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 const isoDate = z.iso.date();
@@ -30,8 +32,8 @@ export const restaurant = z.object({
   name: text,
   query: text,
   area: text.optional(),
-  tag: text,
-  description: text,
+  tag: text.optional(),
+  description: text.optional(),
   price: text.optional(),
   website: z.url().optional(),
   menu: z.url().optional(),
@@ -116,14 +118,25 @@ export const flight = z.object({
   note: text.optional(),
 });
 
+/** Each kind of item that a moment can hold, by its `type`. */
+export const momentItemSchemas = {
+  flight: flight.extend({ id, type: z.literal("flight") }),
+  checklist: checklist.extend({ id, type: z.literal("checklist") }),
+  signSheet: signSheet.extend({ id, type: z.literal("signSheet") }),
+  nav: navLeg.extend({ id, type: z.literal("nav") }),
+  dining: restaurant.extend({ id, type: z.literal("dining") }),
+  place: place.extend({ id, type: z.literal("place") }),
+  tip: tip.extend({ id, type: z.literal("tip") }),
+};
+
 export const momentItemSchema = z.discriminatedUnion("type", [
-  flight.extend({ id, type: z.literal("flight") }),
-  checklist.extend({ id, type: z.literal("checklist") }),
-  signSheet.extend({ id, type: z.literal("signSheet") }),
-  navLeg.extend({ id, type: z.literal("nav") }),
-  restaurant.extend({ id, type: z.literal("dining") }),
-  place.extend({ id, type: z.literal("place") }),
-  tip.extend({ id, type: z.literal("tip") }),
+  momentItemSchemas.flight,
+  momentItemSchemas.checklist,
+  momentItemSchemas.signSheet,
+  momentItemSchemas.nav,
+  momentItemSchemas.dining,
+  momentItemSchemas.place,
+  momentItemSchemas.tip,
 ]);
 
 export const highlight = z.object({
@@ -161,12 +174,12 @@ export const lodging = z.object({
   checkOut: text.optional(),
   room: text.optional(),
   note: text.optional(),
-  status: z.enum(["booked", "option", "pending"]),
+  status: z.enum(["booked", "option", "pending"]).optional(),
   recommended: z.boolean().optional(),
 });
 
 export const stay = z.object({
-  summary: text,
+  summary: text.optional(),
   lodging: z.array(lodging),
   /** The same bed as an earlier night. */
   sameAs: z.object({ dayId: id, label: text }).optional(),
@@ -177,8 +190,8 @@ export const stay = z.object({
 export const day = z.object({
   id,
   date: isoDate,
-  title: text,
-  route: text,
+  title: text.optional(),
+  route: text.optional(),
   driving: text.optional(),
   /** The time at the wheel that `driving` describes, for sums and charts. */
   drivingMinutes: z.number().int().min(0).optional(),
@@ -220,9 +233,9 @@ export const tripSchema = z
     schemaVersion: z.literal(TRIP_SCHEMA_VERSION),
     id,
     title: text,
-    subtitle: text,
+    subtitle: text.optional(),
     /** A short line about who travels, such as "3 人自驾". */
-    party: text,
+    party: text.optional(),
     /** The language the trip's text is written in. */
     language: z.enum(["en", "zh"]),
     /** An IANA zone, such as Europe/London. It sets "today" and "now". */
@@ -312,7 +325,7 @@ export const tripSchema = z
     });
   });
 
-function isTimeZone(zone: string) {
+export function isTimeZone(zone: string) {
   try {
     new Intl.DateTimeFormat("en", { timeZone: zone });
     return true;

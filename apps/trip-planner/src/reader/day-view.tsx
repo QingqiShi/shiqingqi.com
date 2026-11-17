@@ -12,6 +12,7 @@ import { momentDomId } from "./day-feed/moment-dom-id.ts";
 import { DayGlance } from "./day-glance.tsx";
 import { dayHighlights } from "./day-highlights.ts";
 import { DayParty } from "./day-party.tsx";
+import { DayTitle } from "./day-title.tsx";
 import { DiningList } from "./dining-list.tsx";
 import { DayMap } from "./maps/day-map.tsx";
 import { PlaceList } from "./place-list.tsx";
@@ -51,11 +52,13 @@ export function DayView({
     <div css={stack.group}>
       <div css={stack.tight}>
         <Heading level={2} look="h2">
-          <TripText>{day.title}</TripText>
+          <DayTitle day={day} index={trip.days.indexOf(day)} />
         </Heading>
-        <Text tone="muted">
-          <TripText>{day.route}</TripText>
-        </Text>
+        {day.route ? (
+          <Text tone="muted">
+            <TripText>{day.route}</TripText>
+          </Text>
+        ) : null}
       </div>
       <DayParty people={presencesOnDay(trip.people, day.id)} />
       <DayFacts day={day} liveWeather={liveWeather} />

@@ -43,6 +43,13 @@
       "when": 1794914701747,
       "tag": "0005_trip_url_by_id",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794915456308,
+      "tag": "0006_trip_writes",
+      "breakpoints": true
     }
   ]
 }

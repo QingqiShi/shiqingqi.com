@@ -82,9 +82,11 @@ function DayCell({
           <DayWeather day={day} live={weatherByDay[day.id]} short />
         )}
       </span>
-      <Text as="span" look="label" weight="semibold" css={styles.title}>
-        <TripText>{day.title}</TripText>
-      </Text>
+      {day.title ? (
+        <Text as="span" look="label" weight="semibold" css={styles.title}>
+          <TripText>{day.title}</TripText>
+        </Text>
+      ) : null}
       <HighlightLines day={day} limit={2} />
       <span css={[stack.tight, styles.foot]}>
         <DriveMeter minutes={day.drivingMinutes} />

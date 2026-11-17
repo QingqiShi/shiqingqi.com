@@ -43,11 +43,14 @@ function StatusBadge({ lodging }: { lodging: Lodging }) {
       </Badge>
     );
   }
-  return (
-    <Badge size="sm" intent="neutral">
-      {option}
-    </Badge>
-  );
+  if (lodging.status === "option") {
+    return (
+      <Badge size="sm" intent="neutral">
+        {option}
+      </Badge>
+    );
+  }
+  return null;
 }
 
 function LodgingRow({ lodging }: { lodging: Lodging }) {
@@ -61,7 +64,7 @@ function LodgingRow({ lodging }: { lodging: Lodging }) {
     lodging.room ? room.replace("{room}", lodging.room) : null,
     lodging.phone ? phone.replace("{phone}", lodging.phone) : null,
   ].filter((fact) => fact !== null);
-  const mapsQuery = lodging.query ?? lodging.address;
+  const mapsQuery = lodging.query ?? lodging.address ?? lodging.name;
 
   const shared = {
     leading: <BedIcon weight="bold" />,
@@ -122,6 +125,14 @@ export function StaySection({
 }) {
   const title = t({ en: "Stay", zh: "住宿" });
   const search = t({ en: "Search on Booking.com", zh: "在 Booking.com 搜索" });
+  if (
+    !stay.sameAs &&
+    stay.lodging.length === 0 &&
+    !stay.note &&
+    !stay.bookingUrl
+  ) {
+    return null;
+  }
 
   return (
     <Section title={title} look="label">

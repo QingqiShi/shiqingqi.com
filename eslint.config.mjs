@@ -741,14 +741,15 @@ export default defineConfig([
     ],
     rules: { "restricted/browser-typegpu": browserTypegpuRule("^\\./") },
   },
-  // A trip shows only to its members. So only the reader and the sharing of
-  // a trip, which run under row-level security as the signed-in user, and the
-  // code that fills the database, reach the trip tables.
+  // A trip shows only to its members. So only the reader, the one writer and
+  // the sharing of a trip, which run under row-level security as the
+  // signed-in user, and the code that fills the database, reach the trip
+  // tables.
   {
     files: ["apps/trip-planner/src/**/*.{ts,tsx}"],
     ignores: [
       "apps/trip-planner/src/db/**",
-      "apps/trip-planner/src/trips/{get-trips,read-trips,import-trip,as-viewer}.ts",
+      "apps/trip-planner/src/trips/{get-trips,read-trips,write-trips,trip-routes,import-trip,as-viewer}.ts",
       "apps/trip-planner/src/share/{trip-sharing,sharing-routes,get-sharing}.ts",
       "apps/trip-planner/src/**/*.test.{ts,tsx}",
     ],
@@ -759,10 +760,10 @@ export default defineConfig([
           patterns: [
             {
               regex:
-                "^pg$|^drizzle-orm(/|$)|/db/|/(read-trips|import-trip)(\\.ts)?$",
+                "^pg$|^drizzle-orm(/|$)|/db/|/(read-trips|write-trips|import-trip)(\\.ts)?$",
               allowTypeImports: true,
               message:
-                "Read a trip with `getTrips` or `getTrip` from `#src/trips/get-trips.ts`, which gives only the trips of the signed-in user.",
+                "Read a trip with `getTrips` or `getTrip` from `#src/trips/get-trips.ts`, which gives only the trips of the signed-in user. Change one through `/api/trips` (`#src/trips/trip-api.ts`).",
             },
           ],
         },
@@ -782,7 +783,8 @@ export default defineConfig([
         {
           patterns: [
             {
-              regex: "/db/schema(\\.ts)?$|/(read-trips|import-trip)(\\.ts)?$",
+              regex:
+                "/db/schema(\\.ts)?$|/(read-trips|write-trips|import-trip)(\\.ts)?$",
               allowTypeImports: true,
               message:
                 "Sign-in reads only the tables in `#src/db/auth-schema.ts`. Read a trip with `getTrips` or `getTrip` from `#src/trips/get-trips.ts`.",

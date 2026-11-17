@@ -25,15 +25,19 @@ export async function generateMetadata({
   const { locale, trip: id } = await params;
   const trip = (await getTrip(id))?.trip;
   if (!trip) return {};
-  const description = t({
+  const withSubtitle = t({
     en: "{dates}. {subtitle}: the plan for each day, with places, food and beds.",
     zh: "{dates}{subtitle}：每日安排、景点、餐厅与住宿。",
   });
+  const withoutSubtitle = t({
+    en: "{dates}: the plan for each day, with places, food and beds.",
+    zh: "{dates}：每日安排、景点、餐厅与住宿。",
+  });
   return {
     title: trip.title,
-    description: description
+    description: (trip.subtitle ? withSubtitle : withoutSubtitle)
       .replace("{dates}", dateRangeLabel(trip.days, validateLocale(locale)))
-      .replace("{subtitle}", trip.subtitle),
+      .replace("{subtitle}", trip.subtitle ?? ""),
   };
 }
 
