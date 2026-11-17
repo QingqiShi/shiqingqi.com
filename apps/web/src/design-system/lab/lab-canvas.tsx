@@ -276,10 +276,14 @@ const styles = stylex.create({
     minInlineSize: 0,
     flexGrow: 1,
   },
+  // Without the limit, this box is as wide as its content, and a Specimen
+  // with `maxInlineSize: 100%` gets no limit from it. With the limit, that
+  // percentage is the width of the stage.
   specimen: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    maxInlineSize: "100%",
   },
   // From `md` the snippet stands at the foot of the stage and takes the room
   // that the Specimen leaves. Its basis is the least room it keeps, so long
