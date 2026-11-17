@@ -740,14 +740,15 @@ export default defineConfig([
     ],
     rules: { "restricted/browser-typegpu": browserTypegpuRule("^\\./") },
   },
-  // A trip shows only to its members. So only the reader, which runs under
-  // row-level security as the signed-in user, and the code that fills the
-  // database, reach the trip tables.
+  // A trip shows only to its members. So only the reader and the sharing of
+  // a trip, which run under row-level security as the signed-in user, and the
+  // code that fills the database, reach the trip tables.
   {
     files: ["apps/trip-planner/src/**/*.{ts,tsx}"],
     ignores: [
       "apps/trip-planner/src/db/**",
-      "apps/trip-planner/src/trips/{get-trips,read-trips,import-trip}.ts",
+      "apps/trip-planner/src/trips/{get-trips,read-trips,import-trip,as-viewer}.ts",
+      "apps/trip-planner/src/share/{trip-sharing,sharing-routes,get-sharing}.ts",
       "apps/trip-planner/src/**/*.test.{ts,tsx}",
     ],
     rules: {

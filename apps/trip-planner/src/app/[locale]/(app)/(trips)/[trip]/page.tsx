@@ -7,6 +7,8 @@ import { dateRangeLabel } from "#src/reader/date-label.ts";
 import { resolveDay } from "#src/reader/resolve-day.ts";
 import { TripPage } from "#src/reader/trip-page.tsx";
 import { getTripWeather } from "#src/reader/weather/get-trip-weather.ts";
+import { getSharing } from "#src/share/get-sharing.ts";
+import { ShareTrip } from "#src/share/share-trip.tsx";
 import { getTrip, getViewerId } from "#src/trips/get-trips.ts";
 
 // "Current day" depends on the wall clock, so render per-request.
@@ -20,7 +22,7 @@ export async function generateMetadata({
   params,
 }: TripRouteProps): Promise<Metadata> {
   const { locale, trip: slug } = await params;
-  const trip = await getTrip(slug);
+  const trip = (await getTrip(slug))?.trip;
   if (!trip) return {};
   const description = t({
     en: "{dates}. {subtitle}: the plan for each day, with places, food and beds.",
@@ -36,8 +38,8 @@ export async function generateMetadata({
 
 export default async function TripRoute({ params }: TripRouteProps) {
   const { locale, trip: slug } = await params;
-  const trip = await getTrip(slug);
-  if (!trip) {
+  const viewed = await getTrip(slug);
+  if (!viewed) {
     // The answer is the same for a trip that exists and one that does not,
     // so that it does not tell which trips there are.
     if ((await getViewerId()) === null) {
@@ -45,6 +47,12 @@ export default async function TripRoute({ params }: TripRouteProps) {
     }
     notFound();
   }
+  const { trip } = viewed;
+  const viewerId = await getViewerId();
+  const sharing =
+    viewed.role === "owner" && viewerId !== null
+      ? await getSharing(viewerId, viewed.id)
+      : null;
 
   // force-dynamic page: request time IS the content, and render is its only per-request phase.
   const serverToday = resolveDay(new Date(), trip.days, trip.timeZone);
@@ -56,6 +64,18 @@ export default async function TripRoute({ params }: TripRouteProps) {
       trip={trip}
       serverToday={serverToday}
       weatherByDay={weatherByDay}
+      actions={
+        sharing ? (
+          <ShareTrip
+            tripId={viewed.id}
+            members={sharing.members}
+            invites={sharing.invites.map((invite) => ({
+              id: invite.id,
+              expiresAt: invite.expiresAt.toISOString(),
+            }))}
+          />
+        ) : null
+      }
     />
   );
 }

@@ -20,7 +20,7 @@ export default async function Layout({
   const now = new Date();
   const trips = await getTrips();
   return (
-    <TripsFrame trips={trips.map((trip) => tripSummary(trip, now, locale))}>
+    <TripsFrame trips={trips.map(({ trip }) => tripSummary(trip, now, locale))}>
       {children}
     </TripsFrame>
   );

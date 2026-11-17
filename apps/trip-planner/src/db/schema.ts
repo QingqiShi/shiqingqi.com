@@ -56,4 +56,25 @@ export const tripMembers = pgTable(
   (t) => [primaryKey({ columns: [t.tripId, t.userId] })],
 );
 
-export const schema = { trips, tripRevisions, tripMembers, ...authSchema };
+/**
+ * A link that lets one person join a trip as an editor. The link holds a
+ * random token and the row holds only its hash. The row goes when the person
+ * joins or when an owner ends the link (`drizzle/0003_invites.sql`).
+ */
+export const tripInvites = pgTable("trip_invites", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tripId: uuid("trip_id")
+    .notNull()
+    .references(() => trips.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull().unique(),
+  createdAt: createdAt(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+});
+
+export const schema = {
+  trips,
+  tripRevisions,
+  tripMembers,
+  tripInvites,
+  ...authSchema,
+};

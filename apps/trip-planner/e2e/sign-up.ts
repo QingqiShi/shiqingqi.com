@@ -45,11 +45,14 @@ async function signUpCode(email: string): Promise<string> {
 /**
  * Signs up a new user on the sign-in page that `page` shows, with the emailed
  * code and a passkey, and returns the email. The server under test makes each
- * new user an owner of the sample trip.
+ * new user an owner of the sample trip, but not a `guest`.
  */
-export async function signUp(page: Page): Promise<string> {
+export async function signUp(
+  page: Page,
+  name: "mara" | "guest" = "mara",
+): Promise<string> {
   await addVirtualAuthenticator(page);
-  const email = `mara-${crypto.randomUUID()}@example.com`;
+  const email = `${name}-${crypto.randomUUID()}@example.com`;
   await page.getByRole("textbox", { name: /^Email/ }).fill(email);
   await page.getByRole("button", { name: "Email me a sign-up code" }).click();
   await page

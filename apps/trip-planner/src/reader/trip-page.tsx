@@ -9,7 +9,7 @@ import { PageHeader } from "@tuja/ui/components/page-header";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { useRef } from "react";
+import { Fragment, useRef, type ReactNode } from "react";
 import type { ResolvedDay, Trip } from "#src/trips/types.ts";
 import { TripCalendar } from "./calendar/trip-calendar.tsx";
 import { dateLabel, dateRangeLabel } from "./date-label.ts";
@@ -49,11 +49,14 @@ export function TripPage({
   trip,
   serverToday,
   weatherByDay,
+  actions,
 }: {
   trip: Trip;
   /** Where today falls on the trip when the server rendered the page. */
   serverToday: ResolvedDay;
   weatherByDay: Record<string, LiveWeather>;
+  /** What this viewer can do with the trip, such as share it. */
+  actions?: ReactNode;
 }) {
   const locale = useLocale();
   const today = useTripToday(trip, serverToday);
@@ -84,25 +87,30 @@ export function TripPage({
           title={<TripText>{trip.title}</TripText>}
           description={<TripText>{trip.subtitle}</TripText>}
           actions={
-            <SegmentedControl
-              aria-label={t({ en: "View", zh: "视图" })}
-              size="sm"
-              value={location.view}
-              onChange={(view) => {
-                if (view === "calendar") {
-                  go({ view: "calendar" });
-                } else {
-                  openDay(today.index);
-                }
-              }}
-              options={[
-                { value: "day", label: t({ en: "Day", zh: "每日" }) },
-                {
-                  value: "calendar",
-                  label: t({ en: "Calendar", zh: "日历" }),
-                },
-              ]}
-            />
+            <>
+              {/* Without a key, React at times warns that this node from the
+                  server has none, after `router.refresh()` sends it again. */}
+              <Fragment key="actions">{actions}</Fragment>
+              <SegmentedControl
+                aria-label={t({ en: "View", zh: "视图" })}
+                size="sm"
+                value={location.view}
+                onChange={(view) => {
+                  if (view === "calendar") {
+                    go({ view: "calendar" });
+                  } else {
+                    openDay(today.index);
+                  }
+                }}
+                options={[
+                  { value: "day", label: t({ en: "Day", zh: "每日" }) },
+                  {
+                    value: "calendar",
+                    label: t({ en: "Calendar", zh: "日历" }),
+                  },
+                ]}
+              />
+            </>
           }
         />
         <PhaseNote trip={trip} today={today} />
