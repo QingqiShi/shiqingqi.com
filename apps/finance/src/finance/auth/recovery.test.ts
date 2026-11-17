@@ -307,6 +307,92 @@ describe("recovery by email", () => {
     ).toBe(410);
   });
 
+  /**
+   * Handlers on a database that counts its transactions, and that runs
+   * `state.task` before transaction number `state.runBefore`.
+   */
+  function racingHandlers() {
+    const state = {
+      transactions: 0,
+      runBefore: 0,
+      task: (): Promise<unknown> => Promise.resolve(),
+    };
+    const racingDb = new Proxy(db, {
+      get(target, key) {
+        const value: unknown = Reflect.get(target, key);
+        if (key !== "transaction") return value;
+        const transaction: typeof db.transaction = async (...args) => {
+          state.transactions += 1;
+          if (state.transactions === state.runBefore) await state.task();
+          return target.transaction(...args);
+        };
+        return transaction;
+      },
+    });
+    return { state, handlers: makeHandlers({ getDb: () => racingDb }) };
+  }
+
+  /**
+   * Sends `request` two times. The first time counts its transactions. The
+   * second time, a recovery of the user is complete before the last one.
+   */
+  async function raceWithRecovery(
+    state: ReturnType<typeof racingHandlers>["state"],
+    request: () => Promise<{ status: number }>,
+  ) {
+    await requestRecovery("qingqi@example.com");
+    const [sent] = await readOutbox(outboxDir);
+    const link = recoveryTokenIn(sent.text);
+
+    state.transactions = 0;
+    expect((await request()).status).toBe(200);
+    state.runBefore = state.transactions;
+    state.transactions = 0;
+    state.task = async () => {
+      const recovered = await recover(
+        createAuthTestClient(makeHandlers()),
+        createSoftwareAuthenticator(),
+        link,
+      );
+      expect(recovered.status).toBe(200);
+    };
+    return request();
+  }
+
+  it("gives no session to a lost passkey whose sign-in was under way when recovery ended it", async () => {
+    const { lostPhone } = await ownerWithEmail("qingqi@example.com");
+    const { state, handlers } = racingHandlers();
+    let lostDevice = createAuthTestClient(handlers);
+
+    const result = await raceWithRecovery(state, async () => {
+      lostDevice = createAuthTestClient(handlers);
+      return signIn(lostDevice, lostPhone);
+    });
+
+    expect(result.status).toBe(401);
+    expect((await lostDevice.get("session")).status).toBe(401);
+  });
+
+  it("saves no passkey for a session that recovery ended while the passkey was on its way", async () => {
+    const { lostPhone } = await ownerWithEmail("qingqi@example.com");
+    const { state, handlers } = racingHandlers();
+    const lostDevice = createAuthTestClient(handlers);
+    await signIn(lostDevice, lostPhone);
+
+    const result = await raceWithRecovery(state, async () => {
+      const options =
+        await lostDevice.post<RegistrationOptionsBody>("passkeyOptions");
+      const response = await createSoftwareAuthenticator().register(
+        options.body.options,
+        TEST_ORIGIN,
+      );
+      return lostDevice.post("passkeyVerify", { response });
+    });
+
+    expect(result.status).toBe(401);
+    expect(await db.select().from(passkeys)).toHaveLength(1);
+  });
+
   it("refuses a recovery link after 30 minutes", async () => {
     await ownerWithEmail("qingqi@example.com");
     await requestRecovery("qingqi@example.com");

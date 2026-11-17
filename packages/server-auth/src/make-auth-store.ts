@@ -345,15 +345,18 @@ export function makeAuthStore({
       if (inserted.length === 0) throw new HttpError(409, "passkey_exists");
     },
 
+    /** False when the passkey is gone: recovery ended it after the caller read it. */
     async markPasskeyUsed(
       tx: AuthTx,
       id: string,
       { counter, now }: { counter: number; now: Date },
-    ): Promise<void> {
-      await tx
+    ): Promise<boolean> {
+      const marked = await tx
         .update(passkeys)
         .set({ counter, lastUsedAt: now })
-        .where(eq(passkeys.id, id));
+        .where(eq(passkeys.id, id))
+        .returning({ id: passkeys.id });
+      return marked.length > 0;
     },
 
     /** Returns the raw token. Only its hash is stored. Also deletes the user's expired sessions. */
@@ -393,8 +396,31 @@ export function makeAuthStore({
      * device must not keep access.
      */
     async revokeUserAccess(tx: AuthTx, userId: string): Promise<void> {
+      // The order is necessary. The lock makes a request that adds a passkey
+      // (`lockSession`) wait or fail. The passkeys go before the sessions, so
+      // that a sign-in under way fails or has its new session deleted here.
+      await tx
+        .select({ id: sessions.id })
+        .from(sessions)
+        .where(eq(sessions.userId, userId))
+        .for("update");
       await tx.delete(passkeys).where(eq(passkeys.userId, userId));
       await tx.delete(sessions).where(eq(sessions.userId, userId));
+    },
+
+    /**
+     * Locks the session of a token until the transaction ends, and returns
+     * its user, or null when the session is gone. A write that gives access,
+     * such as a new passkey, calls it first: `revokeUserAccess` then waits
+     * for the write, or the write finds no session.
+     */
+    async lockSession(tx: AuthTx, token: string): Promise<string | null> {
+      const locked = await tx
+        .select({ userId: sessions.userId })
+        .from(sessions)
+        .where(eq(sessions.tokenHash, hashToken(token)))
+        .for("update");
+      return locked.at(0)?.userId ?? null;
     },
 
     async deleteSession(tx: AuthTx, token: string): Promise<void> {
