@@ -250,5 +250,6 @@ const styles = stylex.create({
   // cursor with a pointer.
   select: {
     cursor: { default: "pointer", ":disabled": "not-allowed" },
+    textOverflow: "ellipsis",
   },
 });

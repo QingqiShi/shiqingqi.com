@@ -6,7 +6,8 @@ import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { Select } from "@tuja/ui/components/select";
-import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { shrink } from "@tuja/ui/primitives/flex.stylex";
+import { row } from "@tuja/ui/primitives/stack.stylex";
 import type { Trip } from "#src/trips/types.ts";
 import { dayDateLabel } from "./date-label.ts";
 import { useDayNumber } from "./use-day-number.ts";
@@ -30,11 +31,12 @@ export function DayStepper({
   const today = t({ en: "Today", zh: "今天" });
 
   return (
-    <div css={cluster.tight}>
+    <div css={row.tight}>
       <Button
         look="outline"
         size="sm"
         icon={<CaretLeftIcon weight="bold" />}
+        css={shrink._0}
         aria-label={t({ en: "Previous day", zh: "前一天" })}
         disabled={current === 0}
         onClick={() => {
@@ -64,6 +66,7 @@ export function DayStepper({
         look="outline"
         size="sm"
         icon={<CaretRightIcon weight="bold" />}
+        css={shrink._0}
         aria-label={t({ en: "Next day", zh: "后一天" })}
         disabled={current === days.length - 1}
         onClick={() => {
