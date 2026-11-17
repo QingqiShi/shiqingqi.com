@@ -348,7 +348,8 @@ function DangerCard() {
         })}
         control={
           <Button
-            look="destructive"
+            look="primary"
+            intent="destructive"
             size="sm"
             icon={<TrashIcon weight="bold" />}
           >

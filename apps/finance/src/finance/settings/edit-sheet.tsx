@@ -61,7 +61,8 @@ export function EditSheet({
             </Button>
             {destructive ? (
               <Button
-                look="destructive"
+                look="primary"
+                intent="destructive"
                 css={styles.destructive}
                 onClick={() => {
                   destructive.onAction();

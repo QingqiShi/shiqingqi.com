@@ -89,7 +89,7 @@ export function CardShowcase() {
               </CardDescription>
             </CardHeader>
             <CardFooter>
-              <Button size="sm" look="destructive">
+              <Button size="sm" look="primary" intent="destructive">
                 {t({ en: "Delete account", zh: "删除账户" })}
               </Button>
             </CardFooter>

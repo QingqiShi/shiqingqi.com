@@ -120,7 +120,8 @@ export function TripForm({ onDone }: { onDone: () => void }) {
             {t({ en: "Cancel", zh: "取消" })}
           </Button>
           <Button
-            look="destructive"
+            look="primary"
+            intent="destructive"
             loading={deleteState === "busy"}
             onClick={() => {
               setDeleteState("busy");

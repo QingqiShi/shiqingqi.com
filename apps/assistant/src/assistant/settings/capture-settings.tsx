@@ -113,7 +113,8 @@ function TokenRow({
       actions={
         <Button
           size="sm"
-          look={confirming ? "destructive" : "ghost"}
+          look={confirming ? "primary" : "ghost"}
+          intent={confirming ? "destructive" : undefined}
           icon={<TrashIcon weight="bold" />}
           hideLabelOnMobile
           onClick={() => {

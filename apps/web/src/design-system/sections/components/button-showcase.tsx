@@ -54,8 +54,12 @@ export function ButtonShowcase() {
           <Specimen caption="ghost">
             <Button look="ghost">{t({ en: "Ghost", zh: "无框" })}</Button>
           </Specimen>
-          <Specimen caption="destructive">
-            <Button look="destructive" icon={<TrashIcon weight="bold" />}>
+          <Specimen caption='primary + intent="destructive"'>
+            <Button
+              look="primary"
+              intent="destructive"
+              icon={<TrashIcon weight="bold" />}
+            >
               {t({ en: "Delete", zh: "删除" })}
             </Button>
           </Specimen>
@@ -471,10 +475,10 @@ export function ButtonShowcase() {
                 en: "An action that destroys something",
                 zh: "具有破坏性的操作",
               }),
-              value: 'look="destructive"',
+              value: 'look="primary" intent="destructive"',
               note: t({
-                en: "Reserved for what cannot be undone — deleting, discarding, revoking.",
-                zh: "只留给无法撤销的操作——删除、丢弃、撤回。",
+                en: "The destructive fill. Reserved for what cannot be undone: deleting, discarding, revoking.",
+                zh: "危险色填充。只留给无法撤销的操作：删除、丢弃、撤回。",
               }),
             },
             {
@@ -484,8 +488,8 @@ export function ButtonShowcase() {
               }),
               value: 'intent="destructive"',
               note: t({
-                en: "On an outline or ghost button. The label turns destructive and the button keeps the weight of its neighbours.",
-                zh: "用于 outline 或 ghost 按钮。标签变为 destructive 色，按钮与相邻按钮保持同样的分量。",
+                en: "On every look but primary. The label turns destructive and the button keeps the weight of its neighbours.",
+                zh: "用于 primary 以外的任何外观。标签变为 destructive 色，按钮与相邻按钮保持同样的分量。",
               }),
             },
           ]}
