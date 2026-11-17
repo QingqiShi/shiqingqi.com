@@ -24,7 +24,7 @@ import { toastTokens } from "@tuja/ui/components/toast.stylex";
 import { usePortalTarget } from "@tuja/ui/hooks/use-portal-target";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import { dateRangeLabel } from "#src/reader/date-label.ts";
 import { TripLanguageProvider, TripText } from "#src/reader/trip-text.tsx";
 import { useTripHash } from "#src/reader/use-trip-location.ts";
@@ -44,6 +44,7 @@ import { TripForm } from "./trip-form.tsx";
 import type { OpenSheet, SheetTarget } from "./types.ts";
 import { useDayLabels } from "./use-day-labels.ts";
 import { useKindLabels } from "./use-field-labels.ts";
+import { useLeaveGuard } from "./use-leave-guard.ts";
 
 const TRIP_ROW = "trip";
 
@@ -96,6 +97,9 @@ function EditorScreen() {
   const [isOpen, setIsOpen] = useState(false);
   const [shownConflict, setShownConflict] = useState<number | null>(null);
   const [isLeaving, setIsLeaving] = useState(false);
+  // Where the person asked to go: another page of the app, or null for the
+  // reader.
+  const [leaveTo, setLeaveTo] = useState<string | null>(null);
 
   const openSheet: OpenSheet = (target, rowId) => {
     setSheet((current) => ({ target, rowId, key: (current?.key ?? 0) + 1 }));
@@ -119,17 +123,30 @@ function EditorScreen() {
     openSheet({ kind: "leave" }, TRIP_ROW);
   }
 
-  const readerHref = getLocalePath(`/${editor.tripId}`, locale) + hash;
-  const leave = () => {
-    if (column?.close) column.close();
-    else router.push(readerHref);
+  const readerPath = getLocalePath(`/${editor.tripId}`, locale);
+  const go = (to: string | null) => {
+    if (to !== null) router.push(to);
+    else if (column?.close) column.close();
+    else router.push(readerPath + hash);
   };
+  const leave = () => {
+    go(leaveTo);
+  };
+  const leaveWhenSaved = useEffectEvent(leave);
   const isSaved = state.pending.length === 0;
   useEffect(() => {
-    if (!isLeaving || !isSaved) return;
-    if (column?.close) column.close();
-    else router.push(readerHref);
-  }, [isLeaving, isSaved, column, router, readerHref]);
+    if (isLeaving && isSaved) leaveWhenSaved();
+  }, [isLeaving, isSaved]);
+  // A change that is not saved holds the person on the screen: the change
+  // goes first, and a change that cannot go asks before it is lost.
+  const askToLeave = (href: string | null) => {
+    const to = href?.split("#")[0] === readerPath ? null : href;
+    setLeaveTo(to);
+    if (isSaved) go(to);
+    else if (problem) openSheet({ kind: "leave" }, TRIP_ROW);
+    else setIsLeaving(true);
+  };
+  useLeaveGuard(!isSaved, askToLeave);
 
   useEffect(() => {
     const id = window.location.hash.slice(1);
@@ -176,9 +193,7 @@ function EditorScreen() {
             look="primary"
             loading={isLeaving}
             onClick={() => {
-              if (isSaved) leave();
-              else if (problem) openSheet({ kind: "leave" }, TRIP_ROW);
-              else setIsLeaving(true);
+              askToLeave(null);
             }}
           >
             {t({ en: "Done", zh: "完成" })}

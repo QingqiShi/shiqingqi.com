@@ -3,7 +3,6 @@ import {
   withExpect,
   type DraftOp,
 } from "#src/trips/ops/apply-ops.ts";
-import { digest } from "#src/trips/ops/digest.ts";
 import { invertOps } from "#src/trips/ops/invert-ops.ts";
 import type { Op } from "#src/trips/ops/op-schema.ts";
 import type { Trip } from "#src/trips/types.ts";
@@ -13,6 +12,12 @@ import type { ChangeResult } from "#src/trips/write-trips.ts";
 export interface Batch {
   id: number;
   ops: readonly DraftOp[];
+  /**
+   * The ops as they go to the server. Each `expect` is from the trip that
+   * the person saw when they made the change, so the server can tell when
+   * someone else changed the same thing since.
+   */
+  sent: readonly Op[];
   /** The ids of the days, moments and items that the batch changes, and `trip` for the trip's own fields. */
   touches: readonly string[];
 }
@@ -93,10 +98,12 @@ const UNDO_DEPTH = 20;
 /**
  * The changes of one person to one trip, in order. Each change shows at
  * once, and goes to the server only after the change before it has an
- * answer. The trip of the last answer is the base: each batch gets its
- * `expect` from that base with the earlier changes of the queue applied. A
- * request that fails, or a conflict, stops the queue until the person
- * decides.
+ * answer. The trip of the last answer is the base, and the screen shows it
+ * with the changes of the queue applied. A batch gets its `expect` one
+ * time, when the person makes the change: a newer base never stamps it
+ * again, because that would write over a change that the person did not
+ * see. A request that fails, or a conflict, stops the queue until the
+ * person decides.
  */
 export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
   const { send, read } = options;
@@ -181,17 +188,13 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
     if (!head) return;
     sendingId = head.id;
     publish();
-    let result: ChangeResult;
+    let result: ChangeResult | null = null;
     try {
-      result = await send(withExpect(base, head.ops));
+      result = await send(head.sent);
     } catch {
-      sendingId = null;
       problem = { kind: "failed", batch: head };
-      publish();
-      return;
     }
-    sendingId = null;
-    switch (result.status) {
+    switch (result?.status) {
       case "applied":
         base = result.trip;
         pending = pending.slice(1);
@@ -208,7 +211,12 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
       case "conflict":
         await conflict(head, result.expect !== null);
         break;
+      case undefined:
+        break;
     }
+    // The queue stays busy until here. A change that the person makes
+    // while a read is under way must not start a second request.
+    sendingId = null;
     publish();
     void pump();
   }
@@ -247,7 +255,8 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
   /**
    * A request that threw can have reached the server. Before the batch goes
    * again, read the trip: when it already holds the result of the batch, the
-   * batch has landed.
+   * batch has landed. Else the batch goes again as it was, so the server
+   * still finds a change that someone else made to the same thing.
    */
   async function retryAfterRead() {
     const head = pending.at(0);
@@ -269,15 +278,37 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
       publish();
       return;
     }
-    const expected = applyOps(base, withExpect(base, head.ops));
+    const expected = applyOps(base, head.sent);
     if (
       expected.status === "applied" &&
-      digest(expected.trip) === digest(newest)
+      hasLanded(head.ops, expected.trip, newest)
     ) {
       pending = pending.slice(1);
     }
     base = newest;
     resume();
+  }
+
+  /**
+   * The person saw the other version of these things and chose their own
+   * change. So each waiting op on them now expects the other version, with
+   * the earlier changes of the queue applied.
+   */
+  function expectTheirs(ids: ReadonlySet<string>) {
+    let trip = base;
+    pending = pending.map((batch) => {
+      const fresh = withExpect(trip, batch.ops);
+      const result = applyOps(trip, fresh);
+      if (result.status === "applied") trip = result.trip;
+      return {
+        ...batch,
+        sent: batch.sent.map((op, index) =>
+          touchedIds([batch.ops[index]]).some((id) => ids.has(id))
+            ? fresh[index]
+            : op,
+        ),
+      };
+    });
   }
 
   function retry() {
@@ -313,14 +344,20 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
     submit(ops) {
       if (isGone) return { ok: false, refused: null };
       const before = state.trip;
-      const result = applyOps(before, withExpect(before, ops));
+      const sent = withExpect(before, ops);
+      const result = applyOps(before, sent);
       if (result.status === "refused") {
         return { ok: false, refused: result.reason };
       }
       if (result.status === "conflict") {
         return { ok: false, refused: null };
       }
-      const batch: Batch = { id: nextId++, ops, touches: touchedIds(ops) };
+      const batch: Batch = {
+        id: nextId++,
+        ops,
+        sent,
+        touches: touchedIds(ops),
+      };
       pending = [...pending, batch];
       const inverse = invertOps(before, ops);
       if (inverse.length > 0) {
@@ -349,11 +386,8 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
           return true;
         }
       }
-      const result = applyOps(
-        state.trip,
-        withExpect(state.trip, entry.inverse),
-      );
-      if (result.status !== "applied") {
+      const sent = withExpect(state.trip, entry.inverse);
+      if (applyOps(state.trip, sent).status !== "applied") {
         publish();
         return false;
       }
@@ -362,6 +396,7 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
         {
           id: nextId++,
           ops: entry.inverse,
+          sent,
           touches: touchedIds(entry.inverse),
         },
       ];
@@ -376,6 +411,7 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
     keepMine() {
       if (problem?.kind !== "conflict" || !problem.canKeepMine) return;
       base = problem.theirs;
+      expectTheirs(new Set(problem.batch.touches));
       problem = null;
       resume();
     },
@@ -396,6 +432,44 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
       });
     },
   };
+}
+
+/**
+ * Whether the newest trip holds what a batch makes: each thing that the
+ * batch adds, changes or removes is in `newest` as it is in `expected`. A
+ * move is not looked at, because a move that goes again does no harm.
+ */
+function hasLanded(ops: readonly DraftOp[], expected: Trip, newest: Trip) {
+  const probes = ops.map(probeOf).filter((probe) => probe !== null);
+  return (
+    probes.length > 0 &&
+    probes.every(
+      (probe) => thingDigest(expected, probe) === thingDigest(newest, probe),
+    )
+  );
+}
+
+/** An op whose `expect` is the digest of the thing that `op` makes or changes. */
+function probeOf(op: DraftOp): DraftOp | null {
+  switch (op.op) {
+    case "addDay":
+      return { op: "removeDay", id: op.id };
+    case "addMoment":
+      return { op: "removeMoment", id: op.moment.id };
+    case "addItem":
+      return { op: "removeItem", id: op.item.id };
+    case "moveDay":
+    case "moveMoment":
+    case "moveItem":
+      return null;
+    default:
+      return op;
+  }
+}
+
+function thingDigest(trip: Trip, probe: DraftOp) {
+  const [stamped] = withExpect(trip, [probe]);
+  return "expect" in stamped ? stamped.expect : undefined;
 }
 
 /** The ids of the things that a batch changes, for the state on their rows. */

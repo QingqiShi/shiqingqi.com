@@ -129,6 +129,10 @@ export function EditorProvider({
     en: "The trip cannot take this change. Check what you entered.",
     zh: "行程无法接受这项修改，请检查填写的内容。",
   });
+  const notSavedMessage = t({
+    en: "That change is not saved",
+    zh: "这项修改没有保存",
+  });
   const droppedMessage = t({
     en: "A change could not be saved, because the trip has changed. The trip shows as it is now.",
     zh: "行程已有变动，有一项修改未能保存。现在显示的是最新的行程。",
@@ -145,6 +149,14 @@ export function EditorProvider({
   useEffect(() => {
     if (isOnline) queue.sync();
   }, [isOnline, queue]);
+
+  // The toast of a change says that it is saved before the server answers.
+  // When the request fails, this takes its place.
+  const failedId =
+    state.problem?.kind === "failed" ? state.problem.batch.id : null;
+  useEffect(() => {
+    if (failedId !== null) showToast({ message: notSavedMessage });
+  }, [failedId, showToast, notSavedMessage]);
 
   const undo = () => {
     showToast({ message: queue.undo() ? undone : cannotUndo });
@@ -173,10 +185,7 @@ export function EditorProvider({
       if (!result.ok) {
         return {
           ok: false,
-          message:
-            result.refused === null
-              ? staleMessage
-              : `${refusedMessage} (${result.refused})`,
+          message: result.refused === null ? staleMessage : refusedMessage,
         };
       }
       setHasChanged(true);

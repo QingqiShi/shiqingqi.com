@@ -50,6 +50,7 @@ function setup() {
   const gates: (() => void)[] = [];
   let failures = 0;
   let landsBeforeFailure = false;
+  let readFails = false;
   const dropped = { count: 0 };
 
   const queue = createSaveQueue({
@@ -67,7 +68,13 @@ function setup() {
         result.status === "applied" ? { ...result, revision: 1 } : result
       ) satisfies ChangeResult;
     },
-    read: () => Promise.resolve(server.trip),
+    read: () => {
+      if (readFails) {
+        readFails = false;
+        return Promise.reject(new Error("offline"));
+      }
+      return Promise.resolve(server.trip);
+    },
   });
   queue.onDropped(() => {
     dropped.count++;
@@ -86,6 +93,9 @@ function setup() {
     failNext: (options: { lands: boolean }) => {
       failures = 1;
       landsBeforeFailure = options.lands;
+    },
+    failNextRead: () => {
+      readFails = true;
     },
     /** A change by another person, straight on the server. */
     other: (ops: readonly DraftOp[]) => {
@@ -168,10 +178,28 @@ describe("the save queue", () => {
 
     queue.keepTheirs();
     await answer();
-    // The later change was to the same thing, so it goes to the server on
-    // top of their version.
-    expect(nameOf(server.trip)).toBe("My castle, again");
+    // The person made the later change before they saw the other version,
+    // so it does not go over that version without a question.
+    expect(nameOf(server.trip)).toBe("Their castle");
+    expect(queue.getState().problem?.kind).toBe("conflict");
     expect(dropped.count).toBe(0);
+  });
+
+  it("asks on a retry, and does not write over the other change, when the read after a conflict failed", async () => {
+    const { queue, server, answer, other, failNextRead } = setup();
+    other([rename("Their castle")]);
+    queue.submit([rename("My castle")]);
+    failNextRead();
+    await answer();
+    expect(queue.getState().problem?.kind).toBe("failed");
+
+    queue.retry();
+    await answer();
+    expect(nameOf(server.trip)).toBe("Their castle");
+    expect(queue.getState().problem).toMatchObject({
+      kind: "conflict",
+      canKeepMine: true,
+    });
   });
 
   it("sends the person's change over the other version when asked", async () => {
