@@ -27,11 +27,7 @@ export async function acceptInvite(
     throw new HttpError(409, "already_member");
   }
   const invite = await lookups.inviteByToken(tx, hashToken(token), now);
-  // An invite with a recovery user is from the time when a recovery was an
-  // invite. A recovery has a link of its own now, so such an invite has ended.
-  if (invite?.recoveryUserId !== null) {
-    throw new HttpError(410, "invite_invalid");
-  }
+  if (invite === null) throw new HttpError(410, "invite_invalid");
   const { householdId, memberId, inviteId } = invite;
   await withHousehold(tx, householdId, async (scope) => {
     const used = await scope.db

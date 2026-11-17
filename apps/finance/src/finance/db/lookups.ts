@@ -41,9 +41,8 @@ export const lookups = {
   },
 
   /**
-   * The open invite with this token hash at `now`: not used, not expired, its
-   * Member live, and its Member's user the one the invite was made for (none
-   * for a new-member invite).
+   * The open invite with this token hash at `now`: not used, not expired, and
+   * its Member live and without a user.
    */
   async inviteByToken(db: FinanceAppDb, tokenHash: Uint8Array, now: Date) {
     const rows = await db
@@ -53,7 +52,6 @@ export const lookups = {
         householdName: sql<string>`invite.household_name`,
         memberId: sql<string>`invite.member_id`,
         memberName: sql<string>`invite.member_name`,
-        recoveryUserId: sql<string | null>`invite.recovery_user_id`,
       })
       .from(
         sql`finance_auth.invite_by_token(${tokenHash}, ${now.toISOString()}::timestamptz) as invite`,
