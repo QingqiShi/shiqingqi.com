@@ -276,10 +276,14 @@ const styles = stylex.create({
     minInlineSize: 0,
     flexGrow: 1,
   },
+  // The cap makes a Specimen that is wider than a phone shrink to the stage.
+  // Without it, the Specimen keeps its width and the stage cuts both sides.
   specimen: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    maxInlineSize: "100%",
+    minInlineSize: 0,
   },
   // From `md` the snippet stands at the foot of the stage and takes the room
   // that the Specimen leaves. Its basis is the least room it keeps, so long

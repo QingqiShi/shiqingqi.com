@@ -175,7 +175,7 @@
     "./components/option-card-stack": "./src/forms/option-card-stack.tsx",
     "./components/option-card.stylex": "./src/forms/option-card.stylex.ts",
     "./components/outline-surface.stylex": "./src/actions/outline-surface.stylex.ts",
-    "./components/page-header": "./src/content/page-header.tsx",
+    "./components/page-header": "./src/surfaces/page-header.tsx",
     "./components/pager": "./src/actions/pager.tsx",
     "./components/popover": "./src/surfaces/popover.tsx",
     "./components/popover-surface.stylex": "./src/surfaces/popover-surface.stylex.ts",

@@ -7,8 +7,8 @@ export default function HeadingLayout({ children }: { children: ReactNode }) {
     <LabArticle
       path="/design-system/components/heading"
       description={t({
-        en: "The heading typography primitive. Keep ranks in document order with level, then pick any visual size with look — the two stay decoupled so the outline never fights the design.",
-        zh: "标题文字排版基础组件。用 level 让层级遵循文档顺序，再用 look 选择任意视觉字号——二者解耦，让大纲不再与设计冲突。",
+        en: "The type that a title is set in. level keeps the ranks in document order and look picks the visual size, so the outline never fights the design. For the title at the top of a page, use PageHeader, which puts this heading with a description and the page's actions.",
+        zh: "标题所用的文字排版。level 让层级遵循文档顺序，look 选择视觉字号，大纲因此不会与设计冲突。页面顶部的标题请用 PageHeader，它把这个标题与说明、页面操作放在一起。",
       })}
     >
       {children}

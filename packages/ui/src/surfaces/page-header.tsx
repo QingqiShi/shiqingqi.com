@@ -1,10 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
+import { Heading } from "../content/heading.tsx";
+import { Text } from "../content/text.tsx";
 import { isShown } from "../is-shown.ts";
 import { cluster, stack } from "../primitives/stack.stylex.ts";
 import type { StyleProp } from "../types.ts";
-import { Heading } from "./heading.tsx";
-import { Text } from "./text.tsx";
 
 interface PageHeaderProps extends Omit<
   ComponentProps<"header">,
@@ -39,6 +39,16 @@ interface PageHeaderProps extends Omit<
    */
   actions?: ReactNode;
   /**
+   * How large the header reads. `"md"`, the default, is for a page that a
+   * reader comes to read. `"sm"` makes the title and the description one step
+   * smaller, for a screen of an app where the content below is what the
+   * visitor came for.
+   *
+   * @default "md"
+   * @zh 标题区的大小。默认的 `"md"` 用于读者前来阅读的页面。`"sm"` 让标题与说明各小一级，用于应用中的屏幕：访客是为下方的内容而来。
+   */
+  size?: "sm" | "md";
+  /**
    * StyleX styles merged over the header's own — the config-layer escape
    * hatch.
    *
@@ -56,22 +66,24 @@ export function PageHeader({
   description,
   eyebrow,
   actions,
+  size = "md",
   css,
   ...rest
 }: PageHeaderProps) {
+  const parts = sizeParts[size];
   return (
     <header {...rest} css={[cluster.item, css]}>
-      <div css={[stack.tight, styles.text]}>
+      <div css={[parts.lines, styles.text, parts.text]}>
         {isShown(eyebrow) ? (
           <Text as="p" look="overline" tone="muted">
             {eyebrow}
           </Text>
         ) : null}
-        <Heading level={1} look="h1">
+        <Heading level={1} look={parts.title}>
           {title}
         </Heading>
         {isShown(description) ? (
-          <Text as="p" tone="muted">
+          <Text as="p" look={parts.description} tone="muted">
             {description}
           </Text>
         ) : null}
@@ -84,15 +96,38 @@ export function PageHeader({
 }
 
 const styles = stylex.create({
-  // Below this width, the actions wrap under the title, so a long title is
-  // not squeezed beside them.
   text: {
     flexGrow: 1,
     flexShrink: 1,
-    flexBasis: "20rem",
     minInlineSize: 0,
+  },
+  // Below this width, the actions wrap under the title, so a long title is
+  // not squeezed beside them.
+  textMd: {
+    flexBasis: "20rem",
+  },
+  // A small title needs less room, so one button stays beside it on a phone.
+  textSm: {
+    flexBasis: "12rem",
   },
   actions: {
     flexShrink: 0,
   },
 });
+
+// The small title and its description are lines of one item, so no gap
+// separates them.
+const sizeParts = {
+  sm: {
+    lines: stack.text,
+    text: styles.textSm,
+    title: "h3",
+    description: "bodySmall",
+  },
+  md: {
+    lines: stack.tight,
+    text: styles.textMd,
+    title: "h1",
+    description: "body",
+  },
+} as const;

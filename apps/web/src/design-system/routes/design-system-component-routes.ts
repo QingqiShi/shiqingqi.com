@@ -27,12 +27,6 @@ export const DESIGN_SYSTEM_COMPONENT_ROUTES = [
   {
     section: "components",
     category: "content",
-    path: "/design-system/components/page-header",
-    keywords: ["page title", "header", "eyebrow", "hero", "h1", "actions"],
-  },
-  {
-    section: "components",
-    category: "content",
     path: "/design-system/components/code-block",
     lab: true,
     keywords: ["code", "snippet", "syntax", "source", "usage", "runs"],
@@ -323,6 +317,16 @@ export const DESIGN_SYSTEM_COMPONENT_ROUTES = [
     path: "/design-system/components/card",
     lab: true,
     keywords: ["panel", "tile", "surface", "container"],
+  },
+  // Directly above Section, which has the same parts one level down: a title,
+  // a description and actions. Not in Content beside Heading: Heading is the
+  // type that a title is set in, and this is the block that opens a page.
+  {
+    section: "components",
+    category: "surfaces",
+    path: "/design-system/components/page-header",
+    lab: true,
+    keywords: ["page title", "header", "eyebrow", "hero", "h1", "actions"],
   },
   {
     section: "components",
