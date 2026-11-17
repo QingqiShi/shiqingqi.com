@@ -5,6 +5,7 @@ import { validateLocale } from "@tuja/i18n/validate-locale";
 import { Button } from "@tuja/ui/components/button";
 import { EmptyState } from "@tuja/ui/components/empty-state";
 import type { Metadata } from "next";
+import { ReloadWhenOnline } from "#src/pwa/reload-when-online.tsx";
 import { StandalonePage } from "#src/shell/standalone-page.tsx";
 
 interface OfflinePageProps {
@@ -25,6 +26,7 @@ export default async function OfflinePage({ params }: OfflinePageProps) {
   const locale = validateLocale((await params).locale);
   return (
     <StandalonePage>
+      <ReloadWhenOnline />
       <EmptyState
         level={2}
         icon={<WifiSlashIcon weight="bold" />}

@@ -74,7 +74,14 @@ export default async function LocaleLayout({
           crossOrigin="anonymous"
         />
         <I18nProvider locale={locale}>
-          <SerwistProvider swUrl="/sw.js" disable={DEV}>
+          <SerwistProvider
+            swUrl="/sw.js"
+            disable={DEV}
+            // A reload when the device comes online discards what is on the
+            // screen, also a page load that is in progress. Only the offline
+            // page loads again (`ReloadWhenOnline`).
+            reloadOnOnline={false}
+          >
             <script>{themeHack}</script>
             <ThemeApplier />
             <EffectLayerProvider>
