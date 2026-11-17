@@ -50,11 +50,13 @@ The person accepts or declines each batch alone, so a batch is the smallest chan
 
 Each batch has a "summary": a short line, in the language of the request, that says what it changes.`;
 
+const PLAIN_WORDS = `Write it as a friend who helps with the trip would, about days, places, times and what you left out or guessed. Never use the words of this app's answer, such as batch, op, id, placeholder, field, schema or JSON, and never write an id.`;
+
 const ANSWER = `## Answer
 
 Answer with one JSON object and nothing else:
 {"message": string, "batches": [{"summary": string, "ops": [op, ...]}, ...]}
-"message" is one or two short sentences to the person, in the language of the request: what you changed, or why you changed nothing. When the request asks a question, or asks for something you cannot do with these ops, answer in "message" and give no batches.
+"message" is one or two short sentences to the person, in the language of the request: what you changed, or why you changed nothing. ${PLAIN_WORDS} When the request asks a question, or asks for something you cannot do with these ops, answer in "message" and give no batches.
 
 When the app cannot apply your answer, it tells you why. Then answer again with the whole object, fixed.`;
 
@@ -90,7 +92,7 @@ ${BATCHES}
 
 Answer with one JSON object and nothing else:
 {"fields": {...}, "message": string, "batches": [{"summary": string, "ops": [op, ...]}, ...]}
-"message" is one short sentence to the person, in the language of the pasted text, about the trip you made or what you could not read.
+"message" is one or two short sentences to the person about the trip you made. Do not list the plan again: the person sees the trip. Say what you left out, guessed or could not read, or else that the trip follows the plan. Write "message" in the person's language from the first message, also when the pasted text is in another language. Everything in the trip, the title too, stays in the language of the pasted text. ${PLAIN_WORDS}
 
 When the app cannot apply your answer, it tells you why. Then answer again with the whole object, fixed.`;
 
@@ -133,10 +135,11 @@ function draftMessage(
   text: string,
   now: Date,
   timeZone: string,
-  locale: string,
+  locale: "en" | "zh",
 ): [string] {
+  const language = locale === "zh" ? "Chinese (zh)" : "English (en)";
   return [
-    `Today is ${dateInZone(now, timeZone)}. The person's time zone is ${timeZone} and their language is ${locale}.
+    `Today is ${dateInZone(now, timeZone)}. The person's time zone is ${timeZone} and their language is ${language}.
 
 <pasted>
 ${text}
