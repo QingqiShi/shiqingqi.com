@@ -85,8 +85,8 @@ export function LandingPage() {
             </div>
             <Text look="bodySmall" tone="muted">
               {t({
-                en: "A trip comes to you by an invite link from its owner. Sign up, then open the link.",
-                zh: "行程由它的所有者通过邀请链接分享给你。先注册，再打开链接。",
+                en: "Sign up, then make a trip, or join one by an invite link from its owner.",
+                zh: "注册后，新建行程，或通过所有者的邀请链接加入。",
               })}
             </Text>
           </div>

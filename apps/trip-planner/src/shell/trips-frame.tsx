@@ -14,6 +14,7 @@ import { Text } from "@tuja/ui/components/text";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { useRouter, useSelectedLayoutSegments } from "next/navigation";
 import type { ReactNode } from "react";
+import { NewTripFloatingButton } from "#src/new-trip/new-trip-button.tsx";
 import { useDayNumber } from "#src/reader/use-day-number.ts";
 import { useTripHash } from "#src/reader/use-trip-location.ts";
 import { TripSkeleton } from "./trip-skeleton.tsx";
@@ -125,6 +126,7 @@ export function TripsFrame({
         href: listHref,
         label: listLabel,
         node: <TripNav trips={trips} current={open?.id ?? null} />,
+        accessory: <NewTripFloatingButton />,
       }}
       content={{
         key: open ? (isEditing ? `${open.id}/edit` : open.id) : "home",

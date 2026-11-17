@@ -4,7 +4,7 @@ import { SIDEBAR_COLLAPSED_COOKIE } from "@tuja/ui/components/sidebar-collapsed-
 import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 import { AppFrame } from "#src/shell/app-frame.tsx";
-import { getViewerId } from "#src/trips/get-trips.ts";
+import { getTrips, getViewerId } from "#src/trips/get-trips.ts";
 
 export default async function Layout({
   children,
@@ -14,9 +14,11 @@ export default async function Layout({
   params: Promise<{ locale: string }>;
 }) {
   setLocale(validateLocale((await params).locale));
+  const signedIn = (await getViewerId()) !== null;
   return (
     <AppFrame
-      signedIn={(await getViewerId()) !== null}
+      signedIn={signedIn}
+      hasTrips={signedIn && (await getTrips()).length > 0}
       defaultCollapsed={
         (await cookies()).get(SIDEBAR_COLLAPSED_COOKIE)?.value === "1"
       }

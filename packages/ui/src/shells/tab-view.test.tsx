@@ -1,6 +1,7 @@
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { NavigationSplitView } from "./navigation-split-view.tsx";
 import { TabView } from "./tab-view.tsx";
 
 describe("TabView", () => {
@@ -58,5 +59,33 @@ describe("TabView", () => {
       expect(toggle).toHaveAttribute("aria-expanded", "true");
     }
     expect(document.cookie).not.toContain("sidebar_collapsed=1");
+  });
+
+  // The accessory of a list in a `TabView`, such as an Add action, did not show.
+  it("shows the accessory of the list of a split view", () => {
+    render(
+      <TabView
+        sidebarToggleLabel="Sidebar"
+        label="Main"
+        items={[
+          { href: "/home", label: "Home", icon: HouseIcon, current: true },
+        ]}
+      >
+        <NavigationSplitView
+          linkStatus={null}
+          sidebar={{
+            href: "/home",
+            label: "Trips",
+            node: <p>List</p>,
+            accessory: <button type="button">New trip</button>,
+          }}
+          content={{ label: "Trip", node: <p>Trip</p> }}
+        />
+      </TabView>,
+    );
+
+    expect(
+      screen.getAllByRole("button", { name: "New trip", hidden: true }).length,
+    ).toBeGreaterThan(0);
   });
 });
