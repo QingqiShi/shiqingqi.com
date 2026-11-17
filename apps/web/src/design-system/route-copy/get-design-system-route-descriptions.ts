@@ -235,6 +235,10 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "A styled native select driven by options or custom children.",
       zh: "样式化的原生下拉选择，支持选项数组或自定义子元素。",
     }),
+    "/design-system/components/combobox": t({
+      en: "A text field that finds an option as you type.",
+      zh: "边输入边查找选项的文本输入框。",
+    }),
     "/design-system/components/sheet": t({
       en: "A modal card over the dimmed page that a drag down puts away.",
       zh: "压暗页面之上的模态卡片，向下拖动即可收起。",

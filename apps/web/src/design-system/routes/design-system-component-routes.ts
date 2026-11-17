@@ -148,7 +148,21 @@ export const DESIGN_SYSTEM_COMPONENT_ROUTES = [
     category: "forms",
     path: "/design-system/components/select",
     lab: true,
-    keywords: ["dropdown", "picker", "combobox", "options", "form"],
+    keywords: ["dropdown", "picker", "options", "form"],
+  },
+  {
+    section: "components",
+    category: "forms",
+    path: "/design-system/components/combobox",
+    keywords: [
+      "combobox",
+      "autocomplete",
+      "search",
+      "typeahead",
+      "suggestions",
+      "picker",
+      "form",
+    ],
   },
   {
     section: "components",

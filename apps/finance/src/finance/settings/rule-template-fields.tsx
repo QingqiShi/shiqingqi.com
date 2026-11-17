@@ -1,11 +1,11 @@
 "use client";
 
 import { t } from "@tuja/i18n";
+import { Combobox } from "@tuja/ui/components/combobox";
 import { Select } from "@tuja/ui/components/select";
 import type { Ref } from "react";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
 import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
-import { Combobox } from "../editor/combobox.tsx";
 import { useReplica } from "../replica/use-replica.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
@@ -84,7 +84,9 @@ export function RuleTemplateFields({
     <>
       <Combobox
         label={t({ en: "Payee", zh: "商家" })}
-        inputRef={payeeRef}
+        ref={payeeRef}
+        autoCapitalize="words"
+        enterKeyHint="done"
         value={value.payeeText}
         options={payeeOptions}
         createLabel={(text) => `${newPayeeLabel} ${text}`}

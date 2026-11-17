@@ -99,6 +99,10 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       zh: "时间输入框",
     }),
     "/design-system/components/select": t({ en: "Select", zh: "下拉选择" }),
+    "/design-system/components/combobox": t({
+      en: "Combobox",
+      zh: "搜索选择框",
+    }),
     "/design-system/components/checkbox": t({ en: "Checkbox", zh: "复选框" }),
     "/design-system/components/switch": t({ en: "Switch", zh: "开关" }),
     "/design-system/components/segmented-control": t({

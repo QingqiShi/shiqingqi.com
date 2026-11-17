@@ -10,6 +10,7 @@ import { CardSpecimen } from "./card-specimen.tsx";
 import { CheckboxSpecimen } from "./checkbox-specimen.tsx";
 import { CodeBlockSpecimen } from "./code-block-specimen.tsx";
 import { ColumnsSpecimen } from "./columns-specimen.tsx";
+import { ComboboxSpecimen } from "./combobox-specimen.tsx";
 import { DateFieldSpecimen } from "./date-field-specimen.tsx";
 import { DisclosureSpecimen } from "./disclosure-specimen.tsx";
 import { DividerSpecimen } from "./divider-specimen.tsx";
@@ -118,6 +119,7 @@ const COMPONENT_SPECIMENS: Partial<
   "/design-system/components/date-field": { element: <DateFieldSpecimen /> },
   "/design-system/components/time-field": { element: <TimeFieldSpecimen /> },
   "/design-system/components/checkbox": { element: <CheckboxSpecimen /> },
+  "/design-system/components/combobox": { element: <ComboboxSpecimen /> },
   "/design-system/components/segmented-control": {
     element: <SegmentedControlSpecimen />,
   },
