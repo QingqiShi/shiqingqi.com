@@ -23,10 +23,10 @@ import { TripText } from "#src/reader/trip-text.tsx";
 import { dayAnchorId } from "#src/reader/use-trip-location.ts";
 import type { Item } from "#src/trips/ops/op-schema.ts";
 import type { Moment } from "#src/trips/types.ts";
-import type { OutlineDay } from "./build-outline.ts";
+import { locateItem, type OutlineDay } from "./build-outline.ts";
 import { dayPlan, dayRowId, isOnlyItsItem } from "./day-plan.ts";
 import { useEditor } from "./editor-provider.tsx";
-import { ItemRow, MomentRow } from "./item-row.tsx";
+import { ItemRow, MomentRow, pressTarget } from "./item-row.tsx";
 import type { OpenSheet } from "./types.ts";
 import { useDayChanges } from "./use-day-changes.ts";
 import { useDayLabels } from "./use-day-labels.ts";
@@ -154,6 +154,14 @@ export function DayGroup({
     ? editor.trip.days.findIndex((each) => each.id === day.stay.sameAs?.dayId)
     : -1;
   const sameAs = t({ en: "Same bed as {day}", zh: "与{day}同住一处" });
+  const sameAsRowId = `same:${day.id}`;
+  const repeatedId =
+    sameAsIndex >= 0
+      ? editor.trip.days[sameAsIndex].stay.lodging.at(0)?.id
+      : undefined;
+  const repeatedStay = repeatedId
+    ? locateItem(editor.trip, repeatedId)
+    : undefined;
 
   const itemRow = (
     item: Item,
@@ -248,7 +256,20 @@ export function DayGroup({
           <Section title={listLabels.lodging} level={3}>
             <List>
               {sameAsIndex >= 0 ? (
-                <ListRow detail={<TripText>{day.stay.sameAs?.label}</TripText>}>
+                <ListRow
+                  ref={editor.rowRef(sameAsRowId)}
+                  detail={<TripText>{day.stay.sameAs?.label}</TripText>}
+                  {...pressTarget(
+                    canEdit && repeatedStay
+                      ? () => {
+                          openSheet(
+                            { kind: "item", found: repeatedStay },
+                            sameAsRowId,
+                          );
+                        }
+                      : null,
+                  )}
+                >
                   {sameAs.replace("{day}", dayLabels.number(sameAsIndex))}
                 </ListRow>
               ) : null}
