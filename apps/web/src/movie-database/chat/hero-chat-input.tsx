@@ -7,13 +7,11 @@ import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
-import { ViewTransition } from "react";
 import { useHeroVisibility } from "#src/movie-database/browse/hero-visibility-context.ts";
 import { PreferenceManager } from "#src/movie-database/taste/preference-panel.tsx";
-import { inlineChatInputMorph } from "#src/view-transition-classes.stylex.ts";
 import { useAIChatContext } from "./ai-chat-provider.tsx";
 import { ChatTextarea } from "./chat-textarea.tsx";
-import { useInlineChat } from "./inline-chat-context";
+import { DATA_INLINE_CHAT_INPUT, useInlineChat } from "./inline-chat-context";
 import { SuggestionChips } from "./suggestion-chips";
 import { useAIChatSend } from "./use-ai-chat-send.ts";
 
@@ -58,21 +56,19 @@ export function HeroChatInput({
           aria-hidden={!isHeroInputVisible || undefined}
           inert={!isHeroInputVisible || undefined}
         >
-          <ViewTransition name="inline-chat-input" share={inlineChatInputMorph}>
-            <div css={styles.inputShell}>
-              <ChatTextarea
-                placeholder={placeholder}
-                sendLabel={sendLabel}
-                onSubmit={send}
-                submitDisabled={isLoading}
-                // The hero is a full composer, not a toolbar field: a long
-                // prompt grows the box instead of scrolling out of view, and
-                // Shift+Enter still breaks a line.
-                multiline
-                leading={<SparkleIcon weight="fill" />}
-              />
-            </div>
-          </ViewTransition>
+          <div {...{ [DATA_INLINE_CHAT_INPUT]: "" }}>
+            <ChatTextarea
+              placeholder={placeholder}
+              sendLabel={sendLabel}
+              onSubmit={send}
+              submitDisabled={isLoading}
+              // The hero is a full composer, not a toolbar field: a long
+              // prompt grows the box instead of scrolling out of view, and
+              // Shift+Enter still breaks a line.
+              multiline
+              leading={<SparkleIcon weight="fill" />}
+            />
+          </div>
         </div>
       </div>
       <div css={[flex.between, styles.meta]}>
@@ -115,9 +111,6 @@ const styles = stylex.create({
   hidden: {
     opacity: 0,
     pointerEvents: "none",
-  },
-  inputShell: {
-    display: "block",
   },
   meta: {
     alignItems: "center",

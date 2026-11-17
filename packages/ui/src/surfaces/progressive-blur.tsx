@@ -94,9 +94,8 @@ interface ProgressiveBlurProps {
 /**
  * The page blurred around whatever floats, in place of dimming it, sized to
  * its positioned ancestor or, with `reach`, to itself plus that margin. The
- * box must never clip — that strips the layers' masks (see `MaskBand`) — and
- * must stay outside any named `ViewTransition` group, which would otherwise
- * capture it apart from the page it filters.
+ * box must never clip, because that strips the layers' masks (see
+ * `MaskBand`).
  */
 export function ProgressiveBlur({
   children,

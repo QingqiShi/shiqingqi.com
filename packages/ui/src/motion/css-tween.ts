@@ -3,8 +3,6 @@ import type { Tween } from "./spring-roles.ts";
 
 /**
  * Seconds from a CSS time in ms, such as a `duration` token.
- *
- * @internal
  */
 export function cssSeconds(time: string) {
   return Number.parseFloat(time) / 1000;
@@ -13,8 +11,6 @@ export function cssSeconds(time: string) {
 /**
  * A tween from a `duration` token and an `easing` token. It is linear when
  * `easing` is left out.
- *
- * @internal
  */
 export function cssTween(time: string, easing?: string): Tween {
   const duration = cssSeconds(time);

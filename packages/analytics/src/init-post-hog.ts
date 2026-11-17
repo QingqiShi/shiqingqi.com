@@ -2,7 +2,6 @@ import { DEV } from "esm-env";
 import { POSTHOG_HOST, POSTHOG_TOKEN } from "./constants";
 import { dropOpaqueCrossOriginErrors } from "./drop-opaque-cross-origin-errors";
 import { dropResizeObserverLoopErrors } from "./drop-resize-observer-loop-errors";
-import { dropSkippedTransitionErrors } from "./drop-skipped-transition-errors";
 import { posthogClient } from "./posthog-client";
 import { posthogEnabled } from "./posthog-enabled";
 import { redactEventTokens } from "./redact-event-tokens";
@@ -40,7 +39,6 @@ export async function initPostHog() {
     capture_exceptions: true,
     before_send: [
       dropOpaqueCrossOriginErrors,
-      dropSkippedTransitionErrors,
       dropResizeObserverLoopErrors,
       redactEventTokens,
     ],

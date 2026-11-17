@@ -19,7 +19,6 @@ import { HeroVisibilityProvider } from "#src/movie-database/browse/hero-visibili
 import { MediaList } from "#src/movie-database/browse/media-list.tsx";
 import { ResultsTitle } from "#src/movie-database/browse/results-title.tsx";
 import { TrendingRows } from "#src/movie-database/browse/trending-rows.tsx";
-import { DotGridBackground } from "#src/movie-database/chat/dot-grid-background.tsx";
 import { InlineChatSwitch } from "#src/movie-database/chat/inline-chat-switch.tsx";
 import { InlineChatView } from "#src/movie-database/chat/inline-chat-view.tsx";
 import { SuggestionChips } from "#src/movie-database/chat/suggestion-chips.tsx";
@@ -107,7 +106,6 @@ export default async function Page(
       <HeroVisibilityProvider>
         <div>
           <InlineChatSwitch
-            chatBackground={<DotGridBackground />}
             browseContent={
               <>
                 <HeroSection />
