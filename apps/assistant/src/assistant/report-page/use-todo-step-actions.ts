@@ -108,7 +108,7 @@ export function useTodoStepActions({
       run(
         patchChecklist(todoId, (steps) => rearrange(steps, ids)),
         () =>
-          assistantFetch(`${stepPath(todoId)}order`, {
+          assistantFetch(stepPath(todoId, "order"), {
             method: "PUT",
             body: JSON.stringify({ ids }),
           }),
