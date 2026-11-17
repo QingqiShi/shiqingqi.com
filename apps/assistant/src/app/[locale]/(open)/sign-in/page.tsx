@@ -1,3 +1,4 @@
+import { SignInPanel } from "@tuja/auth-ui/components/sign-in-panel";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { PageProps } from "@tuja/i18n/types";
@@ -10,7 +11,6 @@ import { getPageSession } from "#src/assistant/auth/get-page-session.ts";
 import { isAssistantConfigured } from "#src/assistant/db/is-assistant-configured.ts";
 import { NotConfigured } from "#src/assistant/shell/not-configured.tsx";
 import { AuthFrame } from "#src/assistant/sign-in/auth-frame.tsx";
-import { SignInPanel } from "#src/assistant/sign-in/sign-in-panel.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);
@@ -34,7 +34,7 @@ export default async function Page({
 
   return (
     <AuthFrame>
-      <SignInPanel next={next} />
+      <SignInPanel next={next} passkeyOnly />
     </AuthFrame>
   );
 }

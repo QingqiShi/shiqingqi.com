@@ -59,6 +59,10 @@ export function useAuthErrorMessage(appMessages: Record<string, string> = {}) {
       en: "That code no longer works. Ask for a new one.",
       zh: "该验证码已失效。请重新获取。",
     }),
+    unauthorized: t({
+      en: "You are signed out. Sign in again, then try again.",
+      zh: "你已退出登录。请重新登录后再试。",
+    }),
     not_configured: t({
       en: "This app is not set up on this server.",
       zh: "此服务器尚未配置本应用。",

@@ -3,8 +3,10 @@ import { EMAIL_CODE_LIMITS } from "./email-code-limits.ts";
 import { makeSealedCookie } from "./make-sealed-cookie.ts";
 
 const emailCodePayloadSchema = z.object({
-  purpose: z.enum(["recovery", "sign-up"]),
+  purpose: z.enum(["recovery", "sign-up", "email-change"]),
   codeId: z.uuid(),
+  /** The signed-in user who asked for the code, when the flow has one. */
+  userId: z.uuid().optional(),
 });
 
 export type EmailCodePayload = z.infer<typeof emailCodePayloadSchema>;

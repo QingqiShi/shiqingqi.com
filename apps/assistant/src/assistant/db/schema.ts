@@ -1,7 +1,7 @@
+import { makeAuthTables } from "@tuja/server-auth/make-auth-tables";
 import { sql } from "drizzle-orm";
 import {
   type AnyPgColumn,
-  bigint,
   boolean,
   check,
   customType,
@@ -46,48 +46,14 @@ function updatedAt() {
 export const users = pgTable("users", {
   id: uuid("id").primaryKey(),
   displayName: text("display_name").notNull(),
+  /** Lower case and confirmed by an emailed code. Null until the user sets it in Settings. */
+  email: text("email").unique(),
   createdAt: createdAt(),
 });
 
-export const passkeys = pgTable(
-  "passkeys",
-  {
-    id: text("id").primaryKey(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    publicKey: bytea("public_key").notNull(),
-    counter: bigint("counter", { mode: "number" }).notNull().default(0),
-    transports: text("transports")
-      .array()
-      .notNull()
-      .default(sql`'{}'::text[]`),
-    createdAt: createdAt(),
-    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
-  },
-  (t) => [index("passkeys_user_idx").on(t.userId)],
-);
-
-export const sessions = pgTable(
-  "sessions",
-  {
-    id: uuid("id").primaryKey(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    tokenHash: bytea("token_hash").notNull().unique(),
-    createdAt: createdAt(),
-    refreshedAt: timestamp("refreshed_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    lastSeenAt: timestamp("last_seen_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-    userAgent: text("user_agent").notNull().default(""),
-  },
-  (t) => [index("sessions_user_idx").on(t.userId)],
-);
+/** The tables of sign-in that every app has. */
+export const { emailCodes, signUps, recoveries, passkeys, sessions } =
+  makeAuthTables(() => users.id);
 
 function userId() {
   return uuid("user_id")
@@ -495,6 +461,9 @@ export const schema = {
   users,
   passkeys,
   sessions,
+  emailCodes,
+  signUps,
+  recoveries,
   captureTokens,
   userSettings,
   mailAccounts,

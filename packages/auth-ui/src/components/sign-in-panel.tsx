@@ -27,15 +27,28 @@ interface SignInPanelProps {
   signUpNote?: string;
   /** Another way in that only this app has, under the sign-up form. */
   children?: ReactNode;
+  /** Shows only the passkey sign-in, for an app that takes no new users and recovers no passkeys yet. */
+  passkeyOnly?: boolean;
 }
 
 /**
  * Passkey sign-in, a recovery code by email for a user who lost every
  * passkey, and a sign-up code for a person who has no user yet.
  */
-export function SignInPanel({ next, signUpNote, children }: SignInPanelProps) {
+export function SignInPanel({
+  next,
+  signUpNote,
+  children,
+  passkeyOnly = false,
+}: SignInPanelProps) {
   const locale = useLocale();
-  const messageOf = useAuthErrorMessage();
+  const passkeyOnlyMessages = {
+    passkey_unknown: t({
+      en: "This passkey belongs to no account. Use another passkey.",
+      zh: "此通行密钥不属于任何账号。请换一个通行密钥。",
+    }),
+  };
+  const messageOf = useAuthErrorMessage(passkeyOnly ? passkeyOnlyMessages : {});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
 
@@ -81,25 +94,29 @@ export function SignInPanel({ next, signUpNote, children }: SignInPanelProps) {
         >
           {t({ en: "Sign in with a passkey", zh: "使用通行密钥登录" })}
         </Button>
-        <Disclosure
-          summary={t({
-            en: "Lost your passkey?",
-            zh: "丢失了通行密钥？",
-          })}
-        >
-          <RecoveryRequestForm next={next} />
-        </Disclosure>
+        {passkeyOnly ? null : (
+          <Disclosure
+            summary={t({
+              en: "Lost your passkey?",
+              zh: "丢失了通行密钥？",
+            })}
+          >
+            <RecoveryRequestForm next={next} />
+          </Disclosure>
+        )}
       </div>
-      <FlowBlock css={stack.section}>
-        <Divider />
-        <SignUpRequestForm next={next} note={signUpNote} />
-        {children ? (
-          <>
-            <Divider />
-            {children}
-          </>
-        ) : null}
-      </FlowBlock>
+      {passkeyOnly ? null : (
+        <FlowBlock css={stack.section}>
+          <Divider />
+          <SignUpRequestForm next={next} note={signUpNote} />
+          {children ? (
+            <>
+              <Divider />
+              {children}
+            </>
+          ) : null}
+        </FlowBlock>
+      )}
     </div>
   );
 }

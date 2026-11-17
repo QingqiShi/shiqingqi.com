@@ -25,7 +25,7 @@ export type AuthTx = Pick<
   "select" | "insert" | "update" | "delete"
 >;
 
-export type EmailCodePurpose = "recovery" | "sign-up";
+export type EmailCodePurpose = "recovery" | "sign-up" | "email-change";
 
 type EmailCodeCheck =
   | { ok: true; email: string }

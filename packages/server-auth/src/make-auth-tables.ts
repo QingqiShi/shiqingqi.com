@@ -38,7 +38,9 @@ export function makeAuthTables(userId: () => AnyPgColumn) {
    */
   const emailCodes = pgTable("email_codes", {
     id: uuid("id").primaryKey(),
-    purpose: text("purpose", { enum: ["recovery", "sign-up"] }).notNull(),
+    purpose: text("purpose", {
+      enum: ["recovery", "sign-up", "email-change"],
+    }).notNull(),
     email: text("email").notNull(),
     codeHash: bytea("code_hash").notNull(),
     /** Each check counts, right or wrong; the code ends at the limit. */
