@@ -67,13 +67,16 @@ export function applyOps(trip: Trip, ops: readonly Op[]): ApplyResult {
     }
     const op = parsed.data;
     if (!isAdd(op)) {
-      const thing = thingOf(state, op);
-      const now = thing === undefined ? null : digest(thing);
-      if (!("expect" in op) || now !== op.expect) {
+      const guard = guardOf(state, op);
+      const now = guard === undefined ? null : digest(guard);
+      if (
+        !("expect" in op) ||
+        (op.expect !== now && op.expect !== expectBeforeGuards(state, op))
+      ) {
         return {
           status: "conflict",
           index,
-          current: thing ?? null,
+          current: thingOf(state, op) ?? null,
           expect: now,
         };
       }
@@ -112,8 +115,8 @@ export function withExpect(trip: Trip, ops: readonly DraftOp[]): Op[] {
     if (isAdd(draft)) {
       op = draft;
     } else {
-      const thing = thingOf(state, draft);
-      op = { ...draft, expect: thing === undefined ? "gone" : digest(thing) };
+      const guard = guardOf(state, draft);
+      op = { ...draft, expect: guard === undefined ? "gone" : digest(guard) };
     }
     // When the op cannot apply, the rest is stamped against the trip as it
     // is. `applyOps` refuses this op in its turn.
@@ -158,14 +161,62 @@ function step(trip: Trip, op: Op, touched: Set<string>): Trip | undefined {
 /** The digest that an op on this trip carries as `expect`, or null for an add or a thing that is gone. */
 export function expectedOf(trip: Trip, op: DraftOp): string | null {
   if (isAdd(op)) return null;
+  const guard = guardOf(trip, op);
+  return guard === undefined ? null : digest(guard);
+}
+
+/**
+ * What `expect` digests for an op: the thing that the op changes and, for
+ * a move or a remove, each other thing that the op takes away or relies
+ * on. That is where the thing is, a day, a moment or a list, because a
+ * remove takes the thing from the place where someone else put it and a
+ * move writes over that place. It is not the position among the things
+ * beside it, which changes each time that a neighbour moves. For a day it
+ * is also who is there that day, which goes with the day.
+ */
+function guardOf(trip: Trip, op: DraftOp): unknown {
+  switch (op.op) {
+    case "removeDay": {
+      const day = trip.days.find((each) => each.id === op.id);
+      if (!day) return undefined;
+      return {
+        day,
+        presence: trip.people.map((person) => [
+          person.id,
+          person.days[op.id] ?? null,
+        ]),
+      };
+    }
+    case "moveMoment":
+    case "removeMoment": {
+      const found = findMoment(trip, op.id);
+      return found && { moment: found.moment, dayId: found.day.id };
+    }
+    case "moveItem":
+    case "removeItem": {
+      const found = findItem(trip, op.id);
+      return found && { item: found.item, place: found.place };
+    }
+    default:
+      return thingOf(trip, op);
+  }
+}
+
+/**
+ * The `expect` of an editor that was open before `guardOf` covered more
+ * than the thing: the digest of the thing only. `applyOps` takes it too, so
+ * that such an editor saves as it did before, with no more protection than
+ * it had. Remove this function when no such editor is open any more.
+ */
+function expectBeforeGuards(trip: Trip, op: DraftOp): string | null {
   const thing = thingOf(trip, op);
   return thing === undefined ? null : digest(thing);
 }
 
 /**
- * What an op changes, as `expect` digests it: the fields that a set
- * changes; all of a thing that a move or a remove takes, with what it
- * holds; the order of the days for a move of a day.
+ * The thing that an op changes: the fields that a set changes; all of a
+ * thing that a move or a remove takes, with what it holds; the order of
+ * the days for a move of a day.
  */
 function thingOf(trip: Trip, op: DraftOp): unknown {
   switch (op.op) {

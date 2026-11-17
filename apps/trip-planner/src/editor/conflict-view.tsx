@@ -19,8 +19,8 @@ import {
 import { findMoment } from "#src/trips/ops/find-item.ts";
 import type { Trip } from "#src/trips/types.ts";
 import { itemName, locateItem } from "./build-outline.ts";
-import { goesWithTheirs } from "./create-save-queue.ts";
 import { useEditor } from "./editor-provider.tsx";
+import { goesWithTheirs } from "./goes-with-theirs.ts";
 import { SheetActions } from "./sheet-actions.tsx";
 import { useDayLabels } from "./use-day-labels.ts";
 import { useKindLabels } from "./use-field-labels.ts";
