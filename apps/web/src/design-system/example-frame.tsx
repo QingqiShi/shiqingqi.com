@@ -1,0 +1,93 @@
+import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color } from "@tuja/ui/color.stylex";
+import { CodeBlock, type CodeToken } from "@tuja/ui/components/code-block";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
+import type { ReactNode } from "react";
+
+export interface ExampleProps {
+  /**
+   * The source of the preview, in the reader's locale. The Babel plugin puts
+   * this in. Never write it by hand.
+   */
+  source?: readonly CodeToken[];
+  /**
+   * Sets block content, such as a card or a page header, at the full width of
+   * the preview. Without it, the preview centres its children in a row, each
+   * at its own width.
+   */
+  fill?: boolean;
+  /** The live preview. */
+  children: ReactNode;
+}
+
+/**
+ * A live preview and the code that makes it, in one card: the preview on top,
+ * the code under it behind a hairline. The shared frame and the order say that
+ * this code makes this preview. The code is the source of the preview, so the
+ * two cannot drift apart. The `CodeBlock` renders where the `Example` renders,
+ * so a server page keeps the colouring on the server.
+ */
+export function ExampleFrame({
+  source,
+  fill = false,
+  codeLabel,
+  children,
+}: ExampleProps & { codeLabel: string }) {
+  return (
+    <div css={[corner.radius_3, styles.card]}>
+      <div css={[flex.center, styles.preview, fill && styles.fill]}>
+        {children}
+      </div>
+      {source ? (
+        <CodeBlock
+          source={source}
+          label={codeLabel}
+          css={styles.code}
+          contentCss={styles.codeInset}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+const styles = stylex.create({
+  card: {
+    minInlineSize: 0,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.border,
+    backgroundColor: color.card,
+  },
+  preview: {
+    flexWrap: "wrap",
+    gap: rhythm.item,
+    paddingBlock: { default: space._8, [breakpoints.md]: space._9 },
+    paddingInline: space._5,
+  },
+  fill: {
+    flexDirection: "column",
+    flexWrap: "nowrap",
+    alignItems: "stretch",
+  },
+  // The card does not clip its content, because a clip would also cut the
+  // effects of the preview. Thus the code area sets its own lower corners,
+  // inside the card's border.
+  code: {
+    borderBlockStartWidth: border.size_1,
+    borderBlockStartStyle: "solid",
+    borderBlockStartColor: color.border,
+    borderStartStartRadius: 0,
+    borderStartEndRadius: 0,
+    borderEndStartRadius: `calc(${border.radius_3} - ${border.size_1})`,
+    borderEndEndRadius: `calc(${border.radius_3} - ${border.size_1})`,
+    cornerShape: "squircle",
+    backgroundColor: color.muted,
+  },
+  codeInset: {
+    paddingBlock: space._4,
+    paddingInline: space._5,
+  },
+});

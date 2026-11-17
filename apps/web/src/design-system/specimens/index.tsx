@@ -32,6 +32,7 @@ import { ProgressSpecimen } from "./progress-specimen.tsx";
 import { ProgressiveBlurSpecimen } from "./progressive-blur-specimen.tsx";
 import { PromptFieldSpecimen } from "./prompt-field-specimen.tsx";
 import { RadioGroupSpecimen } from "./radio-group-specimen.tsx";
+import { ReorderListSpecimen } from "./reorder-list-specimen.tsx";
 import { ScrollMaskSpecimen } from "./scroll-mask-specimen.tsx";
 import { SectionSpecimen } from "./section-specimen.tsx";
 import { SegmentedControlSpecimen } from "./segmented-control-specimen.tsx";
@@ -101,6 +102,9 @@ const COMPONENT_SPECIMENS: Partial<
   "/design-system/components/avatar": { element: <AvatarSpecimen /> },
   "/design-system/components/table": { element: <TableSpecimen /> },
   "/design-system/components/list": { element: <ListSpecimen /> },
+  "/design-system/components/reorder-list": {
+    element: <ReorderListSpecimen />,
+  },
   "/design-system/components/callout": { element: <CalloutSpecimen /> },
   "/design-system/components/card": { element: <CardSpecimen /> },
   "/design-system/components/section": { element: <SectionSpecimen /> },

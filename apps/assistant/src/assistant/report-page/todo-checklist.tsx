@@ -7,10 +7,10 @@ import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { MenuItem } from "@tuja/ui/components/menu-item";
 import { Popover } from "@tuja/ui/components/popover";
+import { ReorderList, useReorderItem } from "@tuja/ui/components/reorder-list";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { Textarea } from "@tuja/ui/components/textarea";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlHeight, rhythm } from "@tuja/ui/tokens.stylex";
 import { mergeRefs } from "@tuja/ui/utils/merge-refs";
@@ -19,15 +19,11 @@ import type { ChecklistItem } from "../report/own-todo.ts";
 import { spanOfMove } from "../report/rearrange.ts";
 import { todoLimits } from "../report/todo-limits.ts";
 import { checklistProgress } from "./checklist-progress.tsx";
-import {
-  SortableRows,
-  useMoveStatus,
-  useSortableRow,
-} from "./sortable-rows.tsx";
 import { TickBox } from "./tick-box.tsx";
 import { useFocusAfterMove, type TodoMoves } from "./todo-row-menu.tsx";
 import { useTodoStore } from "./todo-store-provider.tsx";
 import { oneLine, useEnterOutsideIme } from "./use-enter-outside-ime.ts";
+import { useMoveLabels } from "./use-move-labels.ts";
 
 function StepMenu({
   step,
@@ -92,19 +88,21 @@ function StepRow({
   todoId,
   step,
   place,
-  draggable,
   takeFocus,
-  moves,
 }: {
   todoId: string;
   step: ChecklistItem;
   place: number;
-  draggable: boolean;
   takeFocus: boolean;
-  moves: TodoMoves;
 }) {
   const { changeStep, removeStep } = useTodoStore();
-  const { itemRef, itemCss, handle } = useSortableRow(step.id, draggable);
+  const {
+    ref: itemRef,
+    css: itemCss,
+    handle,
+    moveUp,
+    moveDown,
+  } = useReorderItem(step.id, step.text);
   const [seenText, setSeenText] = useState(step.text);
   const [draft, setDraft] = useState(step.text);
   const textRef = useRef<HTMLTextAreaElement>(null);
@@ -167,7 +165,7 @@ function StepRow({
         {handle}
         <StepMenu
           step={step}
-          moves={moves}
+          moves={{ up: moveUp, down: moveDown }}
           onDelete={() => {
             removeStep(todoId, step.id);
           }}
@@ -196,16 +194,11 @@ export function TodoChecklist({
   onNewStepChange: (text: string) => void;
 }) {
   const { addStep, reorderSteps } = useTodoStore();
-  const [status, noteMoved] = useMoveStatus();
+  const labels = useMoveLabels();
   const headingId = useId();
   const ids = steps.map((step) => step.id);
   const firstOpen = steps.find((step) => !step.done)?.id;
   const addLabel = t({ en: "Add a step", zh: "添加一步" });
-
-  const move = (from: number, to: number) => {
-    reorderSteps(todoId, spanOfMove(ids, from, to));
-    noteMoved(steps[from].text, to + 1, ids.length);
-  };
 
   function addNewStep() {
     const text = newStep.trim();
@@ -227,7 +220,14 @@ export function TodoChecklist({
         </Text>
       </div>
       {steps.length > 0 ? (
-        <SortableRows ids={ids} onMove={move}>
+        <ReorderList
+          {...labels}
+          ids={ids}
+          keyboard={false}
+          onMove={(from, to) => {
+            reorderSteps(todoId, spanOfMove(ids, from, to));
+          }}
+        >
           <ul css={styles.steps}>
             {steps.map((step, index) => (
               <StepRow
@@ -235,26 +235,11 @@ export function TodoChecklist({
                 todoId={todoId}
                 step={step}
                 place={index + 1}
-                draggable={ids.length > 1}
                 takeFocus={takeFocus && step.id === firstOpen}
-                moves={{
-                  up:
-                    index > 0
-                      ? () => {
-                          move(index, index - 1);
-                        }
-                      : null,
-                  down:
-                    index < ids.length - 1
-                      ? () => {
-                          move(index, index + 1);
-                        }
-                      : null,
-                }}
               />
             ))}
           </ul>
-        </SortableRows>
+        </ReorderList>
       ) : null}
       <TextField
         label={addLabel}
@@ -270,9 +255,6 @@ export function TodoChecklist({
         }}
         {...enterKeys}
       />
-      <div role="status" css={a11y.srOnly}>
-        {status}
-      </div>
     </div>
   );
 }
