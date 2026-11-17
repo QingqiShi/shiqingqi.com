@@ -27,16 +27,16 @@ async function requireUserId(request: Request): Promise<string | Response> {
   return resolved?.session.userId ?? json({ error: "unauthorized" }, 401);
 }
 
-/** A route for a signed-in user: `run` gets the user id and the body that `schema` read. */
+/** A route for a signed-in user: `run` gets the user id, the body that `schema` read, and the request. */
 export function signedInRoute<T>(
   schema: z.ZodType<T>,
-  run: (userId: string, body: T) => Promise<Response>,
+  run: (userId: string, body: T, request: Request) => Promise<Response>,
 ) {
   return async (request: Request): Promise<Response> => {
     const userId = await requireUserId(request);
     if (typeof userId !== "string") return userId;
     const body = schema.safeParse(await request.json().catch(() => null));
     if (!body.success) return json({ error: "invalid_body" }, 400);
-    return run(userId, body.data);
+    return run(userId, body.data, request);
   };
 }

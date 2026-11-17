@@ -23,6 +23,7 @@
     "pretest": "npm-run-all codegen:i18n codegen:wgsl",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "eval": "vitest run --config vitest.eval.config.mts",
     "trips:generate": "drizzle-kit generate",
     "trips:migrate": "tsx src/db/migrate-cli.ts"
   },
@@ -40,6 +41,7 @@
     "@tuja/server-email": "workspace:*",
     "@tuja/ui": "workspace:*",
     "@vercel/functions": "^3.11.0",
+    "ai": "^7.0.171",
     "drizzle-orm": "^0.45.4",
     "esm-env": "catalog:",
     "next": "catalog:",
