@@ -139,7 +139,9 @@ describe("a capture request", () => {
     const token = await tokenOf(owner);
     const [row] = await db.select().from(captureTokens);
 
-    expect(row.tokenHash).toEqual(hashToken(token.split(".")[1]));
+    expect(new Uint8Array(row.tokenHash)).toEqual(
+      new Uint8Array(hashToken(token.split(".")[1])),
+    );
     expect(JSON.stringify(row)).not.toContain(token.split(".")[1]);
   });
 

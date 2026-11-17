@@ -1,13 +1,13 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { sql, type Query, type SQL } from "drizzle-orm";
-import { NodePgDatabase, NodePgSession } from "drizzle-orm/node-postgres";
+import { NodePgSession } from "drizzle-orm/node-postgres";
 import {
   PgDatabase,
   PgDialect,
   PgPreparedQuery,
   PgSession,
+  PgTransaction,
   type PgQueryResultHKT,
-  type PgTransaction,
   type PgTransactionConfig,
   type PreparedQueryConfig,
 } from "drizzle-orm/pg-core";
@@ -20,6 +20,7 @@ type FullSchema = typeof schema;
 type Tables = AssistantDb["_"]["schema"] & object;
 type Transaction = PgTransaction<PgQueryResultHKT, FullSchema, Tables>;
 type Work<T> = (tx: Transaction) => Promise<T>;
+type DriverSession = PgSession<PgQueryResultHKT, FullSchema, Tables>;
 
 const userScopeMark: unique symbol = Symbol("user scope");
 
@@ -36,15 +37,10 @@ export interface UserScope {
 
 const userIdSchema = z.guid();
 
-/** The scoped transaction that the code in it runs in, until it ends. */
-interface OpenTransaction {
-  owner: AssistantDb;
-  userId: string | null;
-  tx: Transaction;
-  ended: boolean;
+function relationsOf(owner: AssistantDb) {
+  const { schema: tables, fullSchema, tableNamesMap } = owner._;
+  return tables && { schema: tables, fullSchema, tableNamesMap };
 }
-
-const openTransactions = new AsyncLocalStorage<OpenTransaction>();
 
 class ScopeEndedError extends Error {
   constructor() {
@@ -55,93 +51,223 @@ class ScopeEndedError extends Error {
 }
 
 /**
- * The client of one scoped transaction. Every use after the transaction
- * fails, so that a transaction, savepoint or query kept past the end cannot
- * run on the pool's next transaction as the owner.
+ * The client of one scoped transaction, as drizzle sees it. It sends the
+ * queries one after another, because `pg` must not get a query while one
+ * runs. When the work of the transaction ends, it takes no more queries, so
+ * that only the COMMIT or ROLLBACK on the raw client follows.
  */
-function closableClient(client: PoolClient) {
-  let ended = false;
-  const guarded = new Proxy(client, {
-    get(target, key) {
-      if (ended) throw new ScopeEndedError();
-      const value: unknown = Reflect.get(target, key, target);
-      if (typeof value !== "function") return value;
-      const bound: unknown = value.bind(target);
-      return bound;
-    },
-  });
-  return {
-    guarded,
-    end: () => {
-      ended = true;
-    },
-  };
+class SerialClient {
+  readonly guarded: PoolClient;
+  #isClosed = false;
+  #last: Promise<unknown> = Promise.resolve();
+
+  constructor(client: PoolClient) {
+    const query: unknown = Reflect.get(client, "query");
+    if (typeof query !== "function")
+      throw new Error("A pg client has no query.");
+    const send = (...args: unknown[]): Promise<unknown> => {
+      if (this.#isClosed) return Promise.reject(new ScopeEndedError());
+      const sent = this.#last.then((): unknown =>
+        Reflect.apply(query, client, args),
+      );
+      this.#last = sent.then(
+        () => undefined,
+        () => undefined,
+      );
+      return sent;
+    };
+    this.guarded = new Proxy(client, {
+      get: (target, key) => {
+        if (this.#isClosed) throw new ScopeEndedError();
+        if (key === "query") return send;
+        const value: unknown = Reflect.get(target, key, target);
+        if (typeof value !== "function") return value;
+        const bound: unknown = value.bind(target);
+        return bound;
+      },
+    });
+  }
+
+  /** Takes no more queries, and waits for those that it took. */
+  async close() {
+    this.#isClosed = true;
+    await this.#last;
+  }
+}
+
+function transactionModes(config: PgTransactionConfig | undefined) {
+  const modes: string[] = [];
+  if (config?.isolationLevel) {
+    modes.push(`isolation level ${config.isolationLevel}`);
+  }
+  if (config?.accessMode) modes.push(config.accessMode);
+  if (config?.deferrable === true) modes.push("deferrable");
+  if (config?.deferrable === false) modes.push("not deferrable");
+  return modes.map((mode) => ` ${mode}`).join("");
 }
 
 /**
- * Runs `work` in a transaction on a client of its own. Every path gives the
- * client back. The pool gets the client again only after a commit or a
- * rollback that completed. After any other failure, such as a failed `BEGIN`,
- * `COMMIT` or `ROLLBACK`, the client is closed, because its connection can be
- * broken or still in the transaction.
+ * Runs `run` in a transaction on a client of its own. Every path gives the
+ * client back once. The pool gets the client again only after a COMMIT or a
+ * ROLLBACK that completed; after any other end, the client is closed, because
+ * its connection can be broken or still in the transaction.
  */
 async function onOwnClient<T>(
   owner: AssistantDb,
   pool: Pool,
-  work: Work<T>,
-  config?: PgTransactionConfig,
+  run: (session: DriverSession) => Promise<T>,
+  config: PgTransactionConfig | undefined,
 ): Promise<T> {
   const client = await pool.connect();
-  const { guarded, end } = closableClient(client);
-  const errorsOfWork = new Set<unknown>();
-  let broken: Error | undefined;
+  const serial = new SerialClient(client);
+  let isClean = false;
   try {
-    const dialect = new PgDialect();
-    const { schema: tables, fullSchema, tableNamesMap } = owner._;
-    const relations = tables && { schema: tables, fullSchema, tableNamesMap };
-    const db = new NodePgDatabase(
-      dialect,
-      new NodePgSession(guarded, dialect, relations),
-      relations,
-    );
-    return await db.transaction(async (tx) => {
-      try {
-        return await work(tx);
-      } catch (error) {
-        errorsOfWork.add(error);
-        throw error;
-      }
-    }, config);
-  } catch (error) {
-    // Drizzle throws the error of `work` only when its rollback completed.
-    if (!errorsOfWork.has(error)) {
-      broken = error instanceof Error ? error : new Error(String(error));
+    await client.query(`begin${transactionModes(config)}`);
+    let result: T;
+    try {
+      result = await run(
+        new NodePgSession<FullSchema, Tables>(
+          serial.guarded,
+          new PgDialect(),
+          relationsOf(owner),
+        ),
+      );
+    } catch (error) {
+      await serial.close();
+      await client.query("rollback").then(
+        () => {
+          isClean = true;
+        },
+        () => undefined,
+      );
+      throw error;
     }
-    throw error;
+    await serial.close();
+    const commit = await client.query("commit");
+    isClean = true;
+    if (commit.command === "ROLLBACK") {
+      throw new Error(
+        "A statement in this transaction of a user scope failed, so the database rolled the transaction back at its COMMIT. Do not catch the error of a statement inside a transaction; to go on after it, run the statement in a savepoint (`tx.transaction`).",
+      );
+    }
+    return result;
   } finally {
-    end();
-    client.release(broken);
+    client.release(
+      isClean
+        ? undefined
+        : new Error("A transaction of a user scope did not end cleanly."),
+    );
   }
 }
 
-/** A transaction of the owner's driver. PGlite has one connection and closes a transaction's handle at its end. */
+/**
+ * The open transaction and savepoints of one scoped transaction, the
+ * transaction first. Each savepoint has its own name, because Postgres keeps
+ * a savepoint after ROLLBACK TO, and a second savepoint of the same name
+ * hides the first.
+ */
+class TransactionLine {
+  readonly owner: AssistantDb;
+  readonly userId: string | null;
+  readonly session: DriverSession;
+  readonly open: ScopeTransaction[] = [];
+  #savepoints = 0;
+
+  constructor(
+    owner: AssistantDb,
+    userId: string | null,
+    session: DriverSession,
+  ) {
+    this.owner = owner;
+    this.userId = userId;
+    this.session = session;
+  }
+
+  start() {
+    const tx = new ScopeTransaction(this, null);
+    this.open.push(tx);
+    return tx;
+  }
+
+  async savepoint<T>(parent: ScopeTransaction, work: Work<T>): Promise<T> {
+    if (parent.ended || this.open.at(-1) !== parent) {
+      throw new Error(
+        "A savepoint of a user scope must start in the innermost open transaction or savepoint. Await each savepoint before you start the next.",
+      );
+    }
+    this.#savepoints += 1;
+    const name = `scope_savepoint_${String(this.#savepoints)}`;
+    const inner = new ScopeTransaction(this, parent);
+    this.open.push(inner);
+    try {
+      await this.session.execute(sql.raw(`savepoint ${name}`));
+      try {
+        const result = await openTransactions.run(inner, () => work(inner));
+        await this.session.execute(sql.raw(`release savepoint ${name}`));
+        return result;
+      } catch (error) {
+        await this.session.execute(sql.raw(`rollback to savepoint ${name}`));
+        throw error;
+      }
+    } finally {
+      this.end(inner);
+    }
+  }
+
+  /** Ends `tx` and the savepoints in it. */
+  end(tx: ScopeTransaction) {
+    const at = this.open.indexOf(tx);
+    if (at === -1) return;
+    for (const ended of this.open.splice(at)) ended.ended = true;
+  }
+}
+
+/** A scoped transaction or a savepoint in it, as drizzle's `tx`. */
+class ScopeTransaction extends PgTransaction<
+  PgQueryResultHKT,
+  FullSchema,
+  Tables
+> {
+  readonly line: TransactionLine;
+  readonly parent: ScopeTransaction | null;
+  ended = false;
+
+  constructor(line: TransactionLine, parent: ScopeTransaction | null) {
+    super(new PgDialect(), line.session, relationsOf(line.owner));
+    this.line = line;
+    this.parent = parent;
+  }
+
+  transaction<T>(work: Work<T>): Promise<T> {
+    return this.line.savepoint(this, work);
+  }
+}
+
+/** The innermost scoped transaction or savepoint that the code runs in. */
+const openTransactions = new AsyncLocalStorage<ScopeTransaction>();
+
 function inTransaction<T>(
   owner: AssistantDb,
-  work: Work<T>,
-  config?: PgTransactionConfig,
+  run: (session: DriverSession) => Promise<T>,
+  config: PgTransactionConfig | undefined,
 ): Promise<T> {
   const client: unknown = Reflect.get(owner, "$client");
-  return client instanceof Pool
-    ? onOwnClient(owner, client, work, config)
-    : owner.transaction(work, config);
+  if (!(client instanceof Pool)) {
+    return Promise.reject(
+      new Error(
+        "A user scope needs an owner on a pg Pool, because it runs each transaction on a client of its own.",
+      ),
+    );
+  }
+  return onOwnClient(owner, client, run, config);
 }
 
 /**
  * Runs each statement and transaction as `assistant_app`, with the user id
  * set or empty. Both settings end with the transaction, so they never reach
- * another request on a pooled connection. A statement or transaction of the
- * same scope inside a scoped transaction runs in that transaction, on its
- * connection.
+ * another request on a pooled connection. A statement of the same scope
+ * inside a scoped transaction runs in it, and a transaction of the same scope
+ * inside it is a savepoint.
  */
 class ScopeRunner {
   readonly #owner: AssistantDb;
@@ -152,10 +278,11 @@ class ScopeRunner {
     this.#userId = userId;
   }
 
-  #open(): OpenTransaction | null {
-    const open = openTransactions.getStore();
-    if (!open || open.ended) return null;
-    if (open.owner !== this.#owner || open.userId !== this.#userId) {
+  #open(): ScopeTransaction | null {
+    let open = openTransactions.getStore() ?? null;
+    while (open?.ended) open = open.parent;
+    if (!open) return null;
+    if (open.line.owner !== this.#owner || open.line.userId !== this.#userId) {
       throw new Error(
         "A user scope ran a query inside a transaction of another scope, which needs a second connection. End that transaction first.",
       );
@@ -166,20 +293,16 @@ class ScopeRunner {
   #begin<T>(work: Work<T>, config?: PgTransactionConfig): Promise<T> {
     return inTransaction(
       this.#owner,
-      async (tx) => {
-        await tx.execute(
-          sql`select set_config('role', 'assistant_app', true), set_config('assistant.user_id', ${this.#userId ?? ""}, true)`,
-        );
-        const open: OpenTransaction = {
-          owner: this.#owner,
-          userId: this.#userId,
-          tx,
-          ended: false,
-        };
+      async (session) => {
+        const line = new TransactionLine(this.#owner, this.#userId, session);
+        const tx = line.start();
         try {
-          return await openTransactions.run(open, () => work(tx));
+          await tx.execute(
+            sql`select set_config('role', 'assistant_app', true), set_config('assistant.user_id', ${this.#userId ?? ""}, true)`,
+          );
+          return await openTransactions.run(tx, () => work(tx));
         } finally {
-          open.ended = true;
+          line.end(tx);
         }
       },
       config,
@@ -188,7 +311,7 @@ class ScopeRunner {
 
   async statement<T>(work: Work<T>): Promise<T> {
     const open = this.#open();
-    return open ? work(open.tx) : this.#begin(work);
+    return open ? work(open) : this.#begin(work);
   }
 
   async transaction<T>(
@@ -196,7 +319,7 @@ class ScopeRunner {
     config?: PgTransactionConfig,
   ): Promise<T> {
     const open = this.#open();
-    return open ? open.tx.transaction(work) : this.#begin(work, config);
+    return open ? open.transaction(work) : this.#begin(work, config);
   }
 }
 
@@ -290,11 +413,10 @@ function limitedDb(owner: AssistantDb, userId: string | null): AssistantDb {
     new PgDialect(),
     new ScopeRunner(owner, userId),
   );
-  const { schema: tables, fullSchema, tableNamesMap } = owner._;
   return new PgDatabase<PgQueryResultHKT, FullSchema, Tables>(
     new PgDialect(),
     session,
-    tables && { schema: tables, fullSchema, tableNamesMap },
+    relationsOf(owner),
   );
 }
 
