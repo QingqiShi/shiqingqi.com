@@ -12,12 +12,18 @@ A standalone Next.js app for planning trips, deployed as its **own Vercel projec
   sits beside the open trip in a `NavigationSplitView`.
 - **Data:** trips are documents in Postgres, one row in `trips` and one in
   `trip_revisions` for each save. Pages read them through
-  `src/trips/get-trips.ts`, which reads only the trips of the signed-in user.
+  `src/trips/get-trips.ts`, which reads only the trips that the viewer can open.
   The real trips are only in the deployed database, not in the repository.
 - **Access:** a trip shows only to its members (`trip_members`). The reader
   runs as the database role `trips_app`, and row-level security gives that
   role only the trips of the user in `trips.user_id`. A visitor who is not
   signed in goes to `/sign-in`; a user who is not a member gets a 404.
+- **Invites:** an owner makes an invite link in the Share panel of a trip.
+  The link is `/invite/<token>`: the person signs in or signs up, then joins
+  the trip as an editor. A link works for one person, for 7 days, and the
+  database holds only the hash of its token, so a link shows once, when it is
+  made. The Share panel also lists the members, and the owner can take an
+  editor out there.
 
 ## Develop
 
@@ -31,7 +37,8 @@ in `.trips-db/`, with the made-up sample trip. After a change to
 
 In that database, each user who signs up at `/sign-in` becomes an owner of the
 made-up sample trip at `/sample-lisbon`; the emailed code is in
-`.trips-outbox/`. Use the sample trip for tests and screenshots, because the
+`.trips-outbox/`. A user whose address starts with `guest` gets no trip, so
+that you can try an invite with it. Use the sample trip for tests and screenshots, because the
 real trips show bookings and phone numbers.
 
 ```bash
@@ -39,7 +46,7 @@ pnpm --filter trip-planner test:e2e   # builds, then serves the build with a dat
 ```
 
 The Playwright specs in `e2e/` sign up, step through the days of the sample
-trip, and read it again with no network.
+trip, read it again with no network, and join it from an invite link.
 
 ## Maps
 

@@ -48,15 +48,17 @@ beforeAll(async () => {
 
 afterAll(() => client.close());
 
+function slugsOf(userId: string | null) {
+  return readTrips(db, userId).then((viewed) =>
+    viewed.map(({ trip }) => trip.slug),
+  );
+}
+
 it("gives a user the trips that the user is a member of, and a visitor none", async () => {
-  expect((await readTrips(db, mara)).map((trip) => trip.slug)).toEqual([
-    sample.slug,
-  ]);
-  expect((await readTrips(db, noor)).map((trip) => trip.slug)).toEqual([
-    "porto",
-  ]);
-  expect(await readTrips(db, crypto.randomUUID())).toEqual([]);
-  expect(await readTrips(db, null)).toEqual([]);
+  expect(await slugsOf(mara)).toEqual([sample.slug]);
+  expect(await slugsOf(noor)).toEqual(["porto"]);
+  expect(await slugsOf(crypto.randomUUID())).toEqual([]);
+  expect(await slugsOf(null)).toEqual([]);
 });
 
 it("shows the reader's role no row of another user, with no filter in the query", async () => {
@@ -109,7 +111,7 @@ it("reads the newest revision, and does not save a known document again", async 
   expect(await importTrip(db, renamed)).toBe("known");
   // The first document is older, as in a build of an older commit.
   expect(await importTrip(db, sample)).toBe("known");
-  const [trip] = await readTrips(db, mara);
+  const [{ trip }] = await readTrips(db, mara);
   expect(trip.title).toBe("Lisbon, again");
 });
 

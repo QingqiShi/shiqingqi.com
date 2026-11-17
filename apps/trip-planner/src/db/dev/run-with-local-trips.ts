@@ -14,7 +14,9 @@ const APP_DIR = path.resolve(import.meta.dirname, "../../..");
  * Copies the made-up trip into the local database, so that a change to its
  * file shows after a restart. It also makes every user of the local database
  * an owner of each trip in it, now and at each sign-up: a trip shows only to
- * its members, and a local database has no other way to get one.
+ * its members, and a local database has no other way to get one. A user
+ * whose address starts with `guest` gets none, so that an invite can be the
+ * way in.
  */
 async function seed(connectionString: string) {
   const pool = new Pool({ connectionString, max: 1 });
@@ -26,7 +28,7 @@ async function seed(connectionString: string) {
       language plpgsql as $$
       begin
         insert into trip_members (trip_id, user_id, role)
-        select id, new.id, 'owner' from trips;
+        select id, new.id, 'owner' from trips where new.email not like 'guest%';
         return new;
       end
       $$`);
@@ -36,6 +38,7 @@ async function seed(connectionString: string) {
     await db.execute(sql`
       insert into trip_members (trip_id, user_id, role)
       select trips.id, users.id, 'owner' from trips cross join users
+      where users.email not like 'guest%'
       on conflict do nothing`);
   } finally {
     await pool.end();
