@@ -8,7 +8,7 @@ import { Callout } from "@tuja/ui/components/callout";
 import { TextField } from "@tuja/ui/components/text-field";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { toApiError, type ApiError } from "../api-error.ts";
 import { useAuthErrorMessage } from "../use-auth-error-message.ts";
 
@@ -52,6 +52,7 @@ export function EmailCodeForm({
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
+  const sentMessageId = useId();
 
   const errorCallout =
     error === null ? null : (
@@ -63,6 +64,7 @@ export function EmailCodeForm({
   if (step === "email") {
     return (
       <form
+        key="email"
         css={stack.item}
         onSubmit={(event) => {
           event.preventDefault();
@@ -87,6 +89,7 @@ export function EmailCodeForm({
           label={label}
           type="email"
           autoComplete="email"
+          autoFocus={email !== ""}
           required
           maxLength={254}
           value={email}
@@ -113,6 +116,7 @@ export function EmailCodeForm({
 
   return (
     <form
+      key="code"
       css={stack.item}
       onSubmit={(event) => {
         event.preventDefault();
@@ -126,7 +130,7 @@ export function EmailCodeForm({
         });
       }}
     >
-      <Callout intent="info" role="status">
+      <Callout intent="info" role="status" id={sentMessageId}>
         {sentMessage(email.trim())}
       </Callout>
       {errorCallout}
@@ -134,6 +138,7 @@ export function EmailCodeForm({
         label={t({ en: "Code", zh: "验证码" })}
         inputMode="numeric"
         autoComplete="one-time-code"
+        aria-describedby={sentMessageId}
         autoFocus
         required
         maxLength={12}
