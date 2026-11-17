@@ -341,6 +341,58 @@ describe("the save queue", () => {
     expect(queue.getState().problem).toBeNull();
   });
 
+  it("says that a change is taken back only after the person keeps an undo that had to ask", async () => {
+    const { queue, server, answer, other } = setup();
+    const takenBack = new Set<number>();
+    queue.onTakenBack((ids) => {
+      for (const id of ids) takenBack.add(id);
+    });
+    const change = queue.submit([rename("Fort")]);
+    if (!change.ok) throw new Error("The queue refused the change.");
+    await answer();
+    other([{ op: "setItem", id: "castle", fields: { note: "Their note" } }]);
+    queue.sync();
+    await answer();
+
+    expect(queue.undo()).toBe("asks");
+    await answer();
+    expect(queue.getState().problem?.kind).toBe("conflict");
+    expect(takenBack.has(change.batchId)).toBe(false);
+
+    queue.keepMine();
+    await answer();
+    expect(nameOf(server.trip)).toBe("Castle");
+    expect(takenBack.has(change.batchId)).toBe(true);
+  });
+
+  it("says that a change is taken back when such an undo reached the server and only the answer was lost", async () => {
+    const { queue, server, answer, other, failNext } = setup();
+    const takenBack = new Set<number>();
+    queue.onTakenBack((ids) => {
+      for (const id of ids) takenBack.add(id);
+    });
+    const change = queue.submit([rename("Fort")]);
+    if (!change.ok) throw new Error("The queue refused the change.");
+    await answer();
+    other([{ op: "setItem", id: "castle", fields: { note: "Their note" } }]);
+    queue.sync();
+    await answer();
+    expect(queue.undo()).toBe("asks");
+    await answer();
+
+    failNext({ lands: true });
+    queue.keepMine();
+    await answer();
+    expect(queue.getState().problem?.kind).toBe("failed");
+    expect(takenBack.has(change.batchId)).toBe(false);
+
+    queue.retry();
+    await answer();
+    expect(nameOf(server.trip)).toBe("Castle");
+    expect(queue.getState().pending).toHaveLength(0);
+    expect(takenBack.has(change.batchId)).toBe(true);
+  });
+
   it("does not put back the older version of a field that another person changed after the person", async () => {
     const { queue, server, answer, other } = setup();
     const weatherOf = (trip: Trip) => trip.days[0].weather;

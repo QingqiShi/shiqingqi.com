@@ -25,21 +25,24 @@ import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import { useEffect, useEffectEvent, useState } from "react";
-import { dateRangeLabel, dayDateLabel } from "#src/reader/date-label.ts";
+import { NewTripNotice } from "#src/new-trip/new-trip-notice.tsx";
+import { dateRangeLabel } from "#src/reader/date-label.ts";
 import { TripLanguageProvider, TripText } from "#src/reader/trip-text.tsx";
 import { dayAnchorId, useTripHash } from "#src/reader/use-trip-location.ts";
-import { AppToasts } from "#src/shell/app-toasts.tsx";
-import type { Day, Trip } from "#src/trips/types.ts";
+import type { Trip } from "#src/trips/types.ts";
 import { AddPanel } from "./add-panel.tsx";
+import { ASK_ROW, AskBar, EditorToasts } from "./ask-bar.tsx";
+import { AskProvider, useAsk } from "./ask-provider.tsx";
 import { buildOutline } from "./build-outline.ts";
 import { ConflictView } from "./conflict-view.tsx";
 import { DayForm } from "./day-form.tsx";
 import { DayGroup } from "./day-group.tsx";
-import { dayPlan } from "./day-plan.ts";
 import { EditorProvider, useEditor } from "./editor-provider.tsx";
 import { ItemForm } from "./item-form.tsx";
 import { pressTarget } from "./item-row.tsx";
 import { MomentForm } from "./moment-form.tsx";
+import { ProposalView } from "./proposal-view.tsx";
+import { RemoveDayView } from "./remove-day-view.tsx";
 import { SheetActions } from "./sheet-actions.tsx";
 import { SheetInputContext } from "./sheet-input-context.ts";
 import { TripForm } from "./trip-form.tsx";
@@ -69,6 +72,9 @@ function useSheetTitle() {
   const removeDay = t({ en: "Remove {day}?", zh: "移除{day}？" });
   const conflict = t({ en: "Changed by someone else", zh: "其他人也改了这里" });
   const leave = t({ en: "A change is not saved", zh: "有修改尚未保存" });
+  const proposed = t({ en: "Proposed changes", zh: "修改建议" });
+  const reply = t({ en: "Reply", zh: "回复" });
+  const isReply = useAsk().answer?.batches.length === 0;
   return (target: SheetTarget) => {
     switch (target.kind) {
       case "item":
@@ -85,6 +91,8 @@ function useSheetTitle() {
         return tripDetails;
       case "conflict":
         return conflict;
+      case "proposal":
+        return isReply ? reply : proposed;
       case "leave":
         return leave;
     }
@@ -110,6 +118,8 @@ function EditorScreen() {
   const [hasInput, setHasInput] = useState(false);
   const [isAskingToDiscard, setIsAskingToDiscard] = useState(false);
   const dayChanges = useDayChanges();
+  const ask = useAsk();
+  const [shownAnswer, setShownAnswer] = useState<number | null>(null);
 
   const forgetInput = () => {
     setHasInput(false);
@@ -132,13 +142,28 @@ function EditorScreen() {
   const conflictRow = problem?.batch.touches[0] ?? TRIP_ROW;
   // A conflict opens the sheet by itself, one time. A person who closes it
   // without a choice finds it again on the row and at the top of the screen.
+  // `isOpen` is still the old value after an `openSheet` in this render.
+  let opensNow = false;
   if (problem?.kind === "conflict" && shownConflict !== problem.batch.id) {
     setShownConflict(problem.batch.id);
     openSheet({ kind: "conflict" }, conflictRow);
+    opensNow = true;
   }
   if (isLeaving && problem) {
     setIsLeaving(false);
     openSheet({ kind: "leave" }, TRIP_ROW);
+    opensNow = true;
+  }
+  const { answer } = ask;
+  const reviewAnswer = () => {
+    openSheet({ kind: "proposal" }, ASK_ROW);
+  };
+  // An answer opens the sheet by itself, one time. It waits for a sheet
+  // that the person has open, because a reply with no change has no other
+  // way to show.
+  if (answer && shownAnswer !== answer.id && !isOpen && !opensNow) {
+    setShownAnswer(answer.id);
+    reviewAnswer();
   }
 
   const readerPath = getLocalePath(`/${editor.tripId}`, locale);
@@ -198,7 +223,7 @@ function EditorScreen() {
   );
 
   return (
-    <div css={[stack.group, styles.screen]}>
+    <div css={stack.group}>
       <StickyControls css={styles.bar}>
         <StickyControlGroup css={row.tight}>
           <span role="status">
@@ -340,6 +365,11 @@ function EditorScreen() {
         </Button>
       </div>
 
+      <AskBar
+        isReviewing={isOpen && sheet?.target.kind === "proposal"}
+        onReview={reviewAnswer}
+      />
+
       <Sheet
         isOpen={isOpen}
         onClose={() => {
@@ -415,59 +445,6 @@ function EditorScreen() {
   );
 }
 
-/** The question before a day with a plan goes: what goes with it, and what happens to the days after it. */
-function RemoveDayView({ day, onDone }: { day: Day; onDone: () => void }) {
-  const editor = useEditor();
-  const locale = useLocale();
-  const dayChanges = useDayChanges();
-  const { count } = dayPlan(day);
-  const isLast = editor.trip.days.at(-1)?.id === day.id;
-  const withPlan = t({
-    en: "Everything planned on {date} goes with the day: {count} in all.",
-    zh: "{date}的全部安排会一并移除，共 {count} 项。",
-  });
-  const withDetails = t({
-    en: "The details of {date} go with the day.",
-    zh: "{date}的详情会一并移除。",
-  });
-  return (
-    <div css={stack.item}>
-      <Text as="p">
-        {(count > 0 ? withPlan : withDetails)
-          .replace("{date}", dayDateLabel(day.date, locale))
-          .replace("{count}", String(count))}
-      </Text>
-      <Text as="p" tone="muted">
-        {isLast
-          ? t({
-              en: "The trip gets one day shorter.",
-              zh: "行程会缩短一天。",
-            })
-          : t({
-              en: "The days after it move one day earlier, and the trip gets one day shorter.",
-              zh: "之后的每一天都会提前一天，行程缩短一天。",
-            })}
-      </Text>
-      <SheetActions>
-        <Button look="ghost" onClick={onDone}>
-          {t({ en: "Cancel", zh: "取消" })}
-        </Button>
-        <Button
-          look="primary"
-          intent="destructive"
-          disabled={!editor.canEdit}
-          onClick={() => {
-            dayChanges.remove(day);
-            onDone();
-          }}
-        >
-          {t({ en: "Remove the day", zh: "移除这一天" })}
-        </Button>
-      </SheetActions>
-    </div>
-  );
-}
-
 function SheetContent({
   target,
   onDone,
@@ -505,6 +482,8 @@ function SheetContent({
       return <TripForm onDone={onDone} />;
     case "conflict":
       return <ConflictView onDone={onDone} />;
+    case "proposal":
+      return <ProposalView onDone={onDone} />;
     case "leave":
       return (
         <div css={stack.item}>
@@ -542,8 +521,9 @@ function SheetContent({
 
 /**
  * The edit screen of a trip: an outline of every day, where each row opens
- * a sheet that changes it, and each change saves at once. The space at the
- * bottom of the screen stays free: the next phase puts a prompt there.
+ * a sheet that changes it, and each change saves at once. The prompt at the
+ * bottom of the screen asks the model for changes, which the person accepts
+ * one by one.
  */
 export function TripEditor({
   tripId,
@@ -559,7 +539,8 @@ export function TripEditor({
   // toasts of the screen itself go with it.
   const showAppToast = useToast();
   return (
-    <AppToasts>
+    <EditorToasts>
+      <NewTripNotice />
       <EditorProvider
         tripId={tripId}
         trip={trip}
@@ -569,10 +550,12 @@ export function TripEditor({
         }}
       >
         <TripLanguageProvider language={trip.language}>
-          <EditorScreen />
+          <AskProvider>
+            <EditorScreen />
+          </AskProvider>
         </TripLanguageProvider>
       </EditorProvider>
-    </AppToasts>
+    </EditorToasts>
   );
 }
 
@@ -584,10 +567,6 @@ const styles = stylex.create({
     alignSelf: "flex-end",
     inlineSize: "fit-content",
     insetBlockStart: `calc(${headerControlsTokens.clearance} + ${space._2})`,
-  },
-  // The last row of the screen can scroll clear of a toast.
-  screen: {
-    paddingBlockEnd: space._10,
   },
   hidden: {
     display: "none",

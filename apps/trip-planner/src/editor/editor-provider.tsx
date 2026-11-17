@@ -56,9 +56,12 @@ interface Editor {
       dayId?: string;
       /** The moment or the item that the reader opens with in view. */
       thingId?: string;
+      /** Shows no toast: the caller says what happened. */
+      quiet?: boolean;
     },
-  ) => { ok: true } | { ok: false; message: string };
-  undo: () => void;
+  ) => { ok: true; batchId?: number } | { ok: false; message: string };
+  /** Takes back the newest change, and says so in a toast. It gives what the queue's `undo` gives. */
+  undo: () => "taken" | "asks" | "none";
   statusOf: (id: string) => RowStatus;
   /** Whether the person made a change since the screen opened. */
   hasChanged: boolean;
@@ -81,8 +84,8 @@ interface Editor {
 const MARK_MS = 2500;
 /** The part of the screen that the bar at the top covers, in px. */
 const TOP_COVER = 96;
-/** The part of the screen that the tab bar and a toast cover at the bottom, in px. */
-const BOTTOM_COVER = 200;
+/** The part of the screen that the tab bar, the prompt and a toast cover at the bottom, in px. */
+const BOTTOM_COVER = 260;
 
 const EditorContext = createContext<Editor | null>(null);
 
@@ -212,6 +215,7 @@ export function EditorProvider({
     if (result !== "asks") {
       showToast({ message: result === "taken" ? undone : cannotUndo });
     }
+    return result;
   };
 
   const statusOf = (id: string): RowStatus => {
@@ -230,7 +234,7 @@ export function EditorProvider({
     queue,
     isOnline,
     canEdit: isOnline && !state.isGone,
-    change(ops, { message, dayId, thingId }) {
+    change(ops, { message, dayId, thingId, quiet = false }) {
       if (ops.length === 0) return { ok: true };
       if (!isOnline) return { ok: false, message: offlineMessage };
       const result = queue.submit(ops);
@@ -254,8 +258,10 @@ export function EditorProvider({
           thingId ? readerAnchor(changed, thingId) : null,
         );
       }
-      showToast({ message, action: { label: undoLabel, onAction: undo } });
-      return { ok: true };
+      if (!quiet) {
+        showToast({ message, action: { label: undoLabel, onAction: undo } });
+      }
+      return { ok: true, batchId: result.batchId };
     },
     undo,
     statusOf,

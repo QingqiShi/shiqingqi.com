@@ -1,7 +1,6 @@
 "use client";
 
 import { t } from "@tuja/i18n";
-import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { Card } from "@tuja/ui/components/card";
 import { Columns } from "@tuja/ui/components/columns";
@@ -9,84 +8,21 @@ import { Text } from "@tuja/ui/components/text";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
-import { dateLabel } from "#src/reader/date-label.ts";
-import { useTimeLabel } from "#src/reader/use-time-label.ts";
-import { timeZoneLabel } from "#src/time-zones/time-zone-label.ts";
 import {
   applyOps,
   withExpect,
   type DraftOp,
 } from "#src/trips/ops/apply-ops.ts";
-import { findMoment } from "#src/trips/ops/find-item.ts";
-import type { Trip } from "#src/trips/types.ts";
-import { itemName, locateItem } from "./build-outline.ts";
 import { useEditor } from "./editor-provider.tsx";
 import { goesWithTheirs } from "./goes-with-theirs.ts";
 import { SheetActions } from "./sheet-actions.tsx";
-import { useDayLabels } from "./use-day-labels.ts";
-import { useKindLabels } from "./use-field-labels.ts";
+import { useDescribe } from "./use-describe.ts";
 
 function addedId(op: DraftOp): string | null {
   if (op.op === "addDay") return op.id;
   if (op.op === "addMoment") return op.moment.id;
   if (op.op === "addItem") return op.item.id;
   return null;
-}
-
-/** The lines that say how a thing of the trip is, or null when the trip does not have it. */
-function useDescribe() {
-  const locale = useLocale();
-  const dayLabels = useDayLabels();
-  const kindLabels = useKindLabels();
-  const timeLabel = useTimeLabel();
-  const anyTime = t({ en: "No time", zh: "不定时" });
-  const firstDay = t({ en: "First day: {date}", zh: "第一天：{date}" });
-
-  return (trip: Trip, id: string): string[] | null => {
-    const dayOf = (dayId: string) => {
-      const index = trip.days.findIndex((day) => day.id === dayId);
-      return dayLabels.dated(trip.days[index], index);
-    };
-    if (id === "trip") {
-      return [
-        trip.title,
-        trip.subtitle,
-        trip.party,
-        firstDay.replace("{date}", dateLabel(trip.days[0].date, locale)),
-        timeZoneLabel(trip.timeZone, locale),
-      ].filter((line) => line !== undefined);
-    }
-    const dayIndex = trip.days.findIndex((day) => day.id === id);
-    if (dayIndex >= 0) {
-      const day = trip.days[dayIndex];
-      return [
-        dayLabels.dated(day, dayIndex),
-        day.title,
-        day.route,
-        day.driving,
-        day.stay.summary,
-        day.stay.note,
-      ].filter((line) => line !== undefined);
-    }
-    const moment = findMoment(trip, id);
-    if (moment) {
-      return [
-        `${dayOf(moment.day.id)} · ${timeLabel(moment.moment.time)}`,
-        moment.moment.text,
-        // What the moment holds goes with it when the person takes it out.
-        ...moment.moment.items.map(itemName),
-      ].filter((line) => line !== undefined);
-    }
-    const found = locateItem(trip, id);
-    if (!found) return null;
-    const { item } = found;
-    return [
-      `${kindLabels[item.type]} · ${itemName(item)}`,
-      `${dayOf(found.dayId)} · ${found.moment ? timeLabel(found.moment.time) : anyTime}`,
-      "description" in item ? item.description : undefined,
-      "note" in item ? item.note : undefined,
-    ].filter((line) => line !== undefined);
-  };
 }
 
 function Version({ title, lines }: { title: string; lines: string[] | null }) {

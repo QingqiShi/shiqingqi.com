@@ -45,6 +45,8 @@ export interface QueueState {
   problem: Problem | null;
   /** Whether `undo` has a change to take back. */
   canUndo: boolean;
+  /** The id of the change that `undo` takes back, as `submit` gave it, or null. */
+  undoes: number | null;
   /** The trip is gone, or the person is no longer a member of it. */
   isGone: boolean;
 }
@@ -65,6 +67,14 @@ export interface SaveQueue {
    * server refused them or they no longer apply to the newer trip.
    */
   onDropped: (listener: () => void) => () => void;
+  /**
+   * Calls the listener with the ids of the changes that the trip no longer
+   * has: each change that the person took back, and each change that the
+   * queue dropped.
+   */
+  onTakenBack: (
+    listener: (batchIds: ReadonlySet<number>) => void,
+  ) => () => void;
   /**
    * Shows a change at once and puts it in the queue. When the change does
    * not apply to the trip that the screen shows, `refused` is why the trip
@@ -133,9 +143,14 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
   let state: QueueState;
   const listeners = new Set<() => void>();
   const droppedListeners = new Set<() => void>();
+  const takenBackListeners = new Set<(ids: ReadonlySet<number>) => void>();
 
   function reportDropped() {
     for (const listener of droppedListeners) listener();
+  }
+
+  function reportTakenBack(ids: ReadonlySet<number>) {
+    for (const listener of takenBackListeners) listener(ids);
   }
 
   /** The base with each batch applied in order. A batch that does not apply stops the list. */
@@ -158,6 +173,7 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
       pending,
       problem,
       canUndo: undoStack.length > 0,
+      undoes: undoStack.at(-1)?.batchId ?? null,
       isGone,
     };
     for (const listener of listeners) listener();
@@ -190,6 +206,7 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
     );
     pending = pending.filter((batch) => !ids.has(batch.id));
     undoStack = undoStack.filter((entry) => !ids.has(entry.batchId));
+    reportTakenBack(ids);
   }
 
   function dropHead() {
@@ -220,6 +237,11 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
         base = result.trip;
         pending = pending.slice(1);
         dropWhatNoLongerApplies();
+        // An undo that had to ask the person first has only now taken the
+        // change back.
+        if (head.undoes !== undefined) {
+          reportTakenBack(new Set([head.undoes]));
+        }
         break;
       case "not_found":
         gone();
@@ -312,6 +334,9 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
       hasLanded(head.ops, expected.trip, newest)
     ) {
       pending = pending.slice(1);
+      if (head.undoes !== undefined) {
+        reportTakenBack(new Set([head.undoes]));
+      }
     }
     base = newest;
     resume();
@@ -376,6 +401,12 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
         droppedListeners.delete(listener);
       };
     },
+    onTakenBack(listener) {
+      takenBackListeners.add(listener);
+      return () => {
+        takenBackListeners.delete(listener);
+      };
+    },
     submit(ops) {
       if (isGone) return { ok: false, refused: null };
       const before = state.trip;
@@ -423,6 +454,7 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
         if (sendingId !== last.id && problem?.batch.id !== last.id) {
           pending = pending.slice(0, -1);
           publish();
+          reportTakenBack(new Set([entry.batchId]));
           return "taken";
         }
       }
@@ -448,7 +480,9 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
       // When the request of the change itself failed, it goes again first.
       if (problem?.kind === "failed") retry();
       else void pump();
-      return status === "conflict" ? "asks" : "taken";
+      if (status === "conflict") return "asks";
+      reportTakenBack(new Set([entry.batchId]));
+      return "taken";
     },
     retry,
     keepTheirs,

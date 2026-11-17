@@ -4,21 +4,27 @@ import {
   type DraftOp,
 } from "#src/trips/ops/apply-ops.ts";
 import { findItem, findMoment } from "#src/trips/ops/find-item.ts";
-import { draftOpSchema } from "#src/trips/ops/op-schema.ts";
+import { draftOpSchema, type Op } from "#src/trips/ops/op-schema.ts";
 import { issueText } from "#src/trips/ops/refusal.ts";
 import type { Day, Trip } from "#src/trips/types.ts";
 import type { RawBatch } from "./bind-placeholders.ts";
 
 /** A change that applies whole, as the person accepts it. */
-export interface ProposedBatch {
+export interface ProvedBatch {
   /** The days that the batch adds, changes or removes, in the order of the trip. */
   dayIds: string[];
   summary: string;
   ops: DraftOp[];
+  /**
+   * `ops` with the `expect` of each, from the trip with the batches before
+   * this one. With these, the batch applies only while each thing that it
+   * changes is as the model read it.
+   */
+  sent: Op[];
 }
 
 export type Proof =
-  { ok: true; batches: ProposedBatch[] } | { ok: false; reason: string };
+  { ok: true; batches: ProvedBatch[] } | { ok: false; reason: string };
 
 /**
  * Applies the batches in order, each one whole on the trip with the batches
@@ -27,7 +33,7 @@ export type Proof =
  */
 export function proveBatches(trip: Trip, batches: readonly RawBatch[]): Proof {
   let state = trip;
-  const proved: ProposedBatch[] = [];
+  const proved: ProvedBatch[] = [];
   for (const [b, batch] of batches.entries()) {
     const where = `Batch ${String(b + 1)}`;
     if (batch.ops.length === 0) {
@@ -44,7 +50,8 @@ export function proveBatches(trip: Trip, batches: readonly RawBatch[]): Proof {
       }
       ops.push(read);
     }
-    const result = applyOps(state, withExpect(state, ops));
+    const sent = withExpect(state, ops);
+    const result = applyOps(state, sent);
     if (result.status === "refused") {
       return {
         ok: false,
@@ -68,6 +75,7 @@ export function proveBatches(trip: Trip, batches: readonly RawBatch[]): Proof {
       dayIds: changedDays(state, result.trip, ops),
       summary: batch.summary,
       ops,
+      sent,
     });
     state = result.trip;
   }
