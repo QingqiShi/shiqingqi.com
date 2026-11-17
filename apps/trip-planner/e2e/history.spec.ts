@@ -17,10 +17,17 @@ test("an owner changes a time, finds the version before it in the history, and r
   ).toBeVisible();
   await page.getByRole("link", { name: "Edit" }).click();
 
-  // A run before this one can have left the trip at another time.
+  // A run before this one can have left the trip at another time. A time
+  // that an older version has makes the history call the change a restore.
+  // No other moment of the day has a time that is not a multiple of 5.
   const moment = page.getByRole("button", { name: /Metro to the hotel$/ });
   const before = (await moment.textContent())?.slice(0, 5) ?? "";
-  const after = before === "11:45" ? "11:50" : "11:45";
+  let after = before;
+  while (after === before) {
+    const minutes = 10 * 60 + Math.floor(Math.random() * 10 * 60);
+    if (minutes % 5 === 0) continue;
+    after = `${String(Math.floor(minutes / 60))}:${String(minutes % 60).padStart(2, "0")}`;
+  }
   await moment.click();
   await page.getByRole("textbox", { name: "Clock time" }).fill(after);
   await page.getByRole("button", { name: "Save", exact: true }).click();

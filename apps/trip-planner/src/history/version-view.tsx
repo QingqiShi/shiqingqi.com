@@ -30,6 +30,7 @@ export function VersionView({
   return (
     <div css={stack.group}>
       <VersionBar
+        key={version.revision}
         tripId={tripId}
         revision={version.revision}
         seen={{ revision: newest.revision, stamp: newest.stamp }}
@@ -40,7 +41,7 @@ export function VersionView({
         historyHref={getLocalePath(`/${tripId}/history`, locale)}
       />
       <TripPage
-        tripId={tripId}
+        tripId={null}
         trip={trip}
         serverToday={serverToday}
         weatherByDay={{}}

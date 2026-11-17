@@ -208,7 +208,7 @@ function tripDetails(trip: Trip): string {
 }
 
 /** JSON with the keys of each object in order, so that two equal values give equal text. */
-function stable(value: unknown): string {
+export function stable(value: unknown): string {
   return JSON.stringify(value, (_key, field: unknown) =>
     field !== null && typeof field === "object" && !Array.isArray(field)
       ? Object.fromEntries(

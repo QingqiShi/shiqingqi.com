@@ -105,24 +105,50 @@ function getServerSnapshot(): Record<string, boolean> {
   return EMPTY;
 }
 
-/** A list to tick through, kept on this device, folded until it is opened. */
+/**
+ * A list to tick through, kept on this device, folded until it is opened.
+ * With no `tripId` it is a list of a past version: it shows no ticks, and it
+ * cannot be ticked.
+ */
 export function ChecklistCard({
   tripId,
   list,
 }: {
-  tripId: string;
+  tripId: string | null;
   list: Checklist;
 }) {
+  return tripId === null ? (
+    <ChecklistView list={list} />
+  ) : (
+    <KeptChecklist tripId={tripId} list={list} />
+  );
+}
+
+function KeptChecklist({ tripId, list }: { tripId: string; list: Checklist }) {
   const store = getStore(storageKeyFor(tripId));
   const checked = useSyncExternalStore(
     store.subscribe,
     store.getSnapshot,
     getServerSnapshot,
   );
+  return (
+    <ChecklistView list={list} checked={checked} onTick={store.setChecked} />
+  );
+}
+
+function ChecklistView({
+  list,
+  checked,
+  onTick,
+}: {
+  list: Checklist;
+  checked?: Record<string, boolean>;
+  onTick?: (id: string, value: boolean) => void;
+}) {
   const lang = useTripLang();
 
   const total = list.items.length;
-  const doneCount = list.items.filter((item) => checked[item.id]).length;
+  const doneCount = list.items.filter((item) => checked?.[item.id]).length;
 
   return (
     <Disclosure
@@ -130,9 +156,15 @@ export function ChecklistCard({
       icon={<ListChecksIcon weight="bold" />}
       summary={<TripText>{list.title}</TripText>}
       trailing={
-        <Badge size="sm" intent={doneCount === total ? "success" : "neutral"}>
-          {doneCount}/{total}
-        </Badge>
+        checked ? (
+          <Badge size="sm" intent={doneCount === total ? "success" : "neutral"}>
+            {doneCount}/{total}
+          </Badge>
+        ) : (
+          <Badge size="sm" intent="neutral">
+            {total}
+          </Badge>
+        )
       }
     >
       <div css={stack.item}>
@@ -142,9 +174,10 @@ export function ChecklistCard({
               key={item.id}
               look="done"
               label={item.text}
-              checked={checked[item.id] ?? false}
+              readOnly={!onTick}
+              checked={checked?.[item.id] ?? false}
               onChange={(event) => {
-                store.setChecked(item.id, event.target.checked);
+                onTick?.(item.id, event.target.checked);
               }}
             />
           ))}

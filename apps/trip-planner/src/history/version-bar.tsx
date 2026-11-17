@@ -35,6 +35,9 @@ export function VersionBar({
   historyHref: string;
 }) {
   const router = useRouter();
+  // Keep the newest version from when the page opened. A refresh gives a
+  // newer one, and a restore with it would not see the change between.
+  const [guard] = useState(seen);
   const [state, setState] = useState<"idle" | "asking" | "busy" | "failed">(
     "idle",
   );
@@ -46,7 +49,7 @@ export function VersionBar({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify({ tripId, revision, seen }),
+        body: JSON.stringify({ tripId, revision, seen: guard }),
       });
       if (response.status === 409) {
         router.replace(`${historyHref}?changed`);
