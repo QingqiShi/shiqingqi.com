@@ -81,7 +81,7 @@ it("runs the daily archive through its own role", async () => {
   );
   await kit.kv.incrementBy([[buddyKeys.careFed("mara0001"), 4]]);
 
-  expect(await archiveUsageDays(kit.kv, kit.db)).toBe(1);
+  expect(await archiveUsageDays(kit.kv, kit.db)).toMatchObject({ rows: 1 });
   await archiveCareCounts(kit.kv, kit.db);
   await kit.kv.delMany([buddyKeys.careFed("mara0001")]);
   await archiveCareCounts(kit.kv, kit.db);

@@ -1,11 +1,11 @@
 import { z } from "zod";
 import {
-  petDaySchema,
+  snapshotDaySchema,
   uploadBodySchema,
 } from "../upload/upload-body-schema.ts";
 
 const macSnapshotSchema = uploadBodySchema.extend({
-  days: z.array(petDaySchema),
+  days: z.array(snapshotDaySchema),
   /** The server time of the upload. */
   receivedAt: z.number(),
 });

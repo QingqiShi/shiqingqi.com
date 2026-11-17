@@ -86,6 +86,49 @@ export const buddyUsageDays = pgTable(
   ],
 );
 
+/**
+ * Each machine's daily usage by model, copied from Redis by the daily archive
+ * cron. A day of `buddy_usage_days` without a row here was counted before its
+ * Mac sent the models. `user_id` is the account id. It holds no cost: a
+ * reader prices the tokens with the price list it has then.
+ */
+export const buddyUsageModels = pgTable(
+  "buddy_usage_models",
+  {
+    userId: text("user_id").notNull(),
+    machineId: text("machine_id").notNull(),
+    day: date("day").notNull(),
+    model: text("model").notNull(),
+    /** `long` for the tokens that the Mac prices at the model's long-prompt rate, empty for its standard rate. */
+    rate: text("rate").notNull().default(""),
+    /** Fresh input: not read from the cache and not written to it. */
+    inputTokens: bigint("input_tokens", { mode: "number" }).notNull(),
+    outputTokens: bigint("output_tokens", { mode: "number" }).notNull(),
+    cacheReadTokens: bigint("cache_read_tokens", { mode: "number" }).notNull(),
+    cacheWrite5mTokens: bigint("cache_write_5m_tokens", {
+      mode: "number",
+    }).notNull(),
+    cacheWrite1hTokens: bigint("cache_write_1h_tokens", {
+      mode: "number",
+    }).notNull(),
+    messages: bigint("messages", { mode: "number" }).notNull(),
+    archivedAt: timestamp("archived_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    primaryKey({
+      columns: [
+        table.userId,
+        table.machineId,
+        table.day,
+        table.model,
+        table.rate,
+      ],
+    }),
+  ],
+);
+
 export const schema = {
   accounts,
   passkeys,
@@ -95,4 +138,5 @@ export const schema = {
   recoveries,
   machines,
   buddyUsageDays,
+  buddyUsageModels,
 };

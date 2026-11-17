@@ -1,5 +1,9 @@
-import type { PetDay, PetQuota } from "#src/pet/types.ts";
-import type { UploadBody } from "../upload/upload-body-schema.ts";
+import type { PetQuota } from "#src/pet/types.ts";
+import type {
+  ModelUsage,
+  SnapshotDay,
+  UploadBody,
+} from "../upload/upload-body-schema.ts";
 import type { MacSnapshot } from "./parse-snapshot.ts";
 
 const QUOTA_SAMPLES_MS = 24 * 60 * 60 * 1000;
@@ -10,25 +14,57 @@ function maxOptional(a: number | undefined, b: number | undefined) {
   return Math.max(a, b);
 }
 
-function mergeDay(stored: PetDay | undefined, incoming: PetDay): PetDay {
+function largerUsage(a: ModelUsage, b: ModelUsage): ModelUsage {
+  return [
+    Math.max(a[0], b[0]),
+    Math.max(a[1], b[1]),
+    Math.max(a[2], b[2]),
+    Math.max(a[3], b[3]),
+    Math.max(a[4], b[4]),
+    Math.max(a[5], b[5]),
+  ];
+}
+
+/** Every model of both, so a later upload that leaves a model out, or sends no models, does not lose it. */
+function mergeModels(
+  stored: SnapshotDay["models"],
+  incoming: SnapshotDay["models"],
+): SnapshotDay["models"] {
+  if (!stored) return incoming;
+  if (!incoming) return stored;
+  // A Map, because an object also answers a model id such as `constructor` with a property that it inherits.
+  const merged = new Map(Object.entries(stored));
+  for (const [model, usage] of Object.entries(incoming)) {
+    const old = merged.get(model);
+    merged.set(model, old ? largerUsage(old, usage) : usage);
+  }
+  return Object.fromEntries(merged);
+}
+
+function mergeDay(
+  stored: SnapshotDay | undefined,
+  incoming: SnapshotDay,
+): SnapshotDay {
   if (!stored) return incoming;
   const cacheRead = maxOptional(stored.cacheRead, incoming.cacheRead);
   const promptTokens = maxOptional(stored.promptTokens, incoming.promptTokens);
+  const models = mergeModels(stored.models, incoming.models);
   return {
     day: incoming.day,
     tokens: Math.max(stored.tokens, incoming.tokens),
     costUsd: Math.max(stored.costUsd, incoming.costUsd),
     ...(cacheRead === undefined ? {} : { cacheRead }),
     ...(promptTokens === undefined ? {} : { promptTokens }),
+    ...(models === undefined ? {} : { models }),
   };
 }
 
 /** Each day of both lists, each count the larger one, so a day never shrinks. */
 function mergeDays(
-  stored: readonly PetDay[],
-  incoming: readonly PetDay[],
-): PetDay[] {
-  const byDay = new Map<string, PetDay>();
+  stored: readonly SnapshotDay[],
+  incoming: readonly SnapshotDay[],
+): SnapshotDay[] {
+  const byDay = new Map<string, SnapshotDay>();
   for (const day of [...stored, ...incoming]) {
     byDay.set(day.day, mergeDay(byDay.get(day.day), day));
   }
