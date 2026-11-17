@@ -48,7 +48,8 @@ export function AccountActions({ accountId }: { accountId: string }) {
       </Button>
       <Button
         size="sm"
-        look={confirming ? "destructive" : "ghost"}
+        look={confirming ? "primary" : "ghost"}
+        intent={confirming ? "destructive" : undefined}
         icon={<TrashIcon weight="bold" />}
         hideLabelOnMobile
         loading={busy === "remove"}

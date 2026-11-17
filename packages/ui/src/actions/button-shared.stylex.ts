@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { gray } from "../_generated/palette/hues/gray.stylex.ts";
+import { red } from "../_generated/palette/hues/red.stylex.ts";
 import { breakpoints, pointer } from "../breakpoints.stylex.ts";
 import { color } from "../color.stylex.ts";
 import { cornerTokens } from "../primitives/corner.stylex.ts";
@@ -195,12 +196,6 @@ export const lookStyles = stylex.create({
       },
     },
   },
-  destructive: {
-    [buttonTokens.backgroundColor]: color.destructive,
-    [buttonTokens.backgroundColorHover]: `color-mix(in srgb, ${color.destructive} 90%, transparent)`,
-    [buttonTokens.backgroundColorDisabledHover]: color.destructive,
-    [buttonTokens.color]: color.destructiveForeground,
-  },
 });
 
 // The glyph of an icon-only button. It reads `buttonTokens.glyph`, which
@@ -224,11 +219,18 @@ export const glyphBelowMdTokenStyles = stylex.create({
   lg: { [buttonTokens.glyph]: controlSize._4 },
 });
 
-// A secondary destructive action. The label turns destructive and the hover fill
-// is a destructive tint, while the edge of `outline` stays neutral, so the button
-// keeps the weight of the buttons beside it. `look="destructive"` is the filled
-// form, for the one action that destroys.
-export const dangerIntentStyles = stylex.create({
+// `intent="destructive"` in each look. A look that paints no highlight turns
+// its label destructive, and its hover fill where it has one. Its edge and its
+// surface stay neutral, so the button keeps the weight of the buttons beside
+// it. `filled` takes the place of the primary highlight, for the one action
+// that destroys.
+export const destructiveIntentStyles = stylex.create({
+  raised: {
+    [buttonTokens.color]: color.destructiveText,
+    // The raised surface is opaque, so its tint is mixed into the card. The
+    // translucent `destructiveSubtle` would show the page through the button.
+    [buttonTokens.backgroundColorHover]: `color-mix(in srgb, ${color.destructive} 12%, ${color.card})`,
+  },
   ghost: {
     [buttonTokens.color]: color.destructiveText,
     [buttonTokens.backgroundColorHover]: color.destructiveSubtle,
@@ -241,6 +243,23 @@ export const dangerIntentStyles = stylex.create({
         default: null,
         ":hover": color.destructiveSubtle,
         ":disabled:hover": "transparent",
+      },
+    },
+  },
+  // A bright button stays light in both themes, so its label takes the
+  // destructive text of the light theme in both.
+  bright: {
+    [buttonTokens.color]: red._30,
+  },
+  filled: {
+    [buttonTokens.color]: color.destructiveForeground,
+    borderColor: color.destructive,
+    backgroundColor: {
+      default: color.destructive,
+      [pointer.canHover]: {
+        default: null,
+        ":hover": `color-mix(in srgb, ${color.destructive} 90%, transparent)`,
+        ":disabled:hover": color.destructive,
       },
     },
   },

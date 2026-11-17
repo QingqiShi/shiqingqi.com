@@ -155,7 +155,8 @@ export function MacsList({ macs }: { macs: readonly MacEntry[] }) {
             </div>
             <div css={cluster.tight}>
               <Button
-                look="destructive"
+                look="primary"
+                intent="destructive"
                 onClick={() => {
                   remove(confirming);
                   setIsConfirmOpen(false);

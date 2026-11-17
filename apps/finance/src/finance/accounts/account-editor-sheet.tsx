@@ -395,7 +395,8 @@ function AccountEditorForm({
         <div css={stack.tight}>
           <div>
             <Button
-              look="destructive"
+              look="primary"
+              intent="destructive"
               size="sm"
               icon={<TrashIcon weight="bold" />}
               disabled={inUse}

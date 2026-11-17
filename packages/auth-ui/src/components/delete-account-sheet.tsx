@@ -91,7 +91,8 @@ export function DeleteAccountSheet({
           </Text>
           <div css={cluster.tight}>
             <Button
-              look="destructive"
+              look="primary"
+              intent="destructive"
               icon={<FingerprintIcon weight="bold" />}
               loading={busy}
               onClick={() => {

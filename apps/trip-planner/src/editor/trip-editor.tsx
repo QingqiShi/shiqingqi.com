@@ -453,7 +453,8 @@ function RemoveDayView({ day, onDone }: { day: Day; onDone: () => void }) {
           {t({ en: "Cancel", zh: "取消" })}
         </Button>
         <Button
-          look="destructive"
+          look="primary"
+          intent="destructive"
           disabled={!editor.canEdit}
           onClick={() => {
             dayChanges.remove(day);

@@ -19,7 +19,7 @@ import { opacity } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import {
   bleedStyles,
-  dangerIntentStyles,
+  destructiveIntentStyles,
   glyphBelowMdTokenStyles,
   iconGlyphStyles,
   lookStyles,
@@ -86,21 +86,21 @@ interface SharedProps {
    * filters. `"ghost"` has no surface at all and holds its colour back until
    * hover, for an affordance inline over existing content. `"bright"` lifts
    * the button onto a bright surface that brightens further on hover.
-   * `"destructive"` is for the action that destroys something.
    *
    * @zh 视觉外观。省略则为默认的凸起表面。
    *
-   * `"primary"` 与 `isActive` 共用同一种高亮，但不表示任何状态。`"outline"` 以描边取代填充，是一排筛选项所用的外观；`"ghost"` 完全没有表面，颜色在悬停前保持克制，适合置于已有内容之上的行内控件；`"bright"` 将按钮置于明亮表面，悬停时进一步提亮；`"destructive"` 用于真正具有破坏性的操作。
+   * `"primary"` 与 `isActive` 共用同一种高亮，但不表示任何状态。`"outline"` 以描边取代填充，是一排筛选项所用的外观；`"ghost"` 完全没有表面，颜色在悬停前保持克制，适合置于已有内容之上的行内控件；`"bright"` 将按钮置于明亮表面，悬停时进一步提亮。
    */
-  look?: "primary" | "outline" | "ghost" | "bright" | "destructive";
+  look?: "primary" | "outline" | "ghost" | "bright";
   /**
-   * `"destructive"` marks a secondary destructive action on an `outline` or
-   * `ghost` button, such as Delete in a bar of other actions: the label and
-   * the hover fill turn destructive, and the button keeps the weight of the
-   * buttons beside it. Other looks ignore it. The one action that destroys
-   * takes `look="destructive"`, the filled form.
+   * `"destructive"` marks an action that destroys something, in every look.
+   * A button with a fill, from `look="primary"` or `isActive`, takes the
+   * destructive fill: use it for the one action that destroys. Each other
+   * look turns its label destructive, and its hover fill where it has one,
+   * and keeps the weight of the buttons beside it: use it for a destructive
+   * action among others, such as Delete in a bar.
    *
-   * @zh `"destructive"` 用于 `outline` 或 `ghost` 按钮上次要的破坏性操作，例如一排操作中的“删除”：标签和悬停填充变为危险色，按钮与旁边的按钮保持同样的分量。其他外观会忽略它。真正具有破坏性的唯一操作使用 `look="destructive"`，即填充形式。
+   * @zh `"destructive"` 标记会销毁内容的操作，在每种外观下都生效。带填充的按钮（`look="primary"` 或 `isActive`）使用危险色填充，留给唯一那个真正具有破坏性的操作。其他外观把标签变为危险色，有悬停填充的也一并变色，按钮与旁边的按钮保持同样的分量，用于与其他操作并列的破坏性操作，例如一排操作中的“删除”。
    */
   intent?: "destructive";
   /**
@@ -374,9 +374,15 @@ function splitFace<Props extends FaceProps>({
 }
 
 function paintsHighlight({ isActive, look }: FaceProps) {
-  // `destructive` keeps its own fill, so a destructive button doesn't repaint
-  // primary when toggled on.
-  return (isActive === true || look === "primary") && look !== "destructive";
+  return isActive === true || look === "primary";
+}
+
+function destructiveIntentOf(
+  face: FaceProps,
+): keyof typeof destructiveIntentStyles {
+  const { isActive, look } = face;
+  if (isActive === true || look === "primary") return "filled";
+  return look ?? "raised";
 }
 
 interface FaceState {
@@ -411,18 +417,18 @@ function faceCss(
     sizeStyles[size],
     look !== undefined && look !== "primary" && lookStyles[look],
     isOutline && outlineSurface.skin,
-    intent === "destructive" &&
-      (look === "outline" || look === "ghost") &&
-      dangerIntentStyles[look],
     shape === "iconOnlyBelowMd" && sharedStyles.iconOnlyBelowMd,
     shape === "iconOnlyBelowMd" && glyphBelowMdTokenStyles[size],
     shape === "iconAndLabel" && sharedStyles.hasIcon,
     shape === "iconOnly" && sharedStyles.iconOnly,
     bleed !== undefined && bleedStyles[bleedStyleOf(bleed, shape)],
     // `active` and `bright` set a literal `backgroundColor` that wins over
-    // the fill of the tokens.
-    paintsHighlight(face) &&
-      (isOutline ? outlineSurface.active : sharedStyles.active),
+    // the fill of the tokens. A destructive button takes its own fill in the
+    // place of the highlight.
+    intent === "destructive"
+      ? destructiveIntentStyles[destructiveIntentOf(face)]
+      : paintsHighlight(face) &&
+        (isOutline ? outlineSurface.active : sharedStyles.active),
     isLoading && styles.busy,
     isPressedLive && sharedStyles.pressed,
     isPressedLive && look === "bright" && sharedStyles.pressedBright,
@@ -472,8 +478,7 @@ function Face({
   const overlaysSpinner = isLoading && !hasIcon;
   // On a filled look there's nothing to mute against, and dimming its text
   // further would drop it below the WCAG 1.4.3 contrast floor.
-  const inheritsTrailingColor =
-    paintsHighlight(face) || look === "destructive" || look === "bright";
+  const inheritsTrailingColor = paintsHighlight(face) || look === "bright";
 
   return (
     <>

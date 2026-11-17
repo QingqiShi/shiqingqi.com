@@ -232,7 +232,8 @@ export function PreferencePanel({
                 })}
               </Text>
               <Button
-                look="destructive"
+                look="primary"
+                intent="destructive"
                 size="sm"
                 onClick={() => void handleClearAll()}
               >
