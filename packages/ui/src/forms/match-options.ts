@@ -2,6 +2,7 @@
 interface Searchable {
   readonly label: string;
   readonly detail?: string;
+  readonly keywords?: string;
 }
 
 /** Lower case, without accents, so that "zurich" finds "Zürich". */
@@ -22,6 +23,7 @@ const UNSPACED = /[\p{sc=Han}\p{sc=Hiragana}\p{sc=Katakana}\p{sc=Hangul}]/u;
  * The options that the query finds, best first. An option is found when
  * each word of the query starts a word of its label or its detail, or, for
  * a word in a script without spaces, such as Chinese, is somewhere in them.
+ * The keywords of an option count as part of its detail.
  * An option whose label starts with the query comes first; the others keep
  * their order.
  *
@@ -37,7 +39,7 @@ export function matchOptions<Option extends Searchable>(
   const first: Option[] = [];
   const rest: Option[] = [];
   for (const option of options) {
-    const text = `${option.label} ${option.detail ?? ""}`;
+    const text = `${option.label} ${option.detail ?? ""} ${option.keywords ?? ""}`;
     const folded = fold(text);
     const words = wordsOf(text);
     const isFound = queryWords.every((queryWord) =>

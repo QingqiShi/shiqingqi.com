@@ -89,7 +89,8 @@ export function TripsFrame({
 }) {
   const locale = useLocale();
   const router = useRouter();
-  const [segment, page] = useSelectedLayoutSegments();
+  const segments = useSelectedLayoutSegments();
+  const [segment, page] = segments;
   const hash = useTripHash();
   const open = trips.find((trip) => trip.id === segment) ?? null;
   const listHref = getLocalePath("/", locale);
@@ -107,7 +108,11 @@ export function TripsFrame({
   // whole page.
   if (trips.length === 0) {
     return (
-      <NavigationStack label={listLabel} css={pageColumn.report}>
+      <NavigationStack
+        label={listLabel}
+        accessory={segments.length === 0 ? <NewTripFloatingButton /> : null}
+        css={pageColumn.report}
+      >
         {children}
       </NavigationStack>
     );

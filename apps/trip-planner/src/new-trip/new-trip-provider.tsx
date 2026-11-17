@@ -3,7 +3,7 @@
 import { t } from "@tuja/i18n";
 import { Sheet } from "@tuja/ui/components/sheet";
 import { createContext, use, useRef, useState, type ReactNode } from "react";
-import { NewTripForm } from "./new-trip-form.tsx";
+import { NewTripForm, type NewTripDraft } from "./new-trip-form.tsx";
 
 /** Opens the New trip sheet, which grows from `trigger` on a phone. */
 type OpenNewTrip = (trigger: HTMLElement) => void;
@@ -13,12 +13,14 @@ const NewTripContext = createContext<OpenNewTrip | null>(null);
 /**
  * Holds the one New trip sheet of the app, above the frame, so that each
  * button that opens it can come and go, as the trip list does after the first
- * trip.
+ * trip. It keeps what the person typed when the sheet closes, until a trip is
+ * made.
  */
 export function NewTripProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLElement | null>(null);
   const titleRef = useRef<HTMLInputElement>(null);
+  const [draft, setDraft] = useState<NewTripDraft | null>(null);
   const close = () => {
     setIsOpen(false);
   };
@@ -44,7 +46,10 @@ export function NewTripProvider({ children }: { children: ReactNode }) {
       >
         <NewTripForm
           titleRef={titleRef}
+          draft={draft}
+          onDraftChange={setDraft}
           onCreated={() => {
+            setDraft(null);
             // The page goes to the editor of the new trip. Thus the card
             // must not shrink back into the button on the page that goes.
             triggerRef.current = null;

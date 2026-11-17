@@ -12,13 +12,21 @@ import { TextField } from "@tuja/ui/components/text-field";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useRouter } from "next/navigation";
 import { useState, type RefObject, type SubmitEvent } from "react";
-import { addDays, daysBetween } from "#src/trips/ops/add-days.ts";
-import { useTripApi } from "#src/trips/trip-api.ts";
 import {
   deviceTimeZone,
-  knownTimeZones,
-  timeZoneOptions,
-} from "./time-zone-options.ts";
+  timeZoneLabel,
+} from "#src/time-zones/time-zone-label.ts";
+import { timeZoneOptions } from "#src/time-zones/time-zone-options.ts";
+import { addDays, daysBetween } from "#src/trips/ops/add-days.ts";
+import { useTripApi } from "#src/trips/trip-api.ts";
+
+/** What the person has typed in the New trip sheet so far. */
+export interface NewTripDraft {
+  title: string;
+  firstDate: string;
+  lastDate: string;
+  timeZone: string;
+}
 
 /** The most days a trip can have when it is made. */
 const MAX_DAYS = 1000;
@@ -30,28 +38,47 @@ function localToday() {
   return `${String(now.getFullYear())}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
+function newDraft(): NewTripDraft {
+  return {
+    title: "",
+    firstDate: localToday(),
+    lastDate: addDays(localToday(), 2),
+    timeZone: deviceTimeZone(),
+  };
+}
+
 /**
  * The fields of a new trip: its title, its first and last day, and its time
  * zone. Create makes the trip and opens it in the editor; a failure keeps
- * what the person typed.
+ * what the person typed. It starts from `draft`, and gives each change to
+ * `onDraftChange`.
  */
 export function NewTripForm({
   titleRef,
+  draft: startDraft,
+  onDraftChange,
   onCreated,
 }: {
   titleRef: RefObject<HTMLInputElement | null>;
+  draft: NewTripDraft | null;
+  onDraftChange: (draft: NewTripDraft) => void;
   onCreated: () => void;
 }) {
   const locale = useLocale();
   const router = useRouter();
   const tripApi = useTripApi();
-  const [title, setTitle] = useState("");
-  const [firstDate, setFirstDate] = useState(localToday);
-  const [lastDate, setLastDate] = useState(() => addDays(localToday(), 2));
-  const [timeZone, setTimeZone] = useState(deviceTimeZone);
+  const [draft, setDraft] = useState(() => startDraft ?? newDraft());
+  const { title, firstDate, lastDate, timeZone } = draft;
+  const change = (patch: Partial<NewTripDraft>) => {
+    const next = { ...draft, ...patch };
+    setDraft(next);
+    onDraftChange(next);
+  };
+  const zoneLabel = timeZoneLabel(timeZone, locale);
   // The list of all zones costs a slow phone more than a frame, so it waits
   // until the person goes to the field.
-  const [zones, setZones] = useState(() => timeZoneOptions([timeZone], locale));
+  const [hasAllZones, setHasAllZones] = useState(false);
+  const [isZoneKept, setIsZoneKept] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -129,7 +156,7 @@ export function NewTripForm({
           error={showErrors ? titleError : undefined}
           autoComplete="off"
           onChange={(event) => {
-            setTitle(event.target.value);
+            change({ title: event.target.value });
           }}
         />
         <DateField
@@ -138,10 +165,14 @@ export function NewTripForm({
           error={showErrors ? firstDateError : undefined}
           onValueChange={(next) => {
             // The trip keeps its length when its first day moves.
-            if (next !== "" && firstDate !== "" && lastDate !== "") {
-              setLastDate(addDays(next, daysBetween(firstDate, lastDate)));
-            }
-            setFirstDate(next);
+            change(
+              next !== "" && firstDate !== "" && lastDate !== ""
+                ? {
+                    firstDate: next,
+                    lastDate: addDays(next, daysBetween(firstDate, lastDate)),
+                  }
+                : { firstDate: next },
+            );
           }}
         />
         <DateField
@@ -151,23 +182,44 @@ export function NewTripForm({
           max={firstDate === "" ? undefined : addDays(firstDate, MAX_DAYS - 1)}
           error={showErrors ? lastDateError : undefined}
           status={days !== null && days >= 1 ? dayCount : ""}
-          onValueChange={setLastDate}
+          onValueChange={(next) => {
+            change({ lastDate: next });
+          }}
         />
         <Combobox
           label={t({ en: "Time zone", zh: "时区" })}
-          description={t({
-            en: "Where the trip is. Times in the trip are in this zone.",
-            zh: "行程所在的地方。行程里的时间都按这个时区。",
-          })}
-          options={zones}
+          description={
+            isZoneKept
+              ? t({
+                  en: "The time zone is still {zone}. To change it, pick a zone from the list.",
+                  zh: "时区仍是{zone}。要更换时区，请从列表中选择。",
+                }).replace("{zone}", zoneLabel)
+              : t({
+                  en: "Where the trip is. Times in the trip are in this zone.",
+                  zh: "行程所在的地方。行程里的时间都按这个时区。",
+                })
+          }
+          options={
+            hasAllZones
+              ? timeZoneOptions(locale, timeZone)
+              : [{ id: timeZone, label: zoneLabel }]
+          }
           selected={timeZone}
-          onSelectedChange={setTimeZone}
-          onFocus={() => {
-            if (zones.length === 1) {
-              setZones(timeZoneOptions(knownTimeZones(timeZone), locale));
-            }
+          onSelectedChange={(next) => {
+            change({ timeZone: next });
           }}
-          emptyLabel={t({ en: "No time zone matches", zh: "没有匹配的时区" })}
+          onFocus={() => {
+            setIsZoneKept(false);
+            setHasAllZones(true);
+          }}
+          onBlur={(event) => {
+            const typed = event.currentTarget.value.trim();
+            setIsZoneKept(typed !== zoneLabel);
+          }}
+          emptyLabel={t({
+            en: "No time zone matches. Search by a large city or the country, for example Tokyo or Japan.",
+            zh: "没有匹配的时区。请搜索大城市或国家，例如“东京”或“日本”。",
+          })}
         />
       </div>
       {failed ? (

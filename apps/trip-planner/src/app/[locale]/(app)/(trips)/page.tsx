@@ -6,7 +6,7 @@ import { EmptyState } from "@tuja/ui/components/empty-state";
 import type { Metadata } from "next";
 import { LandingPage } from "#src/landing/landing-page.tsx";
 import { publicPageMetadata } from "#src/landing/public-page-metadata.ts";
-import { NewTripButton } from "#src/new-trip/new-trip-button.tsx";
+import { NewTripEmptyAction } from "#src/new-trip/new-trip-button.tsx";
 import { getTrips, getViewerId } from "#src/trips/get-trips.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
@@ -45,7 +45,7 @@ export default async function HomePage() {
           en: "Make a trip, or join one by an invite link from its owner.",
           zh: "新建一个行程，或通过所有者的邀请链接加入一个。",
         })}
-        action={<NewTripButton />}
+        action={<NewTripEmptyAction />}
       />
     );
   }

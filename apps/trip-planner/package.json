@@ -25,7 +25,8 @@
     "test:e2e": "playwright test",
     "eval": "vitest run --config vitest.eval.config.mts",
     "trips:generate": "drizzle-kit generate",
-    "trips:migrate": "tsx src/db/migrate-cli.ts"
+    "trips:migrate": "tsx src/db/migrate-cli.ts",
+    "time-zones:generate": "node --experimental-strip-types --no-warnings src/time-zones/generate-time-zone-table.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "catalog:",

@@ -30,6 +30,11 @@ describe("matchOptions", () => {
     expect(labels("海")).toEqual(["上海"]);
   });
 
+  it("reads the keywords, which the list does not show", () => {
+    const tokyo = { label: "东京", detail: "日本", keywords: "Tokyo Japan" };
+    expect(matchOptions([tokyo], "tokyo")).toEqual([tokyo]);
+  });
+
   it("keeps every option for an empty query", () => {
     expect(labels(" ")).toHaveLength(zones.length);
   });
