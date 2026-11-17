@@ -178,10 +178,13 @@ describe("the save queue", () => {
 
     queue.keepTheirs();
     await answer();
-    // The person made the later change before they saw the other version,
-    // so it does not go over that version without a question.
+    // The person made the later change before they saw the other version.
+    // It goes with the first, so the person gets one question, not two.
     expect(nameOf(server.trip)).toBe("Their castle");
-    expect(queue.getState().problem?.kind).toBe("conflict");
+    expect(nameOf(queue.getState().trip)).toBe("Their castle");
+    expect(queue.getState().problem).toBeNull();
+    expect(queue.getState().pending).toHaveLength(0);
+    expect(server.sent).toHaveLength(1);
     expect(dropped.count).toBe(0);
   });
 
@@ -235,7 +238,9 @@ describe("the save queue", () => {
     queue.keepTheirs();
     expect(queue.getState().pending).toHaveLength(0);
     expect(locateItem(queue.getState().trip, "castle")).toBeUndefined();
-    expect(dropped.count).toBe(1);
+    // The sheet said that the change cannot be saved. The later change to
+    // the same thing goes with it, with no second message.
+    expect(dropped.count).toBe(0);
   });
 
   it("takes back a saved change with a new request, and a waiting change with none", async () => {
@@ -244,7 +249,7 @@ describe("the save queue", () => {
     await answer();
     expect(queue.getState().canUndo).toBe(true);
 
-    expect(queue.undo()).toBe(true);
+    expect(queue.undo()).toBe("taken");
     expect(nameOf(queue.getState().trip)).toBe("Castle");
     await answer();
     expect(nameOf(server.trip)).toBe("Castle");
@@ -253,10 +258,117 @@ describe("the save queue", () => {
 
     queue.submit([rename("Keep")]);
     queue.submit([rename("Tower")]);
-    expect(queue.undo()).toBe(true);
+    expect(queue.undo()).toBe("taken");
     expect(nameOf(queue.getState().trip)).toBe("Keep");
     await answer();
     expect(server.sent).toHaveLength(3);
     expect(nameOf(server.trip)).toBe("Keep");
+  });
+
+  it("does not take out what another person added to a new thing when the person takes the thing back", async () => {
+    const { queue, server, answer, other } = setup();
+    const hasTea = (trip: Trip) => locateItem(trip, "tea") !== undefined;
+    queue.submit([
+      {
+        op: "addMoment",
+        dayId: dayOne.id,
+        moment: { id: "break", time: "16:00", text: "Break" },
+      },
+    ]);
+    await answer();
+    other([
+      {
+        op: "addItem",
+        to: { momentId: "break" },
+        item: { id: "tea", type: "place", name: "Tea room" },
+      },
+    ]);
+    // The editor has the addition of the other person before the undo.
+    queue.sync();
+    await answer();
+    expect(hasTea(queue.getState().trip)).toBe(true);
+
+    // The queue knows that the note changed, so it does not say "taken".
+    expect(queue.undo()).toBe("asks");
+    await answer();
+    expect(hasTea(server.trip)).toBe(true);
+    const { problem } = queue.getState();
+    expect(problem).toMatchObject({ kind: "conflict", canKeepMine: true });
+
+    queue.keepTheirs();
+    await answer();
+    expect(hasTea(server.trip)).toBe(true);
+    expect(hasTea(queue.getState().trip)).toBe(true);
+    expect(queue.getState().problem).toBeNull();
+  });
+
+  it("does not put back the older version of a field that another person changed after the person", async () => {
+    const { queue, server, answer, other } = setup();
+    const weatherOf = (trip: Trip) => trip.days[0].weather;
+    queue.submit([
+      {
+        op: "setDay",
+        id: dayOne.id,
+        fields: { weather: { temp: "18°", summary: "Sun" } },
+      },
+    ]);
+    await answer();
+    other([
+      {
+        op: "setDay",
+        id: dayOne.id,
+        fields: { weather: { temp: "18°", summary: "Sun", note: "Windy" } },
+      },
+    ]);
+    queue.sync();
+    await answer();
+
+    queue.undo();
+    await answer();
+    expect(weatherOf(server.trip)?.note).toBe("Windy");
+    expect(queue.getState().problem?.kind).toBe("conflict");
+  });
+
+  it("tells the person when a change to a different thing goes with the version that they give up", async () => {
+    const { queue, server, answer, other, dropped } = setup();
+    const titleOf = (trip: Trip) => trip.days[0].title;
+    other([rename("Their castle")]);
+    queue.submit([rename("My castle")]);
+    // One change of the person, to the castle and to the day.
+    queue.submit([
+      rename("My castle, again"),
+      { op: "setDay", id: dayOne.id, fields: { title: "Old town" } },
+    ]);
+    expect(titleOf(queue.getState().trip)).toBe("Old town");
+    await answer();
+    expect(queue.getState().problem?.kind).toBe("conflict");
+
+    queue.keepTheirs();
+    await answer();
+    expect(nameOf(server.trip)).toBe("Their castle");
+    expect(titleOf(server.trip)).not.toBe("Old town");
+    expect(titleOf(queue.getState().trip)).not.toBe("Old town");
+    expect(queue.getState().pending).toHaveLength(0);
+    expect(queue.getState().canUndo).toBe(false);
+    expect(dropped.count).toBe(1);
+  });
+
+  it("does not put back a thing that another person removed when the person takes their own removal back", async () => {
+    const { queue, server, answer, other } = setup();
+    other([{ op: "removeItem", id: "castle" }]);
+    queue.submit([{ op: "removeItem", id: "castle" }]);
+    // The removal is on its way, so the undo waits behind it as a change
+    // of its own.
+    expect(queue.undo()).toBe("taken");
+    expect(queue.getState().pending).toHaveLength(2);
+    await answer();
+    expect(queue.getState().problem?.kind).toBe("conflict");
+
+    queue.keepTheirs();
+    await answer();
+    expect(locateItem(server.trip, "castle")).toBeUndefined();
+    expect(locateItem(queue.getState().trip, "castle")).toBeUndefined();
+    expect(queue.getState().pending).toHaveLength(0);
+    expect(server.sent).toHaveLength(1);
   });
 });
