@@ -151,7 +151,7 @@ export function DayForm({ day, onDone }: { day: Day; onDone: () => void }) {
         label={t({ en: "Route", zh: "路线" })}
         description={t({
           en: "Where the day goes, such as Lisbon → Sintra → Lisbon.",
-          zh: "这一天的行进路线，例如 里斯本 → 辛特拉 → 里斯本。",
+          zh: "这一天的行进路线，例如“里斯本 → 辛特拉 → 里斯本”。",
         })}
         {...bind("route")}
       />
@@ -185,22 +185,22 @@ export function DayForm({ day, onDone }: { day: Day; onDone: () => void }) {
         </div>
       </Disclosure>
       <Disclosure
-        summary={t({ en: "Driving and weather", zh: "驾驶与天气" })}
+        summary={t({ en: "Driving and weather", zh: "驾车与天气" })}
         open={isMoreOpen}
         onOpenChange={setIsMoreOpen}
       >
         <div css={stack.item}>
           <Columns gap="item">
             <TextField
-              label={t({ en: "Driving", zh: "驾驶" })}
+              label={t({ en: "Driving", zh: "驾车" })}
               description={t({
                 en: "In words, such as 1 h 20 min.",
-                zh: "文字描述，例如 1 小时 20 分。",
+                zh: "文字描述，例如“1小时20分”。",
               })}
               {...bind("driving")}
             />
             <TextField
-              label={t({ en: "Driving minutes", zh: "驾驶分钟数" })}
+              label={t({ en: "Driving minutes", zh: "驾车分钟数" })}
               description={t({
                 en: "The same time as a number, for the totals.",
                 zh: "同一段时间的数字，用于汇总。",

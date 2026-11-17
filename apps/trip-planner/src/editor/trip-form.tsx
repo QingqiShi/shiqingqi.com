@@ -13,20 +13,15 @@ import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { use, useState } from "react";
+import { timeZoneLabel } from "#src/time-zones/time-zone-label.ts";
+import { timeZoneOptions } from "#src/time-zones/time-zone-options.ts";
 import type { DraftOp } from "#src/trips/ops/apply-ops.ts";
 import { useTripApi } from "#src/trips/trip-api.ts";
 import { useEditor } from "./editor-provider.tsx";
 import { SheetActions } from "./sheet-actions.tsx";
+import { SheetInputContext } from "./sheet-input-context.ts";
 import { useFormChange } from "./use-form-change.tsx";
-
-function timeZoneOptions(current: string) {
-  const zones = new Set([current, ...Intl.supportedValuesOf("timeZone")]);
-  return [...zones].sort().map((zone) => ({
-    id: zone,
-    label: zone.replaceAll("_", " "),
-  }));
-}
 
 /** The details of the trip itself: its title, the lines under it, its first day and its time zone. An owner can delete the trip here. */
 export function TripForm({ onDone }: { onDone: () => void }) {
@@ -42,9 +37,14 @@ export function TripForm({ onDone }: { onDone: () => void }) {
   });
   const [firstDate, setFirstDate] = useState(trip.days[0].date);
   const [timeZone, setTimeZone] = useState(trip.timeZone);
-  const [zones] = useState(() => timeZoneOptions(trip.timeZone));
+  const zoneLabel = timeZoneLabel(timeZone, locale);
+  // The list of all zones costs a slow phone more than a frame, so it waits
+  // until the person goes to the field.
+  const [hasAllZones, setHasAllZones] = useState(false);
+  const [isZoneKept, setIsZoneKept] = useState(false);
   const [noTitle, setNoTitle] = useState(false);
   const form = useFormChange(onDone);
+  const markInput = use(SheetInputContext);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteState, setDeleteState] = useState<"idle" | "busy" | "failed">(
     "idle",
@@ -55,6 +55,7 @@ export function TripForm({ onDone }: { onDone: () => void }) {
     en: "Delete “{title}”?",
     zh: "删除“{title}”？",
   });
+  const deleted = t({ en: "“{title}” is deleted", zh: "已删除“{title}”" });
 
   const bind = (key: keyof typeof values) => ({
     value: values[key],
@@ -125,8 +126,9 @@ export function TripForm({ onDone }: { onDone: () => void }) {
               setDeleteState("busy");
               api
                 .remove(editor.tripId)
-                .then((deleted) => {
-                  if (!deleted) throw new Error("not deleted");
+                .then((isDeleted) => {
+                  if (!isDeleted) throw new Error("not deleted");
+                  editor.announce(deleted.replace("{title}", trip.title));
                   router.replace(getLocalePath("/", locale));
                 })
                 .catch(() => {
@@ -167,7 +169,7 @@ export function TripForm({ onDone }: { onDone: () => void }) {
         label={t({ en: "Who travels", zh: "同行的人" })}
         description={t({
           en: "A short line, such as 3 people by car.",
-          zh: "一句话，例如 3 人自驾。",
+          zh: "一句话，例如“3 人自驾”。",
         })}
         {...bind("party")}
       />
@@ -182,14 +184,39 @@ export function TripForm({ onDone }: { onDone: () => void }) {
       />
       <Combobox
         label={t({ en: "Time zone", zh: "时区" })}
-        description={t({
-          en: "It sets “today” and “now” on the trip.",
-          zh: "它决定行程中的“今天”和“现在”。",
-        })}
-        options={zones}
+        description={
+          isZoneKept
+            ? t({
+                en: "The time zone is still {zone}. To change it, pick a zone from the list.",
+                zh: "时区仍是{zone}。要更换时区，请从列表中选择。",
+              }).replace("{zone}", zoneLabel)
+            : t({
+                en: "It sets “today” and “now” on the trip.",
+                zh: "它决定行程中的“今天”和“现在”。",
+              })
+        }
+        options={
+          hasAllZones
+            ? timeZoneOptions(locale, timeZone)
+            : [{ id: timeZone, label: zoneLabel }]
+        }
         selected={timeZone}
-        onSelectedChange={setTimeZone}
-        emptyLabel={t({ en: "No time zone matches", zh: "没有匹配的时区" })}
+        onSelectedChange={(next) => {
+          markInput();
+          setTimeZone(next);
+        }}
+        onFocus={() => {
+          setIsZoneKept(false);
+          setHasAllZones(true);
+        }}
+        onBlur={(event) => {
+          const typed = event.currentTarget.value.trim();
+          setIsZoneKept(typed !== zoneLabel);
+        }}
+        emptyLabel={t({
+          en: "No time zone matches. Search by a large city or the country, for example Tokyo or Japan.",
+          zh: "没有匹配的时区。请搜索大城市或国家，例如“东京”或“日本”。",
+        })}
       />
       {form.problem}
       <SheetActions>

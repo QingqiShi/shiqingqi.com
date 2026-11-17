@@ -96,7 +96,7 @@ export function MomentRow({
   moment: Moment;
   onOpen: (() => void) | null;
 }) {
-  const { rowRef } = useEditor();
+  const { rowRef, markedId } = useEditor();
   const timeLabel = useTimeLabel();
   const state = useRowState(moment.id);
   const words = moment.text ?? moment.highlight?.label;
@@ -112,15 +112,10 @@ export function MomentRow({
       detail={state.detail}
       trailing={state.trailing}
       below={state.below}
+      aria-current={markedId === moment.id ? true : undefined}
       {...pressTarget(onOpen)}
     >
-      {words ? (
-        <TripText>{words}</TripText>
-      ) : (
-        <Text as="span" tone="muted">
-          {t({ en: "No note", zh: "没有备注" })}
-        </Text>
-      )}
+      {words ? <TripText>{words}</TripText> : null}
     </ListRow>
   );
 }
@@ -139,7 +134,7 @@ export function ItemRow({
   time?: MomentTime;
   onOpen: (() => void) | null;
 }) {
-  const { rowRef } = useEditor();
+  const { rowRef, markedId } = useEditor();
   const kindLabels = useKindLabels();
   const timeLabel = useTimeLabel();
   const state = useRowState(item.id);
@@ -166,6 +161,7 @@ export function ItemRow({
       }
       below={state.below}
       css={indented && styles.indented}
+      aria-current={markedId === item.id ? true : undefined}
       {...pressTarget(onOpen)}
     >
       <TripText>{itemName(item)}</TripText>

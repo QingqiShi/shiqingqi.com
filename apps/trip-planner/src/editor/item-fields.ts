@@ -17,7 +17,7 @@ export function isFormKind(kind: ItemKind): kind is FormKind {
 export interface FieldSpec {
   /** The field of the item, or `booking.<field>` for a field of its booking. */
   key: string;
-  input: "text" | "textarea" | "url" | "select";
+  input: "text" | "textarea" | "url" | "select" | "phone" | "count";
   /** The values of a select. An empty value means that the field is not set. */
   options?: readonly string[];
   /** `more` puts the field in the disclosure for the fields that few people fill. */
@@ -44,7 +44,7 @@ export const ITEM_FIELDS: Record<FormKind, readonly FieldSpec[]> = {
     more("status", "select", ["", "booked", "pick"]),
     more("booking.date"),
     more("booking.time"),
-    more("booking.party"),
+    more("booking.party", "count"),
     more("booking.by"),
     more("booking.contact"),
     more("booking.note"),
@@ -70,7 +70,7 @@ export const ITEM_FIELDS: Record<FormKind, readonly FieldSpec[]> = {
     more("checkOut"),
     more("room"),
     more("address"),
-    more("phone"),
+    more("phone", "phone"),
     more("query"),
   ],
   tip: [

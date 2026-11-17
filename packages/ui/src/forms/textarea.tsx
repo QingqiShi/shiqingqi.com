@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useEffectEvent,
   useLayoutEffect,
   useRef,
@@ -165,7 +166,11 @@ export function Textarea({
     // Height resets first so shrinking is measured, then grows to fit content.
     // `+ 2` adds the 1px block-start/end borders that `scrollHeight` excludes.
     element.style.blockSize = "auto";
-    element.style.blockSize = `${String(element.scrollHeight + 2)}px`;
+    // A textarea that does not show, such as one in a closed `Disclosure`,
+    // has no height to measure. It keeps its `rows` height until it shows.
+    const { scrollHeight } = element;
+    element.style.blockSize =
+      scrollHeight > 0 ? `${String(scrollHeight + 2)}px` : "";
   };
 
   const resizeToValue = useEffectEvent(resize);
@@ -175,6 +180,25 @@ export function Textarea({
   useLayoutEffect(() => {
     resizeToValue();
   }, [autoGrow, value]);
+
+  // The lines wrap again when the width changes, and a textarea that was
+  // not shown gets a width when it shows.
+  useEffect(() => {
+    const element = innerRef.current;
+    if (!autoGrow || !element || typeof ResizeObserver === "undefined") {
+      return undefined;
+    }
+    let width = element.clientWidth;
+    const observer = new ResizeObserver(() => {
+      if (element.clientWidth === width) return;
+      width = element.clientWidth;
+      resizeToValue();
+    });
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+    };
+  }, [autoGrow]);
 
   return (
     <div css={[stack.tight, fieldStyles.root, css]}>

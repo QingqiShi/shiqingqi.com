@@ -13,17 +13,24 @@ import { Glyph } from "./glyph.tsx";
 /** A day of driving that fills the meter. */
 const FULL_DRIVE_MINUTES = 7 * 60;
 
-/** "2h30", "5h", "0h30" */
-function driveTimeLabel(minutes: number): string {
-  const rest = minutes % 60;
-  return `${String(Math.floor(minutes / 60))}h${rest ? String(rest).padStart(2, "0") : ""}`;
-}
-
 /** The time at the wheel, as a bar against a long day of driving. */
 export function DriveMeter({ minutes }: { minutes: number | undefined }) {
   const none = t({ en: "No driving", zh: "不开车" });
   const label = t({ en: "Driving", zh: "驾车" });
+  const hoursOnly = t({ en: "{h}h", zh: "{h}小时" });
+  const hoursAndMinutes = t({ en: "{h}h{mm}", zh: "{h}小时{m}分" });
+  const minutesOnly = t({ en: "0h{mm}", zh: "{m}分钟" });
   if (minutes === undefined) return null;
+
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  const driveTime = (
+    rest === 0 ? hoursOnly : hours === 0 ? minutesOnly : hoursAndMinutes
+  )
+    .replace("{h}", String(hours))
+    .replace("{mm}", String(rest).padStart(2, "0"))
+    .replace("{m}", String(rest));
+
   return (
     <span css={[row.inline, styles.drive]}>
       <Glyph css={styles.glyph}>
@@ -39,7 +46,7 @@ export function DriveMeter({ minutes }: { minutes: number | undefined }) {
         />
       </span>
       <Text as="span" look="caption" tone="muted" numeric css={styles.noWrap}>
-        {minutes === 0 ? none : driveTimeLabel(minutes)}
+        {minutes === 0 ? none : driveTime}
       </Text>
     </span>
   );

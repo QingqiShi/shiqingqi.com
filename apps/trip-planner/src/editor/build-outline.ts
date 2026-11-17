@@ -23,20 +23,19 @@ export const LIST_OF_KIND: Partial<Record<ItemKind, DayList>> = {
   lodging: "lodging",
 };
 
-/** The lists of the items with no time, in the order that the editor shows them. */
-const ANY_TIME_LISTS: readonly DayList[] = ["tips", "dining", "places"];
-
 export interface OutlineMoment {
   moment: Moment;
   items: Item[];
 }
 
-/** One day as the editor shows it: moments by time, then the items with no time, then the beds. */
+/** One day as the editor shows it: its moments by time, and the items with no time in the lists of the day, as the reader has them. */
 export interface OutlineDay {
   day: Day;
   index: number;
   moments: OutlineMoment[];
-  anyTime: Item[];
+  tips: Item[];
+  dining: Item[];
+  places: Item[];
   lodging: Item[];
 }
 
@@ -58,7 +57,9 @@ export function buildOutline(trip: Trip): OutlineDay[] {
         .sort(
           (a, b) => momentMinutes(a.moment.time) - momentMinutes(b.moment.time),
         ),
-      anyTime: ANY_TIME_LISTS.flatMap(itemsOf),
+      tips: itemsOf("tips"),
+      dining: itemsOf("dining"),
+      places: itemsOf("places"),
       lodging: itemsOf("lodging"),
     };
   });

@@ -51,6 +51,28 @@ describe("tripStays", () => {
       null,
     ]);
   });
+
+  it("counts only the nights in a row, after two days swap places", () => {
+    const [first, second, third, ...rest] = trip.days;
+    const swapped = [
+      first,
+      { ...third, date: second.date },
+      { ...second, date: third.date },
+      ...rest,
+    ];
+    const stays = tripStays(swapped);
+    const nights = swapped.map((day) => {
+      const stay = stays.get(day.date);
+      return stay ? `${stay.name} ${String(stay.nights)}` : null;
+    });
+    expect(nights).toEqual([
+      "Baixa House 1",
+      "Casa do Douro 1",
+      "Baixa House 1",
+      "Casa do Douro 1",
+      null,
+    ]);
+  });
 });
 
 describe("monthBands", () => {

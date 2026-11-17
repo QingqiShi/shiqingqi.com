@@ -41,8 +41,10 @@ function parse(
     return { view: "calendar" };
   }
   const day = Number(DAY_HASH.exec(hash)?.[1] ?? Number.NaN);
-  if (Number.isInteger(day) && day >= 0 && day < dayCount) {
-    return { view: "day", day };
+  if (Number.isInteger(day) && day >= 0) {
+    // A day that the trip no longer has, such as one that the person added
+    // and took back, shows the last day.
+    return { view: "day", day: Math.min(day, dayCount - 1) };
   }
   return { view: "day", day: fallbackDay };
 }
@@ -64,15 +66,38 @@ export function replaceTripLocation(next: TripLocation) {
   for (const listener of listeners) listener();
 }
 
-let arrival: { path: string; location: TripLocation } | null = null;
+let arrival: {
+  path: string;
+  location: TripLocation | null;
+  anchorId: string | null;
+} | null = null;
+let hasArrived = false;
 
 /**
  * Makes the trip page at `path` open at a place, the next time that it
- * shows. A step back in history shows the page at the hash that it had, so
- * the screen that the person leaves names the place this way.
+ * shows: at `location`, or with no location at the place that its hash
+ * names, and with the element `anchorId` in view, or with no anchor at the
+ * top of the page. A step back in history shows the page at the hash that
+ * it had, so the screen that the person leaves names the place this way.
  */
-export function arriveAt(path: string, location: TripLocation) {
-  arrival = { path, location };
+export function arriveAt(
+  path: string,
+  location: TripLocation | null,
+  anchorId: string | null = null,
+) {
+  arrival = { path, location, anchorId };
+}
+
+/** Takes back what `arriveAt` asked for, when the person goes to a different page. */
+export function forgetArrival() {
+  arrival = null;
+}
+
+/** Whether the page opened at a place that `arriveAt` named. It answers yes one time. */
+export function takeArrived() {
+  const arrived = hasArrived;
+  hasArrived = false;
+  return arrived;
 }
 
 /** The URL hash, which names a place on the trip page. Empty on the server. */
@@ -89,7 +114,15 @@ export function useTripHash() {
 export function useTripLocation(dayCount: number, fallbackDay: number) {
   useLayoutEffect(() => {
     if (arrival?.path === window.location.pathname) {
-      replaceTripLocation(arrival.location);
+      const { location: place, anchorId } = arrival;
+      if (place) replaceTripLocation(place);
+      hasArrived = true;
+      // The day of the place shows after this effect.
+      requestAnimationFrame(() => {
+        const anchor = anchorId ? document.getElementById(anchorId) : null;
+        if (anchor) anchor.scrollIntoView({ block: "start" });
+        else window.scrollTo({ top: 0 });
+      });
     }
     arrival = null;
   }, []);

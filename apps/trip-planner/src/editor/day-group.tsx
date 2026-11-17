@@ -18,17 +18,19 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { mergeRefs } from "@tuja/ui/utils/merge-refs";
 import { Fragment, useState } from "react";
-import { shortDateLabel } from "#src/reader/date-label.ts";
+import { dayDateLabel } from "#src/reader/date-label.ts";
 import { TripText } from "#src/reader/trip-text.tsx";
 import { dayAnchorId } from "#src/reader/use-trip-location.ts";
-import { newId } from "#src/trips/ops/new-id.ts";
 import type { Item } from "#src/trips/ops/op-schema.ts";
 import type { Moment } from "#src/trips/types.ts";
 import type { OutlineDay } from "./build-outline.ts";
+import { dayPlan, dayRowId, isOnlyItsItem } from "./day-plan.ts";
 import { useEditor } from "./editor-provider.tsx";
 import { ItemRow, MomentRow } from "./item-row.tsx";
 import type { OpenSheet } from "./types.ts";
+import { useDayChanges } from "./use-day-changes.ts";
 import { useDayLabels } from "./use-day-labels.ts";
+import { useListLabels } from "./use-field-labels.ts";
 
 function DayMenu({
   outline,
@@ -40,29 +42,25 @@ function DayMenu({
   const editor = useEditor();
   const locale = useLocale();
   const dayLabels = useDayLabels();
+  const dayChanges = useDayChanges();
   const [open, setOpen] = useState(false);
   const { day, index } = outline;
   const { days } = editor.trip;
-  const rowId = `menu:${day.id}`;
+  const rowId = dayRowId(day.id);
   const label = dayLabels.number(index);
+  const holdsPlans = !dayPlan(day).isEmpty;
 
-  const movedTo = t({ en: "Plan moved to {date}", zh: "安排已移到{date}" });
-  const dayAdded = t({ en: "Day added", zh: "已添加一天" });
-  const dayRemoved = t({ en: "{day} removed", zh: "已移除{day}" });
+  const swapWith = t({ en: "Swap with {day}", zh: "与{day}对调" });
   const menuLabel = t({ en: "{day} actions", zh: "{day}的操作" });
 
   const act = (action: () => void) => () => {
     setOpen(false);
     action();
   };
-  const moveBefore = (before: string | undefined, date: string) => {
-    editor.change([{ op: "moveDay", id: day.id, before }], {
-      message: movedTo.replace("{date}", shortDateLabel(date, locale)),
-      dayId: day.id,
-    });
-  };
-  const earlier = index > 0 ? days[index - 1] : undefined;
-  const later = days.at(index + 1);
+  const neighbours = [
+    index > 0 ? index - 1 : null,
+    index + 1 < days.length ? index + 1 : null,
+  ].filter((each) => each !== null);
 
   return (
     <Popover
@@ -74,7 +72,6 @@ function DayMenu({
         <Button
           {...triggerProps}
           ref={mergeRefs(triggerProps.ref, editor.rowRef(rowId))}
-          size="sm"
           look="ghost"
           bleed="end"
           disabled={!editor.canEdit}
@@ -92,33 +89,20 @@ function DayMenu({
           {t({ en: "Day details…", zh: "当天详情…" })}
         </MenuItem>
         <Divider css={styles.divider} />
-        {earlier ? (
+        {neighbours.map((other) => (
           <MenuItem
-            trailing={shortDateLabel(earlier.date, locale)}
+            key={other}
+            trailing={dayDateLabel(days[other].date, locale)}
             onClick={act(() => {
-              moveBefore(earlier.id, earlier.date);
+              dayChanges.swap(day, days[other]);
             })}
           >
-            {t({ en: "Move plan earlier", zh: "安排前移一天" })}
+            {swapWith.replace("{day}", dayLabels.number(other))}
           </MenuItem>
-        ) : null}
-        {later ? (
-          <MenuItem
-            trailing={shortDateLabel(later.date, locale)}
-            onClick={act(() => {
-              moveBefore(days.at(index + 2)?.id, later.date);
-            })}
-          >
-            {t({ en: "Move plan later", zh: "安排后移一天" })}
-          </MenuItem>
-        ) : null}
+        ))}
         <MenuItem
           onClick={act(() => {
-            const id = newId();
-            editor.change([{ op: "addDay", id, before: day.id }], {
-              message: dayAdded,
-              dayId: id,
-            });
+            dayChanges.add(day);
           })}
         >
           {t({ en: "Insert a day before", zh: "在前面插入一天" })}
@@ -129,13 +113,14 @@ function DayMenu({
             <MenuItem
               intent="destructive"
               onClick={act(() => {
-                editor.change([{ op: "removeDay", id: day.id }], {
-                  message: dayRemoved.replace("{day}", label),
-                  dayId: (earlier ?? later)?.id,
-                });
+                // A day with a plan asks before it goes.
+                if (holdsPlans) openSheet({ kind: "removeDay", day }, rowId);
+                else dayChanges.remove(day);
               })}
             >
-              {t({ en: "Remove the day", zh: "移除这一天" })}
+              {holdsPlans
+                ? t({ en: "Remove the day…", zh: "移除这一天…" })
+                : t({ en: "Remove the day", zh: "移除这一天" })}
             </MenuItem>
           </>
         ) : null}
@@ -144,15 +129,10 @@ function DayMenu({
   );
 }
 
-/** A moment with no words and one item shows as the row of that item, with the time. */
-function isOnlyItsItem(moment: Moment) {
-  return !moment.text && !moment.highlight && moment.items.length === 1;
-}
-
 /**
  * One day of the outline: a row for each moment with its items under it,
- * then the items with no time, then the beds, and the way to add to the
- * day.
+ * then the items with no time in the lists that the reader shows them in,
+ * and the way to add to the day.
  */
 export function DayGroup({
   outline,
@@ -163,7 +143,8 @@ export function DayGroup({
 }) {
   const editor = useEditor();
   const dayLabels = useDayLabels();
-  const { day, index, moments, anyTime, lodging } = outline;
+  const listLabels = useListLabels();
+  const { day, index, moments, tips, dining, places, lodging } = outline;
   const { canEdit } = editor;
   const label = dayLabels.number(index);
   const addId = `add:${day.id}`;
@@ -196,6 +177,19 @@ export function DayGroup({
       }
     />
   );
+  const list = (title: string, items: Item[]) =>
+    items.length > 0 ? (
+      <Section title={title} level={3}>
+        <List>{items.map((item) => itemRow(item, null, "list"))}</List>
+      </Section>
+    ) : null;
+  const isEmpty =
+    moments.length +
+      tips.length +
+      dining.length +
+      places.length +
+      lodging.length ===
+      0 && sameAsIndex < 0;
 
   return (
     <Section
@@ -247,13 +241,11 @@ export function DayGroup({
             )}
           </List>
         ) : null}
-        {anyTime.length > 0 ? (
-          <Section title={t({ en: "Any time", zh: "不定时间" })} level={3}>
-            <List>{anyTime.map((item) => itemRow(item, null, "list"))}</List>
-          </Section>
-        ) : null}
+        {list(listLabels.tips, tips)}
+        {list(listLabels.dining, dining)}
+        {list(listLabels.places, places)}
         {lodging.length > 0 || sameAsIndex >= 0 ? (
-          <Section title={t({ en: "Stay", zh: "住宿" })} level={3}>
+          <Section title={listLabels.lodging} level={3}>
             <List>
               {sameAsIndex >= 0 ? (
                 <ListRow detail={<TripText>{day.stay.sameAs?.label}</TripText>}>
@@ -264,8 +256,7 @@ export function DayGroup({
             </List>
           </Section>
         ) : null}
-        {moments.length + anyTime.length + lodging.length === 0 &&
-        sameAsIndex < 0 ? (
+        {isEmpty ? (
           <Text tone="muted">
             {t({ en: "Nothing planned yet.", zh: "还没有安排。" })}
           </Text>
@@ -296,9 +287,9 @@ const styles = stylex.create({
   divider: {
     marginBlock: rhythm.inline,
   },
-  // A day that the hash of the address names stops under the bar that stays
-  // at the top of the screen.
+  // A day that the hash of the address names, or that the screen scrolls
+  // to, stops under the bar that stays at the top of the screen.
   day: {
-    scrollMarginBlockStart: "4rem",
+    scrollMarginBlockStart: "6rem",
   },
 });

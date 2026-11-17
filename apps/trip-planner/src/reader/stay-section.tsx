@@ -2,6 +2,7 @@
 
 import { BedIcon } from "@phosphor-icons/react/dist/ssr/Bed";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
+import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
 import { List } from "@tuja/ui/components/list";
@@ -11,6 +12,7 @@ import { Section } from "@tuja/ui/components/section";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Lodging, Stay } from "#src/trips/types.ts";
+import { DAY_SECTION_IDS } from "./day-section-ids.ts";
 import { ExternalButton } from "./external-button.tsx";
 import { ExternalLinkIndicator } from "./external-link-indicator.tsx";
 import { ExternalRowLink } from "./external-row-link.tsx";
@@ -135,7 +137,12 @@ export function StaySection({
   }
 
   return (
-    <Section title={title} look="label">
+    <Section
+      id={DAY_SECTION_IDS.lodging}
+      title={title}
+      look="label"
+      css={styles.section}
+    >
       <div css={stack.item}>
         {stay.sameAs && sameAsDay !== null ? (
           <List>
@@ -177,3 +184,10 @@ export function StaySection({
     </Section>
   );
 }
+
+const styles = stylex.create({
+  // A section that another screen opens the page at stops under the header.
+  section: {
+    scrollMarginBlockStart: "4rem",
+  },
+});

@@ -11,6 +11,7 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
 import { dateLabel } from "#src/reader/date-label.ts";
 import { useTimeLabel } from "#src/reader/use-time-label.ts";
+import { timeZoneLabel } from "#src/time-zones/time-zone-label.ts";
 import {
   applyOps,
   withExpect,
@@ -38,7 +39,7 @@ function useDescribe() {
   const dayLabels = useDayLabels();
   const kindLabels = useKindLabels();
   const timeLabel = useTimeLabel();
-  const anyTime = t({ en: "Any time", zh: "不定时间" });
+  const anyTime = t({ en: "No time", zh: "不定时" });
   const firstDay = t({ en: "First day: {date}", zh: "第一天：{date}" });
 
   return (trip: Trip, id: string): string[] | null => {
@@ -52,7 +53,7 @@ function useDescribe() {
         trip.subtitle,
         trip.party,
         firstDay.replace("{date}", dateLabel(trip.days[0].date, locale)),
-        trip.timeZone.replaceAll("_", " "),
+        timeZoneLabel(trip.timeZone, locale),
       ].filter((line) => line !== undefined);
     }
     const dayIndex = trip.days.findIndex((day) => day.id === id);

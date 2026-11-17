@@ -29,7 +29,8 @@ type SheetFrameProps = SheetProps & {
   isShown: boolean;
   /** Whether the sheet opens in a `SheetBoundary`. */
   isContained: boolean;
-  onDismiss: () => void;
+  /** Asks to close the sheet. It gives `false` when the sheet stays open. */
+  onDismiss: () => boolean;
   /** The card has left the screen. */
   onLeft: () => void;
 };
@@ -139,6 +140,9 @@ export function SheetFrame({
   const region = useScrollRegion();
   const { scroller, content } = region;
   const { ref: flowRef, skin } = useFlowBlock({ surface: true });
+  // The title row stays at the top of the card while a panel in the content
+  // opens or closes, so it is a block of its own.
+  const { ref: titleFlowRef } = useFlowBlock({ sticky: true });
   const cardMergedRef = mergeRefs(cardRef, container, flowRef);
 
   // The page scroll lock makes the body positioned, with no top margin,
@@ -245,14 +249,16 @@ export function SheetFrame({
                           <div ref={content} css={styles.content}>
                             <EffectCarrier value={region}>
                               {title !== undefined ? (
-                                <Heading
-                                  level={2}
-                                  look="h3"
-                                  id={titleId}
-                                  css={styles.title}
-                                >
-                                  {title}
-                                </Heading>
+                                <div ref={titleFlowRef} css={styles.titleRow}>
+                                  <Heading
+                                    level={2}
+                                    look="h3"
+                                    id={titleId}
+                                    css={styles.title}
+                                  >
+                                    {title}
+                                  </Heading>
+                                </div>
                               ) : null}
                               <SheetRecedeContext value={null}>
                                 {children}

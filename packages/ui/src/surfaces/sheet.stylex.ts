@@ -210,14 +210,38 @@ export const styles = stylex.create({
   scrollerTitled: {
     paddingBlockStart: CLOSE_INSET,
   },
+  // The box that keeps the title at the top of the card while the content
+  // scrolls under it. It is half as wide as the content, and the title in it
+  // is twice as wide as the box. Safari on iOS takes the colour of its
+  // toolbar from a sticky box that is almost as wide as the screen, and the
+  // card moves this box past the bottom edge of the screen. Safari measures
+  // only the sticky box, not the title in it.
+  titleRow: {
+    position: "sticky",
+    // A sticky box stops at the padding of the scroller. The row goes up
+    // into that padding, to the top edge of the card.
+    insetBlockStart: `calc(-1 * ${CLOSE_INSET})`,
+    zIndex: `calc(${layer.raised} - 1)`,
+    inlineSize: "50%",
+    marginBlockStart: `calc(-1 * ${CLOSE_INSET})`,
+  },
   // As tall as the close button and centred on it. The inline end keeps
-  // clear of the button.
+  // clear of the button. The row covers the content that scrolls under it,
+  // from edge to edge of the card, so the close button is never over a
+  // field.
   title: {
     display: "flex",
     alignItems: "center",
-    minBlockSize: CLOSE_SIZE,
-    paddingInlineEnd: `calc(${CLOSE_INSET} + ${CLOSE_SIZE} + ${rhythm.tight} - ${CONTENT_INSET})`,
-    marginBlockEnd: rhythm.tight,
+    boxSizing: "border-box",
+    inlineSize: `calc(200% + 2 * ${CONTENT_INSET})`,
+    minBlockSize: `calc(${CLOSE_SIZE} + ${CLOSE_INSET} + ${rhythm.tight})`,
+    marginInlineStart: `calc(-1 * ${CONTENT_INSET})`,
+    marginBlockEnd: 0,
+    paddingBlockStart: CLOSE_INSET,
+    paddingBlockEnd: rhythm.tight,
+    paddingInlineStart: CONTENT_INSET,
+    paddingInlineEnd: `calc(${CLOSE_INSET} + ${CLOSE_SIZE} + ${rhythm.tight})`,
+    backgroundColor: color.card,
   },
   closeCorner: {
     position: "absolute",

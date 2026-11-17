@@ -7,8 +7,10 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
+import { headerControlsTokens } from "@tuja/ui/components/header-controls.stylex";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
 import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
@@ -17,31 +19,32 @@ import {
   StickyControlGroup,
   StickyControls,
 } from "@tuja/ui/components/sticky-controls";
-import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
 import { Text } from "@tuja/ui/components/text";
-import { ToastProvider, useToast } from "@tuja/ui/components/toast-provider";
-import { toastTokens } from "@tuja/ui/components/toast.stylex";
-import { usePortalTarget } from "@tuja/ui/hooks/use-portal-target";
+import { useToast } from "@tuja/ui/components/toast-provider";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import { useEffect, useEffectEvent, useState } from "react";
-import { dateRangeLabel } from "#src/reader/date-label.ts";
+import { dateRangeLabel, dayDateLabel } from "#src/reader/date-label.ts";
 import { TripLanguageProvider, TripText } from "#src/reader/trip-text.tsx";
-import { useTripHash } from "#src/reader/use-trip-location.ts";
-import { newId } from "#src/trips/ops/new-id.ts";
-import type { Trip } from "#src/trips/types.ts";
+import { dayAnchorId, useTripHash } from "#src/reader/use-trip-location.ts";
+import { AppToasts } from "#src/shell/app-toasts.tsx";
+import type { Day, Trip } from "#src/trips/types.ts";
 import { AddPanel } from "./add-panel.tsx";
 import { buildOutline } from "./build-outline.ts";
 import { ConflictView } from "./conflict-view.tsx";
 import { DayForm } from "./day-form.tsx";
 import { DayGroup } from "./day-group.tsx";
+import { dayPlan } from "./day-plan.ts";
 import { EditorProvider, useEditor } from "./editor-provider.tsx";
 import { ItemForm } from "./item-form.tsx";
 import { pressTarget } from "./item-row.tsx";
 import { MomentForm } from "./moment-form.tsx";
 import { SheetActions } from "./sheet-actions.tsx";
+import { SheetInputContext } from "./sheet-input-context.ts";
 import { TripForm } from "./trip-form.tsx";
 import type { OpenSheet, SheetTarget } from "./types.ts";
+import { useDayChanges } from "./use-day-changes.ts";
 import { useDayLabels } from "./use-day-labels.ts";
 import { useKindLabels } from "./use-field-labels.ts";
 import { useLeaveGuard } from "./use-leave-guard.ts";
@@ -60,9 +63,10 @@ function useSheetTitle() {
   const kindLabels = useKindLabels();
   const dayLabels = useDayLabels();
   const addTo = t({ en: "Add to {day}", zh: "添加到{day}" });
-  const note = t({ en: "Time and note", zh: "时间与备注" });
+  const note = t({ en: "Note", zh: "事项" });
   const dayDetails = t({ en: "{day} details", zh: "{day}详情" });
   const tripDetails = t({ en: "Trip details", zh: "行程详情" });
+  const removeDay = t({ en: "Remove {day}?", zh: "移除{day}？" });
   const conflict = t({ en: "Changed by someone else", zh: "其他人也改了这里" });
   const leave = t({ en: "A change is not saved", zh: "有修改尚未保存" });
   return (target: SheetTarget) => {
@@ -75,6 +79,8 @@ function useSheetTitle() {
         return note;
       case "day":
         return dayDetails.replace("{day}", dayLabels.byId(target.day.id));
+      case "removeDay":
+        return removeDay.replace("{day}", dayLabels.byId(target.day.id));
       case "trip":
         return tripDetails;
       case "conflict":
@@ -100,8 +106,20 @@ function EditorScreen() {
   // Where the person asked to go: another page of the app, or null for the
   // reader.
   const [leaveTo, setLeaveTo] = useState<string | null>(null);
+  // Whether the person typed or chose a thing in the sheet that is open.
+  const [hasInput, setHasInput] = useState(false);
+  const [isAskingToDiscard, setIsAskingToDiscard] = useState(false);
+  const dayChanges = useDayChanges();
 
+  const forgetInput = () => {
+    setHasInput(false);
+  };
+  const markInput = () => {
+    setHasInput(true);
+  };
   const openSheet: OpenSheet = (target, rowId) => {
+    forgetInput();
+    setIsAskingToDiscard(false);
     setSheet((current) => ({ target, rowId, key: (current?.key ?? 0) + 1 }));
     setIsOpen(true);
   };
@@ -150,7 +168,10 @@ function EditorScreen() {
 
   useEffect(() => {
     const id = window.location.hash.slice(1);
-    if (id) document.getElementById(id)?.scrollIntoView({ block: "start" });
+    // The first day shows from the top of the screen, under the trip.
+    if (id && id !== dayAnchorId(0)) {
+      document.getElementById(id)?.scrollIntoView({ block: "start" });
+    }
   }, []);
 
   const status = !isOnline
@@ -162,26 +183,32 @@ function EditorScreen() {
         : editor.hasChanged
           ? t({ en: "Saved", zh: "已保存" })
           : null;
-  const dayAdded = t({ en: "Day added", zh: "已添加一天" });
   const discarded = t({ en: "Change discarded", zh: "已放弃修改" });
   const showToast = useToast();
+  const facts = (
+    <>
+      {dateRangeLabel(trip.days, locale)}
+      {trip.party ? (
+        <>
+          {" · "}
+          <TripText>{trip.party}</TripText>
+        </>
+      ) : null}
+    </>
+  );
 
   return (
-    <div css={stack.group}>
+    <div css={[stack.group, styles.screen]}>
       <StickyControls css={styles.bar}>
-        <StickyControlGroup>
-          <span role="status" css={styles.status}>
-            <Text
-              as="span"
-              look="caption"
-              tone={problem ? "destructive" : "muted"}
-            >
-              {status}
-            </Text>
+        <StickyControlGroup css={row.tight}>
+          <span role="status">
+            {status ? (
+              <Badge intent={problem ? "destructive" : "neutral"}>
+                {status}
+              </Badge>
+            ) : null}
           </span>
           <Button
-            size="sm"
-            look="ghost"
             icon={<ArrowCounterClockwiseIcon weight="bold" />}
             disabled={!state.canUndo || !canEdit}
             onClick={editor.undo}
@@ -189,7 +216,6 @@ function EditorScreen() {
             {t({ en: "Undo", zh: "撤销" })}
           </Button>
           <Button
-            size="sm"
             look="primary"
             loading={isLeaving}
             onClick={() => {
@@ -275,16 +301,12 @@ function EditorScreen() {
         <ListRow
           ref={editor.rowRef(TRIP_ROW)}
           wrap
-          detail={
-            <>
-              {dateRangeLabel(trip.days, locale)}
-              {trip.party ? (
-                <>
-                  {" · "}
-                  <TripText>{trip.party}</TripText>
-                </>
-              ) : null}
-            </>
+          detail={trip.subtitle ? <TripText>{trip.subtitle}</TripText> : facts}
+          extra={trip.subtitle ? <span>{facts}</span> : undefined}
+          trailing={
+            <Text as="span" look="caption" tone="muted">
+              {t({ en: "Trip details", zh: "行程详情" })}
+            </Text>
           }
           {...pressTarget(
             canEdit
@@ -311,11 +333,7 @@ function EditorScreen() {
           icon={<PlusIcon weight="bold" />}
           disabled={!canEdit}
           onClick={() => {
-            const id = newId();
-            editor.change([{ op: "addDay", id }], {
-              message: dayAdded,
-              dayId: id,
-            });
+            dayChanges.add();
           }}
         >
           {t({ en: "Add a day", zh: "添加一天" })}
@@ -327,19 +345,124 @@ function EditorScreen() {
         onClose={() => {
           setIsOpen(false);
         }}
+        // A sheet that holds what the person typed asks one time before it
+        // goes. A second request to close is the answer.
+        canClose={() => {
+          if (!hasInput || isAskingToDiscard) return true;
+          setIsAskingToDiscard(true);
+          return false;
+        }}
         closeLabel={t({ en: "Close", zh: "关闭" })}
-        title={sheet ? sheetTitle(sheet.target) : ""}
+        title={
+          isAskingToDiscard
+            ? t({ en: "Discard what you entered?", zh: "放弃已填写的内容？" })
+            : sheet
+              ? sheetTitle(sheet.target)
+              : ""
+        }
         liftFrom={() => (sheet ? editor.rowElement(sheet.rowId) : null)}
       >
+        {isAskingToDiscard ? (
+          <div css={stack.item}>
+            <Text as="p" tone="muted">
+              {t({
+                en: "It is not saved. If you close this, it is lost.",
+                zh: "这些内容还没有保存，关闭后就会丢失。",
+              })}
+            </Text>
+            <SheetActions>
+              <Button
+                look="ghost"
+                intent="destructive"
+                onClick={() => {
+                  setIsOpen(false);
+                }}
+              >
+                {t({ en: "Discard", zh: "放弃" })}
+              </Button>
+              <Button
+                look="primary"
+                autoFocus
+                onClick={() => {
+                  setIsAskingToDiscard(false);
+                }}
+              >
+                {t({ en: "Keep editing", zh: "继续编辑" })}
+              </Button>
+            </SheetActions>
+          </div>
+        ) : null}
         {sheet ? (
-          <SheetContent
-            key={sheet.key}
-            target={sheet.target}
-            onDone={close}
-            onLeave={leave}
-          />
+          // The form stays as it is while the question shows.
+          <div
+            css={isAskingToDiscard && styles.hidden}
+            onInput={markInput}
+            onChange={markInput}
+          >
+            <SheetInputContext value={markInput}>
+              <SheetContent
+                key={sheet.key}
+                target={sheet.target}
+                onDone={close}
+                onLeave={leave}
+                onFresh={forgetInput}
+              />
+            </SheetInputContext>
+          </div>
         ) : null}
       </Sheet>
+    </div>
+  );
+}
+
+/** The question before a day with a plan goes: what goes with it, and what happens to the days after it. */
+function RemoveDayView({ day, onDone }: { day: Day; onDone: () => void }) {
+  const editor = useEditor();
+  const locale = useLocale();
+  const dayChanges = useDayChanges();
+  const { count } = dayPlan(day);
+  const isLast = editor.trip.days.at(-1)?.id === day.id;
+  const withPlan = t({
+    en: "Everything planned on {date} goes with the day: {count} in all.",
+    zh: "{date}的全部安排会一并移除，共 {count} 项。",
+  });
+  const withDetails = t({
+    en: "The details of {date} go with the day.",
+    zh: "{date}的详情会一并移除。",
+  });
+  return (
+    <div css={stack.item}>
+      <Text as="p">
+        {(count > 0 ? withPlan : withDetails)
+          .replace("{date}", dayDateLabel(day.date, locale))
+          .replace("{count}", String(count))}
+      </Text>
+      <Text as="p" tone="muted">
+        {isLast
+          ? t({
+              en: "The trip gets one day shorter.",
+              zh: "行程会缩短一天。",
+            })
+          : t({
+              en: "The days after it move one day earlier, and the trip gets one day shorter.",
+              zh: "之后的每一天都会提前一天，行程缩短一天。",
+            })}
+      </Text>
+      <SheetActions>
+        <Button look="ghost" onClick={onDone}>
+          {t({ en: "Cancel", zh: "取消" })}
+        </Button>
+        <Button
+          look="destructive"
+          disabled={!editor.canEdit}
+          onClick={() => {
+            dayChanges.remove(day);
+            onDone();
+          }}
+        >
+          {t({ en: "Remove the day", zh: "移除这一天" })}
+        </Button>
+      </SheetActions>
     </div>
   );
 }
@@ -348,21 +471,35 @@ function SheetContent({
   target,
   onDone,
   onLeave,
+  onFresh,
 }: {
   target: SheetTarget;
   onDone: (rowId?: string) => void;
   onLeave: () => void;
+  /** Called when a form starts again with nothing in it that the person typed. */
+  onFresh: () => void;
 }) {
   const { queue } = useEditor();
   switch (target.kind) {
     case "item":
       return <ItemForm target={{ found: target.found }} onDone={onDone} />;
     case "add":
-      return <AddPanel dayId={target.dayId} onDone={onDone} />;
+      return (
+        <AddPanel dayId={target.dayId} onDone={onDone} onFresh={onFresh} />
+      );
     case "moment":
       return <MomentForm target={target} onDone={onDone} />;
     case "day":
       return <DayForm day={target.day} onDone={onDone} />;
+    case "removeDay":
+      return (
+        <RemoveDayView
+          day={target.day}
+          onDone={() => {
+            onDone();
+          }}
+        />
+      );
     case "trip":
       return <TripForm onDone={onDone} />;
     case "conflict":
@@ -417,19 +554,24 @@ export function TripEditor({
   trip: Trip;
   isOwner: boolean;
 }) {
-  const portalTarget = usePortalTarget();
+  // The toasts of the app stay when the person leaves this screen. The
+  // toasts of the screen itself go with it.
+  const showAppToast = useToast();
   return (
-    <ToastProvider
-      dismissLabel={t({ en: "Dismiss", zh: "关闭" })}
-      portalTarget={portalTarget}
-      css={styles.toasts}
-    >
-      <EditorProvider tripId={tripId} trip={trip} isOwner={isOwner}>
+    <AppToasts>
+      <EditorProvider
+        tripId={tripId}
+        trip={trip}
+        isOwner={isOwner}
+        announce={(message) => {
+          showAppToast({ message });
+        }}
+      >
         <TripLanguageProvider language={trip.language}>
           <EditorScreen />
         </TripLanguageProvider>
       </EditorProvider>
-    </ToastProvider>
+    </AppToasts>
   );
 }
 
@@ -440,12 +582,13 @@ const styles = stylex.create({
   bar: {
     alignSelf: "flex-end",
     inlineSize: "fit-content",
+    insetBlockStart: `calc(${headerControlsTokens.clearance} + ${space._2})`,
   },
-  // A toast shows above the tab bar.
-  toasts: {
-    [toastTokens.clearance]: tabViewTokens.barClearance,
+  // The last row of the screen can scroll clear of a toast.
+  screen: {
+    paddingBlockEnd: space._10,
   },
-  status: {
-    paddingInline: "0.5rem",
+  hidden: {
+    display: "none",
   },
 });

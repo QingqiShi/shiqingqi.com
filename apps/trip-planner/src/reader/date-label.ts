@@ -109,7 +109,7 @@ function englishRange(a: CalendarDate, b: CalendarDate) {
   return `${String(a.day)}${RANGE}${String(b.day)} ${longMonth(a.month)} ${String(a.year)}`;
 }
 
-/** "11–15 June 2026", "2026 年 6 月 11 – 15 日" */
+/** "11–15 June 2026", "2026年6月11–15日" */
 export function dateRangeLabel(
   days: { date: string }[],
   locale: SupportedLocale,
@@ -117,14 +117,9 @@ export function dateRangeLabel(
   const a = parts(days[0].date);
   const b = parts(days[days.length - 1].date);
   if (locale === "en") return englishRange(a, b);
+  const year = `${String(a.year)}年`;
   if (a.year !== b.year) {
-    return `${String(a.year)} 年 ${String(a.month)} 月 ${String(a.day)} 日 – ${String(b.year)} 年 ${String(b.month)} 月 ${String(b.day)} 日`;
+    return `${year}${shortRangeLabel(days.slice(0, 1), locale)}–${String(b.year)}年${shortRangeLabel(days.slice(-1), locale)}`;
   }
-  if (a.month !== b.month) {
-    return `${String(a.year)} 年 ${String(a.month)} 月 ${String(a.day)} 日 – ${String(b.month)} 月 ${String(b.day)} 日`;
-  }
-  if (a.day === b.day) {
-    return `${String(a.year)} 年 ${String(a.month)} 月 ${String(a.day)} 日`;
-  }
-  return `${String(a.year)} 年 ${String(a.month)} 月 ${String(a.day)} – ${String(b.day)} 日`;
+  return `${year}${shortRangeLabel(days, locale)}`;
 }
