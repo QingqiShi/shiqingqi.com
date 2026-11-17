@@ -95,10 +95,15 @@ export function Agenda({
                 <span css={styles.head}>
                   <Text as="span" look="label" weight="semibold">
                     <span css={a11y.srOnly}>
-                      {`${dayDateLabel(day.date, locale)} · ${dayNumber(index)} · `}
+                      {`${dayDateLabel(day.date, locale)} · ${dayNumber(index)}`}
                     </span>
-                    <span aria-hidden>{`D${String(index)} · `}</span>
-                    <TripText>{day.title}</TripText>
+                    <span aria-hidden>{`D${String(index)}`}</span>
+                    {day.title ? (
+                      <>
+                        {" · "}
+                        <TripText>{day.title}</TripText>
+                      </>
+                    ) : null}
                   </Text>
                   {isToday ? <Badge size="sm">{today}</Badge> : null}
                 </span>

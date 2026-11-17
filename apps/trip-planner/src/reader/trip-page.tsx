@@ -81,13 +81,19 @@ export function TripPage({
       <div ref={topRef} css={stack.group}>
         <PageHeader
           eyebrow={
-            <>
-              {dateRangeLabel(trip.days, locale)} ·{" "}
-              <TripText>{trip.party}</TripText>
-            </>
+            trip.party ? (
+              <>
+                {dateRangeLabel(trip.days, locale)} ·{" "}
+                <TripText>{trip.party}</TripText>
+              </>
+            ) : (
+              dateRangeLabel(trip.days, locale)
+            )
           }
           title={<TripText>{trip.title}</TripText>}
-          description={<TripText>{trip.subtitle}</TripText>}
+          description={
+            trip.subtitle ? <TripText>{trip.subtitle}</TripText> : undefined
+          }
           actions={
             <>
               {/* Without a key, React at times warns that this node from the

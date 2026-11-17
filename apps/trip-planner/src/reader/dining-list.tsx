@@ -95,14 +95,20 @@ function RestaurantRow({ restaurant }: { restaurant: Restaurant }) {
           <ExternalLinkIndicator />
         </>
       }
-      detail={<TripText>{restaurant.description}</TripText>}
+      detail={
+        restaurant.description ? (
+          <TripText>{restaurant.description}</TripText>
+        ) : undefined
+      }
       extra={
         <MetaLine
           facts={[
             restaurant.area ? (
               <TripText key="area">{restaurant.area}</TripText>
             ) : null,
-            <TripText key="tag">{restaurant.tag}</TripText>,
+            restaurant.tag ? (
+              <TripText key="tag">{restaurant.tag}</TripText>
+            ) : null,
             restaurant.michelin ? michelin[restaurant.michelin] : null,
             restaurant.price ? (
               <TripText key="price">{restaurant.price}</TripText>

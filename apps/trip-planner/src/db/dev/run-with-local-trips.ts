@@ -23,11 +23,6 @@ async function seed(connectionString: string) {
   const pool = new Pool({ connectionString, max: 1 });
   try {
     const db = drizzle({ client: pool, schema });
-    // A database from before trips had a fixed id holds the sample trip
-    // under another id.
-    await db.execute(
-      sql`delete from trips where slug = 'sample-lisbon' and id <> ${SAMPLE_TRIP_ID}`,
-    );
     await importTrip(db, SAMPLE_TRIP_ID, sampleTrip);
     await db.execute(sql`
       create or replace function local_trip_owner() returns trigger

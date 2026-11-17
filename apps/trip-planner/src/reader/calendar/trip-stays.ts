@@ -1,5 +1,6 @@
 import type { Day } from "#src/trips/types.ts";
 import { splitNote } from "../split-note.ts";
+import { stayName } from "../stay-name.ts";
 
 /** One bed, for one night or more. */
 export interface TripStay {
@@ -25,7 +26,7 @@ export function tripStays(days: Day[]): Map<string, TripStay> {
     let stay = earlier ?? null;
     if (!stay && (day.stay.sameAs || day.stay.lodging.length > 0)) {
       stay = {
-        name: splitNote(day.stay.summary).main,
+        name: splitNote(stayName(day.stay) ?? "").main,
         nights: 0,
         order: count++,
       };

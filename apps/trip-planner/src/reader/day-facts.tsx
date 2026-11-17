@@ -19,6 +19,7 @@ import type { ReactNode } from "react";
 import type { Day } from "#src/trips/types.ts";
 import { dateLabel } from "./date-label.ts";
 import { splitNote } from "./split-note.ts";
+import { stayName } from "./stay-name.ts";
 import { TripText } from "./trip-text.tsx";
 import { useWeatherCondition } from "./use-weather-condition.ts";
 import type { LiveWeather } from "./weather/types.ts";
@@ -112,6 +113,8 @@ export function DayFacts({
   day: Day;
   liveWeather: LiveWeather | undefined;
 }) {
+  const tonight = stayName(day.stay);
+  if (!day.weather && !day.driving && !tonight) return null;
   return (
     <StatGroup>
       {day.weather ? (
@@ -124,11 +127,13 @@ export function DayFacts({
           icon={<CarIcon weight="bold" />}
         />
       ) : null}
-      <TextStat
-        label={t({ en: "Tonight", zh: "今晚住" })}
-        text={day.stay.summary}
-        icon={<BedIcon weight="bold" />}
-      />
+      {tonight ? (
+        <TextStat
+          label={t({ en: "Tonight", zh: "今晚住" })}
+          text={tonight}
+          icon={<BedIcon weight="bold" />}
+        />
+      ) : null}
     </StatGroup>
   );
 }
