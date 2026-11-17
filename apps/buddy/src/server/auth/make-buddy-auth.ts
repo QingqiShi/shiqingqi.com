@@ -38,10 +38,7 @@ export interface AuthHandlerDeps {
   afterResponse: (task: () => Promise<void>) => void;
 }
 
-/**
- * What only Buddy has in the shared sign-in: a new account gets a random
- * name, and sign-in answers with that name.
- */
+/** What only Buddy has in the shared sign-in: a new account gets a random name. */
 export const buddyAuthConfig = {
   appName: "Buddy",
   passkeyRpId,
@@ -70,13 +67,7 @@ export const buddyAuthConfig = {
     return account[0]?.email ?? "Buddy";
   },
   createUser: createAccount,
-  signIn: async (tx: BuddyDb, userId: string) => {
-    const account = await tx
-      .select({ name: accounts.name })
-      .from(accounts)
-      .where(eq(accounts.id, userId));
-    return { name: account[0]?.name };
-  },
+  signIn: () => Promise.resolve({}),
 } as const;
 
 export function makeBuddyAuth(deps: AuthHandlerDeps) {
