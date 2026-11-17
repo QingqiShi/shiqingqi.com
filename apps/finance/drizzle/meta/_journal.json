@@ -155,6 +155,13 @@
       "when": 1794913988979,
       "tag": "0021_invites_without_recovery",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1794914257606,
+      "tag": "0022_drop_recovery_leftovers",
+      "breakpoints": true
     }
   ]
 }
