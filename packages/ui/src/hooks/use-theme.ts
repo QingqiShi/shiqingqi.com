@@ -55,6 +55,15 @@ function setTheme(newTheme: SupportedTheme) {
   notifyListeners();
 }
 
+// A browser that blocks site data throws on the `localStorage` property itself.
+function readStoredTheme() {
+  try {
+    return localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
 function getSupportedTheme(theme: string | null): SupportedTheme {
   return theme === "dark" || theme === "light" || theme === "system"
     ? theme
@@ -64,7 +73,7 @@ function getSupportedTheme(theme: string | null): SupportedTheme {
 export function useTheme() {
   const theme = useSyncExternalStore(
     subscribe,
-    () => themeSingleton ?? localStorage.getItem(STORAGE_KEY),
+    () => themeSingleton ?? readStoredTheme(),
     () => "system",
   );
   return [getSupportedTheme(theme), setTheme] as const;
