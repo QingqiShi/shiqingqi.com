@@ -1,7 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach } from "vitest";
+import { provenSession } from "#src/assistant/auth/proven-session.ts";
 import { todos } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -24,10 +26,12 @@ export function setUpTodoHandlers() {
     stranger = await insertUser(db);
     handlers = makeTodoHandlers({
       isConfigured: () => true,
-      getDb: () => db,
+      userScope: (session) => scopeTo(db, session.userId),
       getCalendarDeps: () => null,
       getSession: () =>
-        Promise.resolve({ sessionId: randomUUID(), userId: owner }),
+        Promise.resolve(
+          provenSession({ sessionId: randomUUID(), userId: owner }),
+        ),
       now: () => NOW,
     });
   });

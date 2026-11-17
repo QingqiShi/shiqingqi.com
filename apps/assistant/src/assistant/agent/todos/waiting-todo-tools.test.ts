@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { todos } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -29,7 +30,7 @@ describe("the to-do tools", () => {
 
     async function run(userId: string) {
       return createTodoTools({
-        openTodos: await readOpenTodos({ db, userId }),
+        openTodos: await readOpenTodos(scopeTo(db, userId)),
         deletedTodos: [],
         rejectedTodos: [],
         sourceOf: () => ({ accountId: "a", messageId: "<m@x>" }),

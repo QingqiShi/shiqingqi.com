@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { pushSubscriptions } from "#src/assistant/db/schema.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
 
@@ -8,7 +8,11 @@ export interface DevicePushSubscription {
   keys: { p256dh: string; auth: string };
 }
 
-/** Saves a device. Subscribing a device again replaces its keys. */
+/**
+ * Saves a device. Subscribing a device again replaces its keys. The device
+ * leaves any other user who subscribed it before, because one browser gets
+ * the headlines of the person who uses it now.
+ */
 async function save(
   { db, userId }: UserScope,
   subscription: DevicePushSubscription,
@@ -19,13 +23,18 @@ async function save(
     auth: subscription.keys.auth,
     userAgent,
   };
-  await db
-    .insert(pushSubscriptions)
-    .values({ userId, endpoint: subscription.endpoint, ...values })
-    .onConflictDoUpdate({
-      target: [pushSubscriptions.userId, pushSubscriptions.endpoint],
-      set: values,
-    });
+  await db.transaction(async (tx) => {
+    await tx.execute(
+      sql`select assistant_take_push_endpoint(${subscription.endpoint})`,
+    );
+    await tx
+      .insert(pushSubscriptions)
+      .values({ userId, endpoint: subscription.endpoint, ...values })
+      .onConflictDoUpdate({
+        target: [pushSubscriptions.userId, pushSubscriptions.endpoint],
+        set: values,
+      });
+  });
 }
 
 function ownEndpoints(userId: string, endpoints: readonly string[]) {

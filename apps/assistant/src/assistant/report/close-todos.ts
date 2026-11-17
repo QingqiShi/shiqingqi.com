@@ -85,7 +85,13 @@ export async function freeSlotsOf(
       etag: todos.calendarEtag,
     })
     .from(todos)
-    .leftJoin(mailAccounts, eq(mailAccounts.id, todos.calendarAccountId))
+    .leftJoin(
+      mailAccounts,
+      and(
+        eq(mailAccounts.id, todos.calendarAccountId),
+        eq(mailAccounts.userId, userId),
+      ),
+    )
     .where(
       and(
         eq(todos.userId, userId),

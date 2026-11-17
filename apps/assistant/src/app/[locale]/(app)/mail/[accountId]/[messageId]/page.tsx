@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { getUserScope } from "#src/assistant/db/get-user-scope.ts";
 import { getMailDeps } from "#src/assistant/mail/get-mail-deps.ts";
 import { getMailImageLinks } from "#src/assistant/mail/images/get-mail-image-links.ts";
 import { messageIdOfSegment } from "#src/assistant/mail/view/mail-view-path.ts";
@@ -32,7 +32,7 @@ export default async function Page({ params }: Props) {
   );
   const messageId = messageIdOfSegment(segment);
   if (!z.uuid().safeParse(accountId).success || !messageId) notFound();
-  const scope = { db: getAssistantDb(), userId: session.userId };
+  const scope = getUserScope(session);
   const imageLinks = getMailImageLinks();
   const [result, settings] = await Promise.all([
     readMailView(scope, getMailDeps(), accountId, messageId, imageLinks),

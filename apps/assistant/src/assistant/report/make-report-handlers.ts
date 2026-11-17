@@ -1,5 +1,6 @@
 import { z } from "zod";
-import type { AssistantDb } from "#src/assistant/db/types.ts";
+import type { AssistantSession } from "#src/assistant/auth/types.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 import {
   assistantJson,
   assistantNoContent,
@@ -12,7 +13,8 @@ import { markReportSeen } from "./read-report.ts";
 
 export function makeReportHandlers(
   deps: RequestGuardDependencies & {
-    getDb: () => AssistantDb;
+    /** The scope of the user of the session. */
+    userScope: (session: AssistantSession) => UserScope;
     now: () => Date;
   },
 ) {
@@ -23,11 +25,7 @@ export function makeReportHandlers(
       if (session instanceof Response) return session;
       const found =
         z.uuid().safeParse(reportId).success &&
-        (await markReportSeen(
-          { db: deps.getDb(), userId: session.userId },
-          reportId,
-          deps.now(),
-        ));
+        (await markReportSeen(deps.userScope(session), reportId, deps.now()));
       return found
         ? assistantNoContent()
         : assistantJson({ error: "not-found" }, { status: 404 });

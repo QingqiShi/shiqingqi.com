@@ -8,7 +8,7 @@ import { pushDevices } from "./push-devices.ts";
  * `onSent` runs in the same transaction when at least one device got it.
  */
 export async function sendToDevices(
-  { db, userId }: UserScope,
+  scope: UserScope,
   message: PushMessage,
   {
     send,
@@ -20,7 +20,7 @@ export async function sendToDevices(
     onSent?: (scope: UserScope) => Promise<unknown>;
   },
 ): Promise<{ sent: number; removed: number }> {
-  const devices = await pushDevices.list({ db, userId });
+  const devices = await pushDevices.list(scope);
   if (devices.length === 0) return { sent: 0, removed: 0 };
   const outcomes = await Promise.all(
     devices.map(async (device) => ({
@@ -34,11 +34,11 @@ export async function sendToDevices(
     );
   const sent = endpointsOf("sent");
   const gone = endpointsOf("gone");
-  await db.transaction(async (tx) => {
-    const scope = { db: tx, userId };
-    await pushDevices.remove(scope, gone);
-    await pushDevices.markSent(scope, sent, now());
-    if (sent.length > 0) await onSent?.(scope);
+  await scope.db.transaction(async (tx) => {
+    const inTransaction = { ...scope, db: tx };
+    await pushDevices.remove(inTransaction, gone);
+    await pushDevices.markSent(inTransaction, sent, now());
+    if (sent.length > 0) await onSent?.(inTransaction);
   });
   return { sent: sent.length, removed: gone.length };
 }

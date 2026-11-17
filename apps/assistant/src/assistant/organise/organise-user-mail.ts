@@ -17,7 +17,7 @@ import {
 import type { AssistantModel } from "#src/assistant/ai/types.ts";
 import type { CalendarConnector } from "#src/assistant/calendar/caldav/types.ts";
 import { DEFAULT_TIME_ZONE, userSettings } from "#src/assistant/db/schema.ts";
-import type { AssistantDb } from "#src/assistant/db/types.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 import type { MailboxDeps } from "#src/assistant/mail/accounts/open-mailbox-session.ts";
 import { organiseTask, type InboxState } from "./organise-task.ts";
 
@@ -61,9 +61,10 @@ interface OrganiseUserResult extends MailToolStats, CalendarToolStats {
  * calendar tools, which log in only when the agent first uses them.
  */
 export async function organiseUserMail(
-  { db, userId, endsAt }: { db: AssistantDb; userId: string; endsAt: number },
+  scope: UserScope & { endsAt: number },
   deps: OrganiseDeps,
 ): Promise<OrganiseUserResult> {
+  const { db, userId, endsAt } = scope;
   const result: OrganiseUserResult = {
     enabled: false,
     accounts: 0,
@@ -145,11 +146,7 @@ export async function organiseUserMail(
         prompt: organiseTask.prompt(
           inboxes.filter((inbox) => inbox.total > 0),
           deps.auth.now(),
-          await listUndoneForAgent(
-            { db, userId },
-            deps.auth.now(),
-            "mail-and-calendar",
-          ),
+          await listUndoneForAgent(scope, deps.auth.now(), "mail-and-calendar"),
         ),
         maxSteps: MAX_STEPS,
         tools: (context) => {

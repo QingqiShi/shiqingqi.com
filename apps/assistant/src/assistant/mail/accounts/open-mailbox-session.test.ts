@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { mailAccounts } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -64,8 +65,7 @@ describe("a refused OAuth login", () => {
     const endpoint = tokenEndpoint("access-2");
 
     const result = await checkAccount(
-      db,
-      userId,
+      scopeTo(db, userId),
       accountId,
       mailDeps({ connector: server.connector, fetch: endpoint.fetch }),
     );
@@ -90,8 +90,7 @@ describe("a refused OAuth login", () => {
     const endpoint = tokenEndpoint("access-2");
 
     const result = await checkAccount(
-      db,
-      userId,
+      scopeTo(db, userId),
       accountId,
       mailDeps({ connector: server.connector, fetch: endpoint.fetch }),
     );
@@ -120,8 +119,7 @@ describe("a refused OAuth login", () => {
     });
 
     const result = await checkAccount(
-      db,
-      userId,
+      scopeTo(db, userId),
       accountId,
       mailDeps({
         connector: server.connector,

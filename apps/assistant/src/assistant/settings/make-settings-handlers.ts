@@ -1,6 +1,7 @@
 import { z } from "zod";
+import type { AssistantSession } from "#src/assistant/auth/types.ts";
 import { USER_LOCALES, userSettings } from "#src/assistant/db/schema.ts";
-import type { AssistantDb } from "#src/assistant/db/types.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 import {
   assistantJson,
   assistantNoContent,
@@ -40,19 +41,20 @@ const unsubscribeBody = z.object({ endpoint: PUSH_ENDPOINT });
 
 export function makeSettingsHandlers(
   deps: RequestGuardDependencies & {
-    getDb: () => AssistantDb;
+    /** The scope of the user of the session. */
+    userScope: (session: AssistantSession) => UserScope;
     now: () => Date;
   },
 ) {
   async function saveSettings(
-    userId: string,
+    session: AssistantSession,
     change: Partial<typeof userSettings.$inferInsert>,
   ) {
     const values = { ...change, updatedAt: deps.now() };
     await deps
-      .getDb()
-      .insert(userSettings)
-      .values({ userId, ...values })
+      .userScope(session)
+      .db.insert(userSettings)
+      .values({ userId: session.userId, ...values })
       .onConflictDoUpdate({ target: userSettings.userId, set: values });
   }
 
@@ -67,7 +69,7 @@ export function makeSettingsHandlers(
       if (!body.success) {
         return assistantJson({ error: "invalid-body" }, { status: 400 });
       }
-      await saveSettings(session.userId, body.data);
+      await saveSettings(session, body.data);
       return assistantNoContent();
     },
 
@@ -79,7 +81,7 @@ export function makeSettingsHandlers(
       if (!body.success) {
         return assistantJson({ error: "invalid-body" }, { status: 400 });
       }
-      await saveSettings(session.userId, {
+      await saveSettings(session, {
         organiseEnabled: body.data.enabled,
       });
       return assistantNoContent();
@@ -93,7 +95,7 @@ export function makeSettingsHandlers(
       if (!body.success) {
         return assistantJson({ error: "invalid-body" }, { status: 400 });
       }
-      await saveSettings(session.userId, { organiseNotes: body.data.notes });
+      await saveSettings(session, { organiseNotes: body.data.notes });
       return assistantNoContent();
     },
 
@@ -108,11 +110,7 @@ export function makeSettingsHandlers(
         return assistantJson({ error: "invalid-body" }, { status: 400 });
       }
       const userAgent = (request.headers.get("User-Agent") ?? "").slice(0, 300);
-      await pushDevices.save(
-        { db: deps.getDb(), userId: session.userId },
-        body.data,
-        userAgent,
-      );
+      await pushDevices.save(deps.userScope(session), body.data, userAgent);
       return assistantNoContent();
     },
 
@@ -125,9 +123,7 @@ export function makeSettingsHandlers(
       if (!body.success) {
         return assistantJson({ error: "invalid-body" }, { status: 400 });
       }
-      await pushDevices.remove({ db: deps.getDb(), userId: session.userId }, [
-        body.data.endpoint,
-      ]);
+      await pushDevices.remove(deps.userScope(session), [body.data.endpoint]);
       return assistantNoContent();
     },
   };

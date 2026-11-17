@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { z } from "zod";
 import { todoChecklistItems, todos } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -49,7 +50,7 @@ describe("the to-do tools", () => {
       },
     ]);
     const { tools } = createTodoTools({
-      openTodos: await readOpenTodos({ db, userId }),
+      openTodos: await readOpenTodos(scopeTo(db, userId)),
       deletedTodos: [],
       rejectedTodos: [],
       sourceOf: () => ({ accountId: "a", messageId: "<m@x>" }),
@@ -85,7 +86,7 @@ describe("the to-do tools", () => {
         ownerEditedFields: ["startDate"],
       },
     ]);
-    const openTodos = await readOpenTodos({ db, userId });
+    const openTodos = await readOpenTodos(scopeTo(db, userId));
     const pay = `t${String(openTodos.findIndex((todo) => todo.title === "Pay") + 1)}`;
     const renew = `t${String(openTodos.findIndex((todo) => todo.title === "Renew") + 1)}`;
     const { tools, changes } = createTodoTools({
@@ -162,7 +163,7 @@ describe("the to-do tools", () => {
       })
       .returning();
     const { tools, changes } = createTodoTools({
-      openTodos: await readOpenTodos({ db, userId }),
+      openTodos: await readOpenTodos(scopeTo(db, userId)),
       deletedTodos: [],
       rejectedTodos: [],
       sourceOf: () => ({ accountId, messageId: "<how-to-return@x>" }),
@@ -251,7 +252,7 @@ describe("the to-do tools", () => {
         { userId: stranger, title: "Pay the invoice" },
       ])
       .returning();
-    const openTodos = await readOpenTodos({ db, userId: owner });
+    const openTodos = await readOpenTodos(scopeTo(db, owner));
     expect(openTodos.map((todo) => todo.id).sort()).toEqual(
       [pay.id, call.id].sort(),
     );
@@ -324,7 +325,7 @@ describe("the to-do tools", () => {
         { userId: owner, title: "Call" },
       ])
       .returning();
-    const openTodos = await readOpenTodos({ db, userId: owner });
+    const openTodos = await readOpenTodos(scopeTo(db, owner));
     const { tools, changes, idOf } = createTodoTools({
       openTodos,
       deletedTodos: [],
@@ -392,7 +393,7 @@ describe("the to-do tools", () => {
       ])
       .returning();
     const { tools, changes } = createTodoTools({
-      openTodos: await readOpenTodos({ db, userId: owner }),
+      openTodos: await readOpenTodos(scopeTo(db, owner)),
       deletedTodos: [],
       rejectedTodos: [],
       sourceOf: () => ({ accountId: "a", messageId: "<m@x>" }),

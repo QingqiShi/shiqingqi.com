@@ -1,10 +1,12 @@
 import { isCronAuthorised } from "@tuja/server-auth/is-cron-authorised";
 import { listUserIds } from "../db/list-user-ids.ts";
-import type { AssistantDb } from "../db/types.ts";
+import { scopeTo } from "../db/scope-to.ts";
+import type { AssistantDb, UserScope } from "../db/types.ts";
 import { assistantJson } from "./assistant-json.ts";
 
 export interface UserCronDependencies {
   isConfigured: () => boolean;
+  /** The owner of the tables. The handler lists the users through it and runs each one's work as that user. */
   getDb: () => AssistantDb;
   /** Defaults to `CRON_SECRET`. */
   getCronSecret?: () => string | undefined;
@@ -23,8 +25,7 @@ interface UserCronJob<Totals> {
    * an equal share of the time that is left for the users not done yet.
    */
   runUser: (input: {
-    db: AssistantDb;
-    userId: string;
+    scope: UserScope;
     now: Date;
     totals: Totals;
     endsAt: number;
@@ -75,7 +76,12 @@ export function makeUserCronHandler<Totals>(
       const userEndsAt =
         current + (endsAt - current) / (userIds.length - index);
       try {
-        await job.runUser({ db, userId, now, totals, endsAt: userEndsAt });
+        await job.runUser({
+          scope: scopeTo(db, userId),
+          now,
+          totals,
+          endsAt: userEndsAt,
+        });
       } catch (error) {
         if (!job.onUserError) throw error;
         job.onUserError(error, userId, totals);

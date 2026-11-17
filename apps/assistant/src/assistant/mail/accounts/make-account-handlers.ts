@@ -58,19 +58,15 @@ export function makeAccountHandlers(deps: MailHandlerDeps) {
           { status: 502 },
         );
       }
-      const db = deps.getDb();
-      const { userId } = session;
-      const { accountId } = await saveAccount(
-        { db, userId },
-        {
-          provider,
-          address,
-          credential: { type: "password", password },
-          credentialKey: mail.auth.credentialKey,
-          now: deps.now(),
-        },
-      );
-      deps.runAfter(() => checkAccount(db, userId, accountId, mail));
+      const scope = deps.userScope(session);
+      const { accountId } = await saveAccount(scope, {
+        provider,
+        address,
+        credential: { type: "password", password },
+        credentialKey: mail.auth.credentialKey,
+        now: deps.now(),
+      });
+      deps.runAfter(() => checkAccount(scope, accountId, mail));
       return assistantJson({ accountId }, { status: 201 });
     };
   }
@@ -88,8 +84,8 @@ export function makeAccountHandlers(deps: MailHandlerDeps) {
         return assistantJson({ error: "not-found" }, { status: 404 });
       }
       const removed = await deps
-        .getDb()
-        .delete(mailAccounts)
+        .userScope(session)
+        .db.delete(mailAccounts)
         .where(ownAccount(session.userId, accountId))
         .returning({ id: mailAccounts.id });
       return removed.length > 0
@@ -111,8 +107,7 @@ export function makeAccountHandlers(deps: MailHandlerDeps) {
         return assistantJson({ error: "not-found" }, { status: 404 });
       }
       const result = await checkAccount(
-        deps.getDb(),
-        session.userId,
+        deps.userScope(session),
         accountId,
         mail,
       );

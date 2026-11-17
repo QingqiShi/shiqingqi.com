@@ -5,7 +5,7 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { getUserScope } from "#src/assistant/db/get-user-scope.ts";
 import {
   askedHomeView,
   chooseHomeView,
@@ -29,7 +29,7 @@ export default async function Page({
 }) {
   const locale = validateLocale((await params).locale);
   const session = await requirePageSession(locale, "/");
-  const scope = { db: getAssistantDb(), userId: session.userId };
+  const scope = getUserScope(session);
   const now = new Date();
   const { status, settings } = await readHomeStatusAndSettings(scope, now);
   const asked = (await searchParams).view;

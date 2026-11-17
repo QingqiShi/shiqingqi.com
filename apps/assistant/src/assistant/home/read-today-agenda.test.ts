@@ -5,6 +5,7 @@ import {
   type FakeCalendarServer,
 } from "#src/assistant/calendar/testing/create-fake-calendar-server.ts";
 import { mailAccounts } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -52,7 +53,7 @@ afterEach(async () => {
 
 function read(connector = server.connector) {
   return readTodayAgenda(
-    { db, userId },
+    scopeTo(db, userId),
     NOW,
     {
       calendarConnector: connector,

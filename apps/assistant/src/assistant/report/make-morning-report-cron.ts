@@ -60,10 +60,10 @@ export function makeMorningReportCron(
         failedUsers: 0,
         calendarChanges: 0,
       }),
-      runUser: async ({ db, userId, totals, endsAt }) => {
+      runUser: async ({ scope, totals, endsAt }) => {
         const deps = dependencies.getBuildDeps();
         if (!deps) return;
-        const report = await buildMorningReport({ db, userId, endsAt }, deps);
+        const report = await buildMorningReport({ ...scope, endsAt }, deps);
         if (!report) return;
         if (report === "retry") {
           totals.retrying += 1;
@@ -76,7 +76,7 @@ export function makeMorningReportCron(
         }
         const send = dependencies.getPushSender();
         if (!send) return;
-        const pushed = await notifyReport({ db, userId }, report, {
+        const pushed = await notifyReport(scope, report, {
           send,
           now: deps.now,
         });

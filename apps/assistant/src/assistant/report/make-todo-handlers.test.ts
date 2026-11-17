@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { todos } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import { countOpenTodos, listTodos } from "./read-report.ts";
 import {
   NOW,
@@ -180,7 +181,7 @@ describe("the owner's to-do requests", () => {
 
   it("hide a deleted to-do everywhere until it is restored", async () => {
     const { id } = await insertTodo(owner);
-    const scope = { db, userId: owner };
+    const scope = scopeTo(db, owner);
 
     expect((await handlers.delete(request("DELETE"), id)).status).toBe(204);
 
@@ -307,7 +308,7 @@ describe("the owner's to-do requests", () => {
     }
 
     const openTitles = async (userId: string) =>
-      (await listTodos({ db, userId })).open.map((todo) => todo.title);
+      (await listTodos(scopeTo(db, userId))).open.map((todo) => todo.title);
 
     it("puts a new to-do last", async () => {
       await insertOpen(owner, "First", "Second");

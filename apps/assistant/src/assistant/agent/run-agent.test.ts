@@ -3,6 +3,7 @@ import { eq, sql } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { agentRuns, userSettings } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -151,7 +152,7 @@ afterEach(async () => {
 
 function organise(whileReading: () => Promise<void>) {
   return organiseUserMail(
-    { db, userId, endsAt: Number.POSITIVE_INFINITY },
+    { ...scopeTo(db, userId), endsAt: Number.POSITIVE_INFINITY },
     {
       ...mailDeps({ connector: server.connector }),
       calendarConnector: () => Promise.reject(new Error("No calendar")),

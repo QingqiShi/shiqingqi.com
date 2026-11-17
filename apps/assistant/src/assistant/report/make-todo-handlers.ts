@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { CalendarDeps } from "#src/assistant/agent/calendar/run-calendars.ts";
-import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
+import type { AssistantSession } from "#src/assistant/auth/types.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 import {
   assistantJson,
   assistantNoContent,
@@ -182,7 +183,8 @@ async function readBody<Schema extends z.ZodType>(
 
 export function makeTodoHandlers(
   deps: RequestGuardDependencies & {
-    getDb: () => AssistantDb;
+    /** The scope of the user of the session. */
+    userScope: (session: AssistantSession) => UserScope;
     getCalendarDeps: () => CalendarDeps | null;
     now: () => Date;
   },
@@ -193,7 +195,7 @@ export function makeTodoHandlers(
   ): Promise<Response> {
     const session = await guardRequest(deps, request, { write: true });
     if (session instanceof Response) return session;
-    return handle({ db: deps.getDb(), userId: session.userId }, deps.now());
+    return handle(deps.userScope(session), deps.now());
   }
 
   /** A request that names a to-do and sends nothing else. */

@@ -7,7 +7,7 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { getUserScope } from "#src/assistant/db/get-user-scope.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
 import { ASSISTANT_PATH_HEADER } from "#src/assistant/http/constants.ts";
 import { localClock } from "#src/assistant/report/due-report-date.ts";
@@ -57,7 +57,7 @@ export default async function Page({
     locale,
     safeNextPath((await headers()).get(ASSISTANT_PATH_HEADER)),
   );
-  const scope = { db: getAssistantDb(), userId: session.userId };
+  const scope = getUserScope(session);
   const { q, title, text, url } = await searchParams;
   const query = queryOf(q);
   const renderedAt = new Date().getTime();

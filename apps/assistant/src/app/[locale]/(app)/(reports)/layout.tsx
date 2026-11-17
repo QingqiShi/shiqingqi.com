@@ -4,7 +4,7 @@ import { safeNextPath } from "@tuja/server-auth/sign-in-path";
 import { headers } from "next/headers";
 import type { ReactNode } from "react";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { getUserScope } from "#src/assistant/db/get-user-scope.ts";
 import { ASSISTANT_PATH_HEADER } from "#src/assistant/http/constants.ts";
 import { listReports } from "#src/assistant/report/read-report.ts";
 import { ReportsFrame } from "#src/assistant/report-page/reports-frame.tsx";
@@ -23,7 +23,7 @@ export default async function Layout({
     locale,
     safeNextPath((await headers()).get(ASSISTANT_PATH_HEADER)),
   );
-  const scope = { db: getAssistantDb(), userId: session.userId };
+  const scope = getUserScope(session);
   const reports = await listReports(scope);
   return <ReportsFrame reports={reports}>{children}</ReportsFrame>;
 }

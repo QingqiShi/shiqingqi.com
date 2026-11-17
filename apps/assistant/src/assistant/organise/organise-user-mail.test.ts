@@ -12,6 +12,7 @@ import {
   mailAccounts,
   userSettings,
 } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -84,7 +85,7 @@ function organise(
   reader: ReturnType<typeof scriptedReader>,
 ) {
   return organiseUserMail(
-    { db, userId, endsAt: Infinity },
+    { ...scopeTo(db, userId), endsAt: Infinity },
     {
       ...mailDeps({ connector: server.connector, now: () => NOW }),
       calendarConnector: calendar.connector,

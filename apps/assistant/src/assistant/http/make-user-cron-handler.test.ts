@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { users } from "../db/schema.ts";
+import { todos, users } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import { makeUserCronHandler } from "./make-user-cron-handler.ts";
 
@@ -34,8 +34,8 @@ function makeHandler() {
     },
     {
       start: (): { users: string[] } => ({ users: [] }),
-      runUser: ({ userId, totals }) => {
-        totals.users.push(userId);
+      runUser: ({ scope, totals }) => {
+        totals.users.push(scope.userId);
         return Promise.resolve();
       },
     },
@@ -71,8 +71,8 @@ describe("a user cron handler", () => {
       {
         budgetMs: 100,
         start: () => ({}),
-        runUser: ({ userId, endsAt }) => {
-          runs.push({ userId, endsAt });
+        runUser: ({ scope, endsAt }) => {
+          runs.push({ userId: scope.userId, endsAt });
           clock += 10;
           return Promise.resolve();
         },
@@ -88,5 +88,41 @@ describe("a user cron handler", () => {
       { userId: userIds[1], endsAt: 50 },
       { userId: userIds[0], endsAt: 100 },
     ]);
+  });
+
+  it("does each user's work as that user, who sees only their own rows", async () => {
+    for (const userId of userIds) {
+      await db.insert(todos).values({ userId, title: userId });
+    }
+    const seen: { userId: string; titles: string[] }[] = [];
+    const handler = makeUserCronHandler(
+      {
+        isConfigured: () => true,
+        getDb: () => db,
+        getCronSecret: () => SECRET,
+        now: () => new Date(),
+        random: () => 0,
+      },
+      {
+        start: () => ({}),
+        runUser: async ({ scope }) => {
+          const rows = await scope.db
+            .select({ title: todos.title })
+            .from(todos);
+          seen.push({
+            userId: scope.userId,
+            titles: rows.map((row) => row.title),
+          });
+        },
+      },
+    );
+    await handler(
+      new Request("https://assistant.qingqi.dev/api/cron/test", {
+        headers: { Authorization: `Bearer ${SECRET}` },
+      }),
+    );
+    expect(seen).toEqual(
+      userIds.map((userId) => ({ userId, titles: [userId] })),
+    );
   });
 });

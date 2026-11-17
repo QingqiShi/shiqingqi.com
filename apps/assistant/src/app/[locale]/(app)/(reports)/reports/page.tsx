@@ -3,7 +3,7 @@ import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { getUserScope } from "#src/assistant/db/get-user-scope.ts";
 import { LatestReport } from "#src/assistant/report-page/latest-report.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
@@ -17,7 +17,7 @@ export default async function Page({ params }: PageProps) {
   const session = await requirePageSession(locale, "/reports");
   return (
     <LatestReport
-      scope={{ db: getAssistantDb(), userId: session.userId }}
+      scope={getUserScope(session)}
       locale={locale}
       headingLevel={2}
     />

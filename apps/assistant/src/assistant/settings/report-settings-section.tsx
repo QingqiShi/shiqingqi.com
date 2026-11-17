@@ -6,7 +6,8 @@ import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { readRejectedTodos } from "../agent/todos/read-open-todos.ts";
-import { getAssistantDb } from "../db/get-assistant-db.ts";
+import type { AssistantSession } from "../auth/types.ts";
+import { getUserScope } from "../db/get-user-scope.ts";
 import { ConnectMailboxFirst } from "../mailboxes/connect-mailbox-first.tsx";
 import { readMailboxHealth } from "../mailboxes/read-mailbox-health.ts";
 import { readReportSettings } from "../report/read-report-settings.ts";
@@ -17,13 +18,13 @@ import { SettingsSection } from "./settings-section.tsx";
 
 /** The time and language of the morning report, and its notification. */
 export async function ReportSettingsSection({
-  userId,
+  session,
   locale,
 }: {
-  userId: string;
+  session: AssistantSession;
   locale: SupportedLocale;
 }) {
-  const scope = { db: getAssistantDb(), userId };
+  const scope = getUserScope(session);
   const [
     { timeZone, digestHour, locale: reportLocale },
     rejectedTodos,

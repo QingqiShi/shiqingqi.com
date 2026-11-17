@@ -1,6 +1,8 @@
 import { createHash, randomUUID } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { provenSession } from "#src/assistant/auth/proven-session.ts";
 import { mailAccounts } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -33,12 +35,14 @@ function makeHandlers({ signedInAs }: { signedInAs?: string } = {}) {
   });
   return makeConnectHandlers({
     isConfigured: () => true,
-    getDb: () => db,
+    userScope: (session) => scopeTo(db, session.userId),
     getSession: () =>
-      Promise.resolve({
-        sessionId: randomUUID(),
-        userId: signedInAs ?? userId,
-      }),
+      Promise.resolve(
+        provenSession({
+          sessionId: randomUUID(),
+          userId: signedInAs ?? userId,
+        }),
+      ),
     getMailDeps: () => mailDeps({ connector: server.connector }),
     now: () => new Date(),
     runAfter: (task) => {

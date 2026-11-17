@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { provenSession } from "#src/assistant/auth/proven-session.ts";
 import { mailAccounts } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -38,8 +40,9 @@ function connect(appPassword: string, provider: "icloud" | "gmail" = "icloud") {
   });
   const handlers = makeAccountHandlers({
     isConfigured: () => true,
-    getDb: () => db,
-    getSession: () => Promise.resolve({ sessionId: randomUUID(), userId }),
+    userScope: (session) => scopeTo(db, session.userId),
+    getSession: () =>
+      Promise.resolve(provenSession({ sessionId: randomUUID(), userId })),
     getMailDeps: () =>
       mailDeps({
         connector: (mailServer, auth) => {

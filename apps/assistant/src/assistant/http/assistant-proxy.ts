@@ -2,9 +2,11 @@ import { signInPath } from "@tuja/server-auth/sign-in-path";
 import { NextResponse, type NextRequest } from "next/server";
 import { assistantSessionCookie } from "../auth/assistant-session-cookie.ts";
 import { resolveSession } from "../auth/resolve-session.ts";
+import type { AssistantSession } from "../auth/types.ts";
 import { getAssistantDb } from "../db/get-assistant-db.ts";
+import { getUserScope } from "../db/get-user-scope.ts";
 import { isAssistantConfigured } from "../db/is-assistant-configured.ts";
-import type { AssistantDb } from "../db/types.ts";
+import type { AssistantDb, UserScope } from "../db/types.ts";
 import {
   askedHomeView,
   chooseHomeView,
@@ -54,8 +56,10 @@ function rewriteToRoute(
 }
 
 interface AssistantProxyDeps {
-  /** Null when the app has no database. */
+  /** The owner of the tables, which reads the session. Null when the app has no database. */
   getDb: () => AssistantDb | null;
+  /** The scope of the user of a live session. */
+  userScope: (session: AssistantSession) => UserScope;
   now: () => Date;
 }
 
@@ -69,23 +73,27 @@ interface AssistantProxyDeps {
  * without a live session it shows the public home page at the same address,
  * and with one but no `view` it redirects to the view that Home chooses.
  */
-export function makeAssistantProxy({ getDb, now }: AssistantProxyDeps) {
-  /** The user of a live session; `userId` is null when the database failed. */
+export function makeAssistantProxy({
+  getDb,
+  userScope,
+  now,
+}: AssistantProxyDeps) {
+  /** A live session; `session` is null when the database failed. */
   async function liveSessionOf(
     db: AssistantDb,
     token: string | undefined,
-  ): Promise<{ userId: string | null } | null> {
+  ): Promise<{ session: AssistantSession | null } | null> {
     if (!token) return null;
     try {
       const resolved = await resolveSession(db, token, {
         now: now(),
         allowRefresh: false,
       });
-      return resolved ? { userId: resolved.session.userId } : null;
+      return resolved ? { session: resolved.session } : null;
     } catch {
       // Home reads the session again and shows the error screen. An error in
       // the proxy gives a bare 500.
-      return { userId: null };
+      return { session: null };
     }
   }
 
@@ -96,14 +104,13 @@ export function makeAssistantProxy({ getDb, now }: AssistantProxyDeps) {
    */
   async function homeViewAddress(
     request: NextRequest,
-    db: AssistantDb,
-    userId: string,
+    session: AssistantSession,
     locale: "en" | "zh",
   ) {
     const asked = request.nextUrl.searchParams.get("view") ?? undefined;
     if (askedHomeView(asked) !== null) return null;
     try {
-      const unseenReportDate = await readUnseenReportDate({ db, userId });
+      const unseenReportDate = await readUnseenReportDate(userScope(session));
       return homeViewHref(chooseHomeView({ unseenReportDate }), locale);
     } catch {
       return null;
@@ -131,9 +138,9 @@ export function makeAssistantProxy({ getDb, now }: AssistantProxyDeps) {
         return rewriteToRoute(request, response, locale, PUBLIC_HOME_ROUTE);
       }
       const address =
-        live.userId === null
+        live.session === null
           ? null
-          : await homeViewAddress(request, db, live.userId, locale);
+          : await homeViewAddress(request, live.session, locale);
       if (address) {
         const redirect = NextResponse.redirect(new URL(address, request.url));
         for (const cookie of response.cookies.getAll()) {
@@ -155,5 +162,6 @@ export function makeAssistantProxy({ getDb, now }: AssistantProxyDeps) {
 
 export const assistantProxy = makeAssistantProxy({
   getDb: () => (isAssistantConfigured() ? getAssistantDb() : null),
+  userScope: getUserScope,
   now: () => new Date(),
 });

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { todos } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -133,11 +134,11 @@ describe("the to-do tools", () => {
         { userId: stranger, title: "Theirs", deletedAt: DELETED_AT },
       ]);
 
-      const deleted = await readDeletedTodos({ db, userId: owner }, NOW);
+      const deleted = await readDeletedTodos(scopeTo(db, owner), NOW);
 
       expect(deleted.map((todo) => todo.title)).toEqual(["Recent"]);
       expect(
-        (await readOpenTodos({ db, userId: owner })).map((todo) => todo.title),
+        (await readOpenTodos(scopeTo(db, owner))).map((todo) => todo.title),
       ).toEqual(["Open"]);
     });
   });
@@ -222,7 +223,7 @@ describe("the to-do tools", () => {
         },
       ]);
 
-      const scope = { db, userId: owner };
+      const scope = scopeTo(db, owner);
 
       expect(await readRejectedTodos(scope, NOW)).toMatchObject([
         { title: "Rejected today", note: null },

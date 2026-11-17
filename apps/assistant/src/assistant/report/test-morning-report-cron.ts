@@ -6,6 +6,7 @@ import {
   type FakeCalendarServer,
 } from "#src/assistant/calendar/testing/create-fake-calendar-server.ts";
 import { todos } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -217,7 +218,7 @@ export function setUpMorningReportCron() {
       ].join("\r\n"),
     );
     await pushDevices.save(
-      { db, userId },
+      scopeTo(db, userId),
       {
         endpoint: "https://push.example.com/device",
         keys: { p256dh: "key", auth: "secret" },

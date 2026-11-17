@@ -1,8 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { provenSession } from "#src/assistant/auth/proven-session.ts";
 import { createFakeCalendarServer } from "#src/assistant/calendar/testing/create-fake-calendar-server.ts";
 import { agentActions, agentRuns } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -73,10 +75,12 @@ function post(
   });
   const handlers = makeActivityHandlers({
     isConfigured: () => true,
-    getDb: () => db,
+    userScope: (session) => scopeTo(db, session.userId),
     getSession: () =>
       Promise.resolve(
-        session === null ? null : { sessionId: randomUUID(), userId: session },
+        session === null
+          ? null
+          : provenSession({ sessionId: randomUUID(), userId: session }),
       ),
     getUndoDeps: () => ({
       ...mailDeps({ connector: mail.connector }),

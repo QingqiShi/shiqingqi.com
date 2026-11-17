@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { listUndoneForAgent } from "#src/assistant/activity/list-undone-for-agent.ts";
 import {
   RunCalendars,
@@ -21,7 +21,7 @@ import {
   morningReports,
   type UserLocale,
 } from "#src/assistant/db/schema.ts";
-import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 import type { MailboxDeps } from "#src/assistant/mail/accounts/open-mailbox-session.ts";
 import { dueReportDate, LAST_TRY_HOUR, localClock } from "./due-report-date.ts";
 import {
@@ -175,7 +175,7 @@ export function openReportMailboxes(
  * to-dos and the catch-up for mailboxes that earlier reports missed.
  */
 export async function runReportOverMailboxes(
-  { db, userId, endsAt }: UserScope & { endsAt: number },
+  scope: UserScope & { endsAt: number },
   deps: Pick<ReportBuildDeps, "mail" | "calendarConnector" | "now"> & {
     models: AgentModels;
   },
@@ -191,8 +191,9 @@ export async function runReportOverMailboxes(
     calendarPolicy?: CalendarPolicy;
   },
 ): Promise<ReportAgentResult> {
+  const { db, userId } = scope;
   return runReportAgent(
-    { db, userId, endsAt, now: deps.now },
+    { ...scope, now: deps.now },
     {
       ...reportWindow,
       models: deps.models,
@@ -203,14 +204,10 @@ export async function runReportOverMailboxes(
         { calendarConnector: deps.calendarConnector, auth: deps.mail.auth },
         calendarPolicy,
       ),
-      openTodos: await readOpenTodos({ db, userId }),
-      deletedTodos: await readDeletedTodos({ db, userId }, deps.now()),
-      rejectedTodos: await readRejectedTodos({ db, userId }, deps.now()),
-      undoneTodoChanges: await listUndoneForAgent(
-        { db, userId },
-        deps.now(),
-        "todos",
-      ),
+      openTodos: await readOpenTodos(scope),
+      deletedTodos: await readDeletedTodos(scope, deps.now()),
+      rejectedTodos: await readRejectedTodos(scope, deps.now()),
+      undoneTodoChanges: await listUndoneForAgent(scope, deps.now(), "todos"),
       locale: settings.locale,
       timeZone: settings.timeZone,
     },
@@ -279,20 +276,15 @@ export function reportContent({
  * report, until the last try of the day. The mail is never stored.
  */
 export async function buildMorningReport(
-  {
-    db,
-    userId,
-    endsAt,
-  }: {
-    db: AssistantDb;
-    userId: string;
+  scope: UserScope & {
     /** The agent must submit by this time; the writes come after it. */
     endsAt: number;
   },
   deps: ReportBuildDeps,
 ): Promise<BuiltReport | "retry" | null> {
+  const { db, userId } = scope;
   const builtAt = deps.now();
-  const plan = await readPlan({ db, userId }, builtAt);
+  const plan = await readPlan(scope, builtAt);
   if (!plan) return null;
 
   const { settings, localDate, recentReports } = plan;
@@ -303,12 +295,12 @@ export async function buildMorningReport(
     settings.digestHour,
     settings.timeZone,
   );
-  const mailboxes = await openReportMailboxes({ db, userId }, deps);
+  const mailboxes = await openReportMailboxes(scope, deps);
   try {
     let agent: ReportAgentResult | null = null;
     if (deps.models && mailboxes.accounts.length > 0) {
       agent = await runReportOverMailboxes(
-        { db, userId, endsAt },
+        scope,
         { ...deps, models: deps.models },
         {
           mailboxes,
@@ -388,7 +380,12 @@ export async function buildMorningReport(
                 }),
               },
             })
-            .where(eq(morningReports.id, row.id));
+            .where(
+              and(
+                eq(morningReports.id, row.id),
+                eq(morningReports.userId, userId),
+              ),
+            );
         }
       }
       return row;

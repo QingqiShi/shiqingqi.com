@@ -9,7 +9,7 @@ import type { Metadata } from "next";
 import { readActivity } from "#src/assistant/activity/read-activity.ts";
 import { ActivityView } from "#src/assistant/activity-page/activity-view.tsx";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { getUserScope } from "#src/assistant/db/get-user-scope.ts";
 import { MailboxesLink } from "#src/assistant/mailboxes/mailboxes-link.tsx";
 import { readMailboxHealth } from "#src/assistant/mailboxes/read-mailbox-health.ts";
 import { readReportSettings } from "#src/assistant/report/read-report-settings.ts";
@@ -36,7 +36,7 @@ export default async function Page({
 }) {
   const locale = validateLocale((await params).locale);
   const session = await requirePageSession(locale, "/activity");
-  const scope = { db: getAssistantDb(), userId: session.userId };
+  const scope = getUserScope(session);
   const now = new Date();
   const [settings, mailboxes] = await Promise.all([
     readReportSettings(scope),

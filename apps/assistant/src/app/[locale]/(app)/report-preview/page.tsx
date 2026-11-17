@@ -5,7 +5,7 @@ import { validateLocale } from "@tuja/i18n/validate-locale";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import type { Metadata } from "next";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { getUserScope } from "#src/assistant/db/get-user-scope.ts";
 import { readMailboxHealth } from "#src/assistant/mailboxes/read-mailbox-health.ts";
 import { localClock } from "#src/assistant/report/due-report-date.ts";
 import { readReportPreview } from "#src/assistant/report/read-report-preview.ts";
@@ -22,7 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default async function Page({ params }: PageProps) {
   const locale = validateLocale((await params).locale);
   const session = await requirePageSession(locale, "/report-preview");
-  const scope = { db: getAssistantDb(), userId: session.userId };
+  const scope = getUserScope(session);
   const now = new Date();
   const [preview, settings, mailboxes] = await Promise.all([
     readReportPreview(scope, now),

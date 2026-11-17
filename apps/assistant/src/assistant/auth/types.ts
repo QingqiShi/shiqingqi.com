@@ -1,4 +1,1 @@
-export interface AssistantSession {
-  sessionId: string;
-  userId: string;
-}
+export type { AssistantSession } from "./proven-session.ts";
