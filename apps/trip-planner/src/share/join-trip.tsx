@@ -39,9 +39,9 @@ export function JoinTrip({ token }: { token: string }) {
         onClick={() => {
           setBusy(true);
           setProblem(null);
-          postJson<{ slug: string }>("/api/invites/accept", { token })
-            .then(({ slug }) => {
-              window.location.assign(getLocalePath(`/${slug}`, locale));
+          postJson<{ tripId: string }>("/api/invites/accept", { token })
+            .then(({ tripId }) => {
+              window.location.assign(getLocalePath(`/${tripId}`, locale));
             })
             .catch((error: unknown) => {
               const isEnded =

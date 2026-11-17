@@ -36,6 +36,13 @@
       "when": 1794912389330,
       "tag": "0004_delete_account",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794914701747,
+      "tag": "0005_trip_url_by_id",
+      "breakpoints": true
     }
   ]
 }

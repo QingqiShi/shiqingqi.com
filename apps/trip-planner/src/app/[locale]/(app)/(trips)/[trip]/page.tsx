@@ -10,6 +10,7 @@ import { getTripWeather } from "#src/reader/weather/get-trip-weather.ts";
 import { getSharing } from "#src/share/get-sharing.ts";
 import { ShareTrip } from "#src/share/share-trip.tsx";
 import { getTrip, getViewerId } from "#src/trips/get-trips.ts";
+import { isTripId } from "#src/trips/is-trip-id.ts";
 
 // "Current day" depends on the wall clock, so render per-request.
 export const dynamic = "force-dynamic";
@@ -21,8 +22,8 @@ interface TripRouteProps {
 export async function generateMetadata({
   params,
 }: TripRouteProps): Promise<Metadata> {
-  const { locale, trip: slug } = await params;
-  const trip = (await getTrip(slug))?.trip;
+  const { locale, trip: id } = await params;
+  const trip = (await getTrip(id))?.trip;
   if (!trip) return {};
   const description = t({
     en: "{dates}. {subtitle}: the plan for each day, with places, food and beds.",
@@ -37,13 +38,14 @@ export async function generateMetadata({
 }
 
 export default async function TripRoute({ params }: TripRouteProps) {
-  const { locale, trip: slug } = await params;
-  const viewed = await getTrip(slug);
+  const { locale, trip: id } = await params;
+  if (!isTripId(id)) notFound();
+  const viewed = await getTrip(id);
   if (!viewed) {
     // The answer is the same for a trip that exists and one that does not,
     // so that it does not tell which trips there are.
     if ((await getViewerId()) === null) {
-      redirect(signInPath(validateLocale(locale), `/${slug}`));
+      redirect(signInPath(validateLocale(locale), `/${id}`));
     }
     notFound();
   }
@@ -61,6 +63,7 @@ export default async function TripRoute({ params }: TripRouteProps) {
 
   return (
     <TripPage
+      tripId={viewed.id}
       trip={trip}
       serverToday={serverToday}
       weatherByDay={weatherByDay}

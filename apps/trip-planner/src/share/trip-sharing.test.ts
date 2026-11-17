@@ -1,5 +1,5 @@
 import { PGlite } from "@electric-sql/pglite";
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import { afterAll, beforeAll, expect, it } from "vitest";
@@ -34,14 +34,6 @@ async function addUser() {
   return id;
 }
 
-async function tripId(slug: string) {
-  const [{ id }] = await db
-    .select({ id: trips.id })
-    .from(trips)
-    .where(eq(trips.slug, slug));
-  return id;
-}
-
 async function newInvite(trip: string, now = new Date()) {
   const made = await tripSharing.createInvite(db, owner, trip, now);
   if (typeof made === "string") throw new Error(`No invite: ${made}.`);
@@ -50,7 +42,7 @@ async function newInvite(trip: string, now = new Date()) {
 
 async function rolesOf(userId: string) {
   const viewed = await readTrips(db, userId);
-  return Object.fromEntries(viewed.map(({ trip, role }) => [trip.slug, role]));
+  return Object.fromEntries(viewed.map(({ id, role }) => [id, role]));
 }
 
 beforeAll(async () => {
@@ -60,10 +52,10 @@ beforeAll(async () => {
     migrationsFolder: TRIPS_MIGRATIONS_FOLDER,
   });
   owner = await addUser();
-  await importTrip(db, sample);
-  await importTrip(db, { ...sample, id: "porto", slug: "porto" });
-  lisbon = await tripId(sample.slug);
-  porto = await tripId("porto");
+  lisbon = crypto.randomUUID();
+  porto = crypto.randomUUID();
+  await importTrip(db, lisbon, sample);
+  await importTrip(db, porto, { ...sample, id: "porto" });
   await db.insert(tripMembers).values([
     { tripId: lisbon, userId: owner, role: "owner" },
     { tripId: porto, userId: owner, role: "owner" },
@@ -80,9 +72,9 @@ it("makes the user who accepts an invite an editor of that trip only, and only o
   expect(await tripSharing.isInviteOpen(db, token)).toBe(true);
   expect(await rolesOf(guest)).toEqual({});
 
-  expect(await tripSharing.acceptInvite(db, guest, token)).toBe(sample.slug);
+  expect(await tripSharing.acceptInvite(db, guest, token)).toBe(lisbon);
 
-  expect(await rolesOf(guest)).toEqual({ [sample.slug]: "editor" });
+  expect(await rolesOf(guest)).toEqual({ [lisbon]: "editor" });
   expect(await tripSharing.isInviteOpen(db, token)).toBe(false);
   expect(await tripSharing.acceptInvite(db, late, token)).toBeNull();
   expect(await rolesOf(late)).toEqual({});
@@ -91,9 +83,9 @@ it("makes the user who accepts an invite an editor of that trip only, and only o
 it("keeps the role of a member who accepts, and keeps the invite for another person", async () => {
   const { token } = await newInvite(lisbon);
 
-  expect(await tripSharing.acceptInvite(db, owner, token)).toBe(sample.slug);
+  expect(await tripSharing.acceptInvite(db, owner, token)).toBe(lisbon);
 
-  expect((await rolesOf(owner))[sample.slug]).toBe("owner");
+  expect((await rolesOf(owner))[lisbon]).toBe("owner");
   expect(await tripSharing.isInviteOpen(db, token)).toBe(true);
 });
 
@@ -195,12 +187,12 @@ it("lets only an owner take an editor out of the trip, and never an owner", asyn
   await expect(
     asViewer(db, editor, (tx) => tx.delete(tripMembers)),
   ).rejects.toThrow();
-  expect(await rolesOf(second)).toEqual({ porto: "editor" });
-  expect((await rolesOf(owner)).porto).toBe("owner");
+  expect(await rolesOf(second)).toEqual({ [porto]: "editor" });
+  expect((await rolesOf(owner))[porto]).toBe("owner");
 
   expect(await tripSharing.removeMember(db, owner, porto, second)).toBe(true);
   expect(await rolesOf(second)).toEqual({});
-  expect(await rolesOf(editor)).toEqual({ porto: "editor" });
+  expect(await rolesOf(editor)).toEqual({ [porto]: "editor" });
 });
 
 it("gives a visitor who is not signed in nothing but the answer that an invite is open", async () => {

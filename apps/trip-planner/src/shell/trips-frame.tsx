@@ -23,7 +23,7 @@ function TripLink({ trip, current }: { trip: TripSummary; current: boolean }) {
   const dayNumber = useDayNumber();
   return (
     <NavLink
-      href={getLocalePath(`/${trip.slug}`, locale)}
+      href={getLocalePath(`/${trip.id}`, locale)}
       current={current}
       trailing={
         trip.phase === "during" ? (
@@ -61,9 +61,9 @@ function TripNav({
           <NavGroup key={group.label} label={group.label}>
             {group.trips.map((trip) => (
               <TripLink
-                key={trip.slug}
+                key={trip.id}
                 trip={trip}
-                current={trip.slug === current}
+                current={trip.id === current}
               />
             ))}
           </NavGroup>
@@ -87,8 +87,8 @@ export function TripsFrame({
 }) {
   const locale = useLocale();
   const router = useRouter();
-  const slug = useSelectedLayoutSegments().at(0);
-  const open = trips.find((trip) => trip.slug === slug) ?? null;
+  const segment = useSelectedLayoutSegments().at(0);
+  const open = trips.find((trip) => trip.id === segment) ?? null;
   const listHref = getLocalePath("/", locale);
   const listLabel = t({ en: "Trips", zh: "行程" });
 
@@ -114,10 +114,10 @@ export function TripsFrame({
       sidebar={{
         href: listHref,
         label: listLabel,
-        node: <TripNav trips={trips} current={open?.slug ?? null} />,
+        node: <TripNav trips={trips} current={open?.id ?? null} />,
       }}
       content={{
-        key: open?.slug ?? "home",
+        key: open?.id ?? "home",
         label: open?.title ?? listLabel,
         back: open ? { href: listHref, label: listLabel } : null,
         node: children,

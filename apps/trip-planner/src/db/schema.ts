@@ -15,10 +15,9 @@ function createdAt() {
   return timestamp("created_at", { withTimezone: true }).notNull().defaultNow();
 }
 
+/** A trip. Its id is its path, as in `/<id>`. */
 export const trips = pgTable("trips", {
   id: uuid("id").primaryKey().defaultRandom(),
-  /** The path of the trip, as in `/gb`. */
-  slug: text("slug").notNull().unique(),
   createdAt: createdAt(),
 });
 

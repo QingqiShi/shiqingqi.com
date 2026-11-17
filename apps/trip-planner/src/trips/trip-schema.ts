@@ -219,7 +219,6 @@ export const tripSchema = z
   .object({
     schemaVersion: z.literal(TRIP_SCHEMA_VERSION),
     id,
-    slug: z.string().regex(/^[a-z0-9-]{1,40}$/),
     title: text,
     subtitle: text,
     /** A short line about who travels, such as "3 人自驾". */

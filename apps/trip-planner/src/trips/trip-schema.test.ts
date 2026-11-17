@@ -13,6 +13,12 @@ describe("tripSchema", () => {
     expect(tripSchema.safeParse(sample).success).toBe(true);
   });
 
+  it("reads a stored document that still holds the slug of its old path", () => {
+    const result = tripSchema.safeParse({ ...sample, slug: "gb" });
+    expect(result.success).toBe(true);
+    expect(result.data).not.toHaveProperty("slug");
+  });
+
   it("refuses an id used twice", () => {
     const result = withSample((trip) => {
       trip.days[1].moments[0].id = trip.days[0].moments[0].id;

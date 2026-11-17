@@ -20,10 +20,10 @@ import { SignSheetCard } from "./sign-sheet-card.tsx";
 
 function MomentSection({
   moment,
-  tripSlug,
+  tripId,
 }: {
   moment: DayMoment;
-  tripSlug: string;
+  tripId: string;
 }) {
   const timeLabel = useTimeLabel();
   return (
@@ -43,7 +43,7 @@ function MomentSection({
           <FlightCard key={flight.id} flight={flight} />
         ))}
         {moment.checklists.map((list) => (
-          <ChecklistCard key={list.id} tripSlug={tripSlug} list={list} />
+          <ChecklistCard key={list.id} tripId={tripId} list={list} />
         ))}
         {moment.signSheets.map((sheet) => (
           <SignSheetCard key={sheet.id} sheet={sheet} />
@@ -75,13 +75,13 @@ function MomentSection({
  * The day in time order: each moment with its flights, lists, routes, places
  * to eat and go, and heads-ups.
  */
-export function DayFeed({ tripSlug, day }: { tripSlug: string; day: Day }) {
+export function DayFeed({ tripId, day }: { tripId: string; day: Day }) {
   const moments = buildDayFeed(day);
 
   return (
     <>
       {moments.map((moment) => (
-        <MomentSection key={moment.id} moment={moment} tripSlug={tripSlug} />
+        <MomentSection key={moment.id} moment={moment} tripId={tripId} />
       ))}
     </>
   );

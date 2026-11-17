@@ -12,9 +12,9 @@ import type { Checklist } from "#src/trips/types.ts";
 
 const EMPTY: Record<string, boolean> = {};
 
-/** localStorage namespace per trip; "gb" keeps its pre-multi-trip key. */
-function storageKeyFor(tripSlug: string) {
-  return `${tripSlug}-trip-checklist`;
+/** localStorage namespace per trip. */
+function storageKeyFor(tripId: string) {
+  return `${tripId}-trip-checklist`;
 }
 
 function isBooleanRecord(value: unknown): value is Record<string, boolean> {
@@ -107,13 +107,13 @@ function getServerSnapshot(): Record<string, boolean> {
 
 /** A list to tick through, kept on this device, folded until it is opened. */
 export function ChecklistCard({
-  tripSlug,
+  tripId,
   list,
 }: {
-  tripSlug: string;
+  tripId: string;
   list: Checklist;
 }) {
-  const store = getStore(storageKeyFor(tripSlug));
+  const store = getStore(storageKeyFor(tripId));
   const checked = useSyncExternalStore(
     store.subscribe,
     store.getSnapshot,
