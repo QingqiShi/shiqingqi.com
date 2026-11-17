@@ -178,9 +178,10 @@ module.exports = async (phase) => {
           key: "Content-Security-Policy",
           value: "frame-ancestors 'none'",
         },
+        // A page path can hold a token, so `Referer` holds only the origin.
         {
           key: "Referrer-Policy",
-          value: "origin-when-cross-origin",
+          value: "strict-origin",
         },
         {
           key: "Permissions-Policy",

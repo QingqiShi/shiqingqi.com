@@ -33,6 +33,7 @@ const restrictedPlugin = {
     "class-component": noRestrictedSyntax,
     "browser-typegpu": builtinRules.get("no-restricted-imports"),
     "trip-tables": builtinRules.get("no-restricted-imports"),
+    "vercel-observability": builtinRules.get("no-restricted-imports"),
   },
 };
 
@@ -782,6 +783,25 @@ export default defineConfig([
               allowTypeImports: true,
               message:
                 "Sign-in reads only the tables in `#src/db/auth-schema.ts`. Read a trip with `getTrips` or `getTrip` from `#src/trips/get-trips.ts`.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  // A token in a URL is a key, so analytics must not get it.
+  {
+    files: ["apps/**", "packages/**"],
+    ignores: ["packages/analytics/src/vercel-observability.tsx"],
+    rules: {
+      "restricted/vercel-observability": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@vercel/analytics*", "@vercel/speed-insights*"],
+              message:
+                "Mount `VercelObservability` from `@tuja/analytics/vercel-observability`. It removes tokens from the URLs that it sends.",
             },
           ],
         },

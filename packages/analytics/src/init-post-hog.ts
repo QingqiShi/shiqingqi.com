@@ -4,6 +4,7 @@ import { dropOpaqueCrossOriginErrors } from "./drop-opaque-cross-origin-errors";
 import { dropSkippedTransitionErrors } from "./drop-skipped-transition-errors";
 import { posthogClient } from "./posthog-client";
 import { posthogEnabled } from "./posthog-enabled";
+import { redactEventTokens } from "./redact-event-tokens";
 
 let initialised = false;
 
@@ -36,7 +37,15 @@ export async function initPostHog() {
     // Needs "Cookieless server hash mode" enabled in the PostHog project.
     cookieless_mode: "always",
     capture_exceptions: true,
-    before_send: [dropOpaqueCrossOriginErrors, dropSkippedTransitionErrors],
+    before_send: [
+      dropOpaqueCrossOriginErrors,
+      dropSkippedTransitionErrors,
+      redactEventTokens,
+    ],
+    // The apps use no feature flags. The flags request also sends the first
+    // URL of the visit, which can hold a token, and `before_send` does not
+    // see that request.
+    advanced_disable_feature_flags: true,
     capture_performance: { web_vitals: true },
     debug: DEV,
   });
