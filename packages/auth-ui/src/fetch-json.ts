@@ -1,11 +1,11 @@
-import { FinanceApiError } from "./finance-api-error.ts";
+import { ApiError } from "./api-error.ts";
 
 /**
- * Sends a same-origin JSON request to a Finance route. On a refusal it throws
- * `FinanceApiError` with the body's `error` code, or `fallbackCode` when the
+ * Sends a same-origin JSON request to a route of the app. On a refusal it throws
+ * `ApiError` with the body's `error` code, or `fallbackCode` when the
  * body has none, the body itself, and the wait that a 429 asks for.
  */
-export async function financeFetch(
+export async function fetchJson(
   path: string,
   init: RequestInit = {},
   fallbackCode = "request-failed",
@@ -26,7 +26,7 @@ export async function financeFetch(
       typeof data.error === "string"
         ? data.error
         : fallbackCode;
-    throw new FinanceApiError(
+    throw new ApiError(
       code,
       response.status,
       data,
@@ -39,4 +39,17 @@ export async function financeFetch(
 function retryAfterSecondsOf(response: Response): number | null {
   const seconds = Number(response.headers.get("Retry-After"));
   return Number.isInteger(seconds) && seconds > 0 ? seconds : null;
+}
+
+/** Sends a same-origin JSON POST, and returns the parsed answer. It throws as `fetchJson` does, with the fallback code `request_failed`. */
+export async function postJson<T = unknown>(
+  path: string,
+  body: unknown = {},
+): Promise<T> {
+  const response = await fetchJson(
+    path,
+    { method: "POST", body: JSON.stringify(body) },
+    "request_failed",
+  );
+  return (await response.json()) as T;
 }

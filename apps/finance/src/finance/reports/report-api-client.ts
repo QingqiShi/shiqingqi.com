@@ -1,4 +1,4 @@
-import { financeFetch } from "../http/finance-fetch.ts";
+import { fetchJson } from "@tuja/auth-ui/fetch-json";
 import {
   reportApiSchemas,
   type RegenerateReportResponse,
@@ -7,7 +7,7 @@ import {
 } from "./report-api-schemas.ts";
 
 async function send(path: string, init?: RequestInit): Promise<unknown> {
-  const response = await financeFetch(path, init);
+  const response = await fetchJson(path, init);
   const body: unknown = await response.json();
   return body;
 }

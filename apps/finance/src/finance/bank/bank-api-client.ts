@@ -1,3 +1,4 @@
+import { fetchJson } from "@tuja/auth-ui/fetch-json";
 import type {
   InstructionChange,
   QuickAddRequest,
@@ -6,7 +7,6 @@ import type {
   SuggestResponse,
   TeachRequest,
 } from "../ai/types.ts";
-import { financeFetch } from "../http/finance-fetch.ts";
 import type {
   BankLinkView,
   CredentialView,
@@ -17,7 +17,7 @@ import type {
 } from "./types.ts";
 
 async function sendJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await financeFetch(path, init);
+  const response = await fetchJson(path, init);
   return (await response.json()) as T;
 }
 
@@ -28,7 +28,7 @@ export const bankApiClient = {
     return sendJson<ProviderAccountsResponse>("/api/bank/accounts");
   },
 
-  /** Stores the owner's Lunch Flow API key; throws `FinanceApiError` `auth` when Lunch Flow refuses it. */
+  /** Stores the owner's Lunch Flow API key; throws `ApiError` `auth` when Lunch Flow refuses it. */
   putCredential(apiKey: string) {
     return sendJson<CredentialView>("/api/bank/credential", {
       method: "PUT",
@@ -38,7 +38,7 @@ export const bankApiClient = {
 
   /** Forgets the API key; the Bank links stay. */
   async removeCredential() {
-    await financeFetch("/api/bank/credential", { method: "DELETE" });
+    await fetchJson("/api/bank/credential", { method: "DELETE" });
   },
 
   /** Binds a cash or credit account to a provider account; binding again updates the link. */
@@ -50,7 +50,7 @@ export const bankApiClient = {
   },
 
   async removeLink(linkId: string) {
-    await financeFetch(`/api/bank/links?linkId=${encodeURIComponent(linkId)}`, {
+    await fetchJson(`/api/bank/links?linkId=${encodeURIComponent(linkId)}`, {
       method: "DELETE",
     });
   },
@@ -73,7 +73,7 @@ export const bankApiClient = {
 
   /** Keeps a Transaction that no bank row of the link backs, so the balance check stops listing it. */
   async keepTransaction(linkId: string, transactionId: string) {
-    await financeFetch("/api/bank/kept-transactions", {
+    await fetchJson("/api/bank/kept-transactions", {
       method: "PUT",
       body: JSON.stringify({ linkId, transactionId }),
     });
@@ -82,7 +82,7 @@ export const bankApiClient = {
   /** Undoes `keepTransaction`. */
   async unkeepTransaction(linkId: string, transactionId: string) {
     const query = new URLSearchParams({ linkId, transactionId });
-    await financeFetch(`/api/bank/kept-transactions?${query.toString()}`, {
+    await fetchJson(`/api/bank/kept-transactions?${query.toString()}`, {
       method: "DELETE",
     });
   },

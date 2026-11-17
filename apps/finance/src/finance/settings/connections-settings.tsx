@@ -1,5 +1,6 @@
 "use client";
 
+import { ApiError } from "@tuja/auth-ui/api-error";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
@@ -9,7 +10,6 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useEffect, useState } from "react";
 import { bankApiClient } from "../bank/bank-api-client.ts";
 import type { ProviderAccountsResponse } from "../bank/types.ts";
-import { FinanceApiError } from "../http/finance-api-error.ts";
 import { ConnectedSettings } from "./connected-settings.tsx";
 import { CredentialForm } from "./credential-form.tsx";
 import { SettingsPanel } from "./settings-panel.tsx";
@@ -44,7 +44,7 @@ export function ConnectionsSettings() {
         if (!live) return;
         setLoad({
           state:
-            error instanceof FinanceApiError && error.code === "auth"
+            error instanceof ApiError && error.code === "auth"
               ? "refused"
               : "failed",
         });

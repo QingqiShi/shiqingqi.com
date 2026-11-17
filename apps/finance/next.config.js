@@ -38,6 +38,7 @@ module.exports = async (phase) => {
     },
     transpilePackages: [
       "@tuja/analytics",
+      "@tuja/auth-ui",
       "@tuja/dev-tools",
       "@tuja/i18n",
       "@tuja/next-links",

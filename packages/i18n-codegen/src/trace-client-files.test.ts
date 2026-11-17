@@ -1,7 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { traceClientFiles } from "./trace-client-files.ts";
+import { clearTraceCaches, traceClientFiles } from "./trace-client-files.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,5 +26,27 @@ describe("traceClientFiles", () => {
     expect(relativePaths).toContain(
       "movie-database/browse/table/media-table-header.tsx",
     );
+  });
+
+  it("follows an import into a workspace package that it was given", () => {
+    const financeSrc = path.join(__dirname, "../../../apps/finance/src");
+    const authUiSrc = path.join(__dirname, "../../auth-ui/src");
+    const entryFile = path.join(
+      financeSrc,
+      "app/[locale]/(open)/sign-in/page.tsx",
+    );
+    const packages = new Map([["@tuja/auth-ui", authUiSrc]]);
+
+    const skipped = traceClientFiles(entryFile, financeSrc);
+    // The caches hold each resolved import, and they do not know the packages.
+    clearTraceCaches();
+    const followed = traceClientFiles(entryFile, financeSrc, packages);
+
+    // The page imports the panel by its package name, and the panel imports
+    // the form by a relative path. The text of both belongs in the page's
+    // client bundle.
+    const form = path.join(authUiSrc, "components/email-code-form.tsx");
+    expect(followed).toContain(form);
+    expect(skipped).not.toContain(form);
   });
 });

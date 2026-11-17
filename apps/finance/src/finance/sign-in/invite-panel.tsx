@@ -1,5 +1,6 @@
 "use client";
 
+import { toApiError, type ApiError } from "@tuja/auth-ui/api-error";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
@@ -9,10 +10,6 @@ import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
 import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
-import {
-  toFinanceApiError,
-  type FinanceApiError,
-} from "../http/finance-api-error.ts";
 import { useAuthErrorMessage } from "./use-auth-error-message.ts";
 
 /** Accepts an invite: the signed-in user joins as the invited Member. */
@@ -20,7 +17,7 @@ export function InvitePanel({ token }: { token: string }) {
   const locale = useLocale();
   const messageOf = useAuthErrorMessage();
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<FinanceApiError | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
 
   return (
     <div css={stack.item}>
@@ -43,7 +40,7 @@ export function InvitePanel({ token }: { token: string }) {
               window.location.assign(getLocalePath("/", locale));
             })
             .catch((caught: unknown) => {
-              setError(toFinanceApiError(caught));
+              setError(toApiError(caught));
               setBusy(false);
             });
         }}

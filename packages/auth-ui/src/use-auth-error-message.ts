@@ -1,36 +1,43 @@
 import { t } from "@tuja/i18n";
-import type { BuddyApiError } from "../http/buddy-api-error.ts";
+import { useLocale } from "@tuja/i18n/use-locale";
+import type { ApiError } from "./api-error.ts";
+import { formatRetryWait } from "./format-retry-wait.ts";
 
-/** Turns a `BuddyApiError` into calm copy. A closed passkey sheet is not an error and has none. */
-export function useAuthErrorMessage() {
+/**
+ * Turns an `ApiError` into calm copy. A refusal by a rate limit says how long
+ * to wait. A closed passkey sheet is not an error and has none.
+ * `appMessages` has the copy for the error codes of the app's own routes.
+ */
+export function useAuthErrorMessage(appMessages: Record<string, string> = {}) {
+  const locale = useLocale();
   const messages: Record<string, string> = {
     sign_up_invalid: t({
       en: "This sign-up has expired or was used already. Ask for a new code on the sign-in page.",
       zh: "此注册已过期或已被使用。请在登录页重新获取验证码。",
-    }),
-    recovery_invalid: t({
-      en: "This link has expired or was used already. Ask for a new code on the sign-in page.",
-      zh: "此链接已过期或已被使用。请在登录页重新获取验证码。",
     }),
     email_registered: t({
       en: "An account uses this email already. If it is yours, sign in with your passkey, or get back in with your email on the sign-in page.",
       zh: "已有账号使用此邮箱。如果是你的账号，请用通行密钥登录，或在登录页通过邮箱重新进入。",
     }),
     passkey_unknown: t({
-      en: "This passkey belongs to no Buddy account. Use another passkey, or sign up.",
-      zh: "此通行密钥不属于任何搭子账号。请换一个通行密钥，或注册新账号。",
+      en: "This passkey belongs to no account. Use another passkey, or sign up.",
+      zh: "此通行密钥不属于任何账号。请换一个通行密钥，或注册新账号。",
     }),
     passkey_invalid: t({
       en: "The passkey check did not go through. Try again.",
       zh: "通行密钥验证未通过，请重试。",
     }),
     challenge_invalid: t({
-      en: "That took too long. Try again.",
-      zh: "用时过长，请重试。",
+      en: "The sign-in took too long. Try again.",
+      zh: "登录用时过长，请重试。",
     }),
     passkey_exists: t({
       en: "This passkey is registered already. Sign in with it.",
       zh: "此通行密钥已注册，可直接用它登录。",
+    }),
+    recovery_invalid: t({
+      en: "This link has expired or was used already. Ask for a new code on the sign-in page.",
+      zh: "此链接已过期或已被使用。请在登录页重新获取验证码。",
     }),
     email_invalid: t({
       en: "That does not look like an email address.",
@@ -52,18 +59,29 @@ export function useAuthErrorMessage() {
       en: "That code no longer works. Ask for a new one.",
       zh: "该验证码已失效。请重新获取。",
     }),
-    rate_limited: t({
-      en: "Too many tries. Try again later.",
-      zh: "尝试次数过多，请稍后再试。",
-    }),
     not_configured: t({
-      en: "Buddy is not set up on this server.",
-      zh: "此服务器尚未配置搭子。",
+      en: "This app is not set up on this server.",
+      zh: "此服务器尚未配置本应用。",
     }),
+    ...appMessages,
   };
   const fallback = t({
     en: "Something went wrong. Try again.",
     zh: "出现问题，请重试。",
   });
-  return ({ code }: BuddyApiError): string => messages[code] ?? fallback;
+  const rateLimited = t({
+    en: "Too many tries. Try again later.",
+    zh: "尝试次数过多，请稍后再试。",
+  });
+  const waitPrefix = t({
+    en: "Too many tries. Try again in about ",
+    zh: "尝试次数过多，请约 ",
+  });
+  const waitSuffix = t({ en: ".", zh: "后再试。" });
+  return ({ code, retryAfterSeconds }: ApiError): string => {
+    if (code !== "rate_limited") return messages[code] ?? fallback;
+    return retryAfterSeconds === null
+      ? rateLimited
+      : `${waitPrefix}${formatRetryWait(retryAfterSeconds, locale)}${waitSuffix}`;
+  };
 }

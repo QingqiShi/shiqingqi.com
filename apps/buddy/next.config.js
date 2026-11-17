@@ -34,6 +34,7 @@ module.exports = async (phase) => {
       lightningCssFeatures: { exclude: ["light-dark"] },
     },
     transpilePackages: [
+      "@tuja/auth-ui",
       "@tuja/dev-tools",
       "@tuja/i18n",
       "@tuja/next-links",

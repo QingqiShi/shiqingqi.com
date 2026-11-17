@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { toApiError, type ApiError } from "@tuja/auth-ui/api-error";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Badge } from "@tuja/ui/components/badge";
@@ -12,10 +13,6 @@ import { TextField } from "@tuja/ui/components/text-field";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
 import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
-import {
-  toFinanceApiError,
-  type FinanceApiError,
-} from "../http/finance-api-error.ts";
 import { withPendingKey } from "../shell/with-pending.ts";
 import { useAuthErrorMessage } from "../sign-in/use-auth-error-message.ts";
 import { useHouseholdAccess } from "./use-household-access.ts";
@@ -33,7 +30,7 @@ export function RecoveryEmailSettings() {
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState<"save" | "resend" | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
-  const [error, setError] = useState<FinanceApiError | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
 
   const verified = recoveryEmail?.verified ?? false;
   const email = recoveryEmail?.email ?? null;
@@ -51,7 +48,7 @@ export function RecoveryEmailSettings() {
         setDraft("");
         if (!result.verified) setSentTo(result.email);
       } catch (caught) {
-        setError(toFinanceApiError(caught));
+        setError(toApiError(caught));
       }
     });
   }

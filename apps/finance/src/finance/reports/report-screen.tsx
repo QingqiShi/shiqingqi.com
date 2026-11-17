@@ -2,6 +2,7 @@
 
 import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ApiError } from "@tuja/auth-ui/api-error";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
@@ -10,7 +11,6 @@ import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useEffect } from "react";
-import { FinanceApiError } from "../http/finance-api-error.ts";
 import { reportQuery } from "../queries/report-query.ts";
 import { adjacentReports } from "./adjacent-reports.ts";
 import { formatReportWeek } from "./format-report-week.ts";
@@ -59,7 +59,7 @@ export function ReportScreen({ id, headingLevel }: ReportScreenProps) {
 
   if (query.status === "error" || query.fetchStatus === "paused") {
     const notFound =
-      query.error instanceof FinanceApiError && query.error.status === 404;
+      query.error instanceof ApiError && query.error.status === 404;
     return (
       <div css={stack.item}>
         <Heading level={headingLevel} look="h3">

@@ -1,3 +1,4 @@
+import { SignInPanel } from "@tuja/auth-ui/components/sign-in-panel";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { PageProps } from "@tuja/i18n/types";
@@ -11,7 +12,7 @@ import { getBuddyDb } from "#src/server/db/get-buddy-db.ts";
 import { accountNameOf } from "#src/server/machines/account-name-of.ts";
 import { AuthFrame } from "#src/sign-in/auth-frame.tsx";
 import { NotConfigured } from "#src/sign-in/not-configured.tsx";
-import { SignInPanel } from "#src/sign-in/sign-in-panel.tsx";
+import { SIGNED_IN_HOME } from "#src/sign-in/signed-in-home.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);
@@ -38,7 +39,13 @@ export default async function Page({
 
   return (
     <AuthFrame>
-      <SignInPanel next={next} />
+      <SignInPanel
+        next={next ?? SIGNED_IN_HOME}
+        signUpNote={t({
+          en: "Your pet's page stays private until you make it public.",
+          zh: "你的宠物页面默认不公开，由你决定何时公开。",
+        })}
+      />
     </AuthFrame>
   );
 }

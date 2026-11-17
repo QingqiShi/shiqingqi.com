@@ -3,7 +3,13 @@
   "extends": ["//"],
   "tasks": {
     "test": {
-      "inputs": ["$TURBO_DEFAULT$", ".env*", "$TURBO_ROOT$/apps/web/src/**"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*",
+        "$TURBO_ROOT$/apps/web/src/**",
+        "$TURBO_ROOT$/apps/finance/src/**",
+        "$TURBO_ROOT$/packages/auth-ui/src/**"
+      ]
     }
   }
 }

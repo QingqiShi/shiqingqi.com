@@ -18,6 +18,7 @@ module.exports = {
     "@stylexjs/postcss-plugin": {
       include: [
         "src/**/*.{js,jsx,ts,tsx}",
+        "../../packages/auth-ui/src/**/*.{js,jsx,ts,tsx}",
         "../../packages/ui/src/**/*.{js,jsx,ts,tsx}",
       ],
       useCSSLayers: true,

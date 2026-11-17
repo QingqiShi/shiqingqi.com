@@ -1,3 +1,4 @@
+import { AuthNotice } from "@tuja/auth-ui/components/auth-notice";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
@@ -18,7 +19,6 @@ import { lookupInvite } from "#src/finance/auth/lookup-invite.ts";
 import { getFinanceDb } from "#src/finance/db/get-finance-db.ts";
 import { isFinanceConfigured } from "#src/finance/db/is-finance-configured.ts";
 import { FinanceNotConfigured } from "#src/finance/shell/finance-not-configured.tsx";
-import { AuthNotice } from "#src/finance/sign-in/auth-notice.tsx";
 import { FinanceAuthFrame } from "#src/finance/sign-in/finance-auth-frame.tsx";
 import { InvitePanel } from "#src/finance/sign-in/invite-panel.tsx";
 import { Anchor } from "#src/links/anchor.tsx";

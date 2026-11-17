@@ -378,6 +378,7 @@ export default defineConfig([
       "apps/assistant/src/**",
       "apps/buddy/src/**",
       "apps/trip-planner/src/**",
+      "packages/auth-ui/src/**",
       "packages/ui/src/**",
     ],
     ignores: [
@@ -420,6 +421,7 @@ export default defineConfig([
   {
     files: [
       "packages/ui/src/**/*.{ts,tsx}",
+      "packages/auth-ui/src/**/*.{ts,tsx}",
       "apps/web/src/**/*.{ts,tsx}",
       "apps/finance/src/**/*.{ts,tsx}",
       "apps/assistant/src/**/*.{ts,tsx}",
@@ -433,7 +435,11 @@ export default defineConfig([
   },
   // A line of prose takes its length from the Measure. The tokens define it.
   {
-    files: ["apps/*/src/**/*.{ts,tsx}", "packages/ui/src/**/*.{ts,tsx}"],
+    files: [
+      "apps/*/src/**/*.{ts,tsx}",
+      "packages/auth-ui/src/**/*.{ts,tsx}",
+      "packages/ui/src/**/*.{ts,tsx}",
+    ],
     ignores: ["**/*.test.{ts,tsx}", "packages/ui/src/tokens.stylex.ts"],
     rules: {
       "@tuja/require-measure": "error",
@@ -450,7 +456,11 @@ export default defineConfig([
   },
   // An icon takes its size and colour from its parent, and names its weight.
   {
-    files: ["apps/*/src/**/*.tsx", "packages/ui/src/**/*.tsx"],
+    files: [
+      "apps/*/src/**/*.tsx",
+      "packages/auth-ui/src/**/*.tsx",
+      "packages/ui/src/**/*.tsx",
+    ],
     ignores: ["**/*.test.tsx"],
     rules: {
       "@tuja/require-icon-sizing": "error",
@@ -466,7 +476,11 @@ export default defineConfig([
   // A tap on a touch screen leaves `:hover` matching until the next tap
   // elsewhere, so a hover style applies only where a pointer can hover.
   {
-    files: ["apps/*/src/**/*.{ts,tsx}", "packages/ui/src/**/*.{ts,tsx}"],
+    files: [
+      "apps/*/src/**/*.{ts,tsx}",
+      "packages/auth-ui/src/**/*.{ts,tsx}",
+      "packages/ui/src/**/*.{ts,tsx}",
+    ],
     ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],
     rules: {
       "@tuja/require-hover-media": "error",
@@ -476,7 +490,11 @@ export default defineConfig([
   // An animated block size lays out the page on each frame. What lies below
   // moves with `translate` through `FlowBlock` instead.
   {
-    files: ["apps/*/src/**/*.{ts,tsx}", "packages/ui/src/**/*.{ts,tsx}"],
+    files: [
+      "apps/*/src/**/*.{ts,tsx}",
+      "packages/auth-ui/src/**/*.{ts,tsx}",
+      "packages/ui/src/**/*.{ts,tsx}",
+    ],
     ignores: [
       "**/*.test.{ts,tsx}",
       "**/test-setup.ts",
@@ -503,7 +521,11 @@ export default defineConfig([
   // A gap between siblings names its relationship. The primitives and the
   // tokens define the steps, so they are not in scope.
   {
-    files: ["apps/*/src/**/*.{ts,tsx}", "packages/ui/src/**/*.{ts,tsx}"],
+    files: [
+      "apps/*/src/**/*.{ts,tsx}",
+      "packages/auth-ui/src/**/*.{ts,tsx}",
+      "packages/ui/src/**/*.{ts,tsx}",
+    ],
     ignores: [
       "**/*.test.{ts,tsx}",
       "packages/ui/src/primitives/**",
@@ -525,7 +547,11 @@ export default defineConfig([
   // Lines of text in one item take no gap, because their line height spaces
   // them.
   {
-    files: ["apps/*/src/**/*.tsx", "packages/ui/src/**/*.tsx"],
+    files: [
+      "apps/*/src/**/*.tsx",
+      "packages/auth-ui/src/**/*.tsx",
+      "packages/ui/src/**/*.tsx",
+    ],
     ignores: ["**/*.test.tsx"],
     rules: {
       "@tuja/require-text-stack": "error",
@@ -534,7 +560,11 @@ export default defineConfig([
   // Text takes its size from a type role. The primitives and the tokens define
   // the roles, so they are not in scope.
   {
-    files: ["apps/*/src/**/*.{ts,tsx}", "packages/ui/src/**/*.{ts,tsx}"],
+    files: [
+      "apps/*/src/**/*.{ts,tsx}",
+      "packages/auth-ui/src/**/*.{ts,tsx}",
+      "packages/ui/src/**/*.{ts,tsx}",
+    ],
     ignores: [
       "**/*.test.{ts,tsx}",
       "packages/ui/src/primitives/**",
@@ -615,7 +645,11 @@ export default defineConfig([
   // A custom property takes its name from `stylex.defineVars`, so that the
   // places that set it and read it cannot drift apart.
   {
-    files: ["apps/*/src/**/*.{ts,tsx}", "packages/ui/src/**/*.{ts,tsx}"],
+    files: [
+      "apps/*/src/**/*.{ts,tsx}",
+      "packages/auth-ui/src/**/*.{ts,tsx}",
+      "packages/ui/src/**/*.{ts,tsx}",
+    ],
     ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],
     rules: {
       "@tuja/no-custom-properties": [

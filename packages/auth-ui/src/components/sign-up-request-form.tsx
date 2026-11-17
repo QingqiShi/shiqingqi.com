@@ -7,17 +7,21 @@ import { withNext } from "@tuja/server-auth/sign-in-path";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
+import { passkeyClient } from "../passkey-client.ts";
 import { EmailCodeForm } from "./email-code-form.tsx";
 
 /** Asks for a sign-up code by email. The code, or the emailed link, opens the sign-up page. */
 export function SignUpRequestForm({
   next,
+  note,
 }: {
   /** Where to go after the sign-up, without a locale. */
   next: string;
+  /** A sentence about what a new user gets in this app, after the shared text. */
+  note?: string;
 }) {
   const locale = useLocale();
+  const noteGap = t({ en: " ", zh: "" });
   const sentPrefix = t({
     en: "We sent a code to ",
     zh: "我们已向 ",
@@ -31,13 +35,14 @@ export function SignUpRequestForm({
       intro={
         <div css={stack.text}>
           <Heading level={2} look="h3">
-            {t({ en: "New to Finance?", zh: "第一次使用家庭账本？" })}
+            {t({ en: "No account yet?", zh: "还没有账号？" })}
           </Heading>
           <Text tone="muted" look="bodySmall">
             {t({
               en: "Enter your email. We send you a code to sign up and save a passkey.",
               zh: "输入你的邮箱。我们会发送验证码，供你注册并保存通行密钥。",
             })}
+            {note ? `${noteGap}${note}` : null}
           </Text>
         </div>
       }
@@ -48,10 +53,10 @@ export function SignUpRequestForm({
       })}
       sentMessage={(email) => `${sentPrefix}${email}${sentSuffix}`}
       send={(email, sendLocale) =>
-        financePasskeyClient.requestSignUp(email, sendLocale, next)
+        passkeyClient.requestSignUp(email, sendLocale, next)
       }
       verify={async (code) => {
-        const path = await financePasskeyClient.checkSignUpCode(code);
+        const path = await passkeyClient.checkSignUpCode(code);
         window.location.assign(withNext(getLocalePath(path, locale), next));
       }}
     />

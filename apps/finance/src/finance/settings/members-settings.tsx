@@ -2,6 +2,7 @@
 
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { ShareNetworkIcon } from "@phosphor-icons/react/dist/ssr/ShareNetwork";
+import { ApiError } from "@tuja/auth-ui/api-error";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
@@ -19,7 +20,6 @@ import { copyTextToClipboard } from "@tuja/ui/utils/copy-text-to-clipboard";
 import { useRef, useState } from "react";
 import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
-import { FinanceApiError } from "../http/finance-api-error.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { withPendingKey } from "../shell/with-pending.ts";
@@ -178,7 +178,7 @@ export function MembersSettings() {
         await financePasskeyClient.addPasskey();
         showToast({ message: messages.passkeyAdded, durationMs: 4000 });
       } catch (error) {
-        if (!(error instanceof FinanceApiError && error.code === "cancelled")) {
+        if (!(error instanceof ApiError && error.code === "cancelled")) {
           showToast({ message: messages.passkeyFailed });
         }
       }

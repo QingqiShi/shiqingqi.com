@@ -1,7 +1,11 @@
+"use client";
+
+import { t } from "@tuja/i18n";
+import { RouterLink } from "@tuja/next-links/router-link";
+import { Anchor } from "@tuja/ui/components/anchor";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { Anchor } from "#src/links/anchor.tsx";
 
 /** An outcome that ends a flow: what happened, and a link onward. */
 export function AuthNotice({
@@ -21,7 +25,18 @@ export function AuthNotice({
         {heading}
       </Heading>
       <Text tone="muted">{text}</Text>
-      {href && linkLabel ? <Anchor href={href}>{linkLabel}</Anchor> : null}
+      {href && linkLabel ? (
+        <Anchor
+          href={href}
+          linkComponent={RouterLink}
+          newTabLabel={t({
+            en: "(opens in new tab)",
+            zh: "(在新标签页中打开)",
+          })}
+        >
+          {linkLabel}
+        </Anchor>
+      ) : null}
     </div>
   );
 }

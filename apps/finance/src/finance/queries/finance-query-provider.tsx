@@ -1,8 +1,8 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ApiError } from "@tuja/auth-ui/api-error";
 import { useEffect, useState, type ReactNode } from "react";
-import { FinanceApiError } from "../http/finance-api-error.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 
 /** The IndexedDB database where an earlier version of the app kept the Reports. */
@@ -23,7 +23,7 @@ export function FinanceQueryProvider({ children }: { children: ReactNode }) {
           queries: {
             refetchOnWindowFocus: false,
             retry: (failureCount, error) =>
-              !(error instanceof FinanceApiError && error.status < 500) &&
+              !(error instanceof ApiError && error.status < 500) &&
               failureCount < 2,
           },
         },

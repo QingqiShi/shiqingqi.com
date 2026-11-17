@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { FinanceApiError } from "../http/finance-api-error.ts";
+import { ApiError } from "@tuja/auth-ui/api-error";
 import { reportApiClient } from "../reports/report-api-client.ts";
 import { reportApiSchemas } from "../reports/report-api-schemas.ts";
 
@@ -14,7 +14,7 @@ export const reportQuery = (id: string) =>
         return await reportApiClient.getReport(id);
       } catch (error) {
         const outdated = reportApiSchemas.outdated.safeParse(
-          error instanceof FinanceApiError ? error.body : null,
+          error instanceof ApiError ? error.body : null,
         );
         if (!outdated.success) throw error;
         await reportApiClient.regenerate(outdated.data.periodEnd);

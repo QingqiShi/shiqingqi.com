@@ -1,5 +1,7 @@
 "use client";
 
+import { toApiError, type ApiError } from "@tuja/auth-ui/api-error";
+import { AuthNotice } from "@tuja/auth-ui/components/auth-notice";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
@@ -11,11 +13,6 @@ import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
 import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
-import {
-  toFinanceApiError,
-  type FinanceApiError,
-} from "../http/finance-api-error.ts";
-import { AuthNotice } from "./auth-notice.tsx";
 import { useAuthErrorMessage } from "./use-auth-error-message.ts";
 
 /**
@@ -29,7 +26,7 @@ export function VerifyEmailPanel({ token }: { token: string }) {
   const [outcome, setOutcome] = useState<
     "verified" | "ended" | "registered" | null
   >(null);
-  const [error, setError] = useState<FinanceApiError | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
 
   const outcomes = {
     verified: {
@@ -97,7 +94,7 @@ export function VerifyEmailPanel({ token }: { token: string }) {
               setOutcome(verified ? "verified" : "ended");
             })
             .catch((caught: unknown) => {
-              const apiError = toFinanceApiError(caught);
+              const apiError = toApiError(caught);
               if (apiError.code === "email_registered") {
                 setOutcome("registered");
               } else {

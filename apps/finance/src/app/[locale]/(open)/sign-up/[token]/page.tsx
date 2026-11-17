@@ -1,3 +1,5 @@
+import { AuthNotice } from "@tuja/auth-ui/components/auth-notice";
+import { SignUpPanel } from "@tuja/auth-ui/components/sign-up-panel";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
@@ -10,9 +12,7 @@ import { getFinanceDb } from "#src/finance/db/get-finance-db.ts";
 import { isFinanceConfigured } from "#src/finance/db/is-finance-configured.ts";
 import { asFinanceApp } from "#src/finance/db/with-household.ts";
 import { FinanceNotConfigured } from "#src/finance/shell/finance-not-configured.tsx";
-import { AuthNotice } from "#src/finance/sign-in/auth-notice.tsx";
 import { FinanceAuthFrame } from "#src/finance/sign-in/finance-auth-frame.tsx";
-import { SignUpPanel } from "#src/finance/sign-in/sign-up-panel.tsx";
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: SupportedLocale }>;
