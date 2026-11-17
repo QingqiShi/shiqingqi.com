@@ -5,6 +5,7 @@ import {
   todoChecklistItems,
   todos,
 } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -88,7 +89,7 @@ describe("readReportPreview", () => {
       },
     );
 
-    const preview = await readReportPreview({ db, userId }, builtAt);
+    const preview = await readReportPreview(scopeTo(db, userId), builtAt);
 
     expect(preview).toMatchObject({
       report: {
@@ -107,10 +108,12 @@ describe("readReportPreview", () => {
     const userId = await insertUser(db);
     await storePreview(userId, content, { added: [], done: [], updated: [] });
 
-    expect(await readReportPreview({ db, userId }, builtAt)).toMatchObject({
-      status: "done",
-      report: { waitingTodos: [], repliedTodos: [] },
-    });
+    expect(await readReportPreview(scopeTo(db, userId), builtAt)).toMatchObject(
+      {
+        status: "done",
+        report: { waitingTodos: [], repliedTodos: [] },
+      },
+    );
   });
 });
 
@@ -150,7 +153,7 @@ describe("readReport", () => {
       builtAt: since,
     });
 
-    const report = await readReport({ db, userId }, "2026-11-02");
+    const report = await readReport(scopeTo(db, userId), "2026-11-02");
 
     expect(report?.needsAction).toEqual([]);
     expect(report?.todos).toEqual([]);
@@ -200,7 +203,7 @@ describe("readReport", () => {
       builtAt: new Date("2026-11-02T09:00:00Z"),
     });
 
-    const report = await readReport({ db, userId }, null);
+    const report = await readReport(scopeTo(db, userId), null);
 
     expect(report?.needsAction.map((line) => line.text)).toEqual([
       "Sign",
@@ -212,7 +215,7 @@ describe("readReport", () => {
 
 describe("searchTodos", () => {
   async function titlesFound(userId: string, term: string) {
-    const { todos: found } = await searchTodos({ db, userId }, term);
+    const { todos: found } = await searchTodos(scopeTo(db, userId), term);
     return found.map((todo) => todo.title);
   }
 
@@ -305,12 +308,12 @@ describe("listDoneTodos", () => {
       { userId: stranger, title: "Theirs", doneAt: new Date() },
     ]);
 
-    const first = await listDoneTodos({ db, userId }, 1);
+    const first = await listDoneTodos(scopeTo(db, userId), 1);
     expect(first).toMatchObject({ page: 1, pageCount: 2 });
     expect(first.todos).toHaveLength(30);
     expect(first.todos[0].title).toBe("Done 30");
 
-    const beyond = await listDoneTodos({ db, userId }, 9);
+    const beyond = await listDoneTodos(scopeTo(db, userId), 9);
     expect(beyond.page).toBe(2);
     expect(beyond.todos.map((todo) => todo.title)).toEqual(["Done 0"]);
   });

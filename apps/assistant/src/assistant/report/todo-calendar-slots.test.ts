@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { provenSession } from "#src/assistant/auth/proven-session.ts";
 import { CalendarRequestError } from "#src/assistant/calendar/caldav/calendar-request-error.ts";
 import type { CalendarConnector } from "#src/assistant/calendar/caldav/types.ts";
 import { buildEventIcs } from "#src/assistant/calendar/ics/build-event-ics.ts";
@@ -10,6 +11,7 @@ import {
   type FakeCalendarServer,
 } from "#src/assistant/calendar/testing/create-fake-calendar-server.ts";
 import { mailAccounts, todos, userSettings } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -69,9 +71,10 @@ afterEach(async () => {
 function handlersOf(userId: string, now = NOW) {
   return makeTodoHandlers({
     isConfigured: () => true,
-    getDb: () => db,
+    userScope: (session) => scopeTo(db, session.userId),
     getCalendarDeps: calendarDeps,
-    getSession: () => Promise.resolve({ sessionId: randomUUID(), userId }),
+    getSession: () =>
+      Promise.resolve(provenSession({ sessionId: randomUUID(), userId })),
     now: () => now,
   });
 }
@@ -154,7 +157,7 @@ describe("a slot that the owner sets", () => {
       calendarStart: new Date(TIME.start),
       calendarEnd: new Date(TIME.end),
     });
-    const { open } = await listTodos({ db, userId: owner });
+    const { open } = await listTodos(scopeTo(db, owner));
     expect(open[0].calendarSlot).toEqual({
       start: new Date(TIME.start),
       end: new Date(TIME.end),
@@ -432,10 +435,12 @@ describe("a to-do that ends while it holds time", () => {
     const { id, event } = await todoWithSlot();
     const offline = makeTodoHandlers({
       isConfigured: () => true,
-      getDb: () => db,
+      userScope: (session) => scopeTo(db, session.userId),
       getCalendarDeps: () => null,
       getSession: () =>
-        Promise.resolve({ sessionId: randomUUID(), userId: owner }),
+        Promise.resolve(
+          provenSession({ sessionId: randomUUID(), userId: owner }),
+        ),
       now: () => NOW,
     });
 
@@ -459,13 +464,15 @@ describe("a to-do that ends while it holds time", () => {
     const { id, event } = await todoWithSlot();
     const downHandlers = makeTodoHandlers({
       isConfigured: () => true,
-      getDb: () => db,
+      userScope: (session) => scopeTo(db, session.userId),
       getCalendarDeps: () => ({
         ...calendarDeps(),
         calendarConnector: () => Promise.reject(new Error("fetch failed")),
       }),
       getSession: () =>
-        Promise.resolve({ sessionId: randomUUID(), userId: owner }),
+        Promise.resolve(
+          provenSession({ sessionId: randomUUID(), userId: owner }),
+        ),
       now: () => NOW,
     });
 
@@ -488,13 +495,15 @@ describe("a to-do that ends while it holds time", () => {
     });
     const goneHandlers = makeTodoHandlers({
       isConfigured: () => true,
-      getDb: () => db,
+      userScope: (session) => scopeTo(db, session.userId),
       getCalendarDeps: () => ({
         ...calendarDeps(),
         calendarConnector: goneConnector,
       }),
       getSession: () =>
-        Promise.resolve({ sessionId: randomUUID(), userId: owner }),
+        Promise.resolve(
+          provenSession({ sessionId: randomUUID(), userId: owner }),
+        ),
       now: () => NOW,
     });
 

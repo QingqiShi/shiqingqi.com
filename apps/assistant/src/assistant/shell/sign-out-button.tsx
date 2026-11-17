@@ -7,6 +7,7 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { signInPath } from "@tuja/server-auth/sign-in-path";
 import { Button } from "@tuja/ui/components/button";
 import { useState } from "react";
+import { unsubscribeThisDevice } from "../push/unsubscribe-this-device.ts";
 
 /** Signs out. It sits under the Settings menu. */
 export function SignOutButton() {
@@ -20,8 +21,9 @@ export function SignOutButton() {
       loading={busy}
       onClick={() => {
         setBusy(true);
-        void passkeyClient
-          .signOut()
+        void unsubscribeThisDevice()
+          .catch(() => undefined)
+          .then(() => passkeyClient.signOut())
           .catch(() => undefined)
           .then(() => {
             window.location.assign(signInPath(locale));

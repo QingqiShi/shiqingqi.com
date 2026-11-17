@@ -37,7 +37,7 @@ import type {
 } from "#src/assistant/agent/todos/types.ts";
 import type { AgentModels } from "#src/assistant/ai/get-agent-models.ts";
 import type { AgentTask, UserLocale } from "#src/assistant/db/schema.ts";
-import type { AssistantDb } from "#src/assistant/db/types.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 import { agendaItems } from "./agenda-items.ts";
 import {
   isInBounds,
@@ -176,12 +176,7 @@ async function readReportAgenda(
  * `markWindowMailRead`.
  */
 export async function runReportAgent(
-  {
-    db,
-    userId,
-    endsAt,
-    now,
-  }: { db: AssistantDb; userId: string; endsAt: number; now: () => Date },
+  { db, userId, endsAt, now }: UserScope & { endsAt: number; now: () => Date },
   {
     models,
     mailboxes,

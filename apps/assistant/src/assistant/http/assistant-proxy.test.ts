@@ -4,6 +4,7 @@ import { sql } from "drizzle-orm";
 import { NextRequest, type NextResponse } from "next/server";
 import { i18nRouter } from "next-i18n-router";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import { i18nConfig } from "#src/i18n/i18n-config.ts";
 import { assistantSessionCookie } from "../auth/assistant-session-cookie.ts";
 import { morningReports, sessions, users } from "../db/schema.ts";
@@ -48,10 +49,11 @@ function run(path: string, token?: string) {
       ? { Cookie: `${assistantSessionCookie.name}=${token}` }
       : undefined,
   });
-  return makeAssistantProxy({ getDb: () => db, now: () => NOW })(
-    request,
-    i18nRouter(request, i18nConfig),
-  );
+  return makeAssistantProxy({
+    getDb: () => db,
+    userScope: (session) => scopeTo(db, session.userId),
+    now: () => NOW,
+  })(request, i18nRouter(request, i18nConfig));
 }
 
 function rewrittenPath(response: NextResponse) {

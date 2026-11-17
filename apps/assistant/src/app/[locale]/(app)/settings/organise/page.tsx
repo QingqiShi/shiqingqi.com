@@ -4,7 +4,7 @@ import { validateLocale } from "@tuja/i18n/validate-locale";
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { getUserScope } from "#src/assistant/db/get-user-scope.ts";
 import { userSettings } from "#src/assistant/db/schema.ts";
 import { ConnectMailboxFirst } from "#src/assistant/mailboxes/connect-mailbox-first.tsx";
 import { readMailboxHealth } from "#src/assistant/mailboxes/read-mailbox-health.ts";
@@ -20,9 +20,9 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default async function Page({ params }: PageProps) {
   const locale = validateLocale((await params).locale);
   const session = await requirePageSession(locale, "/settings/organise");
-  const db = getAssistantDb();
+  const scope = getUserScope(session);
   const [organise, mailboxes] = await Promise.all([
-    db
+    scope.db
       .select({
         enabled: userSettings.organiseEnabled,
         notes: userSettings.organiseNotes,
@@ -30,7 +30,7 @@ export default async function Page({ params }: PageProps) {
       .from(userSettings)
       .where(eq(userSettings.userId, session.userId))
       .then((rows) => rows.at(0)),
-    readMailboxHealth({ db, userId: session.userId }),
+    readMailboxHealth(scope),
   ]);
 
   return (

@@ -3,11 +3,13 @@ import { hashToken } from "@tuja/server-auth/hash-token";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { z } from "zod";
+import { provenSession } from "#src/assistant/auth/proven-session.ts";
 import {
   captureTokens,
   todos,
   userSettings,
 } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -34,8 +36,11 @@ beforeEach(async () => {
   handlers = makeCaptureHandlers({
     isConfigured: () => true,
     getDb: () => db,
+    userScope: (session) => scopeTo(db, session.userId),
     getSession: () =>
-      Promise.resolve({ sessionId: randomUUID(), userId: owner }),
+      Promise.resolve(
+        provenSession({ sessionId: randomUUID(), userId: owner }),
+      ),
     now: () => now,
   });
 });
@@ -45,7 +50,7 @@ afterEach(async () => {
 });
 
 async function tokenOf(userId: string) {
-  return (await captureTokenStore.create({ db, userId }, now)).token;
+  return (await captureTokenStore.create(scopeTo(db, userId), now)).token;
 }
 
 function capture(
@@ -104,8 +109,8 @@ describe("a capture request", () => {
   it("refuses a missing, malformed, wrong or revoked token alike", async () => {
     const token = await tokenOf(owner);
     const [id] = token.split(".");
-    const revoked = await captureTokenStore.create({ db, userId: owner }, now);
-    await captureTokenStore.revoke({ db, userId: owner }, revoked.id);
+    const revoked = await captureTokenStore.create(scopeTo(db, owner), now);
+    await captureTokenStore.revoke(scopeTo(db, owner), revoked.id);
 
     const answers = await Promise.all(
       [
@@ -235,10 +240,7 @@ describe("the owner's token requests", () => {
   });
 
   it("refuse another origin, and do not touch another user's token", async () => {
-    const theirs = await captureTokenStore.create(
-      { db, userId: stranger },
-      now,
-    );
+    const theirs = await captureTokenStore.create(scopeTo(db, stranger), now);
 
     expect(
       (await handlers.createToken(tokenRequest("POST", "https://evil.example")))
@@ -255,10 +257,10 @@ describe("the owner's token requests", () => {
   });
 
   it("list only the user's tokens, without any secret", async () => {
-    const mine = await captureTokenStore.create({ db, userId: owner }, now);
-    await captureTokenStore.create({ db, userId: stranger }, now);
+    const mine = await captureTokenStore.create(scopeTo(db, owner), now);
+    await captureTokenStore.create(scopeTo(db, stranger), now);
 
-    const listed = await captureTokenStore.list({ db, userId: owner });
+    const listed = await captureTokenStore.list(scopeTo(db, owner));
 
     expect(listed).toEqual([{ id: mine.id, createdAt: now, lastUsedAt: null }]);
   });

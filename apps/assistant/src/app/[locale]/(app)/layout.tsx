@@ -5,7 +5,7 @@ import { SIDEBAR_COLLAPSED_COOKIE } from "@tuja/ui/components/sidebar-collapsed-
 import { cookies, headers } from "next/headers";
 import { connection } from "next/server";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { getUserScope } from "#src/assistant/db/get-user-scope.ts";
 import { isAssistantConfigured } from "#src/assistant/db/is-assistant-configured.ts";
 import { ASSISTANT_PATH_HEADER } from "#src/assistant/http/constants.ts";
 import { readMailboxHealth } from "#src/assistant/mailboxes/read-mailbox-health.ts";
@@ -30,7 +30,7 @@ export default async function Layout({
     locale,
     safeNextPath((await headers()).get(ASSISTANT_PATH_HEADER)),
   );
-  const scope = { db: getAssistantDb(), userId: session.userId };
+  const scope = getUserScope(session);
   const mailboxes = await readMailboxHealth(scope);
   return (
     <DateLocaleProvider regionalEnglish={await getRegionalEnglish()}>

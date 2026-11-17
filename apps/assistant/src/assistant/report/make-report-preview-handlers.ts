@@ -1,4 +1,5 @@
-import type { AssistantDb } from "#src/assistant/db/types.ts";
+import type { AssistantSession } from "#src/assistant/auth/types.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 import {
   assistantJson,
   assistantNoContent,
@@ -13,7 +14,8 @@ import { runReportPreview } from "./run-report-preview.ts";
 
 export function makeReportPreviewHandlers(
   deps: RequestGuardDependencies & {
-    getDb: () => AssistantDb;
+    /** The scope of the user of the session. */
+    userScope: (session: AssistantSession) => UserScope;
     now: () => Date;
     /** Null when no mailbox can be read: then the preview ends as failed. */
     getBuildDeps: () => ReportBuildDeps | null;
@@ -26,7 +28,7 @@ export function makeReportPreviewHandlers(
     start: async (request: Request): Promise<Response> => {
       const session = await guardRequest(deps, request, { write: true });
       if (session instanceof Response) return session;
-      const scope = { db: deps.getDb(), userId: session.userId };
+      const scope = deps.userScope(session);
       const claim = await claimReportPreview(scope, deps.now());
       if (!claim) {
         return assistantJson({ error: "preview-running" }, { status: 409 });

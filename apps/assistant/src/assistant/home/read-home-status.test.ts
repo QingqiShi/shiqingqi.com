@@ -4,6 +4,7 @@ import {
   morningReports,
   userSettings,
 } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -68,7 +69,7 @@ function insertReport(userId: string, localDate: string, seenAt: Date | null) {
   });
 }
 
-const statusOf = (userId: string) => readHomeStatus({ db, userId }, NOW);
+const statusOf = (userId: string) => readHomeStatus(scopeTo(db, userId), NOW);
 
 describe("readHomeStatus", () => {
   it("never gives another user's run, report or schedule", async () => {

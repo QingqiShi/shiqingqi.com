@@ -5,7 +5,7 @@ import { getRequestOrigin } from "@tuja/server-auth/get-request-origin";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { getUserScope } from "#src/assistant/db/get-user-scope.ts";
 import { captureTokenStore } from "#src/assistant/report/capture-token-store.ts";
 import { localClock } from "#src/assistant/report/due-report-date.ts";
 import { readReportSettings } from "#src/assistant/report/read-report-settings.ts";
@@ -20,7 +20,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default async function Page({ params }: PageProps) {
   const locale = validateLocale((await params).locale);
   const session = await requirePageSession(locale, "/settings/capture");
-  const scope = { db: getAssistantDb(), userId: session.userId };
+  const scope = getUserScope(session);
   const [tokens, { timeZone }, requestHeaders] = await Promise.all([
     captureTokenStore.list(scope),
     readReportSettings(scope),

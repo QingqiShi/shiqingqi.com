@@ -56,10 +56,10 @@ export function makeOrganiseCron(
         flagged: 0,
         calendarChanges: 0,
       }),
-      runUser: async ({ db, userId, totals, endsAt }) => {
+      runUser: async ({ scope, totals, endsAt }) => {
         const deps = dependencies.getOrganiseDeps();
         if (!deps) return;
-        const result = await organiseUserMail({ db, userId, endsAt }, deps);
+        const result = await organiseUserMail({ ...scope, endsAt }, deps);
         if (!result.enabled) totals.usersOff += 1;
         totals.accounts += result.accounts;
         totals.failedAccounts += result.failedAccounts;

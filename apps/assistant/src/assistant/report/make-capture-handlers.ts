@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import type { AssistantDb } from "#src/assistant/db/types.ts";
+import type { AssistantSession } from "#src/assistant/auth/types.ts";
+import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
 import {
   assistantJson,
   assistantNoContent,
@@ -37,7 +38,10 @@ function readJson(text: string): unknown {
 
 export function makeCaptureHandlers(
   deps: RequestGuardDependencies & {
+    /** The owner of the tables. A token finds its user through it, and then runs as that user. */
     getDb: () => AssistantDb;
+    /** The scope of the user of the session. */
+    userScope: (session: AssistantSession) => UserScope;
     now: () => Date;
   },
 ) {
@@ -84,7 +88,7 @@ export function makeCaptureHandlers(
         return assistantJson({ error: "invalid-body" }, { status: 400 });
       }
 
-      const scope = { db, userId: use.userId };
+      const { scope } = use;
       const { timeZone } = await readReportSettings(scope);
       const { title, dueDate } = parseTodoDate(
         body.data.text,
@@ -104,7 +108,7 @@ export function makeCaptureHandlers(
       const session = await guardRequest(deps, request, { write: true });
       if (session instanceof Response) return session;
       const created = await captureTokenStore.create(
-        { db: deps.getDb(), userId: session.userId },
+        deps.userScope(session),
         deps.now(),
       );
       return assistantJson(created, { status: 201 });
@@ -115,10 +119,7 @@ export function makeCaptureHandlers(
       if (session instanceof Response) return session;
       const revoked =
         z.uuid().safeParse(id).success &&
-        (await captureTokenStore.revoke(
-          { db: deps.getDb(), userId: session.userId },
-          id,
-        ));
+        (await captureTokenStore.revoke(deps.userScope(session), id));
       return revoked
         ? assistantNoContent()
         : assistantJson({ error: "not-found" }, { status: 404 });

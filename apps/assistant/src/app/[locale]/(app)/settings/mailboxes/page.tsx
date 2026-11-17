@@ -8,7 +8,7 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { getUserScope } from "#src/assistant/db/get-user-scope.ts";
 import { userSettings } from "#src/assistant/db/schema.ts";
 import { listAccounts } from "#src/assistant/mail/accounts/list-accounts.ts";
 import type { ConnectErrorCode } from "#src/assistant/mail/oauth/make-connect-handlers.ts";
@@ -107,10 +107,10 @@ export default async function Page({
   const locale = validateLocale((await params).locale);
   const query = await searchParams;
   const session = await requirePageSession(locale, "/settings/mailboxes");
-  const db = getAssistantDb();
+  const scope = getUserScope(session);
   const [{ accounts, timeZone }, organising] = await Promise.all([
-    listAccounts({ db, userId: session.userId }),
-    db
+    listAccounts(scope),
+    scope.db
       .select({ enabled: userSettings.organiseEnabled })
       .from(userSettings)
       .where(eq(userSettings.userId, session.userId))

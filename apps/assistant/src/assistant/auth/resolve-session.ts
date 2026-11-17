@@ -1,6 +1,7 @@
 import type { AssistantDb } from "#src/assistant/db/types.ts";
 import { assistantAuthStore } from "./assistant-auth-store.ts";
 import { assistantSessionCookie } from "./assistant-session-cookie.ts";
+import { provenSession } from "./proven-session.ts";
 import type { AssistantSession } from "./types.ts";
 
 interface ResolvedSession {
@@ -25,7 +26,7 @@ export function resolveSession(
     assistantAuthStore.resolveSession<AssistantSession>(tx, token, {
       now,
       maxAgeSeconds: assistantSessionCookie.maxAgeSeconds,
-      sessionOf: (session) => Promise.resolve(session),
+      sessionOf: (session) => Promise.resolve(provenSession(session)),
       mayRefresh: () => allowRefresh,
     }),
   );

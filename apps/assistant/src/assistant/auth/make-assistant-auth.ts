@@ -52,9 +52,9 @@ async function findUserId(tx: AssistantDb, email: string) {
 }
 
 /**
- * What only Assistant has in the shared sign-in. Every person's data is the
- * owner's until each table is scoped to its user, so no request makes a user
- * and no email gets a person in: there is no sign-up and no recovery.
+ * What only Assistant has in the shared sign-in. The app is the owner's
+ * alone until the owner opens it, so no request makes a user and no email
+ * gets a person in: there is no sign-up and no recovery.
  */
 export const assistantAuthConfig = {
   appName: "Qi Assistant",

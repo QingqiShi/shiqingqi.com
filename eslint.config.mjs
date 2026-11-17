@@ -35,6 +35,12 @@ const restrictedPlugin = {
     "trip-tables": builtinRules.get("no-restricted-imports"),
     "buddy-tables": builtinRules.get("no-restricted-imports"),
     "buddy-raw-sql": noRestrictedSyntax,
+    "assistant-owner-db": builtinRules.get("no-restricted-imports"),
+    "assistant-user-scope": builtinRules.get("no-restricted-imports"),
+    "assistant-proven-session": builtinRules.get("no-restricted-imports"),
+    "assistant-owner-tables": builtinRules.get("no-restricted-imports"),
+    "assistant-owner-sql": noRestrictedSyntax,
+    "assistant-dynamic-import": noRestrictedSyntax,
     "vercel-observability": builtinRules.get("no-restricted-imports"),
   },
 };
@@ -854,6 +860,168 @@ export default defineConfig([
                 "Sign-in reads only the accounts and the tables of sign-in. Read a user's Macs with `machineStore` from `#src/server/machines/machine-store.ts`.",
             },
           ],
+        },
+      ],
+    },
+  },
+  // Assistant holds each user's mail. Code reads a user's rows through a
+  // `UserScope`, which runs every statement as `assistant_app` under
+  // row-level security. Only sign-in, the session read of the proxy, the
+  // crons and the capture token reach the owner of the tables, which row-level
+  // security does not limit, and none of them names a table of user data.
+  {
+    files: ["apps/assistant/src/**/*.{ts,tsx}"],
+    ignores: [
+      "apps/assistant/src/assistant/db/**",
+      "apps/assistant/src/assistant/dev/**",
+      "apps/assistant/src/assistant/auth/**",
+      "apps/assistant/src/assistant/http/assistant-proxy.ts",
+      "apps/assistant/src/app/api/cron/*/route.ts",
+      "apps/assistant/src/assistant/report/capture-handlers.ts",
+      "apps/assistant/src/**/*.test.{ts,tsx}",
+    ],
+    rules: {
+      "restricted/assistant-owner-db": [
+        "error",
+        {
+          patterns: [
+            {
+              regex:
+                "^pg$|^drizzle-orm/(node-postgres|pglite)(/|$)|/db/get-assistant-db(\\.ts)?$",
+              allowTypeImports: true,
+              message:
+                "Read a user's rows through a `UserScope`: `getUserScope(session)` from `#src/assistant/db/get-user-scope.ts`.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: [
+      "apps/assistant/src/assistant/auth/**/*.ts",
+      "apps/assistant/src/assistant/http/assistant-proxy.ts",
+      "apps/assistant/src/assistant/http/make-user-cron-handler.ts",
+      "apps/assistant/src/app/api/cron/*/route.ts",
+      "apps/assistant/src/assistant/report/capture-handlers.ts",
+      "apps/assistant/src/assistant/report/make-capture-handlers.ts",
+    ],
+    ignores: ["apps/assistant/src/**/*.test.ts"],
+    rules: {
+      "restricted/assistant-owner-sql": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.property.name='execute'], MemberExpression[property.name='$client'], MemberExpression[property.name='query']",
+          message:
+            "This module runs as the owner of the tables. Run SQL in a module under `#src/assistant/db/`, or read a user's rows through a `UserScope`.",
+        },
+      ],
+      "restricted/assistant-owner-tables": [
+        "error",
+        {
+          patterns: [
+            {
+              regex: "/db/schema(\\.ts)?$",
+              importNames: [
+                "schema",
+                "userSettings",
+                "mailAccounts",
+                "morningReports",
+                "morningReportPreviews",
+                "todos",
+                "todoChecklistItems",
+                "captureTokens",
+                "pushSubscriptions",
+                "agentRuns",
+                "agentActions",
+              ],
+              message:
+                "This module runs as the owner of the tables. Read a user's rows through a `UserScope`.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  // A scope is made from the session, the list of users of a cron, or a
+  // capture token, never from a user id that a request sends.
+  {
+    files: ["apps/assistant/src/**/*.{ts,tsx}"],
+    ignores: [
+      "apps/assistant/src/assistant/db/{get-user-scope,list-user-ids,scope-to}.ts",
+      "apps/assistant/src/assistant/http/make-user-cron-handler.ts",
+      "apps/assistant/src/assistant/report/capture-token-store.ts",
+      "apps/assistant/src/**/testing/**",
+      "apps/assistant/src/**/test-*.ts",
+      "apps/assistant/src/**/*.test.{ts,tsx}",
+    ],
+    rules: {
+      "restricted/assistant-user-scope": [
+        "error",
+        {
+          patterns: [
+            {
+              regex: "/db/scope-to(\\.ts)?$",
+              importNames: ["scopeTo", "withoutUser"],
+              message:
+                "Take the scope from the session: `getUserScope(session)` from `#src/assistant/db/get-user-scope.ts`.",
+            },
+            {
+              regex: "/db/list-user-ids(\\.ts)?$",
+              importNames: ["listUserIds"],
+              message:
+                "Only a cron lists every user. Run a job for each user with `makeUserCronHandler`.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  // Only the session read proves a session, so `getUserScope` cannot take a
+  // user id that a request sends.
+  {
+    files: ["apps/assistant/src/**/*.{ts,tsx}"],
+    ignores: [
+      "apps/assistant/src/assistant/auth/**",
+      "apps/assistant/src/**/testing/**",
+      "apps/assistant/src/**/test-*.ts",
+      "apps/assistant/src/**/*.test.{ts,tsx}",
+    ],
+    rules: {
+      "restricted/assistant-proven-session": [
+        "error",
+        {
+          patterns: [
+            {
+              regex: "/auth/proven-session(\\.ts)?$",
+              importNames: ["provenSession", "AssistantSession"],
+              allowTypeImports: true,
+              message:
+                "A session comes from the session cookie: `requirePageSession` or the handler's `getSession`.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  // A dynamic import passes by the import rules above.
+  {
+    files: ["apps/assistant/src/**/*.{ts,tsx}"],
+    ignores: ["apps/assistant/src/**/*.test.{ts,tsx}"],
+    rules: {
+      "restricted/assistant-dynamic-import": [
+        "error",
+        {
+          selector:
+            "ImportExpression[source.value=/get-assistant-db|scope-to|list-user-ids|proven-session|db.schema|^pg$|^drizzle-orm.(node-postgres|pglite)/]",
+          message:
+            "Import the database modules with a static import, so that the import rules of Assistant apply.",
+        },
+        {
+          selector: "ImportExpression[source.type!='Literal']",
+          message:
+            "Import with a string literal, so that the import rules of Assistant apply.",
         },
       ],
     },

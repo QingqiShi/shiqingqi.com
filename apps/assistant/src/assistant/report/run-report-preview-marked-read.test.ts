@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { agentActions, morningReports } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   openReportMailboxes,
   runReportOverMailboxes,
@@ -70,15 +71,15 @@ describe("a preview of the next morning report", () => {
       await deliverMail();
       const agent = listingAgent();
       const deps = buildDeps(agent.model);
-      const mailboxes = await openReportMailboxes({ db, userId }, deps);
+      const mailboxes = await openReportMailboxes(scopeTo(db, userId), deps);
       const mailWindow = {
         start: new Date("2026-10-31T15:42:00Z"),
         end: NOW,
       };
-      const settings = await readReportSettings({ db, userId });
+      const settings = await readReportSettings(scopeTo(db, userId));
       try {
         await runReportOverMailboxes(
-          { db, userId, endsAt: NOW.getTime() + 600_000 },
+          { ...scopeTo(db, userId), endsAt: NOW.getTime() + 600_000 },
           { ...deps, models: { agent: agent.model, reader: readerModel() } },
           {
             mailboxes,

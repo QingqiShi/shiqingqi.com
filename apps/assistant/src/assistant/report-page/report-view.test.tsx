@@ -7,6 +7,7 @@ import {
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import translations from "#src/_generated/i18n/translations.en.json";
 import { morningReports, todos } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -73,7 +74,7 @@ describe("ReportView", () => {
       content,
       builtAt: new Date("2026-11-01T09:00:00Z"),
     });
-    const report = await readReport({ db, userId }, null);
+    const report = await readReport(scopeTo(db, userId), null);
     if (!report) throw new Error("No report");
 
     render(
@@ -150,7 +151,7 @@ describe("ReportView", () => {
       },
       { userId, title: "Pay the water bill", createdReportId: report.id },
     ]);
-    const view = await readReport({ db, userId }, null);
+    const view = await readReport(scopeTo(db, userId), null);
     if (!view) throw new Error("No report");
 
     render(
@@ -229,7 +230,7 @@ describe("ReportView", () => {
         deletedAt: new Date("2026-11-02T10:00:00Z"),
       },
     ]);
-    const view = await readReport({ db, userId }, null);
+    const view = await readReport(scopeTo(db, userId), null);
     if (!view) throw new Error("No report");
 
     render(

@@ -197,24 +197,20 @@ export function makeConnectHandlers(deps: ConnectHandlerDeps) {
         );
       }
 
-      const db = deps.getDb();
-      const { userId } = session;
-      const { accountId } = await saveAccount(
-        { db, userId },
-        {
-          provider,
-          address,
-          credential: {
-            type: "oauth",
-            refreshToken,
-            accessToken: tokens.accessToken,
-            accessTokenExpiresAt: tokens.accessTokenExpiresAt,
-          },
-          credentialKey: mail.auth.credentialKey,
-          now: deps.now(),
+      const scope = deps.userScope(session);
+      const { accountId } = await saveAccount(scope, {
+        provider,
+        address,
+        credential: {
+          type: "oauth",
+          refreshToken,
+          accessToken: tokens.accessToken,
+          accessTokenExpiresAt: tokens.accessTokenExpiresAt,
         },
-      );
-      deps.runAfter(() => checkAccount(db, userId, accountId, mail));
+        credentialKey: mail.auth.credentialKey,
+        now: deps.now(),
+      });
+      deps.runAfter(() => checkAccount(scope, accountId, mail));
       return redirect(
         mailboxesUrl(origin, locale, { connected: provider }),
         clear,

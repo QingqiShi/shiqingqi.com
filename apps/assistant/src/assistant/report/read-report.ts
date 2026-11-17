@@ -18,7 +18,7 @@ import {
   todos,
   type TodoCreator,
 } from "#src/assistant/db/schema.ts";
-import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 import { mailViewPath } from "#src/assistant/mail/view/mail-view-path.ts";
 import { startsAfter, waitsAfter } from "./dates-in-order.ts";
 import {
@@ -420,14 +420,10 @@ function selectReportItems({ db, userId }: UserScope) {
     .orderBy(desc(morningReports.localDate));
 }
 
-const listReportsOf = cache(async (db: AssistantDb, userId: string) =>
-  selectReportItems({ db, userId }),
+/** The past reports, newest first: their date and headline. Cached per scope for one render. */
+export const listReports = cache((scope: UserScope) =>
+  selectReportItems(scope),
 );
-
-/** The past reports, newest first: their date and headline. */
-export function listReports({ db, userId }: UserScope) {
-  return listReportsOf(db, userId);
-}
 
 /** The date and headline of the newest report; null when there is none. */
 export async function readNewestReportItem(scope: UserScope) {

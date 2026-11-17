@@ -1,5 +1,6 @@
 import { z } from "zod";
-import type { AssistantDb } from "#src/assistant/db/types.ts";
+import type { AssistantSession } from "#src/assistant/auth/types.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 import { assistantJson } from "#src/assistant/http/assistant-json.ts";
 import {
   guardRequest,
@@ -19,7 +20,8 @@ const undoBody = z.union([
 
 export function makeActivityHandlers(
   deps: RequestGuardDependencies & {
-    getDb: () => AssistantDb;
+    /** The scope of the user of the session. */
+    userScope: (session: AssistantSession) => UserScope;
     /** Null when the credential key is missing. */
     getUndoDeps: () => UndoDeps | null;
     now: () => Date;
@@ -42,7 +44,7 @@ export function makeActivityHandlers(
         return assistantJson({ error: "not-configured" }, { status: 503 });
       }
       const outcomes = await undoAgentActions(
-        { db: deps.getDb(), userId: session.userId, now: deps.now },
+        { ...deps.userScope(session), now: deps.now },
         undoDeps,
         body.data,
       );

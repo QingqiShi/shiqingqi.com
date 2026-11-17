@@ -3,7 +3,7 @@ import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { getUserScope } from "#src/assistant/db/get-user-scope.ts";
 import { homeViewHref } from "#src/assistant/home/choose-home-view.ts";
 import { MarkReportSeen } from "#src/assistant/home-page/mark-report-seen.tsx";
 import { localClock } from "#src/assistant/report/due-report-date.ts";
@@ -39,7 +39,7 @@ export default async function Page({ params }: Props) {
   const locale = validateLocale(rawLocale);
   if (!LOCAL_DATE.test(date)) notFound();
   const session = await requirePageSession(locale, `/reports/${date}`);
-  const scope = { db: getAssistantDb(), userId: session.userId };
+  const scope = getUserScope(session);
   const renderedAt = new Date().getTime();
   const [report, reports, settings, openTodos, hasCalendar] = await Promise.all(
     [

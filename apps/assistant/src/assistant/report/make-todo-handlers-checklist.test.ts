@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { todoChecklistItems, todos } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import { listTodos } from "./read-report.ts";
 import {
   NOW,
@@ -30,7 +31,7 @@ describe("the checklist of a to-do", () => {
   }
 
   async function checklist(todoId: string) {
-    const { open, done } = await listTodos({ db, userId: owner });
+    const { open, done } = await listTodos(scopeTo(db, owner));
     const todo = [...open, ...done].find((row) => row.id === todoId);
     return todo?.checklist.map(({ text, done: ticked }) => [text, ticked]);
   }

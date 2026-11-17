@@ -15,6 +15,7 @@ import {
   morningReports,
   todos,
 } from "#src/assistant/db/schema.ts";
+import { scopeTo, type UserScope } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -35,12 +36,12 @@ const NO_CHANGES: TodoChanges = { added: [], done: [], updated: [] };
 
 let db: TestDb;
 let userId: string;
-let scope: { db: TestDb; userId: string };
+let scope: UserScope;
 
 beforeEach(async () => {
   db = await createTestDb();
   userId = await insertUser(db);
-  scope = { db, userId };
+  scope = scopeTo(db, userId);
 });
 
 afterEach(async () => {

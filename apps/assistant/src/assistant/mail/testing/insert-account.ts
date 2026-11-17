@@ -1,6 +1,7 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { mailAccounts, users } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import type { TestDb } from "#src/assistant/db/testing/create-test-db.ts";
 import {
   accountCredential,
@@ -32,16 +33,13 @@ export async function insertAccount(
     credential?: AccountCredential;
   } = {},
 ) {
-  const { accountId } = await saveAccount(
-    { db, userId },
-    {
-      provider,
-      address,
-      credential,
-      credentialKey: TEST_CREDENTIAL_KEY,
-      now: new Date(),
-    },
-  );
+  const { accountId } = await saveAccount(scopeTo(db, userId), {
+    provider,
+    address,
+    credential,
+    credentialKey: TEST_CREDENTIAL_KEY,
+    now: new Date(),
+  });
   return accountId;
 }
 

@@ -10,6 +10,7 @@ import {
   morningReports,
   todos,
 } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import { mailDeps } from "#src/assistant/mail/testing/insert-account.ts";
 import { previewMailboxSession } from "./preview-mailbox-session.ts";
 import {
@@ -108,7 +109,7 @@ describe("a preview of the next morning report", () => {
       "Pay the new invoice",
     ]);
 
-    const preview = await readReportPreview({ db, userId }, NOW);
+    const preview = await readReportPreview(scopeTo(db, userId), NOW);
     if (preview?.status !== "done") throw new Error("Expected a done preview");
     const [newLine, keptLine] = preview.report.needsAction;
     expect(newLine.todo?.title).toBe("Pay the new invoice");
@@ -247,7 +248,7 @@ describe("a preview of the next morning report", () => {
       builtAt: NOW,
     });
 
-    const preview = await readReportPreview({ db, userId }, NOW);
+    const preview = await readReportPreview(scopeTo(db, userId), NOW);
     if (preview?.status !== "done") throw new Error("Expected a done preview");
     expect(preview.report.needsAction[0].todo).toMatchObject({
       dueDate: "2026-11-05",
@@ -304,12 +305,12 @@ describe("a preview of the next morning report", () => {
     setClock(new Date(NOW.getTime() + REPORT_PREVIEW_STALE_MS - 1000));
     expect(await start(buildDeps(reportAgent().model))).toBe(409);
     expect((await previewRow()).startedAt).toEqual(NOW);
-    expect(await readReportPreview({ db, userId }, clock)).toEqual({
+    expect(await readReportPreview(scopeTo(db, userId), clock)).toEqual({
       status: "running",
     });
 
     setClock(new Date(NOW.getTime() + REPORT_PREVIEW_STALE_MS));
-    expect(await readReportPreview({ db, userId }, clock)).toEqual({
+    expect(await readReportPreview(scopeTo(db, userId), clock)).toEqual({
       status: "failed",
       reason: "interrupted",
     });
@@ -337,7 +338,7 @@ describe("a preview of the next morning report", () => {
     expect(await start(buildDeps(reportAgent().model))).toBe(204);
     expect(await start(buildDeps(null))).toBe(204);
 
-    const preview = await readReportPreview({ db, userId }, clock);
+    const preview = await readReportPreview(scopeTo(db, userId), clock);
     expect(preview).toMatchObject({
       status: "failed",
       reason: "no-model",

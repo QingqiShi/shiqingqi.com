@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { mailAccounts } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -54,7 +55,7 @@ afterEach(async () => {
 describe("readMailView", () => {
   it("finds a mail outside the inbox and leaves it unread", async () => {
     const result = await readMailView(
-      { db, userId },
+      scopeTo(db, userId),
       mailDeps({ connector: mail.connector }),
       accountId,
       MESSAGE_ID,
@@ -79,7 +80,7 @@ describe("readMailView", () => {
     const stranger = await insertUser(db);
 
     const result = await readMailView(
-      { db, userId: stranger },
+      scopeTo(db, stranger),
       mailDeps({ connector: mail.connector }),
       accountId,
       MESSAGE_ID,
@@ -97,7 +98,7 @@ describe("readMailView", () => {
     });
 
     const result = await readMailView(
-      { db, userId },
+      scopeTo(db, userId),
       mailDeps({ connector: refusing.connector }),
       accountId,
       MESSAGE_ID,

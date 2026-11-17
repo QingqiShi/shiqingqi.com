@@ -1,11 +1,12 @@
 import type { AssistantSession } from "#src/assistant/auth/types.ts";
-import type { AssistantDb } from "#src/assistant/db/types.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 import type { MailboxDeps } from "./accounts/open-mailbox-session.ts";
 
 /** What the mail routes need from the running app. */
 export interface MailHandlerDeps {
   isConfigured: () => boolean;
-  getDb: () => AssistantDb;
+  /** The scope of the user of the session. */
+  userScope: (session: AssistantSession) => UserScope;
   getSession: (request: Request) => Promise<AssistantSession | null>;
   /** Null when the credential key is missing. */
   getMailDeps: () => MailboxDeps | null;

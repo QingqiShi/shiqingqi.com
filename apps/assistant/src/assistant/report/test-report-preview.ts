@@ -1,11 +1,13 @@
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach } from "vitest";
+import { provenSession } from "#src/assistant/auth/proven-session.ts";
 import { createFakeCalendarServer } from "#src/assistant/calendar/testing/create-fake-calendar-server.ts";
 import {
   agentActions,
   agentRuns,
   morningReportPreviews,
 } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -47,8 +49,9 @@ let background: Promise<void>[];
 function handlers(deps: ReportBuildDeps | null) {
   return makeReportPreviewHandlers({
     isConfigured: () => true,
-    getDb: () => db,
-    getSession: () => Promise.resolve({ sessionId: "s", userId }),
+    userScope: (session) => scopeTo(db, session.userId),
+    getSession: () =>
+      Promise.resolve(provenSession({ sessionId: "s", userId })),
     now,
     getBuildDeps: () => deps,
     runInBackground: (work) => {

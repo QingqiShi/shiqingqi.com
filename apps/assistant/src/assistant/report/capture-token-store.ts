@@ -4,7 +4,12 @@ import { hashToken } from "@tuja/server-auth/hash-token";
 import { and, desc, eq, lt, lte, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { captureTokens } from "#src/assistant/db/schema.ts";
-import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
+import {
+  scopeTo,
+  withoutUser,
+  type UserScope,
+} from "#src/assistant/db/scope-to.ts";
+import type { AssistantDb } from "#src/assistant/db/types.ts";
 
 export const captureLimits = {
   requestsPerWindow: 60,
@@ -12,14 +17,19 @@ export const captureLimits = {
   bodyBytes: 8 * 1024,
 };
 
-/** What a token can be used for at this moment. */
+/** What a token can be used for at this moment. `scope` is the token's user. */
 type CaptureTokenUse =
   | { kind: "refused" }
   | { kind: "limited"; retryAfterSeconds: number }
-  | { kind: "allowed"; userId: string };
+  | { kind: "allowed"; scope: UserScope };
 
 const NO_HASH = new Uint8Array(32);
 const tokenId = z.uuid();
+const tokenRowSchema = z.object({
+  user_id: z.guid(),
+  token_hash: z.instanceof(Uint8Array),
+  window_started_ms: z.number(),
+});
 
 function partsOf(token: string) {
   const [id, secret, ...rest] = token.split(".");
@@ -68,35 +78,37 @@ async function revoke({ db, userId }: UserScope, id: string) {
  * at the same time cannot pass the limit. The row is found by the id in the
  * token, and the secret is then compared in constant time. A wrong secret does
  * not count, so nobody can use up the limit of a token that they do not hold.
+ *
+ * Before the user is known, only the database function
+ * `assistant_capture_token` reads the row. The count runs as the token's user.
  */
 async function spend(
-  db: AssistantDb,
+  owner: AssistantDb,
   token: string,
   now: Date,
 ): Promise<CaptureTokenUse> {
   const parts = partsOf(token);
   if (!parts) return { kind: "refused" };
-  const row = (
-    await db
-      .select({
-        tokenHash: captureTokens.tokenHash,
-        windowStartedAt: captureTokens.windowStartedAt,
-      })
-      .from(captureTokens)
-      .where(eq(captureTokens.id, parts.id))
-  ).at(0);
+  const found = await withoutUser(owner).execute(
+    sql`select user_id, token_hash, extract(epoch from window_started_at)::float8 * 1000 as window_started_ms from assistant_capture_token(${parts.id})`,
+  );
+  const row = z
+    .object({ rows: z.array(tokenRowSchema) })
+    .parse(found)
+    .rows.at(0);
   const secretMatches = timingSafeEqual(
-    row?.tokenHash ?? NO_HASH,
+    row?.token_hash ?? NO_HASH,
     hashToken(parts.secret),
   );
   if (!row || !secretMatches) return { kind: "refused" };
+  const scope = scopeTo(owner, row.user_id);
 
   const windowOver = lte(
     captureTokens.windowStartedAt,
     new Date(now.getTime() - captureLimits.windowMs),
   );
   const spent = (
-    await db
+    await scope.db
       .update(captureTokens)
       .set({
         windowStartedAt: sql`case when ${windowOver} then ${now.toISOString()}::timestamptz else ${captureTokens.windowStartedAt} end`,
@@ -106,16 +118,17 @@ async function spend(
       .where(
         and(
           eq(captureTokens.id, parts.id),
+          eq(captureTokens.userId, scope.userId),
           or(
             windowOver,
             lt(captureTokens.windowCount, captureLimits.requestsPerWindow),
           ),
         ),
       )
-      .returning({ userId: captureTokens.userId })
+      .returning({ id: captureTokens.id })
   ).at(0);
-  if (spent) return { kind: "allowed", userId: spent.userId };
-  const windowEnds = row.windowStartedAt.getTime() + captureLimits.windowMs;
+  if (spent) return { kind: "allowed", scope };
+  const windowEnds = row.window_started_ms + captureLimits.windowMs;
   return {
     kind: "limited",
     retryAfterSeconds: Math.max(

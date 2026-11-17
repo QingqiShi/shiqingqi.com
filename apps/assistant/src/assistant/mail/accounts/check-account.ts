@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { mailAccounts } from "#src/assistant/db/schema.ts";
-import type { AssistantDb } from "#src/assistant/db/types.ts";
+import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
 import type { MailboxSession } from "#src/assistant/mail/imap/types.ts";
 import {
   describeSyncError,
@@ -82,8 +82,7 @@ export async function recordAccountOk(
  * has no such account.
  */
 export async function checkAccount(
-  db: AssistantDb,
-  userId: string,
+  { db, userId }: UserScope,
   accountId: string,
   deps: MailboxDeps,
 ): Promise<{ ok: true } | { ok: false; code: SyncErrorCode } | null> {

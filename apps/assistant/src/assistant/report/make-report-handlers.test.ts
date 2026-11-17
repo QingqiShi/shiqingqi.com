@@ -1,7 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { provenSession } from "#src/assistant/auth/proven-session.ts";
 import { morningReports } from "#src/assistant/db/schema.ts";
+import { scopeTo } from "#src/assistant/db/scope-to.ts";
 import {
   createTestDb,
   type TestDb,
@@ -54,8 +56,9 @@ afterEach(async () => {
 function markSeen(id: string, userId: string, now: Date) {
   return makeReportHandlers({
     isConfigured: () => true,
-    getDb: () => db,
-    getSession: () => Promise.resolve({ sessionId: randomUUID(), userId }),
+    userScope: (session) => scopeTo(db, session.userId),
+    getSession: () =>
+      Promise.resolve(provenSession({ sessionId: randomUUID(), userId })),
     now: () => now,
   }).markSeen(
     new Request(`${ORIGIN}/api/reports/${id}/seen`, {

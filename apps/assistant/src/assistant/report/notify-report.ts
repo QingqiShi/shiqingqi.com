@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { morningReports, type UserLocale } from "#src/assistant/db/schema.ts";
-import type { AssistantDb } from "#src/assistant/db/types.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 import { homeViewHref } from "#src/assistant/home/choose-home-view.ts";
 import type {
   PushMessage,
@@ -43,11 +43,11 @@ function reportMessage(report: BuiltReport): PushMessage {
 
 /** Sends the report's headline to each of the user's devices, and marks the report notified. */
 export function notifyReport(
-  { db, userId }: { db: AssistantDb; userId: string },
+  scope: UserScope,
   report: BuiltReport,
   { send, now }: { send: PushSender; now: () => Date },
 ) {
-  return sendToDevices({ db, userId }, reportMessage(report), {
+  return sendToDevices(scope, reportMessage(report), {
     send,
     now,
     onSent: ({ db, userId }) =>

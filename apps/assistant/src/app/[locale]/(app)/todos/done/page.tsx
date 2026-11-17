@@ -8,7 +8,7 @@ import { Pager, type PagerPage } from "@tuja/ui/components/pager";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
-import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { getUserScope } from "#src/assistant/db/get-user-scope.ts";
 import { localClock } from "#src/assistant/report/due-report-date.ts";
 import { readReportSettings } from "#src/assistant/report/read-report-settings.ts";
 import {
@@ -38,7 +38,7 @@ export default async function Page({
 }) {
   const locale = validateLocale((await params).locale);
   const session = await requirePageSession(locale, "/todos/done");
-  const scope = { db: getAssistantDb(), userId: session.userId };
+  const scope = getUserScope(session);
   const renderedAt = new Date().getTime();
   const [{ todos, page, pageCount }, settings, openCount] = await Promise.all([
     listDoneTodos(scope, pageOf((await searchParams).page)),
