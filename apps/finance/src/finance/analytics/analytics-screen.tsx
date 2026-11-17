@@ -6,8 +6,8 @@ import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
-import { Heading } from "@tuja/ui/components/heading";
 import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
@@ -129,20 +129,21 @@ export function AnalyticsScreen() {
       <FinanceScreenFrame label={title}>
         {bootstrapped ? (
           <div css={stack.group}>
-            <div css={styles.titleRow}>
-              <Heading level={1} look="h3">
-                {title}
-              </Heading>
-              <Button
-                href={financeHref({ screen: "month" }, locale)}
-                linkComponent={SplitViewLink}
-                size="sm"
-                look="outline"
-                icon={<CalendarDotsIcon weight="bold" />}
-              >
-                {t({ en: "Month view", zh: "月度视图" })}
-              </Button>
-            </div>
+            <PageHeader
+              size="sm"
+              title={title}
+              actions={
+                <Button
+                  href={financeHref({ screen: "month" }, locale)}
+                  linkComponent={SplitViewLink}
+                  size="sm"
+                  look="outline"
+                  icon={<CalendarDotsIcon weight="bold" />}
+                >
+                  {t({ en: "Month view", zh: "月度视图" })}
+                </Button>
+              }
+            />
             <AnalyticsContent />
           </div>
         ) : (
@@ -155,12 +156,6 @@ export function AnalyticsScreen() {
 }
 
 const styles = stylex.create({
-  titleRow: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: rhythm.item,
-  },
   columns: {
     display: "grid",
     gridTemplateColumns: {

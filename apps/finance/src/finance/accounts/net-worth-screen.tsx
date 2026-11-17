@@ -4,13 +4,11 @@ import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
-import { Heading } from "@tuja/ui/components/heading";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { NavigationStack } from "@tuja/ui/components/navigation-stack";
-import { Text } from "@tuja/ui/components/text";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
-import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { rhythm } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import dynamic from "next/dynamic";
 import { type ReactNode, useState } from "react";
 import {
@@ -205,11 +203,14 @@ function ReorderScreen({ url }: { url: NetWorthUrl }) {
   );
   return (
     <div css={stack.group}>
-      <header css={stack.tight}>
-        <div css={[cluster.item, styles.header]}>
-          <Heading level={1} look="h3">
-            {t({ en: "Reorder accounts", zh: "调整账户顺序" })}
-          </Heading>
+      <PageHeader
+        size="sm"
+        title={t({ en: "Reorder accounts", zh: "调整账户顺序" })}
+        description={t({
+          en: "Drag a group or an account to move it. An account stays in its group.",
+          zh: "拖动分组或账户即可调整顺序。账户只能在所属分组内移动。",
+        })}
+        actions={
           <Button
             href={url.modeHref(null)}
             size="sm"
@@ -218,14 +219,8 @@ function ReorderScreen({ url }: { url: NetWorthUrl }) {
           >
             {t({ en: "Done", zh: "完成" })}
           </Button>
-        </div>
-        <Text as="p" look="bodySmall" tone="muted">
-          {t({
-            en: "Drag a group or an account to move it. An account stays in its group.",
-            zh: "拖动分组或账户即可调整顺序。账户只能在所属分组内移动。",
-          })}
-        </Text>
-      </header>
+        }
+      />
       <ReorderAccounts sheet={sheet} />
     </div>
   );
@@ -236,9 +231,5 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     flexGrow: 1,
-  },
-  header: {
-    justifyContent: "space-between",
-    rowGap: rhythm.tight,
   },
 });

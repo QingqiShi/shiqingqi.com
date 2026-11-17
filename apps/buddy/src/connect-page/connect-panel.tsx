@@ -10,7 +10,7 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Card } from "@tuja/ui/components/card";
-import { Heading } from "@tuja/ui/components/heading";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { Text } from "@tuja/ui/components/text";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -91,12 +91,12 @@ export function ConnectPanel({
 
   return (
     <div css={stack.group}>
-      <Heading level={1} look="h1">
-        {t({
+      <PageHeader
+        title={t({
           en: "Connect this Mac to your account?",
           zh: "要把这台 Mac 连接到你的账号吗？",
         })}
-      </Heading>
+      />
       <Card>
         <Text look="label" tone="muted">
           {t({ en: "Code", zh: "代码" })}

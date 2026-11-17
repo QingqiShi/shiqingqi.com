@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Heading } from "@tuja/ui/components/heading";
-import { Text } from "@tuja/ui/components/text";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
@@ -22,14 +22,10 @@ export function LegalPage({
   return (
     <AssistantFrame brand={t({ en: "Qi Assistant", zh: "Qi Assistant" })}>
       <article css={[stack.section, styles.article]}>
-        <div css={stack.tight}>
-          <Heading level={1} look="h1">
-            {title}
-          </Heading>
-          <Text tone="muted" look="bodySmall">
-            {`${t({ en: "Last updated", zh: "最后更新" })} ${LAST_UPDATED}`}
-          </Text>
-        </div>
+        <PageHeader
+          title={title}
+          description={`${t({ en: "Last updated", zh: "最后更新" })} ${LAST_UPDATED}`}
+        />
         {children}
       </article>
     </AssistantFrame>

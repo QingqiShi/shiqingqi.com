@@ -4,14 +4,14 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Card } from "@tuja/ui/components/card";
-import { Heading } from "@tuja/ui/components/heading";
 import {
   StackedOnly,
   UnlessStacked,
   useSplitViewShared,
 } from "@tuja/ui/components/navigation-split-view";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { controlHeight, rhythm } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useEffect } from "react";
 import { ChartRangeChips } from "../charts/chart-range-chips.tsx";
 import { useReplica } from "../replica/use-replica.ts";
@@ -93,9 +93,7 @@ export function HouseholdView({
     <div css={[stack.group, styles.view]}>
       <StackedOnly>
         <section css={stack.item} aria-label={t({ en: "Trend", zh: "趋势" })}>
-          <Heading level={1} look="h3">
-            {t({ en: "Household", zh: "家庭" })}
-          </Heading>
+          <PageHeader size="sm" title={t({ en: "Household", zh: "家庭" })} />
           <PickedHeadline
             sheet={sheet}
             today={today}
@@ -117,17 +115,16 @@ export function HouseholdView({
             css={[stack.item, styles.trendSection]}
             aria-label={t({ en: "Trend", zh: "趋势" })}
           >
-            <div css={[styles.titleRow, styles.firstLine]}>
-              <Heading level={1} look="h3">
-                {t({ en: "Household", zh: "家庭" })}
-              </Heading>
-              <div css={styles.actions}>
+            <PageHeader
+              size="sm"
+              title={t({ en: "Household", zh: "家庭" })}
+              actions={
                 <NetWorthActions
                   updateHref={url.modeHref("update")}
                   onCreateAccount={onCreateAccount}
                 />
-              </div>
-            </div>
+              }
+            />
             <div css={styles.titleRow}>
               <PickedHeadline
                 sheet={sheet}
@@ -165,14 +162,6 @@ const styles = stylex.create({
     justifyContent: "space-between",
     columnGap: rhythm.group,
     rowGap: rhythm.tight,
-  },
-  firstLine: {
-    alignItems: "center",
-  },
-  // The actions overhang the line of the title, so that the title is on the
-  // first line of the column, as the title of each other screen is.
-  actions: {
-    marginBlock: `calc((1lh - ${controlHeight.sm}) / 2)`,
   },
   // Beside the title where the column is wide enough, and a row of its own
   // under it where it is not.

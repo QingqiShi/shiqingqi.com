@@ -2,9 +2,7 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
-import { Heading } from "@tuja/ui/components/heading";
-import { Text } from "@tuja/ui/components/text";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { CodeForm } from "#src/connect-page/code-form.tsx";
@@ -54,12 +52,10 @@ export default async function Page({
 
   return (
     <AuthFrame>
-      <div css={stack.tight}>
-        <Heading level={1} look="h1">
-          {t({ en: "Connect a Mac", zh: "连接 Mac" })}
-        </Heading>
-        <Text tone="muted">
-          {typed
+      <PageHeader
+        title={t({ en: "Connect a Mac", zh: "连接 Mac" })}
+        description={
+          typed
             ? t({
                 en: "This code has expired or was used. Start again on your Mac, then type the new code.",
                 zh: "此代码已过期或已被使用。请在 Mac 上重新开始，再输入新的代码。",
@@ -67,9 +63,9 @@ export default async function Page({
             : t({
                 en: "Type the code that your Mac shows.",
                 zh: "输入 Mac 上显示的代码。",
-              })}
-        </Text>
-      </div>
+              })
+        }
+      />
       <CodeForm action={getLocalePath("/connect", locale)} />
     </AuthFrame>
   );

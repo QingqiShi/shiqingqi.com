@@ -5,7 +5,7 @@ import type { SupportedLocale } from "@tuja/i18n/types";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { color } from "@tuja/ui/color.stylex";
 import { Callout } from "@tuja/ui/components/callout";
-import { Heading } from "@tuja/ui/components/heading";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { Spinner } from "@tuja/ui/components/spinner";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -124,20 +124,16 @@ export function ReportPreviewView({
 
   return (
     <div css={stack.group}>
-      <header css={stack.tight}>
-        <Heading level={1} look="h1">
-          {t({ en: "Morning report preview", zh: "晨报预览" })}
-        </Heading>
-        <Text as="p" look="bodySmall" tone="muted">
-          {t({
-            en: "This is a preview, not a report. The report agent reads the real mail of the last 24 hours and your calendar, and shows what it would write. No mail is marked read, no to-do changes and nothing is pushed.",
-            zh: "这只是预览，不是正式晨报。晨报智能体会读取过去 24 小时的真实邮件和你的日历，并展示它会写的内容。不会有邮件被标为已读，待办不会改动，也不会推送通知。",
-          })}
-        </Text>
-      </header>
+      <PageHeader
+        title={t({ en: "Morning report preview", zh: "晨报预览" })}
+        description={t({
+          en: "This is a preview, not a report. The report agent reads the real mail of the last 24 hours and your calendar, and shows what it would write. No mail is marked read, no to-do changes and nothing is pushed.",
+          zh: "这只是预览，不是正式晨报。晨报智能体会读取过去 24 小时的真实邮件和你的日历，并展示它会写的内容。不会有邮件被标为已读，待办不会改动，也不会推送通知。",
+        })}
+      />
       <div css={stack.item}>
         {hasMailbox ? null : (
-          <div css={[typeRole.bodySmall, styles.measure]}>
+          <div css={[typeRole.body, styles.measure]}>
             <ConnectMailboxFirst
               why={t({
                 en: "The preview reads your mailboxes, and none is connected yet.",
@@ -169,7 +165,7 @@ export function ReportPreviewView({
           </ReportPreviewControls>
         ) : null}
         {preview?.status === "failed" ? (
-          <div css={[typeRole.bodySmall, styles.measure]}>
+          <div css={[typeRole.body, styles.measure]}>
             <Callout
               intent="destructive"
               title={t({ en: "The preview failed", zh: "预览失败" })}
@@ -213,7 +209,7 @@ const styles = stylex.create({
     flexWrap: "nowrap",
   },
   // The callout has the width of the paragraph above it. That paragraph is
-  // bodySmall at the prose measure, so this box uses the bodySmall size too.
+  // body at the prose measure, so this box uses the body size too.
   measure: {
     maxInlineSize: measure.prose,
   },

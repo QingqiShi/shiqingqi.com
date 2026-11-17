@@ -3,7 +3,7 @@ import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import { RouterLink } from "@tuja/next-links/router-link";
-import { Heading } from "@tuja/ui/components/heading";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { Pager, type PagerPage } from "@tuja/ui/components/pager";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
@@ -63,9 +63,7 @@ export default async function Page({
       }}
     >
       <div css={stack.group}>
-        <Heading level={1} look="h1">
-          {title}
-        </Heading>
+        <PageHeader title={title} />
         <TodoStoreProvider
           todos={todos.map((todo) => toTodoItemData(todo))}
           today={localClock(new Date(), settings.timeZone).date}

@@ -4,6 +4,7 @@ import { Heading } from "../content/heading.tsx";
 import { Text } from "../content/text.tsx";
 import { isShown } from "../is-shown.ts";
 import { cluster, stack } from "../primitives/stack.stylex.ts";
+import { controlHeight, font, latinType, rhythm } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
 interface PageHeaderProps extends Omit<
@@ -42,10 +43,11 @@ interface PageHeaderProps extends Omit<
    * How large the header reads. `"md"`, the default, is for a page that a
    * reader comes to read. `"sm"` makes the title and the description one step
    * smaller, for a screen of an app where the content below is what the
-   * visitor came for.
+   * visitor came for. Its description takes the full width, under the title
+   * and the actions.
    *
    * @default "md"
-   * @zh 标题区的大小。默认的 `"md"` 用于读者前来阅读的页面。`"sm"` 让标题与说明各小一级，用于应用中的屏幕：访客是为下方的内容而来。
+   * @zh 标题区的大小。默认的 `"md"` 用于读者前来阅读的页面。`"sm"` 让标题与说明各小一级，用于应用中的屏幕：访客是为下方的内容而来。此时说明在标题与操作的下方，占满整行。
    */
   size?: "sm" | "md";
   /**
@@ -70,30 +72,66 @@ export function PageHeader({
   css,
   ...rest
 }: PageHeaderProps) {
-  const parts = sizeParts[size];
-  return (
-    <header {...rest} css={[cluster.item, css]}>
-      <div css={[parts.lines, styles.text, parts.text]}>
-        {isShown(eyebrow) ? (
-          <Text as="p" look="overline" tone="muted">
-            {eyebrow}
+  const hasActions = isShown(actions);
+  const eyebrowLine = isShown(eyebrow) ? (
+    <Text as="p" look="overline" tone="muted">
+      {eyebrow}
+    </Text>
+  ) : null;
+
+  if (size === "sm") {
+    return (
+      <header {...rest} css={[stack.text, css]}>
+        <div css={cluster.item}>
+          <div css={[stack.text, styles.text, styles.textSm]}>
+            {eyebrowLine}
+            <Heading level={1} look="h3">
+              {title}
+            </Heading>
+          </div>
+          {hasActions ? (
+            <div css={[cluster.tight, styles.actions, styles.actionsSm]}>
+              {actions}
+            </div>
+          ) : null}
+        </div>
+        {isShown(description) ? (
+          <Text
+            as="p"
+            look="bodySmall"
+            tone="muted"
+            css={hasActions && styles.descriptionUnderActions}
+          >
+            {description}
           </Text>
         ) : null}
-        <Heading level={1} look={parts.title}>
+      </header>
+    );
+  }
+
+  return (
+    <header {...rest} css={[cluster.item, css]}>
+      <div css={[stack.tight, styles.text, styles.textMd]}>
+        {eyebrowLine}
+        <Heading level={1} look="h1">
           {title}
         </Heading>
         {isShown(description) ? (
-          <Text as="p" look={parts.description} tone="muted">
+          <Text as="p" look="body" tone="muted">
             {description}
           </Text>
         ) : null}
       </div>
-      {isShown(actions) ? (
+      {hasActions ? (
         <div css={[cluster.tight, styles.actions]}>{actions}</div>
       ) : null}
     </header>
   );
 }
+
+// How far a control of the `sm` height comes out of the line of the small
+// title, on each side.
+const smActionsOverhang = `max(0px, calc((${controlHeight.sm} - ${font.uiHeading3} * ${latinType.lineHeightHeading}) / 2))`;
 
 const styles = stylex.create({
   text: {
@@ -113,21 +151,15 @@ const styles = stylex.create({
   actions: {
     flexShrink: 0,
   },
+  // The actions overhang the line of the small title, so that the title is on
+  // the first line of the screen, as the title of a screen with no actions is.
+  actionsSm: {
+    marginBlock: `calc(-1 * ${smActionsOverhang})`,
+  },
+  // The small title and its description are lines of one item, so no gap
+  // separates them. But the actions overhang the line of the title, so the
+  // description starts below them.
+  descriptionUnderActions: {
+    marginBlockStart: `calc(${rhythm.tight} + ${smActionsOverhang})`,
+  },
 });
-
-// The small title and its description are lines of one item, so no gap
-// separates them.
-const sizeParts = {
-  sm: {
-    lines: stack.text,
-    text: styles.textSm,
-    title: "h3",
-    description: "bodySmall",
-  },
-  md: {
-    lines: stack.tight,
-    text: styles.textMd,
-    title: "h1",
-    description: "body",
-  },
-} as const;

@@ -4,7 +4,7 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
-import { Heading } from "@tuja/ui/components/heading";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { Section } from "@tuja/ui/components/section";
 import type { Metadata } from "next";
 import { connection } from "next/server";
@@ -34,9 +34,7 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <AuthFrame>
-      <Heading level={1} look="h1">
-        {t({ en: "Account", zh: "账号" })}
-      </Heading>
+      <PageHeader title={t({ en: "Account", zh: "账号" })} />
       <Section
         level={2}
         look="heading"

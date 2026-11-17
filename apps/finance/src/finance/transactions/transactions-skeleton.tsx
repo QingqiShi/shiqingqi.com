@@ -3,9 +3,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { Heading } from "@tuja/ui/components/heading";
 import { listSurface } from "@tuja/ui/components/list.stylex";
 import { NavigationStack } from "@tuja/ui/components/navigation-stack";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
@@ -52,19 +52,9 @@ function ListSkeleton() {
   return (
     <div css={stack.group}>
       <div css={stack.item}>
-        <div css={styles.titleRow}>
-          <div css={stack.tight}>
-            <Heading level={1} look="h3">
-              {t({ en: "Transactions", zh: "交易" })}
-            </Heading>
-            <Skeleton width="16rem" height="1.25rem" />
-          </div>
-          <Skeleton
-            width="4.75rem"
-            height={controlHeight.md}
-            shape="control"
-            css={styles.wideOnly}
-          />
+        <div css={stack.text}>
+          <PageHeader size="sm" title={t({ en: "Transactions", zh: "交易" })} />
+          <Skeleton width="16rem" height="1.25rem" />
         </div>
         <Skeleton width="100%" height={controlHeight.md} shape="control" />
         <div css={stack.tight}>
@@ -111,12 +101,6 @@ function ListSkeleton() {
 }
 
 const styles = stylex.create({
-  titleRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-    gap: rhythm.item,
-  },
   narrowOnly: {
     display: { default: "flex", [breakpoints.lg]: "none" },
   },

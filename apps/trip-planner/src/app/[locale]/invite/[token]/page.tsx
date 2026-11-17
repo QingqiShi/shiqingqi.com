@@ -6,8 +6,7 @@ import type { SupportedLocale } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import { signInPath } from "@tuja/server-auth/sign-in-path";
 import { Button } from "@tuja/ui/components/button";
-import { Heading } from "@tuja/ui/components/heading";
-import { Text } from "@tuja/ui/components/text";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
@@ -47,12 +46,10 @@ export default async function Page({
     <AuthFrame>
       {isOpen ? (
         <div css={stack.item}>
-          <div css={stack.tight}>
-            <Heading level={1} look="h1">
-              {t({ en: "Join a trip", zh: "加入行程" })}
-            </Heading>
-            <Text tone="muted">
-              {isSignedIn
+          <PageHeader
+            title={t({ en: "Join a trip", zh: "加入行程" })}
+            description={
+              isSignedIn
                 ? t({
                     en: "You are invited to a trip. Join to see it with your trips.",
                     zh: "你受邀加入一个行程。加入后，它会出现在你的行程里。",
@@ -60,9 +57,9 @@ export default async function Page({
                 : t({
                     en: "You are invited to a trip. Sign in or sign up first. This page then lets you join.",
                     zh: "你受邀加入一个行程。请先登录或注册，之后即可在此页加入。",
-                  })}
-            </Text>
-          </div>
+                  })
+            }
+          />
           {isSignedIn ? (
             <JoinTrip token={token} />
           ) : (
