@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
 import { CodeBlock, type CodeToken } from "@tuja/ui/components/code-block";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -11,8 +12,8 @@ import {
   BUTTON_SNIPPET_STATES,
   CODE_RUNS,
 } from "#src/design-system/sections/components/code-block-specimens.tsx";
-import { defineLab } from "./define-lab.tsx";
 import { importLine } from "./import-parts.ts";
+import { LabCanvas } from "./lab-canvas.tsx";
 import type { LabSample } from "./types.ts";
 
 const SMALLEST: readonly CodeToken[] = [
@@ -73,32 +74,40 @@ function SizedCodeBlock(props: ComponentProps<typeof CodeBlock>) {
   );
 }
 
-export const CodeBlockLab = defineLab({
-  doc: codeBlockDoc,
-  component: SizedCodeBlock,
-  variants: [
-    {
-      id: "source",
-      label: { en: "Static source", zh: "静态 source" },
-      props: { label: "Code", source: "element" },
-    },
-    {
-      id: "runs",
-      label: { en: "Every kind of run", zh: "全部片段类型" },
-      props: { label: "Code", source: "runs" },
-    },
-    {
-      id: "parts",
-      label: { en: "Parts that move", zh: "会移动的 parts" },
-      props: { label: "Code", parts: "primary" },
-    },
-  ],
-  controls: [
-    "label",
-    { prop: "source", samples: SOURCE_SAMPLES, replaces: ["parts"] },
-    { prop: "parts", samples: PARTS_SAMPLES, replaces: ["source"] },
-  ],
-});
+export function CodeBlockLab() {
+  const label = t({ en: "Code", zh: "代码" });
+
+  return (
+    <LabCanvas
+      config={{
+        doc: codeBlockDoc,
+        component: SizedCodeBlock,
+        variants: [
+          {
+            id: "source",
+            label: { en: "Static source", zh: "静态 source" },
+            props: { label, source: "element" },
+          },
+          {
+            id: "runs",
+            label: { en: "Every kind of run", zh: "全部片段类型" },
+            props: { label, source: "runs" },
+          },
+          {
+            id: "parts",
+            label: { en: "Parts that move", zh: "会移动的 parts" },
+            props: { label, parts: "primary" },
+          },
+        ],
+        controls: [
+          "label",
+          { prop: "source", samples: SOURCE_SAMPLES, replaces: ["parts"] },
+          { prop: "parts", samples: PARTS_SAMPLES, replaces: ["source"] },
+        ],
+      }}
+    />
+  );
+}
 
 const styles = stylex.create({
   frame: {

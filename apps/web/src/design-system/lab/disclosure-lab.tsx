@@ -2,13 +2,15 @@
 
 import { SuitcaseIcon } from "@phosphor-icons/react/dist/ssr/Suitcase";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
 import { Disclosure } from "@tuja/ui/components/disclosure";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { ComponentProps } from "react";
 import disclosureDoc from "#src/_generated/props/disclosure.json";
-import { defineLab, NONE_SAMPLE } from "./define-lab.tsx";
+import { LabCanvas } from "./lab-canvas.tsx";
 import { iconSample } from "./lab-icon-samples.tsx";
+import { NONE_SAMPLE } from "./none-sample.ts";
 import type { LabSample } from "./types.ts";
 
 const ICON_SAMPLES: LabSample[] = [
@@ -46,59 +48,68 @@ function ResettableDisclosure(props: ComponentProps<typeof Disclosure>) {
   );
 }
 
-const SUMMARY = "Packing list";
-const PANEL = "Passport, charger, and a rain jacket.";
+export function DisclosureLab() {
+  const summary = t({ en: "Packing list", zh: "行李清单" });
+  const panel = t({
+    en: "Passport, charger, and a rain jacket.",
+    zh: "护照、充电器，还有一件雨衣。",
+  });
 
-export const DisclosureLab = defineLab({
-  doc: disclosureDoc,
-  component: ResettableDisclosure,
-  variants: [
-    {
-      id: "default",
-      label: { en: "Default", zh: "默认" },
-      props: { summary: SUMMARY, children: PANEL },
-    },
-    {
-      id: "card",
-      label: { en: "Card", zh: "卡片" },
-      props: { summary: SUMMARY, children: PANEL, look: "card" },
-    },
-    {
-      id: "inline",
-      label: { en: "Inline", zh: "行内" },
-      props: { summary: SUMMARY, children: PANEL, look: "inline" },
-    },
-    {
-      id: "open",
-      label: { en: "Open", zh: "展开" },
-      props: {
-        summary: SUMMARY,
-        children: PANEL,
-        look: "card",
-        defaultOpen: true,
-      },
-    },
-    {
-      id: "icon-and-count",
-      label: { en: "With an icon and a count", zh: "带图标与计数" },
-      props: {
-        summary: SUMMARY,
-        children: PANEL,
-        look: "card",
-        icon: "suitcase",
-        trailing: "badge",
-      },
-    },
-  ],
-  controls: [
-    "summary",
-    "children",
-    "look",
-    { prop: "icon", samples: ICON_SAMPLES },
-    { prop: "trailing", samples: TRAILING_SAMPLES },
-    "defaultOpen",
-  ],
-});
+  return (
+    <LabCanvas
+      config={{
+        doc: disclosureDoc,
+        component: ResettableDisclosure,
+        variants: [
+          {
+            id: "default",
+            label: { en: "Default", zh: "默认" },
+            props: { summary, children: panel },
+          },
+          {
+            id: "card",
+            label: { en: "Card", zh: "卡片" },
+            props: { summary, children: panel, look: "card" },
+          },
+          {
+            id: "inline",
+            label: { en: "Inline", zh: "行内" },
+            props: { summary, children: panel, look: "inline" },
+          },
+          {
+            id: "open",
+            label: { en: "Open", zh: "展开" },
+            props: {
+              summary,
+              children: panel,
+              look: "card",
+              defaultOpen: true,
+            },
+          },
+          {
+            id: "icon-and-count",
+            label: { en: "With an icon and a count", zh: "带图标与计数" },
+            props: {
+              summary,
+              children: panel,
+              look: "card",
+              icon: "suitcase",
+              trailing: "badge",
+            },
+          },
+        ],
+        controls: [
+          "summary",
+          "children",
+          "look",
+          { prop: "icon", samples: ICON_SAMPLES },
+          { prop: "trailing", samples: TRAILING_SAMPLES },
+          "defaultOpen",
+        ],
+      }}
+    />
+  );
+}
 
 const styles = stylex.create({
   frame: {

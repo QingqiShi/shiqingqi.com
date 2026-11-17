@@ -289,10 +289,11 @@ function SpecimenCell({ caption }: { caption: string }) {
   describe("Lab sources", () => {
     /**
      * The source the plugin gives the first `labSource()` call, read back
-     * from the generated argument.
+     * from the generated argument, with each text in one locale.
      * @param {string} code
+     * @param {Locale} [locale]
      */
-    function labSourceOf(code) {
+    function labSourceOf(code, locale = "en") {
       const result = transformSync(code, {
         filename: "lab.tsx",
         parserOpts: { plugins: ["typescript", "jsx"] },
@@ -313,7 +314,7 @@ function SpecimenCell({ caption }: { caption: string }) {
           }
           const second = args[1];
           if (second === undefined) return;
-          found = evaluate(second);
+          found = evaluate(second, locale);
         },
       });
       return /** @type {{ tokens: [string, string][], imports: unknown[], definitions: { name: string, tokens: [string, string][] }[] }} */ (
@@ -323,15 +324,19 @@ function SpecimenCell({ caption }: { caption: string }) {
 
     /**
      * @param {import("@babel/types").Node} node
+     * @param {Locale} locale
      * @returns {unknown}
      */
-    function evaluate(node) {
+    function evaluate(node, locale) {
       if (node.type === "StringLiteral" || node.type === "BooleanLiteral") {
         return node.value;
       }
+      if (node.type === "BinaryExpression" || node.type === "CallExpression") {
+        return readText(node, (call) => translationsOf(call)[locale]);
+      }
       if (node.type === "ArrayExpression") {
         return node.elements.map((element) =>
-          element === null ? null : evaluate(element),
+          element === null ? null : evaluate(element, locale),
         );
       }
       if (node.type === "ObjectExpression") {
@@ -343,7 +348,7 @@ function SpecimenCell({ caption }: { caption: string }) {
             ) {
               throw new Error("Unexpected property");
             }
-            return [property.key.name, evaluate(property.value)];
+            return [property.key.name, evaluate(property.value, locale)];
           }),
         );
       }
@@ -357,7 +362,7 @@ function SpecimenCell({ caption }: { caption: string }) {
 import { Button } from "@tuja/ui/components/button";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
-import { labSetter, labSource } from "./define-lab.tsx";
+import { labSetter, labSource } from "./lab-setter.ts";
 `;
 
     it("gives the value's source, its imports and the styles it uses", () => {
@@ -410,6 +415,65 @@ export const value = labSource({
         ),
       );
       expect(source.tokens[0]).toEqual(["punct", "{"]);
+    });
+
+    it("shows the text of t() and of a name that holds it, in each locale", () => {
+      const code = `${LAB_IMPORTS}import { t } from "@tuja/i18n";
+
+export function SheetLab() {
+  const note = t({ en: "Scroll me", zh: "滚动我" });
+  const sample = labSource(
+    <div>
+      <Button aria-label={t({ en: "Close", zh: "关闭" })}>
+        {t({ en: "Archive", zh: "归档" })}
+      </Button>
+      {[1, 2].map((key) => (
+        <p key={key}>{note}</p>
+      ))}
+    </div>,
+  );
+  return sample;
+}
+`;
+      const en = labSourceOf(code, "en");
+      expect(text(en.tokens)).toBe(
+        [
+          "<div>",
+          '  <Button aria-label="Close">',
+          "    Archive",
+          "  </Button>",
+          "  {[1, 2].map((key) => (",
+          "    <p key={key}>Scroll me</p>",
+          "  ))}",
+          "</div>",
+        ].join("\n"),
+      );
+      expect(text(labSourceOf(code, "zh").tokens)).toBe(
+        [
+          "<div>",
+          '  <Button aria-label="关闭">',
+          "    归档",
+          "  </Button>",
+          "  {[1, 2].map((key) => (",
+          "    <p key={key}>滚动我</p>",
+          "  ))}",
+          "</div>",
+        ].join("\n"),
+      );
+      expect(en.imports).toEqual([
+        { name: "Button", from: "@tuja/ui/components/button" },
+      ]);
+    });
+
+    it("fails the build on a name of the component that is not a text", () => {
+      expect(() =>
+        labSourceOf(`${LAB_IMPORTS}
+export function SheetLab() {
+  const count = 3;
+  return labSource(<Button>{count}</Button>);
+}
+`),
+      ).toThrow(/"count"/);
     });
 
     it("fails the build on a name a reader cannot import", () => {

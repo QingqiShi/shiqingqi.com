@@ -56,6 +56,18 @@ export function LabScene({ kind, children }: LabSceneProps) {
 function ScrollScene({ children }: { children: ReactNode }) {
   const region = useScrollRegion();
   const { scroller, content } = region;
+  const rows = [
+    {
+      title: t({ en: "Blade Runner 2049", zh: "银翼杀手 2049" }),
+      year: "2017",
+    },
+    { title: t({ en: "Arrival", zh: "降临" }), year: "2016" },
+    { title: t({ en: "Dune", zh: "沙丘" }), year: "2021" },
+    { title: t({ en: "Sicario", zh: "边境杀手" }), year: "2015" },
+    { title: t({ en: "Prisoners", zh: "囚徒" }), year: "2013" },
+    { title: t({ en: "Enemy", zh: "宿敌" }), year: "2013" },
+    { title: t({ en: "Incendies", zh: "焦土之城" }), year: "2010" },
+  ];
   return (
     <div
       ref={scroller}
@@ -69,10 +81,10 @@ function ScrollScene({ children }: { children: ReactNode }) {
       <div ref={content} css={[stack.item, styles.scrollContent]}>
         <EffectCarrier value={region}>
           <Text look="bodySmall" weight="semibold">
-            Watchlist
+            {t({ en: "Watchlist", zh: "待看清单" })}
           </Text>
           {children}
-          {FILLER_ROWS.map((row) => (
+          {rows.map((row) => (
             <div key={row.title} css={[corner.radius_2, styles.row]}>
               <div css={[corner.radius_1, styles.poster]} />
               <div css={stack.text}>
@@ -96,11 +108,33 @@ function ScrollScene({ children }: { children: ReactNode }) {
  * a blur in a fixed box, and the clip keeps it in the scene.
  */
 function BackdropScene({ children }: { children: ReactNode }) {
+  const lines = [
+    t({
+      en: "This draft has three edits that are not in the shared copy yet.",
+      zh: "这份草稿有三处修改尚未同步到共享副本。",
+    }),
+    t({
+      en: "Anyone who opens the shared copy still sees the version from Tuesday.",
+      zh: "打开共享副本的人看到的仍是周二的版本。",
+    }),
+    t({
+      en: "Autosave runs every five minutes while the editor stays open.",
+      zh: "编辑器打开期间，每五分钟自动保存一次。",
+    }),
+    t({
+      en: "Comments stay with the paragraph they were left on, also after an edit.",
+      zh: "评论会跟随所在的段落，段落修改后也不会丢失。",
+    }),
+    t({
+      en: "The history keeps each version for thirty days.",
+      zh: "历史记录会将每个版本保留三十天。",
+    }),
+  ];
   return (
     <div css={[blurStage.base, styles.backdropClip]}>
       <div css={[corner.radius_3, styles.backdrop]}>
         <div css={[stack.item, styles.backdropText]}>
-          {FILLER_TEXT.map((line) => (
+          {lines.map((line) => (
             <Text key={line} look="bodySmall" tone="muted">
               {line}
             </Text>
@@ -138,24 +172,6 @@ function FrameScene({ children }: { children: ReactNode }) {
     </div>
   );
 }
-
-const FILLER_ROWS = [
-  { title: "Blade Runner 2049", year: "2017" },
-  { title: "Arrival", year: "2016" },
-  { title: "Dune", year: "2021" },
-  { title: "Sicario", year: "2015" },
-  { title: "Prisoners", year: "2013" },
-  { title: "Enemy", year: "2013" },
-  { title: "Incendies", year: "2010" },
-];
-
-const FILLER_TEXT = [
-  "This draft has three edits that are not in the shared copy yet.",
-  "Anyone who opens the shared copy still sees the version from Tuesday.",
-  "Autosave runs every five minutes while the editor stays open.",
-  "Comments stay with the paragraph they were left on, also after an edit.",
-  "The history keeps each version for thirty days.",
-];
 
 const styles = stylex.create({
   // The scene stands in for a page under a header strip, so a sticky row

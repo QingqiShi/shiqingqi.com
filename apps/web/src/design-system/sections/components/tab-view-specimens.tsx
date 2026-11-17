@@ -249,11 +249,12 @@ export function TabViewDemo() {
     />
   );
   const brand = <TabViewBrand name={t({ en: "Reader", zh: "阅读" })} />;
+  const memberName = t({ en: "Mei Lin", zh: "林美" });
   const member = (
     <span css={[rowLayout.tight, styles.member]}>
-      <Avatar name="Mei Lin" size="sm" />
+      <Avatar name={memberName} size="sm" />
       <TabViewLabelsOnly>
-        <span css={typeRole.label}>Mei Lin</span>
+        <span css={typeRole.label}>{memberName}</span>
       </TabViewLabelsOnly>
     </span>
   );

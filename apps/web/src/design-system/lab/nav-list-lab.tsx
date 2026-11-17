@@ -7,80 +7,18 @@ import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import { PaletteIcon } from "@phosphor-icons/react/dist/ssr/Palette";
 import { SquaresFourIcon } from "@phosphor-icons/react/dist/ssr/SquaresFour";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { NavGroup } from "@tuja/ui/components/nav-group";
 import { NavLink } from "@tuja/ui/components/nav-link";
 import { NavList } from "@tuja/ui/components/nav-list";
 import { space } from "@tuja/ui/tokens.stylex";
 import { type ComponentProps, type ReactNode, useState } from "react";
 import navListDoc from "#src/_generated/props/nav-list.json";
-import { defineLab } from "./define-lab.tsx";
 import { FollowContext, FollowLink } from "./follow-link.tsx";
+import { LabCanvas } from "./lab-canvas.tsx";
 import { markCurrent } from "./mark-current.ts";
 import { labSource } from "./print-lab-value.ts";
 import type { LabSample } from "./types.ts";
-
-const CONTENT_SAMPLES: LabSample[] = [
-  {
-    id: "links",
-    label: { en: "Links with icons", zh: "带图标的链接" },
-    value: labSource(
-      <>
-        <NavLink href="#home" icon={<HouseIcon weight="bold" />} current>
-          Home
-        </NavLink>
-        <NavLink href="#reports" icon={<ChartBarIcon weight="bold" />}>
-          Reports
-        </NavLink>
-        <NavLink href="#settings" icon={<GearSixIcon weight="bold" />}>
-          Settings
-        </NavLink>
-      </>,
-    ),
-  },
-  {
-    id: "plain",
-    label: { en: "Links", zh: "链接" },
-    value: labSource(
-      <>
-        <NavLink href="#profile" current>
-          Profile
-        </NavLink>
-        <NavLink href="#security">Security</NavLink>
-        <NavLink href="#billing">Billing</NavLink>
-        <NavLink href="#notifications">Notifications</NavLink>
-      </>,
-    ),
-  },
-  {
-    id: "groups",
-    label: { en: "Groups", zh: "分组" },
-    value: labSource(
-      <>
-        <NavGroup>
-          <NavLink href="#overview" icon={<SquaresFourIcon weight="bold" />}>
-            Overview
-          </NavLink>
-        </NavGroup>
-        <NavGroup label="Guides">
-          <NavGroup
-            label="Basics"
-            icon={<BookOpenIcon weight="bold" />}
-            current
-          >
-            <NavLink href="#install" current>
-              Install
-            </NavLink>
-            <NavLink href="#first-page">First page</NavLink>
-          </NavGroup>
-          <NavGroup label="Styling" icon={<PaletteIcon weight="bold" />}>
-            <NavLink href="#tokens">Tokens</NavLink>
-            <NavLink href="#themes">Themes</NavLink>
-          </NavGroup>
-        </NavGroup>
-      </>,
-    ),
-  },
-];
 
 /**
  * A NavList sits in the consumer's own `<nav>`, which names the landmark, and
@@ -104,7 +42,7 @@ function FollowedNavList({
         setFollowed({ content: children, href: next });
       }}
     >
-      <nav aria-label="Docs" css={styles.frame}>
+      <nav aria-label={t({ en: "Docs", zh: "文档" })} css={styles.frame}>
         <NavList {...props} linkComponent={FollowLink}>
           {markCurrent(children, href)}
         </NavList>
@@ -113,28 +51,110 @@ function FollowedNavList({
   );
 }
 
-export const NavListLab = defineLab({
-  doc: navListDoc,
-  component: FollowedNavList,
-  variants: [
+export function NavListLab() {
+  const contentSamples: LabSample[] = [
     {
       id: "links",
       label: { en: "Links with icons", zh: "带图标的链接" },
-      props: { children: "links" },
+      value: labSource(
+        <>
+          <NavLink href="#home" icon={<HouseIcon weight="bold" />} current>
+            {t({ en: "Home", zh: "首页" })}
+          </NavLink>
+          <NavLink href="#reports" icon={<ChartBarIcon weight="bold" />}>
+            {t({ en: "Reports", zh: "报告" })}
+          </NavLink>
+          <NavLink href="#settings" icon={<GearSixIcon weight="bold" />}>
+            {t({ en: "Settings", zh: "设置" })}
+          </NavLink>
+        </>,
+      ),
     },
     {
       id: "plain",
       label: { en: "Links", zh: "链接" },
-      props: { children: "plain" },
+      value: labSource(
+        <>
+          <NavLink href="#profile" current>
+            {t({ en: "Profile", zh: "个人资料" })}
+          </NavLink>
+          <NavLink href="#security">
+            {t({ en: "Security", zh: "安全" })}
+          </NavLink>
+          <NavLink href="#billing">{t({ en: "Billing", zh: "账单" })}</NavLink>
+          <NavLink href="#notifications">
+            {t({ en: "Notifications", zh: "通知" })}
+          </NavLink>
+        </>,
+      ),
     },
     {
       id: "groups",
       label: { en: "Groups", zh: "分组" },
-      props: { children: "groups" },
+      value: labSource(
+        <>
+          <NavGroup>
+            <NavLink href="#overview" icon={<SquaresFourIcon weight="bold" />}>
+              {t({ en: "Overview", zh: "概览" })}
+            </NavLink>
+          </NavGroup>
+          <NavGroup label={t({ en: "Guides", zh: "指南" })}>
+            <NavGroup
+              label={t({ en: "Basics", zh: "入门" })}
+              icon={<BookOpenIcon weight="bold" />}
+              current
+            >
+              <NavLink href="#install" current>
+                {t({ en: "Install", zh: "安装" })}
+              </NavLink>
+              <NavLink href="#first-page">
+                {t({ en: "First page", zh: "第一个页面" })}
+              </NavLink>
+            </NavGroup>
+            <NavGroup
+              label={t({ en: "Styling", zh: "样式" })}
+              icon={<PaletteIcon weight="bold" />}
+            >
+              <NavLink href="#tokens">
+                {t({ en: "Tokens", zh: "令牌" })}
+              </NavLink>
+              <NavLink href="#themes">
+                {t({ en: "Themes", zh: "主题" })}
+              </NavLink>
+            </NavGroup>
+          </NavGroup>
+        </>,
+      ),
     },
-  ],
-  controls: [{ prop: "children", samples: CONTENT_SAMPLES }],
-});
+  ];
+
+  return (
+    <LabCanvas
+      config={{
+        doc: navListDoc,
+        component: FollowedNavList,
+        variants: [
+          {
+            id: "links",
+            label: { en: "Links with icons", zh: "带图标的链接" },
+            props: { children: "links" },
+          },
+          {
+            id: "plain",
+            label: { en: "Links", zh: "链接" },
+            props: { children: "plain" },
+          },
+          {
+            id: "groups",
+            label: { en: "Groups", zh: "分组" },
+            props: { children: "groups" },
+          },
+        ],
+        controls: [{ prop: "children", samples: contentSamples }],
+      }}
+    />
+  );
+}
 
 const styles = stylex.create({
   frame: {
