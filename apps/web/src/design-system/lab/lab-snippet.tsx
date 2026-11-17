@@ -6,13 +6,12 @@ import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { CodeBlock } from "@tuja/ui/components/code-block";
+import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { ViewTransition } from "react";
-import { labLive } from "#src/view-transition-classes.stylex.ts";
 import type { LabSnippet as LabSnippetModel } from "./build-lab-snippet.ts";
 
 interface LabSnippetProps {
@@ -25,37 +24,34 @@ interface LabSnippetProps {
  * like a code-walkthrough slide; this card only adds the eyebrow and the
  * Copy button around it.
  *
- * The card stays live through the page's view transition, so `CodeBlock`'s
- * own boxes can animate on the page's own DOM rather than as view-transition
- * snapshots — a snapshot would escape the card's clip: on a narrow screen the
- * code is wider than the card, and a snapshot would draw over its edge.
+ * The card is a flow block with a surface: when a change gives the code more
+ * or fewer lines, the card moves to its new place and its lower edge moves
+ * with the code.
  */
 export function LabSnippet({ snippet }: LabSnippetProps) {
   return (
-    <ViewTransition name="lab-snippet" default={labLive}>
-      <div css={[corner.radius_2, styles.card]}>
-        <div css={[row.item, styles.head]}>
-          <Text as="span" look="caption" tone="muted" css={typeRole.overline}>
-            {t({ en: "Usage", zh: "用法" })}
-          </Text>
-          <Button
-            size="sm"
-            look="ghost"
-            icon={<CopyIcon weight="bold" />}
-            aria-label={t({ en: "Copy code", zh: "复制代码" })}
-            onClick={() => {
-              void navigator.clipboard.writeText(snippet.text);
-            }}
-          />
-        </div>
-        <CodeBlock
-          parts={snippet.parts}
-          label={t({ en: "Code", zh: "代码" })}
-          css={styles.code}
-          contentCss={styles.codeInset}
+    <FlowBlock surface css={[corner.radius_2, styles.card]}>
+      <div css={[row.item, styles.head]}>
+        <Text as="span" look="caption" tone="muted" css={typeRole.overline}>
+          {t({ en: "Usage", zh: "用法" })}
+        </Text>
+        <Button
+          size="sm"
+          look="ghost"
+          icon={<CopyIcon weight="bold" />}
+          aria-label={t({ en: "Copy code", zh: "复制代码" })}
+          onClick={() => {
+            void navigator.clipboard.writeText(snippet.text);
+          }}
         />
       </div>
-    </ViewTransition>
+      <CodeBlock
+        parts={snippet.parts}
+        label={t({ en: "Code", zh: "代码" })}
+        css={styles.code}
+        contentCss={styles.codeInset}
+      />
+    </FlowBlock>
   );
 }
 

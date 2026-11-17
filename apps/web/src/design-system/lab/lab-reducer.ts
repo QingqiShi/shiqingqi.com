@@ -13,8 +13,6 @@ export type LabAction =
       type: "setProp";
       prop: string;
       value: unknown;
-      /** One step of a change still in progress, such as a keystroke. */
-      isLive?: boolean;
       /** The props that the component takes in place of this one. */
       replaces?: readonly string[];
     }

@@ -195,7 +195,11 @@ function createSurface(
         }
       }
       users++;
-      line = Math.min(line, Math.round(box.top + closedHeight / 2) - box.top);
+      // The line is in the shorter of the two heights. Thus the lower edge
+      // stays below the line, also when the spring of a surface that gets
+      // shorter goes past its end.
+      const shortHeight = Math.min(openHeight, closedHeight);
+      line = Math.min(line, Math.round(box.top + shortHeight / 2) - box.top);
       const plan: SkinPlan = {
         paint,
         inlineSize: box.inlineSize,
@@ -211,6 +215,10 @@ function createSurface(
       showSkin(plan);
       drawSkin?.(plan);
       const release = mover.add(share);
+      // A clip moves on the main thread and the edge moves on the compositor.
+      // A slow main thread then lets the clip cut the lower border. Thus the
+      // edge of a surface that has a clip moves on the main thread too.
+      if (clipMover.element !== null) mover.useFrames();
       return () => {
         release();
         users--;
@@ -408,7 +416,20 @@ export interface FlowSurfaceOption {
   surface?: boolean;
 }
 
-interface FlowBlockOptions extends FlowSurfaceOption {
+export interface FlowAnchorOption {
+  /**
+   * The point of the element that a change of `useFlowChange` moves to its
+   * new place. `"start"` is the start corner, for an element that gets
+   * content at its end. `"center"` is the centre, for an element that its
+   * container centres and that a change draws again at another size.
+   *
+   * @default "start"
+   * @zh `useFlowChange` 的变化把元素的这个点移到新位置。`"start"` 是起始角，用于在末端增加内容的元素。`"center"` 是中心，用于由容器居中、且变化后以另一尺寸重新绘制的元素。
+   */
+  anchor?: "start" | "center";
+}
+
+interface FlowBlockOptions extends FlowSurfaceOption, FlowAnchorOption {
   /** The element has `position: sticky`, so a stuck box stays on the screen. */
   sticky?: boolean;
   /**
@@ -426,13 +447,19 @@ interface FlowBlockRef {
 }
 
 function createBlockRef(
-  { surface: isSurface = false, sticky = false, place }: FlowBlockOptions,
+  {
+    surface: isSurface = false,
+    sticky = false,
+    anchor = "start",
+    place,
+  }: FlowBlockOptions,
   showSkin: (plan: SkinPlan | null) => void,
 ): RefCallback<HTMLElement> {
   let surface: FlowSurface | null = null;
   const block: FlowBlock & { element: HTMLElement | null } = {
     element: null,
     isSticky: sticky,
+    isCentered: anchor === "center",
     place,
     mover: createFlowMover(),
     get surface() {

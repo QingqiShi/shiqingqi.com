@@ -30,12 +30,6 @@ export const viewTransitionTokens = stylex.defineVars({
     default: duration._700,
     [motionConstants.REDUCED_MOTION]: duration._150,
   },
-  // The Lab has no reduced-motion step that is long enough to see, so it
-  // shortens to the least time that the browser still counts as an animation.
-  labDuration: {
-    default: duration._500,
-    [motionConstants.REDUCED_MOTION]: "1ms",
-  },
 });
 
 const riseInFrames = stylex.keyframes({
@@ -97,28 +91,6 @@ export const softFadeOut = stylex.viewTransitionClass({
     animationTimingFunction: easing.ease,
     animationFillMode: "forwards",
   },
-});
-
-// The Lab's Specimen cross-fades. Its snippet card slides to its new place.
-// The browser draws the card's own content live through the transition,
-// because the card animates its code on its own DOM. A snapshot of that code
-// goes outside the card clip on a narrow screen. The group animation is the
-// animation of the browser, so these classes set its timing, and its
-// reduced-motion step, for the whole Lab in one place.
-export const labMorph = stylex.viewTransitionClass({
-  group: {
-    animationDuration: viewTransitionTokens.labDuration,
-    animationTimingFunction: easing.spring,
-  },
-});
-
-export const labLive = stylex.viewTransitionClass({
-  group: {
-    animationDuration: viewTransitionTokens.labDuration,
-    animationTimingFunction: easing.spring,
-  },
-  old: { display: "none" },
-  new: { animationName: "none" },
 });
 
 export const inlineChatInputMorph = stylex.viewTransitionClass({
