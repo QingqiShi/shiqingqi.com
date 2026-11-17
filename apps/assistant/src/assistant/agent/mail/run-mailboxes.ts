@@ -42,7 +42,9 @@ interface OpenOptions {
   mustMove?: boolean;
   /**
    * Gives an account that fails to open `times` more tries, each after
-   * `wait`, unless only a new connect can fix the failure. Other accounts do
+   * `wait`, unless only a new connect can fix the failure or the server
+   * refused the password: many bad logins can make a provider lock the
+   * account, so a refused password waits for the next run. Other accounts do
    * not wait for it.
    */
   loginRetries?: { times: number; wait: () => Promise<void> };
@@ -197,9 +199,11 @@ export class RunMailboxes {
             return await openAccount(latest, key);
           } catch (error) {
             failure = error;
+            const { status, code } = describeSyncError(error);
             if (
               error instanceof MoveUnsupportedError ||
-              describeSyncError(error).status !== "error"
+              status !== "error" ||
+              code === "password_refused"
             ) {
               break;
             }

@@ -159,7 +159,7 @@ describe("the morning report cron", () => {
       });
     });
 
-    it("does not retry a login that only a new connect can fix", async () => {
+    it("does not retry a refused password in the same run, and tries it again in the next", async () => {
       second.failNextConnects(new MailboxAuthError());
 
       expect(await runCron(reportAgent().model, connector)).toMatchObject({
@@ -172,7 +172,10 @@ describe("the morning report cron", () => {
         status: "written",
         unreadMailboxes: [{ accountId: secondId, address: SECOND }],
       });
-      expect(await secondAccount()).toMatchObject({ status: "reconnect" });
+      expect(await secondAccount()).toMatchObject({
+        status: "error",
+        lastErrorCode: "password_refused",
+      });
     });
   });
 });

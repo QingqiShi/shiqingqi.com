@@ -101,7 +101,7 @@ export const mailAccounts = pgTable(
     /** Lower case. The IMAP login name. */
     address: text("address").notNull(),
     credential: bytea("credential").notNull(),
-    /** `reconnect` when the provider refused the stored login: only a new connect fixes it. */
+    /** `reconnect` when only a new connect fixes the stored login, such as one the provider kept refusing. */
     status: text("status", { enum: MAIL_ACCOUNT_STATUSES })
       .notNull()
       .default("ok"),

@@ -11,6 +11,7 @@ import {
 
 export const SYNC_ERROR_CODES = [
   "login_refused",
+  "password_refused",
   "session_refused",
   "token_revoked",
   "token_refresh_failed",
@@ -32,7 +33,9 @@ const MAX_MESSAGE_CHARS = 300;
 /**
  * How an account shows a failed login or run. `reconnect` stops the crons from
  * trying again: the stored login cannot work until the user connects anew.
- * The message never holds a secret: no error here carries one.
+ * A refused password is `error` here: providers also refuse a good password
+ * for a while, and `recordAccountError` decides when the refusals have lasted
+ * too long. The message never holds a secret: no error here carries one.
  */
 export function describeSyncError(error: unknown): {
   status: MailAccountStatus;
@@ -43,7 +46,7 @@ export function describeSyncError(error: unknown): {
     .replace(/\s+/g, " ")
     .slice(0, MAX_MESSAGE_CHARS);
   if (error instanceof MailboxAuthError) {
-    return { status: "reconnect", code: "login_refused", message };
+    return { status: "error", code: "password_refused", message };
   }
   if (error instanceof MailboxSessionRefusedError) {
     return { status: "error", code: "session_refused", message };
