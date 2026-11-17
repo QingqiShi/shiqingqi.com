@@ -4,6 +4,7 @@ import { json, signedInRoute } from "#src/auth/signed-in-route.ts";
 import { getTripsDb } from "#src/db/get-trips-db.ts";
 import { newTripSchema } from "./ops/new-trip.ts";
 import { opSchema } from "./ops/op-schema.ts";
+import { readTrips } from "./read-trips.ts";
 import { writeTrips } from "./write-trips.ts";
 
 const STATUS_CODES = {
@@ -47,6 +48,19 @@ const changeTrip = signedInRoute(
   },
 );
 
+/** The newest trip, for a member of it. Any other user gets the answer of a trip that does not exist. */
+const readTrip = signedInRoute(
+  z.object({ tripId: z.uuid() }),
+  async (userId, { tripId }) => {
+    const viewed = (await readTrips(getTripsDb(), userId)).find(
+      (each) => each.id === tripId,
+    );
+    return viewed
+      ? json({ trip: viewed.trip })
+      : json({ error: "not_found" }, STATUS_CODES.not_found);
+  },
+);
+
 const deleteTrip = signedInRoute(
   z.object({ tripId: z.uuid() }),
   async (userId, { tripId }) => {
@@ -57,4 +71,4 @@ const deleteTrip = signedInRoute(
   },
 );
 
-export const tripRoutes = { createTrip, changeTrip, deleteTrip };
+export const tripRoutes = { createTrip, readTrip, changeTrip, deleteTrip };

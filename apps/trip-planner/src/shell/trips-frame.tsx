@@ -15,6 +15,7 @@ import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { useRouter, useSelectedLayoutSegments } from "next/navigation";
 import type { ReactNode } from "react";
 import { useDayNumber } from "#src/reader/use-day-number.ts";
+import { useTripHash } from "#src/reader/use-trip-location.ts";
 import { TripSkeleton } from "./trip-skeleton.tsx";
 import type { TripSummary } from "./trip-summary.ts";
 
@@ -87,10 +88,19 @@ export function TripsFrame({
 }) {
   const locale = useLocale();
   const router = useRouter();
-  const segment = useSelectedLayoutSegments().at(0);
+  const [segment, page] = useSelectedLayoutSegments();
+  const hash = useTripHash();
   const open = trips.find((trip) => trip.id === segment) ?? null;
   const listHref = getLocalePath("/", locale);
   const listLabel = t({ en: "Trips", zh: "行程" });
+  const isEditing = open !== null && page === "edit";
+  // The way back from the edit screen is the reader, at the day that the
+  // hash names: the day of the last change.
+  const back = isEditing
+    ? { href: getLocalePath(`/${open.id}`, locale) + hash, label: open.title }
+    : open
+      ? { href: listHref, label: listLabel }
+      : null;
 
   // With no trip, a list column is an empty box, and on a phone it is the
   // whole page.
@@ -117,9 +127,9 @@ export function TripsFrame({
         node: <TripNav trips={trips} current={open?.id ?? null} />,
       }}
       content={{
-        key: open?.id ?? "home",
+        key: open ? (isEditing ? `${open.id}/edit` : open.id) : "home",
         label: open?.title ?? listLabel,
-        back: open ? { href: listHref, label: listLabel } : null,
+        back,
         node: children,
       }}
     />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useLayoutEffect, useSyncExternalStore } from "react";
 
 /** What the trip page shows: one day, or the calendar of every day. */
 export type TripLocation = { view: "day"; day: number } | { view: "calendar" };
@@ -47,29 +47,52 @@ function parse(
   return { view: "day", day: fallbackDay };
 }
 
+/** The id of the element of a day, which the hash names. */
+export function dayAnchorId(day: number) {
+  return `day-${String(day)}`;
+}
+
 export function tripLocationHash(location: TripLocation) {
   return location.view === "calendar"
     ? CALENDAR_HASH
-    : `#day-${String(location.day)}`;
+    : `#${dayAnchorId(location.day)}`;
+}
+
+/** Puts a place in the URL hash, in the current history entry. */
+export function replaceTripLocation(next: TripLocation) {
+  window.history.replaceState(window.history.state, "", tripLocationHash(next));
+  for (const listener of listeners) listener();
+}
+
+let arrival: { path: string; location: TripLocation } | null = null;
+
+/**
+ * Makes the trip page at `path` open at a place, the next time that it
+ * shows. A step back in history shows the page at the hash that it had, so
+ * the screen that the person leaves names the place this way.
+ */
+export function arriveAt(path: string, location: TripLocation) {
+  arrival = { path, location };
+}
+
+/** The URL hash, which names a place on the trip page. Empty on the server. */
+export function useTripHash() {
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
 /**
  * The place on the trip page that the URL hash names, and a way to move. A
  * page with no hash shows `fallbackDay`, such as today. A move replaces the
- * history entry, so that Back leaves the trip, not the last day.
+ * history entry, so that Back leaves the trip, not the last day. The page
+ * opens at the place that `arriveAt` named for it.
  */
 export function useTripLocation(dayCount: number, fallbackDay: number) {
-  const hash = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  const location = parse(hash, dayCount, fallbackDay);
-
-  const go = (next: TripLocation) => {
-    window.history.replaceState(
-      window.history.state,
-      "",
-      tripLocationHash(next),
-    );
-    for (const listener of listeners) listener();
-  };
-
-  return [location, go] as const;
+  useLayoutEffect(() => {
+    if (arrival?.path === window.location.pathname) {
+      replaceTripLocation(arrival.location);
+    }
+    arrival = null;
+  }, []);
+  const location = parse(useTripHash(), dayCount, fallbackDay);
+  return [location, replaceTripLocation] as const;
 }
