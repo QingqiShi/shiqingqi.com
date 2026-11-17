@@ -1,3 +1,4 @@
+import { VercelObservability } from "@tuja/analytics/vercel-observability";
 import { t } from "@tuja/i18n";
 import { I18nProvider } from "@tuja/i18n/i18n-provider";
 import { setLocale } from "@tuja/i18n/server-locale";
@@ -8,8 +9,6 @@ import { EffectLayerProvider } from "@tuja/ui/components/effect-layer-provider";
 import { LinkProvider } from "@tuja/ui/components/link-provider";
 import { PortalTargetProvider } from "@tuja/ui/components/portal-target-provider";
 import { root } from "@tuja/ui/primitives/root.stylex";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { DEV } from "esm-env";
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
@@ -87,8 +86,7 @@ export default async function LocaleLayout({
             </EffectLayerProvider>
           </SerwistProvider>
         </I18nProvider>
-        <Analytics />
-        <SpeedInsights />
+        <VercelObservability />
       </body>
     </html>
   );
