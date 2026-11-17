@@ -27,6 +27,7 @@ import { presencesOnDay } from "./presences-on-day.ts";
 import { StaySection } from "./stay-section.tsx";
 import { TipCallout } from "./tip-callout.tsx";
 import { TripText } from "./trip-text.tsx";
+import { useDayNumber } from "./use-day-number.ts";
 import type { LiveWeather } from "./weather/types.ts";
 
 /** A day with no plan: it says so, and gives an editor of the trip the way to plan it. */
@@ -89,6 +90,14 @@ export function DayView({
   const sameAsIndex = sameAsDayId
     ? trip.days.findIndex((other) => other.id === sameAsDayId)
     : -1;
+  const dayNumber = useDayNumber(trip);
+  const sameBed = t({ en: "Same bed as {day}", zh: "与{day}同住一处" });
+  // A label that is only the name of the stay does not say which day has it.
+  const isLabelTheName =
+    sameAsIndex >= 0 &&
+    trip.days[sameAsIndex].stay.lodging.some(
+      (lodging) => lodging.name === day.stay.sameAs?.label,
+    );
 
   const jumpToMoment = (momentId: string) => {
     document
@@ -153,6 +162,11 @@ export function DayView({
       <StaySection
         stay={day.stay}
         sameAsDay={sameAsIndex < 0 ? null : sameAsIndex}
+        sameAsDetail={
+          isLabelTheName
+            ? sameBed.replace("{day}", dayNumber(sameAsIndex))
+            : undefined
+        }
         onOpenDay={onOpenDay}
       />
     </div>

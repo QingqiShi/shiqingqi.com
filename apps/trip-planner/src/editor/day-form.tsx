@@ -39,6 +39,8 @@ export function DayForm({ day, onDone }: { day: Day; onDone: () => void }) {
   const [errors, setErrors] = useState<Partial<typeof values>>({});
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const form = useFormChange(onDone);
+  // A day with a Stay, or one that repeats the Stay of an earlier night.
+  const hasBed = day.stay.lodging.length > 0 || Boolean(day.stay.sameAs);
 
   const saved = t({ en: "Saved", zh: "已保存" });
   const wholeMinutes = t({
@@ -163,11 +165,18 @@ export function DayForm({ day, onDone }: { day: Day; onDone: () => void }) {
       >
         <div css={stack.item}>
           <TextField
-            label={t({ en: "Where you sleep", zh: "住在哪里" })}
-            description={t({
-              en: "A short line, such as the town or the name of the hotel.",
-              zh: "一句话，例如城镇或酒店名称。",
-            })}
+            label={t({ en: "Tonight, in a few words", zh: "今晚住，一句话" })}
+            description={
+              hasBed
+                ? t({
+                    en: "Shows as “Tonight” at the top of the day. Leave it empty to show the name of the Stay.",
+                    zh: "显示在当天顶部的“今晚住”一栏。留空则显示“住宿”的名称。",
+                  })
+                : t({
+                    en: "Shows as “Tonight” at the top of the day, such as the town or “Night train”. For a hotel, add a Stay to the day instead: its name shows there.",
+                    zh: "显示在当天顶部的“今晚住”一栏，例如城镇或“夜车”。住酒店时，请改为在当天添加“住宿”，那里会显示它的名称。",
+                  })
+            }
             {...bind("staySummary")}
           />
           <Textarea

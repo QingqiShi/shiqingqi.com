@@ -75,6 +75,24 @@ export function useFieldLabels(): Record<FormKind, Record<string, string>> {
   };
 }
 
+/** The words under a field that say what to write in it, by the key of the field. */
+export function useFieldHints(): Partial<
+  Record<FormKind, Record<string, string>>
+> {
+  return {
+    lodging: {
+      checkIn: t({
+        en: "The time from which you can go in, such as 15:00.",
+        zh: "最早可以入住的时间，例如 15:00。",
+      }),
+      checkOut: t({
+        en: "The time by which you leave on the last morning, such as 11:00.",
+        zh: "最后一天早上最晚的退房时间，例如 11:00。",
+      }),
+    },
+  };
+}
+
 /** The label of each value of the selects of the form. An empty value is "not set". */
 export function useOptionLabels(): Record<string, string> {
   return {

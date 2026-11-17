@@ -118,11 +118,14 @@ function LodgingRow({ lodging }: { lodging: Lodging }) {
 export function StaySection({
   stay,
   sameAsDay,
+  sameAsDetail,
   onOpenDay,
 }: {
   stay: Stay;
   /** The index of the earlier day whose bed this night repeats. */
   sameAsDay: number | null;
+  /** The words under the label of that night, for a label that does not name the earlier day. */
+  sameAsDetail?: string;
   onOpenDay: (index: number) => void;
 }) {
   const title = t({ en: "Stay", zh: "住宿" });
@@ -150,6 +153,7 @@ export function StaySection({
               leading={<BedIcon weight="bold" />}
               leadingShape="circle"
               wrap
+              detail={sameAsDetail}
               onClick={() => {
                 onOpenDay(sameAsDay);
               }}

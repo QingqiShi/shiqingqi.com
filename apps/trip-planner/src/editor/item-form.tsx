@@ -1,6 +1,7 @@
 "use client";
 
 import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { Disclosure } from "@tuja/ui/components/disclosure";
 import { Select } from "@tuja/ui/components/select";
@@ -9,6 +10,7 @@ import { TextField } from "@tuja/ui/components/text-field";
 import { Textarea } from "@tuja/ui/components/textarea";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
+import { dayDateLabel } from "#src/reader/date-label.ts";
 import type { DraftOp } from "#src/trips/ops/apply-ops.ts";
 import { newId } from "#src/trips/ops/new-id.ts";
 import type { MomentTime } from "#src/trips/types.ts";
@@ -33,6 +35,12 @@ import {
 import { addItemOps, moveItemOps } from "./move-item-ops.ts";
 import { AddAnotherButton, SheetActions } from "./sheet-actions.tsx";
 import {
+  endRepeatsOps,
+  mostNightsAt,
+  nightsAt,
+  stayNightsOps,
+} from "./stay-nights-ops.ts";
+import {
   DayField,
   momentTimeOf,
   TimeFields,
@@ -41,6 +49,7 @@ import {
   type TimeValue,
 } from "./time-fields.tsx";
 import {
+  useFieldHints,
   useFieldLabels,
   useKindLabels,
   useOptionLabels,
@@ -56,6 +65,7 @@ const INPUT_MODES: Partial<
 function Field({
   spec,
   label,
+  hint,
   value,
   error,
   autoFocus,
@@ -63,6 +73,7 @@ function Field({
 }: {
   spec: FieldSpec;
   label: string;
+  hint?: string;
   value: string;
   error?: string;
   autoFocus: boolean;
@@ -102,6 +113,7 @@ function Field({
   return (
     <TextField
       label={label}
+      description={hint}
       value={value}
       error={error}
       autoFocus={autoFocus}
@@ -139,7 +151,9 @@ export function ItemForm({
   onAnother?: (start: AddStart) => void;
 }) {
   const editor = useEditor();
+  const locale = useLocale();
   const fieldLabels = useFieldLabels();
+  const fieldHints = useFieldHints();
   const kindLabels = useKindLabels();
   const messages = usePlaceMessages();
   const form = useFormChange(onDone);
@@ -162,6 +176,37 @@ export function ItemForm({
   const [isTimeMissing, setIsTimeMissing] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const specs = formKind ? ITEM_FIELDS[formKind] : [];
+  const [nightsPicked, setNightsPicked] = useState<number | null>(null);
+  const isStay = kind === "lodging";
+  const staysOf = (id: string) =>
+    editor.trip.days.find((day) => day.id === id)?.stay.lodging ?? [];
+  const mostNights = isStay
+    ? mostNightsAt(editor.trip, dayId, found?.item.id)
+    : 1;
+  // A day that has a different stay keeps its nights. A stay that goes to a
+  // day with no stay takes its nights with it.
+  const nightsNow = staysOf(dayId).some((stay) => stay.id !== found?.item.id)
+    ? nightsAt(editor.trip, dayId)
+    : found
+      ? nightsAt(editor.trip, start.dayId)
+      : 1;
+  const nights = Math.min(nightsPicked ?? nightsNow, mostNights);
+  const staysAtStart = staysOf(start.dayId);
+  const isOnlyStayOfItsDay =
+    found !== null &&
+    staysAtStart.length > 0 &&
+    staysAtStart.every((stay) => stay.id === found.item.id);
+
+  /** The ops that go with a stay on a day: the day has its own bed, for the nights that the person chose. */
+  const bedOps = (name: string, earlierName?: string): DraftOp[] =>
+    stayNightsOps(editor.trip, {
+      dayId,
+      nights,
+      name,
+      earlierName,
+      leftDayId:
+        isOnlyStayOfItsDay && dayId !== start.dayId ? start.dayId : undefined,
+    });
 
   const required = t({ en: "Give it a name.", zh: "请填写名称。" });
   const badLink = t({
@@ -173,6 +218,24 @@ export function ItemForm({
     zh: "这样无法添加，请检查填写的内容。",
   });
   const removed = t({ en: "Removed “{name}”", zh: "已移除“{name}”" });
+  const oneNight = t({ en: "1 night", zh: "1 晚" });
+  const moreNights = t({
+    en: "{count} nights · the last on {date}",
+    zh: "{count} 晚 · 最后一晚 {date}",
+  });
+  const firstNight = editor.trip.days.findIndex((day) => day.id === dayId);
+  const nightOptions = Array.from({ length: mostNights }, (_, index) => ({
+    value: String(index + 1),
+    label:
+      index === 0
+        ? oneNight
+        : moreNights
+            .replace("{count}", String(index + 1))
+            .replace(
+              "{date}",
+              dayDateLabel(editor.trip.days[firstNight + index].date, locale),
+            ),
+  }));
 
   const save = (another = false) => {
     const nextErrors: Record<string, string> = {};
@@ -201,7 +264,10 @@ export function ItemForm({
         return;
       }
       const isAdded = form.submit(
-        addItemOps(editor.trip, item, slot, newId),
+        [
+          ...addItemOps(editor.trip, item, slot, newId),
+          ...(item.type === "lodging" ? bedOps(item.name) : []),
+        ],
         { message: messages.added(dayId), dayId },
         id,
         another,
@@ -218,6 +284,9 @@ export function ItemForm({
         ? [{ op: "setItem" as const, id: found.item.id, fields: patch }]
         : []),
       ...moves,
+      ...(found.item.type === "lodging"
+        ? bedOps(values.name.trim(), found.item.name)
+        : []),
     ];
     const isSaved = form.submit(
       ops,
@@ -233,6 +302,7 @@ export function ItemForm({
       spec={spec}
       autoFocus={!found && spec === specs[0]}
       label={formKind ? (fieldLabels[formKind][spec.key] ?? spec.key) : ""}
+      hint={formKind ? fieldHints[formKind]?.[spec.key] : undefined}
       value={values[spec.key] ?? ""}
       error={errors[spec.key]}
       onChange={(value) => {
@@ -262,6 +332,20 @@ export function ItemForm({
       ) : null}
       {mainFields.slice(0, 1).map(field)}
       <DayField value={dayId} onChange={setDayId} />
+      {isStay && mostNights > 1 ? (
+        <Select
+          label={t({ en: "Nights", zh: "住几晚" })}
+          description={t({
+            en: "Each later night shows this stay, with a link back to this day.",
+            zh: "之后的每一晚都显示这处住宿，并可回到这一天查看。",
+          })}
+          value={String(nights)}
+          onChange={(event) => {
+            setNightsPicked(Number(event.target.value));
+          }}
+          options={nightOptions}
+        />
+      ) : null}
       {kind === "lodging" ? null : (
         <TimeFields
           value={time}
@@ -293,10 +377,18 @@ export function ItemForm({
               look="outline"
               intent="destructive"
               onClick={() => {
-                form.submit([{ op: "removeItem", id: found.item.id }], {
-                  message: removed.replace("{name}", itemName(found.item)),
-                  dayId,
-                });
+                form.submit(
+                  [
+                    { op: "removeItem", id: found.item.id },
+                    ...(isOnlyStayOfItsDay
+                      ? endRepeatsOps(editor.trip, start.dayId)
+                      : []),
+                  ],
+                  {
+                    message: removed.replace("{name}", itemName(found.item)),
+                    dayId,
+                  },
+                );
               }}
             >
               {t({ en: "Remove", zh: "移除" })}
