@@ -24,6 +24,7 @@ export function newTrip(input: NewTrip): Trip {
     title: input.title,
     language: input.language,
     timeZone: input.timeZone,
+    firstDayNumber: 1,
     people: [],
     days: Array.from({ length: input.days }, (_, i) => ({
       id: newId(),

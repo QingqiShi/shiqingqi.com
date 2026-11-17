@@ -3,13 +3,19 @@ import type { Day, Moment, Trip } from "../types.ts";
 import { addDays, daysBetween } from "./add-days.ts";
 import { digest } from "./digest.ts";
 import {
-  itemSchema,
-  opSchema,
-  type DayList,
-  type Item,
-  type ItemPlace,
-  type Op,
-} from "./op-schema.ts";
+  checkedItem,
+  cleared,
+  dayOf,
+  findItem,
+  findMoment,
+  insertBefore,
+  patch,
+  placeItem,
+  takeItem,
+  withQuery,
+} from "./find-item.ts";
+import { opSchema, type Op } from "./op-schema.ts";
+import { issueText, Refusal } from "./refusal.ts";
 
 export type ApplyResult =
   | { status: "applied"; trip: Trip }
@@ -40,8 +46,6 @@ function isAdd(op: DraftOp): op is AddOp {
   return op.op === "addDay" || op.op === "addMoment" || op.op === "addItem";
 }
 
-class Refusal extends Error {}
-
 /**
  * Applies a batch of ops to a trip, in order, all or none. It changes
  * nothing it is given and does no I/O, so the server, the editor and the
@@ -51,8 +55,9 @@ class Refusal extends Error {}
  *   it changes as the trip stands at that op (`withExpect` makes them).
  * - Dates stay in place and the plans of days move between them. Adding or
  *   removing a day moves each later day by one date.
- * - A moment that the batch leaves with no text, no highlight and no items
- *   goes.
+ * - A moment that the batch empties, by taking its last item or clearing
+ *   its text and highlight, goes. A moment that the batch adds stays, also
+ *   with nothing in it, unless the batch then empties it.
  * - A stay that would repeat a night that is gone or later gets its own copy
  *   of that night's lodging.
  */
@@ -104,7 +109,7 @@ export function applyOps(trip: Trip, ops: readonly Op[]): ApplyResult {
  * a sender who applies a batch to the trip it shows.
  */
 export function withExpect(trip: Trip, ops: readonly DraftOp[]): Op[] {
-  let state = structuredClone(trip);
+  let state = trip;
   const touched = new Set<string>();
   return ops.map((draft) => {
     let op: Op;
@@ -114,19 +119,44 @@ export function withExpect(trip: Trip, ops: readonly DraftOp[]): Op[] {
       const thing = thingOf(state, draft);
       op = { ...draft, expect: thing === undefined ? "gone" : digest(thing) };
     }
-    const parsed = opSchema.safeParse(op);
-    if (!parsed.success) return op;
-    try {
-      applyOne(state, parsed.data, touched);
-    } catch {
-      // The rest is stamped against the trip as it is. `applyOps` refuses
-      // this op in its turn.
-      return op;
-    }
-    const valid = tripSchema.safeParse(state);
-    if (valid.success) state = valid.data;
+    // When the op cannot apply, the rest is stamped against the trip as it
+    // is. `applyOps` refuses this op in its turn.
+    state = step(state, op, touched) ?? state;
     return op;
   });
+}
+
+/**
+ * The trip after the drafts, as `applyOps` makes it, but with no check of
+ * `expect` and with each moment kept; undefined when a draft cannot apply.
+ */
+export function applyDrafts(
+  trip: Trip,
+  drafts: readonly DraftOp[],
+): Trip | undefined {
+  let state: Trip | undefined = trip;
+  const touched = new Set<string>();
+  for (const draft of drafts) {
+    const op = isAdd(draft) ? draft : { ...draft, expect: "-" };
+    state = step(state, op, touched);
+    if (!state) return undefined;
+  }
+  return state;
+}
+
+/** The trip after one op, or undefined when the op cannot apply. */
+function step(trip: Trip, op: Op, touched: Set<string>): Trip | undefined {
+  const parsed = opSchema.safeParse(op);
+  if (!parsed.success) return undefined;
+  const state = structuredClone(trip);
+  try {
+    applyOne(state, parsed.data, touched);
+  } catch (error) {
+    if (error instanceof Refusal) return undefined;
+    throw error;
+  }
+  const valid = tripSchema.safeParse(state);
+  return valid.success ? valid.data : undefined;
 }
 
 /** The digest that an op on this trip carries as `expect`, or null for an add or a thing that is gone. */
@@ -194,6 +224,13 @@ function thingOf(trip: Trip, op: DraftOp): unknown {
       const { lodging: _lodging, ...own } = day.stay;
       return own;
     }
+    case "setPresence": {
+      const person = trip.people.find((each) => each.id === op.personId);
+      if (!person || !trip.days.some((day) => day.id === op.dayId)) {
+        return undefined;
+      }
+      return { presence: person.days[op.dayId] ?? null };
+    }
     case "addDay":
     case "addMoment":
     case "addItem":
@@ -215,9 +252,10 @@ function applyOne(trip: Trip, op: DraftOp, touched: Set<string>) {
       let at = op.before ? dayIndex(trip, op.before) : -1;
       if (at < 0) at = trip.days.length;
       const date =
-        at < trip.days.length
+        op.date ??
+        (at < trip.days.length
           ? trip.days[at].date
-          : addDays(trip.days[trip.days.length - 1].date, 1);
+          : addDays(trip.days[trip.days.length - 1].date, 1));
       for (const day of trip.days.slice(at)) day.date = addDays(day.date, 1);
       trip.days.splice(at, 0, {
         id: op.id,
@@ -272,15 +310,21 @@ function applyOne(trip: Trip, op: DraftOp, touched: Set<string>) {
         items: [],
       };
       patch(moment, { text: op.moment.text, highlight: op.moment.highlight });
-      dayOf(trip, op.dayId).moments.push(moment);
-      touched.add(moment.id);
+      insertBefore(dayOf(trip, op.dayId).moments, moment, op.before);
+      touched.delete(moment.id);
       return;
     }
     case "setMoment": {
       const found = findMoment(trip, op.id);
       if (!found) throw new Refusal(`No moment ${op.id}.`);
+      const { text, highlight } = found.moment;
       patch(found.moment, op.fields);
-      touched.add(op.id);
+      if (
+        (text && !found.moment.text) ||
+        (highlight && !found.moment.highlight)
+      ) {
+        touched.add(op.id);
+      }
       return;
     }
     case "moveMoment": {
@@ -288,7 +332,7 @@ function applyOne(trip: Trip, op: DraftOp, touched: Set<string>) {
       const found = findMoment(trip, op.id);
       if (!found) throw new Refusal(`No moment ${op.id}.`);
       found.day.moments.splice(found.index, 1);
-      target.moments.push(found.moment);
+      insertBefore(target.moments, found.moment, op.before);
       return;
     }
     case "removeMoment": {
@@ -339,210 +383,22 @@ function applyOne(trip: Trip, op: DraftOp, touched: Set<string>) {
     case "setStay":
       patch(dayOf(trip, op.dayId).stay, op.fields);
       return;
-  }
-}
-
-/** Sets each named field. `null` and text that is only space clear it. */
-function patch(record: Record<string, unknown>, fields: object) {
-  for (const [key, value] of Object.entries(fields)) {
-    if (value === undefined) continue;
-    if (value === null || (typeof value === "string" && value.trim() === "")) {
-      Reflect.deleteProperty(record, key);
-    } else {
-      record[key] = value;
-    }
-  }
-}
-
-/** The item with each empty field taken out. */
-function cleared(item: object): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  patch(out, item);
-  return out;
-}
-
-/** A place to eat or go is found on a map by its name when it has no `query`. */
-function withQuery(item: Record<string, unknown>) {
-  if (
-    (item.type === "dining" || item.type === "place") &&
-    item.query === undefined
-  ) {
-    item.query = item.name;
-  }
-  return item;
-}
-
-function checkedItem(item: Record<string, unknown>): Item {
-  const result = itemSchema.safeParse(item);
-  if (!result.success) throw new Refusal(issueText(result.error));
-  return result.data;
-}
-
-interface FoundItem {
-  item: Item;
-  place: ItemPlace;
-  /** The id of the item after it in its place, to put a changed item back where it was. */
-  nextId: string | undefined;
-}
-
-function findItem(trip: Trip, id: string): FoundItem | undefined {
-  for (const day of trip.days) {
-    for (const moment of day.moments) {
-      const index = moment.items.findIndex((item) => item.id === id);
-      if (index >= 0) {
-        return {
-          item: moment.items[index],
-          place: { momentId: moment.id },
-          nextId: moment.items.at(index + 1)?.id,
-        };
+    case "setPresence": {
+      const person = trip.people.find((each) => each.id === op.personId);
+      if (!person) throw new Refusal(`No person ${op.personId}.`);
+      dayOf(trip, op.dayId);
+      if (op.presence) {
+        person.days[op.dayId] = op.presence;
+      } else {
+        Reflect.deleteProperty(person.days, op.dayId);
       }
-    }
-    for (const { list, items } of dayLists(day)) {
-      const index = items.findIndex((item) => item.id === id);
-      if (index >= 0) {
-        return {
-          item: items[index],
-          place: { dayId: day.id, list },
-          nextId: items.at(index + 1)?.id,
-        };
-      }
+      return;
     }
   }
-  return undefined;
-}
-
-/** The items of a day's lists with no time, each with its kind. */
-function dayLists(day: Day): { list: DayList; items: Item[] }[] {
-  return [
-    {
-      list: "dining",
-      items: day.dining.map((entry) => ({ ...entry, type: "dining" as const })),
-    },
-    {
-      list: "places",
-      items: day.places.map((entry) => ({ ...entry, type: "place" as const })),
-    },
-    {
-      list: "tips",
-      items: day.tips.map((entry) => ({ ...entry, type: "tip" as const })),
-    },
-    {
-      list: "lodging",
-      items: day.stay.lodging.map((entry) => ({
-        ...entry,
-        type: "lodging" as const,
-      })),
-    },
-  ];
-}
-
-function takeItem(trip: Trip, { item, place }: FoundItem) {
-  if ("momentId" in place) {
-    const found = findMoment(trip, place.momentId);
-    if (found) removeById(found.moment.items, item.id);
-    return;
-  }
-  const day = dayOf(trip, place.dayId);
-  switch (place.list) {
-    case "dining":
-      removeById(day.dining, item.id);
-      return;
-    case "places":
-      removeById(day.places, item.id);
-      return;
-    case "tips":
-      removeById(day.tips, item.id);
-      return;
-    case "lodging":
-      removeById(day.stay.lodging, item.id);
-      return;
-  }
-}
-
-/**
- * Puts an item in a place that holds its kind, before the item `before`, or
- * at the end when there is no such item there. A day's list knows the kind,
- * so its entries have no `type`.
- */
-function placeItem(
-  trip: Trip,
-  item: Item,
-  place: ItemPlace,
-  before: string | undefined,
-) {
-  if ("momentId" in place) {
-    const found = findMoment(trip, place.momentId);
-    if (!found) throw new Refusal(`No moment ${place.momentId}.`);
-    if (item.type === "lodging") {
-      throw new Refusal("A lodging belongs in the stay of a day.");
-    }
-    insertBefore(found.moment.items, item, before);
-    return;
-  }
-  const day = dayOf(trip, place.dayId);
-  const misfit = new Refusal(
-    `The list ${place.list} cannot hold a ${item.type}.`,
-  );
-  switch (item.type) {
-    case "dining": {
-      if (place.list !== "dining") throw misfit;
-      const { type: _type, ...entry } = item;
-      insertBefore(day.dining, entry, before);
-      return;
-    }
-    case "place": {
-      if (place.list !== "places") throw misfit;
-      const { type: _type, ...entry } = item;
-      insertBefore(day.places, entry, before);
-      return;
-    }
-    case "tip": {
-      if (place.list !== "tips") throw misfit;
-      const { type: _type, ...entry } = item;
-      insertBefore(day.tips, entry, before);
-      return;
-    }
-    case "lodging": {
-      if (place.list !== "lodging") throw misfit;
-      const { type: _type, ...entry } = item;
-      insertBefore(day.stay.lodging, entry, before);
-      return;
-    }
-    default:
-      throw misfit;
-  }
-}
-
-function insertBefore<T extends { id: string }>(
-  entries: T[],
-  entry: T,
-  before: string | undefined,
-) {
-  const at = before ? entries.findIndex((each) => each.id === before) : -1;
-  entries.splice(at < 0 ? entries.length : at, 0, entry);
-}
-
-function removeById(entries: { id: string }[], id: string) {
-  const at = entries.findIndex((each) => each.id === id);
-  if (at >= 0) entries.splice(at, 1);
-}
-
-function findMoment(trip: Trip, id: string) {
-  for (const day of trip.days) {
-    const index = day.moments.findIndex((moment) => moment.id === id);
-    if (index >= 0) return { day, index, moment: day.moments[index] };
-  }
-  return undefined;
 }
 
 function dayIndex(trip: Trip, id: string) {
   return trip.days.findIndex((day) => day.id === id);
-}
-
-function dayOf(trip: Trip, id: string): Day {
-  const day = trip.days.find((each) => each.id === id);
-  if (!day) throw new Refusal(`No day ${id}.`);
-  return day;
 }
 
 function isEmptyMoment(moment: Moment) {
@@ -557,7 +413,8 @@ function isEmptyMoment(moment: Moment) {
  * A stay repeats only an earlier night. One that would repeat a night that
  * is gone or now later repeats the night that one repeated, if that is
  * still earlier; else it gets its own copy of that lodging. The ids of the
- * copies come from the ids they copy, so every caller makes the same ones.
+ * copies come from the ids they copy, so every caller makes the same ones,
+ * and a stay that holds a copy already gets no second one.
  */
 function keepStaysEarlier(trip: Trip, before: Day[]) {
   trip.days.forEach((day, i) => {
@@ -579,19 +436,14 @@ function keepStaysEarlier(trip: Trip, before: Day[]) {
       }
       source = before.find((each) => each.id === next);
     }
-    const copies = (source?.stay.lodging ?? []).map((lodging) => ({
-      ...structuredClone(lodging),
-      id: `l${digest(`${lodging.id}@${day.id}`)}`,
-    }));
+    const held = new Set(day.stay.lodging.map((lodging) => lodging.id));
+    const copies = (source?.stay.lodging ?? [])
+      .map((lodging) => ({
+        ...structuredClone(lodging),
+        id: `l${digest(`${lodging.id}@${day.id}`)}`,
+      }))
+      .filter((copy) => !held.has(copy.id));
     day.stay.lodging = [...copies, ...day.stay.lodging];
     delete day.stay.sameAs;
   });
-}
-
-function issueText(error: {
-  issues: { path: PropertyKey[]; message: string }[];
-}): string {
-  const [issue] = error.issues;
-  const path = issue.path.map(String).join(".");
-  return path ? `${path}: ${issue.message}` : issue.message;
 }

@@ -20,14 +20,14 @@ import type { TripSummary } from "./trip-summary.ts";
 
 function TripLink({ trip, current }: { trip: TripSummary; current: boolean }) {
   const locale = useLocale();
-  const dayNumber = useDayNumber();
+  const dayLabel = useDayNumber(trip);
   return (
     <NavLink
       href={getLocalePath(`/${trip.id}`, locale)}
       current={current}
       trailing={
         trip.phase === "during" ? (
-          <Badge size="sm">{dayNumber(trip.dayIndex)}</Badge>
+          <Badge size="sm">{dayLabel(trip.dayIndex)}</Badge>
         ) : (
           <Text as="span" look="caption" tone="muted">
             {trip.dates}

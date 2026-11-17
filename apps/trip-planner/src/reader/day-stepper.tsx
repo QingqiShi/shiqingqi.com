@@ -7,25 +7,26 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { Select } from "@tuja/ui/components/select";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
-import type { Day } from "#src/trips/types.ts";
+import type { Trip } from "#src/trips/types.ts";
 import { dayDateLabel } from "./date-label.ts";
 import { useDayNumber } from "./use-day-number.ts";
 
 /** Steps through the days of the trip: one back, one on, or any day. */
 export function DayStepper({
-  days,
+  trip,
   current,
   todayIndex,
   onSelect,
 }: {
-  days: Day[];
+  trip: Trip;
   current: number;
   /** The day that is today, or -1 outside the trip. */
   todayIndex: number;
   onSelect: (index: number) => void;
 }) {
   const locale = useLocale();
-  const dayNumber = useDayNumber();
+  const dayLabel = useDayNumber(trip);
+  const days = trip.days;
   const today = t({ en: "Today", zh: "今天" });
 
   return (
@@ -51,7 +52,7 @@ export function DayStepper({
         options={days.map((day, index) => ({
           value: String(index),
           label: [
-            dayNumber(index),
+            dayLabel(index),
             dayDateLabel(day.date, locale),
             index === todayIndex ? today : null,
           ]

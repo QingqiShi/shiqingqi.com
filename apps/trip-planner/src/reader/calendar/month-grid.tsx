@@ -12,6 +12,7 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, font, opacity, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
+import { dayNumber } from "#src/trips/day-number.ts";
 import type { Day } from "#src/trips/types.ts";
 import { dayDateLabel, weekdayLabel } from "../date-label.ts";
 import { presencesOnDay } from "../presences-on-day.ts";
@@ -47,7 +48,7 @@ function DayCell({
   css: StyleProp;
 }) {
   const locale = useLocale();
-  const dayNumber = useDayNumber();
+  const dayLabel = useDayNumber(trip);
   const today = t({ en: "Today", zh: "今天" });
   const isToday = index === todayIndex;
   return (
@@ -72,8 +73,8 @@ function DayCell({
           </span>
           <span css={a11y.srOnly}>{dayDateLabel(day.date, locale)}</span>
           <Text as="span" look="caption" tone="muted">
-            <span aria-hidden>{`D${String(index)}`}</span>
-            <span css={a11y.srOnly}>{dayNumber(index)}</span>
+            <span aria-hidden>{`D${String(dayNumber(trip, index))}`}</span>
+            <span css={a11y.srOnly}>{dayLabel(index)}</span>
           </Text>
         </span>
         {isToday ? (

@@ -240,6 +240,8 @@ export const tripSchema = z
     language: z.enum(["en", "zh"]),
     /** An IANA zone, such as Europe/London. It sets "today" and "now". */
     timeZone: z.string().refine(isTimeZone, "Unknown time zone"),
+    /** The number of the first day. When it is absent, the days count from 0. */
+    firstDayNumber: z.union([z.literal(0), z.literal(1)]).optional(),
     people: z.array(person),
     days: z.array(day).min(1),
   })

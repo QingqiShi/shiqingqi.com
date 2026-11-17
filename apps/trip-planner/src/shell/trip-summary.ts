@@ -13,6 +13,7 @@ export interface TripSummary {
   phase: TripPhase;
   /** The day of the trip that is today, while the trip is on. */
   dayIndex: number;
+  firstDayNumber: Trip["firstDayNumber"];
 }
 
 export function tripSummary(
@@ -29,5 +30,6 @@ export function tripSummary(
     dates: shortRangeLabel(trip.days, locale),
     phase,
     dayIndex: index,
+    firstDayNumber: trip.firstDayNumber,
   };
 }

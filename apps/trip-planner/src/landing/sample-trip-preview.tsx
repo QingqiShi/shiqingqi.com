@@ -69,7 +69,7 @@ export function SampleTripPreview({ trip }: { trip: Trip }) {
         {view === "day" ? (
           <div css={stack.group}>
             <DayStepper
-              days={trip.days}
+              trip={trip}
               current={dayIndex}
               todayIndex={NOT_TODAY}
               onSelect={setDayIndex}
