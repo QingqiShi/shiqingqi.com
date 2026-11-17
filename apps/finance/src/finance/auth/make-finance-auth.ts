@@ -1,5 +1,7 @@
 import { HttpError } from "@tuja/server-auth/http-error";
 import { makeAuth } from "@tuja/server-auth/make-auth";
+import { makeCodeEmailBuilder } from "@tuja/server-email/make-code-email-builder";
+import type { EmailSender } from "@tuja/server-email/types";
 import { and, eq, isNotNull } from "drizzle-orm";
 import { findPostgresError } from "#src/finance/db/find-postgres-error.ts";
 import { users, VERIFIED_EMAIL_KEY } from "#src/finance/db/schema.ts";
@@ -9,8 +11,7 @@ import {
   type FinanceAppDb,
 } from "#src/finance/db/with-household.ts";
 import { resolveClientIp } from "#src/http/resolve-client-ip.ts";
-import { buildCodeEmail } from "../email/build-code-email.ts";
-import type { FinanceEmailSender } from "../email/types.ts";
+import { FINANCE_NAME } from "../email/finance-name.ts";
 import type {
   LimitFinanceRequest,
   RefundFinanceRequest,
@@ -31,7 +32,7 @@ export interface AuthHandlerDeps {
   refundRequest: RefundFinanceRequest;
   isAllowedOrigin: (origin: string) => boolean;
   /** Null when Finance sends no email. */
-  emailSender: () => FinanceEmailSender | null;
+  emailSender: () => EmailSender | null;
   /** Runs `task` after the response is sent, so that its time does not show in the response. */
   afterResponse: (task: () => Promise<void>) => void;
 }
@@ -60,7 +61,7 @@ export const financeAuthConfig = {
   sessionCookie: financeSessionCookie,
   challengeCookie: financeChallengeCookie,
   emailCodeCookie: financeEmailCodeCookie,
-  buildCodeEmail,
+  buildCodeEmail: makeCodeEmailBuilder(FINANCE_NAME),
   isEmailRegistered,
   findRecoveryUser: async (tx: FinanceAppDb, email: string) =>
     (

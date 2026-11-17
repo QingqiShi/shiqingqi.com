@@ -1,4 +1,5 @@
 import { createSoftwareAuthenticator } from "@tuja/server-auth/testing/create-software-authenticator";
+import { readOutbox } from "@tuja/server-email/make-outbox-email-sender";
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import {
@@ -10,7 +11,6 @@ import {
   signUps,
   users,
 } from "#src/finance/db/schema.ts";
-import { readOutbox } from "../email/make-outbox-email-sender.ts";
 import { financeSessionCookie } from "./finance-session-cookie.ts";
 import {
   createAuthTestClient,

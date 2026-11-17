@@ -1,8 +1,8 @@
 import type { SupportedLocale } from "@tuja/i18n/types";
-import type { BuddyEmail } from "./types.ts";
+import type { Email } from "./types.ts";
 
 /** A button that opens `url`, under an optional heading and an optional line that says what to do there. */
-interface BuddyEmailAction {
+interface EmailAction {
   heading?: string;
   text?: string;
   label: string;
@@ -11,12 +11,10 @@ interface BuddyEmailAction {
 
 const COPY = {
   en: {
-    wordmark: "Buddy",
     copyLink: "Or copy this link:",
     ignore: "If you did not ask for this, ignore this email.",
   },
   zh: {
-    wordmark: "搭子",
     copyLink: "或复制此链接：",
     ignore: "如果不是你本人申请，请忽略此邮件。",
   },
@@ -84,7 +82,7 @@ const text = {
   "mso-line-height-rule": "exactly",
 };
 
-function renderButton(action: BuddyEmailAction, quiet: boolean): string {
+function renderButton(action: EmailAction, quiet: boolean): string {
   const url = escapeHtml(action.url);
   const colors = quiet
     ? { fill: LIGHT.surface, label: LIGHT.accent }
@@ -94,7 +92,7 @@ function renderButton(action: BuddyEmailAction, quiet: boolean): string {
 }
 
 function renderAction(
-  action: BuddyEmailAction,
+  action: EmailAction,
   copyLink: string,
   quiet: boolean,
 ): string {
@@ -114,7 +112,7 @@ function ruledRow(body: string): string {
   return `<tr><td style="padding-top:24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td class="rule" style="${style({ "border-top": `1px solid ${LIGHT.border}`, "padding-top": "24px" })}">${body}</td></tr></table></td></tr>`;
 }
 
-function renderCode({ value, hint }: BuddyEmailCode): string {
+function renderCode({ value, hint }: EmailCode): string {
   return `<tr><td style="padding-top:28px">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td class="code" bgcolor="${LIGHT.canvas}" style="${style({ padding: "14px 24px 14px 28px", "background-color": LIGHT.canvas, border: `1px solid ${LIGHT.border}`, "border-radius": "12px" })}">
 <p class="fg" style="${style({ ...text, margin: "0", "font-size": "40px", "line-height": "48px", "font-weight": "600", "letter-spacing": "0.18em", "font-variant-numeric": "tabular-nums", color: LIGHT.fg })}">${escapeHtml(value)}</p>
@@ -124,7 +122,7 @@ function renderCode({ value, hint }: BuddyEmailCode): string {
 }
 
 function renderActionRows(
-  { action, code }: BuddyEmailContent,
+  { action, code }: EmailContent,
   copyLink: string,
 ): string {
   if (!code) {
@@ -138,7 +136,7 @@ function renderActionRows(
 }
 
 /** A code to type on the device that asked for the email. It leads the email, and the action becomes the other way in. */
-interface BuddyEmailCode {
+interface EmailCode {
   value: string;
   /** Where to type the code. */
   hint: string;
@@ -146,14 +144,16 @@ interface BuddyEmailCode {
   alternative: string;
 }
 
-interface BuddyEmailContent {
+export interface EmailContent {
+  /** The app's name in `locale`, above the card. */
+  wordmark: string;
   to: string;
   locale: SupportedLocale;
   subject: string;
   heading: string;
   intro: string;
-  code?: BuddyEmailCode;
-  action: BuddyEmailAction;
+  code?: EmailCode;
+  action: EmailAction;
   /** How long the code and the links work. */
   expiry?: string;
   /** The last note. By default it says to ignore the email when you did not ask for it. */
@@ -161,11 +161,11 @@ interface BuddyEmailContent {
 }
 
 /**
- * A Buddy email: a heading, an intro, an optional code to type, a button
+ * An email of an app: a heading, an intro, an optional code to type, a button
  * with its link also as text, and quieter notes below, which end with
  * "ignore this email". The plain-text body has the same parts.
  */
-export function renderBuddyEmail(content: BuddyEmailContent): BuddyEmail {
+export function renderEmail(content: EmailContent): Email {
   const { to, locale, subject, intro, code, action, expiry, ignore } = content;
   const notes = [...(expiry ? [expiry] : []), ignore ?? COPY[locale].ignore];
   const link = [action.heading, action.text, action.url]
@@ -184,9 +184,9 @@ export function renderBuddyEmail(content: BuddyEmailContent): BuddyEmail {
   };
 }
 
-/** Every value is escaped, so that no value can add markup. */
-function renderHtml(content: BuddyEmailContent, notes: string[]): string {
-  const { locale, subject, heading, intro } = content;
+/** Every value is escaped, because a value can be user input. */
+function renderHtml(content: EmailContent, notes: string[]): string {
+  const { wordmark, locale, subject, heading, intro } = content;
   const copy = COPY[locale];
   const lang = locale === "zh" ? "zh-CN" : "en";
   return `<!DOCTYPE html>
@@ -232,7 +232,7 @@ body { margin: 0; padding: 0; width: 100%; -webkit-text-size-adjust: 100%; -ms-t
 <tr><td class="page" align="center" style="${style({ padding: "40px 16px 48px" })}">
 <!--[if mso]><table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="${style({ width: "100%", "max-width": "560px" })}">
-<tr><td class="fg wordmark" style="${style({ ...text, padding: "0 41px 16px", "font-size": "15px", "line-height": "20px", "font-weight": "600", "letter-spacing": "-0.01em", color: LIGHT.fg })}">${escapeHtml(copy.wordmark)}</td></tr>
+<tr><td class="fg wordmark" style="${style({ ...text, padding: "0 41px 16px", "font-size": "15px", "line-height": "20px", "font-weight": "600", "letter-spacing": "-0.01em", color: LIGHT.fg })}">${escapeHtml(wordmark)}</td></tr>
 <tr><td class="card" bgcolor="${LIGHT.surface}" style="${style({ padding: "40px", "background-color": LIGHT.surface, border: `1px solid ${LIGHT.border}`, "border-radius": "10px" })}">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 <tr><td>

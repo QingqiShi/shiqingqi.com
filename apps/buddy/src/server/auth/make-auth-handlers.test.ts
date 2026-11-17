@@ -6,14 +6,14 @@ import type {
   PublicKeyCredentialRequestOptionsJSON,
 } from "@simplewebauthn/server";
 import { createSoftwareAuthenticator } from "@tuja/server-auth/testing/create-software-authenticator";
+import {
+  makeOutboxEmailSender,
+  readOutbox,
+} from "@tuja/server-email/make-outbox-email-sender";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ACCOUNT_NAME_PATTERN } from "../account-name-pattern.ts";
 import { accounts, passkeys } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
-import {
-  makeOutboxEmailSender,
-  readOutbox,
-} from "../email/make-outbox-email-sender.ts";
 import { buddySessionCookie } from "./buddy-session-cookie.ts";
 import { isAllowedBuddyOrigin } from "./is-allowed-buddy-origin.ts";
 import {

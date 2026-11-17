@@ -1,6 +1,6 @@
 import type { SupportedLocale } from "@tuja/i18n/types";
+import type { Email } from "@tuja/server-email/types";
 import { renderFinanceEmail } from "./render-finance-email.ts";
-import type { FinanceEmail } from "./types.ts";
 
 const COPY = {
   en: {
@@ -29,7 +29,7 @@ export function buildVerificationEmail({
   to: string;
   locale: SupportedLocale;
   url: string;
-}): FinanceEmail {
+}): Email {
   const { action, ...copy } = COPY[locale];
   return renderFinanceEmail({
     ...copy,

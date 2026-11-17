@@ -2,17 +2,17 @@ import { randomUUID } from "node:crypto";
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
-import type { BuddyEmail, BuddyEmailSender } from "./types.ts";
+import type { Email, EmailSender } from "./types.ts";
 
 const outboxEmailSchema = z.object({
   to: z.string(),
   subject: z.string(),
   text: z.string(),
   html: z.string(),
-}) satisfies z.ZodType<BuddyEmail>;
+}) satisfies z.ZodType<Email>;
 
 /** Writes each email as a JSON file in `dir` and sends nothing. For dev and tests, which read the files back with `readOutbox`. */
-export function makeOutboxEmailSender(dir: string): BuddyEmailSender {
+export function makeOutboxEmailSender(dir: string): EmailSender {
   return {
     async send(email) {
       await mkdir(dir, { recursive: true });
@@ -26,7 +26,7 @@ export function makeOutboxEmailSender(dir: string): BuddyEmailSender {
 }
 
 /** Every email in the outbox, oldest first. Empty when the outbox does not exist. */
-export async function readOutbox(dir: string): Promise<BuddyEmail[]> {
+export async function readOutbox(dir: string): Promise<Email[]> {
   let names: string[];
   try {
     names = await readdir(dir);
