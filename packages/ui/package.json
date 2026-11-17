@@ -89,6 +89,7 @@
     "./motion/bind": "./src/motion/bind.ts",
     "./motion/create-motion-engine": "./src/motion/create-motion-engine.ts",
     "./motion/create-motion-value": "./src/motion/create-motion-value.ts",
+    "./motion/css-tween": "./src/motion/css-tween.ts",
     "./motion/mix": "./src/motion/mix.ts",
     "./motion/play-layout": "./src/motion/play-layout.ts",
     "./motion/px": "./src/motion/px.ts",

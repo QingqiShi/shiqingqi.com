@@ -5,13 +5,7 @@ import { color } from "@tuja/ui/color.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { border, layer, rhythm, safeArea, space } from "@tuja/ui/tokens.stylex";
 import { getScrollBehavior } from "@tuja/ui/utils/get-scroll-behavior";
-import {
-  ViewTransition,
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { MediaDetailOverlay } from "#src/movie-database/details/media-detail-overlay.tsx";
 import { MediaDetailProvider } from "#src/movie-database/details/media-detail-provider.tsx";
 import { PersonDetailOverlay } from "#src/movie-database/details/person-detail-overlay.tsx";
@@ -21,7 +15,6 @@ import {
   scrollEventTargetOf,
 } from "#src/movie-database/screen-scroller-of.ts";
 import { PreferenceManager } from "#src/movie-database/taste/preference-panel.tsx";
-import { inlineChatInputMorph } from "#src/view-transition-classes.stylex.ts";
 import { useAIChatContext } from "./ai-chat-provider.tsx";
 import {
   ChatActionsContext,
@@ -29,6 +22,7 @@ import {
 } from "./chat-actions-context.tsx";
 import { ChatInputBar } from "./chat-input-bar.tsx";
 import { ChatMessageList, SCROLL_THRESHOLD } from "./chat-message-list.tsx";
+import { DATA_INLINE_CHAT_INPUT } from "./inline-chat-context.tsx";
 import { ScrollToBottomButton } from "./scroll-to-bottom-button.tsx";
 import { SessionRestoreBanner } from "./session-restore-banner.tsx";
 
@@ -144,28 +138,23 @@ export function InlineChatView({
             <div css={styles.inputMeta}>
               <PreferenceManager />
             </div>
-            <ViewTransition
-              name="inline-chat-input"
-              share={inlineChatInputMorph}
-            >
-              <div css={styles.inputShell}>
-                <ChatInputBar
-                  placeholder={placeholder}
-                  sendLabel={sendLabel}
-                  stopLabel={stopLabel}
-                  removeAttachmentLabel={removeAttachmentLabel}
-                  status={status}
-                  attachedMedia={attachedMedia}
-                  onSend={handleSend}
-                  onStop={() => {
-                    void stop();
-                  }}
-                  onClearAttachment={() => {
-                    setAttachedMedia(null);
-                  }}
-                />
-              </div>
-            </ViewTransition>
+            <div {...{ [DATA_INLINE_CHAT_INPUT]: "" }}>
+              <ChatInputBar
+                placeholder={placeholder}
+                sendLabel={sendLabel}
+                stopLabel={stopLabel}
+                removeAttachmentLabel={removeAttachmentLabel}
+                status={status}
+                attachedMedia={attachedMedia}
+                onSend={handleSend}
+                onStop={() => {
+                  void stop();
+                }}
+                onClearAttachment={() => {
+                  setAttachedMedia(null);
+                }}
+              />
+            </div>
           </div>
         </div>
         <MediaDetailOverlay />
@@ -185,9 +174,6 @@ const styles = stylex.create({
     display: "flex",
     justifyContent: "flex-end",
     marginBottom: rhythm.tight,
-  },
-  inputShell: {
-    display: "block",
   },
   inputArea: {
     position: "sticky",

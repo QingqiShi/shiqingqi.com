@@ -26,6 +26,8 @@ function buttonUnderContexts({
     <InlineChatContext
       value={{
         isChatActive: false,
+        leaving: null,
+        finishSwap: vi.fn(),
         openChat,
         openChatWithSession: vi.fn(),
         closeChat: vi.fn(),

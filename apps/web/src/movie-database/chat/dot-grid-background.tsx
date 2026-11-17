@@ -13,6 +13,7 @@ import {
   easing,
 } from "@tuja/ui/primitives/motion.stylex";
 import { layer } from "@tuja/ui/tokens.stylex";
+import type { Ref } from "react";
 import { useAIChatContext } from "./ai-chat-provider.tsx";
 import type { ChatMood } from "./types.ts";
 
@@ -27,11 +28,15 @@ const MOOD_WASH_COLORS: Record<ChatMood, string> = {
   neutral: purple._30,
 };
 
-export function DotGridBackground() {
+export function DotGridBackground({ ref }: { ref?: Ref<HTMLDivElement> }) {
   const { mood } = useAIChatContext();
   const wash = MOOD_WASH_COLORS[mood ?? "neutral"];
   return (
-    <div role="presentation" css={[styles.background, styles.moodWash(wash)]} />
+    <div
+      ref={ref}
+      role="presentation"
+      css={[styles.background, styles.moodWash(wash)]}
+    />
   );
 }
 
