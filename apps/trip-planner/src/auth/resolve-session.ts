@@ -1,3 +1,4 @@
+import { runTransaction } from "@tuja/server-db/run-transaction";
 import type { TripsDb } from "#src/db/types.ts";
 import { tripsAuthStore } from "./trips-auth-store.ts";
 import { tripsSessionCookie } from "./trips-session-cookie.ts";
@@ -21,7 +22,7 @@ export function resolveSession(
   token: string,
   { now, allowRefresh }: ResolveSessionOptions,
 ): Promise<ResolvedSession | null> {
-  return db.transaction((tx) =>
+  return runTransaction(db, (tx) =>
     tripsAuthStore.resolveSession<TripsSession>(tx, token, {
       now,
       maxAgeSeconds: tripsSessionCookie.maxAgeSeconds,

@@ -1,3 +1,4 @@
+import { runTransaction } from "@tuja/server-db/run-transaction";
 import type { BuddyDb } from "#src/server/db/types.ts";
 import { buddyAuthStore } from "./buddy-auth-store.ts";
 import { buddySessionCookie } from "./buddy-session-cookie.ts";
@@ -21,7 +22,7 @@ export function resolveSession(
   token: string,
   { now, allowRefresh }: ResolveSessionOptions,
 ): Promise<ResolvedSession | null> {
-  return db.transaction((tx) =>
+  return runTransaction(db, (tx) =>
     buddyAuthStore.resolveSession<BuddySession>(tx, token, {
       now,
       maxAgeSeconds: buddySessionCookie.maxAgeSeconds,

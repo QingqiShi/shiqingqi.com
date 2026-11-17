@@ -1,3 +1,4 @@
+import { runTransaction } from "@tuja/server-db/run-transaction";
 import { sql } from "drizzle-orm";
 import type { LimitedTx } from "./as-viewer.ts";
 import type { BuddyDb } from "./types.ts";
@@ -11,7 +12,7 @@ export function asArchive<T>(
   db: BuddyDb,
   run: (tx: LimitedTx) => Promise<T>,
 ): Promise<T> {
-  return db.transaction(async (tx) => {
+  return runTransaction(db, async (tx) => {
     await tx.execute(sql`select set_config('role', 'buddy_archive', true)`);
     return run(tx);
   });

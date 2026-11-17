@@ -8,6 +8,7 @@ import type {
   AuthRateLimitResult,
 } from "@tuja/server-auth/make-auth-route-kit";
 import { readRequestCookie } from "@tuja/server-auth/read-request-cookie";
+import { runTransaction } from "@tuja/server-db/run-transaction";
 import { makeCodeEmailBuilder } from "@tuja/server-email/make-code-email-builder";
 import type { EmailSender } from "@tuja/server-email/types";
 import { and, eq, ne, sql } from "drizzle-orm";
@@ -58,7 +59,7 @@ export const tripsAuthConfig = {
   postBucket: "auth",
   store: tripsAuthStore,
   transaction: <T>(db: TripsDb, run: (tx: TripsDb) => Promise<T>) =>
-    db.transaction(run),
+    runTransaction(db, run),
   sessionCookie: tripsSessionCookie,
   challengeCookie: tripsChallengeCookie,
   emailCodeCookie: tripsEmailCodeCookie,
