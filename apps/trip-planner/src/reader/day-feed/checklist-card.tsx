@@ -55,7 +55,11 @@ function createStore(storageKey: string): ChecklistStore {
 
   const getSnapshot = () => {
     if (!loaded && typeof window !== "undefined") {
-      snapshot = parse(window.localStorage.getItem(storageKey));
+      try {
+        snapshot = parse(window.localStorage.getItem(storageKey));
+      } catch {
+        // Storage is blocked. The ticks stay only for this visit.
+      }
       loaded = true;
     }
     return snapshot;
