@@ -125,7 +125,7 @@ export function TripPage({
         {location.view === "day" ? (
           <>
             <DayStepper
-              days={trip.days}
+              trip={trip}
               current={location.day}
               todayIndex={todayIndex}
               onSelect={openDay}

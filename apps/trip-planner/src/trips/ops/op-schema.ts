@@ -5,6 +5,7 @@ import {
   lodging,
   momentItemSchemas,
   momentTimeSchema,
+  presence,
 } from "../trip-schema.ts";
 import type { Lodging, MomentItem } from "../types.ts";
 
@@ -103,6 +104,8 @@ export const opSchema = z.discriminatedUnion("op", [
     op: z.literal("addDay"),
     id: entityId,
     before: entityId.optional(),
+    /** The date of the new day. Else it takes the date where it goes. */
+    date: z.iso.date().optional(),
   }),
   z.strictObject({ op: z.literal("removeDay"), id: entityId, expect }),
   z.strictObject({
@@ -133,6 +136,7 @@ export const opSchema = z.discriminatedUnion("op", [
   z.strictObject({
     op: z.literal("addMoment"),
     dayId: entityId,
+    before: entityId.optional(),
     moment: z.strictObject({
       id: entityId,
       time: momentTimeSchema,
@@ -154,6 +158,7 @@ export const opSchema = z.discriminatedUnion("op", [
     op: z.literal("moveMoment"),
     id: entityId,
     dayId: entityId,
+    before: entityId.optional(),
     expect,
   }),
   z.strictObject({ op: z.literal("removeMoment"), id: entityId, expect }),
@@ -191,7 +196,15 @@ export const opSchema = z.discriminatedUnion("op", [
       summary: nullable(z.string()),
       note: nullable(z.string()),
       bookingUrl: nullable(z.string()),
+      sameAs: nullable(z.object({ dayId: entityId, label: z.string() })),
     }),
+    expect,
+  }),
+  z.strictObject({
+    op: z.literal("setPresence"),
+    personId: entityId,
+    dayId: entityId,
+    presence: presence.nullable(),
     expect,
   }),
 ]);

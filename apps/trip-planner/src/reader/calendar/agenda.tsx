@@ -13,6 +13,7 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, font, opacity, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Fragment } from "react";
+import { dayNumber } from "#src/trips/day-number.ts";
 import { dayDateLabel, shortDateLabel, weekdayLabel } from "../date-label.ts";
 import { presencesOnDay } from "../presences-on-day.ts";
 import { TripText } from "../trip-text.tsx";
@@ -40,7 +41,7 @@ export function Agenda({
   onOpenDay,
 }: CalendarProps) {
   const locale = useLocale();
-  const dayNumber = useDayNumber();
+  const dayLabel = useDayNumber(trip);
   const stayLabel = useStayLabel();
   const today = t({ en: "Today", zh: "今天" });
   const weekOf = t({ en: "Week of {date}", zh: "{date}起的一周" });
@@ -95,9 +96,11 @@ export function Agenda({
                 <span css={styles.head}>
                   <Text as="span" look="label" weight="semibold">
                     <span css={a11y.srOnly}>
-                      {`${dayDateLabel(day.date, locale)} · ${dayNumber(index)}`}
+                      {`${dayDateLabel(day.date, locale)} · ${dayLabel(index)}`}
                     </span>
-                    <span aria-hidden>{`D${String(index)}`}</span>
+                    <span
+                      aria-hidden
+                    >{`D${String(dayNumber(trip, index))}`}</span>
                     {day.title ? (
                       <>
                         {" · "}

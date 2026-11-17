@@ -195,6 +195,24 @@ describe("moments", () => {
       "m0metro",
     );
   });
+
+  it("keeps a moment that a batch adds with nothing in it, for a later save to fill", () => {
+    const added = applied(lisbon, [
+      {
+        op: "addMoment",
+        dayId: "day2sample",
+        moment: { id: "m2snack", time: "16:00" },
+        before: "m2checkin",
+      },
+    ]);
+    expect(day(added, "day2sample").moments.map((m) => m.id)).toEqual([
+      "m2out",
+      "m2train",
+      "m2snack",
+      "m2checkin",
+      "m2evening",
+    ]);
+  });
 });
 
 describe("items", () => {

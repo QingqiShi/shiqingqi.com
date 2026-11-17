@@ -6,6 +6,7 @@
   "party": "3 people",
   "language": "en",
   "timeZone": "Europe/Lisbon",
+  "firstDayNumber": 1,
   "people": [
     {
       "id": "ana",
@@ -291,7 +292,7 @@
         "lodging": [],
         "sameAs": {
           "dayId": "day0sample",
-          "label": "Same as Day 0 · Baixa House"
+          "label": "Same as Day 1 · Baixa House"
         }
       }
     },
@@ -392,7 +393,7 @@
         "lodging": [],
         "sameAs": {
           "dayId": "day2sample",
-          "label": "Same as Day 2 · Casa do Douro"
+          "label": "Same as Day 3 · Casa do Douro"
         }
       }
     },

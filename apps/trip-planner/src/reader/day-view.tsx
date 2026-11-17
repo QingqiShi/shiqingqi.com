@@ -52,7 +52,7 @@ export function DayView({
     <div css={stack.group}>
       <div css={stack.tight}>
         <Heading level={2} look="h2">
-          <DayTitle day={day} index={trip.days.indexOf(day)} />
+          <DayTitle trip={trip} day={day} />
         </Heading>
         {day.route ? (
           <Text tone="muted">
