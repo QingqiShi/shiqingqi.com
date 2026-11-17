@@ -148,6 +148,13 @@
       "when": 1794864696981,
       "tag": "0020_recoveries",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1794913988979,
+      "tag": "0021_invites_without_recovery",
+      "breakpoints": true
     }
   ]
 }

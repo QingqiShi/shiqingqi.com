@@ -1,7 +1,6 @@
 import { makeAuthTables } from "@tuja/server-auth/make-auth-tables";
 import { sql } from "drizzle-orm";
 import {
-  bigint,
   index,
   pgTable,
   text,
@@ -55,30 +54,6 @@ export const emailVerifications = pgTable(
   (t) => [index("email_verifications_user_idx").on(t.userId)],
 );
 
-/**
- * The tables of sign-in that every app has. `passkeys` is below, because
- * Finance's has one more column.
- */
-export const { emailCodes, signUps, recoveries, sessions } = makeAuthTables(
-  () => users.id,
-);
-
-export const passkeys = pgTable(
-  "passkeys",
-  {
-    id: text("id").primaryKey(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    publicKey: bytea("public_key").notNull(),
-    counter: bigint("counter", { mode: "number" }).notNull().default(0),
-    transports: text("transports")
-      .array()
-      .notNull()
-      .default(sql`'{}'::text[]`),
-    deviceName: text("device_name").notNull().default(""),
-    createdAt: createdAt(),
-    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
-  },
-  (t) => [index("passkeys_user_idx").on(t.userId)],
-);
+/** The tables of sign-in that every app has. */
+export const { emailCodes, signUps, recoveries, passkeys, sessions } =
+  makeAuthTables(() => users.id);

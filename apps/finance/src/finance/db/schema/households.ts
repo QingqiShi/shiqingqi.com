@@ -103,8 +103,6 @@ export const invites = pgTable(
     createdBy: uuid("created_by").references(() => users.id),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     usedAt: timestamp("used_at", { withTimezone: true }),
-    /** Null in each new invite. An invite that has a user here is from the time when a recovery was an invite, and it has ended. */
-    recoveryUserId: uuid("recovery_user_id").references(() => users.id),
   },
   (t) => [householdReference("invites_member_fk", t, t.memberId, members)],
 );
