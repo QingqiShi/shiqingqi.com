@@ -1,6 +1,7 @@
 import { createServer, type Server } from "node:net";
 import { afterEach, describe, expect, it } from "vitest";
 import { createImapflowConnector } from "#src/assistant/mail/imap/imapflow-connector.ts";
+import { MailboxAuthError } from "#src/assistant/mail/imap/mailbox-auth-error.ts";
 import { MoveUnsupportedError } from "#src/assistant/mail/imap/move-unsupported-error.ts";
 
 interface ScriptedMail {
@@ -31,6 +32,7 @@ function startImapServer(
   folders: Map<string, ScriptedMail[]>,
   capabilities: string,
   refuseOnce: string[],
+  loginAnswer = "OK [CAPABILITY $CAPABILITIES] Logged in",
 ) {
   const commands: string[] = [];
   const server = createServer((socket) => {
@@ -110,7 +112,7 @@ function startImapServer(
           send(`* CAPABILITY ${capabilities}`);
           break;
         case "LOGIN":
-          send(`${tag} OK [CAPABILITY ${capabilities}] Logged in`);
+          send(`${tag} ${loginAnswer.replace("$CAPABILITIES", capabilities)}`);
           return;
         case "SELECT":
         case "EXAMINE": {
@@ -205,9 +207,19 @@ describe("imapflowConnector", () => {
     {
       capabilities = "IMAP4rev1 MOVE UIDPLUS",
       refuseOnce = [],
-    }: { capabilities?: string; refuseOnce?: string[] } = {},
+      loginAnswer,
+    }: {
+      capabilities?: string;
+      refuseOnce?: string[];
+      loginAnswer?: string;
+    } = {},
   ) {
-    const started = await startImapServer(folders, capabilities, refuseOnce);
+    const started = await startImapServer(
+      folders,
+      capabilities,
+      refuseOnce,
+      loginAnswer,
+    );
     running = started.server;
     const session = await createImapflowConnector({ tls: false })(
       { host: "127.0.0.1", port: started.port },
@@ -215,6 +227,26 @@ describe("imapflowConnector", () => {
     );
     return { session, commands: started.commands };
   }
+
+  it.each([
+    ["AUTHENTICATIONFAILED", "NO [AUTHENTICATIONFAILED] Authentication Failed"],
+    ["a bare NO", "NO Invalid credentials"],
+  ])("takes %s for a refused password", async (_name, loginAnswer) => {
+    await expect(
+      openSessionOn(new Map(), { loginAnswer }),
+    ).rejects.toBeInstanceOf(MailboxAuthError);
+  });
+
+  it.each(["UNAVAILABLE", "LIMIT", "INUSE"])(
+    "does not take NO [%s] for a refused password",
+    async (code) => {
+      const failure = await openSessionOn(new Map(), {
+        loginAnswer: `NO [${code}] Try again later`,
+      }).catch((error: unknown) => error);
+      expect(failure).toBeInstanceOf(Error);
+      expect(failure).not.toBeInstanceOf(MailboxAuthError);
+    },
+  );
 
   it("keeps mail that another client flagged \\Deleted when it renames the open folder", async () => {
     const folders = new Map<string, ScriptedMail[]>([
