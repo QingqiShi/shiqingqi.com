@@ -21,7 +21,7 @@ function generateAccountName() {
   return name;
 }
 
-/** Makes the account of a sign-up under a new random name, and returns the name. */
+/** Makes the account of a sign-up under a new random name. */
 export async function createAccount(
   tx: BuddyDb,
   { userId, email, now }: { userId: string; email: string; now: Date },
@@ -33,7 +33,7 @@ export async function createAccount(
       .values({ id: userId, name, email, createdAt: now })
       .onConflictDoNothing()
       .returning({ id: accounts.id });
-    if (created.length > 0) return { name };
+    if (created.length > 0) return {};
   }
   throw new HttpError(409, "email_registered");
 }
