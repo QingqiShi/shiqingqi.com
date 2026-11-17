@@ -12,7 +12,7 @@ export async function generateMetadata(props: {
   params: Promise<{ locale: SupportedLocale }>;
 }): Promise<Metadata> {
   validateLocale((await props.params).locale);
-  return { title: t({ en: "Recovery email", zh: "恢复邮箱" }) };
+  return { title: t({ en: "Confirm your email", zh: "确认你的邮箱" }) };
 }
 
 export default async function Page({

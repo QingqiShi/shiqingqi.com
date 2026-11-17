@@ -79,8 +79,8 @@ export function SettingsMenu() {
     device: t({ en: "This device", zh: "本设备" }),
   };
   const noRecoveryEmail = t({
-    en: "No confirmed recovery email",
-    zh: "没有已确认的恢复邮箱",
+    en: "No confirmed email",
+    zh: "没有已确认的邮箱",
   });
   const membersDot =
     recoveryEmail?.verified === false ? (

@@ -30,7 +30,7 @@ export function VerifyEmailPanel({ token }: { token: string }) {
 
   const outcomes = {
     verified: {
-      heading: t({ en: "Recovery email confirmed", zh: "恢复邮箱已确认" }),
+      heading: t({ en: "Email confirmed", zh: "邮箱已确认" }),
       text: t({
         en: "If you lose every passkey, ask for a recovery link on the sign-in page.",
         zh: "如果你丢失了全部通行密钥，可以在登录页申请恢复链接。",
@@ -46,8 +46,8 @@ export function VerifyEmailPanel({ token }: { token: string }) {
     registered: {
       heading: t({ en: "This email is in use", zh: "此邮箱已被使用" }),
       text: t({
-        en: "Another Finance sign-in already uses this email for recovery. Choose another email in Settings.",
-        zh: "另一个家庭账本用户已将此邮箱设为恢复邮箱。请在设置中换一个邮箱。",
+        en: "Another Finance sign-in already uses this email. Choose another email in Settings.",
+        zh: "另一个家庭账本用户已在使用此邮箱。请在设置中换一个邮箱。",
       }),
     },
   };
@@ -66,7 +66,7 @@ export function VerifyEmailPanel({ token }: { token: string }) {
     <div css={stack.item}>
       <div css={stack.tight}>
         <Heading level={1} look="h2">
-          {t({ en: "Confirm your recovery email", zh: "确认你的恢复邮箱" })}
+          {t({ en: "Confirm your email", zh: "确认你的邮箱" })}
         </Heading>
         <Text tone="muted">
           {t({
