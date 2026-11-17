@@ -1,4 +1,5 @@
 import { getTableName, sql } from "drizzle-orm";
+import { asArchive } from "../db/as-archive.ts";
 import { buddyUsageDays, machines } from "../db/schema.ts";
 import type { BuddyDb } from "../db/types.ts";
 import { readSnapshots } from "../snapshot/read-snapshots.ts";
@@ -23,39 +24,43 @@ export async function upsertUsageDays(
   rows: readonly UsageDayRow[],
 ) {
   for (let start = 0; start < rows.length; start += CHUNK_SIZE) {
-    await db
-      .insert(buddyUsageDays)
-      .values(rows.slice(start, start + CHUNK_SIZE))
-      .onConflictDoUpdate({
-        target: [
-          buddyUsageDays.userId,
-          buddyUsageDays.machineId,
-          buddyUsageDays.day,
-        ],
-        set: {
-          tokens: greatest("tokens"),
-          costUsd: greatest("cost_usd"),
-          cacheRead: greatest("cache_read"),
-          promptTokens: greatest("prompt_tokens"),
-          archivedAt: sql`now()`,
-        },
-        setWhere: sql.raw(
-          ["tokens", "cost_usd", "cache_read", "prompt_tokens"]
-            .map(
-              (column) =>
-                `excluded.${column} > coalesce(${TABLE}.${column}, -1)`,
-            )
-            .join(" or "),
-        ),
-      });
+    await asArchive(db, (tx) =>
+      tx
+        .insert(buddyUsageDays)
+        .values(rows.slice(start, start + CHUNK_SIZE))
+        .onConflictDoUpdate({
+          target: [
+            buddyUsageDays.userId,
+            buddyUsageDays.machineId,
+            buddyUsageDays.day,
+          ],
+          set: {
+            tokens: greatest("tokens"),
+            costUsd: greatest("cost_usd"),
+            cacheRead: greatest("cache_read"),
+            promptTokens: greatest("prompt_tokens"),
+            archivedAt: sql`now()`,
+          },
+          setWhere: sql.raw(
+            ["tokens", "cost_usd", "cache_read", "prompt_tokens"]
+              .map(
+                (column) =>
+                  `excluded.${column} > coalesce(${TABLE}.${column}, -1)`,
+              )
+              .join(" or "),
+          ),
+        }),
+    );
   }
 }
 
 /** Copies every day of every Mac that ever connected from its Redis snapshot into Postgres. */
 export async function archiveUsageDays(kv: BuddyKv, db: BuddyDb) {
-  const macs = await db
-    .select({ userId: machines.userId, machineId: machines.machineId })
-    .from(machines);
+  const macs = await asArchive(db, (tx) =>
+    tx
+      .select({ userId: machines.userId, machineId: machines.machineId })
+      .from(machines),
+  );
   let rows = 0;
   for (let start = 0; start < macs.length; start += SNAPSHOTS_PER_READ) {
     const chunk = macs.slice(start, start + SNAPSHOTS_PER_READ);

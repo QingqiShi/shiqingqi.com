@@ -1,8 +1,8 @@
 import { isSameOrigin } from "@tuja/server-auth/is-same-origin";
 import { z } from "zod";
+import { ownAccountName } from "../account/own-account.ts";
 import { readSession } from "../auth/read-session.ts";
 import type { BuddyDb } from "../db/types.ts";
-import { accountNameOf } from "./account-name-of.ts";
 import { machineStore } from "./machine-store.ts";
 import type { MachineRegistry } from "./make-machine-registry.ts";
 
@@ -47,7 +47,7 @@ export function makeMachineHandlers(deps: MachineHandlerDeps) {
         machineId,
         now: deps.now(),
       });
-      const name = owned ? await accountNameOf(db, userId) : null;
+      const name = owned ? await ownAccountName(db, userId) : null;
       if (name === null) return reply({ error: "not_found" }, 404);
       await deps.registry.remove({ machineId, name });
       return reply({ ok: true });

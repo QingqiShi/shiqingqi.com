@@ -33,6 +33,8 @@ const restrictedPlugin = {
     "class-component": noRestrictedSyntax,
     "browser-typegpu": builtinRules.get("no-restricted-imports"),
     "trip-tables": builtinRules.get("no-restricted-imports"),
+    "buddy-tables": builtinRules.get("no-restricted-imports"),
+    "buddy-raw-sql": noRestrictedSyntax,
     "vercel-observability": builtinRules.get("no-restricted-imports"),
   },
 };
@@ -788,6 +790,68 @@ export default defineConfig([
               allowTypeImports: true,
               message:
                 "Sign-in reads only the tables in `#src/db/auth-schema.ts`. Read a trip with `getTrips` or `getTrip` from `#src/trips/get-trips.ts`.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  // A user of Buddy sees only their own rows. So only the stores that run
+  // under row-level security as the signed-in user (`asViewer`), the daily
+  // archive (`asArchive`), sign-in and the dev tools reach the tables.
+  {
+    files: ["apps/buddy/src/**/*.{ts,tsx}"],
+    ignores: [
+      "apps/buddy/src/server/db/**",
+      "apps/buddy/src/server/account/own-account.ts",
+      "apps/buddy/src/server/machines/{machine-store,make-machine-registry}.ts",
+      "apps/buddy/src/server/archive/**",
+      "apps/buddy/src/server/auth/**",
+      "apps/buddy/src/server/dev/**",
+      "apps/buddy/src/testing/**",
+      "apps/buddy/src/**/*.test.{ts,tsx}",
+    ],
+    rules: {
+      "restricted/buddy-tables": [
+        "error",
+        {
+          patterns: [
+            {
+              regex:
+                "^pg$|^drizzle-orm(/|$)|/db/(schema|as-viewer|as-archive)(\\.ts)?$",
+              allowTypeImports: true,
+              message:
+                "Read and change a user's rows in a store that runs its queries in `asViewer`, such as `#src/server/account/own-account.ts`, and add the store to this rule in `eslint.config.mjs`.",
+            },
+          ],
+        },
+      ],
+      "restricted/buddy-raw-sql": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.property.name='execute'], MemberExpression[property.name='$client']",
+          message:
+            "Run SQL in a store that runs its queries in `asViewer`, such as `#src/server/account/own-account.ts`.",
+        },
+      ],
+    },
+  },
+  // Sign-in runs as the owner of the tables, before a user is known. It
+  // reads only the accounts and the tables of sign-in.
+  {
+    files: ["apps/buddy/src/server/auth/**/*.ts"],
+    ignores: ["apps/buddy/src/**/*.test.ts"],
+    rules: {
+      "restricted/buddy-tables": [
+        "error",
+        {
+          patterns: [
+            {
+              regex: "/db/schema(\\.ts)?$",
+              importNames: ["machines", "buddyUsageDays", "schema"],
+              message:
+                "Sign-in reads only the accounts and the tables of sign-in. Read a user's Macs with `machineStore` from `#src/server/machines/machine-store.ts`.",
             },
           ],
         },

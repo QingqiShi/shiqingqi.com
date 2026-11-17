@@ -1,5 +1,6 @@
 import { randomInt } from "node:crypto";
 import { and, asc, eq, isNull } from "drizzle-orm";
+import { asViewer } from "../db/as-viewer.ts";
 import { machines } from "../db/schema.ts";
 import type { BuddyDb } from "../db/types.ts";
 
@@ -17,7 +18,7 @@ async function connect(
   db: BuddyDb,
   input: { userId: string; publicKey: string; name: string; now: Date },
 ): Promise<{ machineId: string; name: string }> {
-  return db.transaction(async (tx) => {
+  return asViewer(db, input.userId, async (tx) => {
     const existing = (
       await tx
         .update(machines)
@@ -47,15 +48,17 @@ async function connect(
 }
 
 function list(db: BuddyDb, userId: string) {
-  return db
-    .select({
-      machineId: machines.machineId,
-      name: machines.name,
-      createdAt: machines.createdAt,
-    })
-    .from(machines)
-    .where(and(eq(machines.userId, userId), isNull(machines.revokedAt)))
-    .orderBy(asc(machines.createdAt), asc(machines.machineId));
+  return asViewer(db, userId, (tx) =>
+    tx
+      .select({
+        machineId: machines.machineId,
+        name: machines.name,
+        createdAt: machines.createdAt,
+      })
+      .from(machines)
+      .where(and(eq(machines.userId, userId), isNull(machines.revokedAt)))
+      .orderBy(asc(machines.createdAt), asc(machines.machineId)),
+  );
 }
 
 // True also for a machine that was removed before, so that a retry
@@ -68,12 +71,17 @@ async function revoke(
     eq(machines.userId, input.userId),
     eq(machines.machineId, input.machineId),
   );
-  await db
-    .update(machines)
-    .set({ revokedAt: input.now })
-    .where(and(own, isNull(machines.revokedAt)));
-  return (await db.$count(machines, own)) > 0;
+  return asViewer(db, input.userId, async (tx) => {
+    await tx
+      .update(machines)
+      .set({ revokedAt: input.now })
+      .where(and(own, isNull(machines.revokedAt)));
+    return (await tx.$count(machines, own)) > 0;
+  });
 }
 
-/** Write the change to Redis after each one, with the machine registry. */
+/**
+ * The signed-in user's own Macs, under row-level security. Write the change
+ * to Redis after each one, with the machine registry.
+ */
 export const machineStore = { connect, list, revoke };

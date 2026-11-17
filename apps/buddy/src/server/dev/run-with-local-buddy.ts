@@ -5,7 +5,6 @@ import { readPortOption } from "@tuja/dev-tools/read-cli-options";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { DEV_DB_DIR, startDevDb, type DevDb } from "../db/dev/start-dev-db.ts";
-import { schema } from "../db/schema.ts";
 import { readDevBuddyEnv } from "./read-dev-buddy-env.ts";
 import { seedDevAccount } from "./seed-dev-account.ts";
 
@@ -22,7 +21,7 @@ function waitForExit(child: ChildProcess): Promise<number> {
 async function seedWhenEmpty(connectionString: string) {
   const pool = new Pool({ connectionString, max: 1 });
   try {
-    if (await seedDevAccount(drizzle({ client: pool, schema }))) {
+    if (await seedDevAccount(drizzle({ client: pool }))) {
       console.log("Buddy: seeded the dev account qingqi and its Mac dev-mac.");
     }
   } finally {

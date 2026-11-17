@@ -1,22 +1,16 @@
 import { generateKeyPairSync } from "node:crypto";
-import { PGlite } from "@electric-sql/pglite";
 import { asc } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/pglite";
-import { migrate } from "drizzle-orm/pglite/migrator";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createBuddyTestKit } from "#src/testing/create-buddy-test-kit.ts";
 import { sampleUpload } from "#src/testing/sample-upload.ts";
-import { BUDDY_MIGRATIONS_FOLDER } from "../db/buddy-migrations-folder.ts";
-import { buddyUsageDays, schema } from "../db/schema.ts";
+import { buddyUsageDays } from "../db/schema.ts";
 import { machineStore } from "../machines/machine-store.ts";
 import { nextSnapshot } from "../snapshot/next-snapshot.ts";
 import { buddyKeys } from "../store/buddy-keys.ts";
 import { rawPublicKey } from "../upload/verify-upload-signature.ts";
 import { archiveUsageDays, upsertUsageDays } from "./archive-usage-days.ts";
 
-const row = {
-  userId: "qingqi",
-  machineId: "mac-7f3a",
+const day = {
   day: "2026-11-06",
   tokens: 1_000,
   costUsd: 1.5,
@@ -25,29 +19,35 @@ const row = {
 };
 
 describe("upsertUsageDays", () => {
-  let client: PGlite;
-  let db: ReturnType<typeof drizzle<typeof schema>>;
+  let kit: Awaited<ReturnType<typeof createBuddyTestKit>>;
+  let row: typeof day & { userId: string; machineId: string };
 
   beforeAll(async () => {
-    client = new PGlite();
-    db = drizzle({ client, schema });
-    await migrate(db, { migrationsFolder: BUDDY_MIGRATIONS_FOLDER });
+    kit = await createBuddyTestKit();
+    const userId = await kit.addAccount("qingqi");
+    const { machineId } = await machineStore.connect(kit.db, {
+      userId,
+      publicKey: rawPublicKey(generateKeyPairSync("ed25519").publicKey),
+      name: "MacBook Pro",
+      now: new Date(kit.clock.now),
+    });
+    row = { ...day, userId, machineId };
   });
 
   afterAll(async () => {
-    await client.close();
+    await kit.db.close();
   });
 
   it("keeps the larger value of every column across runs", async () => {
-    await upsertUsageDays(db, [
+    await upsertUsageDays(kit.db, [
       row,
       { ...row, day: "2026-11-07", tokens: 5_000_000_000 },
     ]);
-    await upsertUsageDays(db, [
+    await upsertUsageDays(kit.db, [
       { ...row, tokens: 900, costUsd: 2, cacheRead: 700, promptTokens: null },
     ]);
 
-    const rows = await db
+    const rows = await kit.db
       .select()
       .from(buddyUsageDays)
       .orderBy(asc(buddyUsageDays.day));

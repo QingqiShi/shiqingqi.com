@@ -1,11 +1,11 @@
 import { isSameOrigin } from "@tuja/server-auth/is-same-origin";
 import { z } from "zod";
 import { MAX_CARE_PRESSES } from "#src/pet/max-care-presses.ts";
+import { ownAccountName } from "../account/own-account.ts";
 import { ACCOUNT_NAME_PATTERN } from "../account-name-pattern.ts";
 import { readSession } from "../auth/read-session.ts";
 import type { BuddyDb } from "../db/types.ts";
 import { slowDown, withinRateLimit } from "../http/within-rate-limit.ts";
-import { accountNameOf } from "../machines/account-name-of.ts";
 import { buddyKeys } from "../store/buddy-keys.ts";
 import type { BuddyKv } from "../store/types.ts";
 
@@ -39,7 +39,7 @@ async function ownerSession(deps: CareDeps, request: Request, name: string) {
   if (!db) return null;
   const signedIn = await readSession(db, request, deps.now());
   if (!signedIn) return null;
-  return (await accountNameOf(db, signedIn.session.userId)) === name
+  return (await ownAccountName(db, signedIn.session.userId)) === name
     ? signedIn
     : null;
 }

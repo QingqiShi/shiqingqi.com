@@ -1,5 +1,6 @@
 import { getTableName, sql } from "drizzle-orm";
 import { careKeys, readCareCounts } from "../care/care-keys.ts";
+import { asArchive } from "../db/as-archive.ts";
 import { accounts } from "../db/schema.ts";
 import type { BuddyDb } from "../db/types.ts";
 import type { BuddyKv } from "../store/types.ts";
@@ -19,12 +20,14 @@ async function raiseStoredCounts(db: BuddyDb, counts: readonly CareCounts[]) {
     ),
     sql`, `,
   );
-  await db.execute(sql`
+  await asArchive(db, (tx) =>
+    tx.execute(sql`
     update ${accounts}
     set visitor_fed = greatest(${sql.raw(TABLE)}.visitor_fed, counted.fed),
       visitor_patted = greatest(${sql.raw(TABLE)}.visitor_patted, counted.patted)
     from (values ${rows}) as counted (id, fed, patted)
-    where ${sql.raw(TABLE)}.id = counted.id`);
+    where ${sql.raw(TABLE)}.id = counted.id`),
+  );
 }
 
 /**
@@ -34,14 +37,16 @@ async function raiseStoredCounts(db: BuddyDb, counts: readonly CareCounts[]) {
  * presses that the care route counts meanwhile, so none of them is lost.
  */
 export async function archiveCareCounts(kv: BuddyKv, db: BuddyDb) {
-  const stored = await db
-    .select({
-      id: accounts.id,
-      name: accounts.name,
-      fed: accounts.visitorFed,
-      patted: accounts.visitorPatted,
-    })
-    .from(accounts);
+  const stored = await asArchive(db, (tx) =>
+    tx
+      .select({
+        id: accounts.id,
+        name: accounts.name,
+        fed: accounts.visitorFed,
+        patted: accounts.visitorPatted,
+      })
+      .from(accounts),
+  );
   for (let start = 0; start < stored.length; start += ACCOUNTS_PER_READ) {
     const chunk = stored.slice(start, start + ACCOUNTS_PER_READ);
     const counted = await readCareCounts(

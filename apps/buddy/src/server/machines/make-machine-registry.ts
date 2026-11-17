@@ -1,4 +1,5 @@
 import { eq, isNotNull } from "drizzle-orm";
+import { asArchive } from "../db/as-archive.ts";
 import { accounts, machines } from "../db/schema.ts";
 import type { BuddyDb } from "../db/types.ts";
 import { buddyKeys } from "../store/buddy-keys.ts";
@@ -57,17 +58,19 @@ export function makeMachineRegistry({
    * private, that ends while it runs then still removes its keys.
    */
   async function syncFrom(db: BuddyDb) {
-    const rows = await db
-      .select({
-        userId: accounts.id,
-        name: accounts.name,
-        isPublic: accounts.isPublic,
-        machineId: machines.machineId,
-        publicKey: machines.publicKey,
-        revokedAt: machines.revokedAt,
-      })
-      .from(accounts)
-      .leftJoin(machines, eq(machines.userId, accounts.id));
+    const rows = await asArchive(db, (tx) =>
+      tx
+        .select({
+          userId: accounts.id,
+          name: accounts.name,
+          isPublic: accounts.isPublic,
+          machineId: machines.machineId,
+          publicKey: machines.publicKey,
+          revokedAt: machines.revokedAt,
+        })
+        .from(accounts)
+        .leftJoin(machines, eq(machines.userId, accounts.id)),
+    );
     const macsByName = new Map<string, string[]>();
     const writes: Promise<unknown>[] = [];
     for (const row of rows) {
@@ -104,17 +107,17 @@ export function makeMachineRegistry({
     }
     await Promise.all(writes);
 
-    const [removed, privateAccounts] = await Promise.all([
-      db
+    const { removed, privateAccounts } = await asArchive(db, async (tx) => ({
+      removed: await tx
         .select({ machineId: machines.machineId, name: accounts.name })
         .from(machines)
         .innerJoin(accounts, eq(accounts.id, machines.userId))
         .where(isNotNull(machines.revokedAt)),
-      db
+      privateAccounts: await tx
         .select({ userId: accounts.id, name: accounts.name })
         .from(accounts)
         .where(eq(accounts.isPublic, false)),
-    ]);
+    }));
     await Promise.all([
       kv.delMany([
         ...removed.flatMap((mac) => [

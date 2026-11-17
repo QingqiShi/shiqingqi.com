@@ -11,9 +11,9 @@ import { connection } from "next/server";
 import { Anchor } from "#src/links/anchor.tsx";
 import { MacsList } from "#src/macs-page/macs-list.tsx";
 import { SignOutButton } from "#src/macs-page/sign-out-button.tsx";
+import { ownAccountName } from "#src/server/account/own-account.ts";
 import { requirePageSession } from "#src/server/auth/require-page-session.ts";
 import { getBuddyDb } from "#src/server/db/get-buddy-db.ts";
-import { accountNameOf } from "#src/server/machines/account-name-of.ts";
 import { machineStore } from "#src/server/machines/machine-store.ts";
 import { readSnapshots } from "#src/server/snapshot/read-snapshots.ts";
 import { getBuddyBackend } from "#src/server/store/get-buddy-backend.ts";
@@ -32,7 +32,7 @@ export default async function Page({ params }: PageProps) {
   if (!db) return <NotConfigured />;
   const { userId } = await requirePageSession(locale, "/macs");
   const [name, machines] = await Promise.all([
-    accountNameOf(db, userId),
+    ownAccountName(db, userId),
     machineStore.list(db, userId),
   ]);
   const snapshots = await readSnapshots(
