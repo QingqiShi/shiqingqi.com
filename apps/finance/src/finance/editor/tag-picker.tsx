@@ -3,10 +3,10 @@
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
+import { Combobox } from "@tuja/ui/components/combobox";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useId, useState } from "react";
 import type { TagRow } from "../sync/row-schemas.ts";
-import { Combobox } from "./combobox.tsx";
 import { FieldLabel, type LabelMark } from "./field-label.tsx";
 import { normalisePayeeText } from "./rank-payees.ts";
 
@@ -74,6 +74,8 @@ export function TagPicker({
       <Combobox
         label={t({ en: "Add a tag", zh: "添加标签" })}
         labelHidden
+        autoCapitalize="words"
+        enterKeyHint="done"
         placeholder={t({ en: "Add a tag", zh: "添加标签" })}
         value={text}
         onValueChange={setText}

@@ -134,6 +134,7 @@
     "./components/code-block": "./src/content/code-block.tsx",
     "./components/code-run.stylex": "./src/content/code-run.stylex.ts",
     "./components/columns": "./src/surfaces/columns.tsx",
+    "./components/combobox": "./src/forms/combobox.tsx",
     "./components/date-field": "./src/forms/date-field.tsx",
     "./components/disclosure": "./src/surfaces/disclosure.tsx",
     "./components/empty-state": "./src/feedback/empty-state.tsx",

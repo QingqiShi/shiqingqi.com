@@ -3,6 +3,7 @@
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
+import { Combobox, type ComboboxOption } from "@tuja/ui/components/combobox";
 import { Select } from "@tuja/ui/components/select";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
@@ -14,7 +15,6 @@ import { minorUnitsToDecimalString } from "../domain/money/to-minor-units.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { accountSelectChildren } from "./account-select-children.tsx";
 import { CategoryPicker } from "./category-picker.tsx";
-import { Combobox, type ComboboxOption } from "./combobox.tsx";
 import type { EditorDraft } from "./editor-draft.ts";
 import { FieldLabel } from "./field-label.tsx";
 import {
@@ -244,6 +244,8 @@ export function PayeeFields({ form, suggestion }: PayeeFieldsProps) {
         <Combobox
           label={t({ en: "Payee", zh: "商家" })}
           labelHidden
+          autoCapitalize="words"
+          enterKeyHint="done"
           value={draft.payeeName}
           options={payeeOptions}
           placeholder={t({
