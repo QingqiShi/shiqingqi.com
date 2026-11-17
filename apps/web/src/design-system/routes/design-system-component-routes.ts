@@ -263,6 +263,12 @@ export const DESIGN_SYSTEM_COMPONENT_ROUTES = [
   {
     section: "components",
     category: "dataDisplay",
+    path: "/design-system/components/reorder-list",
+    keywords: ["reorder", "sort", "drag", "drag handle", "move up", "order"],
+  },
+  {
+    section: "components",
+    category: "dataDisplay",
     path: "/design-system/components/stat",
     keywords: ["stat group", "kpi", "metric", "figure", "number", "summary"],
   },

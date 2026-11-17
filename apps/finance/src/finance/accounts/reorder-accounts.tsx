@@ -5,6 +5,7 @@ import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { ReorderList, useReorderItem } from "@tuja/ui/components/reorder-list";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
@@ -19,7 +20,6 @@ import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import { accountDetailLine } from "./account-detail-line.ts";
 import type { AccountLine, BalanceSheet } from "./build-balance-sheet.ts";
 import { institutionIconUrl } from "./institution-icon-url.ts";
-import { DragHandle, SortableList } from "./sortable-list.tsx";
 
 function AccountFace({
   line,
@@ -62,103 +62,124 @@ interface Section {
   lines: AccountLine[];
 }
 
+function AccountRow({ line }: { line: AccountLine }) {
+  const accountName = useAccountDisplayName();
+  const { ref, css, handle } = useReorderItem(
+    line.account.id,
+    accountName(line.account),
+  );
+  return (
+    <li ref={ref} css={[corner.radius_2, styles.account, css]}>
+      <AccountFace line={line} handle={handle} />
+    </li>
+  );
+}
+
+function GroupAccounts({ section }: { section: Section }) {
+  const accounts = useReplica(liveRowSelectors.accounts);
+  const apply = useApplyMutations();
+  const labels = useReorderLabels();
+  const empty = t({ en: "No accounts in this group.", zh: "此分组没有账户。" });
+  if (section.lines.length === 0) {
+    return (
+      <Text look="bodySmall" tone="muted" measure="none" css={styles.empty}>
+        {empty}
+      </Text>
+    );
+  }
+  const ids = section.lines.map((line) => line.account.id);
+  return (
+    <ReorderList
+      {...labels}
+      ids={ids}
+      dragRow
+      onMove={(from, to) => {
+        apply(
+          reorderMutations(
+            "upsertAccount",
+            accounts.filter((account) => account.groupId === section.groupId),
+            moveTo(ids, ids[from], ids[to]),
+          ),
+        );
+      }}
+    >
+      <ul css={styles.list}>
+        {section.lines.map((line) => (
+          <AccountRow key={line.account.id} line={line} />
+        ))}
+      </ul>
+    </ReorderList>
+  );
+}
+
+function GroupRow({ section }: { section: Section }) {
+  const { ref, css, handle } = useReorderItem(section.groupId, section.name);
+  return (
+    <li ref={ref} css={[cardSurface.base, styles.group, css]}>
+      <div css={styles.groupHeader}>
+        <Text as="span" look="label" weight="semibold" verbatim>
+          {section.name}
+        </Text>
+        {handle}
+      </div>
+      <GroupAccounts section={section} />
+    </li>
+  );
+}
+
+function useReorderLabels() {
+  const move = t({ en: "Move {name}", zh: "移动 {name}" });
+  const moved = t({
+    en: "{name}: place {place} of {count}",
+    zh: "{name}：第 {place} 项，共 {count} 项",
+  });
+  return {
+    handleLabel: (name: string) => move.replace("{name}", name),
+    movedLabel: (name: string, place: number, count: number) =>
+      moved
+        .replace("{place}", String(place))
+        .replace("{count}", String(count))
+        .replace("{name}", name),
+  };
+}
+
 /**
  * The Net worth list as a list to reorder: a Group moves with its accounts,
  * past Groups of either side, and an account moves inside its Group. Each
- * drop saves at once. Hidden accounts are left out and keep their places.
+ * move saves at once. Hidden accounts are left out and keep their places.
  */
 export function ReorderAccounts({ sheet }: { sheet: BalanceSheet }) {
   const groups = useReplica(liveRowSelectors.accountGroups);
-  const accounts = useReplica(liveRowSelectors.accounts);
-  const accountName = useAccountDisplayName();
   const apply = useApplyMutations();
-  const empty = t({ en: "No accounts in this group.", zh: "此分组没有账户。" });
+  const labels = useReorderLabels();
   const sections: Section[] = sheet.sections.map((section) => ({
     groupId: section.group.id,
     name: section.group.name,
     lines: section.lines.filter((line) => line.hidden === null),
   }));
-
-  function accountsOf(section: Section, isLifted: boolean) {
-    if (section.lines.length === 0) {
-      return (
-        <Text look="bodySmall" tone="muted" measure="none" css={styles.empty}>
-          {empty}
-        </Text>
-      );
-    }
-    if (isLifted) {
-      return (
-        <ul css={styles.list}>
-          {section.lines.map((line) => (
-            <li key={line.account.id} css={[corner.radius_2, styles.account]}>
-              <AccountFace
-                line={line}
-                handle={<DragHandle name={accountName(line.account)} />}
-              />
-            </li>
-          ))}
-        </ul>
-      );
-    }
-    return (
-      <SortableList
-        items={section.lines}
-        idOf={(line) => line.account.id}
-        nameOf={(line) => accountName(line.account)}
-        onMove={(id, targetId) => {
-          apply(
-            reorderMutations(
-              "upsertAccount",
-              accounts.filter((account) => account.groupId === section.groupId),
-              moveTo(
-                section.lines.map((line) => line.account.id),
-                id,
-                targetId,
-              ),
-            ),
-          );
-        }}
-        itemCss={[corner.radius_2, styles.account]}
-        renderItem={(line, handle) => (
-          <AccountFace line={line} handle={handle} />
-        )}
-      />
-    );
-  }
+  const ids = sections.map((section) => section.groupId);
 
   return (
-    <SortableList
-      items={sections}
-      idOf={(section) => section.groupId}
-      nameOf={(section) => section.name}
-      onMove={(id, targetId) => {
+    <ReorderList
+      {...labels}
+      ids={ids}
+      dragRow
+      onMove={(from, to) => {
         apply(
           reorderMutations(
             "upsertGroup",
             groups,
-            moveTo(
-              sections.map((section) => section.groupId),
-              id,
-              targetId,
-            ),
+            moveTo(ids, ids[from], ids[to]),
           ),
         );
       }}
-      css={stack.item}
-      itemCss={[cardSurface.base, styles.group]}
-      renderItem={(section, handle, isLifted) => (
-        <>
-          <div css={styles.groupHeader}>
-            <Text as="span" look="label" weight="semibold" verbatim>
-              {section.name}
-            </Text>
-            {handle}
-          </div>
-          {accountsOf(section, isLifted)}
-        </>
-      )}
-    />
+    >
+      <ul css={[styles.list, stack.item]}>
+        {sections.map((section) => (
+          <GroupRow key={section.groupId} section={section} />
+        ))}
+      </ul>
+    </ReorderList>
   );
 }
 

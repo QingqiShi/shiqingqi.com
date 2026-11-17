@@ -144,6 +144,10 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
     "/design-system/components/badge": t({ en: "Badge", zh: "徽章" }),
     "/design-system/components/table": t({ en: "Table", zh: "表格" }),
     "/design-system/components/list": t({ en: "List", zh: "列表" }),
+    "/design-system/components/reorder-list": t({
+      en: "Reorder list",
+      zh: "可排序列表",
+    }),
     "/design-system/components/callout": t({ en: "Callout", zh: "提示框" }),
     "/design-system/components/spinner": t({ en: "Spinner", zh: "加载指示器" }),
     "/design-system/components/progress": t({ en: "Progress", zh: "进度条" }),
