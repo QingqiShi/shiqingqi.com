@@ -18,6 +18,10 @@ import {
 } from "./make-auth-route-kit.ts";
 import type { AuthStore, AuthTx } from "./make-auth-store.ts";
 import { makeChallenge, type ChallengeCookie } from "./make-challenge.ts";
+import {
+  makeDeleteAccountHandlers,
+  type DeleteAccountHooks,
+} from "./make-delete-account-handlers.ts";
 import type { makeEmailCodeCookie } from "./make-email-code-cookie.ts";
 import { makeEmailCode } from "./make-email-code.ts";
 import { normaliseEmail } from "./normalise-email.ts";
@@ -560,10 +564,22 @@ export function makeAuth<
     };
   }
 
+  /**
+   * The routes that delete the account of the user that is signed in, after
+   * a check with one of the user's passkeys.
+   */
+  function deleteAccountHandlers(hooks: DeleteAccountHooks<Context, Tx>) {
+    return makeDeleteAccountHandlers(
+      { handle, challenge, store, transaction, sessionCookie },
+      hooks,
+    );
+  }
+
   return {
     ...kit,
     handlers,
     addPasskeyHandlers,
+    deleteAccountHandlers,
     sendOrFail,
     readEmail,
     createSession,

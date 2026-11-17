@@ -139,6 +139,31 @@ it("lets only an owner of the trip make, see and end its invites", async () => {
   );
 });
 
+it("records the owner who made an invite, also when the insert does not name them", async () => {
+  // The code of the deployment before `created_by` inserts no value.
+  const [row] = await asViewer(db, owner, (tx) =>
+    tx
+      .insert(tripInvites)
+      .values({
+        tripId: lisbon,
+        tokenHash: inviteToken.hash(inviteToken.create()),
+        expiresAt: new Date(Date.now() + DAY_MS),
+      })
+      .returning({ createdBy: tripInvites.createdBy }),
+  );
+  expect(row.createdBy).toBe(owner);
+  await expect(
+    asViewer(db, owner, (tx) =>
+      tx.insert(tripInvites).values({
+        tripId: lisbon,
+        createdBy: crypto.randomUUID(),
+        tokenHash: inviteToken.hash(inviteToken.create()),
+        expiresAt: new Date(Date.now() + DAY_MS),
+      }),
+    ),
+  ).rejects.toThrow();
+});
+
 it("shows the members and their emails to an owner of the trip only", async () => {
   const editor = await addUser();
   await tripSharing.acceptInvite(db, editor, (await newInvite(porto)).token);

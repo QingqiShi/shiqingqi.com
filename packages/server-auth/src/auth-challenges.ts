@@ -24,10 +24,16 @@ export const authChallenges = {
     userId: z.uuid(),
     recoveryId: z.uuid(),
   }),
+  deleteAccount: z.object({
+    purpose: z.literal("delete-account"),
+    challenge: z.string(),
+    userId: z.uuid(),
+  }),
 };
 
 export type AuthChallengePayload =
   | z.infer<typeof authChallenges.signIn>
   | z.infer<typeof authChallenges.signUp>
   | z.infer<typeof authChallenges.addPasskey>
-  | z.infer<typeof authChallenges.recovery>;
+  | z.infer<typeof authChallenges.recovery>
+  | z.infer<typeof authChallenges.deleteAccount>;

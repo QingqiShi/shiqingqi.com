@@ -770,7 +770,9 @@ export default defineConfig([
     },
   },
   // Sign-in reaches the database, but only its own tables: the users and
-  // the tables of sign-in in `auth-schema.ts`.
+  // the tables of sign-in in `auth-schema.ts`. The deletion of an account
+  // calls the SQL function `trips_forget_user`, which applies the rule for
+  // the trips of the user.
   {
     files: ["apps/trip-planner/src/auth/**/*.ts"],
     ignores: ["apps/trip-planner/src/**/*.test.ts"],

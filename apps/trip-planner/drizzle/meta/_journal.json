@@ -29,6 +29,13 @@
       "when": 1794906391772,
       "tag": "0003_invites",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794912389330,
+      "tag": "0004_delete_account",
+      "breakpoints": true
     }
   ]
 }

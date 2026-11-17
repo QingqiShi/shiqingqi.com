@@ -72,6 +72,7 @@ async function createInvite(
       .insert(tripInvites)
       .values({
         tripId,
+        createdBy: userId,
         tokenHash: inviteToken.hash(token),
         expiresAt: new Date(now.getTime() + INVITE_LIFETIME_MS),
       })
@@ -163,6 +164,22 @@ async function removeMember(
   return removed;
 }
 
+/**
+ * The ids of the trips that only this user owns, which a deletion of the
+ * user's account deletes for every member.
+ */
+async function listTripsOwnedAlone(
+  db: TripsDb,
+  userId: string,
+): Promise<string[]> {
+  const rows = await asViewer(db, userId, (tx) =>
+    tx
+      .select({ tripId: sql<string>`trip_id` })
+      .from(sql`public.trips_viewer_owns_alone() as trip_id`),
+  );
+  return rows.map(({ tripId }) => tripId);
+}
+
 /** Who is on a trip and who can join it. Each function runs as the user, under row-level security. */
 export const tripSharing = {
   maxOpenInvites: MAX_OPEN_INVITES,
@@ -173,4 +190,5 @@ export const tripSharing = {
   acceptInvite,
   listMembers,
   removeMember,
+  listTripsOwnedAlone,
 };

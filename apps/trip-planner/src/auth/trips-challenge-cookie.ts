@@ -10,5 +10,6 @@ export const tripsChallengeCookie = makeSealedCookie({
     authChallenges.signUp,
     authChallenges.addPasskey,
     authChallenges.recovery,
+    authChallenges.deleteAccount,
   ]),
 });

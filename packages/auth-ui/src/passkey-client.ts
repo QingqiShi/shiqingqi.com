@@ -101,6 +101,17 @@ export const passkeyClient = {
     await register("/recovery", { token });
   },
 
+  /** Checks a passkey of the signed-in user on this device, then deletes the user's account and signs out. */
+  async deleteAccount(): Promise<void> {
+    const { options } = await postAuth<{
+      options: PublicKeyCredentialRequestOptionsJSON;
+    }>("/delete-account/options");
+    const response = await runCeremony(() =>
+      startAuthentication({ optionsJSON: options }),
+    );
+    await postAuth("/delete-account/verify", { response });
+  },
+
   async signOut(): Promise<void> {
     await postAuth("/sign-out");
   },

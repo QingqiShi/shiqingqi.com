@@ -23,3 +23,8 @@ export async function getSharing(
 export function isInviteOpen(token: string): Promise<boolean> {
   return tripSharing.isInviteOpen(getTripsDb(), token);
 }
+
+/** The ids of the trips that a deletion of the user's account deletes: those that no other user owns. */
+export function getTripsOwnedAlone(userId: string): Promise<string[]> {
+  return tripSharing.listTripsOwnedAlone(getTripsDb(), userId);
+}
