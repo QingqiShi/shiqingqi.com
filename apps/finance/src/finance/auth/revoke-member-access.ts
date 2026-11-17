@@ -1,12 +1,7 @@
 import { and, eq, isNull } from "drizzle-orm";
 import type { RepositoryScope } from "#src/finance/db/repositories/types.ts";
-import {
-  invites,
-  passkeys,
-  recoveries,
-  sessions,
-  users,
-} from "#src/finance/db/schema.ts";
+import { invites, recoveries, users } from "#src/finance/db/schema.ts";
+import { financeAuthStore } from "./finance-auth-store.ts";
 
 /**
  * Cancels the Member's pending invites, and ends every session and recovery
@@ -29,8 +24,7 @@ export async function revokeMemberAccess(
       ),
     );
   if (userId === null) return;
-  await scope.db.delete(sessions).where(eq(sessions.userId, userId));
-  await scope.db.delete(passkeys).where(eq(passkeys.userId, userId));
+  await financeAuthStore.revokeUserAccess(scope.db, userId);
   await scope.db.delete(recoveries).where(eq(recoveries.userId, userId));
   await scope.db
     .update(users)

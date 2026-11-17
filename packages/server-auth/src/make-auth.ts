@@ -258,8 +258,10 @@ export function makeAuth<
       });
 
       const { body, token } = await transaction(db, async (tx) => {
+        if (!(await store.markPasskeyUsed(tx, passkey.id, { counter, now }))) {
+          throw new HttpError(401, "passkey_unknown");
+        }
         const answer = await config.signIn(tx, passkey.userId);
-        await store.markPasskeyUsed(tx, passkey.id, { counter, now });
         return {
           body: answer,
           token: await createSession(tx, request, context, passkey.userId),
@@ -546,9 +548,13 @@ export function makeAuth<
           response,
           taken.challenge,
         );
-        await transaction(context.db, (tx) =>
-          store.insertPasskey(tx, userId, credential, context.now),
-        );
+        const token = readRequestCookie(request, sessionCookie.name);
+        await transaction(context.db, async (tx) => {
+          if (!token || (await store.lockSession(tx, token)) !== userId) {
+            throw new HttpError(401, "unauthorized");
+          }
+          await store.insertPasskey(tx, userId, credential, context.now);
+        });
         return authJson(context, { ok: true });
       }),
     };
