@@ -49,7 +49,13 @@ function authorisedFetch(auth: CalendarAuth): typeof fetch {
       headers,
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
-    if (response.status === 401) throw new CalendarAuthError();
+    if (response.status === 401) {
+      console.warn("Calendar login refused", {
+        host: url.hostname,
+        status: response.status,
+      });
+      throw new CalendarAuthError();
+    }
     return response;
   };
 }

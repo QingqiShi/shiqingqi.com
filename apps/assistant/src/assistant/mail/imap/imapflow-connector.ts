@@ -53,7 +53,25 @@ function toFetchedMessage(message: FetchMessageObject): FetchedMessage {
   };
 }
 
-function isAuthenticationFailure(error: unknown): error is ImapFlowError {
+/** Response codes of a NO or BAD to a login that say the server is busy or broken, not that the login is wrong. */
+const NOT_A_REFUSAL_CODES: ReadonlySet<string> = new Set([
+  "UNAVAILABLE",
+  "INUSE",
+  "LIMIT",
+  "SERVERBUG",
+  "CORRUPTION",
+  "OVERQUOTA",
+  "CANNOT",
+  "CLIENTBUG",
+]);
+
+/**
+ * imapflow sets `authenticationFailed` on any NO or BAD to a login. It is a
+ * refused password unless the server's response code is one of the busy or
+ * broken codes: a bare NO, AUTHENTICATIONFAILED, AUTHORIZATIONFAILED, EXPIRED
+ * and the like all count as a refusal.
+ */
+function isLoginFailure(error: unknown): error is ImapFlowError {
   return (
     error instanceof Error &&
     "authenticationFailed" in error &&
@@ -61,17 +79,43 @@ function isAuthenticationFailure(error: unknown): error is ImapFlowError {
   );
 }
 
-/** The server's own words, such as Outlook's "AUTHENTICATE failed.", so that the account shows why. */
-function refusalMessage(error: ImapFlowError) {
+function isRefusedLogin(error: unknown): error is ImapFlowError {
+  if (!isLoginFailure(error)) return false;
+  const code = error.serverResponseCode;
+  return !(
+    typeof code === "string" && NOT_A_REFUSAL_CODES.has(code.toUpperCase())
+  );
+}
+
+function serverWords(error: ImapFlowError) {
   const text =
     error.responseText ??
     (typeof error.response === "string" ? error.response : null);
-  const detail = [error.serverResponseCode, text]
+  return [error.serverResponseCode, text]
     .filter((part) => typeof part === "string" && part.trim() !== "")
     .join(" ");
+}
+
+/** The server's own words, such as Outlook's "AUTHENTICATE failed.", so that the account shows why. */
+function refusalMessage(error: ImapFlowError) {
+  const detail = serverWords(error);
   return detail === ""
     ? undefined
     : `The mail server refused the login: ${detail}`;
+}
+
+/** A login that a busy or broken server did not accept. It keeps the response code and is retried. */
+function unavailableError(error: ImapFlowError) {
+  const detail = serverWords(error);
+  return Object.assign(
+    new Error(
+      detail === ""
+        ? "The mail server did not accept the login"
+        : `The mail server did not accept the login: ${detail}`,
+      { cause: error },
+    ),
+    { serverResponseCode: error.serverResponseCode },
+  );
 }
 
 function ascending(uids: number[] | false | undefined): number[] {
@@ -98,9 +142,13 @@ export const createImapflowConnector =
     try {
       await client.connect();
     } catch (error) {
-      if (isAuthenticationFailure(error)) {
-        throw new MailboxAuthError(refusalMessage(error));
+      if (isRefusedLogin(error)) {
+        throw new MailboxAuthError(
+          refusalMessage(error),
+          error.serverResponseCode,
+        );
       }
+      if (isLoginFailure(error)) throw unavailableError(error);
       throw error;
     }
 

@@ -20,6 +20,16 @@ import type {
 } from "#src/assistant/mail/imap/types.ts";
 import { ToolRefusal } from "../agent-tool.ts";
 
+const EMAIL_PATTERN = /[^\s<>"'@]+@[^\s<>"'@]+/g;
+
+function serverResponseCodeOf(error: unknown) {
+  return error instanceof Error &&
+    "serverResponseCode" in error &&
+    typeof error.serverResponseCode === "string"
+    ? error.serverResponseCode
+    : null;
+}
+
 /** A mailbox as the model knows it: by a short key such as `a1`. */
 interface RunAccount {
   key: string;
@@ -187,6 +197,7 @@ export class RunMailboxes {
           attempt <= (loginRetries?.times ?? 0);
           attempt += 1
         ) {
+          const startedAt = Date.now();
           try {
             if (attempt > 0) {
               await loginRetries?.wait();
@@ -199,7 +210,16 @@ export class RunMailboxes {
             return await openAccount(latest, key);
           } catch (error) {
             failure = error;
-            const { status, code } = describeSyncError(error);
+            const { status, code, message } = describeSyncError(error);
+            console.warn("Mailbox did not open", {
+              accountId: account.id,
+              provider: account.provider,
+              code,
+              serverResponseCode: serverResponseCodeOf(error),
+              attempt,
+              elapsedMs: Date.now() - startedAt,
+              message: message.replace(EMAIL_PATTERN, "<address>"),
+            });
             if (
               error instanceof MoveUnsupportedError ||
               status !== "error" ||
