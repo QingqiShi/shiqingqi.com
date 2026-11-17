@@ -10,7 +10,7 @@ import type {
 import { readRequestCookie } from "@tuja/server-auth/read-request-cookie";
 import { makeCodeEmailBuilder } from "@tuja/server-email/make-code-email-builder";
 import type { EmailSender } from "@tuja/server-email/types";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { users } from "#src/db/auth-schema.ts";
 import type { TripsDb } from "#src/db/types.ts";
 import { passkeyRpId } from "./passkey-rp-id.ts";
@@ -117,16 +117,33 @@ async function deleteUser(tx: TripsDb, userId: string) {
   return { email: deleted.at(0)?.email ?? null };
 }
 
+/** Gives the user `email`. False when another user has it. */
+async function changeEmail(
+  tx: TripsDb,
+  { userId, email }: { userId: string; email: string },
+) {
+  const taken = await tx
+    .select({ id: users.id })
+    .from(users)
+    .where(and(eq(users.email, email), ne(users.id, userId)));
+  if (taken.length > 0) return false;
+  await tx.update(users).set({ email }).where(eq(users.id, userId));
+  return true;
+}
+
 /**
  * The passkey routes: sign-in with a saved passkey; sign-up with an emailed
  * code, then a passkey; recovery of a user who lost every passkey, through a
- * code sent to the user's email; and the deletion of the signed-in user's
- * account, after a check with one of the user's passkeys.
+ * code sent to the user's email; and, for the signed-in user, one more
+ * passkey, a new email by an emailed code, and the deletion of the account
+ * after a check with one of the user's passkeys.
  */
 export function makeTripsAuth(deps: AuthHandlerDeps) {
   const auth = makeAuth({ ...deps, ...tripsAuthConfig });
   return {
     ...auth.handlers,
+    ...auth.addPasskeyHandlers({ requireUser }),
+    ...auth.emailChangeHandlers({ requireUser, changeEmail }),
     ...auth.deleteAccountHandlers({ requireUser, deleteUser }),
   };
 }

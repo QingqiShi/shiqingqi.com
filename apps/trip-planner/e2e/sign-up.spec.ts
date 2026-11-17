@@ -16,7 +16,7 @@ test("a visitor signs up with the emailed code, signs in again with the passkey,
     page.getByRole("link", { name: /Lisbon and Porto/ }),
   ).toBeVisible();
   await page.goto("/settings");
-  await expect(page.getByText(`You are signed in as ${email}.`)).toBeVisible();
+  await expect(page.getByText(email, { exact: true })).toBeVisible();
 
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(account(page)).toHaveCount(0);

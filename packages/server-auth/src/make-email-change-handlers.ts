@@ -110,6 +110,7 @@ export function makeEmailChangeHandlers<Db, Tx extends AuthTx, Email, Sender>(
         if (!(await hooks.changeEmail(tx, { userId, email }))) {
           throw new HttpError(409, "email_registered");
         }
+        await store.endEmailedRecoveries(tx, userId);
       });
       return authJson(context, { email });
     }),

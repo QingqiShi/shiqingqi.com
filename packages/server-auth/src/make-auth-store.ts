@@ -276,6 +276,23 @@ export function makeAuthStore({
       return recovery ?? null;
     },
 
+    /**
+     * Ends the recovery links that were emailed to the user and are still
+     * open. A link that went to an address that the user gave up must not
+     * replace the user's passkeys. A link that a person gave by hand stays.
+     */
+    async endEmailedRecoveries(tx: AuthTx, userId: string): Promise<void> {
+      await tx
+        .delete(recoveries)
+        .where(
+          and(
+            eq(recoveries.userId, userId),
+            isNull(recoveries.usedAt),
+            recoveries.emailed,
+          ),
+        );
+    },
+
     /** Uses the recovery link up. False when it is used or expired already. */
     async consumeRecovery(
       tx: AuthTx,
