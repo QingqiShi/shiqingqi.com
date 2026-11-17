@@ -1,12 +1,17 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import type { ReactNode } from "react";
+import { use, type ReactNode } from "react";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
 import { headerControlsTokens } from "../shells/header-controls.stylex.ts";
 import { layer, rhythm } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
+import {
+  BlurPlane,
+  BlurPlaneContext,
+  BlurPlaneProvider,
+} from "./blur-plane.tsx";
 import { StuckContext } from "./sticky-control-group.tsx";
 
 export { StickyControlGroup } from "./sticky-control-group.tsx";
@@ -45,11 +50,20 @@ interface StickyControlsProps {
 export function StickyControls({ children, css }: StickyControlsProps) {
   const sticky = useEffectSticky();
   const { ref, isStuck, css: stickyCss } = sticky;
+  const hasPlaneAround = use(BlurPlaneContext) !== null;
+  const groups = <EffectCarrier value={sticky}>{children}</EffectCarrier>;
 
   return (
     <StuckContext value={isStuck}>
       <div ref={ref} css={[styles.sticky, css, stickyCss]}>
-        <EffectCarrier value={sticky}>{children}</EffectCarrier>
+        {hasPlaneAround ? (
+          groups
+        ) : (
+          <BlurPlaneProvider>
+            <BlurPlane css={styles.blurPlane} />
+            {groups}
+          </BlurPlaneProvider>
+        )}
       </div>
     </StuckContext>
   );
@@ -65,5 +79,12 @@ const styles = stylex.create({
     zIndex: layer.raised,
     display: "flex",
     gap: rhythm.item,
+  },
+  // Where no shell or sheet around the row keeps a Blur plane, the row keeps
+  // one, under all its groups. Without a plane, each blur is beside its group:
+  // the blur of one group covers the controls of the group before it, and
+  // each group becomes the containing block of what it holds.
+  blurPlane: {
+    zIndex: -1,
   },
 });

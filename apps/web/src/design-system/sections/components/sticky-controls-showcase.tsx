@@ -43,8 +43,8 @@ export function StickyControlsShowcase() {
         </Text>
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "A blur per group rather than one across the row: a row with filters at the start and a prompt at the end leaves the page between them sharp, the way the header's own groups leave the middle of the page alone. Inside HeaderFooterLayout every group's blur is painted on the page's Blur plane — the one plane that shell keeps under every floating control — so the header's groups never blur this row and this row never blurs them. Anywhere else, this page included, there is no plane and each blur paints beside its group, under the group's own controls.",
-            zh: "每个控件组各有一片虚化，而非整行一片：筛选控件在行首、提示框在行尾的一行，两者之间的页面保持清晰，正如页头自身的控件组不会触及页面中部。在 HeaderFooterLayout 内，每组的虚化都绘制在页面的虚化平面上——该骨架在全部悬浮控件之下保留的那一层——因此页头的控件组不会虚化这一行，这一行也不会虚化它们。在其他地方（包括本页）没有虚化平面，每片虚化便绘制在各自控件组旁边，位于该组控件之下。",
+            en: "A blur per group rather than one across the row: a row with filters at the start and a prompt at the end leaves the page between them sharp, the way the header's own groups leave the middle of the page alone. Every blur is painted on one plane under all the controls, so no group blurs the controls of another. HeaderFooterLayout and Sheet keep that plane for everything that floats in them. Anywhere else, this page included, the row keeps its own.",
+            zh: "每个控件组各有一片虚化，而非整行一片：筛选控件在行首、提示框在行尾的一行，两者之间的页面保持清晰，正如页头自身的控件组不会触及页面中部。所有虚化都绘制在位于全部控件之下的同一个平面上，因此任何一组都不会虚化另一组的控件。HeaderFooterLayout 和 Sheet 为其中的全部悬浮控件保留这个平面。在其他地方（包括本页），这一行自带一个。",
           })}
         </Text>
         <Specimen
