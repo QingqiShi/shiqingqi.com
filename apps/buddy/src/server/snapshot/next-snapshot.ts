@@ -52,14 +52,16 @@ function mergeDay(
   return {
     day: incoming.day,
     tokens: Math.max(stored.tokens, incoming.tokens),
-    costUsd: Math.max(stored.costUsd, incoming.costUsd),
+    // The cost is the tokens at the Mac's prices of the time of the upload, so a price that the Mac corrects can lower it. An upload with fewer tokens lost a part of the day, and its cost is of that part only.
+    costUsd:
+      incoming.tokens >= stored.tokens ? incoming.costUsd : stored.costUsd,
     ...(cacheRead === undefined ? {} : { cacheRead }),
     ...(promptTokens === undefined ? {} : { promptTokens }),
     ...(models === undefined ? {} : { models }),
   };
 }
 
-/** Each day of both lists, each count the larger one, so a day never shrinks. */
+/** Each day of both lists, each count the larger one, so a day never shrinks. Its cost goes with the upload that has the most tokens, the later one of two that have the same. */
 function mergeDays(
   stored: readonly SnapshotDay[],
   incoming: readonly SnapshotDay[],

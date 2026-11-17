@@ -55,6 +55,14 @@ async function inChunks<T>(
 }
 
 export function upsertUsageDays(db: BuddyDb, rows: readonly UsageDayRow[]) {
+  const counts = keepLarger(buddyUsageDays, [
+    buddyUsageDays.tokens,
+    buddyUsageDays.cacheRead,
+    buddyUsageDays.promptTokens,
+  ]);
+  // The cost is not a count: the Mac prices the day again on each upload, so a
+  // corrected price can lower it. It comes from the row with the most tokens.
+  const hasWholeDay = "excluded.tokens >= buddy_usage_days.tokens";
   return inChunks(rows, (chunk) =>
     asArchive(db, (tx) =>
       tx
@@ -66,12 +74,13 @@ export function upsertUsageDays(db: BuddyDb, rows: readonly UsageDayRow[]) {
             buddyUsageDays.machineId,
             buddyUsageDays.day,
           ],
-          ...keepLarger(buddyUsageDays, [
-            buddyUsageDays.tokens,
-            buddyUsageDays.costUsd,
-            buddyUsageDays.cacheRead,
-            buddyUsageDays.promptTokens,
-          ]),
+          set: {
+            ...counts.set,
+            costUsd: sql.raw(
+              `case when ${hasWholeDay} then excluded.cost_usd else buddy_usage_days.cost_usd end`,
+            ),
+          },
+          setWhere: sql`${counts.setWhere} or (${sql.raw(hasWholeDay)} and excluded.cost_usd <> buddy_usage_days.cost_usd)`,
         }),
     ),
   );

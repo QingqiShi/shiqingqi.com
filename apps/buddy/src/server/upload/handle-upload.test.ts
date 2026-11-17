@@ -137,15 +137,19 @@ describe("handleUpload", () => {
         await upload(
           signedRequest({
             body: bodyOf({
-              days: [{ day: "2026-11-07", tokens: 70, costUsd: 1 }],
+              days: [
+                { day: "2026-11-06", tokens: 90, costUsd: 0.5 },
+                { day: "2026-11-07", tokens: 70, costUsd: 1 },
+              ],
             }),
           }),
         )
       ).status,
     ).toBe(200);
+    // A day's cost is the Mac's price of its tokens, so it goes with the upload that has the whole day.
     expect(await days()).toEqual([
       { day: "2026-11-06", tokens: 100, costUsd: 1 },
-      { day: "2026-11-07", tokens: 70, costUsd: 3 },
+      { day: "2026-11-07", tokens: 70, costUsd: 1 },
     ]);
   });
 
