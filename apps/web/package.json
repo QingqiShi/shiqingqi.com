@@ -56,7 +56,7 @@
     "ai": "^7.0.171",
     "esm-env": "catalog:",
     "next": "catalog:",
-    "posthog-js": "^1.442.1",
+    "posthog-js": "^1.450.0",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-error-boundary": "^6.1.6",
