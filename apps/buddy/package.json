@@ -42,7 +42,7 @@
     "@tuja/server-email": "workspace:*",
     "@tuja/ui": "workspace:*",
     "@upstash/redis": "^1.40.0",
-    "@vercel/functions": "^3.11.0",
+    "@vercel/functions": "^3.11.3",
     "drizzle-orm": "^0.45.4",
     "esm-env": "catalog:",
     "next": "catalog:",
