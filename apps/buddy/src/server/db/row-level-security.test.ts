@@ -126,6 +126,7 @@ describe("as a signed-in user", () => {
       sql`update accounts set visitor_fed = 1000`,
       sql`delete from machines`,
       sql`select 1 from buddy_usage_days`,
+      sql`select 1 from buddy_usage_models`,
       sql`select 1 from sessions`,
       sql`select 1 from passkeys`,
     ]) {
@@ -160,6 +161,11 @@ describe("as the daily archive", () => {
         sql`update buddy_usage_days set user_id = ${noor}, machine_id = 'mac-noor' where machine_id = 'mac-mara'`,
       ),
     ).toThrow(/permission denied/);
+    await refusal(
+      archiveRows(
+        sql`insert into buddy_usage_models (user_id, machine_id, day, model, input_tokens, output_tokens, cache_read_tokens, cache_write_5m_tokens, cache_write_1h_tokens, messages) values (${noor}, 'mac-mara', '2026-11-08', 'claude-opus-5-5', 1, 1, 1, 1, 1, 1)`,
+      ),
+    ).toThrow(/row-level security/);
   });
 
   it("cannot read an email, change a name or visibility, delete, or reach sign-in", async () => {
@@ -169,6 +175,7 @@ describe("as the daily archive", () => {
       sql`update accounts set name = 'taken001'`,
       sql`update machines set revoked_at = now()`,
       sql`delete from buddy_usage_days`,
+      sql`delete from buddy_usage_models`,
       sql`select 1 from sessions`,
       sql`select 1 from email_codes`,
     ]) {
@@ -222,6 +229,11 @@ it("limits every table, and gives each limited role only these privileges", asyn
     "buddy_archive SELECT buddy_usage_days(*)",
     "buddy_archive SELECT buddy_usage_days(archived_at,cache_read,cost_usd,day,machine_id,prompt_tokens,tokens,user_id)",
     "buddy_archive UPDATE buddy_usage_days(archived_at,cache_read,cost_usd,prompt_tokens,tokens)",
+    "buddy_archive INSERT buddy_usage_models(*)",
+    "buddy_archive INSERT buddy_usage_models(archived_at,cache_read_tokens,cache_write_1h_tokens,cache_write_5m_tokens,day,input_tokens,machine_id,messages,model,output_tokens,rate,user_id)",
+    "buddy_archive SELECT buddy_usage_models(*)",
+    "buddy_archive SELECT buddy_usage_models(archived_at,cache_read_tokens,cache_write_1h_tokens,cache_write_5m_tokens,day,input_tokens,machine_id,messages,model,output_tokens,rate,user_id)",
+    "buddy_archive UPDATE buddy_usage_models(archived_at,cache_read_tokens,cache_write_1h_tokens,cache_write_5m_tokens,input_tokens,messages,output_tokens)",
     "buddy_archive SELECT machines(machine_id,public_key,revoked_at,user_id)",
   ]);
 });

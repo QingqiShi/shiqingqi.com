@@ -8,10 +8,11 @@ import {
 import { sampleUpload } from "#src/testing/sample-upload.ts";
 import { macKeySeal } from "../machines/mac-key-seal.ts";
 import { machineStore } from "../machines/machine-store.ts";
+import { parseSnapshot } from "../snapshot/parse-snapshot.ts";
 import { readPetState } from "../snapshot/read-pet-state.ts";
 import { buddyKeys } from "../store/buddy-keys.ts";
 import { handleUpload, MAX_UPLOAD_BYTES } from "./handle-upload.ts";
-import type { UploadBody } from "./upload-body-schema.ts";
+import type { ModelUsage, UploadBody } from "./upload-body-schema.ts";
 import { rawPublicKey, signUpload } from "./verify-upload-signature.ts";
 
 const USER = "qingqi";
@@ -146,6 +147,56 @@ describe("handleUpload", () => {
       { day: "2026-11-06", tokens: 100, costUsd: 1 },
       { day: "2026-11-07", tokens: 70, costUsd: 3 },
     ]);
+  });
+
+  it("keeps a day's models through an upload that leaves them out, and out of the public read", async () => {
+    const day = { day: "2026-11-07", tokens: 100, costUsd: 1 };
+    // A model id that is also a property of every object.
+    const inherited: ModelUsage = [1, 0, 0, 0, 0, 1];
+    await upload(
+      signedRequest({
+        body: bodyOf({
+          days: [
+            {
+              ...day,
+              models: {
+                "claude-opus-5-5": [10, 20, 60, 6, 4, 2],
+                constructor: inherited,
+              },
+            },
+          ],
+        }),
+      }),
+    );
+    kit.clock.now += 5 * 60_000;
+    await upload(
+      signedRequest({
+        body: bodyOf({
+          days: [
+            {
+              ...day,
+              models: { "claude-opus-5-5": [5, 30, 60, 6, 4, 3] },
+            },
+          ],
+        }),
+      }),
+    );
+    kit.clock.now += 5 * 60_000;
+    expect((await upload(signedRequest())).status).toBe(200);
+
+    const snapshot = parseSnapshot(
+      await kit.kv.get(buddyKeys.macSnapshot(machine)),
+    );
+    expect(snapshot?.days).toEqual([
+      {
+        ...day,
+        models: {
+          "claude-opus-5-5": [10, 30, 60, 6, 4, 3],
+          constructor: inherited,
+        },
+      },
+    ]);
+    expect(await days()).toEqual([day]);
   });
 
   it.each([

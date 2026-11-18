@@ -11,6 +11,7 @@ import type {
 
 const MAX_DAYS = 4000;
 const MAX_SAMPLES = 2000;
+const MAX_MODELS_PER_DAY = 32;
 const MAX_TIME_MS = 1e14;
 
 const dayStringSchema = z
@@ -27,6 +28,42 @@ export const petDaySchema = z.strictObject({
   cacheRead: countSchema.optional(),
   promptTokens: countSchema.optional(),
 }) satisfies z.ZodType<PetDay>;
+
+/**
+ * What one model used on one day: fresh input tokens (not read from the cache
+ * and not written to it), output tokens, cache-read tokens, 5-minute and
+ * 1-hour cache-write tokens, and messages. It has no cost, because a price
+ * list changes and the tokens do not.
+ */
+const modelUsageSchema = z.tuple([
+  countSchema,
+  countSchema,
+  countSchema,
+  countSchema,
+  countSchema,
+  countSchema,
+]);
+
+export type ModelUsage = z.infer<typeof modelUsageSchema>;
+
+/** A day's usage by price key: the model id, with `+long` after it for the tokens at the model's long-prompt rate. */
+const dayModelsSchema = z.record(
+  z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._:@/+-]{0,99}$/),
+  modelUsageSchema,
+);
+
+/** A day as a Mac's snapshot keeps it. Only the archive reads `models`: the page and the read API do not get it. */
+export const snapshotDaySchema = petDaySchema.extend({
+  models: dayModelsSchema.optional(),
+});
+
+export type SnapshotDay = z.infer<typeof snapshotDaySchema>;
+
+const uploadDaySchema = petDaySchema.extend({
+  models: dayModelsSchema
+    .refine((models) => Object.keys(models).length <= MAX_MODELS_PER_DAY)
+    .optional(),
+});
 
 const petLimitSchema = z.strictObject({
   pct: pctSchema,
@@ -102,7 +139,7 @@ export const uploadBodySchema = z.strictObject({
   at: timeSchema,
   tzOffsetMin: z.int().min(-720).max(840),
   firstDay: dayStringSchema.nullable(),
-  days: z.array(petDaySchema).max(MAX_DAYS),
+  days: z.array(uploadDaySchema).max(MAX_DAYS),
   quota: petQuotaSchema.nullable(),
   github: petGithubSchema.nullable(),
   merges: petMergesSchema.nullable(),
