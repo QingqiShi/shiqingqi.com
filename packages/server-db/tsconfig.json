@@ -1,6 +1,6 @@
 {
   "extends": "@tuja/tsconfig/library.json",
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "vitest.config.mts"],
   "compilerOptions": {
     "lib": ["esnext", "dom"]
   }
