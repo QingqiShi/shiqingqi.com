@@ -96,4 +96,5 @@ minimumReleaseAgeExclude:
   - "@typescript/typescript-win32-x64@7.0.2"
   - typescript@7.0.2
 patchedDependencies:
+  drizzle-orm@0.45.4: patches/drizzle-orm@0.45.4.patch
   react-remove-scroll@2.7.2: patches/react-remove-scroll@2.7.2.patch

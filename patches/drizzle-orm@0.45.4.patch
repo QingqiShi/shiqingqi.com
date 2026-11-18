@@ -1,0 +1,120 @@
+diff --git a/errors.cjs b/errors.cjs
+index b593f0da263a7ad7904f44e89f1c0992c39c4aad..d7780b3c57754d295c2cc2b18d663748a654600a 100644
+--- a/errors.cjs
++++ b/errors.cjs
+@@ -32,15 +32,38 @@ class DrizzleError extends Error {
+     this.cause = cause;
+   }
+ }
++// Patched: the error of a failed query does not hold the values of the query.
++// Next.js writes an error that is not caught to the server log, with its
++// cause and its fields. The parameters, and the detail and message of the
++// database error, can hold user data. Thus the error keeps only the SQL text,
++// and the cause keeps only the fields that identify the error. The cause
++// keeps the message of the database only for the codes in SAFE_MESSAGE_CODES:
++// for these codes, the messages of Postgres name only constraints, tables
++// and columns. Other codes can show a value, for example 22P02 and 42P01
++// ("relation "<value>" does not exist" for `$1::regclass`). A RAISE with
++// one of these codes must not write values into its message.
++const SAFE_CAUSE_FIELDS = ["code", "severity", "schema", "table", "column", "dataType", "constraint", "routine"];
++const SAFE_MESSAGE_CODES = ["23502", "23503", "23505", "23514", "23P01", "42501"];
++function safeCauseOf(cause) {
++  if (typeof cause !== "object" || cause === null) return void 0;
++  const isDatabaseError = typeof cause.severity === "string";
++  const code = typeof cause.code === "string" ? cause.code : void 0;
++  const keepsMessage = typeof cause.message === "string" && (!isDatabaseError || SAFE_MESSAGE_CODES.includes(code));
++  const safe = new Error(keepsMessage ? cause.message : `The database refused the query (SQLSTATE ${code ?? "unknown"}).`);
++  safe.name = isDatabaseError ? "DatabaseError" : typeof cause.name === "string" ? cause.name : "Error";
++  for (const field of SAFE_CAUSE_FIELDS) {
++    if (typeof cause[field] === "string") safe[field] = cause[field];
++  }
++  safe.stack = `${safe.name}: ${safe.message}`;
++  return safe;
++}
+ class DrizzleQueryError extends Error {
+   constructor(query, params, cause) {
+-    super(`Failed query: ${query}
+-params: ${params}`);
++    super(`Failed query: ${query}`);
+     this.query = query;
+-    this.params = params;
+-    this.cause = cause;
+     Error.captureStackTrace(this, DrizzleQueryError);
+-    if (cause) this.cause = cause;
++    const safeCause = safeCauseOf(cause);
++    if (safeCause) this.cause = safeCause;
+   }
+ }
+ class TransactionRollbackError extends DrizzleError {
+diff --git a/errors.d.cts b/errors.d.cts
+index dc885a739ee987fe12bac870f825150157da48cf..81941d7313d04eea0bfd988687229c1080f89cdb 100644
+--- a/errors.d.cts
++++ b/errors.d.cts
+@@ -8,7 +8,6 @@ export declare class DrizzleError extends Error {
+ }
+ export declare class DrizzleQueryError extends Error {
+     query: string;
+-    params: any[];
+     cause?: Error | undefined;
+     constructor(query: string, params: any[], cause?: Error | undefined);
+ }
+diff --git a/errors.d.ts b/errors.d.ts
+index c3d95cfe373a5525351ff325ffe522c25edba1a4..e591d471927eb7b6078d38bfe8b2de1d4bcd44f6 100644
+--- a/errors.d.ts
++++ b/errors.d.ts
+@@ -8,7 +8,6 @@ export declare class DrizzleError extends Error {
+ }
+ export declare class DrizzleQueryError extends Error {
+     query: string;
+-    params: any[];
+     cause?: Error | undefined;
+     constructor(query: string, params: any[], cause?: Error | undefined);
+ }
+diff --git a/errors.js b/errors.js
+index 6db8b6365e30f239bf2738504937ed81733e82dd..65421a03c4f3493d08770c371344acb8c84c2a6f 100644
+--- a/errors.js
++++ b/errors.js
+@@ -7,15 +7,38 @@ class DrizzleError extends Error {
+     this.cause = cause;
+   }
+ }
++// Patched: the error of a failed query does not hold the values of the query.
++// Next.js writes an error that is not caught to the server log, with its
++// cause and its fields. The parameters, and the detail and message of the
++// database error, can hold user data. Thus the error keeps only the SQL text,
++// and the cause keeps only the fields that identify the error. The cause
++// keeps the message of the database only for the codes in SAFE_MESSAGE_CODES:
++// for these codes, the messages of Postgres name only constraints, tables
++// and columns. Other codes can show a value, for example 22P02 and 42P01
++// ("relation "<value>" does not exist" for `$1::regclass`). A RAISE with
++// one of these codes must not write values into its message.
++const SAFE_CAUSE_FIELDS = ["code", "severity", "schema", "table", "column", "dataType", "constraint", "routine"];
++const SAFE_MESSAGE_CODES = ["23502", "23503", "23505", "23514", "23P01", "42501"];
++function safeCauseOf(cause) {
++  if (typeof cause !== "object" || cause === null) return void 0;
++  const isDatabaseError = typeof cause.severity === "string";
++  const code = typeof cause.code === "string" ? cause.code : void 0;
++  const keepsMessage = typeof cause.message === "string" && (!isDatabaseError || SAFE_MESSAGE_CODES.includes(code));
++  const safe = new Error(keepsMessage ? cause.message : `The database refused the query (SQLSTATE ${code ?? "unknown"}).`);
++  safe.name = isDatabaseError ? "DatabaseError" : typeof cause.name === "string" ? cause.name : "Error";
++  for (const field of SAFE_CAUSE_FIELDS) {
++    if (typeof cause[field] === "string") safe[field] = cause[field];
++  }
++  safe.stack = `${safe.name}: ${safe.message}`;
++  return safe;
++}
+ class DrizzleQueryError extends Error {
+   constructor(query, params, cause) {
+-    super(`Failed query: ${query}
+-params: ${params}`);
++    super(`Failed query: ${query}`);
+     this.query = query;
+-    this.params = params;
+-    this.cause = cause;
+     Error.captureStackTrace(this, DrizzleQueryError);
+-    if (cause) this.cause = cause;
++    const safeCause = safeCauseOf(cause);
++    if (safeCause) this.cause = safeCause;
+   }
+ }
+ class TransactionRollbackError extends DrizzleError {

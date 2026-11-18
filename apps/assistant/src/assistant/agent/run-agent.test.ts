@@ -238,7 +238,7 @@ describe("the progress of a run", () => {
     expect(run.status).toBe("done");
     expect(run.transcript).toHaveLength(3);
     expect(run.progress).toBeNull();
-    expect(JSON.stringify(failures())).toContain("no progress");
+    expect(JSON.stringify(failures())).toContain("P0001");
     expect(JSON.stringify(failures())).not.toContain("Flight to Tokyo");
   });
 });

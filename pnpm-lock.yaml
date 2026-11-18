@@ -157,6 +157,7 @@ overrides:
   postcss: ^8.5.10
 
 patchedDependencies:
+  drizzle-orm@0.45.4: 1b6e65bf88b2d7268cdc44a6afe27b87141206fdb0093f636fddf7a248ca9094
   react-remove-scroll@2.7.2: ba1b6a6c35583879c71a0c385b13ad9738dce851d595dbb3458f9fdeaf5950f2
 
 importers:
@@ -264,7 +265,7 @@ importers:
         version: 7.0.173(zod@4.6.7)
       drizzle-orm:
         specifier: ^0.45.4
-        version: 0.45.4(@electric-sql/pglite@0.5.16)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
+        version: 0.45.4(patch_hash=1b6e65bf88b2d7268cdc44a6afe27b87141206fdb0093f636fddf7a248ca9094)(@electric-sql/pglite@0.5.16)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
       esm-env:
         specifier: 'catalog:'
         version: 1.2.2
@@ -463,7 +464,7 @@ importers:
         version: 3.11.3
       drizzle-orm:
         specifier: ^0.45.4
-        version: 0.45.4(@electric-sql/pglite@0.5.16)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
+        version: 0.45.4(patch_hash=1b6e65bf88b2d7268cdc44a6afe27b87141206fdb0093f636fddf7a248ca9094)(@electric-sql/pglite@0.5.16)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
       esm-env:
         specifier: 'catalog:'
         version: 1.2.2
@@ -668,7 +669,7 @@ importers:
         version: 3.1.0
       drizzle-orm:
         specifier: ^0.45.4
-        version: 0.45.4(@electric-sql/pglite@0.5.16)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
+        version: 0.45.4(patch_hash=1b6e65bf88b2d7268cdc44a6afe27b87141206fdb0093f636fddf7a248ca9094)(@electric-sql/pglite@0.5.16)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
       esm-env:
         specifier: 'catalog:'
         version: 1.2.2
@@ -879,7 +880,7 @@ importers:
         version: 7.0.173(zod@4.6.7)
       drizzle-orm:
         specifier: ^0.45.4
-        version: 0.45.4(@electric-sql/pglite@0.5.16)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
+        version: 0.45.4(patch_hash=1b6e65bf88b2d7268cdc44a6afe27b87141206fdb0093f636fddf7a248ca9094)(@electric-sql/pglite@0.5.16)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
       esm-env:
         specifier: 'catalog:'
         version: 1.2.2
@@ -1580,7 +1581,7 @@ importers:
         version: 26.6.6
       drizzle-orm:
         specifier: ^0.45.4
-        version: 0.45.4(@electric-sql/pglite@0.5.16)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
+        version: 0.45.4(patch_hash=1b6e65bf88b2d7268cdc44a6afe27b87141206fdb0093f636fddf7a248ca9094)(@electric-sql/pglite@0.5.16)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
       vitest:
         specifier: 'catalog:'
         version: 5.1.0(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.1.0)(@vitest/ui@5.1.0)(jsdom@30.1.3)(msw@3.0.3(@types/node@26.6.6)(graphql@16.14.2)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1)))(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1))
@@ -1626,7 +1627,7 @@ importers:
         version: 8.23.1
       drizzle-orm:
         specifier: ^0.45.4
-        version: 0.45.4(@electric-sql/pglite@0.5.16)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
+        version: 0.45.4(patch_hash=1b6e65bf88b2d7268cdc44a6afe27b87141206fdb0093f636fddf7a248ca9094)(@electric-sql/pglite@0.5.16)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)
       pg:
         specifier: ^8.23.1
         version: 8.23.1
@@ -12130,7 +12131,7 @@ snapshots:
       esbuild: 0.25.12
       tsx: 4.23.15
 
-  drizzle-orm@0.45.4(@electric-sql/pglite@0.5.16)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1):
+  drizzle-orm@0.45.4(patch_hash=1b6e65bf88b2d7268cdc44a6afe27b87141206fdb0093f636fddf7a248ca9094)(@electric-sql/pglite@0.5.16)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1):
     optionalDependencies:
       '@electric-sql/pglite': 0.5.16
       '@opentelemetry/api': 1.9.1

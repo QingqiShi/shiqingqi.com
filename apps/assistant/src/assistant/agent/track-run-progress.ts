@@ -11,8 +11,6 @@ const WRITE_INTERVAL_MS = 1000;
 const SETTLE_MS = 2000;
 
 function logFailedWrite(error: unknown) {
-  // Drizzle puts the query's values in its message, and these hold mail
-  // subjects. The cause has only the database's error.
   const cause = error instanceof Error && error.cause ? error.cause : error;
   console.error(
     "Agent progress write failed",
