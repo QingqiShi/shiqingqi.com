@@ -36,8 +36,8 @@ export function NavigationSplitViewShowcase() {
         </FrameBreakout>
         <GuideNote>
           {t({
-            en: "Make each row a SplitViewLink: Back and Esc close one column, and J and K move between rows.",
-            zh: "每一行都用 SplitViewLink：“返回”与 Esc 每次关闭一栏，J 与 K 在各行之间移动。",
+            en: "Make each row a SplitViewLink: Back closes one column, Esc closes the detail, and J and K move between rows.",
+            zh: "每一行都用 SplitViewLink：“返回”每次关闭一栏，Esc 关闭详情栏，J 与 K 在各行之间移动。",
           })}
         </GuideNote>
         <GuideNote>

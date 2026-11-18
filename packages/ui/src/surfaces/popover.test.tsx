@@ -55,7 +55,7 @@ describe("Popover", () => {
 
   // See the same test of `MenuButton`. The content is in a portal, so only an
   // Escape on the trigger gets to a listener on the document.
-  it("marks the Escape that closes it as used, so the screen does not also go back", async () => {
+  it("marks the Escape that closes it as used, so the detail under it does not also close", async () => {
     const user = userEvent.setup();
     render(<TestPopover />);
     const trigger = getTrigger();

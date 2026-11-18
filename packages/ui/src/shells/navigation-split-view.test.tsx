@@ -96,6 +96,24 @@ describe("NavigationSplitView keys", () => {
     expect(replace).toHaveBeenCalledOnce();
   });
 
+  it("does not leave a screen with no detail on Esc or ←", () => {
+    const replace = vi.fn();
+    render(
+      <NavigationSplitView
+        linkStatus={null}
+        replace={replace}
+        content={{
+          label: "Settings",
+          back: { href: "/", label: "Home" },
+          node: <button type="button">Save</button>,
+        }}
+      />,
+    );
+    fireEvent.keyDown(document.body, { key: "Escape" });
+    fireEvent.keyDown(document.body, { key: "ArrowLeft" });
+    expect(replace).not.toHaveBeenCalled();
+  });
+
   it("leaves Esc and ← to fields, arrow-key controls and open dialogs", () => {
     const replace = vi.fn();
     render(<NavigationSplitView {...ledgerView({ replace })} />);

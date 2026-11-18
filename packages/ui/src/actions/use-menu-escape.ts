@@ -18,13 +18,14 @@ interface MenuEscapeOptions {
  * A key that closes the menu is marked as used with `preventDefault`.
  * `stopPropagation` alone does not stop a listener on the document where the
  * document is the React root, as in a Next app. Such a listener, for example
- * the keys of a `NavigationStack`, reads `defaultPrevented`.
+ * the keys of a `NavigationSplitView` that take its detail off, reads
+ * `defaultPrevented`.
  *
  * Safari leaves focus on an ancestor of the menu, or on nothing, after a press
  * on the trigger or on a control in the popup. An Escape then starts above the
  * container, and the handler does not get it. A listener on the document
- * takes it in the capture phase, which comes before the listeners that go
- * back a screen.
+ * takes it in the capture phase, which comes before the listeners that take
+ * a detail off.
  *
  * @internal
  */

@@ -89,13 +89,15 @@ function scrollContentByKey(view: HTMLElement, event: KeyboardEvent) {
 }
 
 /**
- * The keys of the view. See `NavigationSplitView`.
+ * The keys of the view. See `NavigationSplitView`. `detailBack` is the way
+ * back of the detail, or null with no detail: Esc and ← take off only a
+ * detail, and never leave a screen.
  *
  * @internal
  */
 export function useColumnKeys(
   view: HTMLElement | null,
-  deepestBack: SplitViewBackLink | null,
+  detailBack: SplitViewBackLink | null,
   takeOff: (href: string) => void,
   isContained: boolean,
 ) {
@@ -114,10 +116,10 @@ export function useColumnKeys(
     switch (event.key) {
       case "Escape":
       case "ArrowLeft": {
-        if (deepestBack === null) return;
+        if (detailBack === null) return;
         if (event.key === "ArrowLeft" && ownsArrowKeys(target)) return;
         event.preventDefault();
-        takeOff(deepestBack.href);
+        takeOff(detailBack.href);
         return;
       }
       case "ArrowRight": {
