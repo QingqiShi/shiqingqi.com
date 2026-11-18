@@ -232,7 +232,10 @@ export function usePopover({
 
   const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (event.key !== "Escape" || !open) return;
-    // Stop here so an enclosing dialog doesn't close on the same keystroke.
+    // So that an enclosing dialog or screen does not also use the keystroke.
+    // A listener on the document still gets it where the document is the
+    // React root, as in a Next app, and reads `defaultPrevented`.
+    event.preventDefault();
     event.stopPropagation();
     setOpen(false);
     triggerRef.current?.focus();
