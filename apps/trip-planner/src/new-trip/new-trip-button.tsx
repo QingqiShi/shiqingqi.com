@@ -16,17 +16,20 @@ import { useNewTripHref } from "./use-new-trip-href.ts";
 export function NewTripButton({
   iconOnly = false,
   size = "md",
+  quiet = false,
   css,
 }: {
   iconOnly?: boolean;
   size?: "md" | "lg";
+  /** The default look, for a place where New trip is one way among others, such as the top of the sidebar. */
+  quiet?: boolean;
   css?: StyleProp;
 }) {
   const href = useNewTripHref();
   const label = t({ en: "New trip", zh: "新建行程" });
   return (
     <Button
-      look="primary"
+      look={quiet ? undefined : "primary"}
       size={size}
       icon={<PlusIcon weight="bold" />}
       aria-label={iconOnly ? label : undefined}
@@ -43,10 +46,10 @@ export function NewTripRailAction() {
   return (
     <div css={styles.railLine}>
       <TabViewIconsOnly>
-        <NewTripButton iconOnly size="lg" />
+        <NewTripButton iconOnly size="lg" quiet />
       </TabViewIconsOnly>
       <TabViewLabelsOnly>
-        <NewTripButton css={styles.wide} />
+        <NewTripButton css={styles.wide} quiet />
       </TabViewLabelsOnly>
     </div>
   );

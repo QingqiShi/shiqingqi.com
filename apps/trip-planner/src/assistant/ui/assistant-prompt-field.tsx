@@ -165,6 +165,10 @@ export function AssistantPromptField({
   fieldRef,
   onFocus,
   label: givenLabel,
+  placeholder,
+  stacked = false,
+  filePickerRef,
+  onBeforeSend,
 }: {
   model: TripAssistantModel;
   fieldRef?: RefObject<TextControl | null>;
@@ -172,6 +176,14 @@ export function AssistantPromptField({
   onFocus?: () => void;
   /** The label and placeholder, in place of the one for a trip. */
   label?: string;
+  /** The hint in the empty field, where it says more than the label. */
+  placeholder?: string;
+  /** The text takes the full width, with "+" under it, for a prompt that leads a page. */
+  stacked?: boolean;
+  /** Ref to the hidden file input, so that another control can open the picker. */
+  filePickerRef?: RefObject<HTMLInputElement | null>;
+  /** Called just before a message goes out, such as to measure the layout before it changes. */
+  onBeforeSend?: () => void;
 }) {
   const isOnline = useOnline();
   const statusLine = useStatusLine(model, isOnline);
@@ -181,7 +193,8 @@ export function AssistantPromptField({
   });
   const label = givenLabel ?? tripLabel;
   const addLabel = t({ en: "Add photos or files", zh: "添加照片或文件" });
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const ownFileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = filePickerRef ?? ownFileInputRef;
   const canSend =
     isOnline &&
     !model.isRunning &&
@@ -208,6 +221,44 @@ export function AssistantPromptField({
         {chips}
       </div>
     ) : undefined;
+
+  const addButton = (
+    <>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,application/pdf"
+        multiple
+        hidden
+        onChange={(event) => {
+          const picked = [...(event.currentTarget.files ?? [])];
+          event.currentTarget.value = "";
+          void model.addFiles(picked);
+        }}
+      />
+      <Button
+        size="sm"
+        look="ghost"
+        aria-label={addLabel}
+        title={addLabel}
+        disabled={!isOnline || model.isPreparing}
+        icon={<PlusIcon weight="bold" role="presentation" />}
+        onClick={() => {
+          fileInputRef.current?.click();
+        }}
+      />
+    </>
+  );
+  const sendButton = (
+    <Button
+      type="submit"
+      size="sm"
+      look={hasContent && canSend ? "primary" : undefined}
+      aria-label={t({ en: "Send", zh: "发送" })}
+      disabled={!hasContent || !canSend}
+      icon={<ArrowUpIcon weight="bold" role="presentation" />}
+    />
+  );
 
   return (
     <div
@@ -247,49 +298,27 @@ export function AssistantPromptField({
       <PromptField
         ref={fieldRef}
         label={label}
-        placeholder={label}
+        placeholder={placeholder ?? label}
         value={model.draft}
         onValueChange={model.setDraft}
         onSubmit={() => {
-          if (canSend) void model.send(model.draft, model.attachments);
+          if (!canSend) return;
+          onBeforeSend?.();
+          void model.send(model.draft, model.attachments);
         }}
         multiline
         disabled={!isOnline}
         header={header}
+        tools={stacked ? addButton : undefined}
         action={
-          <div css={row.tight}>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*,application/pdf"
-              multiple
-              hidden
-              onChange={(event) => {
-                const picked = [...(event.currentTarget.files ?? [])];
-                event.currentTarget.value = "";
-                void model.addFiles(picked);
-              }}
-            />
-            <Button
-              size="sm"
-              look="ghost"
-              aria-label={addLabel}
-              title={addLabel}
-              disabled={!isOnline || model.isPreparing}
-              icon={<PlusIcon weight="bold" role="presentation" />}
-              onClick={() => {
-                fileInputRef.current?.click();
-              }}
-            />
-            <Button
-              type="submit"
-              size="sm"
-              look={hasContent && canSend ? "primary" : undefined}
-              aria-label={t({ en: "Send", zh: "发送" })}
-              disabled={!hasContent || !canSend}
-              icon={<ArrowUpIcon weight="bold" role="presentation" />}
-            />
-          </div>
+          stacked ? (
+            sendButton
+          ) : (
+            <div css={row.tight}>
+              {addButton}
+              {sendButton}
+            </div>
+          )
         }
       />
     </div>

@@ -7,6 +7,7 @@ import { PropsTable } from "#src/design-system/props-table.tsx";
 import {
   PromptFieldGrowExample,
   PromptFieldRowExample,
+  PromptFieldToolsExample,
 } from "./prompt-field-specimens.tsx";
 
 export function PromptFieldShowcase() {
@@ -54,6 +55,19 @@ export function PromptFieldShowcase() {
         })}
       >
         <PromptFieldGrowExample />
+      </GuideSection>
+
+      <GuideSection
+        title={t({
+          en: "Give the prompt that starts a conversation room to write.",
+          zh: "为开始一段对话的提问留出书写的空间。",
+        })}
+        lead={t({
+          en: "With tools, the text takes the full width of the frame, and the controls go to a row under it: the tools at the start, the action at the end.",
+          zh: "传入 tools 后，文字占满边框的宽度，控件移到下方一行：工具在起始处，发送按钮在末端。",
+        })}
+      >
+        <PromptFieldToolsExample />
       </GuideSection>
 
       <PropsTable component="prompt-field" />

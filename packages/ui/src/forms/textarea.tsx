@@ -132,6 +132,7 @@ export function Textarea({
   defaultValue,
   onInput,
   onPointerDown,
+  onFocus,
   onBlur,
   "aria-describedby": ariaDescribedBy,
   "aria-invalid": ariaInvalid,
@@ -239,6 +240,10 @@ export function Textarea({
           onPointerDown={(event) => {
             pointerFocus.onPointerDown(event);
             onPointerDown?.(event);
+          }}
+          onFocus={(event) => {
+            pointerFocus.onFocus(event);
+            onFocus?.(event);
           }}
           onBlur={(event) => {
             pointerFocus.onBlur(event);
