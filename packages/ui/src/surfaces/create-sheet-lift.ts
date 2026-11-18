@@ -139,7 +139,9 @@ export function liftedPage(at: number, faded: number, lost: number) {
  * on the page such as the row that opened it, and goes back into it. The
  * card shows through a window that grows from the box of `origin` to the
  * card's own box at `rest`, with a copy of `origin` on top that fades out,
- * and the card's content fades in late. The window is the part that the
+ * and the card's content fades in late. As it goes back, the card stops in
+ * the box of `origin`, also while `progress` swings past 0, so that the
+ * copy never shows beside `origin`. The window is the part that the
  * card and each box in `clips` have in common: each has the corners of the
  * card, and each box moves one of its corners onto a corner of the window.
  * The card and the boxes move only by transforms, so the compositor moves
@@ -249,7 +251,7 @@ export function createSheetLift(
   ) =>
     bind(element, lifted, {
       pose: (at, down, faded, lost) =>
-        pose(at, down, liftedPage(at, faded, lost)),
+        pose(Math.max(0, at), down, liftedPage(at, faded, lost)),
     });
 
   const gapAt = (at: number, page: number) => {
