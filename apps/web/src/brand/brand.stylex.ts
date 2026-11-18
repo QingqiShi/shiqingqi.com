@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { blue } from "@tuja/ui/palette/blue.stylex";
 import { cyan } from "@tuja/ui/palette/cyan.stylex";
 import { green } from "@tuja/ui/palette/green.stylex";
 import { indigo } from "@tuja/ui/palette/indigo.stylex";
@@ -24,4 +25,5 @@ export const brand = stylex.defineVars({
   studentLoan: `light-dark(${green._50}, ${green._60})`,
   buddy: `light-dark(${purple._50}, ${purple._70})`,
   finance: `light-dark(${mint._50}, ${mint._60})`,
+  trips: `light-dark(${blue._50}, ${blue._60})`,
 });
