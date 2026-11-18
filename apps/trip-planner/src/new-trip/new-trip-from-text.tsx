@@ -26,14 +26,29 @@ export interface MadeTrip extends Filled {
   message: string;
 }
 
-type Failure = "unreadable" | "unavailable" | "signedOut" | "failed";
+type Failure =
+  | { kind: "unreadable" | "unavailable" | "signedOut" | "failed" }
+  | { kind: "notAPlan"; modelSaid: string | null };
 
 function failureOf(error: unknown): Failure {
-  if (!(error instanceof ApiError)) return "failed";
-  if (error.status === 502 || error.status === 504) return "unreadable";
-  if (error.status === 503) return "unavailable";
-  if (error.status === 401) return "signedOut";
-  return "failed";
+  if (!(error instanceof ApiError)) return { kind: "failed" };
+  if (error.code === "not_a_plan") {
+    const { body } = error;
+    const modelSaid =
+      typeof body === "object" &&
+      body !== null &&
+      "message" in body &&
+      typeof body.message === "string"
+        ? body.message
+        : null;
+    return { kind: "notAPlan", modelSaid };
+  }
+  if (error.status === 502 || error.status === 504) {
+    return { kind: "unreadable" };
+  }
+  if (error.status === 503) return { kind: "unavailable" };
+  if (error.status === 401) return { kind: "signedOut" };
+  return { kind: "failed" };
 }
 
 /**
@@ -166,14 +181,26 @@ export function NewTripFromText({
             zh: "计划已读取，正在把每天的安排加入新行程。",
           })}
         </Callout>
-      ) : failure === "unreadable" ? (
+      ) : failure?.kind === "notAPlan" ? (
+        <Callout
+          intent="destructive"
+          role="alert"
+          title={t({ en: "No trip in this text", zh: "这段文字里没有行程" })}
+        >
+          {failure.modelSaid ??
+            t({
+              en: "This text does not look like a travel plan. A trip needs places or days.",
+              zh: "这段文字看起来不像旅行计划。行程需要地点或日期。",
+            })}
+        </Callout>
+      ) : failure?.kind === "unreadable" ? (
         <Callout intent="destructive" role="alert">
           {t({
             en: "No trip could be made from this text. Add the dates and places, or change the text, and try again.",
             zh: "无法根据这段文字生成行程。请补充日期和地点，或修改文字后重试。",
           })}
         </Callout>
-      ) : failure === "unavailable" ? (
+      ) : failure?.kind === "unavailable" ? (
         <Callout
           intent="destructive"
           role="alert"
@@ -188,14 +215,14 @@ export function NewTripFromText({
             zh: "暂时不能根据计划生成行程。你可以新建空白行程，自己添加每天的安排。",
           })}
         </Callout>
-      ) : failure === "signedOut" ? (
+      ) : failure?.kind === "signedOut" ? (
         <Callout intent="destructive" role="alert">
           {t({
             en: "You are signed out. Sign in again, then try again.",
             zh: "你已退出登录。请重新登录后再试。",
           })}
         </Callout>
-      ) : failure === "failed" ? (
+      ) : failure?.kind === "failed" ? (
         <Callout intent="destructive" role="alert">
           {t({
             en: "The trip was not made. Check the connection and try again.",
