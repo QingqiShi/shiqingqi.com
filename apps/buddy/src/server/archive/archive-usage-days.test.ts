@@ -1,5 +1,5 @@
 import { generateKeyPairSync } from "node:crypto";
-import { asc } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createBuddyTestKit } from "#src/testing/create-buddy-test-kit.ts";
 import { sampleUpload } from "#src/testing/sample-upload.ts";
@@ -39,7 +39,7 @@ describe("upsertUsageDays", () => {
     await kit.db.close();
   });
 
-  it("keeps the larger value of every column across runs", async () => {
+  it("keeps the larger count of every column across runs, and the cost of the run with the most tokens", async () => {
     await upsertUsageDays(kit.db, [
       row,
       { ...row, day: "2026-11-07", tokens: 5_000_000_000 },
@@ -53,9 +53,17 @@ describe("upsertUsageDays", () => {
       .from(buddyUsageDays)
       .orderBy(asc(buddyUsageDays.day));
     expect(rows.map(({ archivedAt: _archivedAt, ...rest }) => rest)).toEqual([
-      { ...row, tokens: 1_000, costUsd: 2, cacheRead: 700, promptTokens: 40 },
+      { ...row, tokens: 1_000, cacheRead: 700, promptTokens: 40 },
       { ...row, day: "2026-11-07", tokens: 5_000_000_000 },
     ]);
+
+    await upsertUsageDays(kit.db, [{ ...row, costUsd: 0.5 }]);
+    expect(
+      await kit.db
+        .select({ costUsd: buddyUsageDays.costUsd })
+        .from(buddyUsageDays)
+        .where(eq(buddyUsageDays.day, row.day)),
+    ).toEqual([{ costUsd: 0.5 }]);
   });
 });
 
