@@ -1,3 +1,4 @@
+import { ApiError } from "@tuja/auth-ui/api-error";
 import { useRouter } from "next/navigation";
 import { useEffect, useEffectEvent } from "react";
 import { assistantApi } from "#src/assistant/assistant-api.ts";
@@ -18,8 +19,13 @@ export function useTripVersionWatch(
   const router = useRouter();
   const check = useEffectEvent(async (signal: AbortSignal) => {
     if (document.visibilityState !== "visible" || !navigator.onLine) return;
-    const answer = await assistantApi.version(tripId, signal).catch(() => null);
-    if (answer && !signal.aborted && answer.version !== shownVersion) {
+    const answer = await assistantApi
+      .version(tripId, signal)
+      .catch((error: unknown) =>
+        error instanceof ApiError && error.status === 404 ? "gone" : null,
+      );
+    if (signal.aborted || answer === null) return;
+    if (answer === "gone" || answer.version !== shownVersion) {
       router.refresh();
     }
   });

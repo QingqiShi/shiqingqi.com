@@ -15,6 +15,7 @@ import {
   type ToolSet,
 } from "ai";
 import "server-only";
+import { addStepUse } from "#src/ai/add-step-use.ts";
 import { emptyUse, type ModelUse } from "#src/ai/empty-use.ts";
 import { logAiRun } from "#src/ai/log-ai-run.ts";
 import {
@@ -287,6 +288,19 @@ export async function runTurn(request: TurnRequest): Promise<TurnStart> {
           attachmentNames.add(file.name);
         }
       }
+      const tapped = segmentMessages.isOptionTap(segment, text);
+      if (
+        tapped &&
+        (await segmentMessages.holdsUntrusted(tx, conversationId, segment))
+      ) {
+        trust.holdMemory();
+      }
+      const ownWords = memberLinks(text).reduce(
+        (rest, link) => rest.replaceAll(link, ""),
+        text,
+      );
+      const appLanguage =
+        tapped || !/\p{L}/u.test(ownWords) ? (request.locale ?? null) : null;
       const isFirst = !segment.some((entry) => entry.kind === "model");
       const earlier =
         isFirst && tripId !== null
@@ -310,6 +324,7 @@ export async function runTurn(request: TurnRequest): Promise<TurnStart> {
               now,
               untrusted: trust.reason,
               earlierSummaries: earlier,
+              appLanguage,
             }),
           },
           ...(stored
@@ -461,7 +476,12 @@ async function drive({
       tools,
       maxOutputTokens: MAX_OUTPUT_TOKENS,
       abortSignal: deadline,
-      stopWhen: [isStepCount(MAX_STEPS), hasToolCall("ask_person")],
+      stopWhen: [
+        isStepCount(MAX_STEPS),
+        hasToolCall("ask_person"),
+        // A step that the output limit cut can still end with a whole tool call, and then the loop goes on.
+        ({ steps }) => steps.at(-1)?.finishReason === "length",
+      ],
       onError: ({ error }) => {
         console.error("The model's stream failed:", describeError(error));
       },
@@ -492,13 +512,7 @@ async function drive({
         };
       },
       onStepEnd: (step) => {
-        use.rounds += 1;
-        use.inputTokens += step.usage.inputTokens ?? 0;
-        use.outputTokens += step.usage.outputTokens ?? 0;
-        use.cacheReadTokens +=
-          step.usage.inputTokenDetails.cacheReadTokens ?? 0;
-        use.cacheWriteTokens +=
-          step.usage.inputTokenDetails.cacheWriteTokens ?? 0;
+        addStepUse(use, step);
       },
     });
     let streamError: unknown = null;
@@ -547,7 +561,13 @@ async function drive({
     }
     if (deadline.aborted) throw new Error("The turn ran out of time.");
     await store(await result.responseMessages);
-    status = "ok";
+    const finishReason = await result.finishReason;
+    status =
+      finishReason === "length"
+        ? "cut_off"
+        : finishReason === "content-filter" || finishReason === "error"
+          ? "failed"
+          : "ok";
   } catch (error) {
     status = deadline.aborted ? "timeout" : "failed";
     console.error("The assistant turn failed:", describeError(error));
@@ -567,7 +587,7 @@ async function drive({
       tripId: context.tripId,
       kind: "assistant",
       model: ASSISTANT_MODEL_ID,
-      status,
+      status: status === "cut_off" ? "aborted" : status,
       use,
       durationMs: performance.now() - started,
     });

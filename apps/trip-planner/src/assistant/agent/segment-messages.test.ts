@@ -49,6 +49,22 @@ it("drops a code run that a question to the person cut off, and keeps one that e
         ],
       },
     },
+    {
+      kind: "model",
+      seq: 4,
+      attachments: null,
+      message: {
+        role: "tool",
+        content: [
+          {
+            type: "tool-result",
+            toolCallId: "ask",
+            toolName: "ask_person",
+            output: { type: "json", value: { asked: true } },
+          },
+        ],
+      },
+    },
   ]);
 
   const calls = history.flatMap((message) =>
@@ -59,4 +75,40 @@ it("drops a code run that a question to the person cut off, and keeps one that e
         ),
   );
   expect(calls).toEqual(["ended", "ask"]);
+});
+
+it("drops a call of our own tools that the output limit cut before it ran", () => {
+  const history = segmentMessages.forModel([
+    {
+      kind: "model",
+      seq: 1,
+      attachments: null,
+      message: {
+        role: "assistant",
+        content: [
+          { type: "text", text: "Let me look." },
+          {
+            type: "tool-call",
+            toolCallId: "cut",
+            toolName: "read_trip",
+            input: {},
+          },
+        ],
+      },
+    },
+    {
+      kind: "model",
+      seq: 2,
+      attachments: null,
+      message: { role: "user", content: "Try again." },
+    },
+  ]);
+
+  expect(history).toEqual([
+    {
+      role: "assistant",
+      content: [{ type: "text", text: "Let me look." }],
+    },
+    { role: "user", content: "Try again." },
+  ]);
 });

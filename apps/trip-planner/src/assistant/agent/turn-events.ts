@@ -2,8 +2,8 @@ import type { CodeWork } from "./code-work.ts";
 import type { ResearchCard } from "./research/research-list.ts";
 import type { CreatedTrip } from "./trip-view.ts";
 
-/** How a turn ended. */
-export type TurnStatus = "ok" | "failed" | "timeout";
+/** How a turn ended. `cut_off`: the answer reached the output limit and stopped. */
+export type TurnStatus = "ok" | "failed" | "timeout" | "cut_off";
 
 /** What a watcher of a turn sees, in order. `done` is always last. */
 export type TurnEvent =

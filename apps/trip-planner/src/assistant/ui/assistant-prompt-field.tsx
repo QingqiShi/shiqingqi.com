@@ -11,6 +11,7 @@ import { Text } from "@tuja/ui/components/text";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlHeight } from "@tuja/ui/tokens.stylex";
 import { useRef, type ReactNode, type RefObject } from "react";
+import type { SendFailure } from "#src/assistant/assistant-api.ts";
 import { LONG_PASTE_CHARS } from "#src/assistant/check-attachments.ts";
 import { useOnline } from "#src/trips/save/use-online.ts";
 import { AttachmentChips } from "./attachment-chips.tsx";
@@ -18,7 +19,6 @@ import { useSegmentFailureWords } from "./conversation-entries.tsx";
 import type { AttachFailure } from "./draft-attachments.ts";
 import type {
   DecideFailure,
-  SendFailure,
   TripAssistantModel,
 } from "./use-trip-assistant.ts";
 
@@ -34,6 +34,10 @@ function useNotices() {
       timeout: t({
         en: "The answer took too long and stopped. Your message is back in the field: ask for less at a time.",
         zh: "回答用时太长，已停止。你的消息已放回输入框，试着一次少问一些。",
+      }),
+      cut_off: t({
+        en: "The answer was cut off. Your message is back in the field: ask again, or ask for less at once.",
+        zh: "回答被截断了。你的消息已放回输入框，可以再问一次，或一次少问一些。",
       }),
       too_long: t({
         en: "That message is too long. Shorten it and send it again.",

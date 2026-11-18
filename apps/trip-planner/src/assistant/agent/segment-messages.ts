@@ -5,10 +5,12 @@ import {
   READ_ITEM_KINDS,
   type StoredAttachments,
 } from "#src/assistant/check-attachments.ts";
+import { changes } from "#src/assistant/store/changes.ts";
 import { messages, type NewMessage } from "#src/assistant/store/messages.ts";
 import type { RefusalReason } from "#src/assistant/types.ts";
 import type { Transaction } from "#src/trips/as-viewer.ts";
 import { assistantPrompt } from "./assistant-prompt.ts";
+import { unquote } from "./plain-line.ts";
 
 /**
  * Something that happened after a turn, such as an accepted card. `text` is
@@ -140,7 +142,7 @@ async function read(
 
 /** The history that the model reads: each event becomes a short note from the app. */
 function forModel(entries: readonly SegmentEntry[]): ModelMessage[] {
-  return withoutOpenServerCalls(
+  return withoutOpenCalls(
     entries.map((entry) =>
       entry.kind === "model"
         ? entry.message
@@ -158,14 +160,16 @@ function forModel(entries: readonly SegmentEntry[]): ModelMessage[] {
 }
 
 /**
- * A code run that the model starts next to a question to the person ends in
- * the step after the question, which never comes. Its container is gone in
- * the next turn, so the history drops the call that has no result.
+ * Some calls never get a result: a code run that the model starts next to a
+ * question to the person ends in the step after the question, which never
+ * comes, and a call that the output limit cuts is not run. The model cannot
+ * read a history with such a call, so the history drops it.
  */
-function withoutOpenServerCalls(history: ModelMessage[]): ModelMessage[] {
+function withoutOpenCalls(history: ModelMessage[]): ModelMessage[] {
   const ended = new Set(
     history.flatMap((message) =>
-      message.role === "assistant" && typeof message.content !== "string"
+      (message.role === "assistant" || message.role === "tool") &&
+      typeof message.content !== "string"
         ? message.content.flatMap((part) =>
             part.type === "tool-result" ? [part.toolCallId] : [],
           )
@@ -177,12 +181,7 @@ function withoutOpenServerCalls(history: ModelMessage[]): ModelMessage[] {
       return [message];
     }
     const content = message.content.filter(
-      (part) =>
-        !(
-          part.type === "tool-call" &&
-          part.providerExecuted === true &&
-          !ended.has(part.toolCallId)
-        ),
+      (part) => !(part.type === "tool-call" && !ended.has(part.toolCallId)),
     );
     if (content.length === message.content.length) return [message];
     return content.length > 0 ? [{ ...message, content }] : [];
@@ -216,6 +215,48 @@ function spokenTexts(message: ModelMessage): string[] {
   );
 }
 
+/** Whether a text is an option of the segment's latest `ask_person` question, as the app sends a tapped option. */
+function isOptionTap(entries: readonly SegmentEntry[], text: string): boolean {
+  const said = unquote(text).trim();
+  for (const entry of entries.toReversed()) {
+    if (entry.kind !== "model" || entry.message.role !== "assistant") continue;
+    if (typeof entry.message.content === "string") continue;
+    const question = entry.message.content.findLast(
+      (part) => part.type === "tool-call" && part.toolName === "ask_person",
+    );
+    if (question?.type !== "tool-call") continue;
+    const options: unknown =
+      typeof question.input === "object" && question.input !== null
+        ? Reflect.get(question.input, "options")
+        : null;
+    return (
+      Array.isArray(options) &&
+      options.some(
+        (option) =>
+          typeof option === "string" && unquote(option).trim() === said,
+      )
+    );
+  }
+  return false;
+}
+
+/** Whether the segment holds content that no member wrote: the files of a message, or a research list. */
+async function holdsUntrusted(
+  tx: Transaction,
+  conversationId: string,
+  entries: readonly SegmentEntry[],
+): Promise<boolean> {
+  const attached = entries.some(
+    (entry) =>
+      entry.kind === "model" && (entry.attachments?.files.length ?? 0) > 0,
+  );
+  if (attached) return true;
+  const rows = await changes.list(tx, conversationId);
+  return rows.some(
+    (row) => row.conversationId === conversationId && row.kind === "research",
+  );
+}
+
 /** A segment as the assistant stores and reads it. */
 export const segmentMessages = {
   modelEntry,
@@ -224,4 +265,6 @@ export const segmentMessages = {
   forModel,
   isCompaction,
   spokenTexts,
+  isOptionTap,
+  holdsUntrusted,
 };

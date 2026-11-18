@@ -242,7 +242,7 @@ function RememberedLine({
         aria-label={t({
           en: "{words}: see what the assistant remembers",
           zh: "{words}：查看助手记住的内容",
-        }).replace("{words}", words)}
+        }).replace("{words}", () => words.replace(/[.。!！?？]+$/u, ""))}
         onClick={onOpenMemory}
       >
         <span css={styles.clipped}>{words}</span>
