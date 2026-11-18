@@ -113,5 +113,36 @@ function days(trip: Trip, dayIds: readonly string[]) {
   };
 }
 
+/** A trip that the assistant made, as its card shows it. */
+export interface CreatedTrip {
+  tripId: string;
+  title: string;
+  firstDate: string;
+  lastDate: string;
+  /** One line per day: its title, or what it holds. */
+  days: { date: string; line: string }[];
+}
+
+const MAX_CARD_LINE_CHARS = 120;
+
+function created(tripId: string, trip: Trip): CreatedTrip {
+  return {
+    tripId,
+    title: trip.title,
+    firstDate: trip.days[0].date,
+    lastDate: trip.days[trip.days.length - 1].date,
+    days: trip.days.map((day) => ({
+      date: day.date,
+      line: cut(
+        day.title ??
+          day.moments
+            .map((moment) => momentLine(moment).replace(/^\S+ /, ""))
+            .join(" · "),
+        MAX_CARD_LINE_CHARS,
+      ),
+    })),
+  };
+}
+
 /** The trip as the assistant reads it, as the asker. */
-export const tripView = { version, read, outline, days };
+export const tripView = { version, read, outline, days, created };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 
 /** What the trip page shows: one day, or the calendar of every day. */
 export type TripLocation = { view: "day"; day: number } | { view: "calendar" };
@@ -49,83 +49,28 @@ function parse(
   return { view: "day", day: fallbackDay };
 }
 
-/** The id of the element of a day, which the hash names. */
-export function dayAnchorId(day: number) {
-  return `day-${String(day)}`;
-}
-
 export function tripLocationHash(location: TripLocation) {
   return location.view === "calendar"
     ? CALENDAR_HASH
-    : `#${dayAnchorId(location.day)}`;
+    : `#day-${String(location.day)}`;
 }
 
 /** Puts a place in the URL hash, in the current history entry. */
-export function replaceTripLocation(next: TripLocation) {
-  window.history.replaceState(window.history.state, "", tripLocationHash(next));
+function replaceTripLocation(next: TripLocation) {
+  // Do not give the current state here. Next.js ignores a state that it
+  // wrote, and then the next `router.refresh()` writes the URL without the
+  // hash, which removes the day from the URL.
+  window.history.replaceState(null, "", tripLocationHash(next));
   for (const listener of listeners) listener();
-}
-
-let arrival: {
-  path: string;
-  location: TripLocation | null;
-  anchorId: string | null;
-} | null = null;
-let hasArrived = false;
-
-/**
- * Makes the trip page at `path` open at a place, the next time that it
- * shows: at `location`, or with no location at the place that its hash
- * names, and with the element `anchorId` in view, or with no anchor at the
- * top of the page. A step back in history shows the page at the hash that
- * it had, so the screen that the person leaves names the place this way.
- */
-export function arriveAt(
-  path: string,
-  location: TripLocation | null,
-  anchorId: string | null = null,
-) {
-  arrival = { path, location, anchorId };
-}
-
-/** Takes back what `arriveAt` asked for, when the person goes to a different page. */
-export function forgetArrival() {
-  arrival = null;
-}
-
-/** Whether the page opened at a place that `arriveAt` named. It answers yes one time. */
-export function takeArrived() {
-  const arrived = hasArrived;
-  hasArrived = false;
-  return arrived;
-}
-
-/** The URL hash, which names a place on the trip page. Empty on the server. */
-export function useTripHash() {
-  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
 /**
  * The place on the trip page that the URL hash names, and a way to move. A
  * page with no hash shows `fallbackDay`, such as today. A move replaces the
- * history entry, so that Back leaves the trip, not the last day. The page
- * opens at the place that `arriveAt` named for it.
+ * history entry, so that Back leaves the trip, not the last day.
  */
 export function useTripLocation(dayCount: number, fallbackDay: number) {
-  useLayoutEffect(() => {
-    if (arrival?.path === window.location.pathname) {
-      const { location: place, anchorId } = arrival;
-      if (place) replaceTripLocation(place);
-      hasArrived = true;
-      // The day of the place shows after this effect.
-      requestAnimationFrame(() => {
-        const anchor = anchorId ? document.getElementById(anchorId) : null;
-        if (anchor) anchor.scrollIntoView({ block: "start" });
-        else window.scrollTo({ top: 0 });
-      });
-    }
-    arrival = null;
-  }, []);
-  const location = parse(useTripHash(), dayCount, fallbackDay);
+  const hash = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const location = parse(hash, dayCount, fallbackDay);
   return [location, replaceTripLocation] as const;
 }

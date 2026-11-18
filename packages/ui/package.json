@@ -193,6 +193,8 @@
     "./components/setting-list": "./src/forms/setting-list.tsx",
     "./components/setting-row": "./src/forms/setting-row.tsx",
     "./components/sheet": "./src/surfaces/sheet.tsx",
+    "./components/side-column-layout": "./src/shells/side-column-layout.tsx",
+    "./components/side-column-layout.stylex": "./src/shells/side-column-layout.stylex.ts",
     "./components/skeleton": "./src/feedback/skeleton.tsx",
     "./components/skeleton.stylex": "./src/feedback/skeleton.stylex.ts",
     "./components/slider": "./src/forms/slider.tsx",

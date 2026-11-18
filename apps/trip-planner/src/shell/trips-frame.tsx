@@ -15,8 +15,8 @@ import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { useRouter, useSelectedLayoutSegments } from "next/navigation";
 import type { ReactNode } from "react";
 import { NewTripFloatingButton } from "#src/new-trip/new-trip-button.tsx";
+import { NEW_TRIP_SEGMENT } from "#src/new-trip/use-new-trip-href.ts";
 import { useDayNumber } from "#src/reader/use-day-number.ts";
-import { useTripHash } from "#src/reader/use-trip-location.ts";
 import { TripSkeleton } from "./trip-skeleton.tsx";
 import type { TripSummary } from "./trip-summary.ts";
 import { useOnReturn } from "./use-on-return.ts";
@@ -92,7 +92,6 @@ export function TripsFrame({
   const router = useRouter();
   const segments = useSelectedLayoutSegments();
   const [segment, page, version] = segments;
-  const hash = useTripHash();
   useOnReturn(() => {
     router.refresh();
   });
@@ -104,10 +103,6 @@ export function TripsFrame({
     const tripPath = (path: string) =>
       getLocalePath(`/${trip.id}${path}`, locale);
     switch (page) {
-      case "edit":
-        // The way back from the edit screen is the reader, at the day that
-        // the hash names: the day of the last change.
-        return { href: tripPath("") + hash, label: trip.title };
       case "history":
         return version
           ? { href: tripPath("/history"), label: historyLabel }
@@ -116,14 +111,21 @@ export function TripsFrame({
         return { href: listHref, label: listLabel };
     }
   };
-  const back = open ? backOf(open) : null;
+  const isNewTrip = segment === NEW_TRIP_SEGMENT;
+  const newTripLabel = t({ en: "New trip", zh: "新建行程" });
+  const back = open
+    ? backOf(open)
+    : isNewTrip
+      ? { href: listHref, label: listLabel }
+      : null;
 
   // With no trip, a list column is an empty box, and on a phone it is the
   // whole page.
   if (trips.length === 0) {
     return (
       <NavigationStack
-        label={listLabel}
+        label={isNewTrip ? newTripLabel : listLabel}
+        back={back}
         accessory={segments.length === 0 ? <NewTripFloatingButton /> : null}
         css={pageColumn.report}
       >
@@ -148,8 +150,15 @@ export function TripsFrame({
         accessory: <NewTripFloatingButton />,
       }}
       content={{
-        key: open ? [open.id, page, version].filter(Boolean).join("/") : "home",
-        label: page === "history" ? historyLabel : (open?.title ?? listLabel),
+        key: open
+          ? [open.id, page, version].filter(Boolean).join("/")
+          : isNewTrip
+            ? NEW_TRIP_SEGMENT
+            : "home",
+        label:
+          page === "history"
+            ? historyLabel
+            : (open?.title ?? (isNewTrip ? newTripLabel : listLabel)),
         back,
         node: children,
       }}

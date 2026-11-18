@@ -24,11 +24,17 @@ export interface ProvedBatch {
 }
 
 export type Proof =
-  { ok: true; batches: ProvedBatch[] } | { ok: false; reason: string };
+  | {
+      ok: true;
+      batches: ProvedBatch[];
+      /** The trip after all the batches. */
+      trip: Trip;
+    }
+  | { ok: false; reason: string };
 
 /**
  * Applies the batches in order, each one whole on the trip with the batches
- * before it, as the editor's save queue does. The proof fails at the first
+ * before it, as the save queue does. The proof fails at the first
  * op that does not apply, with the reason.
  */
 export function proveBatches(trip: Trip, batches: readonly RawBatch[]): Proof {
@@ -79,7 +85,7 @@ export function proveBatches(trip: Trip, batches: readonly RawBatch[]): Proof {
     });
     state = result.trip;
   }
-  return { ok: true, batches: proved };
+  return { ok: true, batches: proved, trip: state };
 }
 
 /**

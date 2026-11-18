@@ -20,28 +20,15 @@ export type { Batch };
 export type Problem =
   /** The request failed, so the change is not saved. Sending it again is safe. */
   | { kind: "failed"; batch: Batch }
-  /**
-   * Someone else changed the same thing. `theirs` is the trip as the server
-   * has it. `canKeepMine` is false when the thing is gone. `index` is the
-   * op of the batch that the server did not take, and `expect` is the
-   * digest that the server has for the thing of that op, or null when the
-   * thing is gone.
-   */
-  | {
-      kind: "conflict";
-      batch: Batch;
-      theirs: Trip;
-      canKeepMine: boolean;
-      index: number;
-      expect: string | null;
-    };
+  /** Someone else changed the same thing. `theirs` is the trip as the server has it. */
+  | { kind: "conflict"; batch: Batch; theirs: Trip };
 
 export interface QueueState {
   /** The trip with each change of the queue applied: what the screen shows. */
   trip: Trip;
   /** The changes that the server does not have yet, oldest first. */
   pending: readonly Batch[];
-  /** Why the queue stopped. It waits for `retry`, `keepTheirs` or `keepMine`. */
+  /** Why the queue stopped. It waits for `retry`, `discard` or `keepTheirs`. */
   problem: Problem | null;
   /** Whether `undo` has a change to take back. */
   canUndo: boolean;
@@ -68,14 +55,6 @@ export interface SaveQueue {
    */
   onDropped: (listener: () => void) => () => void;
   /**
-   * Calls the listener with the ids of the changes that the trip no longer
-   * has: each change that the person took back, and each change that the
-   * queue dropped.
-   */
-  onTakenBack: (
-    listener: (batchIds: ReadonlySet<number>) => void,
-  ) => () => void;
-  /**
    * Shows a change at once and puts it in the queue. When the change does
    * not apply to the trip that the screen shows, `refused` is why the trip
    * cannot take it, or null when the thing that it changes is gone.
@@ -94,8 +73,6 @@ export interface SaveQueue {
   retry: () => void;
   /** Ends a conflict: drops the person's change and shows the other version. */
   keepTheirs: () => void;
-  /** Ends a conflict: sends the person's change again, over the other version. */
-  keepMine: () => void;
   /** Drops a change that failed, and each later change that then does not apply. */
   discard: () => void;
   /**
@@ -143,14 +120,9 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
   let state: QueueState;
   const listeners = new Set<() => void>();
   const droppedListeners = new Set<() => void>();
-  const takenBackListeners = new Set<(ids: ReadonlySet<number>) => void>();
 
   function reportDropped() {
     for (const listener of droppedListeners) listener();
-  }
-
-  function reportTakenBack(ids: ReadonlySet<number>) {
-    for (const listener of takenBackListeners) listener(ids);
   }
 
   /** The base with each batch applied in order. A batch that does not apply stops the list. */
@@ -206,7 +178,6 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
     );
     pending = pending.filter((batch) => !ids.has(batch.id));
     undoStack = undoStack.filter((entry) => !ids.has(entry.batchId));
-    reportTakenBack(ids);
   }
 
   function dropHead() {
@@ -238,11 +209,6 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
         base = result.trip;
         pending = pending.slice(1);
         dropWhatNoLongerApplies();
-        // An undo that had to ask the person first has only now taken the
-        // change back.
-        if (head.undoes !== undefined) {
-          reportTakenBack(new Set([head.undoes]));
-        }
         break;
       case "not_found":
         gone();
@@ -253,7 +219,7 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
         await refresh();
         break;
       case "conflict":
-        await conflict(head, result.index, result.expect);
+        await conflict(head);
         break;
       case undefined:
         break;
@@ -281,7 +247,7 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
     }
   }
 
-  async function conflict(head: Batch, index: number, expect: string | null) {
+  async function conflict(head: Batch) {
     let theirs: Trip | null;
     try {
       theirs = await read();
@@ -293,14 +259,7 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
       gone();
       return;
     }
-    problem = {
-      kind: "conflict",
-      batch: head,
-      theirs,
-      canKeepMine: expect !== null,
-      index,
-      expect,
-    };
+    problem = { kind: "conflict", batch: head, theirs };
   }
 
   /**
@@ -335,34 +294,9 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
       hasLanded(head.ops, expected.trip, newest)
     ) {
       pending = pending.slice(1);
-      if (head.undoes !== undefined) {
-        reportTakenBack(new Set([head.undoes]));
-      }
     }
     base = newest;
     resume();
-  }
-
-  /**
-   * The person saw the other version of these things and chose their own
-   * change. So each waiting op on them now expects the other version, with
-   * the earlier changes of the queue applied.
-   */
-  function expectTheirs(ids: ReadonlySet<string>) {
-    let trip = base;
-    pending = pending.map((batch) => {
-      const fresh = withExpect(trip, batch.ops);
-      const result = applyOps(trip, fresh);
-      if (result.status === "applied") trip = result.trip;
-      return {
-        ...batch,
-        sent: batch.sent.map((op, index) =>
-          touchedIds([batch.ops[index]]).some((id) => ids.has(id))
-            ? fresh[index]
-            : op,
-        ),
-      };
-    });
   }
 
   function retry() {
@@ -400,12 +334,6 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
       droppedListeners.add(listener);
       return () => {
         droppedListeners.delete(listener);
-      };
-    },
-    onTakenBack(listener) {
-      takenBackListeners.add(listener);
-      return () => {
-        takenBackListeners.delete(listener);
       };
     },
     submit(ops) {
@@ -455,7 +383,6 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
         if (sendingId !== last.id && problem?.batch.id !== last.id) {
           pending = pending.slice(0, -1);
           publish();
-          reportTakenBack(new Set([entry.batchId]));
           return "taken";
         }
       }
@@ -481,33 +408,10 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
       // When the request of the change itself failed, it goes again first.
       if (problem?.kind === "failed") retry();
       else void pump();
-      if (status === "conflict") return "asks";
-      reportTakenBack(new Set([entry.batchId]));
-      return "taken";
+      return status === "conflict" ? "asks" : "taken";
     },
     retry,
     keepTheirs,
-    keepMine() {
-      if (problem?.kind !== "conflict" || problem.expect === null) return;
-      const { batch, index, expect } = problem;
-      base = problem.theirs;
-      expectTheirs(new Set(batch.touches));
-      // The op that the server did not take goes with the digest of the
-      // server's answer. A server that makes digests in a different way
-      // than this editor does then takes the op all the same.
-      pending = pending.map((each) =>
-        each.id === batch.id
-          ? {
-              ...each,
-              sent: each.sent.map((op, at) =>
-                at === index && "expect" in op ? { ...op, expect } : op,
-              ),
-            }
-          : each,
-      );
-      problem = null;
-      resume();
-    },
     discard() {
       if (problem?.kind !== "failed") return;
       problem = null;

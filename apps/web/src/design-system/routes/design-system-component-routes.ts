@@ -341,6 +341,23 @@ export const DESIGN_SYSTEM_COMPONENT_ROUTES = [
     path: "/design-system/components/columns",
     keywords: ["grid", "layout", "two column", "sidebar", "aside", "split"],
   },
+  // Directly under Columns: a column too, but beside the page rather than in
+  // it. It is not a page shell, as it goes in the content of one.
+  {
+    section: "components",
+    category: "surfaces",
+    path: "/design-system/components/side-column-layout",
+    keywords: [
+      "side column",
+      "side panel",
+      "inspector",
+      "assistant",
+      "aside",
+      "drawer",
+      "trailing column",
+      "侧栏",
+    ],
+  },
   {
     section: "components",
     category: "surfaces",

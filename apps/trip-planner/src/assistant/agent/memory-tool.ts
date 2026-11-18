@@ -7,6 +7,7 @@ import {
   type MemoryScope,
 } from "#src/assistant/store/memories.ts";
 import { asViewer, type Transaction } from "#src/trips/as-viewer.ts";
+import { clampText } from "./plain-line.ts";
 import type { TurnContext } from "./turn-trust.ts";
 
 /** What the model sends to Anthropic's memory tool (`memory_20250818`). */
@@ -66,7 +67,13 @@ function fileOf(raw: string): Located {
 }
 
 function storeScope(context: TurnContext, scope: ScopeName): MemoryScope {
-  return scope === "trip" ? { tripId: context.tripId } : "personal";
+  if (scope === "personal") return "personal";
+  if (context.tripId === null) {
+    throw new MemoryError(
+      `There is no trip yet, so ${DIRECTORIES.trip} does not exist. Use ${DIRECTORIES.personal} for the person's own memory.`,
+    );
+  }
+  return { tripId: context.tripId };
 }
 
 function fullPath(scope: ScopeName, path: string): string {
@@ -135,11 +142,12 @@ async function run(
   if (input.command === "view") {
     const located = locate(input.path);
     if (located === "root") {
-      const [trip, personal] = await Promise.all([
-        memories.list(tx, storeScope(context, "trip")),
-        memories.list(tx, "personal"),
-      ]);
-      return `${listing("trip", trip)}\n${listing("personal", personal)}`;
+      const personal = listing("personal", await memories.list(tx, "personal"));
+      if (context.tripId === null) {
+        return `${DIRECTORIES.trip} does not exist: there is no trip yet.\n${personal}`;
+      }
+      const trip = await memories.list(tx, storeScope(context, "trip"));
+      return `${listing("trip", trip)}\n${personal}`;
     }
     if (located.path === "") {
       const files = await memories.list(tx, storeScope(context, located.scope));
@@ -151,7 +159,7 @@ async function run(
 
   if (context.trust.tainted) {
     throw new MemoryError(
-      "Memory cannot change in this turn, because it holds content that the person pasted. Only what a member says in their own words goes to memory.",
+      "Memory cannot change in this turn, because it holds content that the person did not write, such as a long paste, a web link or a web research list. Only what a member says in their own words goes to memory.",
     );
   }
 
@@ -164,7 +172,7 @@ async function run(
         file.path,
         input.file_text,
       );
-      remembered(context, file, "written");
+      remembered(context, file, "written", input);
       return `File created: ${input.path}`;
     }
     case "str_replace": {
@@ -184,7 +192,7 @@ async function run(
         located.path,
         file.content.replace(input.old_str, () => input.new_str),
       );
-      remembered(context, located, "written");
+      remembered(context, located, "written", input);
       return `File edited: ${input.path}`;
     }
     case "insert": {
@@ -203,7 +211,7 @@ async function run(
         located.path,
         lines.join("\n"),
       );
-      remembered(context, located, "written");
+      remembered(context, located, "written", input);
       return `Text inserted: ${input.path}`;
     }
     case "delete": {
@@ -251,12 +259,39 @@ async function run(
   }
 }
 
+const SHOWN_CHARS = 60;
+
+/** The start of the text that a memory command writes, on one line, for the person to see. */
+export function writtenText(input: object): string | undefined {
+  const command: unknown = Reflect.get(input, "command");
+  const field =
+    command === "create"
+      ? "file_text"
+      : command === "str_replace"
+        ? "new_str"
+        : command === "insert"
+          ? "insert_text"
+          : null;
+  const text: unknown = field === null ? null : Reflect.get(input, field);
+  if (typeof text !== "string") return undefined;
+  const line = clampText(text.replace(/^[\s#*-]+/, ""), SHOWN_CHARS);
+  return line === "" ? undefined : line;
+}
+
 function remembered(
   context: TurnContext,
   { scope, path }: Located,
   action: "written" | "deleted" | "renamed",
+  input?: MemoryCommand,
 ) {
-  context.emit({ type: "remembered", scope, path, action });
+  const text = input && writtenText(input);
+  context.emit({
+    type: "remembered",
+    scope,
+    path,
+    action,
+    ...(text !== undefined && { text }),
+  });
 }
 
 /**

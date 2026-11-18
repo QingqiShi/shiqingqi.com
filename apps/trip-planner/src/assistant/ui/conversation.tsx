@@ -4,17 +4,22 @@ import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowC
 import { BookmarkSimpleIcon } from "@phosphor-icons/react/dist/ssr/BookmarkSimple";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { color } from "@tuja/ui/color.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Card } from "@tuja/ui/components/card";
 import { Divider } from "@tuja/ui/components/divider";
+import { Heading } from "@tuja/ui/components/heading";
 import { Spinner } from "@tuja/ui/components/spinner";
 import { Text } from "@tuja/ui/components/text";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { border, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import type { TranscriptItem } from "#src/assistant/assistant-api.ts";
 import { AssistantText } from "./assistant-text.tsx";
+import { AttachmentChips } from "./attachment-chips.tsx";
+import { ResearchCards, SearchingLine } from "./research-cards.tsx";
 import { useSegmentDate } from "./use-segment-date.ts";
 import type { TripAssistantModel } from "./use-trip-assistant.ts";
 
@@ -79,6 +84,14 @@ function ChangeCard({
       <Text as="p" look="bodySmall" verbatim>
         {item.summary}
       </Text>
+      {item.fromFile ? (
+        <Text as="p" look="caption" tone="muted" verbatim>
+          {t({ en: "From {file}", zh: "来自 {file}" }).replace(
+            "{file}",
+            item.fromFile,
+          )}
+        </Text>
+      ) : null}
       <div css={[row.tight, styles.cardFoot]}>
         <Text
           as="span"
@@ -130,6 +143,66 @@ function ChangeCard({
   );
 }
 
+/** The trip that the conversation made: its outline, and the way to it. */
+function TripCard({
+  item,
+  canOpen,
+}: {
+  item: Extract<TranscriptItem, { type: "trip" }>;
+  canOpen: boolean;
+}) {
+  const locale = useLocale();
+  const dateOf = (date: string) =>
+    new Date(`${date}T00:00:00Z`).toLocaleDateString(locale, {
+      month: "short",
+      day: "numeric",
+      weekday: "short",
+      timeZone: "UTC",
+    });
+  const range =
+    item.firstDate === item.lastDate
+      ? dateOf(item.firstDate)
+      : `${dateOf(item.firstDate)} – ${dateOf(item.lastDate)}`;
+  return (
+    <Card padding="sm" css={stack.tight}>
+      <Text as="p" look="caption" tone="muted">
+        {t({ en: "Trip created", zh: "行程已创建" })}
+      </Text>
+      <div>
+        <Heading level={3} look="h4">
+          {item.title}
+        </Heading>
+        <Text as="p" look="bodySmall" tone="muted">
+          {range}
+        </Text>
+      </div>
+      <ol css={styles.dayList}>
+        {item.days.map((day) => (
+          <li key={day.date} css={styles.dayLine}>
+            <Text as="span" look="caption" tone="muted">
+              {dateOf(day.date)}
+            </Text>
+            <Text as="span" look="bodySmall" verbatim>
+              {day.line}
+            </Text>
+          </li>
+        ))}
+      </ol>
+      {canOpen ? (
+        <div css={styles.cardAction}>
+          <Button
+            size="sm"
+            look="primary"
+            href={getLocalePath(`/${item.tripId}`, locale)}
+          >
+            {t({ en: "Open trip", zh: "打开行程" })}
+          </Button>
+        </div>
+      ) : null}
+    </Card>
+  );
+}
+
 function RememberedLine({
   item,
   onOpenMemory,
@@ -137,27 +210,34 @@ function RememberedLine({
   item: Extract<TranscriptItem, { type: "remembered" }>;
   onOpenMemory?: () => void;
 }) {
-  const words =
+  const action =
     item.action === "deleted"
       ? t({ en: "Forgot a note", zh: "已删除一条记忆" })
       : t({ en: "Remembered", zh: "已记住" });
+  const words =
+    item.text === undefined
+      ? action
+      : t({ en: "{action}: {text}", zh: "{action}：{text}" })
+          .replace("{action}", () => action)
+          .replace("{text}", () => item.text ?? "");
   const icon = <BookmarkSimpleIcon weight="bold" aria-hidden />;
   if (!onOpenMemory) {
     return (
-      <div css={[row.tight, styles.quiet]}>
+      <div css={[row.tight, styles.quiet, styles.oneLine]}>
         {icon}
-        <Text as="span" look="caption" tone="muted">
+        <Text as="span" look="caption" tone="muted" css={styles.clipped}>
           {words}
         </Text>
       </div>
     );
   }
   return (
-    <div>
+    <div css={styles.oneLine}>
       <Button
         size="xs"
         look="ghost"
         bleed="start"
+        css={styles.oneLine}
         icon={icon}
         aria-label={t({
           en: "{words}: see what the assistant remembers",
@@ -165,7 +245,7 @@ function RememberedLine({
         }).replace("{words}", words)}
         onClick={onOpenMemory}
       >
-        {words}
+        <span css={styles.clipped}>{words}</span>
       </Button>
     </div>
   );
@@ -175,26 +255,44 @@ function Item({
   item,
   isLast,
   model,
+  links,
   onOpenMemory,
 }: {
   item: TranscriptItem;
   isLast: boolean;
   model: TripAssistantModel | null;
+  /** The web addresses that may show as links. */
+  links: ReadonlySet<string>;
   onOpenMemory?: () => void;
 }) {
   const eventWords = useEventWords();
   switch (item.type) {
     case "member":
       return (
-        <div css={styles.member}>
-          <Text as="p" verbatim measure="none">
-            {item.text}
-          </Text>
+        <div css={[stack.tight, styles.memberColumn]}>
+          {item.attachments ? (
+            <AttachmentChips
+              chips={item.attachments.map((chip, index) => ({
+                ...chip,
+                key: `${String(index)}:${chip.name}`,
+              }))}
+            />
+          ) : null}
+          {item.text === "" ? null : (
+            <div css={styles.member}>
+              <Text as="p" verbatim measure="none">
+                {item.text}
+              </Text>
+            </div>
+          )}
         </div>
       );
     case "assistant":
-      return <AssistantText text={item.text} />;
+      return <AssistantText text={item.text} links={links} />;
+    case "cards":
+      return <ResearchCards item={item} model={model} />;
     case "tool":
+      if (item.tool === "research" && item.running) return <SearchingLine />;
       if (!CHANGE_TOOLS.has(item.tool) || item.key.startsWith("live:")) {
         return null;
       }
@@ -234,6 +332,21 @@ function Item({
       );
     case "remembered":
       return <RememberedLine item={item} onOpenMemory={onOpenMemory} />;
+    case "worked":
+      return (
+        <Text as="p" look="caption" tone="muted">
+          {item.work === "skill"
+            ? t({ en: "Checked a guide", zh: "查了技能说明" })
+            : t({ en: "Worked it out", zh: "算了一下" })}
+        </Text>
+      );
+    case "trip":
+      return (
+        <TripCard
+          item={item}
+          canOpen={model !== null && model.tripId !== item.tripId}
+        />
+      );
     case "event":
       return (
         <Text as="p" look="caption" tone="muted">
@@ -264,9 +377,11 @@ function SegmentStart({ startedAt }: { startedAt: string }) {
 export function ReadOnlyConversation({
   items,
   startedAt,
+  links,
 }: {
   items: readonly TranscriptItem[];
   startedAt: string;
+  links: ReadonlySet<string>;
 }) {
   return (
     <div css={[stack.item, styles.log]}>
@@ -277,6 +392,7 @@ export function ReadOnlyConversation({
           item={item}
           isLast={index === items.length - 1}
           model={null}
+          links={links}
         />
       ))}
     </div>
@@ -287,9 +403,12 @@ export function ReadOnlyConversation({
 export function Conversation({
   model,
   onOpenMemory,
+  intro,
 }: {
   model: TripAssistantModel;
-  onOpenMemory: () => void;
+  onOpenMemory?: () => void;
+  /** What shows before the first message, in place of what the assistant of a trip can do. */
+  intro?: ReactNode;
 }) {
   const endRef = useRef<HTMLDivElement>(null);
   const items = model.transcript;
@@ -338,11 +457,13 @@ export function Conversation({
 
   return (
     <div css={[stack.item, styles.log]} aria-live="polite">
-      {items.length === 0 ? (
+      {items.length === 0 && intro !== undefined ? (
+        intro
+      ) : items.length === 0 ? (
         <Text as="p" tone="muted" css={styles.empty}>
           {t({
-            en: "Ask about this trip, or say what to change: move a dinner, swap two days, add a stop. Each change shows as a card that you can undo.",
-            zh: "可以问关于这趟行程的问题，也可以直接说要改什么：挪一顿晚饭、对调两天、加一个停靠点。每项改动都显示为一张卡片，可以撤销。",
+            en: "Ask about this trip, or say what to change: move a dinner, swap two days, add a stop. Ask it to find a place to eat or stay, or to read a link. Paste a booking, or add a screenshot or a PDF of one, and it proposes what to add. Each change shows as a card that you can undo.",
+            zh: "可以问关于这趟行程的问题，也可以直接说要改什么：挪一顿晚饭、对调两天、加一个停靠点。也可以让它找餐馆、找住处，或读一个链接。贴上订单，或添加订单的截图或 PDF，它会提议要加进行程的内容。每项改动都显示为一张卡片，可以撤销。",
           })}
         </Text>
       ) : model.startedAt ? (
@@ -354,6 +475,7 @@ export function Conversation({
           item={item}
           isLast={index === items.length - 1}
           model={model}
+          links={model.links}
           onOpenMemory={onOpenMemory}
         />
       ))}
@@ -391,9 +513,12 @@ const styles = stylex.create({
     flexBasis: 0,
     minInlineSize: space._4,
   },
-  member: {
+  memberColumn: {
     alignSelf: "flex-end",
+    alignItems: "flex-end",
     maxInlineSize: "85%",
+  },
+  member: {
     paddingBlock: space._1,
     paddingInline: space._2,
     borderRadius: border.radius_3,
@@ -402,6 +527,16 @@ const styles = stylex.create({
   },
   quiet: {
     color: color.mutedForeground,
+  },
+  oneLine: {
+    minInlineSize: 0,
+    maxInlineSize: "100%",
+  },
+  clipped: {
+    minInlineSize: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
   doneCard: {
     opacity: 0.7,
@@ -414,5 +549,22 @@ const styles = stylex.create({
     display: "flex",
     flexWrap: "wrap",
     gap: rhythm.tight,
+  },
+  dayList: {
+    display: "grid",
+    gridTemplateColumns: "auto 1fr",
+    alignItems: "baseline",
+    columnGap: rhythm.item,
+    rowGap: rhythm.inline,
+    margin: 0,
+    padding: 0,
+    listStyle: "none",
+  },
+  dayLine: {
+    display: "contents",
+  },
+  cardAction: {
+    display: "flex",
+    justifyContent: "flex-end",
   },
 });

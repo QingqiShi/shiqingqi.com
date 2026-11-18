@@ -43,31 +43,8 @@ const nameOf = (trip: Trip) => {
   return item && "name" in item ? item.name : null;
 };
 
-/**
- * A server that makes digests in a different way than the editor does, as
- * after a deploy that changes them: it knows a digest only with a mark in
- * front, and its answers carry digests with that mark.
- */
-function applyWithOtherDigests(trip: Trip, ops: readonly Op[]) {
-  const result = applyOps(
-    trip,
-    ops.map((op) =>
-      "expect" in op
-        ? {
-            ...op,
-            expect: op.expect.startsWith("new:") ? op.expect.slice(4) : "-",
-          }
-        : op,
-    ),
-  );
-  return result.status === "conflict" && result.expect !== null
-    ? { ...result, expect: `new:${result.expect}` }
-    : result;
-}
-
 /** A server that applies each batch with the real `applyOps`, and answers when the test lets it. */
-function setup(options: { hasOtherDigests?: boolean } = {}) {
-  const apply = options.hasOtherDigests ? applyWithOtherDigests : applyOps;
+function setup() {
   const sent: (readonly Op[])[] = [];
   const server = { trip: start, sent };
   const gates: (() => void)[] = [];
@@ -84,7 +61,7 @@ function setup(options: { hasOtherDigests?: boolean } = {}) {
       const fails = failures > 0;
       if (fails) failures--;
       if (fails && !landsBeforeFailure) throw new Error("offline");
-      const result = apply(server.trip, ops);
+      const result = applyOps(server.trip, ops);
       if (result.status === "applied") server.trip = result.trip;
       if (fails) throw new Error("the answer was lost");
       return (
@@ -194,7 +171,7 @@ describe("the save queue", () => {
     await answer();
 
     const { problem } = queue.getState();
-    expect(problem).toMatchObject({ kind: "conflict", canKeepMine: true });
+    expect(problem?.kind).toBe("conflict");
     expect(problem?.kind === "conflict" && nameOf(problem.theirs)).toBe(
       "Their castle",
     );
@@ -222,63 +199,22 @@ describe("the save queue", () => {
     queue.retry();
     await answer();
     expect(nameOf(server.trip)).toBe("Their castle");
-    expect(queue.getState().problem).toMatchObject({
-      kind: "conflict",
-      canKeepMine: true,
-    });
-  });
-
-  it("sends the person's change over the other version when asked", async () => {
-    const { queue, server, answer, other } = setup();
-    other([{ op: "setItem", id: "castle", fields: { note: "Their note" } }]);
-    queue.submit([rename("My castle")]);
-    await answer();
     expect(queue.getState().problem?.kind).toBe("conflict");
-
-    queue.keepMine();
-    await answer();
-    expect(locateItem(server.trip, "castle")?.item).toMatchObject({
-      name: "My castle",
-      note: "Their note",
-    });
-    expect(queue.getState().problem).toBeNull();
   });
 
-  it("sends the person's change with the digest of the server's answer, so a server with other digests takes it", async () => {
-    const { queue, server, answer } = setup({ hasOtherDigests: true });
-    queue.submit([rename("My castle")]);
-    await answer();
-    expect(queue.getState().problem).toMatchObject({
-      kind: "conflict",
-      canKeepMine: true,
-    });
-
-    queue.keepMine();
-    await answer();
-    expect(nameOf(server.trip)).toBe("My castle");
-    expect(queue.getState().problem).toBeNull();
-    expect(queue.getState().pending).toHaveLength(0);
-  });
-
-  it("offers only their version when the thing is gone, and drops the changes that need it", async () => {
+  it("drops the changes that need a thing that is gone", async () => {
     const { queue, answer, other, dropped } = setup();
     other([{ op: "removeItem", id: "castle" }]);
     queue.submit([rename("My castle")]);
     queue.submit([rename("My castle, again")]);
     await answer();
-
-    expect(queue.getState().problem).toMatchObject({
-      kind: "conflict",
-      canKeepMine: false,
-    });
-    queue.keepMine();
     expect(queue.getState().problem?.kind).toBe("conflict");
 
     queue.keepTheirs();
     expect(queue.getState().pending).toHaveLength(0);
     expect(locateItem(queue.getState().trip, "castle")).toBeUndefined();
-    // The sheet said that the change cannot be saved. The later change to
-    // the same thing goes with it, with no second message.
+    // The later change to the same thing goes with it, with no second
+    // message.
     expect(dropped.count).toBe(0);
   });
 
@@ -322,7 +258,7 @@ describe("the save queue", () => {
         item: { id: "tea", type: "place", name: "Tea room" },
       },
     ]);
-    // The editor has the addition of the other person before the undo.
+    // The queue has the addition of the other person before the undo.
     queue.sync();
     await answer();
     expect(hasTea(queue.getState().trip)).toBe(true);
@@ -332,65 +268,13 @@ describe("the save queue", () => {
     await answer();
     expect(hasTea(server.trip)).toBe(true);
     const { problem } = queue.getState();
-    expect(problem).toMatchObject({ kind: "conflict", canKeepMine: true });
+    expect(problem?.kind).toBe("conflict");
 
     queue.keepTheirs();
     await answer();
     expect(hasTea(server.trip)).toBe(true);
     expect(hasTea(queue.getState().trip)).toBe(true);
     expect(queue.getState().problem).toBeNull();
-  });
-
-  it("says that a change is taken back only after the person keeps an undo that had to ask", async () => {
-    const { queue, server, answer, other } = setup();
-    const takenBack = new Set<number>();
-    queue.onTakenBack((ids) => {
-      for (const id of ids) takenBack.add(id);
-    });
-    const change = queue.submit([rename("Fort")]);
-    if (!change.ok) throw new Error("The queue refused the change.");
-    await answer();
-    other([{ op: "setItem", id: "castle", fields: { note: "Their note" } }]);
-    queue.sync();
-    await answer();
-
-    expect(queue.undo()).toBe("asks");
-    await answer();
-    expect(queue.getState().problem?.kind).toBe("conflict");
-    expect(takenBack.has(change.batchId)).toBe(false);
-
-    queue.keepMine();
-    await answer();
-    expect(nameOf(server.trip)).toBe("Castle");
-    expect(takenBack.has(change.batchId)).toBe(true);
-  });
-
-  it("says that a change is taken back when such an undo reached the server and only the answer was lost", async () => {
-    const { queue, server, answer, other, failNext } = setup();
-    const takenBack = new Set<number>();
-    queue.onTakenBack((ids) => {
-      for (const id of ids) takenBack.add(id);
-    });
-    const change = queue.submit([rename("Fort")]);
-    if (!change.ok) throw new Error("The queue refused the change.");
-    await answer();
-    other([{ op: "setItem", id: "castle", fields: { note: "Their note" } }]);
-    queue.sync();
-    await answer();
-    expect(queue.undo()).toBe("asks");
-    await answer();
-
-    failNext({ lands: true });
-    queue.keepMine();
-    await answer();
-    expect(queue.getState().problem?.kind).toBe("failed");
-    expect(takenBack.has(change.batchId)).toBe(false);
-
-    queue.retry();
-    await answer();
-    expect(nameOf(server.trip)).toBe("Castle");
-    expect(queue.getState().pending).toHaveLength(0);
-    expect(takenBack.has(change.batchId)).toBe(true);
   });
 
   it("does not put back the older version of a field that another person changed after the person", async () => {

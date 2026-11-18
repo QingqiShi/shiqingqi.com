@@ -1,13 +1,22 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
 import type { LanguageModel } from "ai";
 import { and, eq, sql } from "drizzle-orm";
 import "server-only";
 import { z } from "zod";
 import { changeService } from "#src/assistant/agent/change-service.ts";
 import { MAX_MEMORY_FILE_CHARS } from "#src/assistant/agent/memory-tool.ts";
-import { MAX_MESSAGE_CHARS, runTurn } from "#src/assistant/agent/run-turn.ts";
+import type {
+  Reader,
+  ReaderFile,
+} from "#src/assistant/agent/reader/reader-agent.ts";
+import { cardActions } from "#src/assistant/agent/research/card-actions.ts";
+import type { Researcher } from "#src/assistant/agent/research/research-agent.ts";
+import { CARD_ACTIONS } from "#src/assistant/agent/research/research-cards.ts";
+import { runTurn } from "#src/assistant/agent/run-turn.ts";
 import { segmentMessages } from "#src/assistant/agent/segment-messages.ts";
 import { tripView } from "#src/assistant/agent/trip-view.ts";
 import { describeError } from "#src/assistant/describe-error.ts";
+import type { TripSkill } from "#src/assistant/skills/get-trip-skills.ts";
 import { changes } from "#src/assistant/store/changes.ts";
 import {
   conversations,
@@ -33,6 +42,9 @@ import { tripMembers } from "#src/db/schema.ts";
 import type { TripsDb } from "#src/db/types.ts";
 import { asViewer, type Transaction } from "#src/trips/as-viewer.ts";
 import { canEditTrip } from "#src/trips/can-edit-trip.ts";
+import { dayNumber } from "#src/trips/day-number.ts";
+import { entityId } from "#src/trips/trip-schema.ts";
+import { readSendBody } from "./read-send-body.ts";
 import { segments, type SegmentResult } from "./segments.ts";
 import { transcript } from "./transcript.ts";
 
@@ -45,6 +57,12 @@ export interface AssistantRouteDeps {
   summaryModel: () => LanguageModel | null;
   /** The model of turns; undefined for the assistant's own. */
   turnModel: () => LanguageModel | undefined;
+  /** The research sub-agent of turns; undefined for the assistant's own. */
+  researcher?: () => Researcher | undefined;
+  /** The reader sub-agent of attachments; undefined for the assistant's own. */
+  reader?: () => Reader | undefined;
+  /** The skills of turns; undefined for the trip skills of the Anthropic account. */
+  skills?: () => Promise<readonly TripSkill[]>;
   /** Keeps the server alive for a task after the answer, such as `after`. */
   afterResponse: (task: () => Promise<unknown>) => void;
   now: () => Date;
@@ -97,7 +115,10 @@ async function transcriptOf(tx: Transaction, conversationId: string) {
     segmentMessages.read(tx, conversationId),
     changes.list(tx, conversationId),
   ]);
-  return transcript.build(entries, changeRows);
+  return {
+    transcript: transcript.build(entries, changeRows),
+    links: transcript.links(changeRows),
+  };
 }
 
 /** The open segment of the person in a trip, without making one. Null for a person who cannot change the trip. */
@@ -113,11 +134,40 @@ function readState(
     const open = (await conversations.list(tx, tripId)).find(
       (each) => each.endedAt === null,
     );
+    const shown = open
+      ? await transcriptOf(tx, open.id)
+      : { transcript: [], links: [] };
     return {
       segment: open ? segmentInfo(open) : null,
-      transcript: open ? await transcriptOf(tx, open.id) : [],
+      ...shown,
       running: open?.turnRunning ?? false,
       version: tripView.version(trip),
+      days: trip.days.map((day, index) => ({
+        id: day.id,
+        number: dayNumber(trip, index),
+        date: day.date,
+      })),
+    };
+  });
+}
+
+/** The person's open conversation that starts a new trip, without making one. */
+function readNewTripState(
+  db: TripsDb,
+  userId: string,
+  now: Date,
+): Promise<AssistantState> {
+  return asViewer(db, userId, async (tx) => {
+    const open = await segments.openForNewTrip(tx, now);
+    const shown = open
+      ? await transcriptOf(tx, open.id)
+      : { transcript: [], links: [] };
+    return {
+      segment: open ? segmentInfo(open) : null,
+      ...shown,
+      running: open?.turnRunning ?? false,
+      version: null,
+      days: [],
     };
   });
 }
@@ -227,62 +277,111 @@ export function makeAssistantRoutes(deps: AssistantRouteDeps) {
     };
   }
 
-  const send = route(
-    z.strictObject({
-      tripId: z.uuid(),
-      text: z.string().trim().min(1).max(MAX_MESSAGE_CHARS),
-    }),
-    async (db, userId, { tripId, text }) => {
-      const started = performance.now();
-      const result = await segments.forMessage(
-        db,
-        userId,
-        tripId,
-        deps.now(),
-        deps.summaryModel(),
-      );
-      if (result.status === "not_found") return notFound();
-      if (result.status === "busy") return busy();
-      const asker = (
-        await db
-          .select({ email: users.email })
-          .from(users)
-          .where(eq(users.id, userId))
-      ).at(0);
-      const turn = await runTurn({
-        db,
-        userId,
-        askerName: asker?.email ?? "a member",
-        conversationId: result.segment.id,
-        text,
-        model: deps.turnModel(),
-        deadlineMs: SEND_BUDGET_MS - (performance.now() - started),
-      });
-      switch (turn.status) {
-        case "not_found":
-          return notFound();
-        case "busy":
-          return busy();
-        case "too_long":
-          return json({ error: "too_long" }, 400);
-        case "failed":
-          return serverError();
+  const send = async (request: Request): Promise<Response> => {
+    try {
+      const db = deps.getDb();
+      const userId = await requireUserId(request, db);
+      if (typeof userId !== "string") return userId;
+      const body = await readSendBody(request);
+      if (!body.ok) {
+        return json(
+          { error: body.error },
+          body.error === "attachment_too_large" ? 413 : 400,
+        );
       }
-      deps.afterResponse(() => turn.finished);
-      const conversationId = result.segment.id;
-      return ndjson(
-        (async function* (): AsyncGenerator<StreamLine> {
-          yield { type: "started", conversationId, turnId: turn.turnId };
-          yield* turn.events;
-        })(),
-      );
+      if (body.text.trim() === "" && body.files.length === 0) {
+        return json({ error: "invalid_body" }, 400);
+      }
+      return await sendMessage(db, userId, body);
+    } catch (error) {
+      console.error("An assistant route failed:", describeError(error));
+      return serverError();
+    }
+  };
+
+  async function sendMessage(
+    db: TripsDb,
+    userId: string,
+    {
+      tripId,
+      text,
+      files,
+      locale,
+    }: {
+      tripId: string | null;
+      text: string;
+      files: ReaderFile[];
+      locale?: SupportedLocale;
+    },
+  ): Promise<Response> {
+    const started = performance.now();
+    const result =
+      tripId === null
+        ? await segments.forNewTrip(db, userId, deps.now())
+        : await segments.forMessage(
+            db,
+            userId,
+            tripId,
+            deps.now(),
+            deps.summaryModel(),
+          );
+    if (result.status === "not_found") return notFound();
+    if (result.status === "busy") return busy();
+    const asker = (
+      await db
+        .select({ email: users.email })
+        .from(users)
+        .where(eq(users.id, userId))
+    ).at(0);
+    const turn = await runTurn({
+      db,
+      userId,
+      askerName: asker?.email ?? "a member",
+      conversationId: result.segment.id,
+      text,
+      attachments: files,
+      model: deps.turnModel(),
+      researcher: deps.researcher?.(),
+      reader: deps.reader?.(),
+      skills: deps.skills,
+      locale,
+      deadlineMs: SEND_BUDGET_MS - (performance.now() - started),
+    });
+    switch (turn.status) {
+      case "not_found":
+        return notFound();
+      case "busy":
+        return busy();
+      case "too_long":
+        return json({ error: "too_long" }, 400);
+      case "too_many_attachments":
+      case "attachment_type":
+        return json({ error: turn.status }, 400);
+      case "attachment_too_large":
+        return json({ error: turn.status }, 413);
+      case "failed":
+        return serverError();
+    }
+    deps.afterResponse(() => turn.finished);
+    const conversationId = result.segment.id;
+    return ndjson(
+      (async function* (): AsyncGenerator<StreamLine> {
+        yield { type: "started", conversationId, turnId: turn.turnId };
+        yield* turn.events;
+      })(),
+    );
+  }
+
+  const state = route(
+    z.strictObject({ tripId: z.uuid().nullable() }),
+    async (db, userId, { tripId }) => {
+      const answer =
+        tripId === null
+          ? await readNewTripState(db, userId, deps.now())
+          : await readState(db, userId, tripId);
+      return answer ? json(answer) : notFound();
     },
   );
-
-  const state = route(tripBody, async (db, userId, { tripId }) => {
-    const answer = await readState(db, userId, tripId);
-    return answer ? json(answer) : notFound();
-  });
 
   const version = route(tripBody, async (db, userId, { tripId }) => {
     const trip = await asViewer(db, userId, async (tx) =>
@@ -319,12 +418,15 @@ export function makeAssistantRoutes(deps: AssistantRouteDeps) {
         userId,
         async (tx): Promise<SegmentTranscript | null> => {
           const segment = await conversations.get(tx, conversationId);
-          if (!segment?.tripId || !(await canEditIn(tx, segment.tripId))) {
+          if (
+            !segment ||
+            (segment.tripId !== null && !(await canEditIn(tx, segment.tripId)))
+          ) {
             return null;
           }
           return {
             segment: segmentInfo(segment),
-            transcript: await transcriptOf(tx, segment.id),
+            ...(await transcriptOf(tx, segment.id)),
             running: segment.turnRunning,
           };
         },
@@ -355,6 +457,23 @@ export function makeAssistantRoutes(deps: AssistantRouteDeps) {
       });
       if (!mine) return notFound();
       return json(await changeService[decision](db, userId, changeId));
+    },
+  );
+
+  const cardAction = route(
+    z.strictObject({
+      changeId: z.uuid(),
+      itemId: z.string().min(1).max(40),
+      action: z.enum(CARD_ACTIONS),
+      dayId: entityId,
+    }),
+    async (db, userId, input) => {
+      const mine = await asViewer(db, userId, async (tx) => {
+        const change = await changes.get(tx, input.changeId);
+        return change?.tripId ? canEditIn(tx, change.tripId) : false;
+      });
+      if (!mine) return notFound();
+      return json(await cardActions.act(db, userId, input));
     },
   );
 
@@ -437,6 +556,7 @@ export function makeAssistantRoutes(deps: AssistantRouteDeps) {
     read,
     reopen,
     decide,
+    cardAction,
     memoryList,
     memoryWrite,
     memoryDelete,

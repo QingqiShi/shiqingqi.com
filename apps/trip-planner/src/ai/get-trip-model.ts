@@ -2,8 +2,8 @@ import { getAnthropicProvider } from "@tuja/server-clients/get-anthropic-provide
 import type { LanguageModel } from "ai";
 import "server-only";
 
-/** The model that proposes changes to a trip and drafts trips from text. */
-export const TRIP_MODEL_ID = "claude-haiku-5-5";
+/** The model that writes the summary of a conversation. */
+const TRIP_MODEL_ID = "claude-haiku-5-5";
 
 /** The model, or null when `ANTHROPIC_API_KEY` is not set. */
 export function getTripModel(): LanguageModel | null {

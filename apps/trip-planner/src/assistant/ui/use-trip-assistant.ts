@@ -1,17 +1,30 @@
 import { ApiError } from "@tuja/auth-ui/api-error";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { useRouter } from "next/navigation";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
+import { codeWork } from "#src/assistant/agent/code-work.ts";
 import {
   assistantApi,
   MAX_MESSAGE_CHARS,
   type AssistantState,
+  type AttachmentChip,
+  type CardAction,
+  type SegmentTranscript,
   type StreamLine,
   type TranscriptItem,
 } from "#src/assistant/assistant-api.ts";
+import { PASTED_TEXT_NAMES } from "#src/assistant/check-attachments.ts";
+import {
+  draftAttachments,
+  type AttachFailure,
+  type DraftAttachment,
+} from "./draft-attachments.ts";
+
+const { draftOf, draftsFit, pastedDraft } = draftAttachments;
 
 /** Why the last message did not get a full answer. */
 export type SendFailure =
-  "failed" | "timeout" | "too_long" | "busy" | "request_failed";
+  "failed" | "timeout" | "too_long" | "busy" | "attachments" | "request_failed";
 
 /** Why the last tap on a change card did not go through. */
 export type DecideFailure = "conflict" | "busy" | "request_failed";
@@ -24,9 +37,12 @@ export type SegmentFailure = "busy" | "request_failed";
 /** The turn that streams now: what the person sent, and what came back so far. */
 interface LiveTurn {
   member: string;
+  attachments: AttachmentChip[];
   items: TranscriptItem[];
   /** The segment that the turn went to, once the stream says it. */
   segment: { id: string; startedAt: string } | null;
+  /** The web addresses of the research lists of this turn. */
+  links: string[];
 }
 
 function withLine(turn: LiveTurn, line: StreamLine): LiveTurn {
@@ -56,12 +72,50 @@ function withLine(turn: LiveTurn, line: StreamLine): LiveTurn {
     // The item keeps the texts before and after the call apart. It draws
     // nothing: most calls end within a moment, so a line for each one only
     // flickers, and the prompt says "Answering…" for the whole turn.
-    case "tool":
-      if (line.state === "end") return turn;
+    case "tool": {
+      const key = `live:tool:${line.toolCallId}`;
+      if (line.state === "end") {
+        return {
+          ...turn,
+          items: items.map((item) =>
+            item.key === key && item.type === "tool"
+              ? { ...item, running: false }
+              : item,
+          ),
+        };
+      }
+      items.push({ type: "tool", key, tool: line.tool, running: true });
+      return { ...turn, items };
+    }
+    case "worked": {
+      const at = items.findIndex((item) => item.type === "worked");
+      const shown = items.at(at);
+      if (at !== -1 && shown?.type === "worked") {
+        items[at] = {
+          ...shown,
+          work: codeWork.stronger(shown.work, line.work),
+        };
+      } else {
+        items.push({ type: "worked", key: "live:worked", work: line.work });
+      }
+      return { ...turn, items };
+    }
+    case "research":
+      return { ...turn, links: [...turn.links, ...line.urls] };
+    case "attachments":
+      return {
+        ...turn,
+        attachments: turn.attachments.map((chip) => ({
+          ...chip,
+          state: line.status,
+        })),
+      };
+    case "cards":
       items.push({
-        type: "tool",
-        key: `live:tool:${line.toolCallId}`,
-        tool: line.tool,
+        type: "cards",
+        key: `live:cards:${line.changeId}`,
+        changeId: line.changeId,
+        cards: line.cards.map((card) => ({ ...card, actions: {} })),
       });
       return { ...turn, items };
     case "change":
@@ -74,6 +128,7 @@ function withLine(turn: LiveTurn, line: StreamLine): LiveTurn {
         summary: line.summary,
         dayIds: line.dayIds,
         canUndo: line.kind === "applied",
+        ...(line.fromFile !== undefined && { fromFile: line.fromFile }),
       });
       return { ...turn, items };
     case "question":
@@ -91,11 +146,22 @@ function withLine(turn: LiveTurn, line: StreamLine): LiveTurn {
         scope: line.scope,
         path: line.path,
         action: line.action,
+        ...(line.text !== undefined && { text: line.text }),
       });
       return { ...turn, items };
+    case "trip": {
+      const { type: _type, ...made } = line;
+      items.push({ type: "trip", key: `live:trip:${made.tripId}`, ...made });
+      return { ...turn, items };
+    }
     case "done":
       return turn;
   }
+}
+
+/** A stored segment as the state of a conversation that started a new trip. */
+function asState(segment: SegmentTranscript): AssistantState {
+  return { ...segment, version: null, days: [] };
 }
 
 function codeOf(error: unknown): string {
@@ -131,20 +197,33 @@ async function readTurn(
 }
 
 /**
- * The person's conversation with the trip assistant in one trip. It lives
+ * The person's conversation with the trip assistant in one trip, or with a
+ * null trip on New trip, where the conversation makes the trip. It lives
  * above the sheet and the panel, so that a stream goes on, and the text in
  * the field stays, while they are closed.
  */
 export function useTripAssistant(
-  tripId: string,
-  /** The version of the trip on the screen, as the server read it. */
-  shownVersion: string,
+  tripId: string | null,
+  /** The version of the trip on the screen, as the server read it; null with no trip. */
+  shownVersion: string | null,
 ) {
   const router = useRouter();
   const [state, setState] = useState<AssistantState | null>(null);
   const [live, setLive] = useState<LiveTurn | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [draft, setDraft] = useState("");
+  const [attachments, setAttachments] = useState<DraftAttachment[]>([]);
+  const attachmentsRef = useRef<DraftAttachment[]>([]);
+  const putAttachments = (next: DraftAttachment[]) => {
+    attachmentsRef.current = next;
+    setAttachments(next);
+  };
+  const [attachFailure, setAttachFailure] = useState<AttachFailure | null>(
+    null,
+  );
+  const [isPreparing, setIsPreparing] = useState(false);
+  const locale = useLocale();
+  const pastedName: string = PASTED_TEXT_NAMES[locale];
   const [sendFailure, setSendFailure] = useState<SendFailure | null>(null);
   const [decideFailure, setDecideFailure] = useState<DecideFailure | null>(
     null,
@@ -187,14 +266,31 @@ export function useTripAssistant(
     };
   }, []);
 
+  // On New trip, the conversation in view, once known: when it makes the
+  // trip, it moves into the trip, and only its id still finds it.
+  const newTripConversationRef = useRef<string | null>(null);
+
+  const readState = (signal: AbortSignal) => {
+    const conversationId = newTripConversationRef.current;
+    return tripId === null && conversationId !== null
+      ? assistantApi.conversation(conversationId, signal).then(asState)
+      : assistantApi.state(tripId, signal);
+  };
+
   const fetchState = async () => {
     const signal = unmountedRef.current.signal;
-    const next = await settle(assistantApi.state(tripId, signal));
+    const next = await settle(readState(signal));
     if (next === null) {
       if (!signal.aborted) setLoadFailed(true);
       return null;
     }
-    refreshFor(next.version);
+    if (tripId === null) {
+      if (newTripConversationRef.current === null) {
+        newTripConversationRef.current = next.segment?.id ?? null;
+      }
+    } else {
+      refreshFor(next.version);
+    }
     setLoadFailed(false);
     return next;
   };
@@ -228,24 +324,85 @@ export function useTripAssistant(
     };
   }, [isStreaming, state, isUnsettled]);
 
-  const send = async (text: string) => {
+  /** Adds drafts to the field when all of them fit together; else says why not. */
+  const addDrafts = (drafts: readonly (DraftAttachment | AttachFailure)[]) => {
+    const failed = drafts.find((each) => typeof each === "string");
+    const ready = drafts.filter((each) => typeof each !== "string");
+    const next = [...attachmentsRef.current, ...ready];
+    const unfit = draftsFit(next);
+    setAttachFailure(failed ?? unfit);
+    if (!unfit) putAttachments(next);
+  };
+
+  /** Puts photos and files that the person picked or pasted in the field. */
+  const addFiles = async (files: readonly File[]) => {
+    if (files.length === 0) return;
+    setIsPreparing(true);
+    const drafts = await Promise.all(files.map(draftOf));
+    setIsPreparing(false);
+    addDrafts(drafts);
+  };
+
+  /** Puts a long pasted text in the field as a file, as its text would only go to the reader. */
+  const addPastedText = (text: string) => {
+    const used = new Set(attachmentsRef.current.map((each) => each.name));
+    let name = pastedName;
+    for (let n = 2; used.has(name); n += 1) name = `${pastedName} ${String(n)}`;
+    addDrafts([pastedDraft(text, name)]);
+  };
+
+  const removeAttachment = (id: string) => {
+    setAttachFailure(null);
+    putAttachments(attachmentsRef.current.filter((each) => each.id !== id));
+  };
+
+  /** Sends a message; `files` are the attachments in the field, which go with it. */
+  const send = async (text: string, files: readonly DraftAttachment[] = []) => {
     const message = text.trim();
-    if (message === "" || isRunning || switching) return;
+    if ((message === "" && files.length === 0) || isRunning || switching) {
+      return;
+    }
+    if (isPreparing) return;
     if (message.length > MAX_MESSAGE_CHARS) {
       setSendFailure("too_long");
       return;
     }
     setSendFailure(null);
     setDecideFailure(null);
+    setAttachFailure(null);
     setDraft("");
+    if (files.length > 0) putAttachments([]);
     streamingRef.current = true;
     setIsStreaming(true);
     setSegmentFailure(null);
-    setLive({ member: message, items: [], segment: null });
+    setLive({
+      member: message,
+      attachments: files.map(({ name, kind }) => ({
+        name,
+        kind,
+        state: "reading",
+      })),
+      items: [],
+      segment: null,
+      links: [],
+    });
     const signal = unmountedRef.current.signal;
     const { started, ended, error } = await readTurn(
-      assistantApi.send({ tripId, text: message }, signal),
+      assistantApi.send(
+        {
+          tripId,
+          text: message,
+          files: files.map(({ name, blob }) => ({ name, blob })),
+          locale,
+        },
+        signal,
+      ),
       (line) => {
+        if (line.type === "started" && tripId === null) {
+          newTripConversationRef.current = line.conversationId;
+        }
+        // The list of trips beside the page then has the new trip.
+        if (line.type === "trip") router.refresh();
         if (line.type === "change" && line.kind === "applied") {
           refreshFor(null);
         }
@@ -261,7 +418,11 @@ export function useTripAssistant(
           ? "too_long"
           : code === "busy"
             ? "busy"
-            : "request_failed";
+            : code === "too_many_attachments" ||
+                code === "attachment_too_large" ||
+                code === "attachment_type"
+              ? "attachments"
+              : "request_failed";
     }
     // A stream that broke after the start has not failed: the turn goes on
     // on the server, and the state shows it.
@@ -274,6 +435,9 @@ export function useTripAssistant(
     if (failure) {
       setSendFailure(failure);
       setDraft((current) => (current === "" ? message : current));
+      if (files.length > 0 && attachmentsRef.current.length === 0) {
+        putAttachments([...files]);
+      }
     }
   };
 
@@ -294,6 +458,30 @@ export function useTripAssistant(
     } else if (outcome.status === "conflict" && decision === "undo") {
       // A refused proposal says why on its card; an undo stays to try again.
       setDecideFailure("conflict");
+    }
+    await load();
+    setDeciding(null);
+  };
+
+  /** Taps a button on a research card; `deciding` holds `changeId:itemId` while it runs. */
+  const cardAction = async (
+    changeId: string,
+    itemId: string,
+    action: CardAction,
+    dayId: string,
+  ) => {
+    if (isRunning || deciding) return;
+    setDeciding(`${changeId}:${itemId}`);
+    setDecideFailure(null);
+    const outcome = await settle(
+      assistantApi.cardAction({ changeId, itemId, action, dayId }),
+    );
+    if (outcome === null) {
+      setDecideFailure("request_failed");
+    } else if (outcome.status === "done" && outcome.version) {
+      refreshFor(outcome.version);
+    } else if (outcome.status === "busy" || outcome.status === "conflict") {
+      setDecideFailure(outcome.status);
     }
     await load();
     setDeciding(null);
@@ -322,7 +510,10 @@ export function useTripAssistant(
   };
 
   /** Ends the open segment, with its summary, and opens a clean one. */
-  const startNew = () => switchTo("new", () => assistantApi.startNew(tripId));
+  const startNew = () =>
+    tripId === null
+      ? Promise.resolve(false)
+      : switchTo("new", () => assistantApi.startNew(tripId));
 
   /** Goes on with an earlier segment, which becomes the one in view. */
   const reopen = (conversationId: string) =>
@@ -338,7 +529,14 @@ export function useTripAssistant(
     ...(isNewSegment ? [] : (state?.transcript ?? [])),
     ...(live
       ? [
-          { type: "member" as const, key: "live:member", text: live.member },
+          {
+            type: "member" as const,
+            key: "live:member",
+            text: live.member,
+            ...(live.attachments.length > 0 && {
+              attachments: live.attachments,
+            }),
+          },
           ...live.items,
         ]
       : []),
@@ -354,15 +552,41 @@ export function useTripAssistant(
     isStreaming,
     draft,
     setDraft,
+    /** The files in the field, which go with the next message. */
+    attachments,
+    attachFailure,
+    /** An image is being scaled down for the field. */
+    isPreparing,
+    /** The reader works on the files of the message that streams now. */
+    isReading:
+      live?.attachments.some((chip) => chip.state === "reading") ?? false,
+    addFiles,
+    addPastedText,
+    removeAttachment,
     sendFailure,
     decideFailure,
     segmentFailure,
     deciding,
     /** "new", or the id of the segment that goes on, while that runs. */
     switching,
+    /** Only these web addresses show as links in the assistant's text. */
+    links: new Set([
+      ...(isNewSegment ? [] : (state?.links ?? [])),
+      ...(live?.links ?? []),
+    ]),
+    days: state?.days ?? [],
+    /** The trip of the conversation; null on New trip, also after the conversation made one. */
+    tripId,
+    /** The trip that this conversation made, once it has. */
+    createdTrip:
+      transcript.findLast(
+        (item): item is Extract<TranscriptItem, { type: "trip" }> =>
+          item.type === "trip",
+      ) ?? null,
     load,
     send,
     decide,
+    cardAction,
     startNew,
     reopen,
     dismissSegmentFailure: () => {

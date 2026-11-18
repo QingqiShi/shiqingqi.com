@@ -9,7 +9,7 @@ import { TRIPS_MIGRATIONS_FOLDER } from "#src/db/trips-migrations-folder.ts";
 import type { TripsDb } from "#src/db/types.ts";
 import { asViewer } from "#src/trips/as-viewer.ts";
 import { writeTrips } from "#src/trips/write-trips.ts";
-import { emptyUse } from "./ask-model.ts";
+import { emptyUse } from "./empty-use.ts";
 import { logAiRun, type AiRun } from "./log-ai-run.ts";
 
 let client: PGlite;

@@ -1,5 +1,6 @@
 import { tripSchema } from "../trip-schema.ts";
 import type { Day, Moment, Trip } from "../types.ts";
+import { webLink } from "../web-link.ts";
 import { addDays, daysBetween } from "./add-days.ts";
 import { digest } from "./digest.ts";
 import {
@@ -44,8 +45,8 @@ function isAdd(op: DraftOp): op is AddOp {
 
 /**
  * Applies a batch of ops to a trip, in order, all or none. It changes
- * nothing it is given and does no I/O, so the server, the editor and the
- * model all use it.
+ * nothing it is given and does no I/O, so the server, the save queue and
+ * the model all use it.
  *
  * - Each op that is not an add must carry `expect`, the digest of the thing
  *   it changes as the trip stands at that op (`withExpect` makes them).
@@ -66,6 +67,14 @@ export function applyOps(trip: Trip, ops: readonly Op[]): ApplyResult {
       return { status: "refused", index, reason: issueText(parsed.error) };
     }
     const op = parsed.data;
+    const link = badLinkOf(op);
+    if (link !== null) {
+      return {
+        status: "refused",
+        index,
+        reason: `${link}: a link must be an http or https address with no user name or password.`,
+      };
+    }
     if (!isAdd(op)) {
       const guard = guardOf(state, op);
       const now = guard === undefined ? null : digest(guard);
@@ -146,7 +155,7 @@ export function applyDrafts(
 /** The trip after one op, or undefined when the op cannot apply. */
 function step(trip: Trip, op: Op, touched: Set<string>): Trip | undefined {
   const parsed = opSchema.safeParse(op);
-  if (!parsed.success) return undefined;
+  if (!parsed.success || badLinkOf(parsed.data) !== null) return undefined;
   const state = structuredClone(trip);
   try {
     applyOne(state, parsed.data, touched);
@@ -156,6 +165,23 @@ function step(trip: Trip, op: Op, touched: Set<string>): Trip | undefined {
   }
   const valid = tripSchema.safeParse(state);
   return valid.success ? valid.data : undefined;
+}
+
+/**
+ * The link field that an op sets to something other than a web link, or
+ * null. Only what the op sets is checked, so that an older link of a thing
+ * does not block other changes to it.
+ */
+function badLinkOf(op: DraftOp): string | null {
+  switch (op.op) {
+    case "addItem":
+      return webLink.badField(op.item);
+    case "setItem":
+    case "setStay":
+      return webLink.badField(op.fields);
+    default:
+      return null;
+  }
 }
 
 /** The digest that an op on this trip carries as `expect`, or null for an add or a thing that is gone. */

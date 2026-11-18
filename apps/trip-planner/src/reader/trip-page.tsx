@@ -1,10 +1,8 @@
 "use client";
 
 import { CalendarBlankIcon } from "@phosphor-icons/react/dist/ssr/CalendarBlank";
-import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { PageHeader } from "@tuja/ui/components/page-header";
@@ -21,7 +19,7 @@ import { useQuickEdit } from "./quick-edit/quick-edit-context.ts";
 import { TripLanguageProvider, TripText } from "./trip-text.tsx";
 import { useKeepPageOffline } from "./use-keep-page-offline.ts";
 import { useScrollToNow } from "./use-scroll-to-now.ts";
-import { tripLocationHash, useTripLocation } from "./use-trip-location.ts";
+import { useTripLocation } from "./use-trip-location.ts";
 import { useTripToday } from "./use-trip-today.ts";
 import type { LiveWeather } from "./weather/types.ts";
 
@@ -54,7 +52,6 @@ export function TripPage({
   serverToday,
   weatherByDay,
   actions,
-  editHref,
 }: {
   /**
    * The trip whose checklist ticks stay on this device. A past version has
@@ -62,8 +59,6 @@ export function TripPage({
    */
   tripId: string | null;
   trip: Trip;
-  /** The edit screen of the trip, for a viewer who can change it. */
-  editHref?: string;
   /** Where today falls on the trip when the server rendered the page. */
   serverToday: ResolvedDay;
   weatherByDay: Record<string, LiveWeather>;
@@ -110,20 +105,6 @@ export function TripPage({
               {/* Without a key, React at times warns that this node from the
                   server has none, after `router.refresh()` sends it again. */}
               <Fragment key="actions">{actions}</Fragment>
-              {editHref ? (
-                <Button
-                  size="sm"
-                  look="outline"
-                  icon={<PencilSimpleIcon weight="bold" />}
-                  href={
-                    location.view === "day"
-                      ? editHref + tripLocationHash(location)
-                      : editHref
-                  }
-                >
-                  {t({ en: "Edit", zh: "编辑" })}
-                </Button>
-              ) : null}
               <SegmentedControl
                 aria-label={t({ en: "View", zh: "视图" })}
                 size="sm"
@@ -162,9 +143,6 @@ export function TripPage({
               day={trip.days[location.day]}
               liveWeather={weatherByDay[trip.days[location.day].id]}
               onOpenDay={openDay}
-              editHref={
-                editHref ? editHref + tripLocationHash(location) : undefined
-              }
             />
           </>
         ) : (

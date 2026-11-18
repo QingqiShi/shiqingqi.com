@@ -1,6 +1,9 @@
+import { ApiError } from "@tuja/auth-ui/api-error";
 import { fetchJson } from "@tuja/auth-ui/fetch-json";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import type {
   AssistantState,
+  CardAction,
   DecideOutcome,
   MemoryLists,
   MemoryScopeName,
@@ -11,7 +14,12 @@ import type {
 
 export type {
   AssistantState,
+  AttachmentChip,
+  CardAction,
+  CardView,
   ChangeStatus,
+  CreatedTrip,
+  DayChoice,
   DecideOutcome,
   MemoryFile,
   MemoryLists,
@@ -74,23 +82,67 @@ export const assistantApi = {
    * `invalid_body` for an empty text or one over `MAX_MESSAGE_CHARS`.
    */
   async *send(
-    input: { tripId: string; text: string },
+    input: {
+      /** Null on New trip: the message goes to the person's conversation that starts a trip. */
+      tripId: string | null;
+      text: string;
+      /** Up to 4 images, PDFs or pasted texts (`text/plain`), within the limits of `attachments.ts`. */
+      files?: readonly { name: string; blob: Blob }[];
+      /** The language of the screen: the server names a long text that it makes an attachment in it. */
+      locale?: SupportedLocale;
+    },
     signal?: AbortSignal,
   ): AsyncGenerator<StreamLine> {
-    const response = await fetchJson(
-      "/api/assistant/send",
-      { method: "POST", body: JSON.stringify(input), signal },
-      "request_failed",
-    );
+    const files = input.files ?? [];
+    if (files.length === 0) {
+      const response = await fetchJson(
+        "/api/assistant/send",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            tripId: input.tripId,
+            text: input.text,
+            locale: input.locale,
+          }),
+          signal,
+        },
+        "request_failed",
+      );
+      yield* lines(response);
+      return;
+    }
+    const form = new FormData();
+    if (input.tripId !== null) form.set("tripId", input.tripId);
+    form.set("text", input.text);
+    if (input.locale) form.set("locale", input.locale);
+    for (const file of files) form.append("file", file.blob, file.name);
+    const response = await fetch("/api/assistant/send", {
+      method: "POST",
+      body: form,
+      signal,
+      credentials: "same-origin",
+    });
+    if (!response.ok) {
+      const data: unknown = await response.json().catch(() => null);
+      const code =
+        typeof data === "object" &&
+        data !== null &&
+        "error" in data &&
+        typeof data.error === "string"
+          ? data.error
+          : "request_failed";
+      throw new ApiError(code, response.status, data, null);
+    }
     yield* lines(response);
   },
 
   /**
    * The person's open segment with its transcript, whether a turn runs, and
    * the trip's version. It makes nothing. Poll it while `running` is true
-   * and no stream is read.
+   * and no stream is read. With a null trip: the person's conversation that
+   * starts a trip, when it moved in the last 4 hours.
    */
-  state(tripId: string, signal?: AbortSignal): Promise<AssistantState> {
+  state(tripId: string | null, signal?: AbortSignal): Promise<AssistantState> {
     return post("/api/assistant/state", { tripId }, signal);
   },
 
@@ -113,8 +165,15 @@ export const assistantApi = {
   },
 
   /** One segment of the person, with its transcript. */
-  conversation(conversationId: string): Promise<SegmentTranscript> {
-    return post("/api/assistant/conversations/read", { conversationId });
+  conversation(
+    conversationId: string,
+    signal?: AbortSignal,
+  ): Promise<SegmentTranscript> {
+    return post(
+      "/api/assistant/conversations/read",
+      { conversationId },
+      signal,
+    );
   },
 
   /** Goes on with an earlier segment: it becomes the open one, and the one open before ends with its summary. */
@@ -132,6 +191,21 @@ export const assistantApi = {
     decision: "accept" | "skip" | "undo",
   ): Promise<DecideOutcome> {
     return post("/api/assistant/decide", { changeId, decision });
+  },
+
+  /**
+   * Taps a button on a research card: "add" puts the place in the day,
+   * "backup" saves it there as an option. The server builds the change from
+   * the card that it stored, saves it with Undo, and does each action of a
+   * card once. After `done`, read the trip again, then `state`.
+   */
+  cardAction(input: {
+    changeId: string;
+    itemId: string;
+    action: CardAction;
+    dayId: string;
+  }): Promise<DecideOutcome> {
+    return post("/api/assistant/card", input);
   },
 
   /** The trip's memory and the person's own, for the memory panel. */

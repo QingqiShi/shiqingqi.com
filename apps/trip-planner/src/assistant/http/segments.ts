@@ -5,7 +5,7 @@ import {
   type Conversation,
 } from "#src/assistant/store/conversations.ts";
 import type { TripsDb } from "#src/db/types.ts";
-import { asViewer } from "#src/trips/as-viewer.ts";
+import { asViewer, type Transaction } from "#src/trips/as-viewer.ts";
 import { segmentSummary } from "./segment-summary.ts";
 
 /** After this long with no message, the next message starts a new segment. */
@@ -126,5 +126,59 @@ async function reopen(
   });
 }
 
+/** Whether a conversation that starts a new trip is still the one to go on with. */
+function isFresh(open: Conversation, now: Date): boolean {
+  return (
+    open.turnRunning ||
+    now.getTime() - (open.lastMessageAt ?? open.startedAt).getTime() <
+      SEGMENT_IDLE_MS
+  );
+}
+
+/**
+ * The person's open conversation that starts a new trip, when it moved in
+ * the last `SEGMENT_IDLE_MS`, without making one. The newest open one counts.
+ */
+async function openForNewTrip(
+  tx: Transaction,
+  now: Date,
+): Promise<Conversation | null> {
+  const open = (await conversations.list(tx, null, RECENT_SEGMENTS)).find(
+    (each) => each.endedAt === null,
+  );
+  return open && isFresh(open, now) ? open : null;
+}
+
+/**
+ * The conversation that a message on New trip goes to: the fresh open one,
+ * or a new one. Open ones that went still end; they need no summary, as no
+ * trip takes it.
+ */
+async function forNewTrip(
+  db: TripsDb,
+  userId: string,
+  now: Date,
+): Promise<SegmentResult> {
+  return asViewer(db, userId, async (tx) => {
+    const fresh = await openForNewTrip(tx, now);
+    if (fresh) return { status: "ok", segment: fresh } as const;
+    for (const each of await conversations.list(tx, null, RECENT_SEGMENTS)) {
+      if (each.endedAt === null && !each.turnRunning) {
+        await conversations.end(tx, each.id);
+      }
+    }
+    const started = await conversations.start(tx, null);
+    return started
+      ? ({ status: "ok", segment: started } as const)
+      : ({ status: "not_found" } as const);
+  });
+}
+
 /** The person's segments of the assistant in a trip, and when one ends and the next starts. */
-export const segments = { forMessage, startNew, reopen };
+export const segments = {
+  forMessage,
+  startNew,
+  reopen,
+  forNewTrip,
+  openForNewTrip,
+};

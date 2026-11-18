@@ -1,10 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "if [ \"$VERCEL_ENV\" = preview ] || [ \"$VERCEL_ENV\" = production ]; then pnpm trips:migrate; fi && turbo run build",
+  "buildCommand": "if [ \"$VERCEL_ENV\" = preview ] || [ \"$VERCEL_ENV\" = production ]; then pnpm trips:migrate; fi && pnpm skills:deploy && turbo run build",
   "ignoreCommand": "sh ../../scripts/vercel-ignore-build.sh",
-  "regions": ["lhr1"],
-  "functions": {
-    "src/app/api/trips/propose/route.ts": { "supportsCancellation": true },
-    "src/app/api/trips/draft/route.ts": { "supportsCancellation": true }
-  }
+  "regions": ["lhr1"]
 }

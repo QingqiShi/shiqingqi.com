@@ -2,6 +2,8 @@ import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOu
 import * as stylex from "@stylexjs/stylex";
 import { a11y } from "../primitives/a11y.stylex.ts";
 
+const WORD_JOINER = String.fromCharCode(0x2060);
+
 interface ExternalLinkIndicatorProps {
   /**
    * Screen-reader text that says the link opens in a new tab, such as
@@ -17,17 +19,22 @@ interface ExternalLinkIndicatorProps {
 export function ExternalLinkIndicator({ label }: ExternalLinkIndicatorProps) {
   return (
     <>
-      <ArrowSquareOutIcon
-        weight="regular"
-        aria-hidden="true"
-        {...stylex.props(styles.icon)}
-      />
+      {/* A line can break before an icon, also after a no-break character.
+          The word joiner keeps the icon with the last word, and the nowrap
+          span removes the break between the joiner and the icon. */}
+      <span aria-hidden="true" css={styles.keepWithText}>
+        {WORD_JOINER}
+        <ArrowSquareOutIcon weight="regular" {...stylex.props(styles.icon)} />
+      </span>
       <span css={a11y.srOnly}>{label}</span>
     </>
   );
 }
 
 const styles = stylex.create({
+  keepWithText: {
+    whiteSpace: "nowrap",
+  },
   // The indicator is smaller than the link text, so that it stays quiet.
   icon: {
     inlineSize: "0.85em",

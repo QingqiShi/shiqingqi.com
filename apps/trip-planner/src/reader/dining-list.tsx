@@ -13,6 +13,7 @@ import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Booking, Restaurant } from "#src/trips/types.ts";
+import { webLink } from "#src/trips/web-link.ts";
 import { ExternalButton } from "./external-button.tsx";
 import { ExternalLinkIndicator } from "./external-link-indicator.tsx";
 import { ExternalRowLink } from "./external-row-link.tsx";
@@ -74,6 +75,12 @@ function RestaurantRow({ restaurant }: { restaurant: DayRestaurant }) {
   const pick = t({ en: "First choice", zh: "首选" });
   const menu = t({ en: "Menu", zh: "菜单" });
   const website = t({ en: "Website", zh: "官网" });
+  const menuUrl =
+    restaurant.menu && webLink.is(restaurant.menu) ? restaurant.menu : null;
+  const websiteUrl =
+    restaurant.website && webLink.is(restaurant.website)
+      ? restaurant.website
+      : null;
   const links = restaurant.menu || restaurant.website;
 
   return (
@@ -132,23 +139,31 @@ function RestaurantRow({ restaurant }: { restaurant: DayRestaurant }) {
             ) : null}
             {links ? (
               <div css={cluster.tight}>
-                {restaurant.menu ? (
+                {menuUrl ? (
                   <ExternalButton
-                    href={restaurant.menu}
+                    href={menuUrl}
                     look="ghost"
                     icon={<BookOpenIcon weight="bold" />}
                   >
                     {menu}
                   </ExternalButton>
+                ) : restaurant.menu ? (
+                  <Text tone="muted">
+                    <TripText>{restaurant.menu}</TripText>
+                  </Text>
                 ) : null}
-                {restaurant.website ? (
+                {websiteUrl ? (
                   <ExternalButton
-                    href={restaurant.website}
+                    href={websiteUrl}
                     look="ghost"
                     icon={<GlobeIcon weight="bold" />}
                   >
                     {website}
                   </ExternalButton>
+                ) : restaurant.website ? (
+                  <Text tone="muted">
+                    <TripText>{restaurant.website}</TripText>
+                  </Text>
                 ) : null}
               </div>
             ) : null}

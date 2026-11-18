@@ -12,6 +12,7 @@ import { Section } from "@tuja/ui/components/section";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Lodging, Stay } from "#src/trips/types.ts";
+import { webLink } from "#src/trips/web-link.ts";
 import { DAY_SECTION_IDS } from "./day-section-ids.ts";
 import { ExternalButton } from "./external-button.tsx";
 import { ExternalLinkIndicator } from "./external-link-indicator.tsx";
@@ -176,7 +177,7 @@ export function StaySection({
             <TripText>{stay.note}</TripText>
           </Text>
         ) : null}
-        {stay.bookingUrl ? (
+        {stay.bookingUrl && webLink.is(stay.bookingUrl) ? (
           <div>
             <ExternalButton
               href={stay.bookingUrl}
@@ -186,6 +187,10 @@ export function StaySection({
               {search}
             </ExternalButton>
           </div>
+        ) : stay.bookingUrl ? (
+          <Text tone="muted">
+            <TripText>{stay.bookingUrl}</TripText>
+          </Text>
         ) : null}
       </div>
     </Section>

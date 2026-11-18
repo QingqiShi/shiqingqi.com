@@ -1,3 +1,7 @@
+import type { CodeWork } from "./code-work.ts";
+import type { ResearchCard } from "./research/research-list.ts";
+import type { CreatedTrip } from "./trip-view.ts";
+
 /** How a turn ended. */
 export type TurnStatus = "ok" | "failed" | "timeout";
 
@@ -19,7 +23,10 @@ export type TurnEvent =
       kind: "applied" | "proposal";
       summary: string;
       dayIds: string[];
+      fromFile?: string;
     }
+  /** The reader is done with the files of the person's message: `read`, or `failed` when they could not be read. */
+  | { type: "attachments"; status: "read" | "failed"; items: number }
   /** A question to the person, with options to tap. */
   | { type: "question"; question: string; options: string[] }
   /** The assistant wrote to or deleted from a memory. */
@@ -28,7 +35,17 @@ export type TurnEvent =
       scope: "trip" | "personal";
       path: string;
       action: "written" | "deleted" | "renamed";
+      /** The start of the text that was written, on one line. */
+      text?: string;
     }
+  /** The model read a skill or ran code in its container. */
+  | { type: "worked"; work: CodeWork }
+  /** A research list came back: these web addresses may now show as links. */
+  | { type: "research"; urls: string[] }
+  /** Cards of research items, which the server made from the stored lists. */
+  | { type: "cards"; changeId: string; cards: ResearchCard[] }
+  /** The assistant made the trip, and the conversation now belongs to it. */
+  | ({ type: "trip" } & CreatedTrip)
   | { type: "done"; status: TurnStatus };
 
 /**

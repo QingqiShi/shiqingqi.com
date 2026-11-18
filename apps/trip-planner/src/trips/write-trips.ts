@@ -91,21 +91,23 @@ async function change(
   return { status: "applied", revision: result.revision, trip: result.trip };
 }
 
-/** Makes a trip with the user as its owner, and gives its id. */
-async function create(
-  db: TripsDb,
-  userId: string,
-  input: NewTrip,
-): Promise<string> {
-  const [{ tripId }] = await asViewer(db, userId, (tx) =>
-    tx
-      .select({ tripId: sql<string | null>`trip_id` })
-      .from(
-        sql`public.trips_create(${JSON.stringify(newTrip(input))}::jsonb) as trip_id`,
-      ),
-  );
+/**
+ * `create` with a whole trip, inside a transaction of `asViewer`, so that a
+ * caller can join it with other writes. The trip must be valid.
+ */
+async function createIn(tx: Transaction, trip: Trip): Promise<string> {
+  const [{ tripId }] = await tx
+    .select({ tripId: sql<string | null>`trip_id` })
+    .from(
+      sql`public.trips_create(${JSON.stringify(tripSchema.parse(trip))}::jsonb) as trip_id`,
+    );
   if (tripId === null) throw new Error("No user to own the trip.");
   return tripId;
+}
+
+/** Makes a trip with the user as its owner, and gives its id. */
+function create(db: TripsDb, userId: string, input: NewTrip): Promise<string> {
+  return asViewer(db, userId, (tx) => createIn(tx, newTrip(input)));
 }
 
 /** Deletes a trip with all that it has. Only an owner of the trip can; any other user gets false. */
@@ -134,4 +136,4 @@ export function isSerializationFailure(error: unknown): boolean {
  * The one way to change the trip tables. Each function runs as the user,
  * and the database checks that the user may do it.
  */
-export const writeTrips = { change, changeIn, create, remove };
+export const writeTrips = { change, changeIn, create, createIn, remove };

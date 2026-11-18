@@ -10,9 +10,9 @@ import {
 } from "@tuja/ui/components/tab-view";
 import { tabViewWidth } from "@tuja/ui/primitives/view-width.stylex";
 import type { StyleProp } from "@tuja/ui/types";
-import { useOpenNewTrip } from "./new-trip-provider.tsx";
+import { useNewTripHref } from "./use-new-trip-href.ts";
 
-/** The button that opens the New trip sheet, such as the action of an empty list. */
+/** The link to New trip, where a trip starts from a conversation, such as the action of an empty list. */
 export function NewTripButton({
   iconOnly = false,
   size = "md",
@@ -22,7 +22,7 @@ export function NewTripButton({
   size?: "md" | "lg";
   css?: StyleProp;
 }) {
-  const open = useOpenNewTrip();
+  const href = useNewTripHref();
   const label = t({ en: "New trip", zh: "新建行程" });
   return (
     <Button
@@ -31,9 +31,7 @@ export function NewTripButton({
       icon={<PlusIcon weight="bold" />}
       aria-label={iconOnly ? label : undefined}
       css={css}
-      onClick={(event) => {
-        open(event.currentTarget);
-      }}
+      href={href}
     >
       {iconOnly ? null : label}
     </Button>
