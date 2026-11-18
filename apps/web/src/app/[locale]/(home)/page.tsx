@@ -4,6 +4,7 @@ import { GraduationCapIcon } from "@phosphor-icons/react/dist/ssr/GraduationCap"
 import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
 import { PiggyBankIcon } from "@phosphor-icons/react/dist/ssr/PiggyBank";
 import { PlantIcon } from "@phosphor-icons/react/dist/ssr/Plant";
+import { SuitcaseRollingIcon } from "@phosphor-icons/react/dist/ssr/SuitcaseRolling";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
@@ -26,6 +27,7 @@ import { EducationCard } from "#src/portfolio/education-card.tsx";
 import { ExperienceCard } from "#src/portfolio/experience-card.tsx";
 import { projectCardTokens } from "#src/portfolio/project-card.stylex.ts";
 import { ProjectCard } from "#src/portfolio/project-card.tsx";
+import { TRIPS_ORIGIN } from "#src/trips-origin.mjs";
 
 export default async function Home(props: PageProps) {
   const { locale } = await props.params;
@@ -99,6 +101,16 @@ export default async function Home(props: PageProps) {
                 zh: "我们家的私人账本：记录开支、余额和净资产。",
               })}
               scroll
+            />
+            <ProjectCard
+              icon={SuitcaseRollingIcon}
+              href={`${TRIPS_ORIGIN}${getLocalePath("/", locale)}`}
+              css={[styles.card, styles.trips]}
+              name={t({ en: "Trips", zh: "旅行计划" })}
+              description={t({
+                en: "A shared day-by-day plan for a group trip, with an assistant that edits it.",
+                zh: "同行的每个人看同一份行程，手机上按天看，还有助手帮你改计划。",
+              })}
             />
             <ProjectCard
               icon={CalculatorIcon}
@@ -290,5 +302,8 @@ const styles = stylex.create({
   },
   finance: {
     [projectCardTokens.brand]: brand.finance,
+  },
+  trips: {
+    [projectCardTokens.brand]: brand.trips,
   },
 });
