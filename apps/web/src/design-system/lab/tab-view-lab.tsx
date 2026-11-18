@@ -6,6 +6,7 @@ import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import { SquaresFourIcon } from "@phosphor-icons/react/dist/ssr/SquaresFour";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { color } from "@tuja/ui/color.stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Heading } from "@tuja/ui/components/heading";
@@ -17,8 +18,9 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlSize, space } from "@tuja/ui/tokens.stylex";
 import { type ComponentProps, useState } from "react";
 import tabViewDoc from "#src/_generated/props/tab-view.json";
-import { defineLab, NONE_SAMPLE } from "./define-lab.tsx";
 import { FollowContext, FollowLink } from "./follow-link.tsx";
+import { LabCanvas } from "./lab-canvas.tsx";
+import { NONE_SAMPLE } from "./none-sample.ts";
 import { labSource } from "./print-lab-value.ts";
 import type { LabSample } from "./types.ts";
 
@@ -56,82 +58,6 @@ const badge = stylex.create({
   },
 });
 
-const ITEMS = labSource([
-  { href: "#home", label: "Home", icon: HouseIcon, current: true },
-  { href: "#search", label: "Search", icon: MagnifyingGlassIcon },
-  { href: "#library", label: "Library", icon: BooksIcon },
-  { href: "#settings", label: "Settings", icon: GearSixIcon },
-]);
-
-const ITEMS_WITH_BADGE = labSource([
-  { href: "#home", label: "Home", icon: HouseIcon, current: true },
-  { href: "#search", label: "Search", icon: MagnifyingGlassIcon },
-  {
-    href: "#library",
-    label: "Library",
-    icon: BooksIcon,
-    badge: <span css={[corner.radius_round, badge.dot]} />,
-    status: "2 new books",
-  },
-  { href: "#settings", label: "Settings", icon: GearSixIcon },
-]);
-
-const ITEMS_WITH_COUNT = labSource([
-  { href: "#home", label: "Home", icon: HouseIcon, current: true },
-  { href: "#search", label: "Search", icon: MagnifyingGlassIcon },
-  { href: "#library", label: "Library", icon: BooksIcon, count: 3 },
-  { href: "#settings", label: "Settings", icon: GearSixIcon },
-]);
-
-const SCREEN = labSource(
-  <div css={screen.base}>
-    <div css={[stack.group, screen.content]}>
-      <div css={stack.text}>
-        <Heading level={3} look="h3">
-          Good morning
-        </Heading>
-        <Text look="bodySmall" tone="muted">
-          Two chapters are left in the book you are reading.
-        </Text>
-      </div>
-      <div css={stack.item}>
-        <Text>The Lighthouse Keeper</Text>
-        <Text>A Year of Bread</Text>
-        <Text>Rivers of the North</Text>
-        <Text>Small Gardens</Text>
-        <Text>The Quiet Hour</Text>
-      </div>
-    </div>
-  </div>,
-);
-
-const HEADER_SAMPLES: LabSample[] = [
-  NONE_SAMPLE,
-  {
-    id: "mark",
-    label: { en: "App mark", zh: "应用标志" },
-    value: labSource(
-      <span css={[corner.radius_2, mark.base]} aria-hidden>
-        <SquaresFourIcon weight="fill" />
-      </span>,
-    ),
-  },
-  {
-    id: "brand",
-    label: { en: "Brand", zh: "品牌" },
-    value: labSource(<TabViewBrand name="Reader" detail="Mei Lin" />),
-  },
-];
-
-const FOOTER_SAMPLES: LabSample[] = [
-  NONE_SAMPLE,
-  {
-    id: "member",
-    label: { en: "Member", zh: "成员" },
-    value: labSource(<Avatar name="Mei Lin" size="sm" />),
-  },
-];
-
 /**
  * A followed destination becomes current, as a router would make it, so the
  * Lab stays on its page. A new set of items starts from its own current item.
@@ -160,54 +86,147 @@ function FollowedTabView(
   );
 }
 
-const BASE = {
-  label: "Reading app",
-  sidebarToggleLabel: "Sidebar",
-  linkStatus: null,
-  as: "div",
-  children: SCREEN,
-} as const;
+export function TabViewLab() {
+  const home = t({ en: "Home", zh: "首页" });
+  const search = t({ en: "Search", zh: "搜索" });
+  const library = t({ en: "Library", zh: "书架" });
+  const settings = t({ en: "Settings", zh: "设置" });
+  const meiLin = t({ en: "Mei Lin", zh: "林美" });
 
-export const TabViewLab = defineLab({
-  doc: tabViewDoc,
-  component: FollowedTabView,
-  scene: "frame",
-  variants: [
+  const items = labSource([
+    { href: "#home", label: home, icon: HouseIcon, current: true },
+    { href: "#search", label: search, icon: MagnifyingGlassIcon },
+    { href: "#library", label: library, icon: BooksIcon },
+    { href: "#settings", label: settings, icon: GearSixIcon },
+  ]);
+
+  const itemsWithBadge = labSource([
+    { href: "#home", label: home, icon: HouseIcon, current: true },
+    { href: "#search", label: search, icon: MagnifyingGlassIcon },
     {
-      id: "destinations",
-      label: { en: "Four destinations", zh: "四个目标页" },
-      props: { ...BASE, items: ITEMS },
+      href: "#library",
+      label: library,
+      icon: BooksIcon,
+      badge: <span css={[corner.radius_round, badge.dot]} />,
+      status: t({ en: "2 new books", zh: "2 本新书" }),
+    },
+    { href: "#settings", label: settings, icon: GearSixIcon },
+  ]);
+
+  const itemsWithCount = labSource([
+    { href: "#home", label: home, icon: HouseIcon, current: true },
+    { href: "#search", label: search, icon: MagnifyingGlassIcon },
+    { href: "#library", label: library, icon: BooksIcon, count: 3 },
+    { href: "#settings", label: settings, icon: GearSixIcon },
+  ]);
+
+  const screenNode = labSource(
+    <div css={screen.base}>
+      <div css={[stack.group, screen.content]}>
+        <div css={stack.text}>
+          <Heading level={3} look="h3">
+            {t({ en: "Good morning", zh: "早上好" })}
+          </Heading>
+          <Text look="bodySmall" tone="muted">
+            {t({
+              en: "Two chapters are left in the book you are reading.",
+              zh: "你正在读的书还剩两章。",
+            })}
+          </Text>
+        </div>
+        <div css={stack.item}>
+          <Text>{t({ en: "The Lighthouse Keeper", zh: "守灯人" })}</Text>
+          <Text>{t({ en: "A Year of Bread", zh: "面包的一年" })}</Text>
+          <Text>{t({ en: "Rivers of the North", zh: "北方的河" })}</Text>
+          <Text>{t({ en: "Small Gardens", zh: "小花园" })}</Text>
+          <Text>{t({ en: "The Quiet Hour", zh: "安静的时刻" })}</Text>
+        </div>
+      </div>
+    </div>,
+  );
+
+  const headerSamples: LabSample[] = [
+    NONE_SAMPLE,
+    {
+      id: "mark",
+      label: { en: "App mark", zh: "应用标志" },
+      value: labSource(
+        <span css={[corner.radius_2, mark.base]} aria-hidden>
+          <SquaresFourIcon weight="fill" />
+        </span>,
+      ),
     },
     {
-      id: "rail",
-      label: { en: "Rail header and footer", zh: "侧轨页眉与页脚" },
-      props: { ...BASE, items: ITEMS, header: "mark", footer: "member" },
+      id: "brand",
+      label: { en: "Brand", zh: "品牌" },
+      value: labSource(
+        <TabViewBrand name={t({ en: "Reader", zh: "阅读" })} detail={meiLin} />,
+      ),
     },
+  ];
+
+  const footerSamples: LabSample[] = [
+    NONE_SAMPLE,
     {
-      id: "sidebar",
-      label: { en: "Labelled sidebar", zh: "带标签的侧边栏" },
-      props: {
-        ...BASE,
-        items: ITEMS_WITH_COUNT,
-        header: "brand",
-        footer: "member",
-      },
+      id: "member",
+      label: { en: "Member", zh: "成员" },
+      value: labSource(<Avatar name={meiLin} size="sm" />),
     },
-    {
-      id: "badge",
-      label: { en: "With a badge", zh: "带标记" },
-      props: { ...BASE, items: ITEMS_WITH_BADGE },
-    },
-    {
-      id: "plain",
-      label: { en: "Plain indicator", zh: "普通指示块" },
-      props: { ...BASE, items: ITEMS, effect: "none" },
-    },
-  ],
-  controls: [
-    "label",
-    { prop: "header", samples: HEADER_SAMPLES },
-    { prop: "footer", samples: FOOTER_SAMPLES },
-    "effect",
-  ],
-});
+  ];
+
+  const base = {
+    label: t({ en: "Reading app", zh: "阅读应用" }),
+    sidebarToggleLabel: t({ en: "Sidebar", zh: "侧边栏" }),
+    linkStatus: null,
+    as: "div",
+    children: screenNode,
+  } as const;
+
+  return (
+    <LabCanvas
+      config={{
+        doc: tabViewDoc,
+        component: FollowedTabView,
+        scene: "frame",
+        variants: [
+          {
+            id: "destinations",
+            label: { en: "Four destinations", zh: "四个目标页" },
+            props: { ...base, items },
+          },
+          {
+            id: "rail",
+            label: { en: "Rail header and footer", zh: "侧轨页眉与页脚" },
+            props: { ...base, items, header: "mark", footer: "member" },
+          },
+          {
+            id: "sidebar",
+            label: { en: "Labelled sidebar", zh: "带标签的侧边栏" },
+            props: {
+              ...base,
+              items: itemsWithCount,
+              header: "brand",
+              footer: "member",
+            },
+          },
+          {
+            id: "badge",
+            label: { en: "With a badge", zh: "带标记" },
+            props: { ...base, items: itemsWithBadge },
+          },
+          {
+            id: "plain",
+            label: { en: "Plain indicator", zh: "普通指示块" },
+            props: { ...base, items, effect: "none" },
+          },
+        ],
+        controls: [
+          "label",
+          { prop: "header", samples: headerSamples },
+          { prop: "footer", samples: footerSamples },
+          "effect",
+        ],
+      }}
+    />
+  );
+}

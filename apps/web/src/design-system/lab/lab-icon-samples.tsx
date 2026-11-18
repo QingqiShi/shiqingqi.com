@@ -3,7 +3,7 @@ import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { FloppyDiskIcon } from "@phosphor-icons/react/dist/ssr/FloppyDisk";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
-import { NONE_SAMPLE } from "./define-lab.tsx";
+import { NONE_SAMPLE } from "./none-sample.ts";
 import { withSource } from "./print-lab-value.ts";
 import type { LabSample } from "./types.ts";
 

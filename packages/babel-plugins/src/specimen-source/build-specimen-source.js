@@ -186,11 +186,39 @@ function isChrome(t, element) {
  * @returns {Edit | null}
  */
 function unwrapTranslation(t, path, code, facts, holes) {
-  const call = path.node;
-  if (!t.isIdentifier(call.callee, { name: facts.translateName })) return null;
+  const texts = translationArgument(t, path.node, facts);
+  return texts ? translationEdit(t, path, texts, code, facts, holes) : null;
+}
 
-  const [first] = call.arguments;
-  if (!t.isObjectExpression(first)) return null;
+/**
+ * The `{ en, zh }` argument of a `t()` call.
+ *
+ * @param {BabelTypes} t
+ * @param {Node | null | undefined} node
+ * @param {ModuleFacts} facts
+ * @returns {ObjectExpression | null}
+ */
+function translationArgument(t, node, facts) {
+  if (!t.isCallExpression(node)) return null;
+  if (!t.isIdentifier(node.callee, { name: facts.translateName })) return null;
+  const [first] = node.arguments;
+  return t.isObjectExpression(first) ? first : null;
+}
+
+/**
+ * Rewrite an expression that stands for a translated text as that text. The
+ * expression is the `t()` call, or a name that holds its result.
+ *
+ * @param {BabelTypes} t
+ * @param {AnyPath} path The expression to rewrite.
+ * @param {ObjectExpression} first The `{ en, zh }` argument of the call.
+ * @param {string} code
+ * @param {ModuleFacts} facts
+ * @param {Expression[]} holes
+ * @returns {Edit | null}
+ */
+function translationEdit(t, path, first, code, facts, holes) {
+  const expression = path.node;
   const english = first.properties.find(
     (property) =>
       t.isObjectProperty(property) &&
@@ -201,7 +229,7 @@ function unwrapTranslation(t, path, code, facts, holes) {
   const plain = readStringValue(t, english.value);
   const quoted = quoteValue(t, english.value, code);
   if (plain === null || quoted === null) return null;
-  if (call.start == null || call.end == null) return null;
+  if (expression.start == null || expression.end == null) return null;
 
   const texts = readTranslations(t, first, facts);
   let prose = plain;
@@ -216,8 +244,8 @@ function unwrapTranslation(t, path, code, facts, holes) {
 
   const container = path.parentPath;
   if (
-    container.isJSXExpressionContainer() &&
-    container.node.expression === call &&
+    container?.isJSXExpressionContainer() &&
+    container.node.expression === expression &&
     container.node.start != null &&
     container.node.end != null
   ) {
@@ -231,7 +259,7 @@ function unwrapTranslation(t, path, code, facts, holes) {
     };
   }
 
-  return { start: call.start, end: call.end, text: literal };
+  return { start: expression.start, end: expression.end, text: literal };
 }
 
 /**
@@ -281,4 +309,9 @@ function quoteValue(t, node, code) {
   return value === null ? null : JSON.stringify(value);
 }
 
-module.exports = { buildSpecimenSource };
+module.exports = {
+  buildSpecimenSource,
+  translationArgument,
+  translationEdit,
+  unwrapTranslation,
+};

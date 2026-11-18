@@ -69,7 +69,7 @@ export async function labMetadata(
 }
 
 interface LabPageProps {
-  /** The Lab itself, from `defineLab`: a client island, because the Canvas is operable. */
+  /** The Lab itself: a client island, because the Canvas is operable. */
   lab: ComponentType;
 }
 

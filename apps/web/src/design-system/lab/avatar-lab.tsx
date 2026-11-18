@@ -2,10 +2,12 @@
 
 import { AirplaneTakeoffIcon } from "@phosphor-icons/react/dist/ssr/AirplaneTakeoff";
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
+import { t } from "@tuja/i18n";
 import { Avatar } from "@tuja/ui/components/avatar";
 import avatarDoc from "#src/_generated/props/avatar.json";
-import { defineLab, NONE_SAMPLE } from "./define-lab.tsx";
+import { LabCanvas } from "./lab-canvas.tsx";
 import { iconSample } from "./lab-icon-samples.tsx";
+import { NONE_SAMPLE } from "./none-sample.ts";
 import type { LabSample } from "./types.ts";
 
 const BADGE_SAMPLES: LabSample[] = [
@@ -31,84 +33,87 @@ const BADGE_SAMPLES: LabSample[] = [
 const PORTRAIT =
   "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20fill='%236f5aa8'/%3E%3Ccircle%20cx='32'%20cy='25'%20r='11'%20fill='%23f0ecf7'/%3E%3Cpath%20d='M8%2064c0-14%2011-22%2024-22s24%208%2024%2022z'%20fill='%23f0ecf7'/%3E%3C/svg%3E";
 
-// The name a Variant puts on the Specimen stays in English: it is printed in
-// the snippet as source, where a translated string would not be what a
-// consumer writes.
-const NAME = "Ada Lovelace";
-const ORGANISATION = "Northwind Bank";
+export function AvatarLab() {
+  const name = t({ en: "Ada Lovelace", zh: "阿达·洛芙莱斯" });
+  const organisation = t({ en: "Northwind Bank", zh: "北风银行" });
 
-export const AvatarLab = defineLab({
-  doc: avatarDoc,
-  component: Avatar,
-  variants: [
-    {
-      id: "monogramSm",
-      label: { en: "Monogram sm", zh: "字母缩写 sm" },
-      props: { name: NAME, size: "sm" },
-    },
-    {
-      id: "monogramMd",
-      label: { en: "Monogram md", zh: "字母缩写 md" },
-      props: { name: NAME, size: "md" },
-    },
-    {
-      id: "monogramLg",
-      label: { en: "Monogram lg", zh: "字母缩写 lg" },
-      props: { name: NAME, size: "lg" },
-    },
-    {
-      id: "portraitSm",
-      label: { en: "Portrait sm", zh: "头像图片 sm" },
-      props: { name: NAME, src: PORTRAIT, size: "sm" },
-    },
-    {
-      id: "portraitMd",
-      label: { en: "Portrait md", zh: "头像图片 md" },
-      props: { name: NAME, src: PORTRAIT, size: "md" },
-    },
-    {
-      id: "portraitLg",
-      label: { en: "Portrait lg", zh: "头像图片 lg" },
-      props: { name: NAME, src: PORTRAIT, size: "lg" },
-    },
-    {
-      id: "solidSm",
-      label: { en: "Solid sm", zh: "实心 sm" },
-      props: { name: NAME, look: "solid", size: "sm" },
-    },
-    {
-      id: "solidMd",
-      label: { en: "Solid md", zh: "实心 md" },
-      props: { name: NAME, look: "solid", size: "md" },
-    },
-    {
-      id: "solidLg",
-      label: { en: "Solid lg", zh: "实心 lg" },
-      props: { name: NAME, look: "solid", size: "lg" },
-    },
-    {
-      id: "squareSm",
-      label: { en: "Square sm", zh: "方形 sm" },
-      props: { name: ORGANISATION, shape: "square", size: "sm" },
-    },
-    {
-      id: "squareMd",
-      label: { en: "Square md", zh: "方形 md" },
-      props: { name: ORGANISATION, shape: "square", size: "md" },
-    },
-    {
-      id: "squareLg",
-      label: { en: "Square lg", zh: "方形 lg" },
-      props: { name: ORGANISATION, shape: "square", size: "lg" },
-    },
-  ],
-  controls: [
-    "name",
-    "look",
-    "size",
-    "shape",
-    "initials",
-    { prop: "badge", samples: BADGE_SAMPLES },
-    "badgeLabel",
-  ],
-});
+  return (
+    <LabCanvas
+      config={{
+        doc: avatarDoc,
+        component: Avatar,
+        variants: [
+          {
+            id: "monogramSm",
+            label: { en: "Monogram sm", zh: "字母缩写 sm" },
+            props: { name, size: "sm" },
+          },
+          {
+            id: "monogramMd",
+            label: { en: "Monogram md", zh: "字母缩写 md" },
+            props: { name, size: "md" },
+          },
+          {
+            id: "monogramLg",
+            label: { en: "Monogram lg", zh: "字母缩写 lg" },
+            props: { name, size: "lg" },
+          },
+          {
+            id: "portraitSm",
+            label: { en: "Portrait sm", zh: "头像图片 sm" },
+            props: { name, src: PORTRAIT, size: "sm" },
+          },
+          {
+            id: "portraitMd",
+            label: { en: "Portrait md", zh: "头像图片 md" },
+            props: { name, src: PORTRAIT, size: "md" },
+          },
+          {
+            id: "portraitLg",
+            label: { en: "Portrait lg", zh: "头像图片 lg" },
+            props: { name, src: PORTRAIT, size: "lg" },
+          },
+          {
+            id: "solidSm",
+            label: { en: "Solid sm", zh: "实心 sm" },
+            props: { name, look: "solid", size: "sm" },
+          },
+          {
+            id: "solidMd",
+            label: { en: "Solid md", zh: "实心 md" },
+            props: { name, look: "solid", size: "md" },
+          },
+          {
+            id: "solidLg",
+            label: { en: "Solid lg", zh: "实心 lg" },
+            props: { name, look: "solid", size: "lg" },
+          },
+          {
+            id: "squareSm",
+            label: { en: "Square sm", zh: "方形 sm" },
+            props: { name: organisation, shape: "square", size: "sm" },
+          },
+          {
+            id: "squareMd",
+            label: { en: "Square md", zh: "方形 md" },
+            props: { name: organisation, shape: "square", size: "md" },
+          },
+          {
+            id: "squareLg",
+            label: { en: "Square lg", zh: "方形 lg" },
+            props: { name: organisation, shape: "square", size: "lg" },
+          },
+        ],
+        controls: [
+          "name",
+          "look",
+          "size",
+          "shape",
+          "initials",
+          { prop: "badge", samples: BADGE_SAMPLES },
+          "badgeLabel",
+        ],
+      }}
+    />
+  );
+}

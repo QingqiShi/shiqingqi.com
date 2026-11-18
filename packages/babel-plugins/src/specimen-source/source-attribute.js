@@ -81,4 +81,4 @@ function tokenText(t, text, holes) {
   return parts.reduce((left, right) => t.binaryExpression("+", left, right));
 }
 
-module.exports = { holeMarker, sourceAttribute, tokeniseAt };
+module.exports = { holeMarker, sourceAttribute, tokenText, tokeniseAt };

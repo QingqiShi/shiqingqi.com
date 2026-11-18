@@ -1,12 +1,19 @@
 // @ts-check
 
-const { tokeniseAt } = require("./source-attribute");
+const { applyEdits } = require("./apply-edits");
+const {
+  translationArgument,
+  translationEdit,
+  unwrapTranslation,
+} = require("./build-specimen-source");
+const { tokenText, tokeniseAt } = require("./source-attribute");
 
 /**
  * @typedef {typeof import("@babel/types")} BabelTypes
  * @typedef {import("@babel/types").CallExpression} CallExpression
  * @typedef {import("@babel/types").Expression} Expression
  * @typedef {import("@babel/traverse").NodePath} AnyPath
+ * @typedef {import("./apply-edits").Edit} Edit
  * @typedef {import("./collect-module-facts").ImportedName} ImportedName
  * @typedef {import("./collect-module-facts").ModuleFacts} ModuleFacts
  */
@@ -23,8 +30,10 @@ const LAB_SETTER = "labSetter";
 /**
  * Give one `labSource(value)` call the source of its value as a second
  * argument: the tokens, the imports they use, and the StyleX styles of the
- * module they use, which the snippet prints before the element. A name that a
- * reader who copies the snippet cannot import or declare fails the build.
+ * module they use, which the snippet prints before the element. A `t()` call,
+ * or a name of the component that holds the result of one, shows as its text
+ * in the reader's locale. A name that a reader who copies the snippet cannot
+ * import or declare fails the build.
  *
  * @param {BabelTypes} t
  * @param {import("@babel/traverse").NodePath<CallExpression>} callPath
@@ -43,15 +52,20 @@ function buildLabSource(t, callPath, code, facts) {
   const imports = new Map();
   /** @type {Map<string, { start: number, end: number }>} */
   const definitions = new Map();
-  collectNames(t, argument, callPath, facts, imports, definitions);
+  /** @type {Translated} */
+  const translated = { code, edits: [], holes: [] };
+  collectNames(t, argument, callPath, facts, imports, definitions, translated);
 
-  const text = dedentTail(code.slice(start, end));
+  const text = dedentTail(applyEdits(code, start, end, translated.edits));
   const tokens = t.isObjectExpression(argument.node)
     ? unwrapParens(tokeniseAt(`(${text})`, callPath))
     : tokeniseAt(text, callPath);
   call.arguments.push(
     t.objectExpression([
-      t.objectProperty(t.identifier("tokens"), tokensExpression(t, tokens)),
+      t.objectProperty(
+        t.identifier("tokens"),
+        tokensExpression(t, tokens, translated.holes),
+      ),
       t.objectProperty(
         t.identifier("imports"),
         t.arrayExpression(
@@ -71,6 +85,7 @@ function buildLabSource(t, callPath, code, facts) {
                 tokensExpression(
                   t,
                   tokeniseAt(code.slice(span.start, span.end), callPath),
+                  [],
                 ),
               ),
             ]),
@@ -82,8 +97,19 @@ function buildLabSource(t, callPath, code, facts) {
 }
 
 /**
+ * The translated texts of a source: the rewrites that put a hole where each
+ * text goes, and the `t()` call that fills each hole.
+ *
+ * @typedef {object} Translated
+ * @property {string} code
+ * @property {Edit[]} edits
+ * @property {import("@babel/types").Expression[]} holes
+ */
+
+/**
  * Sort every name a subtree uses into an import or a StyleX definition. A name
- * bound inside the source, such as an arrow's parameter, needs neither.
+ * bound inside the source, such as an arrow's parameter, needs neither. A
+ * translated text needs neither too: it goes to `translated`.
  *
  * @param {BabelTypes} t
  * @param {AnyPath} path
@@ -91,17 +117,48 @@ function buildLabSource(t, callPath, code, facts) {
  * @param {ModuleFacts} facts
  * @param {Map<string, ImportedName>} imports
  * @param {Map<string, { start: number, end: number }>} definitions
+ * @param {Translated} translated
  */
-function collectNames(t, path, callPath, facts, imports, definitions) {
+function collectNames(
+  t,
+  path,
+  callPath,
+  facts,
+  imports,
+  definitions,
+  translated,
+) {
   const programScope = callPath.scope.getProgramParent();
+  const { code, edits, holes } = translated;
   /** @param {string} message */
   const fail = (message) => callPath.buildCodeFrameError(message);
 
   path.traverse({
+    CallExpression(inner) {
+      const edit = unwrapTranslation(t, inner, code, facts, holes);
+      if (!edit) return;
+      edits.push(edit);
+      inner.skip();
+    },
     ReferencedIdentifier(inner) {
       const name = inner.node.name;
       const binding = inner.scope.getBinding(name);
-      if (!binding || binding.scope !== programScope) return;
+      if (!binding) return;
+      if (binding.scope !== programScope) {
+        if (binding.path.isDescendant(path)) return;
+        const texts = binding.path.isVariableDeclarator()
+          ? translationArgument(t, binding.path.node.init, facts)
+          : null;
+        const edit =
+          texts && translationEdit(t, inner, texts, code, facts, holes);
+        if (!edit) {
+          throw fail(
+            `A Lab source uses "${name}", which the function around it declares. Only a name that holds the result of ${facts.translateName}() can stand in a source, as its text.`,
+          );
+        }
+        edits.push(edit);
+        return;
+      }
 
       const imported = facts.imports.get(name);
       if (imported) {
@@ -125,7 +182,15 @@ function collectNames(t, path, callPath, facts, imports, definitions) {
         const { start, end } = statement?.node ?? {};
         if (start == null || end == null || !statement) return;
         definitions.set(name, { start, end });
-        collectNames(t, statement, callPath, facts, imports, definitions);
+        collectNames(
+          t,
+          statement,
+          callPath,
+          facts,
+          imports,
+          definitions,
+          translated,
+        );
         return;
       }
 
@@ -192,11 +257,13 @@ function dedentTail(text) {
 /**
  * @param {BabelTypes} t
  * @param {import("./token-kinds").CodeToken[]} tokens
+ * @param {import("@babel/types").Expression[]} holes The `t()` calls that fill
+ *   the holes in `tokens`.
  */
-function tokensExpression(t, tokens) {
+function tokensExpression(t, tokens, holes) {
   return t.arrayExpression(
     tokens.map(([kind, text]) =>
-      t.arrayExpression([t.stringLiteral(kind), t.stringLiteral(text)]),
+      t.arrayExpression([t.stringLiteral(kind), tokenText(t, text, holes)]),
     ),
   );
 }
