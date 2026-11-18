@@ -4,11 +4,11 @@ import {
   withExpect,
   type DraftOp,
 } from "#src/trips/ops/apply-ops.ts";
+import { findItem as locateItem } from "#src/trips/ops/find-item.ts";
 import { newTrip } from "#src/trips/ops/new-trip.ts";
 import type { Op } from "#src/trips/ops/op-schema.ts";
 import type { Trip } from "#src/trips/types.ts";
 import type { ChangeResult } from "#src/trips/write-trips.ts";
-import { locateItem } from "./build-outline.ts";
 import { createSaveQueue } from "./create-save-queue.ts";
 
 function applied(trip: Trip, ops: readonly DraftOp[]): Trip {

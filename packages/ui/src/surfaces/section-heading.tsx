@@ -16,26 +16,29 @@ import type { SectionLevel, SectionLook } from "./section.tsx";
 export function SectionHeading({
   level,
   look,
+  labelledBy,
   children,
 }: {
   level: SectionLevel;
   look: SectionLook;
+  labelledBy?: string | undefined;
   children: ReactNode;
 }) {
-  const css = lookStyles[look];
-  switch (level) {
-    case 2:
-      return <h2 css={css}>{children}</h2>;
-    case 3:
-      return <h3 css={css}>{children}</h3>;
-    case 4:
-      return <h4 css={css}>{children}</h4>;
-    case 5:
-      return <h5 css={css}>{children}</h5>;
-    case 6:
-      return <h6 css={css}>{children}</h6>;
-  }
+  const Tag = headingTags[level];
+  return (
+    <Tag {...stylex.props(lookStyles[look])} aria-labelledby={labelledBy}>
+      {children}
+    </Tag>
+  );
 }
+
+const headingTags = {
+  2: "h2",
+  3: "h3",
+  4: "h4",
+  5: "h5",
+  6: "h6",
+} as const satisfies Record<SectionLevel, string>;
 
 const styles = stylex.create({
   label: {

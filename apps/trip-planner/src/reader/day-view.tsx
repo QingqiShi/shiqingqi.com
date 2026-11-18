@@ -24,38 +24,80 @@ import { DiningList } from "./dining-list.tsx";
 import { DayMap } from "./maps/day-map.tsx";
 import { PlaceList } from "./place-list.tsx";
 import { presencesOnDay } from "./presences-on-day.ts";
+import { useQuickEdit } from "./quick-edit/quick-edit-context.ts";
+import { TripDetailsButton } from "./quick-edit/trip-details-button.tsx";
 import { StaySection } from "./stay-section.tsx";
 import { TipCallout } from "./tip-callout.tsx";
 import { TripText } from "./trip-text.tsx";
 import { useDayNumber } from "./use-day-number.ts";
 import type { LiveWeather } from "./weather/types.ts";
 
-/** A day with no plan: it says so, and gives an editor of the trip the way to plan it. */
-function EmptyDay({ editHref }: { editHref: string | undefined }) {
+const isTripEmpty = (trip: Trip) =>
+  trip.days.every(
+    (day) =>
+      day.moments.length === 0 &&
+      day.tips.length === 0 &&
+      day.dining.length === 0 &&
+      day.places.length === 0 &&
+      day.stay.lodging.length === 0,
+  );
+
+/**
+ * A day with no plan: it says so, and gives an editor of the trip the way to
+ * plan it. In a trip with nothing in it yet, it first offers the details of
+ * the trip.
+ */
+function EmptyDay({
+  trip,
+  editHref,
+}: {
+  trip: Trip;
+  editHref: string | undefined;
+}) {
+  const canChange = useQuickEdit() !== null;
+  const isNewTrip = canChange && isTripEmpty(trip);
+  const planDescription = editHref
+    ? t({
+        en: "Add times, places to go and places to eat in the editor.",
+        zh: "在编辑器里添加时间、去处和餐厅。",
+      })
+    : t({
+        en: "The plan for this day is still to come.",
+        zh: "这一天的行程还在计划中。",
+      });
   return (
     <EmptyState
       icon={<CalendarBlankIcon weight="bold" />}
       title={t({ en: "Nothing planned yet", zh: "这一天还没有安排" })}
       description={
-        editHref
+        isNewTrip
           ? t({
-              en: "Add times, places to go and places to eat in the editor.",
-              zh: "在编辑器里添加时间、去处和餐厅。",
+              en: "This trip is new. Check who travels and the time zone in its details, then plan each day.",
+              zh: "这是一个新行程。先在行程信息里核对同行的人和时区，再安排每一天。",
             })
-          : t({
-              en: "The plan for this day is still to come.",
-              zh: "这一天的行程还在计划中。",
-            })
+          : planDescription
       }
       action={
-        editHref ? (
-          <Button
-            look="primary"
-            icon={<PencilSimpleIcon weight="bold" />}
-            href={editHref}
-          >
-            {t({ en: "Plan this day", zh: "安排这一天" })}
-          </Button>
+        isNewTrip || editHref ? (
+          <>
+            {isNewTrip ? (
+              <TripDetailsButton
+                look={editHref ? "outline" : "primary"}
+                size="md"
+              >
+                {t({ en: "Trip details", zh: "行程信息" })}
+              </TripDetailsButton>
+            ) : null}
+            {editHref ? (
+              <Button
+                look="primary"
+                icon={<PencilSimpleIcon weight="bold" />}
+                href={editHref}
+              >
+                {t({ en: "Plan this day", zh: "安排这一天" })}
+              </Button>
+            ) : null}
+          </>
         ) : undefined
       }
     />
@@ -119,7 +161,7 @@ export function DayView({
       </div>
       <DayParty people={presencesOnDay(trip.people, day.id)} />
       <DayFacts day={day} liveWeather={liveWeather} />
-      {isEmpty ? <EmptyDay editHref={editHref} /> : null}
+      {isEmpty ? <EmptyDay trip={trip} editHref={editHref} /> : null}
       {highlights.length > 0 ? (
         <DayGlance highlights={highlights} onJump={jumpToMoment} />
       ) : null}

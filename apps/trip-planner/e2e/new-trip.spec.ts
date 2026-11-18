@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { signUp } from "./sign-up.ts";
 
-test("a person with no trips makes one, adds a place to it in the editor, and finds the place in the reader", async ({
+test("a person with no trips makes one, lands on it, adds a place to it in the editor, and finds the place in the reader", async ({
   page,
 }) => {
   await page.goto("/sign-in");
@@ -15,6 +15,11 @@ test("a person with no trips makes one, adds a place to it in the editor, and fi
   await sheet.getByLabel("Last day").fill("2027-04-12");
   await sheet.getByRole("button", { name: "Create trip" }).click();
 
+  await expect(page).toHaveURL(/\/[\w-]+$/);
+  await expect(
+    page.getByRole("heading", { name: "Lisbon in spring" }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "Plan this day" }).click();
   await expect(page).toHaveURL(/\/[\w-]+\/edit/);
   await page.getByRole("button", { name: "Add to Day 1" }).click();
   await page.getByRole("button", { name: /^Place/ }).click();

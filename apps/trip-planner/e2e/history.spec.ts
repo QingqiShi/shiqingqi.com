@@ -41,9 +41,8 @@ test("an owner changes a time, finds the version before it in the history, and r
   // restore must not show again.
   await page.getByRole("button", { name: "Done" }).click();
   await expect(time(after)).toBeVisible();
-  await page.getByRole("link", { name: "Edit" }).click();
 
-  await page.getByRole("button", { name: /^Lisbon and Porto/ }).click();
+  await page.getByRole("button", { name: "Trip details" }).click();
   await page.getByRole("link", { name: "History" }).click();
   await expect(page).toHaveURL(new RegExp(`${tripPath}/history$`));
   const versions = page

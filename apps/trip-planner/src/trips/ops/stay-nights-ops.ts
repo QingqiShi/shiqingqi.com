@@ -118,3 +118,18 @@ export function endRepeatsOps(trip: Trip, dayId: string): DraftOp[] {
   endRepeats(trip, dayId, plan);
   return toOps(plan);
 }
+
+/**
+ * The ops that remove an item. When it is the only stay of its day, each
+ * later night that repeats that day has no bed any more.
+ */
+export function removeItemOps(trip: Trip, id: string): DraftOp[] {
+  const day = trip.days.find((each) =>
+    each.stay.lodging.some((lodging) => lodging.id === id),
+  );
+  const isOnlyStay = day !== undefined && day.stay.lodging.length === 1;
+  return [
+    { op: "removeItem", id },
+    ...(isOnlyStay ? endRepeatsOps(trip, day.id) : []),
+  ];
+}

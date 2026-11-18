@@ -12,17 +12,21 @@ import { DirectionsButton } from "./directions-button.tsx";
 import { ExternalLinkIndicator } from "./external-link-indicator.tsx";
 import { ExternalRowLink } from "./external-row-link.tsx";
 import { googleMapsUrl } from "./maps/google-maps-url.ts";
+import { useItemChangeButton } from "./quick-edit/use-item-change-button.tsx";
 import { TripText } from "./trip-text.tsx";
 
 const TIER_ORDER: PlaceTier[] = ["primary", "backup", "fallback"];
+
+type DayPlace = MapPlace & { id: string };
 
 function PlaceRow({
   place,
   directions,
 }: {
-  place: MapPlace;
+  place: DayPlace;
   directions: boolean;
 }) {
+  const changeButton = useItemChangeButton(place.id, place.name);
   return (
     <ListRow
       href={googleMapsUrl(place.query)}
@@ -42,7 +46,14 @@ function PlaceRow({
       caret={false}
       wrap
       actions={
-        directions ? <DirectionsButton destination={place.query} /> : undefined
+        directions ? (
+          <>
+            <DirectionsButton destination={place.query} />
+            {changeButton}
+          </>
+        ) : (
+          changeButton
+        )
       }
     >
       <TripText>{place.name}</TripText>
@@ -51,11 +62,11 @@ function PlaceRow({
 }
 
 /** Loose places to go, as rows that open Google Maps. */
-export function PlaceRows({ places }: { places: MapPlace[] }) {
+export function PlaceRows({ places }: { places: DayPlace[] }) {
   return (
     <List>
       {places.map((place) => (
-        <PlaceRow key={place.name} place={place} directions={false} />
+        <PlaceRow key={place.id} place={place} directions={false} />
       ))}
     </List>
   );
@@ -65,7 +76,7 @@ export function PlaceRows({ places }: { places: MapPlace[] }) {
  * The day's places. When one of them has a `tier`, the list reads as plan A,
  * B and C, with the condition of each as a badge. Otherwise it is one list.
  */
-export function PlaceList({ places }: { places: MapPlace[] }) {
+export function PlaceList({ places }: { places: DayPlace[] }) {
   const tierLabel: Record<PlaceTier, string> = {
     primary: t({ en: "First choice", zh: "首选" }),
     backup: t({ en: "Backup", zh: "备选" }),
@@ -91,7 +102,7 @@ export function PlaceList({ places }: { places: MapPlace[] }) {
           </Text>
           <List>
             {group.places.map((place) => (
-              <PlaceRow key={place.name} place={place} directions />
+              <PlaceRow key={place.id} place={place} directions />
             ))}
           </List>
         </div>

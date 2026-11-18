@@ -4,14 +4,13 @@ import {
   withExpect,
   type DraftOp,
 } from "#src/trips/ops/apply-ops.ts";
-import { newId } from "#src/trips/ops/new-id.ts";
 import { newTrip } from "#src/trips/ops/new-trip.ts";
 import type { Trip } from "#src/trips/types.ts";
-import { moveItemOps } from "./move-item-ops.ts";
 import {
   endRepeatsOps,
   mostNightsAt,
   nightsAt,
+  removeItemOps,
   stayNightsOps,
 } from "./stay-nights-ops.ts";
 
@@ -104,7 +103,11 @@ describe("stayNightsOps", () => {
     const long = applied(start, stayNightsOps(start, hotel(3)));
     const moved = (dayId: string, nights: number) =>
       applied(long, [
-        ...moveItemOps(long, "hotel", { dayId, time: null }, newId),
+        {
+          op: "moveItem",
+          id: "hotel",
+          to: { dayId, list: "lodging" },
+        } as const,
         ...stayNightsOps(long, {
           dayId,
           nights,
@@ -135,5 +138,26 @@ describe("endRepeatsOps", () => {
     ]);
     const ended = applied(chained, endRepeatsOps(chained, one));
     expect(bedsOf(ended)).toEqual([null, null, null, null, four]);
+  });
+});
+
+describe("removeItemOps", () => {
+  const long = applied(start, stayNightsOps(start, hotel(3)));
+
+  it("ends the later nights of the only stay of a day", () => {
+    const removed = applied(long, removeItemOps(long, "hotel"));
+    expect(bedsOf(removed)).toEqual([null, null, null, null, null]);
+  });
+
+  it("keeps the later nights while the day has another stay", () => {
+    const twoStays = applied(long, [
+      {
+        op: "addItem",
+        to: { dayId: one, list: "lodging" },
+        item: { id: "inn", type: "lodging", name: "Inn" },
+      },
+    ]);
+    const removed = applied(twoStays, removeItemOps(twoStays, "hotel"));
+    expect(bedsOf(removed)).toEqual([null, one, one, null, null]);
   });
 });

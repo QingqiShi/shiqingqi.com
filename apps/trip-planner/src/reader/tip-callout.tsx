@@ -11,14 +11,17 @@ import { Callout } from "@tuja/ui/components/callout";
 import type { ReactNode } from "react";
 import type { TipKind } from "#src/trips/types.ts";
 import type { Tip } from "#src/trips/types.ts";
+import { useItemChangeButton } from "./quick-edit/use-item-change-button.tsx";
 import { TripText } from "./trip-text.tsx";
 
 /** A heads-up. Only a warning takes the warning colour, so that it stands out. */
-export function TipCallout({ tip }: { tip: Tip }) {
+export function TipCallout({ tip }: { tip: Tip & { id: string } }) {
+  const changeButton = useItemChangeButton(tip.id, tip.text);
   return (
     <Callout
       intent={tip.kind === "warn" ? "warning" : "neutral"}
       icon={tipIcon[tip.kind]}
+      action={changeButton}
     >
       <TripText>{tip.text}</TripText>
     </Callout>

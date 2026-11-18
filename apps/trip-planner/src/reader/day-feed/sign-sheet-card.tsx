@@ -5,6 +5,7 @@ import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { ItemChangeLine } from "#src/reader/quick-edit/use-item-change-button.tsx";
 import { TripText } from "#src/reader/trip-text.tsx";
 import type { RoadSignGlyph, SignSheet } from "#src/trips/types.ts";
 
@@ -237,7 +238,11 @@ function SignGlyph({ glyph, size }: { glyph: RoadSignGlyph; size: number }) {
  * collapsed header keeps the full strip of glyphs visible as a teaser; tap to
  * unfold each sign with its name and what to do about it.
  */
-export function SignSheetCard({ sheet }: { sheet: SignSheet }) {
+export function SignSheetCard({
+  sheet,
+}: {
+  sheet: SignSheet & { id: string };
+}) {
   return (
     <Disclosure
       look="card"
@@ -270,6 +275,7 @@ export function SignSheetCard({ sheet }: { sheet: SignSheet }) {
             <TripText>{sheet.note}</TripText>
           </Text>
         ) : null}
+        <ItemChangeLine id={sheet.id} name={sheet.title} />
       </div>
     </Disclosure>
   );

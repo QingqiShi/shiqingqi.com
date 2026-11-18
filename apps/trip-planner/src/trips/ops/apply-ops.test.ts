@@ -6,6 +6,7 @@ import { applyOps, withExpect, type DraftOp } from "./apply-ops.ts";
 import { digest } from "./digest.ts";
 import { newTrip } from "./new-trip.ts";
 import type { ItemPatch } from "./op-schema.ts";
+import { removeItemOps, stayNightsOps } from "./stay-nights-ops.ts";
 
 const lisbon = tripSchema.parse(sample);
 
@@ -134,6 +135,54 @@ describe("stays", () => {
       summary: "Airport hotel",
       lodging: [],
     });
+  });
+
+  // Another member added a hostel to the last night, and a stale view
+  // then made the stay before it last one night more, which hid the hostel.
+  it("refuses a repeat of a night that has gained a stay since the sender saw it", () => {
+    const stale = withExpect(
+      lisbon,
+      stayNightsOps(lisbon, {
+        dayId: "day2sample",
+        nights: 3,
+        name: "Casa do Douro",
+      }),
+    );
+    const withHostel = applied(lisbon, [
+      {
+        op: "addItem",
+        to: { dayId: "day4sample", list: "lodging" },
+        item: { id: "l4hostel", type: "lodging", name: "Airport hostel" },
+      },
+    ]);
+    expect(applyOps(lisbon, stale).status).toBe("applied");
+    expect(applyOps(withHostel, stale).status).toBe("conflict");
+  });
+
+  it("refuses to end the nights of a stay when its day has gained another stay", () => {
+    const stale = withExpect(lisbon, removeItemOps(lisbon, "l0baixa"));
+    const withSecond = applied(lisbon, [
+      {
+        op: "addItem",
+        to: { dayId: "day0sample", list: "lodging" },
+        item: { id: "l0second", type: "lodging", name: "Rossio Rooms" },
+      },
+    ]);
+    expect(applyOps(lisbon, stale).status).toBe("applied");
+    expect(applyOps(withSecond, stale).status).toBe("conflict");
+  });
+
+  it("gives a conflict to a stay change from an editor that was open before the stay guard covered the stays", () => {
+    const { lodging: _lodging, ...own } = day(lisbon, "day4sample").stay;
+    const older = [
+      {
+        op: "setStay",
+        dayId: "day4sample",
+        fields: { note: null },
+        expect: digest(own),
+      },
+    ] as const;
+    expect(applyOps(lisbon, older).status).toBe("conflict");
   });
 });
 

@@ -17,6 +17,7 @@ import { ExternalButton } from "./external-button.tsx";
 import { ExternalLinkIndicator } from "./external-link-indicator.tsx";
 import { ExternalRowLink } from "./external-row-link.tsx";
 import { googleMapsUrl } from "./maps/google-maps-url.ts";
+import { useItemChangeButton } from "./quick-edit/use-item-change-button.tsx";
 import { TripText } from "./trip-text.tsx";
 
 function StatusBadge({ lodging }: { lodging: Lodging }) {
@@ -67,8 +68,10 @@ function LodgingRow({ lodging }: { lodging: Lodging }) {
     lodging.phone ? phone.replace("{phone}", lodging.phone) : null,
   ].filter((fact) => fact !== null);
   const mapsQuery = lodging.query ?? lodging.address ?? lodging.name;
+  const changeButton = useItemChangeButton(lodging.id, lodging.name);
 
   const shared = {
+    actions: changeButton,
     leading: <BedIcon weight="bold" />,
     leadingShape: "circle" as const,
     wrap: true,

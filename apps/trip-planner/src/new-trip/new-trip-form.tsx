@@ -5,18 +5,14 @@ import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
-import { Combobox } from "@tuja/ui/components/combobox";
 import { DateField } from "@tuja/ui/components/date-field";
 import { FormFooter } from "@tuja/ui/components/form-footer";
 import { TextField } from "@tuja/ui/components/text-field";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useRouter } from "next/navigation";
 import { useState, type RefObject, type SubmitEvent } from "react";
-import {
-  deviceTimeZone,
-  timeZoneLabel,
-} from "#src/time-zones/time-zone-label.ts";
-import { timeZoneOptions } from "#src/time-zones/time-zone-options.ts";
+import { TimeZoneField } from "#src/time-zones/time-zone-field.tsx";
+import { deviceTimeZone } from "#src/time-zones/time-zone-label.ts";
 import { addDays, daysBetween } from "#src/trips/ops/add-days.ts";
 import { useTripApi } from "#src/trips/trip-api.ts";
 
@@ -49,7 +45,7 @@ function newDraft(): NewTripDraft {
 
 /**
  * The fields of a new trip: its title, its first and last day, and its time
- * zone. Create makes the trip and opens it in the editor; a failure keeps
+ * zone. Create makes the trip and opens it to read; a failure keeps
  * what the person typed. It starts from `draft`, and gives each change to
  * `onDraftChange`.
  */
@@ -74,11 +70,6 @@ export function NewTripForm({
     setDraft(next);
     onDraftChange(next);
   };
-  const zoneLabel = timeZoneLabel(timeZone, locale);
-  // The list of all zones costs a slow phone more than a frame, so it waits
-  // until the person goes to the field.
-  const [hasAllZones, setHasAllZones] = useState(false);
-  const [isZoneKept, setIsZoneKept] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -138,7 +129,7 @@ export function NewTripForm({
       })
       .then((tripId) => {
         onCreated();
-        router.push(getLocalePath(`/${tripId}/edit`, locale));
+        router.push(getLocalePath(`/${tripId}`, locale));
       })
       .catch(() => {
         setFailed(true);
@@ -186,40 +177,15 @@ export function NewTripForm({
             change({ lastDate: next });
           }}
         />
-        <Combobox
-          label={t({ en: "Time zone", zh: "时区" })}
-          description={
-            isZoneKept
-              ? t({
-                  en: "The time zone is still {zone}. To change it, pick a zone from the list.",
-                  zh: "时区仍是{zone}。要更换时区，请从列表中选择。",
-                }).replace("{zone}", zoneLabel)
-              : t({
-                  en: "Where the trip is. Times in the trip are in this zone.",
-                  zh: "行程所在的地方。行程里的时间都按这个时区。",
-                })
-          }
-          options={
-            hasAllZones
-              ? timeZoneOptions(locale, timeZone)
-              : [{ id: timeZone, label: zoneLabel }]
-          }
-          selected={timeZone}
-          onSelectedChange={(next) => {
+        <TimeZoneField
+          value={timeZone}
+          description={t({
+            en: "Where the trip is. Times in the trip are in this zone.",
+            zh: "行程所在的地方。行程里的时间都按这个时区。",
+          })}
+          onChange={(next) => {
             change({ timeZone: next });
           }}
-          onFocus={() => {
-            setIsZoneKept(false);
-            setHasAllZones(true);
-          }}
-          onBlur={(event) => {
-            const typed = event.currentTarget.value.trim();
-            setIsZoneKept(typed !== zoneLabel);
-          }}
-          emptyLabel={t({
-            en: "No time zone matches. Search by a large city or the country, for example Tokyo or Japan.",
-            zh: "没有匹配的时区。请搜索大城市或国家，例如“东京”或“日本”。",
-          })}
         />
       </div>
       {failed ? (

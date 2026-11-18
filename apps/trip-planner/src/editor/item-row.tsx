@@ -18,9 +18,9 @@ import { space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { TripText } from "#src/reader/trip-text.tsx";
 import { useTimeLabel } from "#src/reader/use-time-label.ts";
+import { itemName } from "#src/trips/ops/item-name.ts";
 import type { Item, ItemKind } from "#src/trips/ops/op-schema.ts";
 import type { Moment, MomentTime } from "#src/trips/types.ts";
-import { itemName } from "./build-outline.ts";
 import { useEditor } from "./editor-provider.tsx";
 import { useKindLabels } from "./use-field-labels.ts";
 

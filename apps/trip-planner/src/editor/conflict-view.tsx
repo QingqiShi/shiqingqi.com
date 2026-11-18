@@ -13,8 +13,8 @@ import {
   withExpect,
   type DraftOp,
 } from "#src/trips/ops/apply-ops.ts";
+import { goesWithTheirs } from "#src/trips/save/goes-with-theirs.ts";
 import { useEditor } from "./editor-provider.tsx";
-import { goesWithTheirs } from "./goes-with-theirs.ts";
 import { SheetActions } from "./sheet-actions.tsx";
 import { useDescribe } from "./use-describe.ts";
 

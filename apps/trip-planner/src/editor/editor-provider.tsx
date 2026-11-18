@@ -3,16 +3,7 @@
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { useToast } from "@tuja/ui/components/toast-provider";
-import { useRouter } from "next/navigation";
-import {
-  createContext,
-  use,
-  useEffect,
-  useState,
-  useSyncExternalStore,
-  type ReactNode,
-} from "react";
+import { createContext, use, useEffect, useState, type ReactNode } from "react";
 import {
   arriveAt,
   forgetArrival,
@@ -20,15 +11,14 @@ import {
   type TripLocation,
 } from "#src/reader/use-trip-location.ts";
 import type { DraftOp } from "#src/trips/ops/apply-ops.ts";
-import { tripApi } from "#src/trips/trip-api.ts";
+import type {
+  QueueState,
+  SaveQueue,
+} from "#src/trips/save/create-save-queue.ts";
+import { useChangeToasts } from "#src/trips/save/use-change-toasts.ts";
+import { useSaveQueue } from "#src/trips/save/use-save-queue.ts";
 import type { Trip } from "#src/trips/types.ts";
-import {
-  createSaveQueue,
-  type QueueState,
-  type SaveQueue,
-} from "./create-save-queue.ts";
 import { readerAnchor } from "./reader-anchor.ts";
-import { useOnline } from "./use-online.ts";
 
 /** What a row shows about a change to its thing that the server does not have yet. */
 export type RowStatus = "saving" | "failed" | "conflict" | null;
@@ -114,38 +104,13 @@ export function EditorProvider({
   announce: (message: string) => void;
   children: ReactNode;
 }) {
-  const router = useRouter();
   const readerPath = getLocalePath(`/${tripId}`, useLocale());
-  const showToast = useToast();
-  const isOnline = useOnline();
-  const [queue] = useState(() =>
-    createSaveQueue({
-      trip: firstTrip,
-      // The request goes on after the person leaves the screen, and the
-      // refresh then makes the reader show the change.
-      async send(ops) {
-        const result = await tripApi.change(tripId, ops);
-        if (result.status === "applied") router.refresh();
-        return result;
-      },
-      read: () => tripApi.read(tripId),
-    }),
-  );
+  const { queue, state, isOnline } = useSaveQueue(tripId, firstTrip);
+  const { undo, saved } = useChangeToasts(queue, state);
   const [rows] = useState(() => new Map<string, HTMLElement>());
   const [hasChanged, setHasChanged] = useState(false);
   const [markedId, setMarkedId] = useState<string | null>(null);
-  const state = useSyncExternalStore(
-    queue.subscribe,
-    queue.getState,
-    queue.getState,
-  );
 
-  const undoLabel = t({ en: "Undo", zh: "撤销" });
-  const undone = t({ en: "Change taken back", zh: "已撤销" });
-  const cannotUndo = t({
-    en: "That change can no longer be taken back.",
-    zh: "这项修改已无法撤销。",
-  });
   const offlineMessage = t({
     en: "You are offline, so this is not saved. Try again with a connection.",
     zh: "你现在处于离线状态，这项修改没有保存。恢复连接后再试。",
@@ -158,35 +123,6 @@ export function EditorProvider({
     en: "The trip cannot take this change. Check what you entered.",
     zh: "行程无法接受这项修改，请检查填写的内容。",
   });
-  const notSavedMessage = t({
-    en: "That change is not saved",
-    zh: "这项修改没有保存",
-  });
-  const droppedMessage = t({
-    en: "A change could not be saved, because the trip has changed. The trip shows as it is now.",
-    zh: "行程已有变动，有一项修改未能保存。现在显示的是最新的行程。",
-  });
-
-  useEffect(
-    () =>
-      queue.onDropped(() => {
-        showToast({ message: droppedMessage });
-      }),
-    [queue, showToast, droppedMessage],
-  );
-
-  useEffect(() => {
-    if (isOnline) queue.sync();
-  }, [isOnline, queue]);
-
-  // The toast of a change says that it is saved before the server answers.
-  // When the request fails, this takes its place.
-  const failedId =
-    state.problem?.kind === "failed" ? state.problem.batch.id : null;
-  useEffect(() => {
-    if (failedId !== null) showToast({ message: notSavedMessage });
-  }, [failedId, showToast, notSavedMessage]);
-
   // The reader opens at the place that this screen names only when the
   // person goes from this screen to the reader: at the top of the day that
   // its hash names, until a change names a day and a thing. After a visit
@@ -207,16 +143,6 @@ export function EditorProvider({
       clearTimeout(timer);
     };
   }, [markedId]);
-
-  const undo = () => {
-    const result = queue.undo();
-    // When the thing changed after the change, the conflict sheet opens,
-    // so the change is not taken back yet.
-    if (result !== "asks") {
-      showToast({ message: result === "taken" ? undone : cannotUndo });
-    }
-    return result;
-  };
 
   const statusOf = (id: string): RowStatus => {
     const { problem, pending } = state;
@@ -258,9 +184,7 @@ export function EditorProvider({
           thingId ? readerAnchor(changed, thingId) : null,
         );
       }
-      if (!quiet) {
-        showToast({ message, action: { label: undoLabel, onAction: undo } });
-      }
+      if (!quiet) saved(message);
       return { ok: true, batchId: result.batchId };
     },
     undo,

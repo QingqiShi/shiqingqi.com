@@ -5,6 +5,8 @@ import { signInPath } from "@tuja/server-auth/sign-in-path";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { dateRangeLabel } from "#src/reader/date-label.ts";
+import { QuickEditProvider } from "#src/reader/quick-edit/quick-edit-provider.tsx";
+import { TripDetailsButton } from "#src/reader/quick-edit/trip-details-button.tsx";
 import { resolveDay } from "#src/reader/resolve-day.ts";
 import { TripPage } from "#src/reader/trip-page.tsx";
 import { getTripWeather } from "#src/reader/weather/get-trip-weather.ts";
@@ -67,29 +69,45 @@ export default async function TripRoute({ params }: TripRouteProps) {
   // Live forecast for the days within Open-Meteo's horizon; cached server-side.
   const weatherByDay = await getTripWeather(trip);
 
-  return (
+  const canEdit = canEditTrip(viewed.role);
+  const page = (
     <TripPage
       tripId={viewed.id}
       trip={trip}
       serverToday={serverToday}
       weatherByDay={weatherByDay}
       editHref={
-        canEditTrip(viewed.role)
+        canEdit
           ? getLocalePath(`/${viewed.id}/edit`, validateLocale(locale))
           : undefined
       }
       actions={
-        sharing ? (
-          <ShareTrip
-            tripId={viewed.id}
-            members={sharing.members}
-            invites={sharing.invites.map((invite) => ({
-              id: invite.id,
-              expiresAt: invite.expiresAt.toISOString(),
-            }))}
-          />
-        ) : null
+        <>
+          {sharing ? (
+            <ShareTrip
+              tripId={viewed.id}
+              members={sharing.members}
+              invites={sharing.invites.map((invite) => ({
+                id: invite.id,
+                expiresAt: invite.expiresAt.toISOString(),
+              }))}
+            />
+          ) : null}
+          <TripDetailsButton />
+        </>
       }
     />
+  );
+  return canEdit ? (
+    <QuickEditProvider
+      key={viewed.id}
+      tripId={viewed.id}
+      trip={trip}
+      isOwner={viewed.role === "owner"}
+    >
+      {page}
+    </QuickEditProvider>
+  ) : (
+    page
   );
 }

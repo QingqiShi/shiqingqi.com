@@ -7,8 +7,11 @@ import { Disclosure } from "@tuja/ui/components/disclosure";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useSyncExternalStore } from "react";
+import { ItemChangeLine } from "#src/reader/quick-edit/use-item-change-button.tsx";
 import { TripText, useTripLang } from "#src/reader/trip-text.tsx";
-import type { Checklist } from "#src/trips/types.ts";
+import type { Checklist as ChecklistData } from "#src/trips/types.ts";
+
+type Checklist = ChecklistData & { id: string };
 
 const EMPTY: Record<string, boolean> = {};
 
@@ -191,6 +194,7 @@ function ChecklistView({
             <TripText>{list.note}</TripText>
           </Text>
         ) : null}
+        <ItemChangeLine id={list.id} name={list.title} />
       </div>
     </Disclosure>
   );

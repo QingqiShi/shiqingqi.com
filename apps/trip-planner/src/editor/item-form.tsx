@@ -12,14 +12,16 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
 import { dayDateLabel } from "#src/reader/date-label.ts";
 import type { DraftOp } from "#src/trips/ops/apply-ops.ts";
+import { itemName } from "#src/trips/ops/item-name.ts";
 import { newId } from "#src/trips/ops/new-id.ts";
-import type { MomentTime } from "#src/trips/types.ts";
 import {
-  itemName,
-  LIST_OF_KIND,
-  slotOf,
-  type LocatedItem,
-} from "./build-outline.ts";
+  endRepeatsOps,
+  mostNightsAt,
+  nightsAt,
+  stayNightsOps,
+} from "#src/trips/ops/stay-nights-ops.ts";
+import type { MomentTime } from "#src/trips/types.ts";
+import { LIST_OF_KIND, slotOf, type LocatedItem } from "./build-outline.ts";
 import { useEditor } from "./editor-provider.tsx";
 import {
   formOf,
@@ -34,12 +36,6 @@ import {
 } from "./item-fields.ts";
 import { addItemOps, moveItemOps } from "./move-item-ops.ts";
 import { AddAnotherButton, SheetActions } from "./sheet-actions.tsx";
-import {
-  endRepeatsOps,
-  mostNightsAt,
-  nightsAt,
-  stayNightsOps,
-} from "./stay-nights-ops.ts";
 import {
   DayField,
   momentTimeOf,

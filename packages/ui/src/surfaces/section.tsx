@@ -24,6 +24,14 @@ interface SectionProps extends Omit<
    */
   title: ReactNode;
   /**
+   * The id of the element in `title` that names the heading. Set it when the
+   * title holds a control with a label of its own, such as a time that is a
+   * button: without it the heading takes the control's label as its name.
+   *
+   * @zh `title` 中为标题命名的元素的 id。当标题包含带有自身标签的控件（例如作为按钮的时间）时设置它：否则标题会把该控件的标签当作自己的名称。
+   */
+  titleLabelledBy?: string;
+  /**
    * A muted line under the label that says what the block holds. The label and
    * this line are lines of one item, so no gap separates them.
    *
@@ -91,6 +99,7 @@ interface SectionProps extends Omit<
  */
 export function Section({
   title,
+  titleLabelledBy,
   description,
   children,
   icon,
@@ -119,7 +128,11 @@ export function Section({
           </span>
         ) : null}
         <div css={[stack.text, styles.titles]}>
-          <SectionHeading level={level} look={look}>
+          <SectionHeading
+            level={level}
+            look={look}
+            labelledBy={titleLabelledBy}
+          >
             {title}
           </SectionHeading>
           {description ? (
