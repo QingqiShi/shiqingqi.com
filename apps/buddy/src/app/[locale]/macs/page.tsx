@@ -2,9 +2,7 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
-import { Heading } from "@tuja/ui/components/heading";
-import { Text } from "@tuja/ui/components/text";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { MacsList } from "#src/macs-page/macs-list.tsx";
@@ -40,17 +38,13 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <AuthFrame>
-      <div css={stack.tight}>
-        <Heading level={1} look="h1">
-          {t({ en: "Your Macs", zh: "你的 Mac" })}
-        </Heading>
-        <Text tone="muted">
-          {t({
-            en: "These Macs can sync your pet. Remove one and its uploads stop at once, and the days it sent no longer count.",
-            zh: "这些 Mac 可以同步你的宠物。移除一台后，它的上传立即停止，它上传过的天数也不再计入。",
-          })}
-        </Text>
-      </div>
+      <PageHeader
+        title={t({ en: "Your Macs", zh: "你的 Mac" })}
+        description={t({
+          en: "These Macs can sync your pet. Remove one and its uploads stop at once, and the days it sent no longer count.",
+          zh: "这些 Mac 可以同步你的宠物。移除一台后，它的上传立即停止，它上传过的天数也不再计入。",
+        })}
+      />
       <MacsList
         macs={machines.map((machine) => ({
           machineId: machine.machineId,

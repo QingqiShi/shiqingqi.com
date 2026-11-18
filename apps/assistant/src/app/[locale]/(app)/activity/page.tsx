@@ -1,8 +1,8 @@
 import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
-import { Heading } from "@tuja/ui/components/heading";
 import { NavigationStack } from "@tuja/ui/components/navigation-stack";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
@@ -53,19 +53,15 @@ export default async function Page({
   return (
     <NavigationStack label={title}>
       <div css={stack.group}>
-        <header css={stack.tight}>
-          <Heading level={1} look="h1">
-            {title}
-          </Heading>
-          <Text as="p" look="bodySmall" tone="muted">
-            {keepHyphenated(
-              t({
-                en: "What the assistant did in your mailbox, calendar and to-dos, and why. Undo anything that is not what you want.",
-                zh: "助手在你的邮箱、日历和待办里做了什么、为什么这样做。不合你意的都可以撤销。",
-              }),
-            )}
-          </Text>
-        </header>
+        <PageHeader
+          title={title}
+          description={keepHyphenated(
+            t({
+              en: "What the assistant did in your mailbox, calendar and to-dos, and why. Undo anything that is not what you want.",
+              zh: "助手在你的邮箱、日历和待办里做了什么、为什么这样做。不合你意的都可以撤销。",
+            }),
+          )}
+        />
         {activity.entries.length === 0 ? (
           <Text as="p" tone="muted">
             {mailboxes.connected === 0

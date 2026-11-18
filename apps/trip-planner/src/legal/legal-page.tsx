@@ -4,7 +4,7 @@ import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { getLocale } from "@tuja/i18n/server-locale";
 import { Heading } from "@tuja/ui/components/heading";
 import { NavigationStack } from "@tuja/ui/components/navigation-stack";
-import { Text } from "@tuja/ui/components/text";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { ReactNode } from "react";
 
@@ -28,12 +28,7 @@ export function LegalPage({
       }}
     >
       <article css={[stack.section, styles.article]}>
-        <header css={stack.tight}>
-          <Heading level={1} look="h1">
-            {title}
-          </Heading>
-          <Text tone="muted">{updated}</Text>
-        </header>
+        <PageHeader title={title} description={updated} />
         {children}
       </article>
     </NavigationStack>

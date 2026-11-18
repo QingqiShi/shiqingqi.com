@@ -7,7 +7,7 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
-import { Heading } from "@tuja/ui/components/heading";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { Select } from "@tuja/ui/components/select";
 import { StickyControls } from "@tuja/ui/components/sticky-controls";
 import { Text } from "@tuja/ui/components/text";
@@ -195,17 +195,14 @@ export function UpdateValuesForm() {
 
   return (
     <form onSubmit={save} css={[stack.group, styles.form]} noValidate>
-      <div css={stack.text}>
-        <Heading level={1} look="h3">
-          {t({ en: "Update balances", zh: "批量更新余额" })}
-        </Heading>
-        <Text look="bodySmall" tone="muted">
-          {t({
-            en: "Type each balance as it is today. Fields you leave alone are skipped. Amounts owed are positive.",
-            zh: "填写每个账户今天的余额。未改动的不会保存。欠款填正数。",
-          })}
-        </Text>
-      </div>
+      <PageHeader
+        size="sm"
+        title={t({ en: "Update balances", zh: "批量更新余额" })}
+        description={t({
+          en: "Type each balance as it is today. Fields you leave alone are skipped. Amounts owed are positive.",
+          zh: "填写每个账户今天的余额。未改动的不会保存。欠款填正数。",
+        })}
+      />
       <DayChips value={day} today={today} onChange={setDay} />
       {sections.length === 0 ? (
         <Text look="bodySmall" tone="muted">

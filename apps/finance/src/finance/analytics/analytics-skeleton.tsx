@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { Heading } from "@tuja/ui/components/heading";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlHeight, rhythm } from "@tuja/ui/tokens.stylex";
@@ -24,9 +24,7 @@ const RANKED_ROWS = 5;
 export function AnalyticsSkeleton() {
   return (
     <div css={stack.group} aria-busy>
-      <Heading level={1} look="h3">
-        {t({ en: "Analytics", zh: "分析" })}
-      </Heading>
+      <PageHeader size="sm" title={t({ en: "Analytics", zh: "分析" })} />
       <div css={stack.section}>
         <div css={stack.item}>
           <div css={cluster.tight}>

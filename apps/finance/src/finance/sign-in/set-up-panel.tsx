@@ -7,9 +7,8 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { signInPath } from "@tuja/server-auth/sign-in-path";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
-import { Heading } from "@tuja/ui/components/heading";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { Select } from "@tuja/ui/components/select";
-import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -54,17 +53,13 @@ export function SetUpPanel() {
           });
       }}
     >
-      <div css={stack.tight}>
-        <Heading level={1} look="h1">
-          {t({ en: "Welcome to Finance", zh: "欢迎使用家庭账本" })}
-        </Heading>
-        <Text tone="muted">
-          {t({
-            en: "Give your name and base currency to start your household.",
-            zh: "填写你的名字和本位币，开始记录你的家庭账本。",
-          })}
-        </Text>
-      </div>
+      <PageHeader
+        title={t({ en: "Welcome to Finance", zh: "欢迎使用家庭账本" })}
+        description={t({
+          en: "Give your name and base currency to start your household.",
+          zh: "填写你的名字和本位币，开始记录你的家庭账本。",
+        })}
+      />
       {error === null ? null : (
         <Callout intent="destructive" role="alert">
           {messageOf(error)}

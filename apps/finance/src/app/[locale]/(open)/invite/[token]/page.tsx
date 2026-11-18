@@ -5,8 +5,7 @@ import type { SupportedLocale } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import { signInPath } from "@tuja/server-auth/sign-in-path";
 import { Button } from "@tuja/ui/components/button";
-import { Heading } from "@tuja/ui/components/heading";
-import { Text } from "@tuja/ui/components/text";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
@@ -50,29 +49,25 @@ export default async function Page({
     <FinanceAuthFrame>
       {invite ? (
         <div css={stack.item}>
-          <div css={stack.tight}>
-            <Heading level={1} look="h1">
-              {`${t({ en: "Join", zh: "加入" })} ${invite.householdName}`}
-            </Heading>
-            <Text tone="muted">
-              {`${invitedFor}${locale === "zh" ? "" : " "}${invite.memberName}${locale === "zh" ? "。" : ". "}${
-                member
+          <PageHeader
+            title={`${t({ en: "Join", zh: "加入" })} ${invite.householdName}`}
+            description={`${invitedFor}${locale === "zh" ? "" : " "}${invite.memberName}${locale === "zh" ? "。" : ". "}${
+              member
+                ? t({
+                    en: "You belong to a household already. An account can be in one household.",
+                    zh: "你已属于一个家庭。一个账号只能加入一个家庭。",
+                  })
+                : newUser
                   ? t({
-                      en: "You belong to a household already. An account can be in one household.",
-                      zh: "你已属于一个家庭。一个账号只能加入一个家庭。",
+                      en: "Join to see the household's accounts and add your own.",
+                      zh: "加入后即可查看家庭账户，并添加你自己的账户。",
                     })
-                  : newUser
-                    ? t({
-                        en: "Join to see the household's accounts and add your own.",
-                        zh: "加入后即可查看家庭账户，并添加你自己的账户。",
-                      })
-                    : t({
-                        en: "Sign in or sign up first. This page then lets you join.",
-                        zh: "请先登录或注册，之后即可在此页加入。",
-                      })
-              }`}
-            </Text>
-          </div>
+                  : t({
+                      en: "Sign in or sign up first. This page then lets you join.",
+                      zh: "请先登录或注册，之后即可在此页加入。",
+                    })
+            }`}
+          />
           {member ? (
             <Anchor href={getLocalePath("/", locale)}>
               {t({ en: "Go to your household", zh: "前往你的家庭" })}

@@ -1,8 +1,8 @@
 "use client";
 
 import { t } from "@tuja/i18n";
-import { Heading } from "@tuja/ui/components/heading";
 import { NavigationStack } from "@tuja/ui/components/navigation-stack";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { SkeletonList } from "./skeleton-list.tsx";
@@ -15,9 +15,7 @@ export function ScreenSkeleton({ title }: { title?: string }) {
         {title === undefined ? (
           <Skeleton width="8rem" height="1.5rem" />
         ) : (
-          <Heading level={1} look="h1">
-            {title}
-          </Heading>
+          <PageHeader title={title} />
         )}
         <SkeletonList rows={5} width="60%" />
       </div>

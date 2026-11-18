@@ -5,16 +5,16 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { EmptyState } from "@tuja/ui/components/empty-state";
-import { Heading } from "@tuja/ui/components/heading";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
+import { PageHeader } from "@tuja/ui/components/page-header";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import type { ToastAction } from "@tuja/ui/components/toast";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
 import type { VirtuosoHandle } from "react-virtuoso";
@@ -295,22 +295,23 @@ export function TransactionsScreen() {
   const listLabel = t({ en: "Transactions by day", zh: "按日分组的交易" });
   const master = (
     <div css={stack.group}>
-      <header css={stack.item}>
-        <div css={stack.text}>
-          <Heading level={1} look="h3">
-            {t({ en: "Transactions", zh: "交易" })}
-          </Heading>
-          {bootstrapped ? (
-            <Text look="bodySmall" tone="muted" numeric>
-              {`${new Intl.NumberFormat(locale).format(summary.count)} ${t({
-                en: "transactions",
-                zh: "笔交易",
-              })} · ${formatMoney(Math.abs(summary.spent), baseCurrency, locale)} ${t(
-                { en: "spent", zh: "支出" },
-              )}`}
-            </Text>
-          ) : null}
-        </div>
+      <div css={stack.item}>
+        <PageHeader
+          size="sm"
+          title={t({ en: "Transactions", zh: "交易" })}
+          description={
+            bootstrapped ? (
+              <span css={typeModifier.numeric}>
+                {`${new Intl.NumberFormat(locale).format(summary.count)} ${t({
+                  en: "transactions",
+                  zh: "笔交易",
+                })} · ${formatMoney(Math.abs(summary.spent), baseCurrency, locale)} ${t(
+                  { en: "spent", zh: "支出" },
+                )}`}
+              </span>
+            ) : null
+          }
+        />
         {bootstrapped ? <QuickAdd onNeedsEditor={task.openNew} /> : null}
         <search css={[cluster.tight, styles.toolbar]}>
           <TextField
@@ -359,7 +360,7 @@ export function TransactionsScreen() {
             today={today}
           />
         </search>
-      </header>
+      </div>
 
       {!bootstrapped ? (
         <div css={[stack.item, plainList.list]} aria-busy="true">
