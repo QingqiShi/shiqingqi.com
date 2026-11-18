@@ -58,7 +58,7 @@
     "@babel/preset-typescript": "catalog:",
     "@electric-sql/pglite": "0.5.16",
     "@next/env": "catalog:",
-    "@stylexjs/postcss-plugin": "^0.19.1",
+    "@stylexjs/postcss-plugin": "^0.19.2",
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
     "@tuja/babel-plugins": "workspace:*",

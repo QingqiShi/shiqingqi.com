@@ -97,7 +97,12 @@ const styles = stylex.create({
         ENGAGED_SCALE,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: ENGAGED_SCALE,
+        // The hover rule is more specific than the reduced-motion rule at
+        // the end of this object. Thus the hover rule must also hold still.
+        [stylex.when.ancestor(":hover", tileMarker)]: {
+          default: ENGAGED_SCALE,
+          [motionConstants.REDUCED_MOTION]: 1,
+        },
       },
       [motionConstants.REDUCED_MOTION]: 1,
     },
