@@ -56,7 +56,7 @@
     "@tuja/ui": "workspace:*",
     "@typesafe-ai/sdk": "0.7.0",
     "@upstash/redis": "^1.40.0",
-    "@vercel/functions": "^3.11.0",
+    "@vercel/functions": "^3.11.3",
     "ai": "^7.0.171",
     "d3-array": "^3.2.5",
     "d3-scale": "^4.0.2",
