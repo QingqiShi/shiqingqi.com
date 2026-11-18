@@ -43,7 +43,7 @@
     "@tuja/server-email": "workspace:*",
     "@tuja/ui": "workspace:*",
     "@vercel/functions": "^3.11.3",
-    "ai": "^7.0.171",
+    "ai": "^7.0.173",
     "drizzle-orm": "^0.45.4",
     "esm-env": "catalog:",
     "next": "catalog:",
