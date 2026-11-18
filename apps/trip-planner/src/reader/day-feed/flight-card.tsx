@@ -2,6 +2,7 @@
 
 import { AirplaneTiltIcon } from "@phosphor-icons/react/dist/ssr/AirplaneTilt";
 import { BroadcastIcon } from "@phosphor-icons/react/dist/ssr/Broadcast";
+import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
 import { Card } from "@tuja/ui/components/card";
@@ -9,9 +10,11 @@ import { MetaLine } from "@tuja/ui/components/meta-line";
 import { Stat } from "@tuja/ui/components/stat";
 import { StatGroup } from "@tuja/ui/components/stat-group";
 import { Text } from "@tuja/ui/components/text";
-import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { ExternalButton } from "#src/reader/external-button.tsx";
+import { useItemChangeButton } from "#src/reader/quick-edit/use-item-change-button.tsx";
 import { TripText } from "#src/reader/trip-text.tsx";
+import { itemName } from "#src/trips/ops/item-name.ts";
 import type { Flight, FlightEndpoint } from "#src/trips/types.ts";
 
 /** The local time, a delay as the struck-out planned time, and the terminal. */
@@ -46,30 +49,37 @@ function EndpointDetail({ endpoint }: { endpoint: FlightEndpoint }) {
 
 /** A flight: its number, where it leaves and lands with local times, and a
  *  link to follow it live. */
-export function FlightCard({ flight }: { flight: Flight }) {
+export function FlightCard({ flight }: { flight: Flight & { id: string } }) {
+  const changeButton = useItemChangeButton(
+    flight.id,
+    itemName({ ...flight, type: "flight" }),
+  );
   return (
     <Card>
       <div css={stack.item}>
-        <div css={cluster.tight}>
-          <AirplaneTiltIcon weight="bold" aria-hidden />
-          <Text as="span" weight="semibold">
-            {flight.number}
-          </Text>
-          {flight.airline ? (
-            <Text as="span" look="bodySmall" tone="muted">
-              <TripText>{flight.airline}</TripText>
+        <div css={[row.tight, styles.head]}>
+          <div css={[cluster.tight, styles.headText]}>
+            <AirplaneTiltIcon weight="bold" aria-hidden />
+            <Text as="span" weight="semibold">
+              {flight.number}
             </Text>
-          ) : null}
-          {flight.statusLabel ? (
-            <Badge size="sm" intent="destructive">
-              <TripText>{flight.statusLabel}</TripText>
-            </Badge>
-          ) : null}
-          {flight.passenger ? (
-            <Badge size="sm" intent="neutral">
-              <TripText>{flight.passenger}</TripText>
-            </Badge>
-          ) : null}
+            {flight.airline ? (
+              <Text as="span" look="bodySmall" tone="muted">
+                <TripText>{flight.airline}</TripText>
+              </Text>
+            ) : null}
+            {flight.statusLabel ? (
+              <Badge size="sm" intent="destructive">
+                <TripText>{flight.statusLabel}</TripText>
+              </Badge>
+            ) : null}
+            {flight.passenger ? (
+              <Badge size="sm" intent="neutral">
+                <TripText>{flight.passenger}</TripText>
+              </Badge>
+            ) : null}
+          </div>
+          {changeButton}
         </div>
         <StatGroup look="plain">
           <Stat
@@ -103,3 +113,13 @@ export function FlightCard({ flight }: { flight: Flight }) {
     </Card>
   );
 }
+
+const styles = stylex.create({
+  head: {
+    alignItems: "center",
+  },
+  headText: {
+    flexGrow: 1,
+    minInlineSize: 0,
+  },
+});

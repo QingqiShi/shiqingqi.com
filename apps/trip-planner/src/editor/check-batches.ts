@@ -1,10 +1,10 @@
 import { applyOps, type DraftOp } from "#src/trips/ops/apply-ops.ts";
 import { findItem, findMoment } from "#src/trips/ops/find-item.ts";
 import type { Op } from "#src/trips/ops/op-schema.ts";
+import { touchedIds } from "#src/trips/save/goes-with-theirs.ts";
 import type { Trip } from "#src/trips/types.ts";
 import { locateItem } from "./build-outline.ts";
 import { dayRowId, isOnlyItsItem } from "./day-plan.ts";
-import { touchedIds } from "./goes-with-theirs.ts";
 
 /** What the person chose for a batch of a proposal. */
 export type Decision = "accepted" | "skipped";

@@ -4,8 +4,9 @@ import { dateLabel } from "#src/reader/date-label.ts";
 import { useTimeLabel } from "#src/reader/use-time-label.ts";
 import { timeZoneLabel } from "#src/time-zones/time-zone-label.ts";
 import { findMoment } from "#src/trips/ops/find-item.ts";
+import { itemName } from "#src/trips/ops/item-name.ts";
 import type { Trip } from "#src/trips/types.ts";
-import { itemName, locateItem } from "./build-outline.ts";
+import { locateItem } from "./build-outline.ts";
 import { useDayLabels } from "./use-day-labels.ts";
 import { useKindLabels } from "./use-field-labels.ts";
 

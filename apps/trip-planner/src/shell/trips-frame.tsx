@@ -111,7 +111,7 @@ export function TripsFrame({
       case "history":
         return version
           ? { href: tripPath("/history"), label: historyLabel }
-          : { href: tripPath("/edit"), label: trip.title };
+          : { href: tripPath(""), label: trip.title };
       default:
         return { href: listHref, label: listLabel };
     }

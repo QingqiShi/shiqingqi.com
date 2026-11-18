@@ -18,6 +18,7 @@ import { ExternalLinkIndicator } from "./external-link-indicator.tsx";
 import { ExternalRowLink } from "./external-row-link.tsx";
 import { googleMapsDirectionsUrl } from "./maps/google-maps-directions-url.ts";
 import { googleMapsUrl } from "./maps/google-maps-url.ts";
+import { useItemChangeButton } from "./quick-edit/use-item-change-button.tsx";
 import { TripText } from "./trip-text.tsx";
 
 function BookingCallout({
@@ -60,7 +61,10 @@ function BookingCallout({
   );
 }
 
-function RestaurantRow({ restaurant }: { restaurant: Restaurant }) {
+type DayRestaurant = Restaurant & { id: string };
+
+function RestaurantRow({ restaurant }: { restaurant: DayRestaurant }) {
+  const changeButton = useItemChangeButton(restaurant.id, restaurant.name);
   const michelin = {
     1: t({ en: "1 Michelin star", zh: "米其林一星" }),
     2: t({ en: "2 Michelin stars", zh: "米其林二星" }),
@@ -95,6 +99,7 @@ function RestaurantRow({ restaurant }: { restaurant: Restaurant }) {
           <ExternalLinkIndicator />
         </>
       }
+      actions={changeButton}
       detail={
         restaurant.description ? (
           <TripText>{restaurant.description}</TripText>
@@ -157,7 +162,7 @@ function RestaurantRow({ restaurant }: { restaurant: Restaurant }) {
 }
 
 /** Places to eat: the booked or first-choice ones first, then the others. */
-export function DiningList({ restaurants }: { restaurants: Restaurant[] }) {
+export function DiningList({ restaurants }: { restaurants: DayRestaurant[] }) {
   const featured = restaurants.filter((r) => r.status);
   const others = restaurants.filter((r) => !r.status);
   const othersLabel = t({ en: "Other options", zh: "其他选择" });
@@ -167,7 +172,7 @@ export function DiningList({ restaurants }: { restaurants: Restaurant[] }) {
       {featured.length > 0 ? (
         <List>
           {featured.map((r) => (
-            <RestaurantRow key={r.name} restaurant={r} />
+            <RestaurantRow key={r.id} restaurant={r} />
           ))}
         </List>
       ) : null}
@@ -179,7 +184,7 @@ export function DiningList({ restaurants }: { restaurants: Restaurant[] }) {
       {others.length > 0 ? (
         <List>
           {others.map((r) => (
-            <RestaurantRow key={r.name} restaurant={r} />
+            <RestaurantRow key={r.id} restaurant={r} />
           ))}
         </List>
       ) : null}

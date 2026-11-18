@@ -5,19 +5,18 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
-import { Callout } from "@tuja/ui/components/callout";
-import { Combobox } from "@tuja/ui/components/combobox";
 import { DateField } from "@tuja/ui/components/date-field";
 import { Divider } from "@tuja/ui/components/divider";
-import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { useRouter } from "next/navigation";
 import { use, useState } from "react";
-import { timeZoneLabel } from "#src/time-zones/time-zone-label.ts";
-import { timeZoneOptions } from "#src/time-zones/time-zone-options.ts";
-import type { DraftOp } from "#src/trips/ops/apply-ops.ts";
-import { useTripApi } from "#src/trips/trip-api.ts";
+import { TimeZoneField } from "#src/time-zones/time-zone-field.tsx";
+import { DeleteTripConfirm } from "#src/trip-details/delete-trip-confirm.tsx";
+import {
+  tripDetailsOf,
+  tripDetailsOps,
+  type TripDetails,
+} from "#src/trip-details/trip-details-ops.ts";
 import { useEditor } from "./editor-provider.tsx";
 import { SheetActions } from "./sheet-actions.tsx";
 import { SheetInputContext } from "./sheet-input-context.ts";
@@ -26,38 +25,17 @@ import { useFormChange } from "./use-form-change.tsx";
 /** The details of the trip itself: its title, the lines under it, its first day and its time zone. An owner can delete the trip here. */
 export function TripForm({ onDone }: { onDone: () => void }) {
   const editor = useEditor();
-  const api = useTripApi();
-  const router = useRouter();
   const locale = useLocale();
   const { trip } = editor;
-  const [values, setValues] = useState({
-    title: trip.title,
-    subtitle: trip.subtitle ?? "",
-    party: trip.party ?? "",
-  });
-  const [firstDate, setFirstDate] = useState(trip.days[0].date);
-  const [timeZone, setTimeZone] = useState(trip.timeZone);
-  const zoneLabel = timeZoneLabel(timeZone, locale);
-  // The list of all zones costs a slow phone more than a frame, so it waits
-  // until the person goes to the field.
-  const [hasAllZones, setHasAllZones] = useState(false);
-  const [isZoneKept, setIsZoneKept] = useState(false);
+  const [values, setValues] = useState(() => tripDetailsOf(trip));
   const [noTitle, setNoTitle] = useState(false);
   const form = useFormChange(onDone);
   const markInput = use(SheetInputContext);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteState, setDeleteState] = useState<"idle" | "busy" | "failed">(
-    "idle",
-  );
 
   const saved = t({ en: "Saved", zh: "已保存" });
-  const deleteQuestion = t({
-    en: "Delete “{title}”?",
-    zh: "删除“{title}”？",
-  });
-  const deleted = t({ en: "“{title}” is deleted", zh: "已删除“{title}”" });
 
-  const bind = (key: keyof typeof values) => ({
+  const bind = (key: keyof Omit<TripDetails, "firstDate" | "timeZone">) => ({
     value: values[key],
     autoComplete: "off",
     onChange: (event: { target: { value: string } }) => {
@@ -66,81 +44,24 @@ export function TripForm({ onDone }: { onDone: () => void }) {
   });
 
   const save = () => {
-    const title = values.title.trim();
-    setNoTitle(title === "");
-    if (title === "" || firstDate === "") return;
-    const fields = {
-      ...(title !== trip.title ? { title } : {}),
-      ...(values.subtitle.trim() !== (trip.subtitle ?? "")
-        ? { subtitle: values.subtitle.trim() || null }
-        : {}),
-      ...(values.party.trim() !== (trip.party ?? "")
-        ? { party: values.party.trim() || null }
-        : {}),
-      ...(timeZone !== trip.timeZone ? { timeZone } : {}),
-    };
-    const ops: DraftOp[] = [
-      ...(Object.keys(fields).length > 0
-        ? [{ op: "setTrip" as const, fields }]
-        : []),
-      ...(firstDate !== trip.days[0].date
-        ? [{ op: "setFirstDate" as const, date: firstDate }]
-        : []),
-    ];
-    form.submit(ops, { message: saved });
+    const isTitleEmpty = values.title.trim() === "";
+    setNoTitle(isTitleEmpty);
+    if (isTitleEmpty || values.firstDate === "") return;
+    form.submit(tripDetailsOps(tripDetailsOf(trip), values), {
+      message: saved,
+    });
   };
 
   if (isDeleting) {
     return (
-      <div css={stack.item}>
-        <Text as="p" weight="semibold">
-          {deleteQuestion.replace("{title}", trip.title)}
-        </Text>
-        <Text as="p" tone="muted">
-          {t({
-            en: "This deletes the trip for everyone on it, with its history. You cannot take this back.",
-            zh: "这会为所有成员删除这个行程及其历史记录，且无法恢复。",
-          })}
-        </Text>
-        {deleteState === "failed" ? (
-          <Callout intent="destructive" role="alert">
-            {t({
-              en: "The trip was not deleted. Try again.",
-              zh: "行程没有删除，请重试。",
-            })}
-          </Callout>
-        ) : null}
-        <SheetActions>
-          <Button
-            look="ghost"
-            onClick={() => {
-              setIsDeleting(false);
-            }}
-          >
-            {t({ en: "Cancel", zh: "取消" })}
-          </Button>
-          <Button
-            look="primary"
-            intent="destructive"
-            loading={deleteState === "busy"}
-            onClick={() => {
-              setDeleteState("busy");
-              api
-                .remove(editor.tripId)
-                .then((isDeleted) => {
-                  if (!isDeleted) throw new Error("not deleted");
-                  editor.announce(deleted.replace("{title}", trip.title));
-                  router.replace(getLocalePath("/", locale));
-                })
-                .catch(() => {
-                  setDeleteState("failed");
-                });
-            }}
-          >
-            {t({ en: "Delete trip", zh: "删除行程" })}
-          </Button>
-        </SheetActions>
-      </div>
+      <DeleteTripConfirm
+        tripId={editor.tripId}
+        title={trip.title}
+        onCancel={() => {
+          setIsDeleting(false);
+        }}
+        announce={editor.announce}
+      />
     );
   }
 
@@ -180,44 +101,21 @@ export function TripForm({ onDone }: { onDone: () => void }) {
           en: "Every day of the trip moves with it.",
           zh: "行程的每一天都会随之移动。",
         })}
-        value={firstDate}
-        onValueChange={setFirstDate}
+        value={values.firstDate}
+        onValueChange={(firstDate) => {
+          setValues((current) => ({ ...current, firstDate }));
+        }}
       />
-      <Combobox
-        label={t({ en: "Time zone", zh: "时区" })}
-        description={
-          isZoneKept
-            ? t({
-                en: "The time zone is still {zone}. To change it, pick a zone from the list.",
-                zh: "时区仍是{zone}。要更换时区，请从列表中选择。",
-              }).replace("{zone}", zoneLabel)
-            : t({
-                en: "It sets “today” and “now” on the trip.",
-                zh: "它决定行程中的“今天”和“现在”。",
-              })
-        }
-        options={
-          hasAllZones
-            ? timeZoneOptions(locale, timeZone)
-            : [{ id: timeZone, label: zoneLabel }]
-        }
-        selected={timeZone}
-        onSelectedChange={(next) => {
-          markInput();
-          setTimeZone(next);
-        }}
-        onFocus={() => {
-          setIsZoneKept(false);
-          setHasAllZones(true);
-        }}
-        onBlur={(event) => {
-          const typed = event.currentTarget.value.trim();
-          setIsZoneKept(typed !== zoneLabel);
-        }}
-        emptyLabel={t({
-          en: "No time zone matches. Search by a large city or the country, for example Tokyo or Japan.",
-          zh: "没有匹配的时区。请搜索大城市或国家，例如“东京”或“日本”。",
+      <TimeZoneField
+        value={values.timeZone}
+        description={t({
+          en: "It sets “today” and “now” on the trip.",
+          zh: "它决定行程中的“今天”和“现在”。",
         })}
+        onChange={(timeZone) => {
+          markInput();
+          setValues((current) => ({ ...current, timeZone }));
+        }}
       />
       {form.problem}
       <SheetActions>

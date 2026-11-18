@@ -17,6 +17,7 @@ import { TripCalendar } from "./calendar/trip-calendar.tsx";
 import { dateLabel, dateRangeLabel } from "./date-label.ts";
 import { DayStepper } from "./day-stepper.tsx";
 import { DayView } from "./day-view.tsx";
+import { useQuickEdit } from "./quick-edit/quick-edit-context.ts";
 import { TripLanguageProvider, TripText } from "./trip-text.tsx";
 import { useKeepPageOffline } from "./use-keep-page-offline.ts";
 import { useScrollToNow } from "./use-scroll-to-now.ts";
@@ -49,7 +50,7 @@ function PhaseNote({ trip, today }: { trip: Trip; today: ResolvedDay }) {
 /** A trip: one day at a time, or every day on a calendar. */
 export function TripPage({
   tripId,
-  trip,
+  trip: pageTrip,
   serverToday,
   weatherByDay,
   actions,
@@ -69,6 +70,7 @@ export function TripPage({
   /** What this viewer can do with the trip, such as share it. */
   actions?: ReactNode;
 }) {
+  const trip = useQuickEdit()?.trip ?? pageTrip;
   const locale = useLocale();
   const today = useTripToday(trip, serverToday);
   const [location, go] = useTripLocation(trip.days.length, today.index);

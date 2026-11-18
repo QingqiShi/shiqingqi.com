@@ -172,7 +172,10 @@ export function expectedOf(trip: Trip, op: DraftOp): string | null {
  * remove takes the thing from the place where someone else put it and a
  * move writes over that place. It is not the position among the things
  * beside it, which changes each time that a neighbour moves. For a day it
- * is also who is there that day, which goes with the day.
+ * is also who is there that day, which goes with the day. For the stay of
+ * a day it is also which stays that day and the day it repeats have,
+ * because a repeat hides the stays of its own day and ends the nights of
+ * the day it repeats.
  */
 function guardOf(trip: Trip, op: DraftOp): unknown {
   switch (op.op) {
@@ -197,6 +200,20 @@ function guardOf(trip: Trip, op: DraftOp): unknown {
       const found = findItem(trip, op.id);
       return found && { item: found.item, place: found.place };
     }
+    case "setStay": {
+      const day = trip.days.find((each) => each.id === op.dayId);
+      if (!day) return undefined;
+      const lodgingIds = (each: Day | undefined) =>
+        each?.stay.lodging.map((lodging) => lodging.id) ?? null;
+      const repeated = trip.days.find(
+        (each) => each.id === day.stay.sameAs?.dayId,
+      );
+      return {
+        stay: thingOf(trip, op),
+        lodging: lodgingIds(day),
+        repeated: lodgingIds(repeated),
+      };
+    }
     default:
       return thingOf(trip, op);
   }
@@ -209,6 +226,9 @@ function guardOf(trip: Trip, op: DraftOp): unknown {
  * it had. Remove this function when no such editor is open any more.
  */
 function expectBeforeGuards(trip: Trip, op: DraftOp): string | null {
+  // An old `setStay` does not see a stay that is new on its day or on the
+  // day it repeats, and can hide that stay. Thus it gets a conflict.
+  if (op.op === "setStay") return null;
   const thing = thingOf(trip, op);
   return thing === undefined ? null : digest(thing);
 }

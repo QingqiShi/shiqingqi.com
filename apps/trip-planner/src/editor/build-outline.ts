@@ -81,25 +81,6 @@ export function locateItem(trip: Trip, id: string): LocatedItem | undefined {
   return at && { item, dayId: at.day.id, moment: at.moment };
 }
 
-/** The words that name an item in a row. */
-export function itemName(item: Item): string {
-  switch (item.type) {
-    case "flight":
-      return `${item.number} ${item.from.code} → ${item.to.code}`;
-    case "checklist":
-    case "signSheet":
-      return item.title;
-    case "nav":
-      return item.label;
-    case "tip":
-      return item.text;
-    case "dining":
-    case "place":
-    case "lodging":
-      return item.name;
-  }
-}
-
 /** A day and a time, as the sheet of an item holds them. No time puts the item in the day's list for its kind. */
 export interface Slot {
   dayId: string;

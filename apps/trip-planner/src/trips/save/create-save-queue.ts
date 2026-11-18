@@ -215,6 +215,7 @@ export function createSaveQueue(options: SaveQueueOptions): SaveQueue {
 
   function gone() {
     isGone = true;
+    if (pending.length > 0) reportDropped();
     pending = [];
     problem = null;
     undoStack = [];

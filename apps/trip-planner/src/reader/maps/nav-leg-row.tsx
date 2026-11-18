@@ -11,6 +11,7 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { ExternalLinkIndicator } from "#src/reader/external-link-indicator.tsx";
 import { ExternalRowLink } from "#src/reader/external-row-link.tsx";
+import { useItemChangeButton } from "#src/reader/quick-edit/use-item-change-button.tsx";
 import { TripText } from "#src/reader/trip-text.tsx";
 import type { TravelMode } from "#src/trips/types.ts";
 import type { NavLeg } from "#src/trips/types.ts";
@@ -41,8 +42,9 @@ function legEmbedSrc(leg: NavLeg) {
 
 /** One leg of the day as a row of a `List`: it opens the directions in Google
  *  Maps, and can show the route on a map in place. */
-export function NavLegRow({ leg }: { leg: NavLeg }) {
+export function NavLegRow({ leg }: { leg: NavLeg & { id: string } }) {
   const [mapOpen, setMapOpen] = useState(false);
+  const changeButton = useItemChangeButton(leg.id, leg.label);
   const mapLabel = t({ en: "Map", zh: "地图" });
   const mapTitle = t({ en: "Route map", zh: "路线地图" });
 
@@ -68,18 +70,23 @@ export function NavLegRow({ leg }: { leg: NavLeg }) {
       wrap
       actions={
         mapsEmbedEnabled ? (
-          <Button
-            look="ghost"
-            size="sm"
-            icon={<MapTrifoldIcon weight="bold" />}
-            aria-pressed={mapOpen}
-            onClick={() => {
-              setMapOpen((open) => !open);
-            }}
-          >
-            {mapLabel}
-          </Button>
-        ) : undefined
+          <>
+            <Button
+              look="ghost"
+              size="sm"
+              icon={<MapTrifoldIcon weight="bold" />}
+              aria-pressed={mapOpen}
+              onClick={() => {
+                setMapOpen((open) => !open);
+              }}
+            >
+              {mapLabel}
+            </Button>
+            {changeButton}
+          </>
+        ) : (
+          changeButton
+        )
       }
       below={
         mapOpen ? (
