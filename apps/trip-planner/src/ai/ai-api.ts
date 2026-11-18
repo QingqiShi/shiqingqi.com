@@ -1,8 +1,12 @@
 import { fetchJson } from "@tuja/auth-ui/fetch-json";
 import type { DraftOp } from "#src/trips/ops/apply-ops.ts";
 import type { Trip } from "#src/trips/types.ts";
-import type { Proposal, TripDraft } from "./check-proposal.ts";
-import type { ProposedBatch } from "./prove-batches.ts";
+import type {
+  DraftBatch,
+  Proposal,
+  ProposedBatch,
+  TripDraft,
+} from "./check-proposal.ts";
 
 export type { Proposal, TripDraft, ProposedBatch };
 
@@ -44,7 +48,9 @@ async function post<T>(path: string, body: unknown, signal?: AbortSignal) {
 export const aiApi = {
   /**
    * Changes for a trip, which apply in order to the newest trip, each batch
-   * whole. An empty `batches` with a `message` is an answer too.
+   * whole. The ops carry the `expect` of the trip that the model read, so
+   * check a batch with `applyOps` as it is. An empty `batches` with a
+   * `message` is an answer too.
    */
   propose(input: ProposeInput, signal?: AbortSignal): Promise<Proposal> {
     return post("/api/trips/propose", input, signal);
@@ -66,7 +72,7 @@ export const aiApi = {
 export function bindDraftDays(
   draft: Pick<TripDraft, "dayIds" | "batches">,
   trip: Pick<Trip, "days">,
-): ProposedBatch[] {
+): DraftBatch[] {
   const ids = new Map(
     draft.dayIds.map((id, i) => {
       const day = trip.days.at(i);

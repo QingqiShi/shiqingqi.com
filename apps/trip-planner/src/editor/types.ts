@@ -10,6 +10,8 @@ export type SheetTarget =
   | { kind: "removeDay"; day: Day }
   | { kind: "trip" }
   | { kind: "conflict" }
+  /** The answer of the model. */
+  | { kind: "proposal" }
   | { kind: "leave" };
 
 /** Opens the sheet on a target. The sheet grows from the row with `rowId`. */

@@ -4,10 +4,11 @@ import {
   newTripSchema,
   type NewTrip,
 } from "#src/trips/ops/new-trip.ts";
+import type { DraftOp, Op } from "#src/trips/ops/op-schema.ts";
 import { issueText } from "#src/trips/ops/refusal.ts";
 import type { Trip } from "#src/trips/types.ts";
 import { bindPlaceholders } from "./bind-placeholders.ts";
-import { proveBatches, type ProposedBatch } from "./prove-batches.ts";
+import { proveBatches } from "./prove-batches.ts";
 
 const proposalSchema = z.object({
   message: z.string().trim().min(1).max(2000),
@@ -21,6 +22,25 @@ const proposalSchema = z.object({
 
 const draftSchema = proposalSchema.extend({ fields: newTripSchema });
 
+interface BatchOf<T> {
+  /** The days that the batch adds, changes or removes, in the order of the trip. */
+  dayIds: string[];
+  summary: string;
+  ops: T[];
+}
+
+/**
+ * A change to a trip that exists, which applies whole. Each op on a thing
+ * that exists carries `expect`, the digest of that thing in the trip that
+ * the model read, with the batches before this one. Check a batch with
+ * `applyOps` on these digests, and do not make them again from a newer
+ * trip: the batch then does not apply to a thing that changed since.
+ */
+export type ProposedBatch = BatchOf<Op>;
+
+/** A change to a new trip. Its ops carry no `expect`: the trip that takes them is not made yet. */
+export type DraftBatch = BatchOf<DraftOp>;
+
 /** The changes that the model proposes, which apply in order to the trip it was given. */
 export interface Proposal {
   batches: ProposedBatch[];
@@ -29,7 +49,10 @@ export interface Proposal {
 }
 
 /** A new trip from pasted text: make it with `fields`, then apply the batches. */
-export interface TripDraft extends Proposal {
+export interface TripDraft {
+  batches: DraftBatch[];
+  /** The model's short word to the person, in the language of the plan. */
+  message: string;
   /** What `POST /api/trips` takes. */
   fields: NewTrip;
   /**
@@ -52,7 +75,14 @@ export function checkProposal(trip: Trip, text: string): Checked<Proposal> {
   if (!proof.ok) return proof;
   return {
     ok: true,
-    value: { batches: proof.batches, message: answer.value.message },
+    value: {
+      batches: proof.batches.map(({ dayIds, summary, sent }) => ({
+        dayIds,
+        summary,
+        ops: sent,
+      })),
+      message: answer.value.message,
+    },
   };
 }
 
@@ -78,7 +108,11 @@ export function checkDraft(text: string): Checked<TripDraft> {
     value: {
       fields,
       dayIds: skeleton.days.map((day) => day.id),
-      batches: proof.batches,
+      batches: proof.batches.map(({ dayIds, summary, ops }) => ({
+        dayIds,
+        summary,
+        ops,
+      })),
       message,
     },
   };

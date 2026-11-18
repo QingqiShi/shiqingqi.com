@@ -18,7 +18,8 @@ const NOTICE_MS = 60_000;
  * Says what happened to a trip made from a plan, as a toast, once its editor
  * shows: the model's word, such as what it left out, and that the plan was
  * only added in part when a save failed. It must be inside the toasts of the
- * app, which stay when the page changes.
+ * edit screen: they stay above the prompt, and a toast of an edit takes the
+ * place of this one.
  */
 export function NewTripNotice() {
   const notice = useMadeTrip();
