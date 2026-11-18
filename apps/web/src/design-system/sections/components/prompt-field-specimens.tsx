@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
@@ -53,6 +54,41 @@ export function PromptFieldGrowExample() {
   return (
     <Specimen caption='multiline, size="lg"'>
       <AskField multiline size="lg" />
+    </Specimen>
+  );
+}
+
+export function PromptFieldToolsExample() {
+  const [prompt, setPrompt] = useState("");
+  return (
+    <Specimen caption="multiline, tools">
+      <PromptField
+        label={t({ en: "Ask a question", zh: "提问" })}
+        placeholder={t({ en: "Ask a question...", zh: "提问..." })}
+        value={prompt}
+        onValueChange={setPrompt}
+        onSubmit={() => {
+          setPrompt("");
+        }}
+        multiline
+        tools={
+          <Button
+            size="sm"
+            look="ghost"
+            aria-label={t({ en: "Add files", zh: "添加文件" })}
+            icon={<PlusIcon weight="bold" />}
+          />
+        }
+        action={
+          <Button
+            type="submit"
+            size="sm"
+            aria-label={t({ en: "Send", zh: "发送" })}
+            disabled={!prompt.trim()}
+            icon={<ArrowUpIcon weight="bold" />}
+          />
+        }
+      />
     </Specimen>
   );
 }

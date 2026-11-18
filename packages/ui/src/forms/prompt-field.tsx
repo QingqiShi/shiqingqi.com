@@ -32,6 +32,7 @@ import {
   fieldVars,
 } from "./field-shared.stylex.ts";
 import { pointerFocus } from "./pointer-focus.ts";
+import { promptFieldVars } from "./prompt-field.stylex.ts";
 
 interface PromptFieldProps {
   /**
@@ -102,6 +103,14 @@ interface PromptFieldProps {
    */
   action: ReactNode;
   /**
+   * Controls at the start of a row under the text, such as a button that adds
+   * files. With them, the text has the full width of the frame and `action`
+   * goes to the end of that row, as in a prompt that starts a conversation.
+   *
+   * @zh 文字下方一行起始处的控件，例如添加文件的按钮。有了它，文字占满边框的宽度，action 移到这一行的末端，适用于开始一段对话的提问框。
+   */
+  tools?: ReactNode;
+  /**
    * A row above the text, inside the frame, such as the item that the prompt
    * is about.
    *
@@ -139,6 +148,7 @@ export function PromptField({
   disabled = false,
   leading,
   action,
+  tools,
   header,
   ref,
   css,
@@ -188,11 +198,13 @@ export function PromptField({
     if (!event.shiftKey) onSubmit();
   }
 
+  const isStacked = tools !== undefined;
   const fieldCss = [
     stylex.defaultMarker(),
     typeRole.control,
     typeModifier.verbatim,
     styles.field,
+    isStacked && styles.stackedField,
   ];
 
   return (
@@ -201,6 +213,7 @@ export function PromptField({
       css={[
         fieldStyles.box,
         multiline ? null : corner.squircle_round,
+        isStacked && corner.radius_5,
         fieldSizeInline[size],
         transition.colors,
         a11y.focusRingWithin,
@@ -211,7 +224,7 @@ export function PromptField({
       ]}
     >
       {header ? <div css={styles.header}>{header}</div> : null}
-      <div css={styles.row}>
+      <div css={[styles.row, isStacked && styles.stackedRow]}>
         {leading ? (
           <span css={[typeRole.control, styles.leading]} aria-hidden>
             {leading}
@@ -226,6 +239,9 @@ export function PromptField({
             onKeyDown={handleKeyDown}
             onPointerDown={(event) => {
               pointerFocus.onPointerDown(event);
+            }}
+            onFocus={(event) => {
+              pointerFocus.onFocus(event);
             }}
             onBlur={(event) => {
               pointerFocus.onBlur(event);
@@ -247,6 +263,9 @@ export function PromptField({
             onPointerDown={(event) => {
               pointerFocus.onPointerDown(event);
             }}
+            onFocus={(event) => {
+              pointerFocus.onFocus(event);
+            }}
             onBlur={(event) => {
               pointerFocus.onBlur(event);
             }}
@@ -258,20 +277,32 @@ export function PromptField({
             css={[fieldCss, styles.singleLine]}
           />
         )}
-        {action}
+        {isStacked ? (
+          <div css={styles.toolRow}>
+            <div css={styles.tools}>{tools}</div>
+            {action}
+          </div>
+        ) : (
+          action
+        )}
       </div>
     </form>
   );
 }
 
+const MD_INSET = `calc((${controlHeight.md} - ${controlHeight.sm}) / 2 - ${border.size_1})`;
+const LG_INSET = `calc((${controlHeight.lg} - ${controlHeight.sm}) / 2 - ${border.size_1})`;
+
 // The space between the frame and an action of size `sm` makes the action
 // and the frame concentric.
 const sizes = stylex.create({
   md: {
-    padding: `calc((${controlHeight.md} - ${controlHeight.sm}) / 2 - ${border.size_1})`,
+    [promptFieldVars.actionInset]: MD_INSET,
+    padding: MD_INSET,
   },
   lg: {
-    padding: `calc((${controlHeight.lg} - ${controlHeight.sm}) / 2 - ${border.size_1})`,
+    [promptFieldVars.actionInset]: LG_INSET,
+    padding: LG_INSET,
   },
 });
 
@@ -337,6 +368,32 @@ const styles = stylex.create({
       color: color.mutedForeground,
       opacity: 1,
     },
+  },
+  stackedRow: {
+    flexDirection: "column",
+    alignItems: "stretch",
+    gap: controlSize._1,
+  },
+  // With `tools`, the text keeps the inline padding of the frame on both
+  // sides, and the row under it starts at the inset of the action at its end,
+  // so that the controls in both corners are concentric with the frame.
+  stackedField: {
+    flexBasis: "auto",
+    minBlockSize: `calc(1lh + ${controlHeight.sm})`,
+    paddingInlineEnd: `calc(${fieldVars.paddingInline} - ${promptFieldVars.actionInset})`,
+  },
+  toolRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: controlSize._2,
+    marginInlineStart: `calc(${promptFieldVars.actionInset} - ${fieldVars.paddingInline})`,
+  },
+  tools: {
+    display: "flex",
+    alignItems: "center",
+    gap: controlSize._1,
+    flexGrow: 1,
+    minInlineSize: 0,
   },
   singleLine: {
     textOverflow: "ellipsis",

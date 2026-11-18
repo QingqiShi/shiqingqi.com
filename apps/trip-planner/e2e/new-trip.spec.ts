@@ -11,13 +11,13 @@ test("a person with no trips opens New trip, makes a blank trip from it, and lan
   await page.getByRole("link", { name: "New trip" }).click();
   await expect(page).toHaveURL(/\/new$/);
   await expect(
-    page.getByRole("heading", { name: "New trip", level: 1 }),
+    page.getByRole("heading", { name: "Where to next?", level: 1 }),
   ).toBeVisible();
   await expect(
     page.getByRole("textbox", { name: "Where, when, who, or paste a plan" }),
   ).toBeVisible();
 
-  await page.getByRole("button", { name: "Create a blank trip" }).click();
+  await page.getByRole("button", { name: /blank trip/i }).click();
   const sheet = page.getByRole("dialog", { name: "Blank trip" });
   await sheet.getByRole("textbox", { name: "Title" }).fill("Lisbon in spring");
   await sheet.getByLabel("First day").fill("2027-04-10");

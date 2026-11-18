@@ -10,8 +10,6 @@ import {
   StickyControlGroup,
   StickyControls,
 } from "@tuja/ui/components/sticky-controls";
-import { tabViewTokens } from "@tuja/ui/components/tab-view.stylex";
-import { toastTokens } from "@tuja/ui/components/toast.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import {
   controlHeight,
@@ -41,6 +39,7 @@ import {
 import { Conversation } from "./conversation.tsx";
 import { HistoryScreen } from "./history-screen.tsx";
 import { MemoryScreen } from "./memory-screen.tsx";
+import { promptDock } from "./prompt-dock.stylex.ts";
 import { ContinueBar, SegmentScreen } from "./segment-screen.tsx";
 import {
   useTripAssistant,
@@ -107,13 +106,13 @@ function AssistantPage({
   return (
     <AppToasts
       css={[
-        dockHeight > 0 && styles.toasts(dockHeight),
+        dockHeight > 0 && promptDock.toastsAbove(dockHeight),
         !hasDock && styles.toastsBesideColumn,
       ]}
     >
       {children}
       {!hasDock ? null : (
-        <StickyControls css={styles.dock}>
+        <StickyControls css={promptDock.dock}>
           <StickyControlGroup css={styles.fill}>
             <div ref={dockRef} css={styles.fill}>
               <AssistantPromptField
@@ -285,22 +284,7 @@ export function TripAssistant({
   );
 }
 
-// The place of the accessory of a column of a `NavigationSplitView`: above
-// the tab bar below 34rem, and above the safe area from 34rem up.
-const DOCK_INSET = `max(calc(${space._3} + ${tabViewTokens.barClearance}), calc(${space._5} + env(safe-area-inset-bottom)))`;
-
 const styles = stylex.create({
-  // Safari on iOS takes the colour of its toolbar from a sticky box at the
-  // bottom edge of the screen that is as wide as the screen. The dock stops
-  // clear of that edge, and it is narrower than nine tenths of the screen.
-  dock: {
-    insetBlockStart: "auto",
-    insetBlockEnd: DOCK_INSET,
-    inlineSize: "100%",
-    marginInline: "auto",
-    maxInlineSize: "89vw",
-    marginBlockStart: rhythm.group,
-  },
   fill: {
     flexGrow: 1,
     minInlineSize: 0,
@@ -359,7 +343,4 @@ const styles = stylex.create({
   toastsBesideColumn: {
     left: `calc((100vw - ${sideColumnTokens.inlineSize}) / 2)`,
   },
-  toasts: (dockHeight: number) => ({
-    [toastTokens.clearance]: `calc(${DOCK_INSET} + ${String(dockHeight)}px)`,
-  }),
 });

@@ -144,6 +144,7 @@ export function TextField({
   "aria-invalid": ariaInvalid,
   onInput,
   onPointerDown,
+  onFocus,
   onBlur,
   ref,
   ...rest
@@ -215,6 +216,10 @@ export function TextField({
           onPointerDown={(event) => {
             pointerFocus.onPointerDown(event);
             onPointerDown?.(event);
+          }}
+          onFocus={(event) => {
+            pointerFocus.onFocus(event);
+            onFocus?.(event);
           }}
           onBlur={(event) => {
             pointerFocus.onBlur(event);
