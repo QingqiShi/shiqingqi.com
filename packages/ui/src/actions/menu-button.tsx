@@ -26,6 +26,7 @@ import { ProgressiveBlur } from "../surfaces/progressive-blur.tsx";
 import { border, controlSize, layer } from "../tokens.stylex.ts";
 import { Button, type ButtonFormProps } from "./button.tsx";
 import { MenuPopupRoleContext } from "./menu-popup-role-context.ts";
+import { useMenuEscape } from "./use-menu-escape.ts";
 import { useRovingFocus } from "./use-roving-focus.ts";
 import { useSheetCap } from "./use-sheet-cap.ts";
 import { useSurfaceMorph } from "./use-surface-morph.ts";
@@ -249,6 +250,11 @@ export function MenuButton({
     setIsMenuShown(false);
     document.getElementById(targetId)?.focus({ preventScroll: true });
   };
+  const closeOnEscape = useMenuEscape({
+    containerRef,
+    isMenuShown,
+    close: closeAndRestoreFocus,
+  });
 
   // A parent that closes the menu leaves focus in a box that is about to go
   // inert, so the trigger takes it back. Focus that has already landed on an
@@ -271,12 +277,7 @@ export function MenuButton({
       css={[styles.container, isSheet && styles.staticContainer]}
       ref={containerRef}
       onKeyDown={(e) => {
-        if (e.key === "Escape" && isMenuShown) {
-          e.stopPropagation();
-          closeAndRestoreFocus();
-          return;
-        }
-        onMenuKeyDown(e);
+        if (!closeOnEscape(e)) onMenuKeyDown(e);
       }}
       onBlur={(e) => {
         if (

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { Popover } from "./popover.tsx";
@@ -51,6 +51,20 @@ describe("Popover", () => {
 
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(trigger).toHaveFocus();
+  });
+
+  // See the same test of `MenuButton`. The content is in a portal, so only an
+  // Escape on the trigger gets to a listener on the document.
+  it("marks the Escape that closes it as used, so the screen does not also go back", async () => {
+    const user = userEvent.setup();
+    render(<TestPopover />);
+    const trigger = getTrigger();
+    await user.click(trigger);
+
+    const isFreeToUse = fireEvent.keyDown(trigger, { key: "Escape" });
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(isFreeToUse).toBe(false);
   });
 
   it("closes when a pointer lands outside it", async () => {

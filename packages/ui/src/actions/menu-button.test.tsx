@@ -114,6 +114,19 @@ describe("MenuButton keyboard navigation", () => {
     expect(trigger).toHaveFocus();
   });
 
+  // The document is the React root of a Next app. There, a listener on the
+  // document, such as the keys of a `NavigationStack`, gets the Escape that the
+  // menu stops, and `defaultPrevented` tells it that the key is used.
+  it("marks the Escape that closes it as used, so the screen does not also go back", async () => {
+    const user = userEvent.setup();
+    render(<TestMenu />);
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+
+    const isFreeToUse = fireEvent.keyDown(getMenuItems()[0], { key: "Escape" });
+
+    expect(isFreeToUse).toBe(false);
+  });
+
   it("returns focus to the trigger when the backdrop is clicked", async () => {
     const user = userEvent.setup();
     const { container } = render(<TestMenu />);
@@ -186,6 +199,28 @@ describe("MenuButton in Safari", () => {
     });
 
     expect(trigger).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("closes on an Escape from the ancestor that a press left focus on, and marks it as used", async () => {
+    const user = userEvent.setup();
+    render(
+      <section tabIndex={-1} aria-label="Sidebar">
+        <TestMenu />
+      </section>,
+    );
+    const trigger = screen.getByRole("button", { name: "Open menu" });
+    const sidebar = screen.getByRole("region", { name: "Sidebar" });
+    await user.click(trigger);
+    fireEvent.pointerDown(getMenuItems()[1]);
+    act(() => {
+      sidebar.focus();
+    });
+
+    const isFreeToUse = fireEvent.keyDown(sidebar, { key: "Escape" });
+
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    expect(trigger).toHaveFocus();
+    expect(isFreeToUse).toBe(false);
   });
 
   it("does not cancel the small move of a tap on an item, so iOS sends the click, and still cancels a drag", async () => {
