@@ -332,7 +332,23 @@ Early morning: Arashiyama bamboo grove
 11:00 Tenryu-ji
 16:00 train back to the airport`;
 
-const APP_WORDS = /\b(batch(es)?|ops?|ids?|placeholders?|schema|json)\b|\$day/i;
+const APP_WORDS =
+  /\b(batch(es)?|ops?|tools?|ids?|placeholders?|schema|json)\b|\$day/i;
+
+/** A proposal is not saved yet, so its message must not say that a change is done. */
+function proposalWording(message: string): string | null {
+  if (
+    /\bI(?:'ve| have)? (moved|set|changed|added|removed|renamed|updated)\b|已(经)?(把|将|在|删除|添加|改)/i.test(
+      message,
+    )
+  ) {
+    return `The message says the change is done: ${message}`;
+  }
+  if (message.includes("您")) return `The message says 您: ${message}`;
+  return APP_WORDS.test(message)
+    ? `The message uses the app's words: ${message}`
+    : null;
+}
 
 function judgeDraft(
   draft: TripDraft,
@@ -425,7 +441,11 @@ for (const modelId of MODELS) {
           const seconds = (performance.now() - started) / 1000;
           const failure =
             outcome.status === "ok"
-              ? edit.judge(outcome.value, applyAll(trip, outcome.value.batches))
+              ? (proposalWording(outcome.value.message) ??
+                edit.judge(
+                  outcome.value,
+                  applyAll(trip, outcome.value.batches),
+                ))
               : `${outcome.status}: ${"reason" in outcome ? outcome.reason : ""}`;
           tally(`${modelId} edit`, failure === null, use, seconds);
           console.log(
