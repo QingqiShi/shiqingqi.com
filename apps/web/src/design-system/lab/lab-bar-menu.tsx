@@ -48,7 +48,7 @@ function currentValue(
 }
 
 /**
- * What the bar's menu carries below `md`: the Variants, then one row per
+ * What the bar's menu carries: the Variants, then one row per
  * prop. A row opens that prop's control in the bar, so the visitor tunes it
  * with the Specimen in view rather than behind the menu.
  */
