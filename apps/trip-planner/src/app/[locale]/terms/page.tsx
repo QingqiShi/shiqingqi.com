@@ -23,8 +23,8 @@ export default function Page() {
     <LegalPage
       title={t({ en: "Terms and privacy", zh: "服务条款和隐私政策" })}
       updated={t({
-        en: "Last changed on 17 November 2026.",
-        zh: "最后更新于 2026 年 11 月 17 日。",
+        en: "Last changed on 18 November 2026.",
+        zh: "最后更新于 2026 年 11 月 18 日。",
       })}
     >
       <LegalSection title={t({ en: "Terms", zh: "服务条款" })}>
@@ -56,8 +56,14 @@ export default function Page() {
         </Text>
         <Text as="p">
           {t({
-            en: "Vercel hosts the site and counts the pages that are opened. Neon holds the database. Resend sends the emails with your codes. Upstash counts requests by IP address and by a hash of your email address, to limit them. Maps come from Google Maps, and the weather from Open-Meteo. When you ask for a change, Anthropic gets the trip and what you type or paste.",
-            zh: "Vercel 托管网站并统计被打开的页面。Neon 存放数据库。Resend 发送带验证码的邮件。Upstash 按 IP 地址和邮箱地址的哈希值统计请求次数，以限制请求频率。地图来自 Google 地图，天气来自 Open-Meteo。当你请求修改时，Anthropic 会收到行程和你输入或粘贴的内容。",
+            en: "Vercel hosts the site and counts the pages that are opened. Neon holds the database. Resend sends the emails with your codes. Upstash counts requests by IP address and by a hash of your email address, to limit them. Maps come from Google Maps, and the weather from Open-Meteo. When you ask the trip assistant something or ask for a change, Anthropic gets the trip and what you type or paste, to answer.",
+            zh: "Vercel 托管网站并统计被打开的页面。Neon 存放数据库。Resend 发送带验证码的邮件。Upstash 按 IP 地址和邮箱地址的哈希值统计请求次数，以限制请求频率。地图来自 Google 地图，天气来自 Open-Meteo。当你向行程助手提问或请求修改时，Anthropic 会收到行程和你输入或粘贴的内容，用来回答。",
+          })}
+        </Text>
+        <Text as="p">
+          {t({
+            en: "What you type to the trip assistant, short pastes and what it reads from them are kept with your account, and only you can read them. What it remembers about a trip is shared with the trip's members.",
+            zh: "你对行程助手输入的内容、短的粘贴以及它从中读出的条目会随你的账号保存，只有你能看到。它为某个行程记住的内容由该行程的成员共享。",
           })}
         </Text>
         <Text as="p">

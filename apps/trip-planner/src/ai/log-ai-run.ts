@@ -6,7 +6,8 @@ import type { ModelUse } from "./ask-model.ts";
 export interface AiRun {
   /** The trip of a change, or null for a draft. */
   tripId: string | null;
-  kind: "edit" | "draft";
+  /** `assistant` is one turn of the trip assistant; `summary` is the summary of one of its segments. */
+  kind: "edit" | "draft" | "assistant" | "summary";
   model: string;
   status: "ok" | "invalid" | "failed" | "aborted" | "timeout";
   use: ModelUse;

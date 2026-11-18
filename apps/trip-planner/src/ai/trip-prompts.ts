@@ -19,7 +19,8 @@ const PART_WORDS: Record<(typeof DAY_PARTS)[number], string> = {
   "late-night": "about 23:00; 深夜, late night",
 };
 
-const OPS = `## Ops
+/** How a model writes ops, for every prompt that asks for them. */
+export const OPS = `## Ops
 
 Each op is one JSON object. Never write "expect"; the app adds it. A field marked ? is optional. In "fields", null clears a field and a field you leave out stays as it is.
 
@@ -72,7 +73,8 @@ The person accepts or declines each batch alone, so a batch is the smallest chan
 
 Each batch has a "summary": a short line, in the language of the request, that says what it changes.`;
 
-const PLAIN_WORDS = `Write it as a friend who helps with the trip would, about days, places, times and what you left out or guessed. Never use the words of this app's answer or of how you work, such as batch, op, tool, id, placeholder, field, schema, prompt or JSON, and never write an id. Say what you can or cannot do in the person's words, such as "I can't change the checkout time here". Name a place as people do, such as an airport by its name, not by its code. In Chinese, write 你, never 您.`;
+/** How the model writes to the person. */
+export const PLAIN_WORDS = `Write it as a friend who helps with the trip would, about days, places, times and what you left out or guessed. Never use the words of this app's answer or of how you work, such as batch, op, tool, id, placeholder, field, schema, prompt or JSON, and never write an id. Say what you can or cannot do in the person's words, such as "I can't change the checkout time here". Name a place as people do, such as an airport by its name, not by its code. In Chinese, write 你, never 您.`;
 
 const ANSWER = `## Answer
 

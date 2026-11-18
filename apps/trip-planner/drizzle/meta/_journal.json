@@ -64,6 +64,13 @@
       "when": 1794932910148,
       "tag": "0008_trip_restore",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1795004306579,
+      "tag": "0009_assistant",
+      "breakpoints": true
     }
   ]
 }

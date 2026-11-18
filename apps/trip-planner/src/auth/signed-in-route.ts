@@ -3,6 +3,7 @@ import { readRequestCookie } from "@tuja/server-auth/read-request-cookie";
 import "server-only";
 import type { z } from "zod";
 import { getTripsDb } from "#src/db/get-trips-db.ts";
+import type { TripsDb } from "#src/db/types.ts";
 import { resolveSession } from "./resolve-session.ts";
 import { tripsSessionCookie } from "./trips-session-cookie.ts";
 
@@ -15,11 +16,14 @@ export function json(body: unknown, status = 200) {
 }
 
 /** The user id of a signed-in request that a page of this app sent, or the refusal. */
-async function requireUserId(request: Request): Promise<string | Response> {
+export async function requireUserId(
+  request: Request,
+  db: TripsDb = getTripsDb(),
+): Promise<string | Response> {
   if (!isSameOrigin(request)) return json({ error: "forbidden" }, 403);
   const token = readRequestCookie(request, tripsSessionCookie.name);
   const resolved = token
-    ? await resolveSession(getTripsDb(), token, {
+    ? await resolveSession(db, token, {
         now: new Date(),
         allowRefresh: false,
       })

@@ -751,13 +751,16 @@ export default defineConfig([
     rules: { "restricted/browser-typegpu": browserTypegpuRule("^\\./") },
   },
   // A trip shows only to its members. So only the reader, the one writer,
-  // the sharing of a trip, its history and the AI routes, which run under row-level
-  // security as the signed-in user, and the code that fills the database,
-  // reach the trip tables.
+  // the sharing of a trip, its history, the AI routes and the assistant's
+  // store, server core and routes, which run under row-level security as
+  // the signed-in user, and the code that fills the database, reach the
+  // trip tables.
   {
     files: ["apps/trip-planner/src/**/*.{ts,tsx}"],
     ignores: [
       "apps/trip-planner/src/db/**",
+      "apps/trip-planner/src/assistant/{store,agent}/**",
+      "apps/trip-planner/src/assistant/http/{make-assistant-routes,assistant-routes}.ts",
       "apps/trip-planner/src/trips/{get-trips,read-trips,write-trips,trip-routes,import-trip,as-viewer}.ts",
       "apps/trip-planner/src/share/{trip-sharing,sharing-routes,get-sharing}.ts",
       "apps/trip-planner/src/ai/{ai-routes,log-ai-run}.ts",

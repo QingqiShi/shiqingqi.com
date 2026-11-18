@@ -20,7 +20,13 @@ const ID_KEYS = new Set(["id", "dayId", "momentId", "personId", "before"]);
 type Mode = "new" | "either" | "existing";
 
 export type BindResult =
-  { ok: true; batches: RawBatch[] } | { ok: false; reason: string };
+  | {
+      ok: true;
+      batches: RawBatch[];
+      /** The new id of each placeholder, with those of `known`. */
+      ids: ReadonlyMap<string, string>;
+    }
+  | { ok: false; reason: string };
 
 /**
  * Puts a new id in place of each placeholder, the same id for the same
@@ -42,6 +48,7 @@ export function bindPlaceholders(
           bindOp(op, ids, `Batch ${String(b + 1)}, op ${String(o + 1)}`),
         ),
       })),
+      ids,
     };
   } catch (error) {
     if (error instanceof PlaceholderError) {
