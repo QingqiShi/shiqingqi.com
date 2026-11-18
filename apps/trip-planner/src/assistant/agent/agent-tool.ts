@@ -1,5 +1,5 @@
+import { describeError } from "@tuja/server-db/describe-error";
 import { z } from "zod";
-import { describeError } from "#src/assistant/describe-error.ts";
 
 /** A guardrail said no. The model gets the message, and the turn goes on. */
 export class ToolRefusal extends Error {

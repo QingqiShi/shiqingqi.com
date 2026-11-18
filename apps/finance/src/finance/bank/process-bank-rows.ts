@@ -4,6 +4,7 @@ import {
   type LabellingModel,
   type LabelResult,
 } from "../ai/label-bank-rows.ts";
+import { logModelFailure } from "../ai/log-model-failure.ts";
 import type { LabellingContext } from "../ai/types.ts";
 import { accountRepository } from "../db/repositories/account-repository.ts";
 import { bankLinkRepository } from "../db/repositories/bank-link-repository.ts";
@@ -187,7 +188,7 @@ export async function processBankRows(
     deadline = new Date(now.getTime() + PROCESS_BUDGET_MS),
     clock = () => new Date(),
     onModelError = (error) => {
-      console.error("Finance labelling failed", error);
+      logModelFailure("Finance labelling failed", error);
     },
   } = dependencies;
   const summary: ProcessSummary = { createdByAccount: new Map() };

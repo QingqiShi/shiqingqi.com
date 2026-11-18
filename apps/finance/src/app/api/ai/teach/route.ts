@@ -1,4 +1,5 @@
 import { getTeachingModel } from "#src/finance/ai/get-finance-model.ts";
+import { logModelFailure } from "#src/finance/ai/log-model-failure.ts";
 import { makeTeachHandler } from "#src/finance/ai/make-teach-handler.ts";
 import { getFinanceSession } from "#src/finance/auth/get-finance-session.ts";
 import { getFinanceDb } from "#src/finance/db/get-finance-db.ts";
@@ -12,6 +13,6 @@ export const POST = makeTeachHandler({
   getModel: getTeachingModel,
   limitRequest: limitFinanceRequest,
   onModelError: (error) => {
-    console.error("Finance teach failed", error);
+    logModelFailure("Finance teach failed", error);
   },
 });

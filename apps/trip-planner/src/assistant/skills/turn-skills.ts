@@ -1,4 +1,4 @@
-import { describeError } from "#src/assistant/describe-error.ts";
+import { describeError } from "@tuja/server-db/describe-error";
 import type { TripSkill } from "./get-trip-skills.ts";
 
 /** How long the list of skills may take; after it, the turn goes on without skills. */

@@ -4,6 +4,7 @@ import {
 } from "@ai-sdk/anthropic";
 import type { SupportedLocale } from "@tuja/i18n/types";
 import { getAnthropicProvider } from "@tuja/server-clients/get-anthropic-provider";
+import { describeError } from "@tuja/server-db/describe-error";
 import {
   hasToolCall,
   isStepCount,
@@ -26,7 +27,6 @@ import {
   type AttachmentRefusal,
   type StoredAttachments,
 } from "#src/assistant/check-attachments.ts";
-import { describeError } from "#src/assistant/describe-error.ts";
 import {
   getTripSkills,
   type TripSkill,

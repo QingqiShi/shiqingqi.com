@@ -1,4 +1,5 @@
 import { getAnthropicProvider } from "@tuja/server-clients/get-anthropic-provider";
+import { describeError } from "@tuja/server-db/describe-error";
 import {
   generateText,
   isStepCount,
@@ -10,7 +11,6 @@ import {
 import "server-only";
 import { z } from "zod";
 import { emptyUse, type ModelUse } from "#src/ai/empty-use.ts";
-import { describeError } from "#src/assistant/describe-error.ts";
 import { clampText } from "../plain-line.ts";
 import { RESEARCH_KINDS, type ResearchBrief } from "./research-brief.ts";
 import {

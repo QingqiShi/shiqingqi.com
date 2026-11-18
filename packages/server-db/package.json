@@ -2,7 +2,7 @@
   "name": "@tuja/server-db",
   "version": "0.0.0",
   "private": true,
-  "description": "Database helpers that the apps' servers share, on drizzle-orm and a pg Pool.",
+  "description": "Database helpers that the apps' servers share, on drizzle-orm and a pg Pool, and a description of an error for the server log that leaves out query parameters and model data.",
   "type": "module",
   "exports": {
     "./*": "./src/*.ts"

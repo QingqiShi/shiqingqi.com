@@ -1,4 +1,5 @@
 import type { SupportedLocale } from "@tuja/i18n/types";
+import { describeError } from "@tuja/server-db/describe-error";
 import type { LanguageModel } from "ai";
 import { and, eq, sql } from "drizzle-orm";
 import "server-only";
@@ -15,7 +16,6 @@ import { CARD_ACTIONS } from "#src/assistant/agent/research/research-cards.ts";
 import { runTurn } from "#src/assistant/agent/run-turn.ts";
 import { segmentMessages } from "#src/assistant/agent/segment-messages.ts";
 import { tripView } from "#src/assistant/agent/trip-view.ts";
-import { describeError } from "#src/assistant/describe-error.ts";
 import type { TripSkill } from "#src/assistant/skills/get-trip-skills.ts";
 import { changes } from "#src/assistant/store/changes.ts";
 import {

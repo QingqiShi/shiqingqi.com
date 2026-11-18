@@ -1,3 +1,4 @@
+import { describeError } from "@tuja/server-db/describe-error";
 import { generateText, type LanguageModel } from "ai";
 import "server-only";
 import { emptyUse } from "#src/ai/empty-use.ts";
@@ -8,7 +9,6 @@ import {
   type SegmentEntry,
 } from "#src/assistant/agent/segment-messages.ts";
 import { LONG_PASTE_CHARS } from "#src/assistant/check-attachments.ts";
-import { describeError } from "#src/assistant/describe-error.ts";
 import {
   conversations,
   type Conversation,

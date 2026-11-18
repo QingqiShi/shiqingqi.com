@@ -1,4 +1,5 @@
 import { getAnthropicProvider } from "@tuja/server-clients/get-anthropic-provider";
+import { describeError } from "@tuja/server-db/describe-error";
 import { generateText, Output, type LanguageModel, type UserContent } from "ai";
 import "server-only";
 import { z } from "zod";
@@ -10,7 +11,6 @@ import {
   type AttachmentKind,
   type ReadItem,
 } from "#src/assistant/check-attachments.ts";
-import { describeError } from "#src/assistant/describe-error.ts";
 
 export const READER_MODEL_ID = "claude-haiku-5-5";
 

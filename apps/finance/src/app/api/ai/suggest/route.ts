@@ -1,4 +1,5 @@
 import { getFinanceModel } from "#src/finance/ai/get-finance-model.ts";
+import { logModelFailure } from "#src/finance/ai/log-model-failure.ts";
 import { makeSuggestHandler } from "#src/finance/ai/make-suggest-handler.ts";
 import { getFinanceSession } from "#src/finance/auth/get-finance-session.ts";
 import { getFinanceDb } from "#src/finance/db/get-finance-db.ts";
@@ -12,6 +13,6 @@ export const POST = makeSuggestHandler({
   getModel: getFinanceModel,
   limitRequest: limitFinanceRequest,
   onModelError: (error) => {
-    console.error("Finance suggest failed", error);
+    logModelFailure("Finance suggest failed", error);
   },
 });

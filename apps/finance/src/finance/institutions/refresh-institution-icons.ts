@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import type { InstitutionHints } from "../ai/guess-institution-domain.ts";
+import { logModelFailure } from "../ai/log-model-failure.ts";
 import { accountRepository } from "../db/repositories/account-repository.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
@@ -188,7 +189,7 @@ async function attempt<T>(db: FinanceDb, timeoutMs: number, work: Work<T>) {
   const saved = await callWithin(timeoutMs, work.call).then(
     (value) => asFinanceApp(db, (app) => work.save(app, value)),
     (error: unknown) => {
-      console.error(work.failure, error);
+      logModelFailure(work.failure, error);
       return false;
     },
   );
@@ -314,7 +315,7 @@ export async function refreshInstitutionIcons(
       if (!hasTimeForCall()) return;
       const now = dependencies.now();
       const outcome = await attempt(db, timeoutMs, {
-        failure: `Institution icon fetch failed for ${domain}`,
+        failure: "Institution icon fetch failed",
         claim: (app) => institutionCacheRepository.claimIcon(app, domain, now),
         call: (signal) => dependencies.fetchIcon(domain, signal),
         save: async (app, image) => {

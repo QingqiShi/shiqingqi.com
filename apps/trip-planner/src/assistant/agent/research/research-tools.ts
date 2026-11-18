@@ -1,7 +1,7 @@
 import "server-only";
+import { describeError } from "@tuja/server-db/describe-error";
 import { z } from "zod";
 import { logAiRun } from "#src/ai/log-ai-run.ts";
-import { describeError } from "#src/assistant/describe-error.ts";
 import { changes } from "#src/assistant/store/changes.ts";
 import { asViewer } from "#src/trips/as-viewer.ts";
 import { newId } from "#src/trips/ops/new-id.ts";

@@ -1,6 +1,6 @@
 import { getAnthropicProvider } from "@tuja/server-clients/get-anthropic-provider";
 import "server-only";
-import { describeError } from "#src/assistant/describe-error.ts";
+import { describeError } from "@tuja/server-db/describe-error";
 import {
   memories,
   type Memory,
