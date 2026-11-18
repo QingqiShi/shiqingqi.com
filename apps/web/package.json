@@ -74,7 +74,7 @@
     "@babel/preset-env": "catalog:",
     "@babel/preset-react": "catalog:",
     "@babel/preset-typescript": "catalog:",
-    "@babel/runtime": "^8.1.0",
+    "@babel/runtime": "^8.1.2",
     "@playwright/test": "^1.65.0",
     "@serwist/cli": "catalog:",
     "@stylexjs/postcss-plugin": "^0.19.1",
