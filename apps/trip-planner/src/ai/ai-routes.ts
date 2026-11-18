@@ -3,13 +3,15 @@ import "server-only";
 import { z } from "zod";
 import { json, signedInRoute } from "#src/auth/signed-in-route.ts";
 import { getTripsDb } from "#src/db/get-trips-db.ts";
+import { dateInZone } from "#src/reader/resolve-day.ts";
 import { canEditTrip } from "#src/trips/can-edit-trip.ts";
 import { readTrips } from "#src/trips/read-trips.ts";
 import { entityId, isTimeZone } from "#src/trips/trip-schema.ts";
 import { askModel, emptyUse, type Ask, type Outcome } from "./ask-model.ts";
 import {
-  checkDraft,
   checkProposal,
+  draftCheck,
+  type NotAPlan,
   type Proposal,
   type TripDraft,
 } from "./check-proposal.ts";
@@ -44,6 +46,7 @@ async function run<T>(
   log: Pick<AiRun, "tripId" | "kind">,
   deadlineMs: number,
   ask: Omit<Ask<T>, "signal" | "use">,
+  answer: (value: T) => Response = json,
 ): Promise<Response> {
   const deadline = AbortSignal.timeout(deadlineMs);
   const signal = AbortSignal.any([request.signal, deadline]);
@@ -75,7 +78,7 @@ async function run<T>(
   }
   switch (outcome.status) {
     case "ok":
-      return json(outcome.value);
+      return answer(outcome.value);
     case "invalid":
       return json({ error: "model_failed", reason: outcome.reason }, 502);
     case "failed":
@@ -126,13 +129,17 @@ const propose = signedInRoute(
   },
 );
 
-/** Drafts a new trip from pasted text. It makes no trip. */
+/**
+ * Drafts a new trip from pasted text. It makes no trip. Text that is not a
+ * travel plan gets 422 with the model's sentence to the person.
+ */
 const draft = signedInRoute(
   draftBody,
   async (userId, { text, timeZone, locale }, request) => {
     const model = getTripModel();
     if (!model) return json({ error: "not_configured" }, 503);
-    return run<TripDraft>(
+    const now = new Date();
+    return run<TripDraft | NotAPlan>(
       userId,
       request,
       { tripId: null, kind: "draft" },
@@ -140,10 +147,14 @@ const draft = signedInRoute(
       {
         model,
         instructions: tripPrompts.draft.instructions,
-        message: tripPrompts.draft.message(text, new Date(), timeZone, locale),
-        check: checkDraft,
+        message: tripPrompts.draft.message(text, now, timeZone, locale),
+        check: draftCheck({ text, today: dateInZone(now, timeZone) }),
         maxOutputTokens: 48_000,
       },
+      (value) =>
+        "notAPlan" in value
+          ? json({ error: "not_a_plan", message: value.notAPlan }, 422)
+          : json(value),
     );
   },
 );

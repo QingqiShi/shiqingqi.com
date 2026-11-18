@@ -40,6 +40,7 @@ const checked = checkDraft(
   }),
 );
 if (!checked.ok) throw new Error(checked.reason);
+if ("notAPlan" in checked.value) throw new Error("Not a plan");
 const draft = checked.value;
 
 /** A server that holds one trip and applies each change as the real one does. */

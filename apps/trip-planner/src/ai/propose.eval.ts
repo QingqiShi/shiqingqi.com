@@ -480,12 +480,17 @@ for (const modelId of MODELS) {
           const seconds = (performance.now() - started) / 1000;
           let failure: string | null;
           if (outcome.status === "ok") {
-            const made = newTrip(outcome.value.fields);
-            failure = judgeDraft(
-              outcome.value,
-              applyAll(made, bindDraftDays(outcome.value, made)),
-              locale,
-            );
+            const draft = outcome.value;
+            if ("notAPlan" in draft) {
+              failure = `Not a plan: ${draft.notAPlan}`;
+            } else {
+              const made = newTrip(draft.fields);
+              failure = judgeDraft(
+                draft,
+                applyAll(made, bindDraftDays(draft, made)),
+                locale,
+              );
+            }
           } else {
             failure = `${outcome.status}: ${"reason" in outcome ? outcome.reason : ""}`;
           }

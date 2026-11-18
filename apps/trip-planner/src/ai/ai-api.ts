@@ -58,7 +58,9 @@ export const aiApi = {
 
   /**
    * A new trip from pasted text. Make it with `tripApi.create(draft.fields)`,
-   * read it, and apply `bindDraftDays(draft, trip)` in order.
+   * read it, and apply `bindDraftDays(draft, trip)` in order. Text that is
+   * not a travel plan throws 422 `not_a_plan`, with the model's sentence to
+   * the person as the `message` of its body.
    */
   draft(input: DraftInput, signal?: AbortSignal): Promise<TripDraft> {
     return post("/api/trips/draft", input, signal);

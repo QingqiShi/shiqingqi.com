@@ -5,7 +5,7 @@ import sample from "#src/trips/sample-trip.json";
 import { entityId, tripSchema } from "#src/trips/trip-schema.ts";
 import type { Trip } from "#src/trips/types.ts";
 import { bindDraftDays } from "./ai-api.ts";
-import { checkDraft, checkProposal } from "./check-proposal.ts";
+import { checkDraft, checkProposal, draftCheck } from "./check-proposal.ts";
 
 const trip = tripSchema.parse(sample);
 
@@ -201,12 +201,52 @@ describe("a draft", () => {
       }),
     );
     if (!checked.ok) throw new Error(checked.reason);
+    if ("notAPlan" in checked.value) throw new Error("Not a plan");
     const made = newTrip(fields);
     const after = applyAll(made, bindDraftDays(checked.value, made));
     expect(after.days[1]).toMatchObject({
       id: made.days[1].id,
       title: "Ancient Rome",
       moments: [{ time: "10:00", text: "Colosseum" }],
+    });
+  });
+
+  const lisbon = JSON.stringify({
+    fields: {
+      title: "Lisbon",
+      firstDate: "2026-04-08",
+      days: 2,
+      timeZone: "Europe/Lisbon",
+      language: "en",
+    },
+    message: "Made.",
+    batches: [],
+  });
+
+  it("asks once more for a trip that ends before today when the text gives no year, then takes the answer", () => {
+    const check = draftCheck({
+      text: "Lisbon next year, 8 and 9 April",
+      today: "2026-11-18",
+    });
+    expect(check(lisbon).ok).toBe(false);
+    expect(check(lisbon).ok).toBe(true);
+  });
+
+  it("keeps a trip in the past when the text gives its year", () => {
+    const check = draftCheck({
+      text: "Our Lisbon trip, 8 and 9 April 2026",
+      today: "2026-11-18",
+    });
+    expect(check(lisbon).ok).toBe(true);
+  });
+
+  it("reads the word that the text is not a plan", () => {
+    const checked = checkDraft(
+      JSON.stringify({ notAPlan: "This reads like a poem." }),
+    );
+    expect(checked).toEqual({
+      ok: true,
+      value: { notAPlan: "This reads like a poem." },
     });
   });
 });

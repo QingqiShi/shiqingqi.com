@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { addDays } from "#src/trips/ops/add-days.ts";
 import {
   newTrip,
   newTripSchema,
@@ -51,7 +52,7 @@ export interface Proposal {
 /** A new trip from pasted text: make it with `fields`, then apply the batches. */
 export interface TripDraft {
   batches: DraftBatch[];
-  /** The model's short word to the person, in the language of the plan. */
+  /** The model's short word to the person, in the person's language. */
   message: string;
   /** What `POST /api/trips` takes. */
   fields: NewTrip;
@@ -86,12 +87,58 @@ export function checkProposal(trip: Trip, text: string): Checked<Proposal> {
   };
 }
 
+/** The model's answer when the pasted text is not a travel plan: its sentence to the person. */
+export interface NotAPlan {
+  notAPlan: string;
+}
+
+const notAPlanSchema = z.strictObject({
+  notAPlan: z.string().trim().min(1).max(500),
+});
+
+/** What the person pasted, and today's date where they are, as `YYYY-MM-DD`. */
+export interface Pasted {
+  text: string;
+  today: string;
+}
+
+const YEAR_IN_DIGITS = /(?<!\d)(19|20)\d{2}(?!\d)/;
+
 /**
- * A draft from the model's text, or why it cannot apply. The model names the
- * days of the new trip `$day1`, `$day2` and on, and the draft proves the
- * batches on `newTrip(fields)`.
+ * The check of each answer to one draft ask. A trip that ends before today,
+ * from a text that gives no year in digits, most likely has the wrong year,
+ * so the first such answer goes back to the model once with that reason. The
+ * model's next choice stands, as a text can tell of a trip that is over.
  */
-export function checkDraft(text: string): Checked<TripDraft> {
+export function draftCheck(
+  pasted: Pasted,
+): (text: string) => Checked<TripDraft | NotAPlan> {
+  let askedYear = YEAR_IN_DIGITS.test(pasted.text);
+  return (text) => {
+    const checked = checkDraft(text);
+    if (askedYear || !checked.ok || "notAPlan" in checked.value) {
+      return checked;
+    }
+    const { fields } = checked.value;
+    const lastDate = addDays(fields.firstDate, fields.days - 1);
+    if (lastDate >= pasted.today) return checked;
+    askedYear = true;
+    return {
+      ok: false,
+      reason: `The trip ends on ${lastDate}, before today (${pasted.today}), and the pasted text gives no year in digits. Take the next such dates from today. Keep dates before today only when the text says that the trip is over, such as "last April" (the April before today) or "去年" (the year before this one). Say in "message" which year you chose.`,
+    };
+  };
+}
+
+/**
+ * A draft from the model's text, or the model's word that the text is not a
+ * plan, or why it cannot apply. The model names the days of the new trip
+ * `$day1`, `$day2` and on, and the draft proves the batches on
+ * `newTrip(fields)`.
+ */
+export function checkDraft(text: string): Checked<TripDraft | NotAPlan> {
+  const declined = readJson(text, notAPlanSchema);
+  if (declined.ok) return declined;
   const answer = readJson(text, draftSchema);
   if (!answer.ok) return answer;
   const { fields, message } = answer.value;
