@@ -2,6 +2,7 @@
 
 import { GearSixIcon } from "@phosphor-icons/react/dist/ssr/GearSix";
 import { SuitcaseRollingIcon } from "@phosphor-icons/react/dist/ssr/SuitcaseRolling";
+import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { normalizePath } from "@tuja/i18n/normalize-path";
@@ -12,12 +13,14 @@ import {
   TabViewBrand,
   type TabViewLinkProps,
 } from "@tuja/ui/components/tab-view";
+import { controlSize } from "@tuja/ui/tokens.stylex";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { NewTripRailAction } from "#src/new-trip/new-trip-button.tsx";
 import { NewTripProvider } from "#src/new-trip/new-trip-provider.tsx";
 import { AppToasts } from "./app-toasts.tsx";
 import { SettingsSkeleton } from "./settings-skeleton.tsx";
+import { TripsLogo } from "./trips-logo.tsx";
 import { TripsSkeleton } from "./trips-skeleton.tsx";
 
 function TabLink(props: TabViewLinkProps) {
@@ -58,7 +61,7 @@ export function AppFrame({
       defaultCollapsed={defaultCollapsed}
       header={
         <>
-          <TabViewBrand name={appName} initials="Qi" detail="qingqi.dev" />
+          <TabViewBrand name={appName} mark={<TripsLogo css={styles.logo} />} />
           {signedIn && (hasTrips || path !== "/") ? (
             <NewTripRailAction />
           ) : null}
@@ -88,3 +91,10 @@ export function AppFrame({
   );
   return signedIn ? <NewTripProvider>{view}</NewTripProvider> : view;
 }
+
+const styles = stylex.create({
+  logo: {
+    inlineSize: controlSize._9,
+    blockSize: controlSize._9,
+  },
+});
