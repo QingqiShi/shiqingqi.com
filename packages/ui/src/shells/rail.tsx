@@ -298,6 +298,10 @@ const styles = stylex.create({
     // The liquid rests in a shape as wide as the link, with round ends, so
     // it fits only in a link at least as tall as it is wide.
     aspectRatio: 1,
+    // The 44px minimum of `a11y.touchRow` replaces the `auto` minimum, which
+    // is the height of the content. Without `auto`, a tile whose content is
+    // taller than the tile is wide stays square and cuts its label.
+    minBlockSize: "auto",
     paddingBlock: space._1,
     paddingInline: 0,
     fontWeight: font.weight_5,
