@@ -28,12 +28,6 @@ const RISE = { drop: 16, shrink: 0.06 } as const;
 const FADE = cssTween(duration._200, easing.easeOut);
 const SLIDE_FADE_OUT = cssTween(duration._300, easing.easeOut);
 const LIFT_SPRING = springOf(springRoles.lift);
-/**
- * How near to the element, as a share of the way, the card is at rest as it
- * goes back in. It is under 1px for a card of the screen's size, so the
- * sheet goes, and lets the page scroll, as soon as the card shows at rest.
- */
-const INTO_ORIGIN_PRECISION = 1e-3;
 
 /**
  * The parts of a Sheet that move.
@@ -302,12 +296,25 @@ export function createSheetMotion(
     });
   }
 
+  /** Takes the card back into its element, and ends as soon as it reaches it, where the spring would swing past. */
   function intoOrigin() {
-    void progress
-      .to(0, { precision: INTO_ORIGIN_PRECISION })
-      .finished.then((done) => {
-        if (done) left();
-      });
+    const { finished } = progress.to(0);
+    let isIn = false;
+    const arrive = () => {
+      stopWatching();
+      if (isIn) return;
+      isIn = true;
+      left();
+    };
+    const stopWatching = progress.subscribe((at) => {
+      if (at > 0 || progress.target !== 0) return;
+      arrive();
+      progress.stop();
+    });
+    void finished.then((done) => {
+      if (done) arrive();
+      else stopWatching();
+    });
     y.to(0, { spring: LIFT_SPRING });
   }
 

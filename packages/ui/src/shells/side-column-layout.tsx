@@ -190,7 +190,10 @@ export function SideColumnLayout({
     typeof children === "function" ? children({ isAvailable }) : children;
 
   return (
-    <div ref={setRoot} css={[styles.root, isContained && styles.filled, css]}>
+    <div
+      ref={setRoot}
+      css={[styles.root, isContained && [styles.filled, styles.clipped], css]}
+    >
       <span aria-hidden css={styles.probeBox}>
         <span ref={setProbe} css={styles.probe} />
       </span>
@@ -475,6 +478,11 @@ const styles = stylex.create({
   filled: {
     blockSize: "100%",
   },
+  // The column that moves out past the end of the layout does not make the
+  // box around it scroll.
+  clipped: {
+    overflow: "clip",
+  },
   // The probe is as wide as the column and the least main content. Its box
   // clips it, so that it never makes the page wider.
   probeBox: {
@@ -508,7 +516,13 @@ const styles = stylex.create({
     flexShrink: 0,
     boxSizing: "border-box",
     inlineSize: sideColumnTokens.inlineSize,
-    overflow: "clip",
+    // The spring of the column swings past its rest, to the inline start.
+    // Thus that side stays open, and the edge line of the column stays in
+    // view. `clip-path` has no logical sides.
+    clipPath: {
+      default: "inset(0 0 0 -100vw)",
+      ":dir(rtl)": "inset(0 -100vw 0 0)",
+    },
     outlineStyle: "none",
   },
   // Where the page scrolls the main content, the flow keeps only the room of
