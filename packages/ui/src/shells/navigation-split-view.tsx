@@ -129,7 +129,6 @@ export {
  * dismissed sheet — goes back one entry where that entry is the column
  * under it, and else replaces the entry with the `back` URL, such as after
  * a reload. Thus no take-off leaves an entry that Back must step through.
- * Beside the sidebar, Esc and ← leave the content where it is.
  *
  * With a `linkStatus`, a `NavLink` or a `ListRow` marks its link at once, a
  * stacked view opens the destination at once, and if the screen takes more than
@@ -143,9 +142,11 @@ export {
  * that leaves, and a page that the router owns would show the new URL as it goes.
  *
  * Keys, unless focus is in a field, a sheet or a dialog: Esc and ← take the
- * deepest column off. J and K move focus to the next and the previous
- * column link in the column that has focus, and Enter and → follow it. A view in
- * a `SheetBoundary` takes keys only while focus is in it.
+ * detail off. With no detail they do nothing, so that a key does not leave a
+ * screen: the back link and the Back of the browser do that. J and K move
+ * focus to the next and the previous column link in the column that has
+ * focus, and Enter and → follow it. A view in a `SheetBoundary` takes keys
+ * only while focus is in it.
  *
  * Motion follows the URL, after the first paint. A deeper column page
  * springs in over the page it leaves, which drifts back and dims, and a
@@ -356,13 +357,7 @@ export function NavigationSplitView({
     hasDetailColumn ? "detail" : showsStackRoot ? "sidebar" : "content",
     (hasDetailColumn ? detailColumn.key : content.key) ?? null,
   );
-  useColumnKeys(
-    view,
-    // Beside the content, the sidebar that a `back` leads to already shows.
-    isPageSidebar || !hasSidebar || detail != null ? deepestBack : null,
-    takeOff,
-    isContained,
-  );
+  useColumnKeys(view, detail?.back ?? null, takeOff, isContained);
   const swipedAtRef = useRef(Number.NEGATIVE_INFINITY);
   useEdgeSwipe(view, motionRef, pageScrollRef, content.back ?? null, (href) => {
     swipedAtRef.current = performance.now();

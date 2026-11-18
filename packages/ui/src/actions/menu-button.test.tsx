@@ -115,9 +115,9 @@ describe("MenuButton keyboard navigation", () => {
   });
 
   // The document is the React root of a Next app. There, a listener on the
-  // document, such as the keys of a `NavigationStack`, gets the Escape that the
-  // menu stops, and `defaultPrevented` tells it that the key is used.
-  it("marks the Escape that closes it as used, so the screen does not also go back", async () => {
+  // document, such as the keys of a `NavigationSplitView`, gets the Escape that
+  // the menu stops, and `defaultPrevented` tells it that the key is used.
+  it("marks the Escape that closes it as used, so the detail under it does not also close", async () => {
     const user = userEvent.setup();
     render(<TestMenu />);
     await user.click(screen.getByRole("button", { name: "Open menu" }));
