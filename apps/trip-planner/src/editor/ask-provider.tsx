@@ -7,11 +7,20 @@ import {
   createContext,
   use,
   useEffect,
+  useEffectEvent,
   useRef,
   useState,
   type ReactNode,
 } from "react";
 import { aiApi, type Proposal } from "#src/ai/ai-api.ts";
+import {
+  answerStatus,
+  openBatches,
+  takeBack,
+  type AnswerStatus,
+  type Decided,
+  type Returned,
+} from "./answer-status.ts";
 import {
   checkBatches,
   landingOf,
@@ -41,6 +50,9 @@ export type AskFailure =
 /** One answer of the model. `id` changes with each answer. */
 interface Answer extends Proposal {
   id: number;
+  /** The words of the request, so that it can go again. */
+  prompt: string;
+  dayId?: string;
 }
 
 interface Ask {
@@ -52,16 +64,24 @@ interface Ask {
   /** The newest answer, until the next one comes. */
   answer: Answer | null;
   decisions: ReadonlyMap<number, Decision>;
+  /** The accepted batches that are not in the trip any more, and why. */
+  returned: ReadonlyMap<number, Returned>;
   /** For each batch of the answer, whether the trip can take it now. Null for a batch with a decision. */
   checks: readonly (BatchCheck | null)[];
-  /** The batches that the person can still accept, in order. */
+  /** The batches that wait for the person, in order. */
   open: readonly number[];
   /** The batches with no decision that the trip cannot take now. */
   stale: readonly number[];
+  /** What the prompt says about the answer, or null. */
+  status: AnswerStatus | null;
+  /** Stops the prompt's offer to look at the answer again, until the next answer. */
+  dismiss: () => void;
   /** The accepted batch that the editor's undo takes back now, when it is one. */
   undoable: number | null;
   /** Sends the prompt. `dayId` is the day on screen. One request runs at a time. */
   send: (dayId?: string) => void;
+  /** Sends the request of the answer again, for the trip as it is now. */
+  askAgain: () => void;
   cancel: () => void;
   /**
    * Makes each of the batches a change of its own, in order, and offers to
@@ -111,10 +131,22 @@ export function AskProvider({ children }: { children: ReactNode }) {
   const [isAsking, setIsAsking] = useState(false);
   const [failure, setFailure] = useState<AskFailure | null>(null);
   const [answer, setAnswer] = useState<Answer | null>(null);
-  // `batchId` is the change of the queue that an accepted batch is.
-  const [decided, setDecided] = useState<
-    ReadonlyMap<number, { decision: Decision; batchId?: number }>
-  >(() => new Map());
+  const [outcomes, setOutcomes] = useState<{
+    decided: ReadonlyMap<number, Decided>;
+    returned: ReadonlyMap<number, Returned>;
+  }>(() => ({ decided: new Map(), returned: new Map() }));
+  const { decided, returned } = outcomes;
+  const [isDismissed, setIsDismissed] = useState(false);
+  const setDecided = (
+    change: (current: ReadonlyMap<number, Decided>) => Map<number, Decided>,
+  ) => {
+    setOutcomes((current) => {
+      const next = change(current.decided);
+      const left = new Map(current.returned);
+      for (const index of next.keys()) left.delete(index);
+      return { decided: next, returned: left };
+    });
+  };
   // The request that runs. A press of Enter can come two times before the
   // field shows as off, and an answer can come after a cancel.
   const requestRef = useRef<AbortController | null>(null);
@@ -138,16 +170,16 @@ export function AskProvider({ children }: { children: ReactNode }) {
   );
 
   // A batch that the person took back, or that the queue dropped, is not in
-  // the trip, so the person can decide about it again.
+  // the trip, so the person can accept it again.
+  const onTakenBack = useEffectEvent((ids: ReadonlySet<number>) => {
+    setOutcomes((current) =>
+      takeBack(current.decided, current.returned, ids, editor.wasUndone),
+    );
+  });
   useEffect(
     () =>
       queue.onTakenBack((ids) => {
-        setDecided((current) => {
-          const kept = [...current].filter(
-            ([, { batchId }]) => batchId === undefined || !ids.has(batchId),
-          );
-          return kept.length === current.size ? current : new Map(kept);
-        });
+        onTakenBack(ids);
       }),
     [queue],
   );
@@ -157,12 +189,65 @@ export function AskProvider({ children }: { children: ReactNode }) {
     [...decided].map(([index, { decision }]) => [index, decision]),
   );
   const checks = checkBatches(editor.trip, batches, decisions);
-  const open = checks.flatMap((check, index) =>
-    check && check.state !== "stale" ? [index] : [],
-  );
+  const open = openBatches(checks, returned);
   const stale = checks.flatMap((check, index) =>
-    check?.state === "stale" ? [index] : [],
+    check?.state === "stale" && !returned.has(index) ? [index] : [],
   );
+  const status = answerStatus(checks, decided, returned, isDismissed);
+
+  const request = (text: string, dayId: string | undefined) => {
+    if (requestRef.current || !editor.canEdit) return;
+    if (text.length > PROMPT_LIMIT) {
+      setFailure("long");
+      return;
+    }
+    const controller = new AbortController();
+    requestRef.current = controller;
+    setIsAsking(true);
+    setFailure(null);
+    // A request that "Ask again" sent puts its words in an empty prompt
+    // when it gives no changes, so that the person can change them.
+    const keepWords = () => {
+      setPrompt((current) => (current.trim() === "" ? text : current));
+    };
+    const isCurrent = () => {
+      if (requestRef.current !== controller) return false;
+      requestRef.current = null;
+      setIsAsking(false);
+      return true;
+    };
+    aiApi.propose({ tripId, prompt: text, dayId }, controller.signal).then(
+      (proposal) => {
+        if (!isCurrent()) return;
+        setAnswer((last) => ({
+          ...proposal,
+          id: (last?.id ?? 0) + 1,
+          prompt: text,
+          dayId,
+        }));
+        setOutcomes({ decided: new Map(), returned: new Map() });
+        setIsDismissed(false);
+        if (proposal.batches.length === 0) {
+          keepWords();
+          return;
+        }
+        // The words of a request that gave changes are used up. A reply
+        // with no change often asks for other words.
+        setPrompt((current) => (current.trim() === text ? "" : current));
+        // The model read the newest trip. A change of another person that
+        // this editor does not have yet would make a batch not fit.
+        queue.sync();
+      },
+      (error: unknown) => {
+        if (!isCurrent()) return;
+        const why = failureOf(error);
+        setFailure(why);
+        keepWords();
+        // The editor finds out in its own way that the trip is gone.
+        if (why === "gone") queue.sync();
+      },
+    );
+  };
   const undoable =
     [...decided].find(
       ([, { batchId }]) =>
@@ -179,48 +264,21 @@ export function AskProvider({ children }: { children: ReactNode }) {
     failure,
     answer,
     decisions,
+    returned,
     checks,
     open,
     stale,
+    status,
+    dismiss() {
+      setIsDismissed(true);
+    },
     undoable,
     send(dayId) {
       const text = prompt.trim();
-      if (!text || requestRef.current || !editor.canEdit) return;
-      if (text.length > PROMPT_LIMIT) {
-        setFailure("long");
-        return;
-      }
-      const request = new AbortController();
-      requestRef.current = request;
-      setIsAsking(true);
-      setFailure(null);
-      const isCurrent = () => {
-        if (requestRef.current !== request) return false;
-        requestRef.current = null;
-        setIsAsking(false);
-        return true;
-      };
-      aiApi.propose({ tripId, prompt: text, dayId }, request.signal).then(
-        (proposal) => {
-          if (!isCurrent()) return;
-          setAnswer((last) => ({ ...proposal, id: (last?.id ?? 0) + 1 }));
-          setDecided(new Map());
-          if (proposal.batches.length === 0) return;
-          // The words of a request that gave changes are used up. A reply
-          // with no change often asks for other words.
-          setPrompt("");
-          // The model read the newest trip. A change of another person that
-          // this editor does not have yet would make a batch not fit.
-          queue.sync();
-        },
-        (error: unknown) => {
-          if (!isCurrent()) return;
-          const why = failureOf(error);
-          setFailure(why);
-          // The editor finds out in its own way that the trip is gone.
-          if (why === "gone") queue.sync();
-        },
-      );
+      if (text) request(text, dayId);
+    },
+    askAgain() {
+      if (answer) request(answer.prompt, answer.dayId);
     },
     cancel() {
       requestRef.current?.abort();

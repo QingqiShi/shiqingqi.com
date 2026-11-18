@@ -62,6 +62,8 @@ interface Editor {
   ) => { ok: true; batchId?: number } | { ok: false; message: string };
   /** Takes back the newest change, and says so in a toast. It gives what the queue's `undo` gives. */
   undo: () => "taken" | "asks" | "none";
+  /** Whether the person took back the change with this id, as opposed to the queue dropping it. */
+  wasUndone: (batchId: number) => boolean;
   statusOf: (id: string) => RowStatus;
   /** Whether the person made a change since the screen opened. */
   hasChanged: boolean;
@@ -132,6 +134,7 @@ export function EditorProvider({
     }),
   );
   const [rows] = useState(() => new Map<string, HTMLElement>());
+  const [undoneIds] = useState(() => new Set<number>());
   const [hasChanged, setHasChanged] = useState(false);
   const [markedId, setMarkedId] = useState<string | null>(null);
   const state = useSyncExternalStore(
@@ -209,7 +212,12 @@ export function EditorProvider({
   }, [markedId]);
 
   const undo = () => {
+    // The queue reports the change as taken back while `undo` runs, so the
+    // mark must be there before.
+    const { undoes } = queue.getState();
+    if (undoes !== null) undoneIds.add(undoes);
     const result = queue.undo();
+    if (result === "none" && undoes !== null) undoneIds.delete(undoes);
     // When the thing changed after the change, the conflict sheet opens,
     // so the change is not taken back yet.
     if (result !== "asks") {
@@ -264,6 +272,7 @@ export function EditorProvider({
       return { ok: true, batchId: result.batchId };
     },
     undo,
+    wasUndone: (batchId) => undoneIds.has(batchId),
     statusOf,
     hasChanged,
     markedId,

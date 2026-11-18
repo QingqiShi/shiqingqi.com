@@ -15,7 +15,8 @@ import type { ProposedBatch } from "#src/ai/ai-api.ts";
 import { findMoment } from "#src/trips/ops/find-item.ts";
 import type { Trip } from "#src/trips/types.ts";
 import { useAsk } from "./ask-provider.tsx";
-import type { BatchCheck, Decision } from "./check-batches.ts";
+import { locateItem } from "./build-outline.ts";
+import type { BatchCheck } from "./check-batches.ts";
 import { dayPlan, isOnlyItsItem } from "./day-plan.ts";
 import { useEditor } from "./editor-provider.tsx";
 import { touchedIds } from "./goes-with-theirs.ts";
@@ -45,61 +46,107 @@ function useChangedThings() {
     zh: "当天的全部安排会一并移除，共 {count} 项。",
   });
   return (batch: ProposedBatch, before: Trip, after: Trip): ChangedThing[] => {
-    const ids = touchedIds(batch.ops);
-    return ids.flatMap((id): ChangedThing[] => {
-      const was = describe(before, id);
-      const becomes = describe(after, id);
-      const moment = findMoment(after, id)?.moment;
-      // The words of a time name it. Its first line is its day and time.
-      const title =
-        moment?.text ??
-        findMoment(before, id)?.moment.text ??
-        becomes?.at(0) ??
-        was?.at(0);
-      if (title === undefined) return [];
-      // A new time with one new item shows as that item.
-      if (
-        !was &&
-        moment &&
-        isOnlyItsItem(moment) &&
-        ids.includes(moment.items[0].id)
-      ) {
-        return [];
-      }
-      const rest = (lines: string[]) => lines.filter((line) => line !== title);
-      if (!was) {
-        return [
-          { id, kind: "added", title, was: [], becomes: rest(becomes ?? []) },
-        ];
-      }
-      if (!becomes) {
-        const day = before.days.find((each) => each.id === id);
-        const count = day ? dayPlan(day).count : 0;
-        return [
-          {
-            id,
-            kind: "removed",
-            title,
-            was: rest(was),
-            becomes: [],
-            goesWith:
-              count > 0
-                ? withPlan.replace("{count}", String(count))
-                : undefined,
-          },
-        ];
-      }
-      return [
-        {
-          id,
-          kind: "changed",
-          title,
-          was: was.filter((line) => !becomes.includes(line)),
-          becomes: becomes.filter((line) => !was.includes(line)),
-        },
-      ];
-    });
+    const touched = touchedIds(batch.ops);
+    const stays = stayIds(batch, before, after).filter(
+      (id) => !touched.includes(id),
+    );
+    return [...new Set([...stays, ...touched])].flatMap(
+      (id): ChangedThing[] => {
+        const was = describe(before, id);
+        const becomes = describe(after, id);
+        const moment = findMoment(after, id)?.moment;
+        const title = becomes?.at(0) ?? was?.at(0);
+        if (title === undefined) return [];
+        // A new time with one new item shows as that item.
+        if (
+          !was &&
+          moment &&
+          isOnlyItsItem(moment) &&
+          touched.includes(moment.items[0].id)
+        ) {
+          return [];
+        }
+        const rest = (lines: string[]) =>
+          lines.filter((line) => line !== title);
+        if (!was) {
+          return [
+            { id, kind: "added", title, was: [], becomes: rest(becomes ?? []) },
+          ];
+        }
+        if (!becomes) {
+          const day = before.days.find((each) => each.id === id);
+          const count = day ? dayPlan(day).count : 0;
+          return [
+            {
+              id,
+              kind: "removed",
+              title,
+              was: rest(was),
+              becomes: [],
+              goesWith:
+                count > 0
+                  ? withPlan.replace("{count}", String(count))
+                  : undefined,
+            },
+          ];
+        }
+        const now = was.filter((line) => !becomes.includes(line));
+        const then = becomes.filter((line) => !was.includes(line));
+        // A stay that the batch does not name shows only when its nights change.
+        if (now.length + then.length === 0 && stays.includes(id)) return [];
+        return [{ id, kind: "changed", title, was: now, becomes: then }];
+      },
+    );
   };
+}
+
+/**
+ * The stays whose nights a batch changes: a night that repeats a day, or
+ * stops to repeat it, makes the stay of that day longer or shorter.
+ */
+function stayIds(batch: ProposedBatch, before: Trip, after: Trip): string[] {
+  const bedDays = batch.ops.flatMap((op) => {
+    if (op.op !== "setStay" || op.fields.sameAs === undefined) return [];
+    const was = before.days.find((day) => day.id === op.dayId)?.stay.sameAs;
+    return [op.fields.sameAs?.dayId, was?.dayId];
+  });
+  return [...after.days, ...before.days].flatMap((day) =>
+    bedDays.includes(day.id) ? day.stay.lodging.map((each) => each.id) : [],
+  );
+}
+
+/**
+ * The day that a batch takes a thing from, and the day that it takes it
+ * to, when the batch moves one thing from one of its two days to the
+ * other. `trips` find the day of a moment that an item goes to.
+ */
+function moveOf(
+  batch: ProposedBatch,
+  trips: readonly Trip[],
+): { from: string; to: string } | null {
+  const dayOfMoment = (id: string) =>
+    trips
+      .map((trip) => findMoment(trip, id)?.day.id)
+      .find((dayId) => dayId !== undefined);
+  const moves = batch.ops.flatMap((op) => {
+    if (op.op === "moveMoment") return [{ id: op.id, to: op.dayId }];
+    if (op.op !== "moveItem") return [];
+    const to = "dayId" in op.to ? op.to.dayId : dayOfMoment(op.to.momentId);
+    return [{ id: op.id, to }];
+  });
+  const [move] = moves;
+  if (moves.length !== 1 || batch.dayIds.length !== 2) return null;
+  const { id, to } = move;
+  const from = batch.dayIds.find((dayId) => dayId !== to);
+  if (!to || !from || !batch.dayIds.includes(to)) return null;
+  // The other day is where the thing comes from only when a trip shows it
+  // there, or when the batch changes nothing else.
+  const isOnlyMove = touchedIds(batch.ops).every((each) => each === id);
+  const wasThere = trips.some(
+    (trip) =>
+      (findMoment(trip, id)?.day.id ?? locateItem(trip, id)?.dayId) === from,
+  );
+  return isOnlyMove || wasThere ? { from, to } : null;
 }
 
 function Things({ things }: { things: ChangedThing[] }) {
@@ -154,23 +201,35 @@ function Things({ things }: { things: ChangedThing[] }) {
  * accepts it. A change shows what it does to the trip as the trip is now,
  * so the list follows each edit of the person.
  */
-export function ProposalView({ onDone }: { onDone: (rowId?: string) => void }) {
+export function ProposalView({
+  onDone,
+  onReview,
+}: {
+  onDone: (rowId?: string) => void;
+  /** Opens the sheet of the answer again. */
+  onReview: () => void;
+}) {
   const ask = useAsk();
   const editor = useEditor();
   const dayLabels = useDayLabels();
   const changedThings = useChangedThings();
   const showToast = useToast();
-  const { answer, checks, decisions, open } = ask;
+  const { answer, checks, decisions, returned, open, stale } = ask;
 
   const changeNumber = t({ en: "Change {number}", zh: "修改 {number}" });
+  const daySeparator = t({ en: ", ", zh: "、" });
   const acceptLabel = t({ en: "Accept", zh: "采纳" });
+  const acceptAgainLabel = t({ en: "Accept again", zh: "重新采纳" });
   const skipLabel = t({ en: "Skip", zh: "跳过" });
   const restoreLabel = t({ en: "Restore", zh: "恢复" });
   const acceptedLabel = t({ en: "Accepted", zh: "已采纳" });
   const skippedLabel = t({ en: "Skipped", zh: "已跳过" });
+  const takenBackLabel = t({ en: "Taken back", zh: "已撤销" });
+  const notSavedLabel = t({ en: "Not saved", zh: "未保存" });
   const skippedToast = t({ en: "Change skipped", zh: "已跳过这项修改" });
   const undoLabel = t({ en: "Undo", zh: "撤销" });
   const acceptAll = t({ en: "Accept all {count}", zh: "全部采纳（{count}）" });
+  const askAgainLabel = t({ en: "Ask again", zh: "重新提问" });
   const buildsOnOne = t({
     en: "This builds on change {number}.",
     zh: "这项修改以修改 {number} 为前提。",
@@ -191,32 +250,59 @@ export function ProposalView({ onDone }: { onDone: (rowId?: string) => void }) {
     en: "This builds on change {number}, which you skipped.",
     zh: "这项修改以修改 {number} 为前提，而你跳过了它。",
   });
+  const tripChanged = t({
+    en: "The trip changed after you asked, so this no longer fits.",
+    zh: "提问之后行程有了变动，这项修改已不适用。",
+  });
   const noLongerFits = t({
     en: "This no longer fits the trip.",
     zh: "这项修改已不适用于现在的行程。",
+  });
+  const allChangedOne = t({
+    en: "The trip changed after you asked, so this change no longer fits. Ask again to get a change for the trip as it is now.",
+    zh: "提问之后行程有了变动，这项修改已不适用。重新提问，按现在的行程给出修改。",
+  });
+  const allChangedMany = t({
+    en: "The trip changed after you asked, so none of these changes fit any more. Ask again to get changes for the trip as it is now.",
+    zh: "提问之后行程有了变动，这些修改都已不适用。重新提问，按现在的行程给出修改。",
   });
 
   if (!answer) return null;
   const { batches } = answer;
   const numberOf = (index: number) => String(index + 1);
+  const isAllStale = batches.length > 0 && stale.length === batches.length;
 
-  const closeWhenDecided = (
-    next: ReadonlyMap<number, Decision>,
-    rowId?: string,
-  ) => {
-    if (next.size === batches.length) onDone(rowId);
-    return next.size === batches.length;
+  const askAgain = () => {
+    ask.askAgain();
+    onDone();
+  };
+  const askAgainButton = (
+    <Button
+      size="sm"
+      disabled={!editor.canEdit || ask.isAsking}
+      onClick={askAgain}
+    >
+      {askAgainLabel}
+    </Button>
+  );
+
+  // The sheet closes when the person has decided about each batch once.
+  const closeWhenDecided = (decided: ReadonlySet<number>, rowId?: string) => {
+    const isDone = batches.every(
+      (_, index) => decided.has(index) || returned.has(index),
+    );
+    if (isDone) onDone(rowId);
+    return isDone;
   };
   const accept = (indexes: readonly number[]) => {
     const { made, rowId } = ask.accept(indexes);
-    const next = new Map(decisions);
-    for (const index of made) next.set(index, "accepted");
-    closeWhenDecided(next, rowId);
+    closeWhenDecided(new Set([...decisions.keys(), ...made]), rowId);
   };
   const skip = (index: number) => {
     ask.skip(index);
-    const isLast = closeWhenDecided(new Map(decisions).set(index, "skipped"));
-    // The sheet is gone, so the way back is in the toast.
+    const isLast = closeWhenDecided(new Set([...decisions.keys(), index]));
+    // The sheet is gone, so the way back is in the toast: it brings the
+    // change back, in the sheet.
     if (isLast) {
       showToast({
         message: skippedToast,
@@ -224,6 +310,7 @@ export function ProposalView({ onDone }: { onDone: (rowId?: string) => void }) {
           label: undoLabel,
           onAction() {
             ask.restore(index);
+            onReview();
           },
         },
       });
@@ -235,13 +322,96 @@ export function ProposalView({ onDone }: { onDone: (rowId?: string) => void }) {
       check && check.state !== "stale"
         ? [check.after, check.before]
         : [editor.trip];
-    return batch.dayIds.flatMap((dayId) => {
+    const labelOf = (dayId: string) => {
       for (const trip of trips) {
         const index = trip.days.findIndex((day) => day.id === dayId);
-        if (index >= 0) return [dayLabels.dated(trip.days[index], index)];
+        if (index >= 0) return dayLabels.dated(trip.days[index], index);
       }
-      return [];
-    });
+      return undefined;
+    };
+    const move = moveOf(batch, trips);
+    const from = move && labelOf(move.from);
+    const to = move && labelOf(move.to);
+    if (from && to) return `${from} → ${to}`;
+    return batch.dayIds
+      .flatMap((dayId) => labelOf(dayId) ?? [])
+      .join(daySeparator);
+  };
+
+  const skipButton = (index: number) => (
+    <Button
+      size="sm"
+      look="ghost"
+      onClick={() => {
+        skip(index);
+      }}
+    >
+      {skipLabel}
+    </Button>
+  );
+
+  const acceptButtons = (
+    index: number,
+    check: BatchCheck,
+    { again }: { again: boolean },
+  ) => {
+    if (check.state === "stale") return null;
+    if (check.state === "waits") {
+      const { needs } = check;
+      const [only] = needs;
+      const isOne = needs.length === 1;
+      return (
+        <div css={stack.tight}>
+          <Text look="bodySmall" tone="muted">
+            {isOne
+              ? buildsOnOne.replace("{number}", numberOf(only))
+              : buildsOnMore}
+          </Text>
+          <div css={[cluster.tight, styles.actions]}>
+            {again ? null : skipButton(index)}
+            <Button
+              size="sm"
+              disabled={!editor.canEdit}
+              onClick={() => {
+                accept([...needs, index]);
+              }}
+            >
+              {isOne
+                ? acceptWithOne.replace("{number}", numberOf(only))
+                : acceptWithMore}
+            </Button>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div css={[cluster.tight, styles.actions]}>
+        {skipButton(index)}
+        <Button
+          size="sm"
+          look={open.length === 1 ? "primary" : undefined}
+          disabled={!editor.canEdit}
+          onClick={() => {
+            accept([index]);
+          }}
+        >
+          {acceptLabel}
+        </Button>
+      </div>
+    );
+  };
+
+  const staleWords = (check: BatchCheck | null) => {
+    const needed = check?.state === "stale" ? check.needs.at(0) : undefined;
+    return (
+      <Text look="bodySmall" tone="warning">
+        {needed !== undefined
+          ? buildsOnSkipped.replace("{number}", numberOf(needed))
+          : isAllStale
+            ? noLongerFits
+            : tripChanged}
+      </Text>
+    );
   };
 
   const actionsOf = (index: number, check: BatchCheck | null) => {
@@ -284,74 +454,62 @@ export function ProposalView({ onDone }: { onDone: (rowId?: string) => void }) {
         </div>
       );
     }
-    if (!check || check.state === "stale") {
-      const needed = check?.needs.at(0);
-      return (
-        <Text look="bodySmall" tone="warning">
-          {needed === undefined
-            ? noLongerFits
-            : buildsOnSkipped.replace("{number}", numberOf(needed))}
+    const back = returned.get(index);
+    if (back) {
+      const label = (
+        <Text look="bodySmall" tone="muted">
+          {back === "takenBack" ? takenBackLabel : notSavedLabel}
         </Text>
       );
-    }
-    const skipButton = (
-      <Button
-        size="sm"
-        look="ghost"
-        onClick={() => {
-          skip(index);
-        }}
-      >
-        {skipLabel}
-      </Button>
-    );
-    if (check.state === "waits") {
-      const { needs } = check;
-      const [only] = needs;
-      const isOne = needs.length === 1;
-      return (
-        <div css={stack.tight}>
-          <Text look="bodySmall" tone="muted">
-            {isOne
-              ? buildsOnOne.replace("{number}", numberOf(only))
-              : buildsOnMore}
-          </Text>
-          <div css={[cluster.tight, styles.actions]}>
-            {skipButton}
+      if (check?.state === "ready") {
+        return (
+          <div css={[cluster.tight, styles.decided]}>
+            {label}
             <Button
               size="sm"
+              look="ghost"
               disabled={!editor.canEdit}
               onClick={() => {
-                accept([...needs, index]);
+                accept([index]);
               }}
             >
-              {isOne
-                ? acceptWithOne.replace("{number}", numberOf(only))
-                : acceptWithMore}
+              {acceptAgainLabel}
             </Button>
           </div>
+        );
+      }
+      return (
+        <div css={stack.tight}>
+          {label}
+          {check?.state === "waits"
+            ? acceptButtons(index, check, { again: true })
+            : staleWords(check)}
         </div>
       );
     }
-    return (
-      <div css={[cluster.tight, styles.actions]}>
-        {skipButton}
-        <Button
-          size="sm"
-          look={open.length === 1 ? "primary" : undefined}
-          disabled={!editor.canEdit}
-          onClick={() => {
-            accept([index]);
-          }}
-        >
-          {acceptLabel}
-        </Button>
-      </div>
-    );
+    if (!check || check.state === "stale") {
+      // With nothing else to decide, the way on is a new answer.
+      const canAskAgain =
+        !isAllStale && open.length === 0 && check?.needs.length === 0;
+      return canAskAgain ? (
+        <div css={stack.tight}>
+          {staleWords(check)}
+          <div css={[cluster.tight, styles.actions]}>{askAgainButton}</div>
+        </div>
+      ) : (
+        staleWords(check)
+      );
+    }
+    return acceptButtons(index, check, { again: false });
   };
 
   return (
     <div css={stack.item}>
+      {isAllStale ? (
+        <Callout intent="warning" action={askAgainButton}>
+          {batches.length === 1 ? allChangedOne : allChangedMany}
+        </Callout>
+      ) : null}
       <Callout intent="neutral" icon={<SparkleIcon weight="bold" />}>
         <span css={styles.words}>{answer.message}</span>
       </Callout>
@@ -362,10 +520,9 @@ export function ProposalView({ onDone }: { onDone: (rowId?: string) => void }) {
           <Card key={index} padding="sm">
             <div css={stack.tight}>
               <Text look="caption" tone="muted">
-                {[
-                  changeNumber.replace("{number}", numberOf(index)),
-                  ...days,
-                ].join(separator)}
+                {[changeNumber.replace("{number}", numberOf(index)), days]
+                  .filter((part) => part !== "")
+                  .join(separator)}
               </Text>
               <Text weight="semibold" css={styles.words}>
                 {batch.summary}
@@ -384,11 +541,6 @@ export function ProposalView({ onDone }: { onDone: (rowId?: string) => void }) {
         <Button
           look={open.length === 0 ? "primary" : "ghost"}
           onClick={() => {
-            // With nothing left to accept, the person is done with the
-            // answer, so the prompt stops its offer to review it.
-            if (open.length === 0) {
-              for (const index of ask.stale) ask.skip(index);
-            }
             onDone();
           }}
         >

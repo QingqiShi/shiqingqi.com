@@ -436,6 +436,7 @@ function EditorScreen() {
                 onDone={close}
                 onLeave={leave}
                 onFresh={forgetInput}
+                onReview={reviewAnswer}
               />
             </SheetInputContext>
           </div>
@@ -450,12 +451,14 @@ function SheetContent({
   onDone,
   onLeave,
   onFresh,
+  onReview,
 }: {
   target: SheetTarget;
   onDone: (rowId?: string) => void;
   onLeave: () => void;
   /** Called when a form starts again with nothing in it that the person typed. */
   onFresh: () => void;
+  onReview: () => void;
 }) {
   const { queue } = useEditor();
   switch (target.kind) {
@@ -483,7 +486,7 @@ function SheetContent({
     case "conflict":
       return <ConflictView onDone={onDone} />;
     case "proposal":
-      return <ProposalView onDone={onDone} />;
+      return <ProposalView onDone={onDone} onReview={onReview} />;
     case "leave":
       return (
         <div css={stack.item}>

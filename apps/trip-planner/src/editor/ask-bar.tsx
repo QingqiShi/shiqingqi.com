@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
@@ -77,8 +78,8 @@ function useFailureWords(): Record<AskFailure, string> {
 /**
  * The prompt at the bottom of the edit screen: the person asks for changes
  * in their own words. It stays above the tab bar while the outline scrolls
- * under it, and it says what the request does: it runs, it failed, or its
- * changes wait for a decision.
+ * under it, and it says what the request does: it runs, it failed, its
+ * changes wait for a decision, or some of them did not go in.
  */
 export function AskBar({
   isReviewing,
@@ -100,20 +101,25 @@ export function AskBar({
     en: "{count} proposed changes wait",
     zh: "有 {count} 项修改建议待处理",
   });
-  const unfitOne = t({
-    en: "1 proposed change no longer fits the trip",
-    zh: "有 1 项修改建议已不适用于现在的行程",
+  const replacesOne = t({
+    en: "Sending replaces the proposed change that waits",
+    zh: "发送后，待处理的修改建议会被替换",
   });
-  const unfitMany = t({
-    en: "{count} proposed changes no longer fit the trip",
-    zh: "有 {count} 项修改建议已不适用于现在的行程",
+  const replacesMany = t({
+    en: "Sending replaces the {count} proposed changes that wait",
+    zh: "发送后，待处理的 {count} 项修改建议会被替换",
   });
-  // The offer to review stays while a batch has no decision, also when the
-  // trip cannot take it: the sheet says why.
-  const [waits, one, many] =
-    ask.open.length > 0
-      ? [ask.open.length, waitsOne, waitsMany]
-      : [ask.stale.length, unfitOne, unfitMany];
+  const settledWords = {
+    accepted: t({ en: "{count} accepted", zh: "已采纳 {count} 项" }),
+    skipped: t({ en: "{count} skipped", zh: "已跳过 {count} 项" }),
+    takenBack: t({ en: "{count} taken back", zh: "已撤销 {count} 项" }),
+    notSaved: t({ en: "{count} not saved", zh: "{count} 项未保存" }),
+    outdated: t({ en: "{count} out of date", zh: "{count} 项已过时" }),
+  };
+  const settledLine = t({
+    en: "Proposed changes: {counts}",
+    zh: "修改建议：{counts}",
+  });
 
   const { isGone } = editor.state;
   const fieldRef = useRef<HTMLDivElement | null>(null);
@@ -135,10 +141,33 @@ export function AskBar({
 
   if (isGone) return null;
 
+  const hasWords = ask.prompt.trim().length > 0;
+  const answerStatus = isReviewing ? null : ask.status;
+  const settled = answerStatus?.kind === "settled" ? answerStatus : null;
+  const counts = settled
+    ? (
+        ["accepted", "skipped", "takenBack", "notSaved", "outdated"] as const
+      ).flatMap((key) =>
+        settled[key] > 0
+          ? [settledWords[key].replace("{count}", String(settled[key]))]
+          : [],
+      )
+    : [];
+  // A new request takes the place of the answer, so the person learns
+  // before Send that the changes that wait go with it.
+  const waitsWords = (count: number) =>
+    hasWords
+      ? count === 1
+        ? replacesOne
+        : replacesMany.replace("{count}", String(count))
+      : count === 1
+        ? waitsOne
+        : waitsMany.replace("{count}", String(count));
+
   const status = (words: ReactNode, action?: ReactNode) => (
     <div css={[row.tight, styles.status]}>
       <div css={styles.words}>{words}</div>
-      {action}
+      {action && <div css={styles.action}>{action}</div>}
     </div>
   );
   const header = ask.isAsking
@@ -170,18 +199,41 @@ export function AskBar({
               </Text>
             </div>,
           )
-        : waits > 0 && !isReviewing
+        : answerStatus?.kind === "waits"
           ? status(
               <Text look="bodySmall" tone="muted">
-                {waits === 1 ? one : many.replace("{count}", String(waits))}
+                {waitsWords(answerStatus.count)}
               </Text>,
               <Button type="button" size="sm" onClick={onReview}>
                 {t({ en: "Review", zh: "查看" })}
               </Button>,
             )
-          : undefined;
+          : settled
+            ? status(
+                <Text look="bodySmall" tone="muted">
+                  {settledLine.replace("{counts}", counts.join(" · "))}
+                </Text>,
+                <div css={row.tight}>
+                  <Button
+                    type="button"
+                    size="sm"
+                    look="ghost"
+                    onClick={onReview}
+                  >
+                    {t({ en: "Show", zh: "查看" })}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    look="ghost"
+                    icon={<XIcon weight="bold" role="presentation" />}
+                    aria-label={t({ en: "Hide", zh: "隐藏" })}
+                    onClick={ask.dismiss}
+                  />
+                </div>,
+              )
+            : undefined;
 
-  const hasWords = ask.prompt.trim().length > 0;
   return (
     <StickyControls css={styles.bar}>
       <StickyControlGroup css={styles.fill}>
@@ -259,6 +311,9 @@ const styles = stylex.create({
   },
   words: {
     minInlineSize: 0,
+  },
+  action: {
+    flexShrink: 0,
   },
   toasts: (barHeight: number) => ({
     [toastTokens.clearance]: `calc(${BAR_INSET} + ${String(barHeight)}px)`,
