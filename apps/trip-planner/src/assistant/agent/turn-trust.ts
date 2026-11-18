@@ -25,6 +25,21 @@ export class TurnTrust {
   taint(reason: string): void {
     this.#reason ??= reason;
   }
+
+  #memoryHeld = false;
+
+  /**
+   * Whether memory cannot change in a turn that is not tainted: its message
+   * is a tapped option, which the model wrote, in a conversation that holds
+   * content that no member wrote. Changes to the trip stay allowed.
+   */
+  get memoryHeld(): boolean {
+    return this.#memoryHeld;
+  }
+
+  holdMemory(): void {
+    this.#memoryHeld = true;
+  }
 }
 
 /** What the tools of one turn act on, and as whom. */

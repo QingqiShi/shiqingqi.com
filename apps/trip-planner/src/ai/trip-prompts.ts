@@ -21,6 +21,8 @@ Each op is one JSON object. Never write "expect"; the app adds it. A field marke
 
 Ids: name a thing that exists by its "id" from the trip. Give each new thing a placeholder id that starts with $, such as "$lunch" or "$lunch-place", and use the same placeholder when a later op names that new thing. The app makes the real ids.
 
+"before" names the thing that comes next: to put a thing first, give the id of the first thing there; to put it last, leave "before" out. Never send null or "" for "before" or for another optional field outside "fields": leave it out.
+
 Trip and days:
 - {"op":"setTrip","fields":{"title"?,"subtitle"?,"party"?,"timeZone"?,"language"?}}: "party" is a short line about who travels, such as "3 people, self-drive"; "timeZone" is an IANA zone such as "Europe/Rome", which sets "today" for the trip; "language" is "en" or "zh", the language the trip's text is written in.
 - {"op":"setFirstDate","date":"YYYY-MM-DD"}: moves every day by the same number of dates, so that the first day has this date.
@@ -67,7 +69,7 @@ People:
 - {"op":"setPresence","personId":PERSON,"dayId":DAY,"presence":"arrive"|"depart"|"home"|"present"|null}`;
 
 /** How the model writes to the person. */
-const PLAIN_WORDS = `Write it as a friend who helps with the trip would, about days, places, times and what you left out or guessed. Never use the words of this app's answer or of how you work, such as batch, op, tool, id, placeholder, field, schema, prompt or JSON, and never write an id. Say what you can or cannot do in the person's words, such as "I can't change the checkout time here". Name a place as people do, such as an airport by its name, not by its code. In Chinese, write 你, never 您.`;
+const PLAIN_WORDS = `Write it as a friend who helps with the trip would, about days, places, times and what you left out or guessed. Never use the words of this app's answer or of how you work, such as batch, op, tool, id, placeholder, field, schema, prompt or JSON, and never write an id. Say what you can or cannot do in the person's words, such as "I can't change the checkout time here". Name a place as people do, such as an airport by its name, not by its code. In Chinese, write 你, never 您, and use Chinese punctuation (，。：；？！（）「」) in all Chinese text that you write: answers, questions and their options, summaries, labels and the trip's text. Never write , : ; ? ! ( ) or quote marks between Chinese words.`;
 
 /** The parts of a prompt that tell a model how to write ops and how to write to the person. */
 export const tripPrompts = { ops: OPS, plainWords: PLAIN_WORDS };

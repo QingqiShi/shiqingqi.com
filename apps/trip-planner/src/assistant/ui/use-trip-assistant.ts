@@ -10,6 +10,7 @@ import {
   type AttachmentChip,
   type CardAction,
   type SegmentTranscript,
+  type SendFailure,
   type StreamLine,
   type TranscriptItem,
 } from "#src/assistant/assistant-api.ts";
@@ -21,10 +22,6 @@ import {
 } from "./draft-attachments.ts";
 
 const { draftOf, draftsFit, pastedDraft } = draftAttachments;
-
-/** Why the last message did not get a full answer. */
-export type SendFailure =
-  "failed" | "timeout" | "too_long" | "busy" | "attachments" | "request_failed";
 
 /** Why the last tap on a change card did not go through. */
 export type DecideFailure = "conflict" | "busy" | "request_failed";
@@ -431,7 +428,7 @@ export function useTripAssistant(
     setIsStreaming(false);
     if (next) setState(next);
     if (next || !started) setLive(null);
-    if (ended === "failed" || ended === "timeout") failure = ended;
+    if (ended !== null && ended !== "ok") failure = ended;
     if (failure) {
       setSendFailure(failure);
       setDraft((current) => (current === "" ? message : current));

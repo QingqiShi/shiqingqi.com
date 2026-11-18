@@ -27,6 +27,7 @@ export type {
   RefusalReason,
   SegmentInfo,
   SegmentTranscript,
+  SendFailure,
   StreamLine,
   TranscriptItem,
   TurnEvent,

@@ -1,6 +1,7 @@
 "use client";
 
 import { BedIcon } from "@phosphor-icons/react/dist/ssr/Bed";
+import { LinkIcon } from "@phosphor-icons/react/dist/ssr/Link";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
@@ -20,6 +21,11 @@ import { ExternalRowLink } from "./external-row-link.tsx";
 import { googleMapsUrl } from "./maps/google-maps-url.ts";
 import { useItemChangeButton } from "./quick-edit/use-item-change-button.tsx";
 import { TripText } from "./trip-text.tsx";
+
+function isBookingCom(url: string): boolean {
+  const host = new URL(url).hostname;
+  return host === "booking.com" || host.endsWith(".booking.com");
+}
 
 function StatusBadge({ lodging }: { lodging: Lodging }) {
   const booked = t({ en: "Booked", zh: "已预订" });
@@ -134,6 +140,7 @@ export function StaySection({
 }) {
   const title = t({ en: "Stay", zh: "住宿" });
   const search = t({ en: "Search on Booking.com", zh: "在 Booking.com 搜索" });
+  const openBooking = t({ en: "Open the booking", zh: "打开预订页面" });
   if (
     !stay.sameAs &&
     stay.lodging.length === 0 &&
@@ -179,13 +186,23 @@ export function StaySection({
         ) : null}
         {stay.bookingUrl && webLink.is(stay.bookingUrl) ? (
           <div>
-            <ExternalButton
-              href={stay.bookingUrl}
-              look="outline"
-              icon={<MagnifyingGlassIcon weight="bold" />}
-            >
-              {search}
-            </ExternalButton>
+            {isBookingCom(stay.bookingUrl) ? (
+              <ExternalButton
+                href={stay.bookingUrl}
+                look="outline"
+                icon={<MagnifyingGlassIcon weight="bold" />}
+              >
+                {search}
+              </ExternalButton>
+            ) : (
+              <ExternalButton
+                href={stay.bookingUrl}
+                look="outline"
+                icon={<LinkIcon weight="bold" />}
+              >
+                {openBooking}
+              </ExternalButton>
+            )}
           </div>
         ) : stay.bookingUrl ? (
           <Text tone="muted">

@@ -21,11 +21,6 @@ export type AttachFailure =
 
 const JPEG_QUALITY = 0.85;
 
-function jpegName(name: string): string {
-  const base = name.replace(/\.[^./]+$/, "") || "image";
-  return `${base}.jpg`;
-}
-
 /**
  * The image as a JPEG with its long edge at most `IMAGE_LONG_EDGE`, so that
  * a photo from a phone fits the limits. JPEG has no transparency, so the
@@ -81,7 +76,7 @@ async function draftOf(file: File): Promise<DraftAttachment | AttachFailure> {
   try {
     return {
       id,
-      name: jpegName(file.name),
+      name: file.name || "Image",
       kind: "image",
       blob: await scaleImage(file),
     };

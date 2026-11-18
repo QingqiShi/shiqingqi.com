@@ -162,6 +162,11 @@ async function run(
       "Memory cannot change in this turn, because it holds content that the person did not write, such as a long paste, a web link or a web research list. Only what a member says in their own words goes to memory.",
     );
   }
+  if (context.trust.memoryHeld) {
+    throw new MemoryError(
+      "Memory cannot change in this turn: the person tapped an option that you wrote, and this conversation holds content that no member wrote, such as a web research list or attachment items. Only what a member says in their own words goes to memory. Ask the person to type what to remember.",
+    );
+  }
 
   switch (input.command) {
     case "create": {

@@ -3,6 +3,8 @@ import { z } from "zod";
 export const RESEARCH_KINDS = ["eat", "stay", "sight", "other"] as const;
 export type ResearchKind = (typeof RESEARCH_KINDS)[number];
 
+const RESEARCH_LANGUAGES = ["zh", "en"] as const;
+
 /**
  * Text that names a web address in any form: a scheme, `www.`, a host with
  * a top-level domain, an IPv4 address, or an email address. The sub-agent
@@ -54,6 +56,11 @@ export const researchBrief = z.strictObject({
   preferences: briefText(200)
     .optional()
     .describe("Wishes that the person said, such as 'vegetarian, quiet'."),
+  language: z
+    .enum(RESEARCH_LANGUAGES)
+    .describe(
+      "The language that you answer the person in: zh for Chinese, en for English and any other language. The list's area lines are written in it.",
+    ),
 });
 export type ResearchBrief = z.output<typeof researchBrief>;
 

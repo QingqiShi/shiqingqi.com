@@ -305,6 +305,7 @@ const LUNCH_BRIEF = {
   area: "Ribeira, Porto",
   dates: { from: "2026-05-04", to: "2026-05-04" },
   people: 3,
+  language: "en",
 };
 
 /** Runs research with the stub, and gives the id of the café that it found. */

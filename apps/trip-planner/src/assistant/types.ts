@@ -2,7 +2,7 @@ import type { CodeWork } from "./agent/code-work.ts";
 import type { CardAction } from "./agent/research/research-cards.ts";
 import type { ResearchCard } from "./agent/research/research-list.ts";
 import type { CreatedTrip } from "./agent/trip-view.ts";
-import type { TurnEvent } from "./agent/turn-events.ts";
+import type { TurnEvent, TurnStatus } from "./agent/turn-events.ts";
 import type { AttachmentKind } from "./check-attachments.ts";
 import type { ChangeStatus } from "./store/changes.ts";
 
@@ -149,6 +149,14 @@ export interface SegmentTranscript {
 /** One line of the stream of a sent message. The first is `started`; the last is `done`. */
 export type StreamLine =
   { type: "started"; conversationId: string; turnId: string } | TurnEvent;
+
+/** Why the last message did not get a full answer: how its turn ended, or why it did not start. */
+export type SendFailure =
+  | Exclude<TurnStatus, "ok">
+  | "too_long"
+  | "busy"
+  | "attachments"
+  | "request_failed";
 
 export type MemoryScopeName = "trip" | "personal";
 
