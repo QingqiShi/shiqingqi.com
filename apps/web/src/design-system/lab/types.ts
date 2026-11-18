@@ -204,7 +204,7 @@ export interface LabVariantChoice {
 }
 
 /**
- * One prop control, resolved: what the panel and the mobile bar both render
+ * One prop control, resolved: what the panel and the bar both render
  * from, and what the snippet reads a prop's default from.
  */
 export interface LabControlModel {

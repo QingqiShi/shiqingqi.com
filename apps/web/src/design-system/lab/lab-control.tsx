@@ -27,7 +27,7 @@ const OMITTED = "";
 
 /**
  * One prop's control, picked from the prop's kind. The prop name is the
- * control's accessible name, so the panel and the mobile bar can each frame it
+ * control's accessible name, so the panel and the bar can each frame it
  * however they like without the control losing its name.
  */
 export function LabControl({ control, props, onChange }: LabControlProps) {

@@ -5,7 +5,6 @@ import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { FlowBlock } from "@tuja/ui/components/flow-block";
 import { useFlowChange } from "@tuja/ui/hooks/use-flow-change";
-import { useMediaQuery } from "@tuja/ui/hooks/use-media-query";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -24,6 +23,7 @@ import { type LabAction, labReducer } from "./lab-reducer.ts";
 import { LabScene } from "./lab-scene.tsx";
 import { LabSnippet } from "./lab-snippet.tsx";
 import { labStage } from "./lab-stage.stylex.ts";
+import { labWidth } from "./lab-width.stylex.ts";
 import { renderSpecimen } from "./render-specimen.tsx";
 import { resolveLabModel } from "./resolve-lab-model.ts";
 import type { LabConfig, LabControlModel, LabProps } from "./types.ts";
@@ -36,21 +36,23 @@ interface LabCanvasProps<P> {
 /** Room for a control panel: eighteen characters of label plus its control. */
 const PANEL_INLINE_SIZE = "18rem";
 
-// Derived from the breakpoint token so the JS check cannot drift from the
-// style one. `matchMedia` needs the bare condition; the StyleX const carries
-// the `@media ` prefix.
-const MD_MEDIA_QUERY = breakpoints.md.replace("@media ", "");
+// Derived from the container query so the JS check cannot drift from the
+// style one.
+const PANEL_BESIDE_MIN_REM = Number.parseFloat(
+  labWidth.panelBeside.split(">=")[1] ?? "",
+);
 
 /**
  * The Lab's main region: the page body itself, carrying a Texture, with the
  * Specimen centred on it and its code beneath. It owns the Lab's state, so the
- * controls panel and the mobile bar both drive the one Specimen.
+ * controls panel and the bar both drive the one Specimen.
  */
 export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
   const locale = useLocale();
-  // `true` on the server and through hydration, so the bar mounts only once
-  // the client has measured a viewport narrower than `md`.
-  const isCompact = !useMediaQuery(MD_MEDIA_QUERY, true);
+  const containerRef = useRef<HTMLDivElement>(null);
+  // `false` on the server and through hydration, so the bar mounts only once
+  // the client has measured a Lab too narrow for the panel beside the stage.
+  const [isCompact, setIsCompact] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
   const [stageBlockStart, setStageBlockStart] = useState<number | null>(null);
   const area = useKeyboardArea();
@@ -73,27 +75,38 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
     });
   };
 
-  // The stage fills what the chrome above it leaves of the first screen, and
-  // the header's height at this width is known only once the page is laid out.
   useLayoutEffect(() => {
+    const container = containerRef.current;
     const stage = stageRef.current;
-    if (!isCompact || !stage) return;
+    if (!container || !stage || typeof ResizeObserver === "undefined") return;
     let isStale = false;
     const measure = () => {
       if (isStale) return;
-      const blockStart = stage.getBoundingClientRect().top + window.scrollY;
-      setStageBlockStart(blockStart);
+      const { width } = container.getBoundingClientRect();
+      if (width === 0) return;
+      const rem = Number.parseFloat(
+        getComputedStyle(document.documentElement).fontSize,
+      );
+      const isNarrow = width < PANEL_BESIDE_MIN_REM * rem;
+      setIsCompact(isNarrow);
+      // With the bar, the stage fills what the chrome above it leaves of the
+      // first screen, and the header's height at this width is known only
+      // once the page is laid out.
+      if (isNarrow) setStageBlockStart(pageBlockStartOf(stage));
     };
     measure();
-    window.addEventListener("resize", measure);
+    // The header wraps again when the Lab gets a new width, and the sidebar
+    // gives it one without a resize of the window.
+    const observer = new ResizeObserver(measure);
+    observer.observe(container);
     // The header is set in a web font, so its height settles only once that
     // font arrives.
     void document.fonts.ready.then(measure);
     return () => {
       isStale = true;
-      window.removeEventListener("resize", measure);
+      observer.disconnect();
     };
-  }, [isCompact]);
+  }, []);
 
   // An on-screen keyboard covers the foot of the screen, and the browser
   // scrolls the bar's field above it, which takes the Specimen off the top.
@@ -149,46 +162,48 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
   });
 
   return (
-    <div css={[texture.dot, styles.canvas]}>
-      <div
-        ref={stageRef}
-        css={[
-          styles.stage,
-          stageBlockStart !== null &&
-            styles.stageBlockStart(`${String(stageBlockStart)}px`),
-          keyboardArea !== null &&
+    <div ref={containerRef} css={styles.container}>
+      <div css={[texture.dot, styles.canvas]}>
+        <div
+          ref={stageRef}
+          css={[
+            styles.stage,
             stageBlockStart !== null &&
-            styles.stageAboveKeyboard(
-              `${String(Math.max(0, keyboardArea.top - stageBlockStart))}px`,
-              `${String(keyboardArea.height)}px`,
-            ),
-        ]}
-      >
-        <div css={styles.specimenArea}>
-          <FlowBlock
-            anchor="center"
-            css={[styles.specimen, config.scene !== undefined && fill.inline]}
-          >
-            {binding?.trigger}
-            {config.scene === undefined ? (
-              renderSpecimen(config, specimenProps)
-            ) : (
-              <LabScene kind={config.scene}>
-                {renderSpecimen(config, specimenProps)}
-              </LabScene>
-            )}
-          </FlowBlock>
+              styles.stageBlockStart(`${String(stageBlockStart)}px`),
+            keyboardArea !== null &&
+              stageBlockStart !== null &&
+              styles.stageAboveKeyboard(
+                `${String(Math.max(0, keyboardArea.top - stageBlockStart))}px`,
+                `${String(keyboardArea.height)}px`,
+              ),
+          ]}
+        >
+          <div css={styles.specimenArea}>
+            <FlowBlock
+              anchor="center"
+              css={[styles.specimen, config.scene !== undefined && fill.inline]}
+            >
+              {binding?.trigger}
+              {config.scene === undefined ? (
+                renderSpecimen(config, specimenProps)
+              ) : (
+                <LabScene kind={config.scene}>
+                  {renderSpecimen(config, specimenProps)}
+                </LabScene>
+              )}
+            </FlowBlock>
+          </div>
+          <div css={styles.snippet}>
+            <LabSnippet snippet={snippet} />
+          </div>
         </div>
-        <div css={styles.snippet}>
-          <LabSnippet snippet={snippet} />
-        </div>
+        <LabControls
+          variants={model.variants}
+          controls={model.controls}
+          state={state}
+          dispatch={run}
+        />
       </div>
-      <LabControls
-        variants={model.variants}
-        controls={model.controls}
-        state={state}
-        dispatch={run}
-      />
       {isCompact && (
         <LabBar
           variants={model.variants}
@@ -199,6 +214,23 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
       )}
     </div>
   );
+}
+
+/**
+ * How far the element stands from the top of the page. While a motion of the
+ * page plays, `getBoundingClientRect` includes the transform that the motion
+ * gives the element, so the layout offsets give the distance then. They are
+ * whole pixels, so at rest the rect gives it.
+ */
+function pageBlockStartOf(element: HTMLElement) {
+  let inLayout = element.offsetTop;
+  let parent = element.offsetParent;
+  while (parent instanceof HTMLElement) {
+    inLayout += parent.offsetTop + parent.clientTop;
+    parent = parent.offsetParent;
+  }
+  const onScreen = element.getBoundingClientRect().top + window.scrollY;
+  return Math.abs(onScreen - inLayout) < 1 ? onScreen : inLayout;
 }
 
 /**
@@ -223,28 +255,39 @@ function withReplaced(
 }
 
 const styles = stylex.create({
+  // The Lab lays out by the width of this box, which the sidebar beside the
+  // page changes while the screen keeps its width.
+  container: {
+    containerName: "lab",
+    containerType: "inline-size",
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
+  },
   canvas: {
     [textureTokens.pitch]: space._4,
     display: "grid",
     gridTemplateColumns: {
       default: "minmax(0, 1fr)",
-      [breakpoints.md]: `minmax(0, 1fr) ${PANEL_INLINE_SIZE}`,
+      [labWidth.panelBeside]: `minmax(0, 1fr) ${PANEL_INLINE_SIZE}`,
     },
     gap: rhythm.group,
     paddingBlockStart: space._4,
     // Room under the snippet for the bar the Lab fixes to the foot of the
     // viewport. The shell's own padding below the page (`space._8` and the
     // safe area) counts towards it, so the bar alone gives the page no scroll.
+    // From `md` the bar is in the flow under the Canvas, and takes its own
+    // room.
     paddingBlockEnd: {
       default: `calc(${labBar.clearance} + ${space._4} - ${space._8} - env(safe-area-inset-bottom))`,
       [breakpoints.md]: space._4,
     },
-    // From `md` the Canvas takes what the header leaves of the viewport, so
-    // the page does not scroll. The floor keeps room for the Specimen in a
-    // short window, and the page scrolls there. Below `md` the stage sizes
-    // itself to the screen instead.
-    flexGrow: { default: 0, [breakpoints.md]: 1 },
-    minBlockSize: { default: null, [breakpoints.md]: "20rem" },
+    // With the panel beside the stage, the Canvas takes what the header
+    // leaves of the viewport, so the page does not scroll. The floor keeps
+    // room for the Specimen in a short window, and the page scrolls there.
+    // With the bar, the stage sizes itself to the screen instead.
+    flexGrow: { default: 0, [labWidth.panelBeside]: 1 },
+    minBlockSize: { default: null, [labWidth.panelBeside]: "20rem" },
   },
   stage: {
     display: "flex",
@@ -253,12 +296,12 @@ const styles = stylex.create({
     justifyContent: "center",
     gap: rhythm.group,
     minInlineSize: 0,
-    // Below `md` the stage takes the first screen, to a step above the bar, so
-    // the snippet shows without a scroll and the Specimen centres in the room
-    // it leaves.
+    // With the bar, the stage takes the first screen, to a step above the
+    // bar, so the snippet shows without a scroll and the Specimen centres in
+    // the room it leaves.
     minBlockSize: {
       default: `calc(100dvh - ${labStage.blockStart} - ${labBar.clearance} - ${space._4})`,
-      [breakpoints.md]: "auto",
+      [labWidth.panelBeside]: "auto",
     },
   },
   stageBlockStart: (blockStart: string) => ({
@@ -285,17 +328,18 @@ const styles = stylex.create({
     maxInlineSize: "100%",
     minInlineSize: 0,
   },
-  // From `md` the snippet stands at the foot of the stage and takes the room
-  // that the Specimen leaves. Its basis is the least room it keeps, so long
-  // code scrolls in its card and does not make the page scroll.
+  // With the panel beside the stage, the snippet stands at the foot of the
+  // stage and takes the room that the Specimen leaves. Its basis is the least
+  // room it keeps, so long code scrolls in its card and does not make the
+  // page scroll.
   snippet: {
     display: "flex",
     flexDirection: "column",
     justifyContent: "flex-end",
-    flexGrow: { default: 0, [breakpoints.md]: 1 },
-    flexShrink: { default: 0, [breakpoints.md]: 1 },
-    flexBasis: { default: "auto", [breakpoints.md]: "12rem" },
-    minBlockSize: { default: "auto", [breakpoints.md]: 0 },
+    flexGrow: { default: 0, [labWidth.panelBeside]: 1 },
+    flexShrink: { default: 0, [labWidth.panelBeside]: 1 },
+    flexBasis: { default: "auto", [labWidth.panelBeside]: "12rem" },
+    minBlockSize: { default: "auto", [labWidth.panelBeside]: 0 },
     inlineSize: "100%",
     maxInlineSize: "34rem",
     minInlineSize: 0,

@@ -2,7 +2,6 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { glassSurface } from "@tuja/ui/components/glass-surface.stylex";
@@ -23,6 +22,7 @@ import { Identifier } from "#src/design-system/identifier.tsx";
 import { LabControl } from "./lab-control.tsx";
 import type { LabAction, LabState } from "./lab-reducer.ts";
 import { LabVariantSection } from "./lab-variant-section.tsx";
+import { labWidth } from "./lab-width.stylex.ts";
 import type { LabControlModel, LabVariantChoice } from "./types.ts";
 
 interface LabControlsProps {
@@ -152,9 +152,10 @@ const styles = stylex.create({
   // the controls out of the height of the Canvas, so a long list of props
   // does not make the page scroll.
   cell: {
-    // Below `md` the bar at the foot of the viewport carries the controls
-    // instead, so the Specimen keeps the whole screen.
-    display: { default: "none", [breakpoints.md]: "block" },
+    // Where the Lab is too narrow for the panel, the bar at the foot of the
+    // viewport carries the controls instead, so the Specimen keeps the whole
+    // width.
+    display: { default: "none", [labWidth.panelBeside]: "block" },
     containerType: "size",
   },
   panel: {
