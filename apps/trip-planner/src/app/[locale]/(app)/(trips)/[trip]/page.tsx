@@ -1,5 +1,4 @@
 import { t } from "@tuja/i18n";
-import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import { signInPath } from "@tuja/server-auth/sign-in-path";
 import type { Metadata } from "next";
@@ -78,11 +77,6 @@ export default async function TripRoute({ params }: TripRouteProps) {
       trip={trip}
       serverToday={serverToday}
       weatherByDay={weatherByDay}
-      editHref={
-        canEdit
-          ? getLocalePath(`/${viewed.id}/edit`, validateLocale(locale))
-          : undefined
-      }
       actions={
         <>
           {sharing ? (

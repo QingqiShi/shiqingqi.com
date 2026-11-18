@@ -187,6 +187,10 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       en: "Navigation stack",
       zh: "导航栈",
     }),
+    "/design-system/components/side-column-layout": t({
+      en: "Side column layout",
+      zh: "侧栏布局",
+    }),
     "/design-system/primitives": t({ en: "Primitives", zh: "原语" }),
     "/design-system/hooks": t({ en: "Hooks", zh: "Hook" }),
     "/design-system/effect-layer": t({ en: "Effect layer", zh: "效果层" }),

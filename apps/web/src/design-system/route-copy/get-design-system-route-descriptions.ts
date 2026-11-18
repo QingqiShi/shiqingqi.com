@@ -279,6 +279,10 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "A screen of one page, with the way back at its top; the next screen slides in over it.",
       zh: "只有一页的画面，返回的路在顶部；下一个画面从它上方滑入。",
     }),
+    "/design-system/components/side-column-layout": t({
+      en: "A column beside the page, such as an assistant. The page makes room for it, and where it does not fit, a sheet takes its place.",
+      zh: "页面旁的一栏，例如助手。页面为它让出空间；放不下时，由面板代替它。",
+    }),
     "/design-system/primitives": t({
       en: "Composable StyleX primitives for flex, layout, motion, reset and accessibility, for an element no component fits.",
       zh: "可组合的 StyleX 原语，涵盖 flex、布局、动效、重置与无障碍，用于没有合适组件的元素。",

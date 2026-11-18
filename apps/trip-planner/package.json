@@ -23,9 +23,10 @@
     "pretest": "npm-run-all codegen:i18n codegen:wgsl",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "eval": "vitest run --config vitest.eval.config.mts",
     "trips:generate": "drizzle-kit generate",
     "trips:migrate": "tsx src/db/migrate-cli.ts",
+    "skills:upload": "tsx src/assistant/skills/upload-skills.ts",
+    "skills:deploy": "if [ \"$VERCEL_ENV\" = production ]; then pnpm skills:upload || echo 'The skills upload failed: the assistant keeps the skills that it has.'; fi",
     "time-zones:generate": "node --experimental-strip-types --no-warnings src/time-zones/generate-time-zone-table.ts"
   },
   "dependencies": {

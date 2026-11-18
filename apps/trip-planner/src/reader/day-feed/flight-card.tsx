@@ -16,6 +16,7 @@ import { useItemChangeButton } from "#src/reader/quick-edit/use-item-change-butt
 import { TripText } from "#src/reader/trip-text.tsx";
 import { itemName } from "#src/trips/ops/item-name.ts";
 import type { Flight, FlightEndpoint } from "#src/trips/types.ts";
+import { webLink } from "#src/trips/web-link.ts";
 
 /** The local time, a delay as the struck-out planned time, and the terminal. */
 function EndpointDetail({ endpoint }: { endpoint: FlightEndpoint }) {
@@ -98,7 +99,7 @@ export function FlightCard({ flight }: { flight: Flight & { id: string } }) {
             <TripText>{flight.note}</TripText>
           </Text>
         ) : null}
-        {flight.track ? (
+        {flight.track && webLink.is(flight.track) ? (
           <div>
             <ExternalButton
               href={flight.track}
@@ -108,6 +109,10 @@ export function FlightCard({ flight }: { flight: Flight & { id: string } }) {
               {t({ en: "Track live", zh: "实时追踪" })}
             </ExternalButton>
           </div>
+        ) : flight.track ? (
+          <Text look="bodySmall" tone="muted">
+            <TripText>{flight.track}</TripText>
+          </Text>
         ) : null}
       </div>
     </Card>

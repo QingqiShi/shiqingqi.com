@@ -9,6 +9,7 @@ import { withExpect } from "#src/trips/ops/apply-ops.ts";
 import { invertOps } from "#src/trips/ops/invert-ops.ts";
 import { opSchema } from "#src/trips/ops/op-schema.ts";
 import { retrySaves, writeTrips } from "#src/trips/write-trips.ts";
+import { labelledEvent } from "./plain-line.ts";
 import { segmentMessages, type SegmentEvent } from "./segment-messages.ts";
 import { tripView } from "./trip-view.ts";
 
@@ -42,7 +43,7 @@ function summaryOf(card: unknown): string {
   if (typeof card === "object" && card !== null && "summary" in card) {
     return String(card.summary);
   }
-  return "the change";
+  return "";
 }
 
 async function addEvent(
@@ -66,7 +67,7 @@ async function decideAndApply(
   userId: string,
   changeId: string,
   decision: Decision,
-  event: (summary: string, version: string | undefined) => string,
+  event: (version: string | undefined) => string,
   reason?: RefusalReason,
 ): Promise<StepOutcome> {
   try {
@@ -120,7 +121,7 @@ async function decideAndApply(
                   ? "undone"
                   : "refused",
           ...(reason !== undefined && { reason }),
-          text: event(summaryOf(stored.card), version),
+          text: labelledEvent(event(version), summaryOf(stored.card)),
         });
         return { status: "done", ...(version !== undefined && { version }) };
       }),
@@ -147,8 +148,8 @@ async function acceptProposal(
     userId,
     changeId,
     "accept",
-    (summary, version) =>
-      `The person accepted the proposal "${summary}", and it is saved. The trip is now version ${version ?? "unknown"}.`,
+    (version) =>
+      `The person accepted proposal ${changeId}, and it is saved. The trip is now version ${version ?? "unknown"}.`,
   );
   if (outcome.status !== "conflict") return outcome;
   const refused = await decideAndApply(
@@ -156,10 +157,10 @@ async function acceptProposal(
     userId,
     changeId,
     "refuse",
-    (summary) =>
+    () =>
       outcome.reason === "trip_changed"
-        ? `The proposal "${summary}" could not be saved, because the trip changed since in what it changes. Nothing changed.`
-        : `The proposal "${summary}" could not be saved, because its changes no longer apply to the trip as it is now. Nothing changed.`,
+        ? `Proposal ${changeId} could not be saved, because the trip changed since in what it changes. Nothing changed.`
+        : `Proposal ${changeId} could not be saved, because its changes no longer apply to the trip as it is now. Nothing changed.`,
     outcome.reason,
   );
   return refused.status === "done" ? { status: "conflict" } : plain(refused);
@@ -181,8 +182,7 @@ async function skipProposal(
       userId,
       changeId,
       "skip",
-      (summary) =>
-        `The person skipped the proposal "${summary}". Nothing changed.`,
+      () => `The person skipped proposal ${changeId}. Nothing changed.`,
     ),
   );
 }
@@ -204,8 +204,8 @@ async function undoChange(
       userId,
       changeId,
       "undo",
-      (summary, version) =>
-        `The person undid the change "${summary}". The trip is now version ${version ?? "unknown"}.`,
+      (version) =>
+        `The person undid change ${changeId}. The trip is now version ${version ?? "unknown"}.`,
     ),
   );
 }

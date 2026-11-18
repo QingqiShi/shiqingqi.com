@@ -372,6 +372,51 @@ describe("a batch", () => {
     });
   });
 
+  it("refuses a link that is not an http or https address with no user, from any op that sets one", () => {
+    for (const drafts of [
+      [
+        {
+          op: "setItem",
+          id: "i0belcanto",
+          fields: { website: "javascript:alert(1)" },
+        },
+      ],
+      [
+        {
+          op: "addItem",
+          to: { dayId: "day0sample", list: "dining" },
+          item: {
+            id: "newplace",
+            type: "dining",
+            name: "Tasca",
+            menu: "data:text/html,<script>alert(1)</script>",
+          },
+        },
+      ],
+      [
+        {
+          op: "setStay",
+          dayId: "day0sample",
+          fields: { bookingUrl: "https://me:secret@booking.example.com/" },
+        },
+      ],
+    ] satisfies DraftOp[][]) {
+      const result = apply(lisbon, drafts);
+      expect(result).toMatchObject({ status: "refused", index: 0 });
+      expect(result.status === "refused" && result.reason).toMatch(/http/);
+    }
+
+    const trip = applied(lisbon, [
+      {
+        op: "setItem",
+        id: "i0flight",
+        fields: { track: "https://fr24.com/x" },
+      },
+      { op: "setItem", id: "i0belcanto", fields: { website: null } },
+    ]);
+    expect(JSON.stringify(trip)).toContain("https://fr24.com/x");
+  });
+
   it("refuses a batch that makes a trip the schema refuses", () => {
     const result = apply(lisbon, [{ op: "addDay", id: "day0sample" }]);
     expect(result).toMatchObject({ status: "refused", index: 0 });

@@ -18,13 +18,3 @@ export function describeNow(trip: Trip, now: Date): string {
           : "No day of the trip is on that date.";
   return `Now it is ${date} ${clock} in ${trip.timeZone}. ${where}`;
 }
-
-/** Each day's number, as the person says it, with its id and date. */
-export function describeDays(trip: Trip): string {
-  return trip.days
-    .map(
-      (day, i) =>
-        `Day ${String(dayNumber(trip, i))}: id "${day.id}", ${day.date}${day.title ? `, ${day.title}` : ""}`,
-    )
-    .join("\n");
-}

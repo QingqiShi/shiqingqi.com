@@ -108,7 +108,7 @@ export const aiRuns = pgTable("ai_runs", {
     onDelete: "set null",
   }),
   kind: text("kind", {
-    enum: ["edit", "draft", "assistant", "summary"],
+    enum: ["edit", "draft", "assistant", "summary", "research", "reader"],
   }).notNull(),
   model: text("model").notNull(),
   status: text("status", {
@@ -121,6 +121,9 @@ export const aiRuns = pgTable("ai_runs", {
   cacheReadTokens: integer("cache_read_tokens").notNull(),
   cacheWriteTokens: integer("cache_write_tokens").notNull(),
   durationMs: integer("duration_ms").notNull(),
+  /** The web searches and page fetches of a research run; null for other runs. */
+  webSearches: integer("web_searches"),
+  webFetches: integer("web_fetches"),
   createdAt: createdAt(),
 });
 

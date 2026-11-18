@@ -1,8 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
+import { Anchor } from "@tuja/ui/components/anchor";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
+import { useNewTabLabel } from "#src/reader/use-new-tab-label.ts";
+import { linkParts } from "./link-parts.ts";
 
 type Block =
   | { kind: "paragraph"; lines: string[] }
@@ -47,20 +50,62 @@ function blocksOf(text: string): Block[] {
   );
 }
 
-/** Text with `**bold**` runs as `strong`; everything else stays as it is. */
-function inline(text: string): ReactNode[] {
-  return text
-    .split(/\*\*(.+?)\*\*/g)
-    .map((part, index) =>
-      index % 2 === 1 ? <strong key={index}>{part}</strong> : part,
-    );
+/** A run of text, with each allowed web address as a link. */
+function withLinks(
+  text: string,
+  links: ReadonlySet<string>,
+  newTabLabel: string,
+): ReactNode[] {
+  return linkParts(text, links).map((part, index) =>
+    part.kind === "text" ? (
+      part.text
+    ) : (
+      <Anchor
+        key={index}
+        href={part.url}
+        target="_blank"
+        rel="noopener noreferrer nofollow"
+        newTabLabel={newTabLabel}
+      >
+        {part.text}
+      </Anchor>
+    ),
+  );
 }
+
+/** Text with `**bold**` runs as `strong`, and allowed links as links; everything else stays as it is. */
+function inlineOf(
+  text: string,
+  links: ReadonlySet<string>,
+  newTabLabel: string,
+): ReactNode[] {
+  return text.split(/\*\*(.+?)\*\*/g).map((part, index) => {
+    const content = withLinks(part, links, newTabLabel);
+    return index % 2 === 1 ? (
+      <strong key={index}>{content}</strong>
+    ) : (
+      <Fragment key={index}>{content}</Fragment>
+    );
+  });
+}
+
+const NO_LINKS: ReadonlySet<string> = new Set();
 
 /**
  * The assistant's text, as React text nodes only: paragraphs, lists, bold
- * runs and headings as bold lines. Links and images stay as plain text.
+ * runs and headings as bold lines. A web address becomes a link only when it
+ * is in `links`, the server's research lists; other links and images stay as
+ * plain text.
  */
-export function AssistantText({ text }: { text: string }) {
+export function AssistantText({
+  text,
+  links = NO_LINKS,
+}: {
+  text: string;
+  links?: ReadonlySet<string>;
+}) {
+  const newTabLabel = useNewTabLabel();
+  const inline = (part: string) => inlineOf(part, links, newTabLabel);
   return (
     <div css={stack.tight}>
       {blocksOf(text).map((block, index) => {

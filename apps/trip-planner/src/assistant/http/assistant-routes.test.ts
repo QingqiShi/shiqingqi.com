@@ -42,11 +42,15 @@ let db: TripsDb;
 let clock = new Date();
 const pending: Promise<unknown>[] = [];
 
+type CallOptions = Parameters<MockLanguageModelV4["doStream"]>[0];
+const turnCalls: CallOptions[] = [];
+
 /** A turn that proposes a later dinner in its first step and answers in its second. */
 function proposingModel() {
   let step = 0;
   return new MockLanguageModelV4({
-    doStream: async () => {
+    doStream: async (options) => {
+      turnCalls.push(options);
       step += 1;
       const trip = await asViewer(db, ana.userId, (tx) =>
         tripView.read(tx, tripId),
@@ -104,6 +108,7 @@ const routes = makeAssistantRoutes({
   getDb: () => db,
   summaryModel: () => summaryModel,
   turnModel: proposingModel,
+  skills: () => Promise.resolve([]),
   afterResponse: (task) => {
     pending.push(task());
   },
@@ -229,6 +234,18 @@ it("streams a turn, and shows it to its member alone", async () => {
   expect(after.transcript[1]).toMatchObject({ status: "pending" });
 });
 
+it("runs a turn with code execution and no container when the account has no skills", async () => {
+  turnCalls.length = 0;
+  const lines = await send("Dinner at nine?");
+
+  expect(lines.at(-1)).toEqual({ type: "done", status: "ok" });
+  expect(turnCalls.length).toBeGreaterThan(0);
+  for (const options of turnCalls) {
+    expect(options.tools?.map((each) => each.name)).toContain("code_execution");
+    expect(options.providerOptions?.anthropic).not.toHaveProperty("container");
+  }
+});
+
 it("keeps personal memory to its owner and trip memory to members", async () => {
   for (const scope of ["trip", "personal"] as const) {
     const written = await ana.call("memoryWrite", {
@@ -341,4 +358,54 @@ it("answers a database error with a bare 500, and logs no query text", async () 
   expect(JSON.stringify(logged.mock.calls)).not.toContain("secret");
   expect(JSON.stringify(logged.mock.calls)).toContain("23505");
   logged.mockRestore();
+});
+
+it("keeps a conversation that starts a trip to its starter, who goes on with it", async () => {
+  async function sendNew(user: typeof ana, text: string) {
+    const { status, response } = await user.call("send", {
+      tripId: null,
+      text,
+    });
+    expect(status).toBe(200);
+    const lines = (await response.text())
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line) as StreamLine);
+    await Promise.all(pending);
+    const [started] = lines;
+    if (started.type !== "started") throw new Error("Not started.");
+    return started.conversationId;
+  }
+
+  clock = new Date();
+  const conversationId = await sendNew(cy, "Four days in Porto in May");
+  expect(await sendNew(cy, "Two of us")).toBe(conversationId);
+
+  const state = await (
+    await cy.call<AssistantState>("state", { tripId: null })
+  ).body();
+  expect(state.segment?.id).toBe(conversationId);
+  // The model's propose_changes was refused: there is no trip to change.
+  expect(state.transcript.map((item) => item.type)).not.toContain("change");
+  expect(state.transcript[0]).toMatchObject({
+    type: "member",
+    text: "Four days in Porto in May",
+  });
+
+  expect((await ben.call("read", { conversationId })).status).toBe(404);
+  expect(
+    (await (await ben.call<AssistantState>("state", { tripId: null })).body())
+      .segment,
+  ).toBeNull();
+  expect(await sendNew(ben, "Two days in Lisbon")).not.toBe(conversationId);
+  expect((await cy.call("read", { conversationId })).status).toBe(200);
+
+  clock = new Date(Date.now() + SEGMENT_IDLE_MS + 60_000);
+  const later = await sendNew(cy, "Three days in Madrid");
+  expect(later).not.toBe(conversationId);
+  clock = new Date();
+  expect(
+    (await (await cy.call<AssistantState>("state", { tripId: null })).body())
+      .segment?.id,
+  ).toBe(later);
 });

@@ -1,13 +1,13 @@
 import { generateText, type LanguageModel } from "ai";
 import "server-only";
-import { emptyUse } from "#src/ai/ask-model.ts";
+import { emptyUse } from "#src/ai/empty-use.ts";
 import { logAiRun, type AiRun } from "#src/ai/log-ai-run.ts";
 import { assistantPrompt } from "#src/assistant/agent/assistant-prompt.ts";
-import { LONG_PASTE_CHARS } from "#src/assistant/agent/run-turn.ts";
 import {
   segmentMessages,
   type SegmentEntry,
 } from "#src/assistant/agent/segment-messages.ts";
+import { LONG_PASTE_CHARS } from "#src/assistant/check-attachments.ts";
 import { describeError } from "#src/assistant/describe-error.ts";
 import {
   conversations,
@@ -40,12 +40,19 @@ function said(entries: readonly SegmentEntry[]): string {
     if (entry.kind === "event") return [`App: ${entry.event.text}`];
     const { message } = entry;
     if (message.role === "user") {
-      return textsOf(message).map((text) => {
-        const own = assistantPrompt.personText(text).trim();
-        return own.length > LONG_PASTE_CHARS
-          ? "Member: (pasted a long text, not shown)"
-          : `Member: ${own}`;
-      });
+      const files = entry.attachments?.files.length ?? 0;
+      return [
+        ...textsOf(message).flatMap((text) => {
+          const own = assistantPrompt.personText(text).trim();
+          if (own === "") return [];
+          return own.length > LONG_PASTE_CHARS
+            ? ["Member: (pasted a long text, not shown)"]
+            : [`Member: ${own}`];
+        }),
+        ...(files > 0
+          ? [`Member: (attached ${String(files)} files, not shown)`]
+          : []),
+      ];
     }
     if (message.role === "assistant") {
       return textsOf(message)
@@ -99,7 +106,7 @@ async function write(
           content: `<conversation>\n${conversation}\n</conversation>`,
         },
       ],
-      maxOutputTokens: 600,
+      maxOutputTokens: 2000,
       abortSignal: deadline,
     }).catch((error: unknown) => {
       if (deadline.aborted) status = "timeout";
@@ -110,7 +117,7 @@ async function write(
     use.cacheReadTokens = result.usage.inputTokenDetails.cacheReadTokens ?? 0;
     use.cacheWriteTokens = result.usage.inputTokenDetails.cacheWriteTokens ?? 0;
     const summary = clean(result.text);
-    if (summary === "") {
+    if (summary === "" || result.finishReason === "length") {
       status = "invalid";
       return;
     }

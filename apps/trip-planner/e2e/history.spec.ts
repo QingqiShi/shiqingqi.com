@@ -15,31 +15,33 @@ test("an owner changes a time, finds the version before it in the history, and r
   await expect(
     page.getByRole("heading", { level: 1, name: "Lisbon and Porto" }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "Edit" }).click();
-
   // A run before this one can have left the trip at another time. A time
   // that an older version has makes the history call the change a restore.
   // No other moment of the day has a time that is not a multiple of 5.
-  const moment = page.getByRole("button", { name: /Metro to the hotel$/ });
-  const before = (await moment.textContent())?.slice(0, 5) ?? "";
+  // The innermost section that holds the text is the moment.
+  const moment = page
+    .locator("section", {
+      has: page.getByText("Metro to the hotel", { exact: true }),
+    })
+    .last();
+  const timeButton = moment
+    .getByRole("button", { name: /^Change the time/ })
+    .first();
+  const before = (await timeButton.textContent())?.slice(0, 5) ?? "";
   let after = before;
   while (after === before) {
     const minutes = 10 * 60 + Math.floor(Math.random() * 10 * 60);
     if (minutes % 5 === 0) continue;
     after = `${String(Math.floor(minutes / 60))}:${String(minutes % 60).padStart(2, "0")}`;
   }
-  await moment.click();
-  await page.getByRole("textbox", { name: "Clock time" }).fill(after);
-  await page.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(moment).toContainText(after);
-  await expect(page.getByText("Saved", { exact: true })).toBeVisible();
+  await timeButton.click();
+  await page.getByLabel("Time", { exact: true }).fill(after);
+  await page.getByRole("button", { name: "Done", exact: true }).click();
+  await expect(page.getByText(`Time changed to ${after}`)).toBeVisible();
 
   // The reader names each time of the day in a heading.
   const time = (text: string) =>
     page.getByRole("heading", { level: 3, name: text, exact: true });
-  // The reader with the change is now a page that the app keeps, which the
-  // restore must not show again.
-  await page.getByRole("button", { name: "Done" }).click();
   await expect(time(after)).toBeVisible();
 
   await page.getByRole("button", { name: "Trip details" }).click();

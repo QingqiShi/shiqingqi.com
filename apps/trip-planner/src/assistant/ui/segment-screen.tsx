@@ -17,7 +17,7 @@ export function SegmentScreen({ id }: { id: string }) {
   if (loaded.status !== "ok") {
     return <LoadState loaded={loaded} onRetry={reload} />;
   }
-  const { segment, transcript } = loaded.value;
+  const { segment, transcript, links } = loaded.value;
   return (
     <div css={stack.item}>
       {segment.summary ? (
@@ -30,7 +30,11 @@ export function SegmentScreen({ id }: { id: string }) {
           </Text>
         </Card>
       ) : null}
-      <ReadOnlyConversation items={transcript} startedAt={segment.startedAt} />
+      <ReadOnlyConversation
+        items={transcript}
+        startedAt={segment.startedAt}
+        links={new Set(links)}
+      />
     </div>
   );
 }

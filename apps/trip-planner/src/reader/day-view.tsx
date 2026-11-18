@@ -1,10 +1,8 @@
 "use client";
 
 import { CalendarBlankIcon } from "@phosphor-icons/react/dist/ssr/CalendarBlank";
-import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { Button } from "@tuja/ui/components/button";
 import { EmptyState } from "@tuja/ui/components/empty-state";
 import { Heading } from "@tuja/ui/components/heading";
 import { Section } from "@tuja/ui/components/section";
@@ -43,23 +41,17 @@ const isTripEmpty = (trip: Trip) =>
   );
 
 /**
- * A day with no plan: it says so, and gives an editor of the trip the way to
+ * A day with no plan: it says so, and tells an editor of the trip how to
  * plan it. In a trip with nothing in it yet, it first offers the details of
  * the trip.
  */
-function EmptyDay({
-  trip,
-  editHref,
-}: {
-  trip: Trip;
-  editHref: string | undefined;
-}) {
+function EmptyDay({ trip }: { trip: Trip }) {
   const canChange = useQuickEdit() !== null;
   const isNewTrip = canChange && isTripEmpty(trip);
-  const planDescription = editHref
+  const planDescription = canChange
     ? t({
-        en: "Add times, places to go and places to eat in the editor.",
-        zh: "在编辑器里添加时间、去处和餐厅。",
+        en: "Ask the trip assistant to add times, places to go and places to eat.",
+        zh: "让行程助手添加时间、去处和餐厅。",
       })
     : t({
         en: "The plan for this day is still to come.",
@@ -72,32 +64,16 @@ function EmptyDay({
       description={
         isNewTrip
           ? t({
-              en: "This trip is new. Check who travels and the time zone in its details, then plan each day.",
-              zh: "这是一个新行程。先在行程信息里核对同行的人和时区，再安排每一天。",
+              en: "This trip is new. Check who travels and the time zone in its details, then ask the trip assistant to plan each day.",
+              zh: "这是一个新行程。先在行程信息里核对同行的人和时区，再让行程助手安排每一天。",
             })
           : planDescription
       }
       action={
-        isNewTrip || editHref ? (
-          <>
-            {isNewTrip ? (
-              <TripDetailsButton
-                look={editHref ? "outline" : "primary"}
-                size="md"
-              >
-                {t({ en: "Trip details", zh: "行程信息" })}
-              </TripDetailsButton>
-            ) : null}
-            {editHref ? (
-              <Button
-                look="primary"
-                icon={<PencilSimpleIcon weight="bold" />}
-                href={editHref}
-              >
-                {t({ en: "Plan this day", zh: "安排这一天" })}
-              </Button>
-            ) : null}
-          </>
+        isNewTrip ? (
+          <TripDetailsButton look="primary" size="md">
+            {t({ en: "Trip details", zh: "行程信息" })}
+          </TripDetailsButton>
         ) : undefined
       }
     />
@@ -111,15 +87,12 @@ export function DayView({
   day,
   liveWeather,
   onOpenDay,
-  editHref,
 }: {
   tripId: string | null;
   trip: Trip;
   day: Day;
   liveWeather: LiveWeather | undefined;
   onOpenDay: (index: number) => void;
-  /** The editor at this day, for a viewer who can change the trip. */
-  editHref?: string;
 }) {
   const highlights = dayHighlights(day);
   const isEmpty =
@@ -161,7 +134,7 @@ export function DayView({
       </div>
       <DayParty people={presencesOnDay(trip.people, day.id)} />
       <DayFacts day={day} liveWeather={liveWeather} />
-      {isEmpty ? <EmptyDay trip={trip} editHref={editHref} /> : null}
+      {isEmpty ? <EmptyDay trip={trip} /> : null}
       {highlights.length > 0 ? (
         <DayGlance highlights={highlights} onJump={jumpToMoment} />
       ) : null}

@@ -71,6 +71,13 @@
       "when": 1795004306579,
       "tag": "0009_assistant",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1795019870833,
+      "tag": "0010_ai_run_web_counts",
+      "breakpoints": true
     }
   ]
 }
