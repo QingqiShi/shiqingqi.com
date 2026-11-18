@@ -1,7 +1,7 @@
 import { desc, eq, sql } from "drizzle-orm";
 import { tripRevisions } from "#src/db/schema.ts";
 import type { TripsDb } from "#src/db/types.ts";
-import { asViewer } from "./as-viewer.ts";
+import { asViewer, type Transaction } from "./as-viewer.ts";
 import { applyOps, type ApplyResult } from "./ops/apply-ops.ts";
 import { newTrip, type NewTrip } from "./ops/new-trip.ts";
 import type { Op } from "./ops/op-schema.ts";
@@ -16,6 +16,61 @@ export type ChangeResult =
 
 const SAVE_ATTEMPTS = 5;
 
+/** A change that `changeIn` saved, with the trip as it was before. */
+export type SavedChange = Extract<ChangeResult, { status: "applied" }> & {
+  before: Trip;
+};
+
+/**
+ * `change` as one attempt, inside a transaction of `asViewer`, so that a
+ * caller can join it with other writes. Run the whole transaction again
+ * with `retrySaves` when another save comes between.
+ */
+async function changeIn(
+  tx: Transaction,
+  tripId: string,
+  ops: readonly Op[],
+): Promise<SavedChange | Exclude<ChangeResult, { status: "applied" }>> {
+  const rows = await tx
+    .select({
+      revision: tripRevisions.revision,
+      document: tripRevisions.document,
+      // As text, which keeps the microseconds that a `Date` drops.
+      updatedAt: sql<string>`${tripRevisions.updatedAt}::text`,
+    })
+    .from(tripRevisions)
+    .where(eq(tripRevisions.tripId, tripId))
+    .orderBy(desc(tripRevisions.revision))
+    .limit(1);
+  const newest = rows.at(0);
+  if (!newest) return { status: "not_found" };
+  const before = tripSchema.parse(newest.document);
+  const result = applyOps(before, ops);
+  if (result.status !== "applied") return result;
+  const [{ saved }] = await tx
+    .select({ saved: sql<number | null>`saved` })
+    .from(
+      sql`public.trips_save(${tripId}, ${newest.revision}, ${newest.updatedAt}::timestamptz, ${JSON.stringify(result.trip)}::jsonb) as saved`,
+    );
+  if (saved === null) return { status: "not_found" };
+  return { status: "applied", revision: saved, trip: result.trip, before };
+}
+
+/**
+ * Runs `attempt` again when another save of the trip came between its read
+ * and its save, so that neither save is lost.
+ */
+export async function retrySaves<T>(attempt: () => Promise<T>): Promise<T> {
+  for (let tries = 1; ; tries++) {
+    try {
+      return await attempt();
+    } catch (error) {
+      if (tries < SAVE_ATTEMPTS && isSerializationFailure(error)) continue;
+      throw error;
+    }
+  }
+}
+
 /**
  * Applies a batch of ops to the newest revision of a trip and saves the
  * result, as the user. The database lets only an owner or an editor of the
@@ -29,37 +84,11 @@ async function change(
   tripId: string,
   ops: readonly Op[],
 ): Promise<ChangeResult> {
-  for (let attempt = 1; ; attempt++) {
-    try {
-      return await asViewer(db, userId, async (tx) => {
-        const rows = await tx
-          .select({
-            revision: tripRevisions.revision,
-            document: tripRevisions.document,
-            // As text, which keeps the microseconds that a `Date` drops.
-            updatedAt: sql<string>`${tripRevisions.updatedAt}::text`,
-          })
-          .from(tripRevisions)
-          .where(eq(tripRevisions.tripId, tripId))
-          .orderBy(desc(tripRevisions.revision))
-          .limit(1);
-        const newest = rows.at(0);
-        if (!newest) return { status: "not_found" } as const;
-        const result = applyOps(tripSchema.parse(newest.document), ops);
-        if (result.status !== "applied") return result;
-        const [{ saved }] = await tx
-          .select({ saved: sql<number | null>`saved` })
-          .from(
-            sql`public.trips_save(${tripId}, ${newest.revision}, ${newest.updatedAt}::timestamptz, ${JSON.stringify(result.trip)}::jsonb) as saved`,
-          );
-        if (saved === null) return { status: "not_found" } as const;
-        return { status: "applied", revision: saved, trip: result.trip };
-      });
-    } catch (error) {
-      if (attempt < SAVE_ATTEMPTS && isSerializationFailure(error)) continue;
-      throw error;
-    }
-  }
+  const result = await retrySaves(() =>
+    asViewer(db, userId, (tx) => changeIn(tx, tripId, ops)),
+  );
+  if (result.status !== "applied") return result;
+  return { status: "applied", revision: result.revision, trip: result.trip };
 }
 
 /** Makes a trip with the user as its owner, and gives its id. */
@@ -105,4 +134,4 @@ export function isSerializationFailure(error: unknown): boolean {
  * The one way to change the trip tables. Each function runs as the user,
  * and the database checks that the user may do it.
  */
-export const writeTrips = { change, create, remove };
+export const writeTrips = { change, changeIn, create, remove };

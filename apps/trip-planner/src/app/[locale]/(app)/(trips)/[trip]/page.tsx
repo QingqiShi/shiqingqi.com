@@ -4,6 +4,7 @@ import { validateLocale } from "@tuja/i18n/validate-locale";
 import { signInPath } from "@tuja/server-auth/sign-in-path";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { TripAssistant } from "#src/assistant/ui/trip-assistant.tsx";
 import { dateRangeLabel } from "#src/reader/date-label.ts";
 import { QuickEditProvider } from "#src/reader/quick-edit/quick-edit-provider.tsx";
 import { TripDetailsButton } from "#src/reader/quick-edit/trip-details-button.tsx";
@@ -15,6 +16,7 @@ import { ShareTrip } from "#src/share/share-trip.tsx";
 import { canEditTrip } from "#src/trips/can-edit-trip.ts";
 import { getTrip, getViewerId } from "#src/trips/get-trips.ts";
 import { isTripId } from "#src/trips/is-trip-id.ts";
+import { digest } from "#src/trips/ops/digest.ts";
 
 // "Current day" depends on the wall clock, so render per-request.
 export const dynamic = "force-dynamic";
@@ -99,14 +101,16 @@ export default async function TripRoute({ params }: TripRouteProps) {
     />
   );
   return canEdit ? (
-    <QuickEditProvider
-      key={viewed.id}
-      tripId={viewed.id}
-      trip={trip}
-      isOwner={viewed.role === "owner"}
-    >
-      {page}
-    </QuickEditProvider>
+    <TripAssistant tripId={viewed.id} version={digest(trip)}>
+      <QuickEditProvider
+        key={viewed.id}
+        tripId={viewed.id}
+        trip={trip}
+        isOwner={viewed.role === "owner"}
+      >
+        {page}
+      </QuickEditProvider>
+    </TripAssistant>
   ) : (
     page
   );

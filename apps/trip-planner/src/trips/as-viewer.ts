@@ -2,7 +2,7 @@ import { runTransaction } from "@tuja/server-db/run-transaction";
 import { sql } from "drizzle-orm";
 import type { TripsDb } from "#src/db/types.ts";
 
-type Transaction = Parameters<Parameters<TripsDb["transaction"]>[0]>[0];
+export type Transaction = Parameters<Parameters<TripsDb["transaction"]>[0]>[0];
 
 /**
  * Runs queries as `trips_app`, the role that row-level security limits to
