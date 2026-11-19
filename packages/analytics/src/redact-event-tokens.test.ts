@@ -27,11 +27,14 @@ describe("redactEventTokens", () => {
     );
   });
 
-  it("keeps the session id, which PostHog needs", () => {
+  it("keeps the project key and the session id, which PostHog needs", () => {
     const event = {
       uuid: "01994f9c-0000-7000-8000-000000000000",
       event: "$pageview",
-      properties: { $session_id: "01994f9c-0000-7000-8000-000000000001" },
+      properties: {
+        token: "phc_0aB1cD2eF3gH4iJ5kL6mN7oP8qR9sT0uV1wX2yZ3aB4c",
+        $session_id: "01994f9c-0000-7000-8000-000000000001",
+      },
     } satisfies CaptureResult;
 
     expect(redactEventTokens(event)).toEqual(event);
