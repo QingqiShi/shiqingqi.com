@@ -14,6 +14,9 @@ import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { SerwistProvider } from "#src/pwa/serwist-provider.tsx";
+import icon16 from "#src/pwa/trips-icon-16.png";
+import appleIcon from "#src/pwa/trips-icon-180.png";
+import icon32 from "#src/pwa/trips-icon-32.png";
 import { globalStyles } from "#src/theme/global-styles.ts";
 import { ThemeApplier } from "#src/theme/theme-applier.tsx";
 import { themeHack } from "#src/theme/theme-hack.ts";
@@ -42,6 +45,16 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
       zh: "自驾行程：每日安排、景点、餐厅与住宿。",
     }),
     robots: { index: false, follow: false },
+    icons: {
+      // The 16px and 32px icons draw the lines of the road two times as wide.
+      // When a browser tab makes the 192px icon smaller, the lines go.
+      icon: [
+        { url: icon16.src, sizes: "16x16", type: "image/png" },
+        { url: icon32.src, sizes: "32x32", type: "image/png" },
+        { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      ],
+      apple: { url: appleIcon.src, sizes: "180x180", type: "image/png" },
+    },
   };
 }
 
