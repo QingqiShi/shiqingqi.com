@@ -29,7 +29,7 @@ catalog:
   "@babel/preset-typescript": ^8.0.7
   "@babel/traverse": 8.1.2
   "@babel/types": 8.1.2
-  "@eslint-react/eslint-plugin": ^5.30.2
+  "@eslint-react/eslint-plugin": ^5.30.3
   "@next/env": 16.4.6
   "@phosphor-icons/react": ^2.1.10
   "@rolldown/plugin-babel": ^0.3.1
@@ -67,7 +67,7 @@ catalog:
   # `@typescript/native` alias and provides the fast `tsc` used by `build:tsc`.
   typescript: "npm:@typescript/typescript6@^6.0.2"
   "@typescript/native": "npm:typescript@^7.0.2"
-  typescript-eslint: ^8.72.2
+  typescript-eslint: ^8.73.0
   typegpu: ^0.12.10
   unplugin-typegpu: ^0.12.7
   vite: ^8.3.5

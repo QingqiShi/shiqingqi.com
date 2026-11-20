@@ -160,6 +160,10 @@ export default defineConfig([
       "@tuja/valid-styles": "error",
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/consistent-type-exports": "error",
+      // typescript-eslint 8.73.0 added this rule to strictTypeChecked. When it
+      // runs, no-unsafe-argument finds a false `any` in a destructuring
+      // default, such as `{ now, deadline = new Date(now.getTime() + ms) }`.
+      "@typescript-eslint/no-unsafe-class-instance-assignment": "off",
       "import-x/no-relative-packages": "error",
       "import-x/order": [
         "error",
