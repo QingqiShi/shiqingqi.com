@@ -71,7 +71,7 @@ catalog:
   typegpu: ^0.12.10
   unplugin-typegpu: ^0.12.7
   vite: ^8.3.5
-  vitest: ^5.1.0
+  vitest: ^5.1.1
   zod: "4"
 minimumReleaseAgeExclude:
   - "@typescript/typescript-aix-ppc64@7.0.2"
