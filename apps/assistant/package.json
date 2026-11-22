@@ -55,7 +55,7 @@
     "react-dom": "catalog:",
     "serwist": "catalog:",
     "tsdav": "2.5.0",
-    "web-push": "3.6.7",
+    "web-push": "4.0.0",
     "zod": "catalog:"
   },
   "devDependencies": {
