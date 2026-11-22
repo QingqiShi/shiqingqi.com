@@ -1,5 +1,5 @@
 import "server-only";
-import webPush from "web-push";
+import { sendNotification, WebPushError } from "web-push";
 import { isPushServiceEndpoint } from "./is-push-service-endpoint.ts";
 import type { DevicePushSubscription } from "./push-devices.ts";
 
@@ -34,7 +34,7 @@ export function getPushSender(): PushSender | null {
   return async (subscription, message) => {
     if (!isPushServiceEndpoint(subscription.endpoint)) return "gone";
     try {
-      await webPush.sendNotification(subscription, JSON.stringify(message), {
+      await sendNotification(subscription, JSON.stringify(message), {
         vapidDetails: { subject: VAPID_SUBJECT, publicKey, privateKey },
         TTL: TIME_TO_LIVE_SECONDS,
         urgency: "normal",
@@ -42,14 +42,14 @@ export function getPushSender(): PushSender | null {
       return "sent";
     } catch (error) {
       if (
-        error instanceof webPush.WebPushError &&
+        error instanceof WebPushError &&
         (error.statusCode === 404 || error.statusCode === 410)
       ) {
         return "gone";
       }
       console.error(
         "Push failed",
-        error instanceof webPush.WebPushError
+        error instanceof WebPushError
           ? error.statusCode
           : error instanceof Error
             ? error.message
