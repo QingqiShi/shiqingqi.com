@@ -55,6 +55,10 @@ apps/buddy/.buddy-outbox/
 apps/trip-planner/.trips-db/
 apps/trip-planner/.trips-outbox/
 
+# Fund local dev database (PGlite data directory) and email outbox
+apps/fund/.fund-db/
+apps/fund/.fund-outbox/
+
 # Generated i18n bundles
 **/src/_generated/i18n/
 

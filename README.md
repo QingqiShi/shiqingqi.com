@@ -7,6 +7,7 @@ A pnpm monorepo built with Turborepo.
 - `apps/web` — ships [qingqi.dev](https://qingqi.dev): a portfolio and Projects site, including an AI-assisted movie and TV database.
 - `apps/finance` — ships the household Finance app at [finance.qingqi.dev](https://finance.qingqi.dev). The old `qingqi.dev/finance` paths redirect there.
 - `apps/trip-planner` — a private, password-gated reader for pre-written road-trip itineraries.
+- `apps/fund` — Paper Fund (模拟基金), a paper-trading AI portfolio manager with one owner.
 
 ## Packages
 

@@ -1,0 +1,156 @@
+{
+  "quoteCurrency": "GBp",
+  "price": 104.1,
+  "marketCap": 24118552576,
+  "financialCurrency": "EUR",
+  "forwardEps": 0.11924,
+  "pegRatio": 0.59,
+  "dividendYield": 0.0365,
+  "returnOnEquity": -0.08879,
+  "profitMargin": -0.14085001,
+  "revenueGrowth": 0.114,
+  "earningsGrowth": null,
+  "debtToEquityPct": 126.373,
+  "analystTargetMean": 122.85799,
+  "analystRecommendation": "hold",
+  "earningsDates": ["2026-11-10T16:30:00.000Z"],
+  "exDividendDate": "2026-11-19T00:00:00.000Z",
+  "quarterly": [
+    {
+      "periodEnd": "2025-03-31",
+      "dilutedEps": null,
+      "revenue": null,
+      "netIncome": null,
+      "dilutedShares": null,
+      "freeCashFlow": null,
+      "ebitda": null,
+      "totalDebt": 53143000000,
+      "cash": 15493000000,
+      "commonStockEquity": 52745000000
+    },
+    {
+      "periodEnd": "2025-09-30",
+      "dilutedEps": null,
+      "revenue": null,
+      "netIncome": null,
+      "dilutedShares": null,
+      "freeCashFlow": null,
+      "ebitda": null,
+      "totalDebt": 51455000000,
+      "cash": 13528000000,
+      "commonStockEquity": 52817000000
+    },
+    {
+      "periodEnd": "2026-03-31",
+      "dilutedEps": null,
+      "revenue": null,
+      "netIncome": null,
+      "dilutedShares": null,
+      "freeCashFlow": null,
+      "ebitda": null,
+      "totalDebt": 52636000000,
+      "cash": 12329000000,
+      "commonStockEquity": 50633000000
+    }
+  ],
+  "annual": [
+    {
+      "periodEnd": "2023-03-31",
+      "dilutedEps": 0.4262,
+      "revenue": 37672000000,
+      "netIncome": 11838000000,
+      "dilutedShares": 27775692163,
+      "freeCashFlow": 10298000000,
+      "ebitda": 25787000000,
+      "totalDebt": 66390000000,
+      "cash": 18722000000,
+      "commonStockEquity": 63399000000
+    },
+    {
+      "periodEnd": "2024-03-31",
+      "dilutedEps": 0.042,
+      "revenue": 36717000000,
+      "netIncome": 1140000000,
+      "dilutedShares": 27142857143,
+      "freeCashFlow": 9697000000,
+      "ebitda": 14782000000,
+      "totalDebt": 56987000000,
+      "cash": 8905000000,
+      "commonStockEquity": 59966000000
+    },
+    {
+      "periodEnd": "2025-03-31",
+      "dilutedEps": -0.1594,
+      "revenue": 37448000000,
+      "netIncome": -4169000000,
+      "dilutedShares": 26149000000,
+      "freeCashFlow": 8674000000,
+      "ebitda": 11614000000,
+      "totalDebt": 53143000000,
+      "cash": 15493000000,
+      "commonStockEquity": 52745000000
+    },
+    {
+      "periodEnd": "2026-03-31",
+      "dilutedEps": -0.0165,
+      "revenue": 40461000000,
+      "netIncome": -397000000,
+      "dilutedShares": 24033000000,
+      "freeCashFlow": 6973000000,
+      "ebitda": 16767000000,
+      "totalDebt": 52636000000,
+      "cash": 12329000000,
+      "commonStockEquity": 50633000000
+    }
+  ],
+  "trailing": [
+    {
+      "periodEnd": "2025-03-31",
+      "dilutedEps": -0.1594,
+      "revenue": null,
+      "netIncome": null,
+      "dilutedShares": 26149000000,
+      "freeCashFlow": null,
+      "ebitda": null,
+      "totalDebt": null,
+      "cash": null,
+      "commonStockEquity": null
+    },
+    {
+      "periodEnd": "2025-09-30",
+      "dilutedEps": -0.1655,
+      "revenue": null,
+      "netIncome": null,
+      "dilutedShares": 25056000000,
+      "freeCashFlow": null,
+      "ebitda": null,
+      "totalDebt": null,
+      "cash": null,
+      "commonStockEquity": null
+    },
+    {
+      "periodEnd": "2026-03-31",
+      "dilutedEps": -0.0165,
+      "revenue": null,
+      "netIncome": null,
+      "dilutedShares": 24033000000,
+      "freeCashFlow": null,
+      "ebitda": null,
+      "totalDebt": null,
+      "cash": null,
+      "commonStockEquity": null
+    },
+    {
+      "periodEnd": "2026-09-30",
+      "dilutedEps": -0.2578,
+      "revenue": 42705000000,
+      "netIncome": -6015000000,
+      "dilutedShares": 23167256725,
+      "freeCashFlow": 7570000000,
+      "ebitda": 14910000000,
+      "totalDebt": null,
+      "cash": null,
+      "commonStockEquity": null
+    }
+  ]
+}

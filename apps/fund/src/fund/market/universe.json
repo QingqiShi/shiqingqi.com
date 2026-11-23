@@ -1,0 +1,1972 @@
+[
+  {
+    "symbol": "AAF.L",
+    "name": "Airtel Africa Plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Communication Services",
+    "industry": "Telecom Services",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "AAL.L",
+    "name": "Anglo American plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Basic Materials",
+    "industry": "Other Industrial Metals & Mining",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "ABDN.L",
+    "name": "Aberdeen Group Plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Asset Management",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "ABF.L",
+    "name": "Associated British Foods plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Defensive",
+    "industry": "Packaged Foods",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "ADM.L",
+    "name": "Admiral Group plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Insurance - Property & Casualty",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "ALW.L",
+    "name": "Alliance Witan Ord",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Unknown",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "ANTO.L",
+    "name": "Antofagasta plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Basic Materials",
+    "industry": "Copper",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "AUTO.L",
+    "name": "Autotrader Group plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Communication Services",
+    "industry": "Internet Content & Information",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "AV.L",
+    "name": "Aviva plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Insurance - Diversified",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "AZN.L",
+    "name": "AstraZeneca PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Healthcare",
+    "industry": "Drug Manufacturers - General",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "BA.L",
+    "name": "BAE Systems plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Aerospace & Defense",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "BAB.L",
+    "name": "Babcock International Group PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Engineering & Construction",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "BARC.L",
+    "name": "Barclays PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Banks - Diversified",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "BATS.L",
+    "name": "British American Tobacco p.l.c.",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Defensive",
+    "industry": "Tobacco",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "BBOX.L",
+    "name": "Tritax Big Box Ord",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Unknown",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "BBY.L",
+    "name": "Balfour Beatty plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Engineering & Construction",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "BGEO.L",
+    "name": "Lion Finance Group PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Banks - Regional",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "BLND.L",
+    "name": "British Land Company PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Real Estate",
+    "industry": "REIT - Diversified",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "BNZL.L",
+    "name": "Bunzl plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Specialty Business Services",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "BP.L",
+    "name": "BP p.l.c.",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Energy",
+    "industry": "Oil & Gas Integrated",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "BRBY.L",
+    "name": "Burberry Group plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Cyclical",
+    "industry": "Luxury Goods",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "BT-A.L",
+    "name": "BT Group plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Communication Services",
+    "industry": "Telecom Services",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "BTRW.L",
+    "name": "Barratt Redrow plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Cyclical",
+    "industry": "Residential Construction",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "CCC.L",
+    "name": "Computacenter plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Technology",
+    "industry": "Information Technology Services",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "CCEP.L",
+    "name": "Coca-Cola Europacific Partners PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Defensive",
+    "industry": "Beverages - Non-Alcoholic",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "CCH.L",
+    "name": "Coca-Cola HBC AG",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Defensive",
+    "industry": "Beverages - Non-Alcoholic",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "CNA.L",
+    "name": "Centrica plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Utilities",
+    "industry": "Utilities - Independent Power Producers",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "CRDA.L",
+    "name": "Croda International Plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Basic Materials",
+    "industry": "Specialty Chemicals",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "CTEC.L",
+    "name": "Convatec Group PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Healthcare",
+    "industry": "Medical Instruments & Supplies",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "DCC.L",
+    "name": "DCC Energy plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Energy",
+    "industry": "Oil & Gas Refining & Marketing",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "DGE.L",
+    "name": "Diageo plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Defensive",
+    "industry": "Beverages - Wineries & Distilleries",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "DPLM.L",
+    "name": "Diploma PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Industrial Distribution",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "EDV.L",
+    "name": "Endeavour Mining plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Basic Materials",
+    "industry": "Gold",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "EXPN.L",
+    "name": "Experian plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Consulting Services",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "EZJ.L",
+    "name": "easyJet plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Airlines",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "FCIT.L",
+    "name": "F&C Investment Trust Ord",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Unknown",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "FRES.L",
+    "name": "Fresnillo plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Basic Materials",
+    "industry": "Other Precious Metals & Mining",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "GAW.L",
+    "name": "Games Workshop Group PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Cyclical",
+    "industry": "Leisure",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "GLEN.L",
+    "name": "Glencore plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Basic Materials",
+    "industry": "Other Industrial Metals & Mining",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "GSK.L",
+    "name": "GSK plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Healthcare",
+    "industry": "Drug Manufacturers - General",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "HLMA.L",
+    "name": "Halma plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Conglomerates",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "HLN.L",
+    "name": "Haleon plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Healthcare",
+    "industry": "Drug Manufacturers - Specialty & Generic",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "HSBA.L",
+    "name": "HSBC Holdings plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Banks - Diversified",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "HSX.L",
+    "name": "Hiscox Ltd",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Insurance - Property & Casualty",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "HWDN.L",
+    "name": "Howden Joinery Group Plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Cyclical",
+    "industry": "Furnishings, Fixtures & Appliances",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "IAG.L",
+    "name": "International Consolidated Airlines Group S.A.",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Airlines",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "ICG.L",
+    "name": "ICG plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Asset Management",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "IGG.L",
+    "name": "IG Group Holdings plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Capital Markets",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "III.L",
+    "name": "3i Group Ord",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Asset Management",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "IMB.L",
+    "name": "Imperial Brands PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Defensive",
+    "industry": "Tobacco",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "IMI.L",
+    "name": "IMI plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Specialty Industrial Machinery",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "INF.L",
+    "name": "Informa plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Communication Services",
+    "industry": "Publishing",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "INVP.L",
+    "name": "Investec Group",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Capital Markets",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "ITH.L",
+    "name": "Ithaca Energy plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Energy",
+    "industry": "Oil & Gas E&P",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "ITRK.L",
+    "name": "Intertek Group plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Specialty Business Services",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "JD.L",
+    "name": "JD Sports Fashion Plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Cyclical",
+    "industry": "Apparel Retail",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "KGF.L",
+    "name": "Kingfisher plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Cyclical",
+    "industry": "Home Improvement Retail",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "LAND.L",
+    "name": "Land Securities Group Plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Real Estate",
+    "industry": "REIT - Diversified",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "LGEN.L",
+    "name": "Legal & General Group Plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Asset Management",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "LLOY.L",
+    "name": "Lloyds Banking Group plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Banks - Regional",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "LMP.L",
+    "name": "LondonMetric Property Plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Real Estate",
+    "industry": "REIT - Industrial",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "LSEG.L",
+    "name": "London Stock Exchange Group plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Financial Data & Stock Exchanges",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "MKS.L",
+    "name": "Marks and Spencer Group plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Cyclical",
+    "industry": "Department Stores",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "MNG.L",
+    "name": "M&G plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Asset Management",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "MRO.L",
+    "name": "Melrose Industries PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Specialty Industrial Machinery",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "NG.L",
+    "name": "National Grid plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Utilities",
+    "industry": "Utilities - Regulated Electric",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "NWG.L",
+    "name": "NatWest Group plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Banks - Regional",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "NXT.L",
+    "name": "NEXT plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Cyclical",
+    "industry": "Apparel Retail",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "PCT.L",
+    "name": "Polar Capital Technology Ord",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Unknown",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "PRU.L",
+    "name": "Prudential plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Insurance - Life",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "PSH.L",
+    "name": "Pershing Square Holdings, Ltd.",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Asset Management",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "PSON.L",
+    "name": "Pearson plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Communication Services",
+    "industry": "Publishing",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "REL.L",
+    "name": "RELX PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Specialty Business Services",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "RIO.L",
+    "name": "Rio Tinto Group",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Basic Materials",
+    "industry": "Other Industrial Metals & Mining",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "RKT.L",
+    "name": "Reckitt Benckiser Group plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Defensive",
+    "industry": "Household & Personal Products",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "RR.L",
+    "name": "Rolls-Royce Holdings plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Aerospace & Defense",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "RTO.L",
+    "name": "Rentokil Initial plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Specialty Business Services",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "SBRY.L",
+    "name": "J Sainsbury plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Defensive",
+    "industry": "Grocery Stores",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "SDLF.L",
+    "name": "Standard Life plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Insurance - Life",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "SGE.L",
+    "name": "The Sage Group plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Technology",
+    "industry": "Software - Application",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "SGRO.L",
+    "name": "SEGRO Plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Real Estate",
+    "industry": "REIT - Industrial",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "SHEL.L",
+    "name": "Shell plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Energy",
+    "industry": "Oil & Gas Integrated",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "SMIN.L",
+    "name": "Smiths Group plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Specialty Industrial Machinery",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "SMT.L",
+    "name": "Scottish Mortgage Ord",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Unknown",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "SN.L",
+    "name": "Smith & Nephew plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Healthcare",
+    "industry": "Medical Devices",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "SPX.L",
+    "name": "Spirax Group plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Specialty Industrial Machinery",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "SSE.L",
+    "name": "SSE plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Utilities",
+    "industry": "Utilities - Diversified",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "STAN.L",
+    "name": "Standard Chartered PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Banks - Diversified",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "STJ.L",
+    "name": "St. James's Place plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Financial Services",
+    "industry": "Asset Management",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "SVT.L",
+    "name": "Severn Trent PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Utilities",
+    "industry": "Utilities - Regulated Water",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "TSCO.L",
+    "name": "Tesco PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Defensive",
+    "industry": "Grocery Stores",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "ULVR.L",
+    "name": "Unilever PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Defensive",
+    "industry": "Household & Personal Products",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "UU.L",
+    "name": "United Utilities Group PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Utilities",
+    "industry": "Utilities - Regulated Water",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "VOD.L",
+    "name": "Vodafone Group Public Limited Company",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Communication Services",
+    "industry": "Telecom Services",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "WEIR.L",
+    "name": "Weir PLC",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Industrials",
+    "industry": "Specialty Industrial Machinery",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "WPP.L",
+    "name": "WPP plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Communication Services",
+    "industry": "Advertising Agencies",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "WTB.L",
+    "name": "Whitbread plc",
+    "exchange": "LSE",
+    "currency": "GBP",
+    "quoteScale": 100,
+    "sector": "Consumer Cyclical",
+    "industry": "Lodging",
+    "index": "FTSE100"
+  },
+  {
+    "symbol": "AAPL",
+    "name": "Apple Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Consumer Electronics",
+    "index": "SP100"
+  },
+  {
+    "symbol": "ABBV",
+    "name": "AbbVie Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Healthcare",
+    "industry": "Drug Manufacturers - General",
+    "index": "SP100"
+  },
+  {
+    "symbol": "ABT",
+    "name": "Abbott Laboratories",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Healthcare",
+    "industry": "Medical Devices",
+    "index": "SP100"
+  },
+  {
+    "symbol": "ACN",
+    "name": "Accenture plc",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Information Technology Services",
+    "index": "SP100"
+  },
+  {
+    "symbol": "ADBE",
+    "name": "Adobe Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Software - Application",
+    "index": "SP100"
+  },
+  {
+    "symbol": "AMAT",
+    "name": "Applied Materials, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Semiconductor Equipment & Materials",
+    "index": "SP100"
+  },
+  {
+    "symbol": "AMD",
+    "name": "Advanced Micro Devices, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Semiconductors",
+    "index": "SP100"
+  },
+  {
+    "symbol": "AMGN",
+    "name": "Amgen Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Healthcare",
+    "industry": "Drug Manufacturers - General",
+    "index": "SP100"
+  },
+  {
+    "symbol": "AMT",
+    "name": "American Tower Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Real Estate",
+    "industry": "REIT - Specialty",
+    "index": "SP100"
+  },
+  {
+    "symbol": "AMZN",
+    "name": "Amazon.com, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Consumer Cyclical",
+    "industry": "Internet Retail",
+    "index": "SP100"
+  },
+  {
+    "symbol": "ANET",
+    "name": "Arista Networks, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Computer Hardware",
+    "index": "SP100"
+  },
+  {
+    "symbol": "AVGO",
+    "name": "Broadcom Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Semiconductors",
+    "index": "SP100"
+  },
+  {
+    "symbol": "AXP",
+    "name": "American Express Company",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Financial Services",
+    "industry": "Credit Services",
+    "index": "SP100"
+  },
+  {
+    "symbol": "BA",
+    "name": "The Boeing Company",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Industrials",
+    "industry": "Aerospace & Defense",
+    "index": "SP100"
+  },
+  {
+    "symbol": "BAC",
+    "name": "Bank of America Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Financial Services",
+    "industry": "Banks - Diversified",
+    "index": "SP100"
+  },
+  {
+    "symbol": "BKNG",
+    "name": "Booking Holdings Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Consumer Cyclical",
+    "industry": "Travel Services",
+    "index": "SP100"
+  },
+  {
+    "symbol": "BLK",
+    "name": "BlackRock, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Financial Services",
+    "industry": "Asset Management",
+    "index": "SP100"
+  },
+  {
+    "symbol": "BMY",
+    "name": "Bristol-Myers Squibb Company",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Healthcare",
+    "industry": "Drug Manufacturers - General",
+    "index": "SP100"
+  },
+  {
+    "symbol": "BNY",
+    "name": "The Bank of New York Mellon Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Financial Services",
+    "industry": "Banks - Diversified",
+    "index": "SP100"
+  },
+  {
+    "symbol": "BRK-B",
+    "name": "Berkshire Hathaway Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Financial Services",
+    "industry": "Insurance - Diversified",
+    "index": "SP100"
+  },
+  {
+    "symbol": "C",
+    "name": "Citigroup Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Financial Services",
+    "industry": "Banks - Diversified",
+    "index": "SP100"
+  },
+  {
+    "symbol": "CAT",
+    "name": "Caterpillar Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Industrials",
+    "industry": "Farm & Heavy Construction Machinery",
+    "index": "SP100"
+  },
+  {
+    "symbol": "CMCSA",
+    "name": "Comcast Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Communication Services",
+    "industry": "Telecom Services",
+    "index": "SP100"
+  },
+  {
+    "symbol": "COF",
+    "name": "Capital One Financial Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Financial Services",
+    "industry": "Credit Services",
+    "index": "SP100"
+  },
+  {
+    "symbol": "COP",
+    "name": "ConocoPhillips",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Energy",
+    "industry": "Oil & Gas E&P",
+    "index": "SP100"
+  },
+  {
+    "symbol": "COST",
+    "name": "Costco Wholesale Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Consumer Defensive",
+    "industry": "Discount Stores",
+    "index": "SP100"
+  },
+  {
+    "symbol": "CRM",
+    "name": "Salesforce, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Software - Application",
+    "index": "SP100"
+  },
+  {
+    "symbol": "CSCO",
+    "name": "Cisco Systems, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Communication Equipment",
+    "index": "SP100"
+  },
+  {
+    "symbol": "CVS",
+    "name": "CVS Health Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Healthcare",
+    "industry": "Healthcare Plans",
+    "index": "SP100"
+  },
+  {
+    "symbol": "CVX",
+    "name": "Chevron Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Energy",
+    "industry": "Oil & Gas Integrated",
+    "index": "SP100"
+  },
+  {
+    "symbol": "DE",
+    "name": "Deere & Company",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Industrials",
+    "industry": "Farm & Heavy Construction Machinery",
+    "index": "SP100"
+  },
+  {
+    "symbol": "DELL",
+    "name": "Dell Technologies Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Computer Hardware",
+    "index": "SP100"
+  },
+  {
+    "symbol": "DHR",
+    "name": "Danaher Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Healthcare",
+    "industry": "Diagnostics & Research",
+    "index": "SP100"
+  },
+  {
+    "symbol": "DIS",
+    "name": "The Walt Disney Company",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Communication Services",
+    "industry": "Entertainment",
+    "index": "SP100"
+  },
+  {
+    "symbol": "DUK",
+    "name": "Duke Energy Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Utilities",
+    "industry": "Utilities - Regulated Electric",
+    "index": "SP100"
+  },
+  {
+    "symbol": "EMR",
+    "name": "Emerson Electric Co.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Industrials",
+    "industry": "Specialty Industrial Machinery",
+    "index": "SP100"
+  },
+  {
+    "symbol": "FDX",
+    "name": "FedEx Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Industrials",
+    "industry": "Integrated Freight & Logistics",
+    "index": "SP100"
+  },
+  {
+    "symbol": "GD",
+    "name": "General Dynamics Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Industrials",
+    "industry": "Aerospace & Defense",
+    "index": "SP100"
+  },
+  {
+    "symbol": "GE",
+    "name": "GE Aerospace",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Industrials",
+    "industry": "Aerospace & Defense",
+    "index": "SP100"
+  },
+  {
+    "symbol": "GEV",
+    "name": "GE Vernova Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Industrials",
+    "industry": "Specialty Industrial Machinery",
+    "index": "SP100"
+  },
+  {
+    "symbol": "GILD",
+    "name": "Gilead Sciences, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Healthcare",
+    "industry": "Drug Manufacturers - General",
+    "index": "SP100"
+  },
+  {
+    "symbol": "GM",
+    "name": "General Motors Company",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Consumer Cyclical",
+    "industry": "Auto Manufacturers",
+    "index": "SP100"
+  },
+  {
+    "symbol": "GOOGL",
+    "name": "Alphabet Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Communication Services",
+    "industry": "Internet Content & Information",
+    "index": "SP100"
+  },
+  {
+    "symbol": "GS",
+    "name": "The Goldman Sachs Group, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Financial Services",
+    "industry": "Capital Markets",
+    "index": "SP100"
+  },
+  {
+    "symbol": "HD",
+    "name": "The Home Depot, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Consumer Cyclical",
+    "industry": "Home Improvement Retail",
+    "index": "SP100"
+  },
+  {
+    "symbol": "IBM",
+    "name": "International Business Machines Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Information Technology Services",
+    "index": "SP100"
+  },
+  {
+    "symbol": "INTC",
+    "name": "Intel Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Semiconductors",
+    "index": "SP100"
+  },
+  {
+    "symbol": "INTU",
+    "name": "Intuit Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Software - Application",
+    "index": "SP100"
+  },
+  {
+    "symbol": "ISRG",
+    "name": "Intuitive Surgical, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Healthcare",
+    "industry": "Medical Instruments & Supplies",
+    "index": "SP100"
+  },
+  {
+    "symbol": "JNJ",
+    "name": "Johnson & Johnson",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Healthcare",
+    "industry": "Drug Manufacturers - General",
+    "index": "SP100"
+  },
+  {
+    "symbol": "JPM",
+    "name": "JPMorgan Chase & Co.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Financial Services",
+    "industry": "Banks - Diversified",
+    "index": "SP100"
+  },
+  {
+    "symbol": "KO",
+    "name": "The Coca-Cola Company",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Consumer Defensive",
+    "industry": "Beverages - Non-Alcoholic",
+    "index": "SP100"
+  },
+  {
+    "symbol": "LIN",
+    "name": "Linde plc",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Basic Materials",
+    "industry": "Specialty Chemicals",
+    "index": "SP100"
+  },
+  {
+    "symbol": "LLY",
+    "name": "Eli Lilly and Company",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Healthcare",
+    "industry": "Drug Manufacturers - General",
+    "index": "SP100"
+  },
+  {
+    "symbol": "LMT",
+    "name": "Lockheed Martin Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Industrials",
+    "industry": "Aerospace & Defense",
+    "index": "SP100"
+  },
+  {
+    "symbol": "LOW",
+    "name": "Lowe's Companies, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Consumer Cyclical",
+    "industry": "Home Improvement Retail",
+    "index": "SP100"
+  },
+  {
+    "symbol": "LRCX",
+    "name": "Lam Research Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Semiconductor Equipment & Materials",
+    "index": "SP100"
+  },
+  {
+    "symbol": "MA",
+    "name": "Mastercard Incorporated",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Financial Services",
+    "industry": "Credit Services",
+    "index": "SP100"
+  },
+  {
+    "symbol": "MCD",
+    "name": "McDonald's Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Consumer Cyclical",
+    "industry": "Restaurants",
+    "index": "SP100"
+  },
+  {
+    "symbol": "MDLZ",
+    "name": "Mondelez International, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Consumer Defensive",
+    "industry": "Confectioners",
+    "index": "SP100"
+  },
+  {
+    "symbol": "MDT",
+    "name": "Medtronic plc",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Healthcare",
+    "industry": "Medical Devices",
+    "index": "SP100"
+  },
+  {
+    "symbol": "META",
+    "name": "Meta Platforms, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Communication Services",
+    "industry": "Internet Content & Information",
+    "index": "SP100"
+  },
+  {
+    "symbol": "MMM",
+    "name": "3M Company",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Industrials",
+    "industry": "Conglomerates",
+    "index": "SP100"
+  },
+  {
+    "symbol": "MO",
+    "name": "Altria Group, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Consumer Defensive",
+    "industry": "Tobacco",
+    "index": "SP100"
+  },
+  {
+    "symbol": "MRK",
+    "name": "Merck & Co., Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Healthcare",
+    "industry": "Drug Manufacturers - General",
+    "index": "SP100"
+  },
+  {
+    "symbol": "MS",
+    "name": "Morgan Stanley",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Financial Services",
+    "industry": "Capital Markets",
+    "index": "SP100"
+  },
+  {
+    "symbol": "MSFT",
+    "name": "Microsoft Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Software - Infrastructure",
+    "index": "SP100"
+  },
+  {
+    "symbol": "MU",
+    "name": "Micron Technology, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Semiconductors",
+    "index": "SP100"
+  },
+  {
+    "symbol": "NEE",
+    "name": "NextEra Energy, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Utilities",
+    "industry": "Utilities - Regulated Electric",
+    "index": "SP100"
+  },
+  {
+    "symbol": "NFLX",
+    "name": "Netflix, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Communication Services",
+    "industry": "Entertainment",
+    "index": "SP100"
+  },
+  {
+    "symbol": "NOW",
+    "name": "ServiceNow, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Software - Application",
+    "index": "SP100"
+  },
+  {
+    "symbol": "NVDA",
+    "name": "NVIDIA Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Semiconductors",
+    "index": "SP100"
+  },
+  {
+    "symbol": "ORCL",
+    "name": "Oracle Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Software - Infrastructure",
+    "index": "SP100"
+  },
+  {
+    "symbol": "PANW",
+    "name": "Palo Alto Networks, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Software - Infrastructure",
+    "index": "SP100"
+  },
+  {
+    "symbol": "PEP",
+    "name": "PepsiCo, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Consumer Defensive",
+    "industry": "Beverages - Non-Alcoholic",
+    "index": "SP100"
+  },
+  {
+    "symbol": "PFE",
+    "name": "Pfizer Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Healthcare",
+    "industry": "Drug Manufacturers - General",
+    "index": "SP100"
+  },
+  {
+    "symbol": "PG",
+    "name": "The Procter & Gamble Company",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Consumer Defensive",
+    "industry": "Household & Personal Products",
+    "index": "SP100"
+  },
+  {
+    "symbol": "PLTR",
+    "name": "Palantir Technologies Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Software - Infrastructure",
+    "index": "SP100"
+  },
+  {
+    "symbol": "PM",
+    "name": "Philip Morris International Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Consumer Defensive",
+    "industry": "Tobacco",
+    "index": "SP100"
+  },
+  {
+    "symbol": "QCOM",
+    "name": "QUALCOMM Incorporated",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Semiconductors",
+    "index": "SP100"
+  },
+  {
+    "symbol": "RTX",
+    "name": "RTX Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Industrials",
+    "industry": "Aerospace & Defense",
+    "index": "SP100"
+  },
+  {
+    "symbol": "SBUX",
+    "name": "Starbucks Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Consumer Cyclical",
+    "industry": "Restaurants",
+    "index": "SP100"
+  },
+  {
+    "symbol": "SCHW",
+    "name": "The Charles Schwab Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Financial Services",
+    "industry": "Capital Markets",
+    "index": "SP100"
+  },
+  {
+    "symbol": "SNDK",
+    "name": "Sandisk Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Computer Hardware",
+    "index": "SP100"
+  },
+  {
+    "symbol": "SO",
+    "name": "The Southern Company",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Utilities",
+    "industry": "Utilities - Regulated Electric",
+    "index": "SP100"
+  },
+  {
+    "symbol": "T",
+    "name": "AT&T Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Communication Services",
+    "industry": "Telecom Services",
+    "index": "SP100"
+  },
+  {
+    "symbol": "TMO",
+    "name": "Thermo Fisher Scientific Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Healthcare",
+    "industry": "Diagnostics & Research",
+    "index": "SP100"
+  },
+  {
+    "symbol": "TMUS",
+    "name": "T-Mobile US, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Communication Services",
+    "industry": "Telecom Services",
+    "index": "SP100"
+  },
+  {
+    "symbol": "TSLA",
+    "name": "Tesla, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Consumer Cyclical",
+    "industry": "Auto Manufacturers",
+    "index": "SP100"
+  },
+  {
+    "symbol": "TXN",
+    "name": "Texas Instruments Incorporated",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Semiconductors",
+    "index": "SP100"
+  },
+  {
+    "symbol": "UBER",
+    "name": "Uber Technologies, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Technology",
+    "industry": "Software - Application",
+    "index": "SP100"
+  },
+  {
+    "symbol": "UNH",
+    "name": "UnitedHealth Group Incorporated",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Healthcare",
+    "industry": "Healthcare Plans",
+    "index": "SP100"
+  },
+  {
+    "symbol": "UNP",
+    "name": "Union Pacific Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Industrials",
+    "industry": "Railroads",
+    "index": "SP100"
+  },
+  {
+    "symbol": "UPS",
+    "name": "United Parcel Service, Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Industrials",
+    "industry": "Integrated Freight & Logistics",
+    "index": "SP100"
+  },
+  {
+    "symbol": "USB",
+    "name": "U.S. Bancorp",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Financial Services",
+    "industry": "Banks - Regional",
+    "index": "SP100"
+  },
+  {
+    "symbol": "V",
+    "name": "Visa Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Financial Services",
+    "industry": "Credit Services",
+    "index": "SP100"
+  },
+  {
+    "symbol": "VZ",
+    "name": "Verizon Communications Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Communication Services",
+    "industry": "Telecom Services",
+    "index": "SP100"
+  },
+  {
+    "symbol": "WFC",
+    "name": "Wells Fargo & Company",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Financial Services",
+    "industry": "Banks - Diversified",
+    "index": "SP100"
+  },
+  {
+    "symbol": "WMT",
+    "name": "Walmart Inc.",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Consumer Defensive",
+    "industry": "Discount Stores",
+    "index": "SP100"
+  },
+  {
+    "symbol": "XOM",
+    "name": "ExxonMobil Holdings Corporation",
+    "exchange": "US",
+    "currency": "USD",
+    "quoteScale": 1,
+    "sector": "Energy",
+    "industry": "Oil & Gas Integrated",
+    "index": "SP100"
+  }
+]
