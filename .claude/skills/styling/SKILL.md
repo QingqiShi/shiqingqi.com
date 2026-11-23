@@ -5,7 +5,7 @@ description: How to build a screen and how to style in this project, and where i
 
 # Styling
 
-`apps/web`, `apps/finance`, `apps/assistant`, `apps/trip-planner` and `packages/ui` style with StyleX through a `css` prop.
+`apps/web`, `apps/finance`, `apps/assistant`, `apps/trip-planner`, `apps/fund` and `packages/ui` style with StyleX through a `css` prop.
 
 Import paths below are `@tuja/ui` package exports. Inside `packages/ui`, import the same files by relative path.
 

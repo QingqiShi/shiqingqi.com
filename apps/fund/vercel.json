@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "if [ \"$VERCEL_ENV\" = preview ] || [ \"$VERCEL_ENV\" = production ]; then pnpm fund:migrate; fi && turbo run build",
+  "ignoreCommand": "sh ../../scripts/vercel-ignore-build.sh",
+  "regions": ["lhr1"],
+  "crons": [
+    {
+      "path": "/api/cron/morning-meeting",
+      "schedule": "*/15 5-6 * * 1-5"
+    }
+  ]
+}

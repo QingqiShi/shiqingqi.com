@@ -392,6 +392,7 @@ export default defineConfig([
       "apps/assistant/src/**",
       "apps/buddy/src/**",
       "apps/trip-planner/src/**",
+      "apps/fund/src/**",
       "packages/auth-ui/src/**",
       "packages/ui/src/**",
     ],
@@ -402,6 +403,7 @@ export default defineConfig([
       "apps/assistant/src/testing/**",
       "apps/buddy/src/testing/**",
       "apps/trip-planner/src/testing/**",
+      "apps/fund/src/testing/**",
       "packages/ui/src/test-setup.ts",
       "packages/ui/src/test-support/**",
     ],
@@ -441,6 +443,7 @@ export default defineConfig([
       "apps/assistant/src/**/*.{ts,tsx}",
       "apps/buddy/src/**/*.{ts,tsx}",
       "apps/trip-planner/src/**/*.{ts,tsx}",
+      "apps/fund/src/**/*.{ts,tsx}",
     ],
     ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],
     rules: {
@@ -651,6 +654,7 @@ export default defineConfig([
       "apps/assistant/src/**/*.stylex.ts",
       "apps/buddy/src/**/*.stylex.ts",
       "apps/trip-planner/src/**/*.stylex.ts",
+      "apps/fund/src/**/*.stylex.ts",
     ],
     rules: {
       "@tuja/only-stylex-exports": "error",
@@ -881,7 +885,7 @@ export default defineConfig([
   // Dev tools, import scripts and the IndexedDB of Finance are not in scope.
   {
     files: [
-      "apps/{trip-planner,buddy,finance}/src/**/*.{ts,tsx}",
+      "apps/{trip-planner,buddy,finance,fund}/src/**/*.{ts,tsx}",
       "apps/assistant/src/assistant/{auth,db}/**/*.ts",
       "apps/assistant/src/assistant/http/{assistant-proxy,make-user-cron-handler}.ts",
       "apps/assistant/src/app/api/cron/*/route.ts",
