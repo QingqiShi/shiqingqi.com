@@ -1,12 +1,11 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { parseArgs } from "node:util";
-import { loadEnvConfig } from "@next/env";
 import { isPortOpen } from "./is-port-open.ts";
+import { localDatabaseUrl } from "./local-database-url.ts";
 import { readPortOption } from "./read-cli-options.ts";
+import { readNextDevEnv } from "./read-next-dev-env.ts";
 
 const STOP_SIGNALS = ["SIGINT", "SIGTERM", "SIGHUP"] as const;
-
-type Env = Partial<Record<string, string>>;
 
 interface LocalDb {
   close: () => Promise<void>;
@@ -27,29 +26,6 @@ interface LocalDbOptions {
   seed: (databaseUrl: string) => Promise<void>;
   /** Values for the command with the local database, for each variable that the developer did not set. */
   localEnv?: Record<string, string>;
-}
-
-function localDatabaseUrl(port: number): string {
-  return `postgres://postgres:postgres@127.0.0.1:${String(port)}/postgres`;
-}
-
-/** The environment that `next dev` sees: the shell's variables, then the values in the env files. */
-function readNextDevEnv(appDir: string): Env {
-  const shellEnv = { ...process.env };
-  const { parsedEnv } = loadEnvConfig(
-    appDir,
-    true,
-    { info: () => {}, error: console.error },
-    true,
-  );
-  // loadEnvConfig writes into process.env, removes empty values, and marks
-  // process.env as loaded. Put back the shell's environment, so that the
-  // command gets it and loads the env files itself.
-  for (const name of Object.keys(process.env)) {
-    if (!(name in shellEnv)) Reflect.deleteProperty(process.env, name);
-  }
-  Object.assign(process.env, shellEnv);
-  return { ...parsedEnv, ...shellEnv };
 }
 
 function waitForExit(child: ChildProcess): Promise<number> {

@@ -1,0 +1,144 @@
+{
+  "quoteCurrency": "GBp",
+  "price": 452.6,
+  "marketCap": 9364531200,
+  "financialCurrency": "GBP",
+  "forwardEps": 0.36377,
+  "pegRatio": 0.66,
+  "dividendYield": 0.0092,
+  "returnOnEquity": 0.16087,
+  "profitMargin": 0.02805,
+  "revenueGrowth": 0.154,
+  "earningsGrowth": 41,
+  "debtToEquityPct": 102.855,
+  "analystTargetMean": 497.053,
+  "analystRecommendation": "buy",
+  "earningsDates": ["2026-11-04T16:30:00.000Z"],
+  "exDividendDate": "2026-11-26T00:00:00.000Z",
+  "quarterly": [
+    {
+      "periodEnd": "2025-03-31",
+      "dilutedEps": null,
+      "revenue": null,
+      "netIncome": null,
+      "dilutedShares": null,
+      "freeCashFlow": null,
+      "ebitda": null,
+      "totalDebt": 2944500000,
+      "cash": 1148700000,
+      "commonStockEquity": 2820600000
+    },
+    {
+      "periodEnd": "2026-03-31",
+      "dilutedEps": null,
+      "revenue": null,
+      "netIncome": null,
+      "dilutedShares": null,
+      "freeCashFlow": null,
+      "ebitda": null,
+      "totalDebt": 3419400000,
+      "cash": 1004200000,
+      "commonStockEquity": 3056100000
+    },
+    {
+      "periodEnd": "2026-09-30",
+      "dilutedEps": null,
+      "revenue": null,
+      "netIncome": null,
+      "dilutedShares": null,
+      "freeCashFlow": null,
+      "ebitda": null,
+      "totalDebt": 3505500000,
+      "cash": 1037900000,
+      "commonStockEquity": 3242100000
+    }
+  ],
+  "annual": [
+    {
+      "periodEnd": "2023-03-31",
+      "dilutedEps": 0.179,
+      "revenue": 11931300000,
+      "netIncome": 363400000,
+      "dilutedShares": 2033900000,
+      "freeCashFlow": 619600000,
+      "ebitda": 1246700000,
+      "totalDebt": 3628000000,
+      "cash": 1075300000,
+      "commonStockEquity": 2676400000
+    },
+    {
+      "periodEnd": "2024-03-31",
+      "dilutedEps": 0.208,
+      "revenue": 13040100000,
+      "netIncome": 431200000,
+      "dilutedShares": 2075900000,
+      "freeCashFlow": 872400000,
+      "ebitda": 1417900000,
+      "totalDebt": 3133200000,
+      "cash": 1034700000,
+      "commonStockEquity": 2711700000
+    },
+    {
+      "periodEnd": "2025-03-31",
+      "dilutedEps": 0.14,
+      "revenue": 13816800000,
+      "netIncome": 295700000,
+      "dilutedShares": 2110700000,
+      "freeCashFlow": 806100000,
+      "ebitda": 1542000000,
+      "totalDebt": 2944500000,
+      "cash": 1148700000,
+      "commonStockEquity": 2820600000
+    },
+    {
+      "periodEnd": "2026-03-31",
+      "dilutedEps": 0.123,
+      "revenue": 17273600000,
+      "netIncome": 259400000,
+      "dilutedShares": 2115300000,
+      "freeCashFlow": 548900000,
+      "ebitda": 1310400000,
+      "totalDebt": 3419400000,
+      "cash": 1004200000,
+      "commonStockEquity": 3056100000
+    }
+  ],
+  "trailing": [
+    {
+      "periodEnd": "2025-03-31",
+      "dilutedEps": 0.14,
+      "revenue": 13816800000,
+      "netIncome": 295700000,
+      "dilutedShares": 2110700000,
+      "freeCashFlow": 806100000,
+      "ebitda": 1489500000,
+      "totalDebt": null,
+      "cash": null,
+      "commonStockEquity": null
+    },
+    {
+      "periodEnd": "2026-03-31",
+      "dilutedEps": 0.123,
+      "revenue": null,
+      "netIncome": null,
+      "dilutedShares": 2115300000,
+      "freeCashFlow": null,
+      "ebitda": null,
+      "totalDebt": null,
+      "cash": null,
+      "commonStockEquity": null
+    },
+    {
+      "periodEnd": "2026-09-30",
+      "dilutedEps": 12.423,
+      "revenue": 18499900000,
+      "netIncome": 519000000,
+      "dilutedShares": 2113700000,
+      "freeCashFlow": 867800000,
+      "ebitda": 1577900000,
+      "totalDebt": null,
+      "cash": null,
+      "commonStockEquity": null
+    }
+  ]
+}
