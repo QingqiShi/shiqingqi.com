@@ -387,8 +387,8 @@ importers:
         specifier: ^5.5.8
         version: 5.5.8(next@16.4.6(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))
       npm-run-all2:
-        specifier: ^9.0.4
-        version: 9.0.4
+        specifier: ^9.1.0
+        version: 9.1.0
       pg-connection-string:
         specifier: ^2.14.1
         version: 2.14.1
@@ -559,8 +559,8 @@ importers:
         specifier: ^5.5.8
         version: 5.5.8(next@16.4.6(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))
       npm-run-all2:
-        specifier: ^9.0.4
-        version: 9.0.4
+        specifier: ^9.1.0
+        version: 9.1.0
       pg-connection-string:
         specifier: ^2.14.1
         version: 2.14.1
@@ -800,8 +800,8 @@ importers:
         specifier: ^5.5.8
         version: 5.5.8(next@16.4.6(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))
       npm-run-all2:
-        specifier: ^9.0.4
-        version: 9.0.4
+        specifier: ^9.1.0
+        version: 9.1.0
       pg-connection-string:
         specifier: ^2.14.1
         version: 2.14.1
@@ -984,8 +984,8 @@ importers:
         specifier: ^5.5.8
         version: 5.5.8(next@16.4.6(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))
       npm-run-all2:
-        specifier: ^9.0.4
-        version: 9.0.4
+        specifier: ^9.1.0
+        version: 9.1.0
       postcss-flexbugs-fixes:
         specifier: ^5.0.2
         version: 5.0.2(postcss@8.5.28)
@@ -1198,8 +1198,8 @@ importers:
         specifier: ^5.5.8
         version: 5.5.8(next@16.4.6(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))
       npm-run-all2:
-        specifier: ^9.0.4
-        version: 9.0.4
+        specifier: ^9.1.0
+        version: 9.1.0
       openapi-typescript:
         specifier: ^7.13.0
         version: 7.13.0(@typescript/typescript6@6.0.2)
@@ -4989,12 +4989,12 @@ packages:
     resolution: {integrity: sha512-4Dj6M28JB+oAH8kFkTLUo+a2jwOFkuqb3yucU0CANcRRUbxS0cP0nZYCGjcc3BNXwRIsUVmDGgzawme7zvJHvg==}
     engines: {node: '>=12'}
 
-  ansi-styles@7.0.0:
-    resolution: {integrity: sha512-kKvt3m4uwzqL0wlkPd09CmljPJGOZZ4D0fP65sqFSvPkMRKhNi+74MgIJ5QxE6SxqB4t4KyUFGg8+n5zjo6hew==}
-    engines: {node: '>=22'}
-
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
+
+  argsclopts@1.1.1:
+    resolution: {integrity: sha512-6WxZv61e68WtkWfKkZSMJ85ErP5DKMr2O8J9cJ9AF/55fAJKq4PzPyVCmP26LGqtqyYhbLcZCAwlUiACYl0sZQ==}
+    engines: {node: ^22.13.0 || >=24, npm: '>=10'}
 
   aria-query@5.3.0:
     resolution: {integrity: sha512-b0P0sZPKtyu8HkeRAfCq0IfURZK+SuwMjY1UXGBU27wpAiTwQAIlq56IbIO+ytk/JjS1fMR14ee5WBBfKi5J6A==}
@@ -6650,10 +6650,6 @@ packages:
   mdn-data@2.37.2:
     resolution: {integrity: sha512-rz9YOBGItdSbe7HcSArUbhiAv4SB/4DKRYg96CSFS2CcIYMbUvBtZlzA1NCbk2AdgbmYwMqwNblLpR441lLeiQ==}
 
-  memorystream@0.3.1:
-    resolution: {integrity: sha512-S3UwM3yj5mtUSEfP41UZmt/0SCoVYUcU1rkXv+BQ5Ig8ndL4sPoJNBUJERafdPb5jjHJGuMgytgKvKIf58XNBw==}
-    engines: {node: '>= 0.10.0'}
-
   meow@14.1.0:
     resolution: {integrity: sha512-EDYo6VlmtnumlcBCbh1gLJ//9jvM/ndXHfVXIFrZVr6fGcwTUyCTFNTLCKuY3ffbK8L/+3Mzqnd58RojiZqHVw==}
     engines: {node: '>=20'}
@@ -6895,8 +6891,8 @@ packages:
     resolution: {integrity: sha512-tdt4aFn9QamlhdN3HV2D2ccpBwO5/fyjjbXUxYA6uBjyekMZcZvDq0aSj9t5Jo+tih6AYFnt/cuIRn9013e0Uw==}
     engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0}
 
-  npm-run-all2@9.0.4:
-    resolution: {integrity: sha512-GuGRF8MddEKavyUzjy0k2z2pA76/N+eT8lHlypx0/AhShLKD2FOerQxHhpFhcqnQmAqCkunUCYlf6Z9RKh/4zg==}
+  npm-run-all2@9.1.0:
+    resolution: {integrity: sha512-zYpHPU7vMd/GeR1rRa4ZCd+Xt8/OdTSQELWeje6SE+amea/nWfyiYLj33h14G7w2odDzDH0sdXqBCrHgKSwjXA==}
     engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0, npm: '>= 10'}
     hasBin: true
 
@@ -11718,9 +11714,9 @@ snapshots:
 
   ansi-styles@6.2.3: {}
 
-  ansi-styles@7.0.0: {}
-
   argparse@2.0.1: {}
+
+  argsclopts@1.1.1: {}
 
   aria-query@5.3.0:
     dependencies:
@@ -13757,8 +13753,6 @@ snapshots:
 
   mdn-data@2.37.2: {}
 
-  memorystream@0.3.1: {}
-
   meow@14.1.0: {}
 
   merge-stream@2.0.0: {}
@@ -14113,11 +14107,10 @@ snapshots:
 
   npm-normalize-package-bin@6.0.0: {}
 
-  npm-run-all2@9.0.4:
+  npm-run-all2@9.1.0:
     dependencies:
-      ansi-styles: 7.0.0
+      argsclopts: 1.1.1
       cross-spawn: 7.0.6
-      memorystream: 0.3.1
       picomatch: 4.0.7
       pidtree: 1.0.0
       read-package-json-fast: 6.0.0
