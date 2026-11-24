@@ -30,7 +30,7 @@
     "time-zones:generate": "node --experimental-strip-types --no-warnings src/time-zones/generate-time-zone-table.ts"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^4.0.106",
+    "@ai-sdk/anthropic": "^4.0.107",
     "@phosphor-icons/react": "catalog:",
     "@serwist/next": "catalog:",
     "@stylexjs/stylex": "catalog:",
@@ -45,7 +45,7 @@
     "@tuja/server-email": "workspace:*",
     "@tuja/ui": "workspace:*",
     "@vercel/functions": "^3.11.3",
-    "ai": "^7.0.177",
+    "ai": "^7.0.179",
     "drizzle-orm": "^0.45.4",
     "esm-env": "catalog:",
     "next": "catalog:",
