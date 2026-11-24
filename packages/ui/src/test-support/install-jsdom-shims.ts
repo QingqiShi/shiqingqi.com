@@ -79,6 +79,8 @@ function createMediaQueryList(query: string): MediaQueryList {
  *   jsdom runs none. A test defines it on an element to run one there.
  * - `DOMMatrix`, defined only when missing, as the identity for any
  *   transform, because jsdom has no layout that a transform could move.
+ * - `Element.prototype.scrollIntoView`, defined only when missing, which
+ *   scrolls nothing, because jsdom has no layout to scroll.
  */
 export function installJsdomShims() {
   // jsdom does not implement the Pointer Capture API, which a press on a
@@ -103,6 +105,10 @@ export function installJsdomShims() {
   });
 
   Element.prototype.getAnimations = () => [];
+
+  if (typeof Element.prototype.scrollIntoView === "undefined") {
+    Element.prototype.scrollIntoView = () => {};
+  }
 
   if (typeof window.matchMedia === "undefined") {
     window.matchMedia = createMediaQueryList;
