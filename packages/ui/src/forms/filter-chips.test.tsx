@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { FilterChips } from "./filter-chips.tsx";
 
 function Harness() {
@@ -26,11 +26,6 @@ function Harness() {
 }
 
 describe("FilterChips", () => {
-  beforeAll(() => {
-    // jsdom has no layout, so it does not implement `scrollIntoView`.
-    Element.prototype.scrollIntoView = vi.fn();
-  });
-
   it("is one named group of radios, with the count in the chip's name", () => {
     render(<Harness />);
 

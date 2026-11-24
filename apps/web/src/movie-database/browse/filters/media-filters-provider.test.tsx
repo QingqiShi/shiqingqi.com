@@ -8,10 +8,8 @@ import { MediaTypeToggle } from "./media-type-toggle";
 import { useMediaFilters } from "./use-media-filters";
 
 const CLEARANCE_PX = "56px";
-const originalGetComputedStyle = window.getComputedStyle.bind(window);
 
-// jsdom lays out nothing, so scroll margin and element positions are stubbed
-// per test.
+// jsdom lays out nothing, so element positions are stubbed per test.
 afterEach(() => {
   vi.restoreAllMocks();
 });
@@ -57,16 +55,10 @@ function renderResultsAt(top: number) {
   );
   const results = screen.getByRole("button", { name: "Rating" }).parentElement;
   if (!results) throw new Error("The provider renders no results element");
+  results.style.scrollMarginBlockStart = CLEARANCE_PX;
   results.getBoundingClientRect = () => new DOMRect(0, top);
   const scrollIntoView = vi.fn();
   results.scrollIntoView = scrollIntoView;
-  vi.spyOn(window, "getComputedStyle").mockImplementation((element) =>
-    element === results
-      ? Object.assign(originalGetComputedStyle(element), {
-          scrollMarginBlockStart: CLEARANCE_PX,
-        })
-      : originalGetComputedStyle(element),
-  );
   return { scrollIntoView };
 }
 
