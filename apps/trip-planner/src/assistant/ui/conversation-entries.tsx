@@ -71,23 +71,19 @@ export function BackButton({
   );
 }
 
-/** What the person can do with the conversation as a whole. */
+/** What the person can do with the conversation as a whole, as icon buttons beside the title. */
 export function ConversationEntries({
   model,
   onScreen,
-  labelled,
 }: {
   model: TripAssistantModel;
   onScreen: (screen: AssistantScreen) => void;
-  /** Shows the words beside the icons, where there is room. */
-  labelled: boolean;
 }) {
   const isEmpty = model.transcript.length === 0;
   const entries = [
     {
       key: "new",
       label: t({ en: "New conversation", zh: "新对话" }),
-      short: t({ en: "New", zh: "新对话" }),
       icon: <NotePencilIcon weight="bold" />,
       disabled: isEmpty || model.isRunning || model.switching !== null,
       loading: model.switching === "new",
@@ -98,7 +94,6 @@ export function ConversationEntries({
     {
       key: "history",
       label: t({ en: "Earlier conversations", zh: "以前的对话" }),
-      short: t({ en: "Earlier", zh: "以前的对话" }),
       icon: <ClockCounterClockwiseIcon weight="bold" />,
       disabled: false,
       loading: false,
@@ -112,7 +107,6 @@ export function ConversationEntries({
         en: "What the assistant remembers",
         zh: "助手记住的内容",
       }),
-      short: t({ en: "Remembered", zh: "记住的内容" }),
       icon: <BookmarkSimpleIcon weight="bold" />,
       disabled: false,
       loading: false,
@@ -129,14 +123,12 @@ export function ConversationEntries({
           size="sm"
           look="ghost"
           icon={entry.icon}
-          aria-label={labelled ? undefined : entry.label}
+          aria-label={entry.label}
           title={entry.label}
           disabled={entry.disabled}
           loading={entry.loading}
           onClick={entry.onClick}
-        >
-          {labelled ? entry.short : undefined}
-        </Button>
+        />
       ))}
     </div>
   );

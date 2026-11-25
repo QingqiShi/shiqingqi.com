@@ -176,7 +176,7 @@ export function AssistantPromptField({
   onFocus?: () => void;
   /** The label and placeholder, in place of the one for a trip. */
   label?: string;
-  /** The hint in the empty field, where it says more than the label. */
+  /** The hint in the empty field, in place of the label, or of the short hint for a trip. */
   placeholder?: string;
   /** The text takes the full width, with "+" under it, for a prompt that leads a page. */
   stacked?: boolean;
@@ -192,6 +192,10 @@ export function AssistantPromptField({
     zh: "问问这趟行程，或者让助手修改",
   });
   const label = givenLabel ?? tripLabel;
+  const hint =
+    placeholder ??
+    givenLabel ??
+    t({ en: "Ask, or change the trip", zh: "询问或修改这趟行程" });
   const addLabel = t({ en: "Add photos or files", zh: "添加照片或文件" });
   const ownFileInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = filePickerRef ?? ownFileInputRef;
@@ -298,7 +302,7 @@ export function AssistantPromptField({
       <PromptField
         ref={fieldRef}
         label={label}
-        placeholder={placeholder ?? label}
+        placeholder={hint}
         value={model.draft}
         onValueChange={model.setDraft}
         onSubmit={() => {

@@ -55,6 +55,8 @@ export function SheetFrame({
   liftFrom,
   onProgress,
   title,
+  leading,
+  actions,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
 }: SheetFrameProps) {
@@ -250,14 +252,18 @@ export function SheetFrame({
                             <EffectCarrier value={region}>
                               {title !== undefined ? (
                                 <div ref={titleFlowRef} css={styles.titleRow}>
-                                  <Heading
-                                    level={2}
-                                    look="h3"
-                                    id={titleId}
-                                    css={styles.title}
-                                  >
-                                    {title}
-                                  </Heading>
+                                  <div css={styles.titleBar}>
+                                    {leading}
+                                    <Heading
+                                      level={2}
+                                      look="h3"
+                                      id={titleId}
+                                      css={styles.title}
+                                    >
+                                      {title}
+                                    </Heading>
+                                    {actions}
+                                  </div>
                                 </div>
                               ) : null}
                               <SheetRecedeContext value={null}>

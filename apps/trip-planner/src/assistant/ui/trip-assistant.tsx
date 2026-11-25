@@ -10,14 +10,8 @@ import {
   StickyControlGroup,
   StickyControls,
 } from "@tuja/ui/components/sticky-controls";
-import { row, stack } from "@tuja/ui/primitives/stack.stylex";
-import {
-  controlHeight,
-  controlSize,
-  layer,
-  rhythm,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
   useEffect,
   useRef,
@@ -60,7 +54,8 @@ interface AssistantPageProps {
   dockFieldRef: RefObject<TextControl | null>;
   /** The way back from a screen, or `null` on the conversation. */
   back: ReactNode;
-  onScreen: (screen: AssistantScreen) => void;
+  /** The buttons beside the title, or `null` on a screen. */
+  actions: ReactNode;
   content: ReactNode;
   prompt: ReactNode;
   children: ReactNode;
@@ -81,7 +76,7 @@ function AssistantPage({
   fieldRef,
   dockFieldRef,
   back,
-  onScreen,
+  actions,
   content,
   prompt,
   children,
@@ -130,21 +125,12 @@ function AssistantPage({
           onClose={onClose}
           closeLabel={closeLabel}
           title={title}
+          leading={back}
+          actions={actions}
           initialFocusRef={fieldRef}
           liftFrom={() => dockRef.current}
         >
           <div css={[stack.item, styles.sheetBody]}>
-            <div css={styles.sheetEntriesRow}>
-              <div css={[row.tight, styles.sheetEntries]}>
-                {back ?? (
-                  <ConversationEntries
-                    model={model}
-                    onScreen={onScreen}
-                    labelled
-                  />
-                )}
-              </div>
-            </div>
             {content}
             {prompt === null ? null : (
               <div css={styles.sheetPromptRow}>
@@ -238,6 +224,9 @@ export function TripAssistant({
   const back = isConversation ? null : (
     <BackButton screen={screen} onScreen={setScreen} />
   );
+  const actions = isConversation ? (
+    <ConversationEntries model={model} onScreen={setScreen} />
+  ) : null;
 
   return (
     <SideColumnLayout
@@ -247,15 +236,7 @@ export function TripAssistant({
       title={title}
       closeLabel={closeLabel}
       leading={back}
-      actions={
-        isConversation ? (
-          <ConversationEntries
-            model={model}
-            onScreen={setScreen}
-            labelled={false}
-          />
-        ) : null
-      }
+      actions={actions}
       column={content}
       footer={prompt}
       initialFocusRef={fieldRef}
@@ -273,7 +254,7 @@ export function TripAssistant({
           fieldRef={fieldRef}
           dockFieldRef={dockFieldRef}
           back={back}
-          onScreen={setScreen}
+          actions={actions}
           content={content}
           prompt={prompt}
         >
@@ -294,25 +275,6 @@ const styles = stylex.create({
   },
   sheetBody: {
     minBlockSize: "calc(100dvh - 10rem)",
-  },
-  // The entries stay under the sheet's title row while a long conversation
-  // scrolls. The sheet's title row ends at the height of its close button
-  // and a tight gap. For Safari on iOS, the sticky box is half as wide as
-  // the content, as the prompt row below does it.
-  sheetEntriesRow: {
-    position: "sticky",
-    insetBlockStart: `calc(${controlSize._9} + ${rhythm.tight})`,
-    zIndex: `calc(${layer.raised} - 1)`,
-    inlineSize: "50%",
-  },
-  sheetEntries: {
-    boxSizing: "border-box",
-    inlineSize: `calc(200% + 2 * ${space._3})`,
-    minBlockSize: controlHeight.sm,
-    marginInlineStart: `calc(-1 * ${space._3})`,
-    paddingInline: space._3,
-    paddingBlockEnd: rhythm.tight,
-    backgroundColor: color.card,
   },
   // Safari on iOS takes the colour of its toolbar from a sticky box that is
   // almost as wide as the screen, and the card moves this box past the
