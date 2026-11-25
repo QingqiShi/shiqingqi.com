@@ -104,11 +104,26 @@ type SheetLabelProps =
        * @zh 面板的标题。它与关闭按钮共用顶部一行，且不会延伸到按钮下方；它同时为对话框命名。内容在标题行下方滚动时，标题行停在卡片顶部，因此关闭按钮不会压在内容上。
        */
       title: ReactNode;
+      /**
+       * Before the title, in its row, such as a back button of size `sm`.
+       *
+       * @zh 标题之前、与标题同一行的内容，例如 size 为 sm 的返回按钮。
+       */
+      leading?: ReactNode;
+      /**
+       * After the title, before the close button: a few icon buttons of size
+       * `sm`. They stay in view with the title while the content scrolls.
+       *
+       * @zh 标题之后、关闭按钮之前的内容：几个 size 为 sm 的图标按钮。内容滚动时，它们与标题一起留在视野中。
+       */
+      actions?: ReactNode;
       "aria-label"?: undefined;
       "aria-labelledby"?: undefined;
     }
   | {
       title?: undefined;
+      leading?: undefined;
+      actions?: undefined;
       /**
        * Accessible name for the dialog.
        *
@@ -119,6 +134,8 @@ type SheetLabelProps =
     }
   | {
       title?: undefined;
+      leading?: undefined;
+      actions?: undefined;
       "aria-label"?: undefined;
       /**
        * Id of a visible element that names the dialog.

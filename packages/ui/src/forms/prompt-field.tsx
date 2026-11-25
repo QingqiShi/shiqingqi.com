@@ -63,9 +63,11 @@ interface PromptFieldProps {
    */
   onSubmit: () => void;
   /**
-   * Hint text shown while the field is empty.
+   * Hint text shown while the field is empty. Beside the action it stays on
+   * one line, and ends in an ellipsis where it has no room. With `tools` it
+   * wraps.
    *
-   * @zh 输入框为空时显示的提示文字。
+   * @zh 输入框为空时显示的提示文字。与操作按钮并排时保持一行，放不下时以省略号结尾；有 tools 时可以换行。
    */
   placeholder?: string;
   /**
@@ -159,6 +161,15 @@ export function PromptField({
   const fitToText = useEffectEvent(() => {
     const field = fieldRef.current;
     if (!multiline || !field) return;
+    // Above a keyboard on a small screen, twelve lines are more than the
+    // visitor sees. The field takes at most two fifths of the visible area,
+    // so that the action and what is above the field stay in view. A zoom
+    // does not change the limit.
+    const viewport = window.visualViewport;
+    const visible = viewport
+      ? viewport.height * viewport.scale
+      : window.innerHeight;
+    field.style.maxBlockSize = `min(${MAX_BLOCK_SIZE}, ${String(Math.round(visible * 0.4))}px)`;
     field.style.blockSize = "auto";
     field.style.blockSize = `${String(field.scrollHeight)}px`;
   });
@@ -168,11 +179,14 @@ export function PromptField({
   }, [value, multiline]);
 
   // The text wraps again when the width changes, and nothing else measures
-  // the field then.
+  // the field then. A keyboard changes only the visual viewport.
   useEffect(() => {
+    const viewport = window.visualViewport;
     window.addEventListener("resize", fitToText);
+    viewport?.addEventListener("resize", fitToText);
     return () => {
       window.removeEventListener("resize", fitToText);
+      viewport?.removeEventListener("resize", fitToText);
     };
   }, []);
 
@@ -204,7 +218,7 @@ export function PromptField({
     typeRole.control,
     typeModifier.verbatim,
     styles.field,
-    isStacked && styles.stackedField,
+    isStacked ? styles.stackedField : styles.rowField,
   ];
 
   return (
@@ -290,6 +304,7 @@ export function PromptField({
   );
 }
 
+const MAX_BLOCK_SIZE = "12lh";
 const MD_INSET = `calc((${controlHeight.md} - ${controlHeight.sm}) / 2 - ${border.size_1})`;
 const LG_INSET = `calc((${controlHeight.lg} - ${controlHeight.sm}) / 2 - ${border.size_1})`;
 
@@ -369,6 +384,16 @@ const styles = stylex.create({
       opacity: 1,
     },
   },
+  // Beside its action, the field is one line high while it is empty, so the
+  // hint stays on one line. A `textarea` wraps its hint by default, and
+  // Safari adds the lines of the hint to the height of the field.
+  rowField: {
+    "::placeholder": {
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+    },
+  },
   stackedRow: {
     flexDirection: "column",
     alignItems: "stretch",
@@ -398,9 +423,11 @@ const styles = stylex.create({
   singleLine: {
     textOverflow: "ellipsis",
   },
+  // As `fieldStyles.multiline`: a field fills each line.
   multiline: {
     resize: "none",
-    maxBlockSize: "12lh",
+    textWrap: "wrap",
+    maxBlockSize: MAX_BLOCK_SIZE,
     overflowY: "auto",
   },
 });

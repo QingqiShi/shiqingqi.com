@@ -12,7 +12,11 @@ import {
 
 const EDGE_GAP = space._2;
 const BOTTOM_GAP = `max(${EDGE_GAP}, env(safe-area-inset-bottom))`;
-const TOP_GAP = `calc(${space._7} + ${safeArea.blockStart})`;
+// The page shows above the card in this gap. Where the visible area is
+// short, as above a keyboard on a small screen, the gap is one twentieth of
+// that area, so that the card keeps the height for its content.
+const topGap = (visibleHeight: string) =>
+  `calc(min(${space._7}, ${visibleHeight} / 20) + ${safeArea.blockStart})`;
 const CLOSE_INSET = space._2;
 const CONTENT_INSET = space._3;
 // The close button is an md Button, so it is as tall as the md step.
@@ -144,7 +148,7 @@ export const styles = stylex.create({
   },
   cardFit: (visibleHeight: string) => ({
     maxBlockSize: {
-      default: `calc(${visibleHeight} - ${TOP_GAP} - ${BOTTOM_GAP})`,
+      default: `calc(${visibleHeight} - ${topGap(visibleHeight)} - ${BOTTOM_GAP})`,
       [breakpoints.md]: `calc(${visibleHeight} - 2 * ${space._8})`,
     },
   }),
@@ -229,19 +233,24 @@ export const styles = stylex.create({
   // clear of the button. The row covers the content that scrolls under it,
   // from edge to edge of the card, so the close button is never over a
   // field.
-  title: {
+  titleBar: {
     display: "flex",
     alignItems: "center",
+    gap: rhythm.tight,
     boxSizing: "border-box",
     inlineSize: `calc(200% + 2 * ${CONTENT_INSET})`,
     minBlockSize: `calc(${CLOSE_SIZE} + ${CLOSE_INSET} + ${rhythm.tight})`,
     marginInlineStart: `calc(-1 * ${CONTENT_INSET})`,
-    marginBlockEnd: 0,
     paddingBlockStart: CLOSE_INSET,
     paddingBlockEnd: rhythm.tight,
     paddingInlineStart: CONTENT_INSET,
     paddingInlineEnd: `calc(${CLOSE_INSET} + ${CLOSE_SIZE} + ${rhythm.tight})`,
     backgroundColor: color.card,
+  },
+  title: {
+    flexGrow: 1,
+    minInlineSize: 0,
+    marginBlockEnd: 0,
   },
   closeCorner: {
     position: "absolute",

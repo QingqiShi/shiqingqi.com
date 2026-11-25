@@ -163,9 +163,13 @@ export const fieldStyles = stylex.create({
       [pointer.canHover]: { default: null, ":disabled:hover": "transparent" },
     },
   },
+  // The page wraps its text `pretty`, and a field inherits that. In a field,
+  // it breaks a line before the line is full, and moves the lines above the
+  // caret while the person types. Thus a field fills each line.
   multiline: {
     resize: "vertical",
     blockSize: "auto",
+    textWrap: "wrap",
   },
   // Disable manual resize + hide the scrollbar while a textarea auto-grows.
   noResize: {
