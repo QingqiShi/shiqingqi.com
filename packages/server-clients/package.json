@@ -14,7 +14,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.107",
     "@upstash/ratelimit": "^2.2.1",
-    "@upstash/redis": "^1.40.0"
+    "@upstash/redis": "^1.41.0"
   },
   "devDependencies": {
     "@tuja/tsconfig": "workspace:*",
