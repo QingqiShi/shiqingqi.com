@@ -22,7 +22,7 @@
     "@vercel/analytics": "catalog:",
     "@vercel/speed-insights": "catalog:",
     "esm-env": "catalog:",
-    "posthog-js": "^1.451.2"
+    "posthog-js": "^1.453.2"
   },
   "devDependencies": {
     "@tuja/tsconfig": "workspace:*",
