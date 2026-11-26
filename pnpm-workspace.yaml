@@ -48,7 +48,7 @@ catalog:
   "@vercel/speed-insights": 2.1.0
   "@vitejs/plugin-react": ^6.3.0
   babel-plugin-react-compiler: 1.0.0
-  dotenv: ^18.0.9
+  dotenv: ^18.0.10
   esm-env: ^1.2.2
   eslint: ^10.15.0
   jsdom: ^31.0.1
