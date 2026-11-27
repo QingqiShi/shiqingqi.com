@@ -1,2 +1,5 @@
+# A crawler must read a page to find its noindex. Thus no page is disallowed
+# here: a disallowed page that has a link to it can stay in the index.
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /api/
