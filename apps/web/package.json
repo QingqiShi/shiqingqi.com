@@ -52,7 +52,7 @@
     "@tuja/server-clients": "workspace:*",
     "@tuja/tmdb-types": "workspace:*",
     "@tuja/ui": "workspace:*",
-    "@upstash/redis": "^1.41.0",
+    "@upstash/redis": "^1.41.1",
     "ai": "^7.0.179",
     "esm-env": "catalog:",
     "next": "catalog:",
