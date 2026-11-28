@@ -44,7 +44,7 @@
     "@phosphor-icons/react": "catalog:",
     "@serwist/next": "catalog:",
     "@stylexjs/stylex": "catalog:",
-    "@tanstack/react-query": "5.105.0",
+    "@tanstack/react-query": "5.108.4",
     "@tuja/analytics": "workspace:*",
     "@tuja/i18n": "workspace:*",
     "@tuja/next-links": "workspace:*",
