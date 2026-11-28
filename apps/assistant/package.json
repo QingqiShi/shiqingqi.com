@@ -27,7 +27,7 @@
     "assistant:session": "tsx src/assistant/dev/session/cli.ts --db-port $(node ../../scripts/get-worktree-port.mjs 2533) --app-port ${ASSISTANT_PORT:-$(node ../../scripts/get-worktree-port.mjs 300)}"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^4.0.107",
+    "@ai-sdk/anthropic": "^4.0.108",
     "@phosphor-icons/react": "catalog:",
     "@serwist/next": "catalog:",
     "@simplewebauthn/server": "^14.0.3",
@@ -42,7 +42,7 @@
     "@tuja/server-email": "workspace:*",
     "@tuja/ui": "workspace:*",
     "@vercel/functions": "^3.11.3",
-    "ai": "^7.0.179",
+    "ai": "^7.0.181",
     "drizzle-orm": "^0.45.4",
     "esm-env": "catalog:",
     "htmlparser2": "^12.0.0",
