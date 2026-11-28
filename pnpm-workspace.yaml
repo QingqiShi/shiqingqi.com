@@ -67,7 +67,7 @@ catalog:
   # `@typescript/native` alias and provides the fast `tsc` used by `build:tsc`.
   typescript: "npm:@typescript/typescript6@^6.0.2"
   "@typescript/native": "npm:typescript@^7.0.2"
-  typescript-eslint: ^8.73.0
+  typescript-eslint: ^8.74.0
   typegpu: ^0.12.11
   unplugin-typegpu: ^0.12.7
   vite: ^8.3.8
