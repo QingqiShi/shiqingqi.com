@@ -43,11 +43,11 @@ catalogs:
       specifier: ^0.3.1
       version: 0.3.1
     '@serwist/cli':
-      specifier: ^9.5.15
-      version: 9.5.15
+      specifier: ^9.6.0
+      version: 9.6.0
     '@serwist/next':
-      specifier: ^9.5.15
-      version: 9.5.15
+      specifier: ^9.6.0
+      version: 9.6.0
     '@stylexjs/babel-plugin':
       specifier: ^0.19.2
       version: 0.19.2
@@ -124,8 +124,8 @@ catalogs:
       specifier: ^2.7.2
       version: 2.7.2
     serwist:
-      specifier: ^9.5.15
-      version: 9.5.15
+      specifier: ^9.6.0
+      version: 9.6.0
     tsx:
       specifier: ^4.23.15
       version: 4.23.15
@@ -222,7 +222,7 @@ importers:
         version: 2.1.10(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@serwist/next':
         specifier: 'catalog:'
-        version: 9.5.15(@serwist/cli@9.5.15(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.6(@babel/core@8.1.3)(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))
+        version: 9.6.0(@serwist/cli@9.6.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.6(@babel/core@8.1.3)(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))
       '@simplewebauthn/server':
         specifier: ^14.0.3
         version: 14.0.3
@@ -294,7 +294,7 @@ importers:
         version: 19.3.1(react@19.3.1)
       serwist:
         specifier: 'catalog:'
-        version: 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
+        version: 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
       tsdav:
         specifier: 2.5.0
         version: 2.5.0(supports-color@10.2.2)
@@ -325,7 +325,7 @@ importers:
         version: 16.4.6
       '@serwist/cli':
         specifier: 'catalog:'
-        version: 9.5.15(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2)
+        version: 9.6.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2)
       '@stylexjs/postcss-plugin':
         specifier: ^0.19.2
         version: 0.19.2
@@ -596,7 +596,7 @@ importers:
         version: 2.1.10(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@serwist/next':
         specifier: 'catalog:'
-        version: 9.5.15(@serwist/cli@9.5.15(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.6(@babel/core@8.1.3)(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))
+        version: 9.6.0(@serwist/cli@9.6.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.6(@babel/core@8.1.3)(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))
       '@simplewebauthn/browser':
         specifier: ^14.0.0
         version: 14.0.0
@@ -692,7 +692,7 @@ importers:
         version: 4.18.24(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       serwist:
         specifier: 'catalog:'
-        version: 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
+        version: 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
       sharp:
         specifier: ^0.35.5
         version: 0.35.5(@types/node@26.6.6)
@@ -723,7 +723,7 @@ importers:
         version: 1.65.1
       '@serwist/cli':
         specifier: 'catalog:'
-        version: 9.5.15(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2)
+        version: 9.6.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2)
       '@stylexjs/postcss-plugin':
         specifier: ^0.19.2
         version: 0.19.2
@@ -837,7 +837,7 @@ importers:
         version: 2.1.10(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@serwist/next':
         specifier: 'catalog:'
-        version: 9.5.15(@serwist/cli@9.5.15(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.6(@babel/core@8.1.3)(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))
+        version: 9.6.0(@serwist/cli@9.6.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.6(@babel/core@8.1.3)(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))
       '@stylexjs/stylex':
         specifier: 'catalog:'
         version: 0.19.2
@@ -897,7 +897,7 @@ importers:
         version: 19.3.1(react@19.3.1)
       serwist:
         specifier: 'catalog:'
-        version: 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
+        version: 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -922,7 +922,7 @@ importers:
         version: 1.65.1
       '@serwist/cli':
         specifier: 'catalog:'
-        version: 9.5.15(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2)
+        version: 9.6.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2)
       '@stylexjs/postcss-plugin':
         specifier: ^0.19.2
         version: 0.19.2
@@ -1024,7 +1024,7 @@ importers:
         version: 2.1.10(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@serwist/next':
         specifier: 'catalog:'
-        version: 9.5.15(@serwist/cli@9.5.15(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.6(@babel/core@8.1.3)(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))
+        version: 9.6.0(@serwist/cli@9.6.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.6(@babel/core@8.1.3)(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))
       '@stylexjs/stylex':
         specifier: 'catalog:'
         version: 0.19.2
@@ -1090,7 +1090,7 @@ importers:
         version: 4.0.1
       serwist:
         specifier: 'catalog:'
-        version: 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
+        version: 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
       sharp:
         specifier: ^0.35.5
         version: 0.35.5(@types/node@26.6.6)
@@ -1121,7 +1121,7 @@ importers:
         version: 1.65.1
       '@serwist/cli':
         specifier: 'catalog:'
-        version: 9.5.15(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2)
+        version: 9.6.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2)
       '@stylexjs/postcss-plugin':
         specifier: ^0.19.2
         version: 0.19.2
@@ -1542,10 +1542,10 @@ importers:
     dependencies:
       '@serwist/next':
         specifier: 'catalog:'
-        version: 9.5.15(@serwist/cli@9.5.15(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.6(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2))
+        version: 9.6.0(@serwist/cli@9.6.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.6(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2))
       serwist:
         specifier: 'catalog:'
-        version: 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
+        version: 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
     devDependencies:
       '@tuja/tsconfig':
         specifier: workspace:*
@@ -4122,8 +4122,8 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@serwist/build@9.5.15':
-    resolution: {integrity: sha512-NnRRuYDKA5nwyM63g9TvwQqC+adPirQgzEviSmiXoVgs6fpRk4BfekUAuqGj5WLOvHhnYSJ8TnQyqByiEgKljQ==}
+  '@serwist/build@9.6.0':
+    resolution: {integrity: sha512-I+PTTYsR5JVH8VczXnPmIoRi24MXpg2ApKps4GCFg48vhcQ2n2TAvpQpiMrksf5f9AgvBzIjp8y5aYlkFEk27A==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       typescript: '>=5.0.0'
@@ -4131,8 +4131,8 @@ packages:
       typescript:
         optional: true
 
-  '@serwist/cli@9.5.15':
-    resolution: {integrity: sha512-Q+0aC9lNbs6tvdDOq7Q/KerKWk0SLqEZj6PS2B9rY9XQZo8PpcW6WkERKfKE1asrGo7gtwhsfO46OEoo/3TosA==}
+  '@serwist/cli@9.6.0':
+    resolution: {integrity: sha512-agJkBdfLSOf5mL98jr78GtAIn8xBhyxY4EnNLF68SYMuUq5rH/pLph10A2C4QaY5i708tRKNxtQlcUV5ESStZw==}
     engines: {node: '>=20.19.0 <21.0.0 || >= 21.7.0'}
     hasBin: true
     peerDependencies:
@@ -4141,11 +4141,11 @@ packages:
       esbuild:
         optional: true
 
-  '@serwist/next@9.5.15':
-    resolution: {integrity: sha512-z5jUbIT4LdQl3OV3qeTXV9gVnOXTxPguOeLHOMeqferP0xrrZjcDL+gNn62tfMa7qT0WwGoqBx0JNHd3rxWQAg==}
+  '@serwist/next@9.6.0':
+    resolution: {integrity: sha512-vBTKQCxD2KnV7vkG4+yQrJFTX0eIMRAjJ5GHyfwd46t4AGqwFKRN74LNmFpAPHxnZYLFfmzWG7gC+txG7X88WA==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      '@serwist/cli': ^9.5.15
+      '@serwist/cli': ^9.6.0
       next: '>=14.0.0'
       react: '>=18.0.0'
       typescript: '>=5.0.0'
@@ -4155,16 +4155,16 @@ packages:
       typescript:
         optional: true
 
-  '@serwist/utils@9.5.15':
-    resolution: {integrity: sha512-JhSSoiAfADr1Sn+zc9pdWjPL9WBqNe/3A99nkLj3yJRioqhR/p5WQovc1gJiDpptzAEJzB4qfFOObT0tsGf8Yw==}
+  '@serwist/utils@9.6.0':
+    resolution: {integrity: sha512-e4HdJE4tEeaaBh2ODOLIvqvb1aep2CZxJloah4puLAgx7l4jMwJutdr6zk3RmWbP12mJKjPMsGC28nWxHUtRAw==}
     peerDependencies:
       browserslist: '>=4'
     peerDependenciesMeta:
       browserslist:
         optional: true
 
-  '@serwist/webpack-plugin@9.5.15':
-    resolution: {integrity: sha512-uKQKQFscbOAXnQwGsT5P6A5gQaxH7EbDN0/O8s/sGENU6fXKKdBok3t8yWXB8zzas2uuhvURfi/bx85NOQIZhw==}
+  '@serwist/webpack-plugin@9.6.0':
+    resolution: {integrity: sha512-jtG23PLUOGmM58GklgmgChcDqapSFjHgnPqT/T+Lx3IE8j5mnrPJfJJJYFqHzkw3UMe/tx7VGtYimza7pxErVw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       typescript: '>=5.0.0'
@@ -4175,8 +4175,8 @@ packages:
       webpack:
         optional: true
 
-  '@serwist/window@9.5.15':
-    resolution: {integrity: sha512-OIfXK68StLcAP0eYxEQg5YtjhITdsijMsVmxuDyQL6+uIgXyY6eUAt2lvrKQcOIGbiX2Kma/nTYncWoLh0WjuA==}
+  '@serwist/window@9.6.0':
+    resolution: {integrity: sha512-7PKU0fCHZaug+O7a3TiKokH39VqVJRMpEduHIwZKNGXHbls3udh23D0l/yXpbhFVIsz/e8L7sZ7DIwZfeD95Hg==}
     peerDependencies:
       typescript: '>=5.0.0'
     peerDependenciesMeta:
@@ -7650,8 +7650,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  serwist@9.5.15:
-    resolution: {integrity: sha512-k//vx8zoecklv5d3KIIq1afVJOn91uhyj/k/9loEsAETHw/v3o3W7WdTnBrMGgJHZjC6OHPpOSgENprkROiFQw==}
+  serwist@9.6.0:
+    resolution: {integrity: sha512-uCKap2fCpZ+y30dcO1b3Z9BpStPjFaehWgH32msBy0rOvjBuGzDbb9mydH/oasd+B9LcFuEaGGcdhlDhZPIoYA==}
     peerDependencies:
       typescript: '>=5.0.0'
     peerDependenciesMeta:
@@ -10825,9 +10825,9 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@serwist/build@9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)':
+  '@serwist/build@9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)':
     dependencies:
-      '@serwist/utils': 9.5.15(browserslist@4.29.6)
+      '@serwist/utils': 9.6.0(browserslist@4.29.6)
       common-tags: 1.8.2
       glob: 14.0.6
       pretty-bytes: 6.1.1
@@ -10839,11 +10839,11 @@ snapshots:
     transitivePeerDependencies:
       - browserslist
 
-  '@serwist/cli@9.5.15(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2)':
+  '@serwist/cli@9.6.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2)':
     dependencies:
       '@inquirer/prompts': 8.7.2(@types/node@26.6.6)
-      '@serwist/build': 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
-      '@serwist/utils': 9.5.15(browserslist@4.29.6)
+      '@serwist/build': 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
+      '@serwist/utils': 9.6.0(browserslist@4.29.6)
       chalk: 6.0.1
       chokidar: 5.0.0
       common-tags: 1.8.2
@@ -10860,54 +10860,54 @@ snapshots:
       - browserslist
       - typescript
 
-  '@serwist/next@9.5.15(@serwist/cli@9.5.15(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.6(@babel/core@8.1.3)(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))':
+  '@serwist/next@9.6.0(@serwist/cli@9.6.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.6(@babel/core@8.1.3)(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))':
     dependencies:
-      '@serwist/build': 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
-      '@serwist/utils': 9.5.15(browserslist@4.29.6)
-      '@serwist/webpack-plugin': 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))
-      '@serwist/window': 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
+      '@serwist/build': 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
+      '@serwist/utils': 9.6.0(browserslist@4.29.6)
+      '@serwist/webpack-plugin': 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))
+      '@serwist/window': 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
       browserslist: 4.29.6
       glob: 14.0.6
       kolorist: 1.8.0
       next: 16.4.6(@babel/core@8.1.3)(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react: 19.3.1
       semver: 7.8.5
-      serwist: 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
+      serwist: 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
       zod: 4.6.7
     optionalDependencies:
-      '@serwist/cli': 9.5.15(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2)
+      '@serwist/cli': 9.6.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2)
       typescript: '@typescript/typescript6@6.0.2'
     transitivePeerDependencies:
       - webpack
 
-  '@serwist/next@9.5.15(@serwist/cli@9.5.15(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.6(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2))':
+  '@serwist/next@9.6.0(@serwist/cli@9.6.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.6(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2))':
     dependencies:
-      '@serwist/build': 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
-      '@serwist/utils': 9.5.15(browserslist@4.29.6)
-      '@serwist/webpack-plugin': 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(webpack@5.97.1(esbuild@0.28.2))
-      '@serwist/window': 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
+      '@serwist/build': 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
+      '@serwist/utils': 9.6.0(browserslist@4.29.6)
+      '@serwist/webpack-plugin': 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(webpack@5.97.1(esbuild@0.28.2))
+      '@serwist/window': 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
       browserslist: 4.29.6
       glob: 14.0.6
       kolorist: 1.8.0
       next: 16.4.6(@babel/core@8.1.3)(@opentelemetry/api@1.9.1)(@playwright/test@1.65.1)(@types/node@26.6.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react: 19.3.1
       semver: 7.8.5
-      serwist: 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
+      serwist: 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
       zod: 4.6.7
     optionalDependencies:
-      '@serwist/cli': 9.5.15(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2)
+      '@serwist/cli': 9.6.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(esbuild@0.28.2)
       typescript: '@typescript/typescript6@6.0.2'
     transitivePeerDependencies:
       - webpack
 
-  '@serwist/utils@9.5.15(browserslist@4.29.6)':
+  '@serwist/utils@9.6.0(browserslist@4.29.6)':
     optionalDependencies:
       browserslist: 4.29.6
 
-  '@serwist/webpack-plugin@9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))':
+  '@serwist/webpack-plugin@9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))':
     dependencies:
-      '@serwist/build': 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
-      '@serwist/utils': 9.5.15(browserslist@4.29.6)
+      '@serwist/build': 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
+      '@serwist/utils': 9.6.0(browserslist@4.29.6)
       pretty-bytes: 6.1.1
       zod: 4.6.7
     optionalDependencies:
@@ -10916,10 +10916,10 @@ snapshots:
     transitivePeerDependencies:
       - browserslist
 
-  '@serwist/webpack-plugin@9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(webpack@5.97.1(esbuild@0.28.2))':
+  '@serwist/webpack-plugin@9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)(webpack@5.97.1(esbuild@0.28.2))':
     dependencies:
-      '@serwist/build': 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
-      '@serwist/utils': 9.5.15(browserslist@4.29.6)
+      '@serwist/build': 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
+      '@serwist/utils': 9.6.0(browserslist@4.29.6)
       pretty-bytes: 6.1.1
       zod: 4.6.7
     optionalDependencies:
@@ -10928,10 +10928,10 @@ snapshots:
     transitivePeerDependencies:
       - browserslist
 
-  '@serwist/window@9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)':
+  '@serwist/window@9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)':
     dependencies:
       '@types/trusted-types': 2.0.7
-      serwist: 9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
+      serwist: 9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6)
     optionalDependencies:
       typescript: '@typescript/typescript6@6.0.2'
     transitivePeerDependencies:
@@ -14992,9 +14992,9 @@ snapshots:
 
   semver@7.8.6: {}
 
-  serwist@9.5.15(@typescript/typescript6@6.0.2)(browserslist@4.29.6):
+  serwist@9.6.0(@typescript/typescript6@6.0.2)(browserslist@4.29.6):
     dependencies:
-      '@serwist/utils': 9.5.15(browserslist@4.29.6)
+      '@serwist/utils': 9.6.0(browserslist@4.29.6)
       idb: 8.0.3
     optionalDependencies:
       typescript: '@typescript/typescript6@6.0.2'
