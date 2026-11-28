@@ -38,7 +38,7 @@ catalog:
   "@stylexjs/babel-plugin": ^0.19.2
   "@stylexjs/eslint-plugin": ^0.19.2
   "@stylexjs/stylex": ^0.19.2
-  "@testing-library/jest-dom": ^7.0.1
+  "@testing-library/jest-dom": ^8.0.0
   "@testing-library/react": ^16.3.3
   "@testing-library/user-event": ^14.6.13
   "@types/node": ^26.6.6
